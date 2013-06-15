@@ -1,0 +1,116 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{0C268918-73CB-46FB-93C8-87792CF351FA}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Mathematics</RootNamespace>
+    <AssemblyName>Mathematics</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AlgebraicStructures\Implementations\IntegerRing.cs" />
+    <Compile Include="AlgebraicStructures\LogicInterfaces\IEuclideanDomain.cs" />
+    <Compile Include="AlgebraicStructures\LogicInterfaces\IField.cs" />
+    <Compile Include="AlgebraicStructures\LogicInterfaces\IGroup.cs" />
+    <Compile Include="AlgebraicStructures\LogicInterfaces\IMonoid.cs" />
+    <Compile Include="AlgebraicStructures\LogicInterfaces\IMultipliable.cs" />
+    <Compile Include="AlgebraicStructures\LogicInterfaces\IRing.cs" />
+    <Compile Include="AlgebraicStructures\LogicInterfaces\ISemigroup.cs" />
+    <Compile Include="AlgebraicStructures\MultiDimensionalRange\AMultiDimensionalRangeParser.cs" />
+    <Compile Include="AlgebraicStructures\MultiDimensionalRange\MultiDimensionalRange.cs" />
+    <Compile Include="AlgebraicStructures\MultiDimensionalRange\MultiDimensionalRangeConfigParser.cs" />
+    <Compile Include="AlgebraicStructures\MultiDimensionalRange\MultiDimensionalRangeNoConfigParser.cs" />
+    <Compile Include="AlgebraicStructures\MultiDimensionalRange\MultidimensionalRangeParserMementoManager.cs" />
+    <Compile Include="AlgebraicStructures\Polynomial\DegreeEqualityComparer.cs" />
+    <Compile Include="AlgebraicStructures\Polynomial\Polynomial.cs" />
+    <Compile Include="AlgebraicStructures\Polynomial\PolynomialGeneralVariable.cs" />
+    <Compile Include="Algorithms\IAlgorithm.cs" />
+    <Compile Include="Algorithms\IAlgorithmContract.cs" />
+    <Compile Include="Algorithms\Matrix\IMatrixColumn.cs" />
+    <Compile Include="Algorithms\MathFunctions.cs" />
+    <Compile Include="Algorithms\Matrix\ArrayMatrix\ArrayMatrix.cs" />
+    <Compile Include="Algorithms\Matrix\ArrayMatrix\ArrayMatrixRow.cs" />
+    <Compile Include="Algorithms\Matrix\ImatrixSet.cs" />
+    <Compile Include="Algorithms\Matrix\MatrixReader\SparseMatrixReader.cs" />
+    <Compile Include="Algorithms\Matrix\MatrixSet.cs" />
+    <Compile Include="Algorithms\Matrix\SparseDictionaryMatrix\SparseDictionaryMatrix.cs" />
+    <Compile Include="Algorithms\Matrix\SparseDictionaryMatrix\SparseDictionaryMatrixRow.cs" />
+    <Compile Include="Algorithms\Transportation\MaxDoubleNumberField.cs" />
+    <Compile Include="Algorithms\Transportation\TransportationMatrixTreeNode.cs" />
+    <Compile Include="Algorithms\Transportation\TransportationProblemDouble.cs" />
+    <Compile Include="MathematicsException.cs" />
+    <Compile Include="Algorithms\Matrix\IMatrix.cs" />
+    <Compile Include="Algorithms\Matrix\IMatrixRow.cs" />
+    <Compile Include="MathematicsInterpreter\EMathematicsInterpreterStatus.cs" />
+    <Compile Include="MathematicsInterpreter\EScopeType.cs" />
+    <Compile Include="MathematicsInterpreter\ExpressionInterpreterException.cs" />
+    <Compile Include="MathematicsInterpreter\MathematicsInterpreter.cs" />
+    <Compile Include="MathematicsInterpreter\MathematicsInterpreterMediator.cs" />
+    <Compile Include="MathematicsInterpreter\MathematicsInterpreterResult.cs" />
+    <Compile Include="MathematicsInterpreter\MathematicsObjectParser.cs" />
+    <Compile Include="MathematicsInterpreter\MathematicsObjects\AMathematicsConditionObject.cs" />
+    <Compile Include="MathematicsInterpreter\MathematicsObjects\AMathematicsFunctionObject.cs" />
+    <Compile Include="MathematicsInterpreter\MathematicsObjects\AMathematicsObject.cs" />
+    <Compile Include="MathematicsInterpreter\MathematicsObjects\AssignMathematicsObject.cs" />
+    <Compile Include="MathematicsInterpreter\MathematicsObjects\BooleanConditionMathematicsObject.cs" />
+    <Compile Include="MathematicsInterpreter\MathematicsObjects\BooleanMathematicsObject.cs" />
+    <Compile Include="MathematicsInterpreter\MathematicsObjects\DoubleMathematicsObject.cs" />
+    <Compile Include="MathematicsInterpreter\MathematicsObjects\EMathematicsConditionType.cs" />
+    <Compile Include="MathematicsInterpreter\MathematicsObjects\EMathematicsType.cs" />
+    <Compile Include="MathematicsInterpreter\MathematicsObjects\EmptyMathematicsObject.cs" />
+    <Compile Include="MathematicsInterpreter\MathematicsObjects\IntegerMathematicsObject.cs" />
+    <Compile Include="MathematicsInterpreter\MathematicsObjects\NameMathematicsObject.cs" />
+    <Compile Include="MathematicsInterpreter\MathematicsObjects\StringMathematicsObject.cs" />
+    <Compile Include="MathematicsInterpreter\ScopeDefinition.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Utilities\Utilities.csproj">
+      <Project>{301A8CA6-8B0D-40B5-A6AC-0671FE9EE74D}</Project>
+      <Name>Utilities</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Algorithms\Simplex\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

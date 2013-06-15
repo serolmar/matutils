@@ -1,0 +1,107 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Utilities.Parsers.CharSymbolReader" Collapsed="true">
+    <Position X="1.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>SAADIAAAACAEAAFAAAAAQAAAACAAAACAAAJgIAAAAAA=</HashCode>
+      <FileName>Parsers\CharSymbolReader.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Utilities.Parsers.ExpressionReaderException" Collapsed="true">
+    <Position X="3" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Parsers\ExpressionReaderException.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Utilities.Parsers.CppCompliantCharSymbolReaderBuilder" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="6" Y="4.5" Width="3" />
+    <TypeIdentifier>
+      <HashCode>AAAAIAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Parsers\CppCompliantCharSymbolReaderBuilder.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Utilities.Parsers.CompoundDelimiter&lt;ObjType&gt;" Collapsed="true">
+    <Position X="3" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAABAgAAAAAAAAAAAAIAAAAAAAAAAAAg=</HashCode>
+      <FileName>Parsers\ExpressionReader.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Utilities.Parsers.ExpressionReader&lt;ObjType, InputReader&gt;" Collapsed="true">
+    <Position X="1.25" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAiBFAEIIAhhgEIBMAAEKKgAQIYAiAAIAAARnBgIAA=</HashCode>
+      <FileName>Parsers\ExpressionReader.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Utilities.Parsers.ExpressionReaderState&lt;InputReader&gt;" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="4.75" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAYIAAAAAEoAAAAAAAAAAAAIAAAAAAAAAAAAA=</HashCode>
+      <FileName>Parsers\ExpressionReader.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Utilities.Parsers.StringSymbol" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="1.25" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAgAEAAAAAAAEAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Parsers\StringSymbol.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Utilities.Parsers.StringSymbolReader" Collapsed="true">
+    <Position X="3" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>JAAhAAAiBQwUBARAACAUAACACCAAAAAAAIBBgBBIgAA=</HashCode>
+      <FileName>Parsers\StringSymbolReader.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Utilities.Parsers.SymbolReaderState" BaseTypeListCollapsed="true">
+    <Position X="10.25" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAYAAgAEAEoAAAAAAAAAAAAIAAAAAAAAAAAAA=</HashCode>
+      <FileName>Parsers\StringSymbolReader.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Struct Name="Utilities.Parsers.OperatorPrecedence&lt;TypeDelegate&gt;" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="1.25" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAABAAAAACAA=</HashCode>
+      <FileName>Parsers\ExpressionReader.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Struct>
+  <Interface Name="Utilities.Parsers.ReaderBuilder" Collapsed="true">
+    <Position X="3" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Parsers\CppCompliantCharSymbolReaderBuilder.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="Utilities.Parsers.IParse&lt;T&gt;" Collapsed="true">
+    <Position X="1.25" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Parsers\ExpressionReader.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Delegate Name="Utilities.Parsers.BinaryOperator&lt;ObjType&gt;">
+    <Position X="7.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Parsers\ExpressionReader.cs</FileName>
+    </TypeIdentifier>
+  </Delegate>
+  <Delegate Name="Utilities.Parsers.UnaryOperator&lt;ObjType&gt;" Collapsed="true">
+    <Position X="9.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Parsers\ExpressionReader.cs</FileName>
+    </TypeIdentifier>
+  </Delegate>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

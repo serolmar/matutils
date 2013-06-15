@@ -1,0 +1,98 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{301A8CA6-8B0D-40B5-A6AC-0671FE9EE74D}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Utilities</RootNamespace>
+    <AssemblyName>Utilities</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Collections\Affectations\CombinationAffector.cs" />
+    <Compile Include="Collections\Affectations\FastAfector.cs" />
+    <Compile Include="Collections\Affectations\GenericAffector.cs" />
+    <Compile Include="Collections\Affectations\PermutationAffector.cs" />
+    <Compile Include="Collections\Affectations\StructureAffector.cs" />
+    <Compile Include="Collections\Affectations\SwapPermutationsGenerator.cs" />
+    <Compile Include="Collections\BitList.cs" />
+    <Compile Include="Collections\CollectionsException.cs" />
+    <Compile Include="Collections\GeneralMapper.cs" />
+    <Compile Include="Collections\InjectiveMapper.cs" />
+    <Compile Include="Collections\InsertionSortedCollection.cs" />
+    <Compile Include="Collections\Interfaces\IIndexed.cs" />
+    <Compile Include="Collections\LispStyleList.cs" />
+    <Compile Include="ExpressionBuilders\BoolExpressionParser.cs" />
+    <Compile Include="Parsers\EStringSymbolReader.cs" />
+    <Compile Include="ExpressionBuilders\DoubleExpressionParser.cs" />
+    <Compile Include="ExpressionBuilders\IntegerExpressionParser.cs" />
+    <Compile Include="Parsers\ExpressionReader\EOperatorType.cs" />
+    <Compile Include="Parsers\ExpressionReader\ExpressionCompoundDelimiter.cs" />
+    <Compile Include="Parsers\ExpressionReader\OperatorDefinition.cs" />
+    <Compile Include="Parsers\ExpressionReader\SOperatorPrecedence.cs" />
+    <Compile Include="Parsers\IParse.cs" />
+    <Compile Include="Parsers\Simple Parsers\BoolParser.cs" />
+    <Compile Include="Parsers\CharSymbolReader.cs" />
+    <Compile Include="ExpressionBuilders\CppCompliantCharSymbolReaderBuilder.cs" />
+    <Compile Include="Parsers\Simple Parsers\DoubleParser.cs" />
+    <Compile Include="Parsers\ExpressionReader\ExpressionReader.cs" />
+    <Compile Include="Parsers\ExpressionReader\ExpressionReaderException.cs" />
+    <Compile Include="Parsers\Simple Parsers\IntegerParser.cs" />
+    <Compile Include="Parsers\StringSymbol.cs" />
+    <Compile Include="Parsers\StringSymbolReader.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StateMachine\DelegateDrivenState.cs" />
+    <Compile Include="StateMachine\DelegateStateImplementation.cs" />
+    <Compile Include="StateMachine\IMemento.cs" />
+    <Compile Include="StateMachine\IMementoOriginator.cs" />
+    <Compile Include="StateMachine\IState.cs" />
+    <Compile Include="StateMachine\ISymbol.cs" />
+    <Compile Include="StateMachine\MementoSymbolReader.cs" />
+    <Compile Include="StateMachine\StateMachine.cs" />
+    <Compile Include="StateMachine\SymbolReader.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Parsers\ParsersDiagram.cd" />
+    <None Include="StateMachine\StateMachine.cd" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
