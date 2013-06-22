@@ -55,7 +55,7 @@ namespace ConsoleTests
             return this.CreateInstance(arrayType, argumentTypes, args.ToArray());
         }
 
-        public string GetHelp()
+        public void PrintHelp(Command command)
         {
             throw new NotImplementedException();
         }

@@ -59,7 +59,7 @@ namespace ConsoleTests
                                 Type registeredType = null;
                                 if (!command.Sender.TryGetTypeForAlias(command.FunctionArgs[i], out registeredType))
                                 {
-                                    command.Writer.WriteLine("Type with alias {0} isn't registered yet.", command.FunctionArgs[1]);
+                                    command.Writer.WriteLine("Type with alias {0} isn't registered yet.", command.FunctionArgs[i]);
                                 }
                                 else
                                 {
@@ -84,7 +84,7 @@ namespace ConsoleTests
             return null;
         }
 
-        public string GetHelp()
+        public void PrintHelp(Command command)
         {
             throw new NotImplementedException();
         }

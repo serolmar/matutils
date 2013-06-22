@@ -7,17 +7,26 @@ namespace Mathematics.MathematicsInterpreter
 {
     class BooleanConditionMathematicsObject : AMathematicsConditionObject
     {
+        /// <summary>
+        /// The left condition object.
+        /// </summary>
         private AMathematicsObject leftObject;
 
+        /// <summary>
+        /// The right condition object.
+        /// </summary>
         private AMathematicsObject rightObject;
 
-        public BooleanConditionMathematicsObject(EMathematicsConditionType conditionType)
+        public BooleanConditionMathematicsObject(AMathematicsObject leftObject, AMathematicsObject rightObject, EMathematicsConditionType conditionType)
             : base(conditionType, EMathematicsType.CONDITION, false)
         {
             if (conditionType == EMathematicsConditionType.BOOLEAN_VALUE)
             {
                 throw new ExpressionInterpreterException("Condition must be binary.");
             }
+
+            this.leftObject = leftObject;
+            this.rightObject = rightObject;
         }
 
         public AMathematicsObject LeftObject

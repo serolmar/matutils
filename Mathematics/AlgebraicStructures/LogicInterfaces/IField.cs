@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Mathematics.AlgebraicStructures
+namespace Mathematics
 {
     public interface IField<T> : IRing<T>
     {

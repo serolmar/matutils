@@ -10,14 +10,24 @@ namespace ConsoleTests
         public object Invoke(Command command)
         {
             Dictionary<string, bool> exists = new Dictionary<string, bool>();
+            var firstArgument = string.Empty;
+            if (command.FunctionArgs.Length > 0)
+            {
+                firstArgument = command.FunctionArgs[0];
+            }
+
             foreach (var assembly in command.Sender.LoadedAssemblies)
             {
-                foreach (Type t in assembly.GetTypes())
+                if (string.IsNullOrEmpty(firstArgument) ||
+                    assembly.GetName().Name.Equals(firstArgument, StringComparison.CurrentCultureIgnoreCase))
                 {
-                    if (!exists.ContainsKey(t.FullName))
+                    foreach (Type t in assembly.GetTypes())
                     {
-                        command.Writer.WriteLine(t.FullName);
-                        exists.Add(t.FullName, true);
+                        if (!exists.ContainsKey(t.FullName))
+                        {
+                            command.Writer.WriteLine(t.FullName);
+                            exists.Add(t.FullName, true);
+                        }
                     }
                 }
             }
@@ -25,7 +35,7 @@ namespace ConsoleTests
             return null;
         }
 
-        public string GetHelp()
+        public void PrintHelp(Command command)
         {
             throw new NotImplementedException();
         }

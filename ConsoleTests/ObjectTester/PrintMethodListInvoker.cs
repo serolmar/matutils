@@ -43,7 +43,7 @@ namespace ConsoleTests
             return null;
         }
 
-        public string GetHelp()
+        public void PrintHelp(Command command)
         {
             throw new NotImplementedException();
         }

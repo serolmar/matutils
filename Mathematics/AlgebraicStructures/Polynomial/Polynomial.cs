@@ -1,4 +1,4 @@
-﻿namespace Mathematics.AlgebraicStructures.Polynomial
+﻿namespace Mathematics
 {
     using System;
     using System.Collections.Generic;
@@ -6,6 +6,11 @@
     using System.Text;
     using Algorithms;
 
+    /// <summary>
+    /// Class that represents a polynom.
+    /// </summary>
+    /// <typeparam name="T">The type of coefficients in polynom.</typeparam>
+    /// <typeparam name="R">The type of ring evaluator.</typeparam>
     public class Polynomial<T, R>
         where R : IRing<T>
     {
@@ -51,14 +56,6 @@
             if (string.IsNullOrWhiteSpace(var))
             {
                 throw new MathematicsException("Variables can't be null.");
-            }
-
-
-            if (!this.polynomialCoeffRing.Equals(
-                this.polynomialCoeffRing.MultiplicativeUnity,
-                coeff))
-            {
-                return;
             }
 
             var list = new List<int>();

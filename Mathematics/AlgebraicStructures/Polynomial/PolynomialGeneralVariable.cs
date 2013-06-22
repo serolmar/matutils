@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Mathematics.AlgebraicStructures.Polynomial
+namespace Mathematics
 {
     class PolynomialGeneralVariable<T,R>
         where R : IRing<T>

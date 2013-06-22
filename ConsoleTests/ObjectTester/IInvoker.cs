@@ -9,6 +9,6 @@
     {
         Object Invoke(Command command);
 
-        string GetHelp();
+        void PrintHelp(Command command);
     }
 }

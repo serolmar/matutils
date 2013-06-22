@@ -9,31 +9,43 @@ namespace ConsoleTests
     {
         public object Invoke(Command command)
         {
-            Type objType = null;
-            if (command.Sender.TryGetTypeForAlias(command.FunctionArgs[0], out objType))
+            if (command.FunctionArgs.Length != 3)
             {
-                Object obj = this.ReadVariableFromString(objType, command.FunctionArgs[1]);
-                if (obj == null)
-                {
-                    command.Writer.WriteLine("Value isn't of Built in type.");
-                }
-                else
-                {
-                    command.Sender.SetVariableValue(command.FunctionArgs[2], obj);
-                }
-
-                return obj;
+                command.Writer.WriteLine("Expecting three arguments.");
+                this.PrintHelp(command);
+                return null;
             }
             else
             {
-                command.Writer.WriteLine("The type " + command.FunctionArgs[0] + " is not registered.");
-                return null;
+                Type objType = null;
+                if (command.Sender.TryGetTypeForAlias(command.FunctionArgs[0], out objType))
+                {
+                    Object obj = this.ReadVariableFromString(objType, command.FunctionArgs[1]);
+                    if (obj == null)
+                    {
+                        command.Writer.WriteLine("Value isn't of Built in type.");
+                    }
+                    else
+                    {
+                        command.Sender.SetVariableValue(command.FunctionArgs[2], obj);
+                    }
+
+                    return obj;
+                }
+                else
+                {
+                    command.Writer.WriteLine("The type " + command.FunctionArgs[0] + " is not registered.");
+                    return null;
+                }
             }
         }
 
-        public string GetHelp()
+        public void PrintHelp(Command command)
         {
-            throw new NotImplementedException();
+            command.Writer.WriteLine("Usage: {0} [type alias] [variable name] [variable value]", command.Function);
+            command.Writer.WriteLine("[type alias]: the type alias of variable to be setted.");
+            command.Writer.WriteLine("[variable name]: the name of variable to be setted.");
+            command.Writer.WriteLine("[variable value]: the value to be setted.");
         }
 
         /// <summary>

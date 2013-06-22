@@ -43,6 +43,22 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ObjectTester\CallMethodInvoker.cs" />
+    <Compile Include="ObjectTester\Command.cs" />
+    <Compile Include="ObjectTester\CreateInstanceInvoker.cs" />
+    <Compile Include="ObjectTester\GetCommandsFromFileInvoker.cs" />
+    <Compile Include="ObjectTester\GetTypesInvoker.cs" />
+    <Compile Include="ObjectTester\IInvoker.cs" />
+    <Compile Include="ObjectTester\LoadAssemblyInvoker.cs" />
+    <Compile Include="ObjectTester\LoadMsCoreTypeInvoker.cs" />
+    <Compile Include="ObjectTester\LoadTypeInvoker.cs" />
+    <Compile Include="ObjectTester\MakeArrayInvoker.cs" />
+    <Compile Include="ObjectTester\ObjectTester.cs" />
+    <Compile Include="ObjectTester\PrintHelpInvoker.cs" />
+    <Compile Include="ObjectTester\PrintMethodListInvoker.cs" />
+    <Compile Include="ObjectTester\PrintRegisteredTypesInvoker.cs" />
+    <Compile Include="ObjectTester\PrintVariableInvoker.cs" />
+    <Compile Include="ObjectTester\SetVariableInvoker.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -56,6 +72,7 @@
       <Name>Utilities</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

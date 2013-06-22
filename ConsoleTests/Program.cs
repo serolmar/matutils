@@ -1,22 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using Utilities.ExpressionBuilders;
-using Mathematics;
-using Mathematics.Algorithms;
-using Mathematics.AlgebraicStructures;
-using Mathematics.AlgebraicStructures.Polynomial;
-using Utilities.Parsers;
-using Utilities.Collections.Affectations;
-using Mathematics.MathematicsInterpreter;
-
-namespace ConsoleTests
+﻿namespace ConsoleTests
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+    using System.Text;
+    using Utilities.ExpressionBuilders;
+    using Mathematics;
+    using Mathematics.Algorithms;
+    using Utilities.Parsers;
+    using Utilities.Collections.Affectations;
+    using Mathematics.MathematicsInterpreter;
+
     class Program
     {
         static void Main(string[] args)
+        {
+            var tester = new ObjectTester();
+            tester.Run(Console.In, Console.Out);
+        }
+
+        static void Test2()
         {
             Console.WriteLine("Please insert expression to be evaluated:");
             var interpreter = new MathematicsInterpreter();

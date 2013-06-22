@@ -5,7 +5,6 @@
     using System.IO;
     using System.Linq;
     using System.Text;
-    using AlgebraicStructures;
     using Utilities.Collections;
     using Utilities.Parsers;
 

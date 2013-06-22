@@ -53,6 +53,7 @@ namespace ConsoleTests
                                 break;
                             }
                         }
+
                         if (foudMatchConstructor)
                         {
                             List<Type> temporaryTypes = types.ToList();
@@ -60,6 +61,7 @@ namespace ConsoleTests
                             List<Object> temporary = this.GetVariableValues(command.FunctionArgs, command.Sender).ToList();
                             temporary.RemoveAt(0);
                             retObject = this.CreateInstance(myType, temporaryTypes.ToArray(), temporary.ToArray());
+                            return retObject;
                         }
                     }
                 }
@@ -77,7 +79,7 @@ namespace ConsoleTests
             return retObject;
         }
 
-        public string GetHelp()
+        public void PrintHelp(Command command)
         {
             throw new NotImplementedException();
         }
