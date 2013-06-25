@@ -59,6 +59,7 @@ namespace Utilities.Collections
                 {
                     throw new ArgumentOutOfRangeException("index");
                 }
+
                 LispStyleList<T> result = new LispStyleList<T>();
                 if (this.values[index].Elements == null)
                 {

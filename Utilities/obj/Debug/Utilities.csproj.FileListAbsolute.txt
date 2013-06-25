@@ -1,5 +1,0 @@
-C:\Users\Sérgio\Documents\Repositorio\matutils\Utilities\bin\Debug\Utilities.dll
-C:\Users\Sérgio\Documents\Repositorio\matutils\Utilities\bin\Debug\Utilities.pdb
-C:\Users\Sérgio\Documents\Repositorio\matutils\Utilities\obj\Debug\ResolveAssemblyReference.cache
-C:\Users\Sérgio\Documents\Repositorio\matutils\Utilities\obj\Debug\Utilities.dll
-C:\Users\Sérgio\Documents\Repositorio\matutils\Utilities\obj\Debug\Utilities.pdb

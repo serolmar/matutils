@@ -1,11 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Utilities.Parsers;
-
+﻿
 namespace Utilities.Parsers
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using Utilities.Parsers;
+
     /// <summary>
     /// Binary operator delegate.
     /// </summary>
@@ -78,7 +79,7 @@ namespace Utilities.Parsers
         /// <summary>
         /// The current readed value.
         /// </summary>
-        private string currentValue = string.Empty;
+        private List<ISymbol<string, string>> currentSymbolValues = new List<ISymbol<string,string>>();
 
         /// <summary>
         /// Intantiates a new instance of the <see cref="ExpressionReader"/> class.
@@ -495,7 +496,7 @@ namespace Utilities.Parsers
             if (this.IsExternalOpenDelimiter(readedSymbol.SymbolType))
             {
                 this.operatorStack.Push(new OperatorDefinition<string>(readedSymbol.SymbolType, EOperatorType.EXTERNAL_DELIMITER));
-                this.currentValue += readedSymbol.SymbolValue;
+                this.currentSymbolValues.Add(readedSymbol);
                 reader.Get();
                 return this.stateList[4];
             }
@@ -541,7 +542,7 @@ namespace Utilities.Parsers
                 throw new ExpressionReaderException("Unexpected end of expression.");
             }
             ISymbol<string, string> readedSymbol = reader.Peek();
-            this.currentValue = string.Empty;
+            this.currentSymbolValues.Clear();
             if (this.IsExpressionOpenDelimiter(readedSymbol.SymbolType))
             {
                 return this.stateList[0];
@@ -549,7 +550,7 @@ namespace Utilities.Parsers
             if (this.IsExternalOpenDelimiter(readedSymbol.SymbolType))
             {
                 this.operatorStack.Push(new OperatorDefinition<string>(readedSymbol.SymbolType, EOperatorType.EXTERNAL_DELIMITER));
-                this.currentValue += readedSymbol.SymbolValue;
+                this.currentSymbolValues.Add(readedSymbol);
                 reader.Get();
                 return this.stateList[4];
             }
@@ -565,7 +566,7 @@ namespace Utilities.Parsers
                 throw new ExpressionReaderException("Unexpected binary operator. Binary operators are forbidden after other operators.");
             }
 
-            this.currentValue += readedSymbol.SymbolValue;
+            this.currentSymbolValues.Add(readedSymbol);
             reader.Get();
             return this.stateList[5];
         }
@@ -653,7 +654,7 @@ namespace Utilities.Parsers
             }
             else if (this.IsExternalOpenDelimiter(readedSymbol.SymbolType))
             {
-                this.currentValue += readedSymbol.SymbolValue;
+                this.currentSymbolValues.Add(readedSymbol);
                 this.operatorStack.Push(new OperatorDefinition<string>(readedSymbol.SymbolType, EOperatorType.EXTERNAL_DELIMITER));
             }
             else if (this.IsExternalCloseDelimiter(readedSymbol.SymbolType))
@@ -673,10 +674,10 @@ namespace Utilities.Parsers
                     {
                         if (this.IsExternalCloseDelimiterFor(readedSymbol.SymbolType, delimiter.Symbol))
                         {
-                            this.currentValue += readedSymbol.SymbolValue;
+                            this.currentSymbolValues.Add(readedSymbol);
                             if (this.operatorStack.Count == 0)
                             {
-                                this.elementStack.Push(this.parser.Parse(new[] { new StringSymbol() { SymbolValue = this.currentValue, SymbolType = "from expression" } }));
+                                this.elementStack.Push(this.parser.Parse(this.currentSymbolValues.ToArray()));
                                 reader.Get();
                                 return this.stateList[3];
                             }
@@ -686,7 +687,7 @@ namespace Utilities.Parsers
                                 this.operatorStack.Push(nextStackedOperator);
                                 if (nextStackedOperator.OperatorType != EOperatorType.EXTERNAL_DELIMITER)
                                 {
-                                    this.elementStack.Push(this.parser.Parse(new[] { new StringSymbol() { SymbolValue = this.currentValue, SymbolType = "from expression" } }));
+                                    this.elementStack.Push(this.parser.Parse(this.currentSymbolValues.ToArray()));
                                     reader.Get();
                                     return this.stateList[3];
                                 }
@@ -705,7 +706,7 @@ namespace Utilities.Parsers
             }
             else
             {
-                this.currentValue += readedSymbol.SymbolValue;
+                this.currentSymbolValues.Add(readedSymbol);
             }
 
             reader.Get();
@@ -724,13 +725,13 @@ namespace Utilities.Parsers
             if (this.IsSequenceOpenDelimiter(readedSymbol.SymbolType))
             {
                 this.operatorStack.Push(new OperatorDefinition<string>(readedSymbol.SymbolType, EOperatorType.SEQUENCE_DELIMITER));
-                this.currentValue += readedSymbol.SymbolValue;
+                this.currentSymbolValues.Add(readedSymbol);
                 reader.Get();
                 return this.stateList[6];
             }
             else
             {
-                this.elementStack.Push(this.parser.Parse(new[] { new StringSymbol() { SymbolValue = this.currentValue, SymbolType = "from expression" } }));
+                this.elementStack.Push(this.parser.Parse(this.currentSymbolValues.ToArray()));
                 return this.stateList[3];
             }
         }
@@ -747,7 +748,7 @@ namespace Utilities.Parsers
             while (!this.IsSequenceCloseDelimiterFor(readedSymbol.SymbolType, delimiterType) && !reader.IsAtEOF())
             {
                 readedSymbol = reader.Get();
-                this.currentValue += readedSymbol.SymbolValue;
+                this.currentSymbolValues.Add(readedSymbol);
                 readedSymbol = reader.Peek();
             }
 
@@ -758,8 +759,8 @@ namespace Utilities.Parsers
             else
             {
                 readedSymbol = reader.Get();
-                this.currentValue += readedSymbol.SymbolValue;
-                this.elementStack.Push(this.parser.Parse(new[] { new StringSymbol() { SymbolValue = this.currentValue, SymbolType = "from expression" } }));
+                this.currentSymbolValues.Add(readedSymbol);
+                this.elementStack.Push(this.parser.Parse(this.currentSymbolValues.ToArray()));
                 return this.stateList[3];
             }
         }

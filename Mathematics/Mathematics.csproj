@@ -56,6 +56,8 @@
     <Compile Include="AlgebraicStructures\Polynomial\DegreeEqualityComparer.cs" />
     <Compile Include="AlgebraicStructures\Polynomial\Polynomial.cs" />
     <Compile Include="AlgebraicStructures\Polynomial\PolynomialGeneralVariable.cs" />
+    <Compile Include="AlgebraicStructures\Polynomial\PolynomialParser.cs" />
+    <Compile Include="AlgebraicStructures\Polynomial\SimplePolynomialParser.cs" />
     <Compile Include="Algorithms\IAlgorithm.cs" />
     <Compile Include="Algorithms\IAlgorithmContract.cs" />
     <Compile Include="Algorithms\Matrix\IMatrixColumn.cs" />

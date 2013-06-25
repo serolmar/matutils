@@ -1,7 +1,0 @@
-C:\Users\Sérgio\Documents\Repositorio\matutils\Mathematics\bin\Debug\Mathematics.dll
-C:\Users\Sérgio\Documents\Repositorio\matutils\Mathematics\bin\Debug\Mathematics.pdb
-C:\Users\Sérgio\Documents\Repositorio\matutils\Mathematics\bin\Debug\Utilities.dll
-C:\Users\Sérgio\Documents\Repositorio\matutils\Mathematics\bin\Debug\Utilities.pdb
-C:\Users\Sérgio\Documents\Repositorio\matutils\Mathematics\obj\Debug\ResolveAssemblyReference.cache
-C:\Users\Sérgio\Documents\Repositorio\matutils\Mathematics\obj\Debug\Mathematics.dll
-C:\Users\Sérgio\Documents\Repositorio\matutils\Mathematics\obj\Debug\Mathematics.pdb

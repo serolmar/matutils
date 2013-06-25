@@ -9,6 +9,17 @@ namespace Utilities.ExpressionBuilders
 {
     public class IntegerExpressionParser
     {
+        public int Parse(string valueToParse)
+        {
+            if (string.IsNullOrWhiteSpace(valueToParse))
+            {
+                throw new ExpressionReaderException("Error: no value provided.");
+            }
+
+            var stringReader = new StringReader(valueToParse);
+            return this.Parse(stringReader);
+        }
+
         public int Parse(TextReader reader)
         {
             var symbolReader = new StringSymbolReader(reader, false);

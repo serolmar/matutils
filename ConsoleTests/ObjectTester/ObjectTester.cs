@@ -248,10 +248,7 @@
                 if (customFunctions.ContainsKey(command.Function))
                 {
                     Object retVal = customFunctions[command.Function].Invoke(command);
-                    if (retVal == null)
-                    {
-                    }
-                    else
+                    if(retVal != null)
                     {
                         if (!instances.ContainsKey(command.RetValueVar))
                         {
@@ -265,8 +262,7 @@
                 }
                 else
                 {
-                    command.Writer.WriteLine("That's not an implemented function and object methods check is not implemented.");
-                    //TODO: Check and invoke objects methods
+                    command.Writer.WriteLine("Command not found: {0}", command.Function);
                 }
             }
             else
@@ -277,8 +273,7 @@
                 }
                 else
                 {
-                    command.Writer.WriteLine("That's not an implemented function and object methods check is not implemented.");
-                    //TODO: Check and invoke objects methods
+                    command.Writer.WriteLine("Command not found: {0}", command.Function);
                 }
             }
         }
@@ -297,7 +292,7 @@
         private Command GetCommandLine(string commandLine)
         {
             Command result = new Command() { Sender = this};
-            string[] commands = commandLine.Trim().Split();
+            string[] commands = this.ExplodeCommandLine(commandLine);
             if (commands.Length == 0)
             {
                 throw new FormatException("Empty command.");
@@ -396,6 +391,120 @@
             }
             result.FunctionArgs = readedArgs.ToArray();
             return result;
+        }
+
+        /// <summary>
+        /// Explodes the command line.
+        /// </summary>
+        /// <param name="commandLine">The command line to be exploded.</param>
+        /// <returns>The result.</returns>
+        private string[] ExplodeCommandLine(string commandLine)
+        {
+            var result = new List<string>();
+            List<string> temporaryCommands = new List<string>();
+            var exploded = commandLine.Trim().Split();
+            var i = 0;
+            while (i < exploded.Length)
+            {
+                var currentValue = exploded[i];
+                if (currentValue.StartsWith("\""))
+                {
+                    temporaryCommands.Clear();
+                    var currentCommand = exploded[i];
+                    var j = i;
+                    if (currentCommand.Length > 1 && currentCommand.EndsWith("\""))
+                    {
+                        result.Add(currentCommand.Trim(new[] { '\"' }));
+                        j = exploded.Length;
+                        ++i;
+                    }
+                    else
+                    {
+                        temporaryCommands.Add(exploded[j]);
+                        ++j;
+                        ++i;
+
+                        if (j == exploded.Length)
+                        {
+                            result.AddRange(temporaryCommands);
+                        }
+                    }
+
+                    while (j < exploded.Length)
+                    {
+                        currentCommand += " " + exploded[j];
+                        if (currentCommand.Length > 1 && currentCommand.EndsWith("\""))
+                        {
+                            result.Add(currentCommand.Trim(new[] { '\"' }));
+                            j = exploded.Length;
+                            ++i;
+                        }
+                        else
+                        {
+                            temporaryCommands.Add(exploded[j]);
+                            ++j;
+                            ++i;
+
+                            if (j == exploded.Length)
+                            {
+                                result.AddRange(temporaryCommands);
+                            }
+                        }
+                    }
+                }
+                else if (currentValue.StartsWith("'"))
+                {
+                    temporaryCommands.Clear();
+                    var currentCommand = exploded[i];
+                    var j = i;
+                    if (currentCommand.Length > 1 && currentCommand.EndsWith("\'"))
+                    {
+                        result.Add(currentCommand.Trim(new[] { '\'' }));
+                        j = exploded.Length;
+                        ++i;
+                    }
+                    else
+                    {
+                        temporaryCommands.Add(exploded[j]);
+                        ++j;
+                        ++i;
+
+                        if (j == exploded.Length)
+                        {
+                            result.AddRange(temporaryCommands);
+                        }
+                    }
+
+                    while (j < exploded.Length)
+                    {
+                        currentCommand += " " + exploded[j];
+                        if (currentCommand.Length > 1 && currentCommand.EndsWith("'"))
+                        {
+                            result.Add(currentCommand.Trim(new[] { '\'' }));
+                            j = exploded.Length;
+                            ++i;
+                        }
+                        else
+                        {
+                            temporaryCommands.Add(exploded[j]);
+                            ++j;
+                            ++i;
+
+                            if (j == exploded.Length)
+                            {
+                                result.AddRange(temporaryCommands);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    result.Add(currentValue);
+                    ++i;
+                }
+            }
+
+            return result.ToArray();
         }
 
         /// <summary>

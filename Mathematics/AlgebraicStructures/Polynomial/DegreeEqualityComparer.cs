@@ -57,7 +57,7 @@ namespace Mathematics
 
             if (secondState)
             {
-                if (firstEnumerator.Current != 0)
+                if (secondEnumerator.Current != 0)
                 {
                     return false;
                 }
