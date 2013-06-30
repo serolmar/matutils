@@ -23,8 +23,9 @@ namespace ConsoleTests
                     {
                         command.Writer.WriteLine("Assembly {0} not found in application domain. Trying to load from some dll.", command.FunctionArgs[0]);
                         assembly = AppDomain.CurrentDomain.Load(command.FunctionArgs[0]);
-                        command.Sender.LoadedAssemblies.Add(assembly);
                     }
+
+                    command.Sender.LoadedAssemblies.Add(assembly);
                 }
             }
 

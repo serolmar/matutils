@@ -73,6 +73,14 @@
     <Compile Include="Algorithms\Transportation\MaxDoubleNumberField.cs" />
     <Compile Include="Algorithms\Transportation\TransportationMatrixTreeNode.cs" />
     <Compile Include="Algorithms\Transportation\TransportationProblemDouble.cs" />
+    <Compile Include="Graph\Edge.cs" />
+    <Compile Include="Graph\EdgeListGraph.cs" />
+    <Compile Include="Graph\IEdge.cs" />
+    <Compile Include="Graph\IGraph.cs" />
+    <Compile Include="Graph\IGraphAlgorithms.cs" />
+    <Compile Include="Graph\INode.cs" />
+    <Compile Include="Graph\ITree.cs" />
+    <Compile Include="Graph\IVisitor.cs" />
     <Compile Include="MathematicsException.cs" />
     <Compile Include="Algorithms\Matrix\IMatrix.cs" />
     <Compile Include="Algorithms\Matrix\IMatrixRow.cs" />
