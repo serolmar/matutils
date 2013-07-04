@@ -7,24 +7,21 @@ namespace Mathematics
 {
     public interface ITree<NodeObjectType>
     {
-        NodeObjectType RootNode { get; }
+        /// <summary>
+        /// Obtém a raíz da árvore.
+        /// </summary>
+        ITreeNode<NodeObjectType> RootNode { get; }
 
         /// <summary>
-        /// Visita a árvore em pré-ordem.
+        /// Visita a árvore seguindo em primeiro lugar até às folhas.
         /// </summary>
-        /// <param name="visitor">O visitador de objectos.</param>
-        void PreOrderTreeTraveral(IVisitor<NodeObjectType> visitor);
+        /// <param name="visitor">O visitador.</param>
+        void DephSearchVisit(IVisitor<NodeObjectType> visitor);
 
         /// <summary>
-        /// Vista a árvore em ordem.
+        /// Visita a árvore segundo os níveis.
         /// </summary>
-        /// <param name="visitor">O visitador de objectos.</param>
-        void InOrderTreeTraversal(IVisitor<NodeObjectType> visitor);
-
-        /// <summary>
-        /// Vista a árvore em pós ordem.
-        /// </summary>
-        /// <param name="visistor">O visitador de objectos.</param>
-        void PostOrderTreeTraversal(IVisitor<NodeObjectType> visistor);
+        /// <param name="visitor">O visitador.</param>
+        void BreadthFirstVisit(IVisitor<NodeObjectType> visitor);
     }
 }

@@ -41,6 +41,9 @@ namespace Mathematics
             this.directed = directed;
         }
 
+        /// <summary>
+        /// Obtém um enumerador para o conjunto de vértices.
+        /// </summary>
         public IEnumerable<VertexType> Vertices
         {
             get
@@ -52,7 +55,54 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Obtém um enumerador para o conjunto de arestas.
+        /// </summary>
         public IEnumerable<IEdge<VertexType>> Edges
+        {
+            get
+            {
+                return this.edges;
+            }
+        }
+
+        /// <summary>
+        /// Obtém um valor indicando se o grafo é dirigido.
+        /// </summary>
+        public bool Directed
+        {
+            get
+            {
+                return this.directed;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o comparador de vértices associado ao grafo.
+        /// </summary>
+        internal IEqualityComparer<VertexType> VertexEqualityComparer
+        {
+            get
+            {
+                return this.vertexEqualityComparer;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o dicionário que contém os vértices e as arestas que daí saem.
+        /// </summary>
+        internal Dictionary<VertexType, List<IEdge<VertexType>>> VerticesDictionary
+        {
+            get
+            {
+                return this.vertices;
+            }
+        }
+
+        /// <summary>
+        /// Obtém a lista de arestas.
+        /// </summary>
+        internal List<IEdge<VertexType>> EdgesList
         {
             get
             {
@@ -120,6 +170,11 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Adiciona uma aresta ao grafo.
+        /// </summary>
+        /// <param name="initialVertex">O vértice inicial.</param>
+        /// <param name="finalVertex">O vértice final.</param>
         public void AddEdge(VertexType initialVertex, VertexType finalVertex)
         {
             if (initialVertex == null)
@@ -155,6 +210,10 @@ namespace Mathematics
 
         }
 
+        /// <summary>
+        /// Remove um vértice do grafo.
+        /// </summary>
+        /// <param name="vertex">O vértice a ser removido.</param>
         public void RemoveVertex(VertexType vertex)
         {
             List<IEdge<VertexType>> vertexEdge = null;
@@ -170,6 +229,11 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Remove o conjunto de arestas com origem num vértice e extremidade no outro.
+        /// </summary>
+        /// <param name="initialVertex">O vértice inicial.</param>
+        /// <param name="finalVertex">O vértice final.</param>
         public void RemoveEdges(VertexType initialVertex, VertexType finalVertex)
         {
             List<IEdge<VertexType>> initialVertexEdges = null;

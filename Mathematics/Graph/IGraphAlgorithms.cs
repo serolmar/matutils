@@ -10,16 +10,14 @@ namespace Mathematics
         /// <summary>
         /// Obtém a lista de ciclos simples de um grafo.
         /// </summary>
-        /// <param name="graph">O grafo.</param>
         /// <returns>A lista de ciclos simples.</returns>
-        List<List<IGraph<VertexType>>> GetCycles(IGraph<VertexType> graph);
+        List<List<IGraph<VertexType>>> GetCycles();
 
         /// <summary>
         /// Obtém o conjunto de componentes conexas de um grafo.
         /// </summary>
-        /// <param name="graph">O grafo.</param>
         /// <returns>A lista de componentes conexas.</returns>
-        List<IGraph<VertexType>> GetConnectedComponents(IGraph<VertexType> graph);
+        List<IGraph<VertexType>> GetConnectedComponents();
 
         /// <summary>
         /// Obtém uma árvore de cobertura mínima que se inicia num vértice.
