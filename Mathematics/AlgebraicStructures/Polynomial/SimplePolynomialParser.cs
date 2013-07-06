@@ -40,36 +40,42 @@
         /// </summary>
         /// <param name="symbolListToParse">A lista de símbolos para leitura.</param>
         /// <returns>O polinómio requerido.</returns>
-        public Polynomial<CoeffType, RingType> Parse(ISymbol<string, string>[] symbolListToParse)
+        public bool TryParse(ISymbol<string, string>[] symbolListToParse, out Polynomial<CoeffType, RingType> pol)
         {
             if (symbolListToParse.Length > 1)
             {
-                var errorBuilder = new StringBuilder();
-                errorBuilder.Append("Invalid polynomial term:");
-                foreach (var symbol in symbolListToParse)
-                {
-                    errorBuilder.AppendFormat(" {0}", symbol.SymbolValue);
-                }
-
-                throw new ExpressionReaderException(errorBuilder.ToString());
+                pol = null;
+                return false;
             }
             else
             {
                 var firstSymol = symbolListToParse[0];
                 if (string.IsNullOrWhiteSpace(firstSymol.SymbolValue))
                 {
-                    return new Polynomial<CoeffType, RingType>(this.coeffRing);
+                    pol = new Polynomial<CoeffType, RingType>(this.coeffRing);
+                    return true;
                 }
                 else
                 {
                     if (firstSymol.SymbolValue.Any(s => !char.IsLetter(s)))
                     {
-                        var parsedCoeff = this.coeffParser.Parse(new[] { firstSymol });
-                        return new Polynomial<CoeffType, RingType>(parsedCoeff, this.coeffRing);
+                        var parsedCoeff = default(CoeffType);
+
+                        if (this.coeffParser.TryParse(new[] { firstSymol }, out parsedCoeff))
+                        {
+                            pol = new Polynomial<CoeffType, RingType>(parsedCoeff, this.coeffRing);
+                            return true;
+                        }
+                        else
+                        {
+                            pol = null;
+                            return false;
+                        }
                     }
                     else
                     {
-                        return new Polynomial<CoeffType, RingType>(this.coeffRing.MultiplicativeUnity, firstSymol.SymbolValue, this.coeffRing);
+                        pol = new Polynomial<CoeffType, RingType>(this.coeffRing.MultiplicativeUnity, firstSymol.SymbolValue, this.coeffRing);
+                        return true;
                     }
                 }
             }

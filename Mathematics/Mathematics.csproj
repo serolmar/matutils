@@ -65,7 +65,7 @@
     <Compile Include="Algorithms\Matrix\ArrayMatrix\ArrayMatrix.cs" />
     <Compile Include="Algorithms\Matrix\ArrayMatrix\ArrayMatrixRow.cs" />
     <Compile Include="Algorithms\Matrix\ImatrixSet.cs" />
-    <Compile Include="Algorithms\Matrix\MatrixReader\SparseMatrixReader.cs" />
+    <Compile Include="Algorithms\Matrix\MatrixReader\SparseMatrixSetReader.cs" />
     <Compile Include="Algorithms\Matrix\MatrixSet.cs" />
     <Compile Include="Algorithms\Matrix\SparseDictionaryMatrix\SparseDictionaryMatrix.cs" />
     <Compile Include="Algorithms\Matrix\SparseDictionaryMatrix\SparseDictionaryMatrixRow.cs" />

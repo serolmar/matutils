@@ -65,6 +65,7 @@
     <Compile Include="Parsers\Simple Parsers\BoolParser.cs" />
     <Compile Include="Parsers\CharSymbolReader.cs" />
     <Compile Include="ExpressionBuilders\CppCompliantCharSymbolReaderBuilder.cs" />
+    <Compile Include="Parsers\Simple Parsers\DecimalParser.cs" />
     <Compile Include="Parsers\Simple Parsers\DoubleParser.cs" />
     <Compile Include="Parsers\ExpressionReader\ExpressionReader.cs" />
     <Compile Include="Parsers\ExpressionReader\ExpressionReaderException.cs" />

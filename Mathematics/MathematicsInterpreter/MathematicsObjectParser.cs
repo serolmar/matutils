@@ -20,7 +20,7 @@ namespace Mathematics.MathematicsInterpreter
             this.mediator = mediator;
         }
 
-        public AMathematicsObject Parse(ISymbol<string, string>[] symbolListToParse)
+        public bool TryParse(ISymbol<string, string>[] symbolListToParse, out AMathematicsObject mathematicsObject)
         {
             var valueReader = new StringReader(symbolListToParse[0].SymbolValue);
             var symbolReader = new StringSymbolReader(valueReader, true);
@@ -29,7 +29,8 @@ namespace Mathematics.MathematicsInterpreter
             var readed = symbolReader.Peek();
             if (readed.SymbolType == "eof")
             {
-                return new EmptyMathematicsObject();
+                mathematicsObject = new EmptyMathematicsObject();
+                return true;
             }
             else if (readed.SymbolType == "left_parenthesis")
             {
@@ -39,27 +40,33 @@ namespace Mathematics.MathematicsInterpreter
             }
             else if (readed.SymbolType == "integer")
             {
-                return new IntegerMathematicsObject() { Value = int.Parse(symbolListToParse[0].SymbolValue) };
+                mathematicsObject = new IntegerMathematicsObject() { Value = int.Parse(symbolListToParse[0].SymbolValue) };
+                return true;
             }
             else if (readed.SymbolType == "double")
             {
-                return new DoubleMathematicsObject() { Value = double.Parse(symbolListToParse[0].SymbolValue, CultureInfo.InvariantCulture.NumberFormat) };
+                mathematicsObject = new DoubleMathematicsObject() { Value = double.Parse(symbolListToParse[0].SymbolValue, CultureInfo.InvariantCulture.NumberFormat) };
+                return true;
             }
             else if (readed.SymbolType == "string")
             {
-                return new NameMathematicsObject(symbolListToParse[0].SymbolValue, this.mediator);
+                mathematicsObject = new NameMathematicsObject(symbolListToParse[0].SymbolValue, this.mediator);
+                return true;
             }
             else if (readed.SymbolType == "double_quote")
             {
-                return new StringMathematicsObject() { Value = symbolListToParse[0].SymbolValue };
+                mathematicsObject = new StringMathematicsObject() { Value = symbolListToParse[0].SymbolValue };
+                return true;
             }
             else if (readed.SymbolType == "boolean")
             {
-                return new BooleanMathematicsObject() { Value = bool.Parse(symbolListToParse[0].SymbolValue) };
+                mathematicsObject = new BooleanMathematicsObject() { Value = bool.Parse(symbolListToParse[0].SymbolValue) };
+                return true;
             }
             else
             {
-                throw new ExpressionInterpreterException(string.Format("Parse error. Unexpected expression: {0}", symbolListToParse[0].SymbolValue));
+                mathematicsObject = null;
+                return false;
             }
 
             var lispStyleListParser = LispStyleList<AMathematicsObject>.GetParser(this);

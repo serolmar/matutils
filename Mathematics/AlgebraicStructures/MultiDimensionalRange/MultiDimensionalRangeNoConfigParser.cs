@@ -327,10 +327,17 @@ namespace Mathematics
                         topOperator))
                     {
                         this.currentElementSymbols.Add(readedSymbol);
-                        var readedElement = this.parser.Parse(this.currentElementSymbols.ToArray());
-                        this.readedElements.Add(readedElement);
-                        this.currentElementSymbols.Clear();
-                        return this.stateList[3];
+                        var readedElement = default(T);
+                        if (this.parser.TryParse(this.currentElementSymbols.ToArray(), out readedElement))
+                        {
+                            this.readedElements.Add(readedElement);
+                            this.currentElementSymbols.Clear();
+                            return this.stateList[3];
+                        }
+                        else
+                        {
+                            throw new ExpressionReaderException("Can't parse object value.");
+                        }
                     }
                     else
                     {
@@ -445,11 +452,17 @@ namespace Mathematics
                     }
                     else
                     {
-                        var readedElement = this.parser.Parse(new[] { readedSymbol });
-                        this.readedElements.Add(readedElement);
-
-                        reader.Get();
-                        return this.stateList[3];
+                        var readedElement = default(T);
+                        if (this.parser.TryParse(new[] { readedSymbol }, out readedElement))
+                        {
+                            this.readedElements.Add(readedElement);
+                            reader.Get();
+                            return this.stateList[3];
+                        }
+                        else
+                        {
+                            throw new ExpressionReaderException("Can't parse object value.");
+                        }
                     }
                 }
             }
@@ -491,11 +504,17 @@ namespace Mathematics
                 }
                 else
                 {
-                    var currentElement = this.parser.Parse(new[] { readedSymbol });
-                    this.readedElements.Add(currentElement);
-
-                    reader.Get();
-                    return this.stateList[3];
+                    var currentElement = default(T);
+                    if (this.parser.TryParse(new[] { readedSymbol }, out currentElement))
+                    {
+                        this.readedElements.Add(currentElement);
+                        reader.Get();
+                        return this.stateList[3];
+                    }
+                    else
+                    {
+                        throw new ExpressionReaderException("Can't parse object value.");
+                    }
                 }
             }
         }
@@ -550,11 +569,17 @@ namespace Mathematics
                 }
                 else
                 {
-                    var currentElement = this.parser.Parse(new[] { readedSymbol });
-                    this.readedElements.Add(currentElement);
-
-                    reader.Get();
-                    return this.stateList[3];
+                    var currentElement = default(T);
+                    if (this.parser.TryParse(new[] { readedSymbol }, out currentElement))
+                    {
+                        this.readedElements.Add(currentElement);
+                        reader.Get();
+                        return this.stateList[3];
+                    }
+                    else
+                    {
+                        throw new ExpressionReaderException("Can't parse object value.");
+                    }
                 }
             }
         }

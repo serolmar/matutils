@@ -213,9 +213,16 @@
                 {
                     if (this.level == this.finalConfiguration.Length - 1)
                     {
-                        var currentElement = this.parser.Parse(new[] { readedSymbol });
-                        this.readedElements.Add(currentElement);
-                        return this.stateList[3];
+                        var currentElement = default(T);
+                        if (this.parser.TryParse(new[] { readedSymbol }, out currentElement))
+                        {
+                            this.readedElements.Add(currentElement);
+                            return this.stateList[3];
+                        }
+                        else
+                        {
+                            throw new ExpressionReaderException("Can't parse object value.");
+                        }
                     }
                     else
                     {
@@ -316,10 +323,17 @@
                         topOperator))
                     {
                         this.currentElementSymbols.Add(readedSymbol);
-                        var readedElement = this.parser.Parse(this.currentElementSymbols.ToArray());
-                        this.readedElements.Add(readedElement);
-                        this.currentElementSymbols.Clear();
-                        return this.stateList[3];
+                        var readedElement = default(T);
+                        if (this.parser.TryParse(this.currentElementSymbols.ToArray(), out readedElement))
+                        {
+                            this.readedElements.Add(readedElement);
+                            this.currentElementSymbols.Clear();
+                            return this.stateList[3];
+                        }
+                        else
+                        {
+                            throw new ExpressionReaderException("Can't parse object value.");
+                        }
                     }
                     else
                     {
@@ -416,9 +430,16 @@
                     }
                     else
                     {
-                        var readedElement = this.parser.Parse(new[] { readedSymbol });
-                        this.readedElements.Add(readedElement);
-                        return this.stateList[3];
+                        var readedElement = default(T);
+                        if (this.parser.TryParse(new[] { readedSymbol }, out readedElement))
+                        {
+                            this.readedElements.Add(readedElement);
+                            return this.stateList[3];
+                        }
+                        else
+                        {
+                            throw new ExpressionReaderException("Can't parse object value.");
+                        }
                     }
                 }
             }
