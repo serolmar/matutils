@@ -5,29 +5,38 @@ using System.Text;
 
 namespace Mathematics
 {
-    class SparseDictionaryMatrixRow<T> : IMatrixRow<int, int, T>
+    class SparseDictionaryMatrixRow<Column, T> : IMatrixRow<Column, T>
     {
-        private Dictionary<int, T> lineElements;
+        private Dictionary<Column, T> lineElements;
 
-        private int rowNumber;
+        public SparseDictionaryMatrixRow() : this(null, null) { }
 
-        public SparseDictionaryMatrixRow(int rowNumber) : this(null, rowNumber) { }
-
-        internal SparseDictionaryMatrixRow(Dictionary<int, T> dictionary, int rowNumber)
+        public SparseDictionaryMatrixRow(IEqualityComparer<Column> columnsEqualityComparer) : this(columnsEqualityComparer, null)
         {
+        }
+
+        internal SparseDictionaryMatrixRow(IEqualityComparer<Column> columnsEqualityComparer, Dictionary<Column, T> dictionary)
+        {
+            if (columnsEqualityComparer == null)
+            {
+                this.lineElements = new Dictionary<Column, T>();
+            }
+            else
+            {
+                this.lineElements = new Dictionary<Column, T>(columnsEqualityComparer);
+            }
+
             if (dictionary == null)
             {
-                this.lineElements = new Dictionary<int, T>();
+                this.lineElements = new Dictionary<Column, T>();
             }
             else
             {
                 this.lineElements = dictionary;
             }
-
-            this.rowNumber = rowNumber;
         }
 
-        public T this[int columnIndex]
+        public T this[Column columnIndex]
         {
             get
             {
@@ -38,25 +47,12 @@ namespace Mathematics
                 }
                 else
                 {
-                    if (columnIndex < 0)
-                    {
-                        throw new MathematicsException("Negative indices aren't allowed.");
-                    }
-
                     return value;
                 }
             }
         }
 
-        public int LineNumber
-        {
-            get
-            {
-                return this.rowNumber;
-            }
-        }
-
-        internal Dictionary<int, T> LineElements
+        internal Dictionary<Column, T> LineElements
         {
             get
             {
@@ -64,7 +60,7 @@ namespace Mathematics
             }
         }
 
-        public bool ContainsColumn(int index)
+        public bool ContainsColumn(Column index)
         {
             return this.lineElements.ContainsKey(index);
         }

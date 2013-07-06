@@ -1,24 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Globalization;
 using System.Linq;
 using System.Text;
 
 namespace Utilities.Parsers
 {
-    public class DoubleParser : IParse<double, string, string>
+    public class DecimalParser : IParse<decimal, string, string>
     {
         private NumberStyles numberStyles;
 
         private IFormatProvider formatProvider;
 
-        public DoubleParser()
+        public DecimalParser()
             : this(NumberStyles.Number, CultureInfo.InvariantCulture.NumberFormat)
         {
         }
 
-        public DoubleParser(NumberStyles numberStyles, IFormatProvider formatProvider)
+        public DecimalParser(NumberStyles numberStyles, IFormatProvider formatProvider)
         {
             if (formatProvider == null)
             {
@@ -29,17 +28,17 @@ namespace Utilities.Parsers
             this.formatProvider = formatProvider;
         }
 
-        public bool TryParse(ISymbol<string, string>[] symbolListToParse, out double value)
+        public bool TryParse(ISymbol<string, string>[] symbolListToParse, out decimal value)
         {
             if (symbolListToParse.Length > 1)
             {
-                value = 0.0;
+                value = 0.0M;
                 return false;
             }
             else
             {
                 var firstSymbol = symbolListToParse[0];
-                return double.TryParse(firstSymbol.SymbolValue,
+                return decimal.TryParse(firstSymbol.SymbolValue,
                     this.numberStyles,
                     this.formatProvider,
                     out value);

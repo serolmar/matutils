@@ -7,31 +7,17 @@ namespace Utilities.Parsers
 {
     public class IntegerParser : IParse<int, string, string>
     {
-        public int Parse(ISymbol<string, string>[] symbolListToParse)
+        public bool TryParse(ISymbol<string, string>[] symbolListToParse, out int value)
         {
             if (symbolListToParse.Length > 1)
             {
-                var errorBuilder = new StringBuilder();
-                errorBuilder.Append("Invalid integer:");
-                foreach (var symbol in symbolListToParse)
-                {
-                    errorBuilder.AppendFormat(" {0}", symbol.SymbolValue);
-                }
-
-                throw new ExpressionReaderException(errorBuilder.ToString());
+                value = 0;
+                return false;
             }
             else
             {
                 var firstSymbol = symbolListToParse[0];
-                var parsed = 0;
-                if (int.TryParse(firstSymbol.SymbolValue, out parsed))
-                {
-                    return parsed;
-                }
-                else
-                {
-                    throw new ExpressionReaderException(string.Format("Invalid integer: {0}", firstSymbol.SymbolValue));
-                }
+                return int.TryParse(firstSymbol.SymbolValue, out value);
             }
         }
     }

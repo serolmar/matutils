@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Mathematics
 {
-    public class ArrayMatrix<T> : IMatrix<int, int, int, T>
+    public class ArrayMatrix<T> : IMatrix<int, int, T>
     {
         private T[,] elements;
 
@@ -19,7 +19,7 @@ namespace Mathematics
             this.elements = new T[lines, columns];
         }
 
-        public IMatrixRow<int, int, T> this[int line]
+        public IMatrixRow<int, T> this[int line]
         {
             get
             {
@@ -128,7 +128,7 @@ namespace Mathematics
             return this.elements.GetLength(dimension);
         }
 
-        public IEnumerator<IMatrixRow<int, int, T>> GetEnumerator()
+        public IEnumerator<IMatrixRow<int, T>> GetEnumerator()
         {
             for (int i = 0; i < this.elements.GetLength(0); ++i)
             {

@@ -5,10 +5,9 @@ using System.Text;
 
 namespace Mathematics
 {
-    public interface IMatrixRow<in Column, out Line, out T> : IEnumerable<T>
+    public interface IMatrixRow<in Column, out T> : IEnumerable<T>
     {
         T this[Column columnIndex] { get; }
         bool ContainsColumn(Column index);
-        Line LineNumber { get; }
     }
 }

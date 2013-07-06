@@ -372,10 +372,10 @@ namespace Utilities.Collections
                 this.expressionReader.RegisterBinaryOperator("comma", this.Concatenate, 0);
             }
 
-            public LispStyleList<R> Parse(ISymbol<string,string>[] strToParse)
+            public bool TryParse(ISymbol<string,string>[] strToParse, out LispStyleList<R> value)
             {
-                var value = strToParse[0];
-                string clean = value.SymbolValue.Trim();
+                var strValue = strToParse[0];
+                string clean = strValue.SymbolValue.Trim();
                 if (clean.Equals(string.Empty))
                 {
                     throw new FormatException("Can't construct a lisp style list from empty strings.");
@@ -395,7 +395,9 @@ namespace Utilities.Collections
                 {
                     result.values.Add(elementList);
                 }
-                return result;
+
+                value = result;
+                return true;
             }
 
             public void RegisterValueDelimiterType(string openDelimiterType, string closeDelimiterType)
@@ -456,16 +458,26 @@ namespace Utilities.Collections
                     this.parserForT = parser;
                 }
 
-                public LispStyleList<Q>.ElementList<Q> Parse(ISymbol<string, string>[] symbolListToParse)
+                public bool TryParse(ISymbol<string, string>[] symbolListToParse, out LispStyleList<Q>.ElementList<Q> value)
                 {
-                    Q tempVal = this.parserForT.Parse(symbolListToParse);
-                    List<LispStyleList<Q>.ElementList<Q>> tempList = new List<LispStyleList<Q>.ElementList<Q>>();
-                    tempList.Add(new LispStyleList<Q>.ElementList<Q>() { Element = tempVal, Elements = null });
-                    return new LispStyleList<Q>.ElementList<Q>()
+                    Q tempVal = default(Q);
+                    if (this.parserForT.TryParse(symbolListToParse, out tempVal))
                     {
-                        Element = default(Q),
-                        Elements = tempList
-                    };
+                        List<LispStyleList<Q>.ElementList<Q>> tempList = new List<LispStyleList<Q>.ElementList<Q>>();
+                        tempList.Add(new LispStyleList<Q>.ElementList<Q>() { Element = tempVal, Elements = null });
+                        value = new LispStyleList<Q>.ElementList<Q>()
+                        {
+                            Element = default(Q),
+                            Elements = tempList
+                        };
+
+                        return true;
+                    }
+                    else
+                    {
+                        value = null;
+                        return false;
+                    }
                 }
             }
         }

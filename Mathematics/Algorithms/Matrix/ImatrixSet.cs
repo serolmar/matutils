@@ -5,10 +5,10 @@ using System.Text;
 
 namespace Mathematics
 {
-    public interface ImatrixSet<in ComponentIndex, in Line, in Column, out RowNumber, out T> : 
-        IEnumerable<IMatrix<Line, Column, RowNumber, T>> where Line : RowNumber
+    public interface ImatrixSet<in ComponentIndex, in Line, in Column, out T> : 
+        IEnumerable<IMatrix<Line, Column, T>>
     {
-        IMatrix<Line, Column, RowNumber, T> this[ComponentIndex componentIndex]{get;}
+        IMatrix<Line, Column, T> this[ComponentIndex componentIndex]{get;}
 
         void Unset(ComponentIndex componentIndex);
 

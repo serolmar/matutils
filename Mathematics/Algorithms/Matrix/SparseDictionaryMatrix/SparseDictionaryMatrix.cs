@@ -5,30 +5,39 @@ using System.Text;
 
 namespace Mathematics
 {
-    public class SparseDictionaryMatrix<T> : IMatrix<int, int, int, T>
+    public class SparseDictionaryMatrix<Line, Column, T> : IMatrix<Line, Column, T>
     {
         private T defaultValue;
 
-        private int matrixNumber = -1;
+        private Dictionary<Line, SparseDictionaryMatrixRow<Column, T>> lines;
 
-        private int lastLineNumber = -1;
+        private IEqualityComparer<Column> columnsComparer;
 
-        private int lastColumnNumber = -1;
-
-        private Dictionary<int, SparseDictionaryMatrixRow<T>> lines;
-
-        public SparseDictionaryMatrix(T defaultValue, int matrixNumber)
+        public SparseDictionaryMatrix(T defaultValue)
             : this(null, defaultValue)
         {
             this.defaultValue = defaultValue;
-            this.matrixNumber = matrixNumber;
         }
 
-        internal SparseDictionaryMatrix(Dictionary<int, SparseDictionaryMatrixRow<T>> lines, T defaultValue)
+        public SparseDictionaryMatrix(T defaultValue, IEqualityComparer<Line> linesComparer, IEqualityComparer<Column> columnsComparer)
+        {
+            if (linesComparer == null)
+            {
+                this.lines = new Dictionary<Line, SparseDictionaryMatrixRow<Column, T>>();
+            }
+            else
+            {
+                this.lines = new Dictionary<Line, SparseDictionaryMatrixRow<Column, T>>(linesComparer);
+            }
+
+            this.columnsComparer = columnsComparer;
+        }
+
+        internal SparseDictionaryMatrix(Dictionary<Line, SparseDictionaryMatrixRow<Column, T>> lines, T defaultValue)
         {
             if (lines == null)
             {
-                this.lines = new Dictionary<int, SparseDictionaryMatrixRow<T>>();
+                this.lines = new Dictionary<Line, SparseDictionaryMatrixRow<Column, T>>();
             }
             else
             {
@@ -38,11 +47,11 @@ namespace Mathematics
             this.defaultValue = defaultValue;
         }
 
-        public IMatrixRow<int, int, T> this[int line]
+        public IMatrixRow<Column, T> this[Line line]
         {
             get
             {
-                SparseDictionaryMatrixRow<T> result = null;
+                SparseDictionaryMatrixRow<Column, T> result = null;
                 if (!this.lines.TryGetValue(line, out result))
                 {
                     throw new MathematicsException("int doesn't exist.");
@@ -54,26 +63,11 @@ namespace Mathematics
             }
         }
 
-        public T this[int line, int column]
+        public T this[Line line, Column column]
         {
             get
             {
-                if (line < 0 || column < 0)
-                {
-                    throw new MathematicsException("Line or column can't be negative.");
-                }
-
-                if (line > this.lastLineNumber)
-                {
-                    throw new MathematicsException("Line doesn't exist.");
-                }
-
-                if (column > this.lastColumnNumber)
-                {
-                    throw new MathematicsException("Column doesn't exist.");
-                }
-
-                SparseDictionaryMatrixRow<T> dictionaryint = null;
+                SparseDictionaryMatrixRow<Column, T> dictionaryint = null;
                 if (!this.lines.TryGetValue(line, out dictionaryint))
                 {
                     return this.defaultValue;
@@ -91,7 +85,7 @@ namespace Mathematics
             }
             set
             {
-                SparseDictionaryMatrixRow<T> dictionaryint = null;
+                SparseDictionaryMatrixRow<Column, T> dictionaryint = null;
                 if (this.lines.TryGetValue(line, out dictionaryint))
                 {
                     if (dictionaryint.LineElements.ContainsKey(column))
@@ -101,46 +95,25 @@ namespace Mathematics
                     else
                     {
                         dictionaryint.LineElements.Add(column, value);
-                        if (column > this.lastColumnNumber)
-                        {
-                            this.lastColumnNumber = column;
-                        }
                     }
                 }
                 else
                 {
-                    dictionaryint = new SparseDictionaryMatrixRow<T>(line);
+                    dictionaryint = new SparseDictionaryMatrixRow<Column, T>(this.columnsComparer);
                     this.lines.Add(line, dictionaryint);
                     dictionaryint.LineElements.Add(column, value);
-                    if (line > this.lastLineNumber)
-                    {
-                        this.lastLineNumber = line;
-                    }
-
-                    if (column > this.lastColumnNumber)
-                    {
-                        this.lastColumnNumber = column;
-                    }
                 }
             }
         }
 
-        public int MatrixNumber
-        {
-            get
-            {
-                return this.matrixNumber;
-            }
-        }
-
-        public bool ContainsLine(int line)
+        public bool ContainsLine(Line line)
         {
             return this.lines.ContainsKey(line);
         }
 
-        public bool ContainsColumn(int line, int column)
+        public bool ContainsColumn(Line line, Column column)
         {
-            SparseDictionaryMatrixRow<T> dictionaryint = null;
+            SparseDictionaryMatrixRow<Column, T> dictionaryint = null;
             if (!this.lines.TryGetValue(line, out dictionaryint))
             {
                 return false;
@@ -151,23 +124,7 @@ namespace Mathematics
             }
         }
 
-        public int GetLength(int dimension)
-        {
-            if (dimension == 0)
-            {
-                return this.lastLineNumber + 1;
-            }
-            else if (dimension == 1)
-            {
-                return this.lastColumnNumber + 1;
-            }
-            else
-            {
-                throw new MathematicsException("Matrix has only two dimensions.");
-            }
-        }
-
-        public IEnumerator<IMatrixRow<int, int, T>> GetEnumerator()
+        public IEnumerator<IMatrixRow<Column, T>> GetEnumerator()
         {
             return this.lines.Values.GetEnumerator();
         }

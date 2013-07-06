@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Mathematics
 {
-    class ArrayMatrixRow<T> : IMatrixRow<int, int, T>
+    class ArrayMatrixRow<T> : IMatrixRow<int, T>
     {
         private T[,] elements;
 

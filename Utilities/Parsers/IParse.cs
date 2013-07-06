@@ -7,6 +7,6 @@
 
     public interface IParse<T, SymbValue, SymbType>
     {
-        T Parse(ISymbol<SymbValue, SymbType>[] symbolListToParse);
+        bool TryParse(ISymbol<SymbValue, SymbType>[] symbolListToParse, out T value);
     }
 }

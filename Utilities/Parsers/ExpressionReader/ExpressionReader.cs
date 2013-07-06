@@ -677,8 +677,17 @@ namespace Utilities.Parsers
                             this.currentSymbolValues.Add(readedSymbol);
                             if (this.operatorStack.Count == 0)
                             {
-                                this.elementStack.Push(this.parser.Parse(this.currentSymbolValues.ToArray()));
-                                reader.Get();
+                                var parsed = default(ObjType);
+                                if (this.parser.TryParse(this.currentSymbolValues.ToArray(), out parsed))
+                                {
+                                    this.elementStack.Push(parsed);
+                                    reader.Get();
+                                }
+                                else
+                                {
+                                    throw new ExpressionReaderException("Can't parse expression.");
+                                }
+
                                 return this.stateList[3];
                             }
                             else
@@ -687,8 +696,17 @@ namespace Utilities.Parsers
                                 this.operatorStack.Push(nextStackedOperator);
                                 if (nextStackedOperator.OperatorType != EOperatorType.EXTERNAL_DELIMITER)
                                 {
-                                    this.elementStack.Push(this.parser.Parse(this.currentSymbolValues.ToArray()));
-                                    reader.Get();
+                                    var parsed = default(ObjType);
+                                    if (this.parser.TryParse(this.currentSymbolValues.ToArray(), out parsed))
+                                    {
+                                        this.elementStack.Push(parsed);
+                                        reader.Get();
+                                    }
+                                    else
+                                    {
+                                        throw new ExpressionReaderException("Can't parse expression.");
+                                    }
+
                                     return this.stateList[3];
                                 }
                             }
@@ -731,7 +749,17 @@ namespace Utilities.Parsers
             }
             else
             {
-                this.elementStack.Push(this.parser.Parse(this.currentSymbolValues.ToArray()));
+                var parsed = default(ObjType);
+                if (this.parser.TryParse(this.currentSymbolValues.ToArray(), out parsed))
+                {
+                    this.elementStack.Push(parsed);
+                    reader.Get();
+                }
+                else
+                {
+                    throw new ExpressionReaderException("Can't parse expression.");
+                }
+
                 return this.stateList[3];
             }
         }
@@ -760,7 +788,17 @@ namespace Utilities.Parsers
             {
                 readedSymbol = reader.Get();
                 this.currentSymbolValues.Add(readedSymbol);
-                this.elementStack.Push(this.parser.Parse(this.currentSymbolValues.ToArray()));
+                var parsed = default(ObjType);
+                if (this.parser.TryParse(this.currentSymbolValues.ToArray(), out parsed))
+                {
+                    this.elementStack.Push(parsed);
+                    reader.Get();
+                }
+                else
+                {
+                    throw new ExpressionReaderException("Can't parse expression.");
+                }
+
                 return this.stateList[3];
             }
         }
