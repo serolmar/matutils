@@ -5,12 +5,12 @@ using System.Text;
 
 namespace Mathematics
 {
-    public interface ImatrixSet<in ComponentIndex, in Line, in Column, out T> : 
-        IEnumerable<IMatrix<Line, Column, T>>
+    public interface ImatrixSet<ComponentType, LineType, ColumnType, out T> : 
+        IEnumerable<IMatrix<ComponentType, LineType, ColumnType, T>>
     {
-        IMatrix<Line, Column, T> this[ComponentIndex componentIndex]{get;}
+        IMatrix<ComponentType, LineType, ColumnType, T> this[ComponentType componentIndex]{get;}
 
-        void Unset(ComponentIndex componentIndex);
+        void Unset(ComponentType componentIndex);
 
         void Clear();
     }

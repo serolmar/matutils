@@ -5,32 +5,32 @@ using System.Text;
 
 namespace Mathematics
 {
-    class MatrixSet<ComponentIndex, Line, Column, T> : ImatrixSet<ComponentIndex, Line, Column, T>
+    class MatrixSet<ComponentType, LineType, ColumnType, T> : ImatrixSet<ComponentType, LineType, ColumnType, T>
     {
-        private Dictionary<ComponentIndex, IMatrix<Line, Column, T>> components;
+        private Dictionary<ComponentType, IMatrix<ComponentType, LineType, ColumnType, T>> components;
 
         public MatrixSet()
             : this(null)
         {
         }
 
-        public MatrixSet(IEqualityComparer<ComponentIndex> componentIndexComparer)
+        public MatrixSet(IEqualityComparer<ComponentType> componentIndexComparer)
         {
             if (componentIndexComparer != null)
             {
-                this.components = new Dictionary<ComponentIndex, IMatrix<Line, Column, T>>(componentIndexComparer);
+                this.components = new Dictionary<ComponentType, IMatrix<ComponentType, LineType, ColumnType, T>>(componentIndexComparer);
             }
             else
             {
-                this.components = new Dictionary<ComponentIndex, IMatrix<Line, Column, T>>();
+                this.components = new Dictionary<ComponentType, IMatrix<ComponentType, LineType, ColumnType, T>>();
             }
         }
 
-        public IMatrix<Line, Column, T> this[ComponentIndex componentIndex]
+        public IMatrix<ComponentType, LineType, ColumnType, T> this[ComponentType componentIndex]
         {
             get
             {
-                IMatrix<Line, Column, T> matrix = null;
+                IMatrix<ComponentType, LineType, ColumnType, T> matrix = null;
                 if (this.components.TryGetValue(componentIndex, out matrix))
                 {
                     return matrix;
@@ -42,7 +42,7 @@ namespace Mathematics
             }
         }
 
-        internal Dictionary<ComponentIndex, IMatrix<Line, Column, T>> Components
+        internal Dictionary<ComponentType, IMatrix<ComponentType, LineType, ColumnType, T>> Components
         {
             get
             {
@@ -50,7 +50,7 @@ namespace Mathematics
             }
         }
 
-        public void Set(ComponentIndex componentIndex, IMatrix<Line, Column, T> matrix)
+        public void Set(ComponentType componentIndex, IMatrix<ComponentType, LineType, ColumnType, T> matrix)
         {
             if (matrix == null)
             {
@@ -67,7 +67,7 @@ namespace Mathematics
             }
         }
 
-        public void Unset(ComponentIndex componentIndex)
+        public void Unset(ComponentType componentIndex)
         {
             this.components.Remove(componentIndex);
         }
@@ -77,7 +77,7 @@ namespace Mathematics
             this.components.Clear();
         }
 
-        public IEnumerator<IMatrix<Line, Column, T>> GetEnumerator()
+        public IEnumerator<IMatrix<ComponentType, LineType, ColumnType, T>> GetEnumerator()
         {
             return this.components.Values.GetEnumerator();
         }

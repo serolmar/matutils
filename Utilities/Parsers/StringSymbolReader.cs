@@ -10,7 +10,7 @@ namespace Utilities.Parsers
 {
     public class StringSymbolReader : MementoSymbolReader<CharSymbolReader,string, string>
     {
-        static string endOfFile = "eof";
+        private static string endOfFile = "eof";
 
         private ISymbol<string,string> currentSymbol = new StringSymbol();
         private List<IState<TextReader, string, string>> stateList = new List<IState<TextReader, string, string>>();

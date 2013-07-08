@@ -60,11 +60,12 @@
     <Compile Include="AlgebraicStructures\Polynomial\SimplePolynomialParser.cs" />
     <Compile Include="Algorithms\IAlgorithm.cs" />
     <Compile Include="Algorithms\IAlgorithmContract.cs" />
-    <Compile Include="Algorithms\Matrix\IMatrixColumn.cs" />
     <Compile Include="Algorithms\MathFunctions.cs" />
     <Compile Include="Algorithms\Matrix\ArrayMatrix\ArrayMatrix.cs" />
     <Compile Include="Algorithms\Matrix\ArrayMatrix\ArrayMatrixRow.cs" />
+    <Compile Include="Algorithms\Matrix\IMatrixColumn.cs" />
     <Compile Include="Algorithms\Matrix\ImatrixSet.cs" />
+    <Compile Include="Algorithms\Matrix\MatrixColumn.cs" />
     <Compile Include="Algorithms\Matrix\MatrixReader\SparseMatrixSetReader.cs" />
     <Compile Include="Algorithms\Matrix\MatrixSet.cs" />
     <Compile Include="Algorithms\Matrix\SparseDictionaryMatrix\SparseDictionaryMatrix.cs" />
@@ -117,7 +118,6 @@
       <Name>Utilities</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -78,7 +78,7 @@ namespace Utilities.Parsers
                 }
             }
 
-            public bool IsHeavyMement
+            public bool IsHeavyMemento
             {
                 get
                 {

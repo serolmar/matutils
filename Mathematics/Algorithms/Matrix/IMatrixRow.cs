@@ -5,9 +5,10 @@ using System.Text;
 
 namespace Mathematics
 {
-    public interface IMatrixRow<in Column, out T> : IEnumerable<T>
+    public interface IMatrixRow<LineType, ColumnType, out T> : IEnumerable<IMatrixColumn<ColumnType, T>>
     {
-        T this[Column columnIndex] { get; }
-        bool ContainsColumn(Column index);
+        IMatrixColumn<ColumnType, T> this[ColumnType columnIndex] { get; }
+        bool ContainsColumn(ColumnType index);
+        LineType Line { get; }
     }
 }

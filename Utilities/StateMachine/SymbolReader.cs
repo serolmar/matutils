@@ -8,7 +8,7 @@ namespace Utilities.Parsers
     public abstract class SymbolReader<InputReader, TSymbVal, TSymbType>
     {
         protected InputReader inputStream;
-        protected List<ISymbol<TSymbVal, string>> symbolBuffer = new List<ISymbol<TSymbVal,string>>();
+        protected List<ISymbol<TSymbVal, TSymbType>> symbolBuffer = new List<ISymbol<TSymbVal, TSymbType>>();
         protected int bufferPointer = 0;
         protected bool started = false;
 

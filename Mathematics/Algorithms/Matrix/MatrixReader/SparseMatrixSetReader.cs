@@ -8,7 +8,7 @@ using System.Globalization;
 
 namespace Mathematics
 {
-    public class SparseMatrixSetReader<Component, Line, Column, T>
+    public class SparseMatrixSetReader<ComponentType, LineType, ColumnType, T>
     {
         private string[] voidTypes = new string[] { "space", "carriage_return", "new_line" };
 
@@ -16,40 +16,40 @@ namespace Mathematics
 
         private List<IState<CharSymbolReader, string, string>> states = new List<IState<CharSymbolReader, string, string>>();
 
-        private Component componentCoord;
+        private ComponentType componentCoord;
 
-        private Line lineCoord;
+        private LineType lineCoord;
 
-        private Column columnCoord;
+        private ColumnType columnCoord;
 
         private int coordState;
 
-        private MatrixSet<Component, Line, Column, T> matrixSet;
+        private MatrixSet<ComponentType, LineType, ColumnType, T> matrixSet;
 
         private IParse<T, string, string> objectElementsReader;
 
-        private IParse<Component, string, string> componentElementsReader;
+        private IParse<ComponentType, string, string> componentElementsReader;
 
-        private IParse<Line, string, string> lineElementsReader;
+        private IParse<LineType, string, string> lineElementsReader;
 
-        private IParse<Column, string, string> columnElementsReader;
+        private IParse<ColumnType, string, string> columnElementsReader;
 
         private T defaultValue;
 
-        private IEqualityComparer<Component> componentComparer;
+        private IEqualityComparer<ComponentType> componentComparer;
 
-        private IEqualityComparer<Line> lineComparer;
+        private IEqualityComparer<LineType> lineComparer;
 
-        private IEqualityComparer<Column> columnComparer;
+        private IEqualityComparer<ColumnType> columnComparer;
 
         // Mantém o valor lido quando é encontrado um delimitador.
         private List<ISymbol<string, string>> currentReadingValues = new List<ISymbol<string, string>>();
 
         public SparseMatrixSetReader(
             IParse<T, string, string> objectElementsReader,
-            IParse<Component, string, string> componentElementsReader,
-            IParse<Line, string, string> lineElementsReader,
-            IParse<Column, string, string> columnElementsReader)
+            IParse<ComponentType, string, string> componentElementsReader,
+            IParse<LineType, string, string> lineElementsReader,
+            IParse<ColumnType, string, string> columnElementsReader)
         {
             if (objectElementsReader == null)
             {
@@ -69,7 +69,7 @@ namespace Mathematics
             }
             else
             {
-                this.matrixSet = new MatrixSet<Component, Line, Column, T>(this.componentComparer);
+                this.matrixSet = new MatrixSet<ComponentType, LineType, ColumnType, T>(this.componentComparer);
                 this.objectElementsReader = objectElementsReader;
                 this.componentElementsReader = componentElementsReader;
                 this.lineElementsReader = lineElementsReader;
@@ -77,11 +77,11 @@ namespace Mathematics
             }
         }
 
-        public ImatrixSet<Component, Line, Column, T> Read(Stream stream,
+        public ImatrixSet<ComponentType, LineType, ColumnType, T> Read(Stream stream,
             T defaultValue = default(T),
-            IEqualityComparer<Component> componentComparer = null,
-            IEqualityComparer<Line> lineComparer = null,
-            IEqualityComparer<Column> columnComparer = null)
+            IEqualityComparer<ComponentType> componentComparer = null,
+            IEqualityComparer<LineType> lineComparer = null,
+            IEqualityComparer<ColumnType> columnComparer = null)
         {
             this.defaultValue = defaultValue;
             this.componentComparer = componentComparer;
@@ -227,6 +227,7 @@ namespace Mathematics
                 throw new MathematicsException("Unexpected end of file.");
             }
 
+            this.currentReadingValues.Clear();
             if (readed.SymbolType == "right_parenthesis")
             {
                 if (this.coordState != 3)
@@ -238,86 +239,47 @@ namespace Mathematics
 
                 return this.states[4];
             }
+            else if (readed.SymbolType == "left_parenthesis")
+            {
+                this.ProcessInnerParenthesis(readed, reader);
+            }
             else if (this.elementsDelimiterTypes.ContainsKey(readed.SymbolType))
             {
-                var closeDelimiters = this.elementsDelimiterTypes[readed.SymbolType];
-                this.currentReadingValues.Clear();
-                this.currentReadingValues.Add(readed);
-                readed = reader.Get();
-                while (!closeDelimiters.Contains(readed.SymbolType))
-                {
-                    this.currentReadingValues.Add(readed);
-                    if (reader.IsAtEOF())
-                    {
-                        throw new MathematicsException("Matriz set is in a wrong format.");
-                    }
-                    else
-                    {
-                        readed = reader.Get();
-                    }
-                }
-
-                this.currentReadingValues.Add(readed);
-                switch (this.coordState)
-                {
-                    case 0:
-                        if (!this.componentElementsReader.TryParse(this.currentReadingValues.ToArray(), out this.componentCoord))
-                        {
-                            throw new MathematicsException(string.Format("Can't parse component coordinate: {0}.", readed.SymbolValue));
-                        }
-
-                        break;
-                    case 1:
-                        if (!this.lineElementsReader.TryParse(this.currentReadingValues.ToArray(), out this.lineCoord))
-                        {
-                            throw new MathematicsException(string.Format("Can't parse line coordinate: {0}.", readed.SymbolValue));
-                        }
-
-                        break;
-                    case 2:
-                        if (!this.columnElementsReader.TryParse(this.currentReadingValues.ToArray(), out this.columnCoord))
-                        {
-                            throw new MathematicsException(string.Format("Can't parse column coordinate: {0}.", readed.SymbolValue));
-                        }
-
-                        break;
-                    default:
-                        throw new MathematicsException("An internal error has occured.");
-                }
-
-                return this.states[3];
+                this.ProcessDelimiteres(readed, reader);
             }
             else
             {
-                switch (this.coordState)
-                {
-                    case 0:
-                        if (!this.componentElementsReader.TryParse(new[] { readed }, out this.componentCoord))
-                        {
-                            throw new MathematicsException(string.Format("Can't parse component coordinate: {0}.", readed.SymbolValue));
-                        }
-
-                        break;
-                    case 1:
-                        if (!this.lineElementsReader.TryParse(new[] { readed }, out this.lineCoord))
-                        {
-                            throw new MathematicsException(string.Format("Can't parse line coordinate: {0}.", readed.SymbolValue));
-                        }
-
-                        break;
-                    case 2:
-                        if (!this.columnElementsReader.TryParse(new[] { readed }, out this.columnCoord))
-                        {
-                            throw new MathematicsException(string.Format("Can't parse column coordinate: {0}.", readed.SymbolValue));
-                        }
-
-                        break;
-                    default:
-                        throw new MathematicsException("An internal error has occured.");
-                }
-
-                return this.states[3];
+                this.currentReadingValues.Add(readed);
             }
+
+            switch (this.coordState)
+            {
+                case 0:
+                    if (!this.componentElementsReader.TryParse(this.currentReadingValues.ToArray(), out this.componentCoord))
+                    {
+                        throw new MathematicsException(string.Format("Can't parse component coordinate: {0}.", readed.SymbolValue));
+                    }
+
+                    break;
+                case 1:
+                    if (!this.lineElementsReader.TryParse(this.currentReadingValues.ToArray(), out this.lineCoord))
+                    {
+                        throw new MathematicsException(string.Format("Can't parse line coordinate: {0}.", readed.SymbolValue));
+                    }
+
+                    break;
+                case 2:
+                    if (!this.columnElementsReader.TryParse(this.currentReadingValues.ToArray(), out this.columnCoord))
+                    {
+                        throw new MathematicsException(string.Format("Can't parse column coordinate: {0}.", readed.SymbolValue));
+                    }
+
+                    break;
+                default:
+                    throw new MathematicsException("An internal error has occured.");
+            }
+
+            return this.states[3];
         }
 
         /// <summary>
@@ -334,46 +296,28 @@ namespace Mathematics
                 throw new MathematicsException("Unexpected end of file.");
             }
 
+            this.currentReadingValues.Clear();
             if (this.elementsDelimiterTypes.ContainsKey(readed.SymbolType))
             {
-                var closeDelimiters = this.elementsDelimiterTypes[readed.SymbolType];
-                this.currentReadingValues.Clear();
-                this.currentReadingValues.Add(readed);
-                readed = reader.Get();
-                while (!closeDelimiters.Contains(readed.SymbolType))
-                {
-                    this.currentReadingValues.Add(readed);
-                    if (reader.IsAtEOF())
-                    {
-                        throw new MathematicsException("Matriz set is in a wrong format.");
-                    }
-                    else
-                    {
-                        readed = reader.Get();
-                    }
-                }
-
-                this.currentReadingValues.Add(readed);
-                var value = default(T);
-                if (!this.objectElementsReader.TryParse(this.currentReadingValues.ToArray(), out value))
-                {
-                    throw new MathematicsException(string.Format("Can't parse value {0}.", readed.SymbolValue));
-                }
-
-                this.SetValueInMatrixSet(this.componentCoord, this.lineCoord, this.columnCoord, value);
-                this.coordState = 0;
+                this.ProcessDelimiteres(readed, reader);
+            }
+            else if (readed.SymbolType == "left_parenthesis")
+            {
+                this.ProcessInnerParenthesis(readed, reader);
             }
             else
             {
-                var value = default(T);
-                if (!this.objectElementsReader.TryParse(new[] { readed }, out value))
-                {
-                    throw new MathematicsException(string.Format("Can't parse value {0}.", readed.SymbolValue));
-                }
-
-                this.SetValueInMatrixSet(this.componentCoord, this.lineCoord, this.columnCoord, value);
-                this.coordState = 0;
+                this.currentReadingValues.Add(readed);
             }
+
+            var value = default(T);
+            if (!this.objectElementsReader.TryParse(this.currentReadingValues.ToArray(), out value))
+            {
+                throw new MathematicsException(string.Format("Can't parse value {0}.", readed.SymbolValue));
+            }
+
+            this.SetValueInMatrixSet(this.componentCoord, this.lineCoord, this.columnCoord, value);
+            this.coordState = 0;
 
             return this.states[2];
         }
@@ -388,19 +332,69 @@ namespace Mathematics
             }
         }
 
-        private void SetValueInMatrixSet(Component component, Line line, Column column, T value)
+        private void SetValueInMatrixSet(ComponentType component, LineType line, ColumnType column, T value)
         {
-            IMatrix<Line, Column, T> matrix = null;
+            IMatrix<ComponentType, LineType, ColumnType, T> matrix = null;
             if (!this.matrixSet.Components.TryGetValue(component, out matrix))
             {
-                var innerMatrix = new SparseDictionaryMatrix<Line, Column, T>(this.defaultValue);
+                var innerMatrix = new SparseDictionaryMatrix<ComponentType, LineType, ColumnType, T>(component, this.defaultValue);
                 innerMatrix[line, column] = value;
             }
             else
             {
-                var innerMatrix = matrix as SparseDictionaryMatrix<Line, Column, T>;
+                var innerMatrix = matrix as SparseDictionaryMatrix<ComponentType, LineType, ColumnType, T>;
                 innerMatrix[line, column] = value;
             }
+        }
+
+        private void ProcessDelimiteres(ISymbol<string, string> readed, SymbolReader<CharSymbolReader, string, string> reader)
+        {
+            var closeDelimiters = this.elementsDelimiterTypes[readed.SymbolType];
+            this.currentReadingValues.Add(readed);
+            do
+            {
+                if (reader.IsAtEOF())
+                {
+                    throw new MathematicsException("Matriz set is in a wrong format.");
+                }
+                else
+                {
+                    readed = reader.Get();
+                    this.currentReadingValues.Add(readed);
+                }
+            } while (!closeDelimiters.Contains(readed.SymbolType));
+        }
+
+        private void ProcessInnerParenthesis(ISymbol<string, string> readed, SymbolReader<CharSymbolReader, string, string> reader)
+        {
+            var parenthesisStatus = 1;
+            this.currentReadingValues.Add(readed);
+
+            do
+            {
+                if (reader.IsAtEOF())
+                {
+                    throw new MathematicsException("Matriz set is in a wrong format.");
+                }
+                else
+                {
+                    readed = reader.Get();
+                    if (this.elementsDelimiterTypes.ContainsKey(readed.SymbolType))
+                    {
+                        this.ProcessDelimiteres(readed, reader);
+                    }
+                    else if (readed.SymbolType == "left_parenthesis")
+                    {
+                        ++parenthesisStatus;
+                    }
+                    else if (readed.SymbolType == "right_parenthesis")
+                    {
+                        --parenthesisStatus;
+                    }
+
+                    this.currentReadingValues.Add(readed);
+                }
+            } while (parenthesisStatus > 0);
         }
     }
 }

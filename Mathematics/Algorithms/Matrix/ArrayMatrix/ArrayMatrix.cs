@@ -5,21 +5,24 @@ using System.Text;
 
 namespace Mathematics
 {
-    public class ArrayMatrix<T> : IMatrix<int, int, T>
+    public class ArrayMatrix<T> : IMatrix<int, int, int, T>
     {
         private T[,] elements;
 
-        public ArrayMatrix(int lines, int columns)
+        private int component;
+
+        public ArrayMatrix(int component, int lines, int columns)
         {
             if (lines <= 0 || columns <= 0)
             {
                 throw new MathematicsException("Lines and columns must be positive.");
             }
 
+            this.component = component;
             this.elements = new T[lines, columns];
         }
 
-        public IMatrixRow<int, T> this[int line]
+        public IMatrixRow<int, int, T> this[int line]
         {
             get
             {
@@ -95,6 +98,11 @@ namespace Mathematics
             }
         }
 
+        public int Component
+        {
+            get { throw new NotImplementedException(); }
+        }
+
         public bool ContainsLine(int line)
         {
             if (line < 0)
@@ -128,7 +136,7 @@ namespace Mathematics
             return this.elements.GetLength(dimension);
         }
 
-        public IEnumerator<IMatrixRow<int, T>> GetEnumerator()
+        public IEnumerator<IMatrixRow<int, int, T>> GetEnumerator()
         {
             for (int i = 0; i < this.elements.GetLength(0); ++i)
             {

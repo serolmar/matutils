@@ -10,6 +10,6 @@ namespace Utilities.Parsers
         /// <summary>
         /// Checks if memento consumes a lot of resources.
         /// </summary>
-        bool IsHeavyMement { get; }
+        bool IsHeavyMemento { get; }
     }
 }

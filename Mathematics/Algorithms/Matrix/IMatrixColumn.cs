@@ -5,7 +5,10 @@ using System.Text;
 
 namespace Mathematics
 {
-    class IMatrixColumn
+    public interface IMatrixColumn<ColumnType, out T>
     {
+        ColumnType Column { get; }
+
+        T Value { get; }
     }
 }

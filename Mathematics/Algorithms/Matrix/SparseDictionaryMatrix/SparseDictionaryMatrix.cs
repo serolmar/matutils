@@ -5,53 +5,56 @@ using System.Text;
 
 namespace Mathematics
 {
-    public class SparseDictionaryMatrix<Line, Column, T> : IMatrix<Line, Column, T>
+    public class SparseDictionaryMatrix<ComponentType, LineType, ColumnType, T> : IMatrix<ComponentType, LineType, ColumnType, T>
     {
         private T defaultValue;
 
-        private Dictionary<Line, SparseDictionaryMatrixRow<Column, T>> lines;
+        private Dictionary<LineType, SparseDictionaryMatrixRow<LineType, ColumnType, T>> lines;
 
-        private IEqualityComparer<Column> columnsComparer;
+        private IEqualityComparer<ColumnType> columnsComparer;
 
-        public SparseDictionaryMatrix(T defaultValue)
-            : this(null, defaultValue)
+        private ComponentType component;
+
+        public SparseDictionaryMatrix(ComponentType component, T defaultValue)
+            : this(component, null, defaultValue)
         {
             this.defaultValue = defaultValue;
         }
 
-        public SparseDictionaryMatrix(T defaultValue, IEqualityComparer<Line> linesComparer, IEqualityComparer<Column> columnsComparer)
+        public SparseDictionaryMatrix(ComponentType component, T defaultValue, IEqualityComparer<LineType> linesComparer, IEqualityComparer<ColumnType> columnsComparer)
         {
             if (linesComparer == null)
             {
-                this.lines = new Dictionary<Line, SparseDictionaryMatrixRow<Column, T>>();
+                this.lines = new Dictionary<LineType, SparseDictionaryMatrixRow<LineType, ColumnType, T>>();
             }
             else
             {
-                this.lines = new Dictionary<Line, SparseDictionaryMatrixRow<Column, T>>(linesComparer);
+                this.lines = new Dictionary<LineType, SparseDictionaryMatrixRow<LineType, ColumnType, T>>(linesComparer);
             }
 
             this.columnsComparer = columnsComparer;
         }
 
-        internal SparseDictionaryMatrix(Dictionary<Line, SparseDictionaryMatrixRow<Column, T>> lines, T defaultValue)
+        internal SparseDictionaryMatrix(ComponentType component, Dictionary<LineType, SparseDictionaryMatrixRow<LineType, ColumnType, T>> lines, T defaultValue)
         {
             if (lines == null)
             {
-                this.lines = new Dictionary<Line, SparseDictionaryMatrixRow<Column, T>>();
+                this.lines = new Dictionary<LineType, SparseDictionaryMatrixRow<LineType, ColumnType, T>>();
             }
             else
             {
                 this.lines = lines;
             }
 
+            this.component = component;
             this.defaultValue = defaultValue;
         }
 
-        public IMatrixRow<Column, T> this[Line line]
+        public IMatrixRow<LineType, ColumnType, T> this[LineType line]
         {
             get
             {
-                SparseDictionaryMatrixRow<Column, T> result = null;
+                SparseDictionaryMatrixRow<LineType, ColumnType, T> result = null;
                 if (!this.lines.TryGetValue(line, out result))
                 {
                     throw new MathematicsException("int doesn't exist.");
@@ -63,11 +66,11 @@ namespace Mathematics
             }
         }
 
-        public T this[Line line, Column column]
+        public T this[LineType line, ColumnType column]
         {
             get
             {
-                SparseDictionaryMatrixRow<Column, T> dictionaryint = null;
+                SparseDictionaryMatrixRow<LineType, ColumnType, T> dictionaryint = null;
                 if (!this.lines.TryGetValue(line, out dictionaryint))
                 {
                     return this.defaultValue;
@@ -85,7 +88,7 @@ namespace Mathematics
             }
             set
             {
-                SparseDictionaryMatrixRow<Column, T> dictionaryint = null;
+                SparseDictionaryMatrixRow<LineType, ColumnType, T> dictionaryint = null;
                 if (this.lines.TryGetValue(line, out dictionaryint))
                 {
                     if (dictionaryint.LineElements.ContainsKey(column))
@@ -99,21 +102,29 @@ namespace Mathematics
                 }
                 else
                 {
-                    dictionaryint = new SparseDictionaryMatrixRow<Column, T>(this.columnsComparer);
+                    dictionaryint = new SparseDictionaryMatrixRow<LineType, ColumnType, T>(line, this.columnsComparer);
                     this.lines.Add(line, dictionaryint);
                     dictionaryint.LineElements.Add(column, value);
                 }
             }
         }
 
-        public bool ContainsLine(Line line)
+        public ComponentType Component
+        {
+            get
+            {
+                return this.component;
+            }
+        }
+
+        public bool ContainsLine(LineType line)
         {
             return this.lines.ContainsKey(line);
         }
 
-        public bool ContainsColumn(Line line, Column column)
+        public bool ContainsColumn(LineType line, ColumnType column)
         {
-            SparseDictionaryMatrixRow<Column, T> dictionaryint = null;
+            SparseDictionaryMatrixRow<LineType, ColumnType, T> dictionaryint = null;
             if (!this.lines.TryGetValue(line, out dictionaryint))
             {
                 return false;
@@ -124,7 +135,7 @@ namespace Mathematics
             }
         }
 
-        public IEnumerator<IMatrixRow<Column, T>> GetEnumerator()
+        public IEnumerator<IMatrixRow<LineType, ColumnType, T>> GetEnumerator()
         {
             return this.lines.Values.GetEnumerator();
         }

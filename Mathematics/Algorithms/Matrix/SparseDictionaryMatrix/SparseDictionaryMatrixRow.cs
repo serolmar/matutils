@@ -5,38 +5,43 @@ using System.Text;
 
 namespace Mathematics
 {
-    class SparseDictionaryMatrixRow<Column, T> : IMatrixRow<Column, T>
+    class SparseDictionaryMatrixRow<LineType, ColumnType, T> : IMatrixRow<LineType, ColumnType, T>
     {
-        private Dictionary<Column, T> lineElements;
+        private Dictionary<ColumnType, T> lineElements;
 
-        public SparseDictionaryMatrixRow() : this(null, null) { }
+        private LineType line;
 
-        public SparseDictionaryMatrixRow(IEqualityComparer<Column> columnsEqualityComparer) : this(columnsEqualityComparer, null)
+        public SparseDictionaryMatrixRow(LineType line) : this(line, null, null) { }
+
+        public SparseDictionaryMatrixRow(LineType line, IEqualityComparer<ColumnType> columnsEqualityComparer)
+            : this(line, columnsEqualityComparer, null)
         {
+            this.line = line;
         }
 
-        internal SparseDictionaryMatrixRow(IEqualityComparer<Column> columnsEqualityComparer, Dictionary<Column, T> dictionary)
+        internal SparseDictionaryMatrixRow(LineType line, IEqualityComparer<ColumnType> columnsEqualityComparer, Dictionary<ColumnType, T> dictionary)
         {
             if (columnsEqualityComparer == null)
             {
-                this.lineElements = new Dictionary<Column, T>();
+                this.lineElements = new Dictionary<ColumnType, T>();
             }
             else
             {
-                this.lineElements = new Dictionary<Column, T>(columnsEqualityComparer);
+                this.lineElements = new Dictionary<ColumnType, T>(columnsEqualityComparer);
             }
 
             if (dictionary == null)
             {
-                this.lineElements = new Dictionary<Column, T>();
+                this.lineElements = new Dictionary<ColumnType, T>();
             }
             else
             {
                 this.lineElements = dictionary;
+                this.line = line;
             }
         }
 
-        public T this[Column columnIndex]
+        public IMatrixColumn<ColumnType, T> this[ColumnType columnIndex]
         {
             get
             {
@@ -47,12 +52,17 @@ namespace Mathematics
                 }
                 else
                 {
-                    return value;
+                    return new MatrixColumn<ColumnType, T>(columnIndex, value);
                 }
             }
         }
 
-        internal Dictionary<Column, T> LineElements
+        public LineType Line
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        internal Dictionary<ColumnType, T> LineElements
         {
             get
             {
@@ -60,20 +70,22 @@ namespace Mathematics
             }
         }
 
-        public bool ContainsColumn(Column index)
+        public bool ContainsColumn(ColumnType index)
         {
             return this.lineElements.ContainsKey(index);
         }
 
-        public IEnumerator<T> GetEnumerator()
+        public IEnumerator<IMatrixColumn<ColumnType, T>> GetEnumerator()
         {
-            return this.lineElements.Values.GetEnumerator();
+            foreach (var kvp in this.lineElements)
+            {
+                yield return new MatrixColumn<ColumnType, T>(kvp.Key, kvp.Value);
+            }
         }
 
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
             return this.GetEnumerator();
         }
-
     }
 }

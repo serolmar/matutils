@@ -5,14 +5,16 @@ using System.Text;
 
 namespace Mathematics
 {
-    public interface IMatrix<in Line, in Column, out T> : IEnumerable<IMatrixRow<Column, T>>
+    public interface IMatrix<ComponentType, LineType, ColumnType, out T> : IEnumerable<IMatrixRow<LineType, ColumnType, T>>
     {
-        IMatrixRow<Column, T> this[Line line] { get; }
+        IMatrixRow<LineType, ColumnType, T> this[LineType line] { get; }
 
-        T this[Line line, Column column] { get; }
+        T this[LineType line, ColumnType column] { get; }
 
-        bool ContainsLine(Line line);
+        ComponentType Component { get; }
 
-        bool ContainsColumn(Line line, Column column);
+        bool ContainsLine(LineType line);
+
+        bool ContainsColumn(LineType line, ColumnType column);
     }
 }

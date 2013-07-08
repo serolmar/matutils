@@ -54,6 +54,7 @@
     <Compile Include="Collections\Interfaces\IIndexed.cs" />
     <Compile Include="Collections\LispStyleList.cs" />
     <Compile Include="ExpressionBuilders\BoolExpressionParser.cs" />
+    <Compile Include="Parsers\ArraySymbolReader.cs" />
     <Compile Include="Parsers\EStringSymbolReader.cs" />
     <Compile Include="ExpressionBuilders\DoubleExpressionParser.cs" />
     <Compile Include="ExpressionBuilders\IntegerExpressionParser.cs" />
