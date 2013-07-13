@@ -117,6 +117,14 @@ namespace Mathematics
             }
         }
 
+        public int Count
+        {
+            get
+            {
+                return this.lines.Count;
+            }
+        }
+
         public bool ContainsLine(LineType line)
         {
             return this.lines.ContainsKey(line);

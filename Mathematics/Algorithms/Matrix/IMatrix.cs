@@ -11,6 +11,8 @@ namespace Mathematics
 
         T this[LineType line, ColumnType column] { get; }
 
+        int Count { get; }
+
         ComponentType Component { get; }
 
         bool ContainsLine(LineType line);

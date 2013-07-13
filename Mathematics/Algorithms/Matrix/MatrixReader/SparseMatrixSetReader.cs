@@ -74,10 +74,12 @@ namespace Mathematics
                 this.componentElementsReader = componentElementsReader;
                 this.lineElementsReader = lineElementsReader;
                 this.columnElementsReader = columnElementsReader;
+
+                this.SetStates();
             }
         }
 
-        public ImatrixSet<ComponentType, LineType, ColumnType, T> Read(Stream stream,
+        public IMatrixSet<ComponentType, LineType, ColumnType, T> Read(Stream stream,
             T defaultValue = default(T),
             IEqualityComparer<ComponentType> componentComparer = null,
             IEqualityComparer<LineType> lineComparer = null,
@@ -237,6 +239,7 @@ namespace Mathematics
                         this.coordState));
                 }
 
+                this.coordState = 0;
                 return this.states[4];
             }
             else if (readed.SymbolType == "left_parenthesis")
@@ -279,6 +282,7 @@ namespace Mathematics
                     throw new MathematicsException("An internal error has occured.");
             }
 
+            ++this.coordState;
             return this.states[3];
         }
 
@@ -339,6 +343,7 @@ namespace Mathematics
             {
                 var innerMatrix = new SparseDictionaryMatrix<ComponentType, LineType, ColumnType, T>(component, this.defaultValue);
                 innerMatrix[line, column] = value;
+                this.matrixSet.Components.Add(component, innerMatrix);
             }
             else
             {

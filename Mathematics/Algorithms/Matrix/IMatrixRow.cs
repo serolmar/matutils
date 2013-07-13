@@ -8,7 +8,11 @@ namespace Mathematics
     public interface IMatrixRow<LineType, ColumnType, out T> : IEnumerable<IMatrixColumn<ColumnType, T>>
     {
         IMatrixColumn<ColumnType, T> this[ColumnType columnIndex] { get; }
-        bool ContainsColumn(ColumnType index);
+
         LineType Line { get; }
+
+        int Count { get; }
+
+        bool ContainsColumn(ColumnType index);
     }
 }

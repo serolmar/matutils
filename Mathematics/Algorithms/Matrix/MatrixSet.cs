@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Mathematics
 {
-    class MatrixSet<ComponentType, LineType, ColumnType, T> : ImatrixSet<ComponentType, LineType, ColumnType, T>
+    class MatrixSet<ComponentType, LineType, ColumnType, T> : IMatrixSet<ComponentType, LineType, ColumnType, T>
     {
         private Dictionary<ComponentType, IMatrix<ComponentType, LineType, ColumnType, T>> components;
 
@@ -39,6 +39,14 @@ namespace Mathematics
                 {
                     throw new MathematicsException("Matrix index doesn't exist.");
                 }
+            }
+        }
+
+        public int Count
+        {
+            get
+            {
+                return this.components.Count;
             }
         }
 

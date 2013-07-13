@@ -59,7 +59,18 @@ namespace Mathematics
 
         public LineType Line
         {
-            get { throw new NotImplementedException(); }
+            get
+            {
+                return this.line;
+            }
+        }
+
+        public int Count
+        {
+            get
+            {
+                return this.lineElements.Count;
+            }
         }
 
         internal Dictionary<ColumnType, T> LineElements

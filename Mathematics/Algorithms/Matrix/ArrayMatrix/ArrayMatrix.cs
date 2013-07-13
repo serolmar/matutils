@@ -103,6 +103,14 @@ namespace Mathematics
             get { throw new NotImplementedException(); }
         }
 
+        public int Count
+        {
+            get
+            {
+                return this.elements.GetLength(0);
+            }
+        }
+
         public bool ContainsLine(int line)
         {
             if (line < 0)

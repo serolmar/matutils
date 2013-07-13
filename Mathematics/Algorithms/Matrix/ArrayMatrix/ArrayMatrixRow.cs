@@ -44,6 +44,14 @@ namespace Mathematics
             }
         }
 
+        public int Count
+        {
+            get
+            {
+                return this.elements.GetLength(1);
+            }
+        }
+
         public bool ContainsColumn(int index)
         {
             if (index < 0)

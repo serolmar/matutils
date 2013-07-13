@@ -64,7 +64,7 @@
     <Compile Include="Algorithms\Matrix\ArrayMatrix\ArrayMatrix.cs" />
     <Compile Include="Algorithms\Matrix\ArrayMatrix\ArrayMatrixRow.cs" />
     <Compile Include="Algorithms\Matrix\IMatrixColumn.cs" />
-    <Compile Include="Algorithms\Matrix\ImatrixSet.cs" />
+    <Compile Include="Algorithms\Matrix\IMatrixSet.cs" />
     <Compile Include="Algorithms\Matrix\MatrixColumn.cs" />
     <Compile Include="Algorithms\Matrix\MatrixReader\SparseMatrixSetReader.cs" />
     <Compile Include="Algorithms\Matrix\MatrixSet.cs" />
