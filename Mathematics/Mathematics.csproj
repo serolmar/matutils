@@ -40,6 +40,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AlgebraicStructures\Fraction.cs" />
     <Compile Include="AlgebraicStructures\Implementations\IntegerRing.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\IEuclideanDomain.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\IField.cs" />
