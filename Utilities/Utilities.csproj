@@ -41,9 +41,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Collections\Affectations\CombinationAffector.cs" />
+    <Compile Include="Collections\Affectations\CombinationBoxAffector.cs" />
     <Compile Include="Collections\Affectations\FastAfector.cs" />
     <Compile Include="Collections\Affectations\GenericAffector.cs" />
+    <Compile Include="Collections\Affectations\GenericBoxAffector.cs" />
     <Compile Include="Collections\Affectations\PermutationAffector.cs" />
+    <Compile Include="Collections\Affectations\PermutationBoxAffector.cs" />
     <Compile Include="Collections\Affectations\StructureAffector.cs" />
     <Compile Include="Collections\Affectations\SwapPermutationsGenerator.cs" />
     <Compile Include="Collections\BitList.cs" />

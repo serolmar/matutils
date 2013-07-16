@@ -7,10 +7,20 @@ namespace Utilities.Collections
 {
     public class PermutationAffector : GenericAffector
     {
-        protected int[] affectedIndices;
-        public PermutationAffector(int count) : base(count) { }
-        public PermutationAffector(int count, int numberOfPlaces) : base(count, numberOfPlaces) { }
-        public PermutationAffector(int count, int numberOfPlaces, ICollection<int> possibleAffectionsByIndice) : base(count, numberOfPlaces, possibleAffectionsByIndice) { }
+        public PermutationAffector(int count)
+            : base(count)
+        {
+        }
+
+        public PermutationAffector(int count, int numberOfPlaces)
+            : base(count, numberOfPlaces)
+        {
+        }
+
+        public PermutationAffector(int count, int numberOfPlaces, ICollection<int> possibleAffectionsByIndice)
+            : base(count, numberOfPlaces, possibleAffectionsByIndice)
+        {
+        }
 
         public override IEnumerator<int[]> GetEnumerator()
         {
@@ -19,7 +29,8 @@ namespace Utilities.Collections
 
         public class PermutationEnumerator : GenericAffectorEnumerator
         {
-            public PermutationEnumerator(PermutationAffector affector) : base(affector)
+            public PermutationEnumerator(PermutationAffector affector)
+                : base(affector)
             {
             }
 
@@ -46,7 +57,11 @@ namespace Utilities.Collections
             {
                 ++this.currentAffectationIndices[this.currentPointer];
 
-                if (this.currentAffectationIndices[this.currentPointer] == this.thisFastAffector.Count) return false;
+                if (this.currentAffectationIndices[this.currentPointer] == this.thisFastAffector.Count)
+                {
+                    return false;
+                }
+
                 return true;
             }
         }

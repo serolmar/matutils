@@ -6,6 +6,7 @@
     using System.Linq;
     using System.Text;
     using Utilities.ExpressionBuilders;
+    using Utilities.Collections;
     using Mathematics;
     using Mathematics.Algorithms;
     using Utilities.Parsers;
@@ -18,6 +19,55 @@
         {
             var tester = new ObjectTester();
             tester.Run(Console.In, Console.Out);
+        }
+
+        static void Test3()
+        {
+            var permutaionBoxAffector = new PermutationBoxAffector(new[] { 2, 2, 2 }, 3);
+            foreach (var item in permutaionBoxAffector)
+            {
+                Console.WriteLine(PrintVector(item));
+            }
+
+            var combinationBoxAffector = new CombinationBoxAffector(new[] { 2, 2, 2 }, 3);
+            foreach (var item in combinationBoxAffector)
+            {
+                Console.WriteLine(PrintVector(item));
+            }
+
+            // Este código permite indicar que o primeiro elemento se pode repetir duas vezes, o segundo três e o terceiro três
+            // var permutation = new PermutationAffector(3, 3, new int[] { 2, 3, 3 });
+            var dictionary = new Dictionary<int, int>();
+            dictionary.Add(2, 3);
+            var structureAffector = new StructureAffector(new[] { new[] { 0, 1, 2 }, new[] { 0, 1, 2 }, new[] { 2, 3 } }, dictionary);
+            foreach (var item in structureAffector)
+            {
+                Console.WriteLine(PrintVector(item));
+            }
+
+            var count = 0;
+            var structureAffectations = new int[][] { new int[] { 1, 2, 3 }, new int[] { 1, 2, 3 }, new int[] { 1, 2, 3 } };
+            var affector = new StructureAffector(structureAffectations);
+            foreach (var aff in affector)
+            {
+                ++count;
+            }
+
+            Console.WriteLine(count);
+
+            var permutation = new PermutationAffector(4);
+            count = 0;
+            foreach (var perm in permutation)
+            {
+                ++count;
+            }
+
+            var combination = new CombinationAffector(6, 3);
+            count = 0;
+            foreach (var comb in combination)
+            {
+                ++count;
+            }
         }
 
         static void Test2()

@@ -11,18 +11,25 @@ namespace Utilities.Collections
     public class StructureAffector : FastAfector
     {
         protected int[][] affectorMatrix;
-        private Dictionary<int, int> numberOfPossibleAffectationsByIndice = new Dictionary<int, int>();
+        private Dictionary<int, int> numberOfPossibleAffectationsByIndice;
 
         public StructureAffector(ICollection<ICollection<int>> affectorStructure)
         {
-            if (affectorStructure == null) throw new ArgumentNullException("affectorStructure");
-            if (affectorStructure.Count == 0) throw new ArgumentException("Parameter collection affectorStructure must have elements to affect.");
+            if (affectorStructure == null)
+            {
+                throw new ArgumentNullException("affectorStructure");
+            }
+
+            if (affectorStructure.Count == 0)
+            {
+                throw new ArgumentException("Parameter collection affectorStructure must have elements to affect.");
+            }
 
             this.affectorMatrix = new int[affectorStructure.Count][];
             int pointer = 0;
             InsertionSortedCollection<int> sorter = new InsertionSortedCollection<int>(Comparer<int>.Default);
-            int maximum = -1;
 
+            var counter = 0;
             foreach (var item in affectorStructure)
             {
                 sorter.Clear();
@@ -31,24 +38,33 @@ namespace Utilities.Collections
                     if (!sorter.HasElement(innerItem))
                     {
                         sorter.InsertSortElement(innerItem);
-                        if (innerItem > maximum)
-                        {
-                            maximum = innerItem;
-                        }
                     }
                 }
 
                 this.affectorMatrix[pointer++] = sorter.ToArray();
-                this.Count = maximum;
-                this.NumberOfPlaces = this.affectorMatrix.Length;
+                counter += sorter.Count;
             }
+
+            this.count = counter;
+            this.numberOfPlaces = this.affectorMatrix.Length;
         }
 
-        public StructureAffector(ICollection<ICollection<int>> affectorStructure, ICollection<int> possibleAffectionsByIndice) : this(affectorStructure)
+        public StructureAffector(ICollection<ICollection<int>> affectorStructure, Dictionary<int, int> possibleAffectionsByIndice) : this(affectorStructure)
         {
-            foreach (var item in possibleAffectionsByIndice)
+            if (possibleAffectionsByIndice != null)
             {
-                if (item < 0) throw new ArgumentException("Every element in parameter possibleAffectationsByIndices must be greater than zero.");
+                this.numberOfPossibleAffectationsByIndice = new Dictionary<int,int>();
+                foreach (var item in possibleAffectionsByIndice)
+                {
+                    if (item.Value < 0)
+                    {
+                        throw new ArgumentException("Every element in parameter possibleAffectationsByIndices must be greater than zero.");
+                    }
+                    else
+                    {
+                        this.numberOfPossibleAffectationsByIndice.Add(item.Key, item.Value);
+                    }
+                }
             }
         }
 
@@ -65,8 +81,6 @@ namespace Utilities.Collections
             public StructureAffectorEnumerator(StructureAffector structureAffector) : base(structureAffector)
             {
                 this.currentAffectationIndices = new int[structureAffector.NumberOfPlaces];
-            //    this.pointerByIndice = new int[structureAffector.NumberOfPlaces];
-            //    Array.Clear(this.pointerByIndice,0, structureAffector.NumberOfPlaces);
             }
 
             protected override void ResetPointedIndex()
@@ -95,7 +109,7 @@ namespace Utilities.Collections
                         }
                         else
                         {
-                            this.affectedIndices.Add(indexBeingAffected, 1);
+                            this.affectedIndices.Add(indexBeingAffected, 0);
                         }
                     }
 

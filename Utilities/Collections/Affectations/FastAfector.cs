@@ -10,9 +10,31 @@ namespace Utilities.Collections
     /// </summary>
     public abstract class FastAfector : IEnumerable<int[]>
     {
-        public int Count { get; protected set; }
+        /// <summary>
+        /// O número máximo de elementos a permutar.
+        /// </summary>
+        protected int count;
 
-        public int NumberOfPlaces { get; protected set; }
+        /// <summary>
+        /// O número de lugares para incluir na permutação.
+        /// </summary>
+        protected int numberOfPlaces;
+
+        public int Count
+        {
+            get
+            {
+                return this.count;
+            }
+        }
+
+        public int NumberOfPlaces
+        {
+            get
+            {
+                return this.numberOfPlaces;
+            }
+        }
 
         public abstract IEnumerator<int[]> GetEnumerator();
 

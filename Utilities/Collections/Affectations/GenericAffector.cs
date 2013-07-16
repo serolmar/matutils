@@ -24,28 +24,42 @@ namespace Utilities.Collections
         /// <param name="numberOfPlaces">The number of elements to be combine. For exemple, to permute p elements from a set of n.</param>
         public GenericAffector(int count, int numberOfPlaces)
         {
-            if (count <= 0) throw new ArgumentException("Parameter count must be greater than zero.");
-            if (numberOfPlaces <= 0 || numberOfPlaces > count) throw new ArgumentException("Parameter numberOfPlaces must be between one and count.");
+            if (count <= 0)
+            {
+                throw new ArgumentException("Parameter count must be greater than zero.");
+            }
 
-            this.Count = count;
-            this.NumberOfPlaces = numberOfPlaces;
+            if (numberOfPlaces <= 0 || numberOfPlaces > count)
+            {
+                throw new ArgumentException("Parameter numberOfPlaces must be between one and count.");
+            }
+
+            this.count = count;
+            this.numberOfPlaces = numberOfPlaces;
         }
 
         /// <summary>
         /// Instantiates a new instance of the <see cref="GenericAffector"/> class.
         /// </summary>
         /// <param name="count">The number of elements to permute or combine.</param>
-        /// <param name="numberOfPlaces">The number of elements to be combine. For exemple, to permute p elements from a set of n.</param>
+        /// <param name="numberOfPlaces">The number of elements to be combined. For exemple, to permute p elements from a set of n.</param>
         /// <param name="possibleAffectionsByIndice">An array containing how many times a specific element can be repeated during the affectation.</param>
         public GenericAffector(int count, int numberOfPlaces, ICollection<int> possibleAffectionsByIndice)
             : this(count, numberOfPlaces)
         {
-            if (possibleAffectionsByIndice.Count != count) throw new ArgumentException("Parameter possibleAffectionsByIndice must have a number of elements given by count.");
+            if (possibleAffectionsByIndice.Count != count)
+            {
+                throw new ArgumentException("Parameter possibleAffectionsByIndice must have a number of elements given by count.");
+            }
+
             this.numberOfPossibleAffectationsByIndice = new int[possibleAffectionsByIndice.Count];
 
             foreach (var item in possibleAffectionsByIndice)
             {
-                if (item < 0) throw new ArgumentException("Every element in parameter possibleAffectationsByIndices must be greater than zero.");
+                if (item < 0)
+                {
+                    throw new ArgumentException("Every element in parameter possibleAffectationsByIndices must be greater than zero.");
+                }
             }
 
             possibleAffectionsByIndice.CopyTo(this.numberOfPossibleAffectationsByIndice, 0);
