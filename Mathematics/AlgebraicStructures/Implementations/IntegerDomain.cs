@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Mathematics
 {
-    public class IntegerRing : IRing<int>
+    public class IntegerDomain : IRing<int>, IEuclidenDomain<int>
     {
         public int MultiplicativeUnity
         {
@@ -48,10 +48,24 @@ namespace Mathematics
             return value == 0;
         }
 
-
         public bool IsMultiplicativeUnity(int value)
         {
             return value == 1;
+        }
+
+        public int Quo(int dividend, int divisor)
+        {
+            return dividend / divisor;
+        }
+
+        public int Rem(int dividend, int divisor)
+        {
+            return dividend % divisor;
+        }
+
+        public uint Degree(int value)
+        {
+            return (uint)Math.Abs(value);
         }
     }
 }

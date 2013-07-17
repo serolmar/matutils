@@ -41,7 +41,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AlgebraicStructures\Fraction.cs" />
-    <Compile Include="AlgebraicStructures\Implementations\IntegerRing.cs" />
+    <Compile Include="AlgebraicStructures\Implementations\IntegerField.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\IEuclideanDomain.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\IField.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\IGroup.cs" />
@@ -55,6 +55,7 @@
     <Compile Include="AlgebraicStructures\MultiDimensionalRange\MultiDimensionalRangeNoConfigParser.cs" />
     <Compile Include="AlgebraicStructures\MultiDimensionalRange\MultidimensionalRangeParserMementoManager.cs" />
     <Compile Include="AlgebraicStructures\Polynomial\DegreeEqualityComparer.cs" />
+    <Compile Include="AlgebraicStructures\Polynomial\IntegerFactorialFraction.cs" />
     <Compile Include="AlgebraicStructures\Polynomial\Polynomial.cs" />
     <Compile Include="AlgebraicStructures\Polynomial\PolynomialGeneralVariable.cs" />
     <Compile Include="AlgebraicStructures\Polynomial\PolynomialParser.cs" />
