@@ -12,6 +12,7 @@
     using Utilities.Parsers;
     using Utilities.Collections.Affectations;
     using Mathematics.MathematicsInterpreter;
+    using Mathematics.AlgebraicStructures.Polynomial;
 
     class Program
     {

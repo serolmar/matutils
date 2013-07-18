@@ -38,11 +38,11 @@ namespace Mathematics.AlgebraicStructures.Polynomial
         /// <summary>
         /// Mantém a lista dos termos do polinómio simétrico.
         /// </summary>
-        private Dictionary<List<int>, T> polynomialTerms;
+        private Dictionary<Dictionary<int, int>, T> polynomialTerms;
 
         private SymmetricPolynomial()
         {
-            this.polynomialTerms = new Dictionary<List<int>, T>(this.degreeComparer);
+            this.polynomialTerms = new Dictionary<Dictionary<int, int>, T>(this.degreeComparer);
         }
 
         public SymmetricPolynomial(List<string> variables, R ring)
@@ -71,11 +71,12 @@ namespace Mathematics.AlgebraicStructures.Polynomial
             }
 
             this.ring = ring;
-            this.polynomialTerms = new Dictionary<List<int>, T>(this.degreeComparer);
+            this.polynomialTerms = new Dictionary<Dictionary<int, int>, T>(this.degreeComparer);
             this.variables.AddRange(variables);
         }
 
-        public SymmetricPolynomial(List<string> variables, List<int> degree, T coeff, R ring) : this(variables, ring)
+        public SymmetricPolynomial(List<string> variables, List<int> degree, T coeff, R ring)
+            : this(variables, ring)
         {
             var innerDegree = this.GetSimplifiedDegree(degree);
             if (degree.Count > this.variables.Count)
@@ -87,6 +88,22 @@ namespace Mathematics.AlgebraicStructures.Polynomial
             {
                 this.polynomialTerms.Add(innerDegree, coeff);
             }
+        }
+
+        public SymmetricPolynomial(List<string> variables, List<int> degree, T coeff, R ring)
+            : this(variables, ring)
+        {
+            var innerDegree = this.GetSimplifiedDegree(degree);
+            if (!this.ring.IsAdditiveUnity(coeff))
+            {
+                this.polynomialTerms.Add(innerDegree, coeff);
+            }
+        }
+
+        public SymmetricPolynomial(List<string> variables, Dictionary<int, int> degree, T coeff, R ring)
+            : this(variables, ring)
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -262,28 +279,216 @@ namespace Mathematics.AlgebraicStructures.Polynomial
         /// </remarks>
         /// <param name="degree">O grau a ser simplificado.</param>
         /// <returns>O grau simplificado.</returns>
-        private List<int> GetSimplifiedDegree(List<int> degree)
+        private Dictionary<int, int> GetSimplifiedDegree(List<int> degree)
         {
-            var insertedSortedCollection = new InsertionSortedCollection<int>(Comparer<int>.Default, false);
-            foreach (var degreeItem in degree)
+            if (degree == null)
             {
-                if (degreeItem > 0)
+                return new Dictionary<int, int>();
+            }
+            else if (degree.Count > this.variables.Count)
+            {
+                throw new ArgumentException("The number of degrees must be the same as the number of variables.");
+            }
+            else
+            {
+                var result = new Dictionary<int, int>();
+                foreach (var degreeItem in degree)
                 {
-                    insertedSortedCollection.InsertSortElement(degreeItem);
+                    if (degreeItem < 0)
+                    {
+                        throw new ArgumentException("The degree in symmetric polynomial can't be zero.");
+                    }
+                    else
+                    {
+                        var degreeCount = 0;
+                        if (result.TryGetValue(degreeItem, out degreeCount))
+                        {
+                            result[degreeItem] = degreeItem + 1;
+                        }
+                        else
+                        {
+                            result.Add(degreeItem, 1);
+                        }
+                    }
                 }
-                else if (degreeItem != 0)
+
+                return result;
+            }
+        }
+
+        /// <summary>
+        /// Verifica a integridade do grau.
+        /// </summary>
+        /// <param name="degree">O grau a ser verificado.</param>
+        /// <returns>O grau.</returns>
+        private Dictionary<int, int> VerifyDegree(Dictionary<int, int> degree)
+        {
+            if (degree == null)
+            {
+                return new Dictionary<int, int>();
+            }
+            else
+            {
+                var count = 0;
+                foreach (var kvp in degree)
                 {
-                    throw new MathematicsException("Negative degrees are not allowed.");
+                    if (kvp.Key < 0)
+                    {
+                        throw new ArgumentException("Negative degrees aren't allowed.");
+                    }
+
+                    count += kvp.Value;
+                }
+
+                if (count != this.variables.Count)
+                {
+                    throw new ArgumentException("The number of degrees must be the same as the number of variables.");
+                }
+                else
+                {
+                    return degree;
                 }
             }
+        }
 
+        /// <summary>
+        /// Multiplica dos monómios simétricos.
+        /// </summary>
+        /// <param name="firstMonomialCoeff">O coeficiente do primeiro monómio a multiplicar.</param>
+        /// <param name="firstMonomialDegree">O grau do primeiro monómio a multiplicar.</param>
+        /// <param name="secondMonomialCoeff">O coeficiente do segundo monómio a multiplicar.</param>
+        /// <param name="secondMonomialDegree">O grau do segundo monómio a multiplicar.</param>
+        /// <returns></returns>
+        private Dictionary<Dictionary<int, int>, T> MultiplyMonomials(
+            T firstMonomialCoeff,
+            Dictionary<int, int> firstMonomialDegree,
+            T secondMonomialCoeff,
+            Dictionary<int, int> secondMonomialDegree)
+        {
+            var firstDegreeNumber = this.GetDegreeTermsNumber(firstMonomialDegree);
+            var secondDegreeNumber = this.GetDegreeTermsNumber(secondMonomialDegree);
+            var firstDegreeNumberNumerator = firstDegreeNumber.Numerator;
+            var secondDegreeNumberNumerator = secondDegreeNumber.Numerator;
+
+            int[] permutationDegree;
+            int[] fixedDegree;
+            IntegerFactorialFraction permutationDegreeNumber;
+            if (firstDegreeNumberNumerator < secondDegreeNumberNumerator)
+            {
+                permutationDegree = this.ExpandDegree(firstMonomialDegree);
+                fixedDegree = this.ExpandDegree(secondMonomialDegree);
+                permutationDegreeNumber = firstDegreeNumber;
+            }
+            else
+            {
+                permutationDegree = this.ExpandDegree(secondMonomialDegree);
+                fixedDegree = this.ExpandDegree(firstMonomialDegree);
+                permutationDegreeNumber = secondDegreeNumber;
+            }
+
+            var result = new Dictionary<Dictionary<int, int>, T>(this.degreeComparer);
+
+            // Conta o número de graus que resultam da multiplicação do monómios para aplicar o factor
+            var degreesCount = new Dictionary<Dictionary<int, int>, int>(this.degreeComparer);
+
+            var boxDegreeAffector = new PermutationBoxAffector(permutationDegree);
+            foreach (var degreeAffectation in boxDegreeAffector)
+            {
+                var sumDegree = new int[fixedDegree.Length];
+                for (int i = 0; i < sumDegree.Length; ++i)
+                {
+                    sumDegree[i] = fixedDegree[i] + degreeAffectation[i];
+                }
+
+                var compactSum = this.CompactDegree(sumDegree);
+                // TODO: somar o grau à variável degrees count e, fora do ciclo, proceder ao respectivo processamento.
+            }
+
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Obtém o número de termos do polinómio caso este fosse expandido.
+        /// </summary>
+        /// <param name="degree">O grau.</param>
+        /// <returns>O número correspondente de termos.</returns>
+        private IntegerFactorialFraction GetDegreeTermsNumber(Dictionary<int, int> degree)
+        {
+            var result = new IntegerFactorialFraction();
+            var count = 0;
+            foreach (var kvp in degree)
+            {
+                count += kvp.Value;
+                result.MultiplyDenominator(kvp.Value);
+            }
+
+            result.MultiplyNumerator(count);
+            return result;
+        }
+
+        /// <summary>
+        /// Obtém o factor de escala a utilizar durante a multiplicação de monómios simétricos.
+        /// </summary>
+        /// <param name="firstMonomialDegree">O grau do primeiro monómio.</param>
+        /// <param name="secondMonomialDegree">O grau do segundo monómio.</param>
+        /// <returns></returns>
+        private IntegerFactorialFraction GetFactorScale(Dictionary<int, int> firstMonomialDegree, Dictionary<int, int> secondMonomialDegree)
+        {
+            var result = new IntegerFactorialFraction();
+            foreach (var kvp in firstMonomialDegree)
+            {
+                result.MultiplyNumerator(kvp.Value);
+            }
+
+            foreach (var kvp in secondMonomialDegree)
+            {
+                result.MultiplyDenominator(kvp.Value);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Expande o grau.
+        /// </summary>
+        /// <param name="expandDegree">O grau a expandir.</param>
+        /// <returns>O grau expandido.</returns>
+        private int[] ExpandDegree(Dictionary<int, int> expandDegree)
+        {
             var result = new List<int>();
-            foreach (var element in insertedSortedCollection)
+            foreach (var kvp in expandDegree)
             {
-                result.Insert(0, element);
+                for (int i = 0; i < kvp.Value; ++i)
+                {
+                    result.Add(kvp.Key);
+                }
             }
 
-            return insertedSortedCollection.ToList();
+            return result.ToArray();
+        }
+
+        /// <summary>
+        /// Compacta o grau.
+        /// </summary>
+        /// <param name="compactDegree">O grau a compactar.</param>
+        /// <returns>O grau compactado.</returns>
+        private Dictionary<int, int> CompactDegree(IEnumerable<int> compactDegree)
+        {
+            var result = new Dictionary<int, int>();
+            foreach (var degreeItem in compactDegree)
+            {
+                var degreeCount = 0;
+                if (result.TryGetValue(degreeItem, out degreeCount))
+                {
+                    result[degreeItem] = degreeItem + 1;
+                }
+                else
+                {
+                    result.Add(degreeItem, 1);
+                }
+            }
+
+            return result;
         }
     }
 }

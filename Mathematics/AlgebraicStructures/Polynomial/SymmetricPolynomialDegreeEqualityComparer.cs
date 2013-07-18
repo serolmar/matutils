@@ -9,10 +9,15 @@ namespace Mathematics.AlgebraicStructures.Polynomial
     /// Permite comparar o grau do polinómio simétrico assumindo que se trata de uma lista
     /// previamente ordenada de forma decrescente.
     /// </summary>
-    class SymmetricPolynomialDegreeEqualityComparer : EqualityComparer<List<int>>
+    class SymmetricPolynomialDegreeEqualityComparer : EqualityComparer<Dictionary<int, int>>
     {
-
-        public override bool Equals(List<int> x, List<int> y)
+        /// <summary>
+        /// Verifica se dois graus são iguais.
+        /// </summary>
+        /// <param name="x">O primeiro grau a ser verificado.</param>
+        /// <param name="y">O segundo grau a ser verificado.</param>
+        /// <returns>Verdadeiro se ambos os graus são iguais e falso caso contrário.</returns>
+        public override bool Equals(Dictionary<int, int> x, Dictionary<int, int> y)
         {
             if (x == null && y == null)
             {
@@ -28,64 +33,36 @@ namespace Mathematics.AlgebraicStructures.Polynomial
             }
             else
             {
-                var firstEnumerator = x.GetEnumerator();
-                var secondEnumerator = y.GetEnumerator();
-                var firstState = firstEnumerator.MoveNext();
-                var secondState = secondEnumerator.MoveNext();
-                while (firstState && secondState)
+                if (x.Keys.Count == y.Keys.Count)
                 {
-                    if (firstEnumerator.Current != secondEnumerator.Current)
+                    foreach (var kvp in x)
                     {
-                        return false;
-                    }
-                    else
-                    {
-                        firstState = firstEnumerator.MoveNext();
-                        secondState = secondEnumerator.MoveNext();
-                    }
-                }
-
-                if (firstEnumerator.MoveNext())
-                {
-                    if (firstEnumerator.Current != 0)
-                    {
-                        return false;
-                    }
-                    else
-                    {
-                        while (firstEnumerator.MoveNext())
+                        var otherCount = 0;
+                        if (y.TryGetValue(kvp.Key, out otherCount))
                         {
-                            if (firstEnumerator.Current != 0)
-                            {
-                                return false;
-                            }
+                            return kvp.Value == otherCount;
+                        }
+                        else
+                        {
+                            return false;
                         }
                     }
-                }
 
-                if (secondEnumerator.MoveNext())
+                    return true;
+                }
+                else
                 {
-                    if (secondEnumerator.Current != 0)
-                    {
-                        return false;
-                    }
-                    else
-                    {
-                        while (secondEnumerator.MoveNext())
-                        {
-                            if (secondEnumerator.Current != 0)
-                            {
-                                return false;
-                            }
-                        }
-                    }
+                    return false;
                 }
-
-                return true;
             }
         }
 
-        public override int GetHashCode(List<int> obj)
+        /// <summary>
+        /// Obtém o código descritivo do objecto.
+        /// </summary>
+        /// <param name="obj">O objecto.</param>
+        /// <returns>O código do objecto.</returns>
+        public override int GetHashCode(Dictionary<int, int> obj)
         {
             if (obj == null)
             {
@@ -94,9 +71,9 @@ namespace Mathematics.AlgebraicStructures.Polynomial
             else
             {
                 var result = 19;
-                foreach (var degree in obj)
+                foreach (var degreeCount in obj)
                 {
-                    result = unchecked(result + degree.GetHashCode());
+                    result = unchecked(result + degreeCount.Key.GetHashCode() + degreeCount.Value.GetHashCode());
                 }
 
                 return result;
