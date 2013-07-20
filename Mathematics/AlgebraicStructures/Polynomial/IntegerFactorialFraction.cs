@@ -112,7 +112,7 @@ namespace Mathematics.AlgebraicStructures.Polynomial
             }
             else
             {
-                return this.MultiplyNumber(this.denomimatorFactors, this.numeratorFactors, number);
+                this.MultiplyNumber(this.denomimatorFactors, this.numeratorFactors, number);
             }
         }
 

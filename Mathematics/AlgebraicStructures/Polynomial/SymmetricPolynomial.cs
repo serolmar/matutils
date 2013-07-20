@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using Utilities.Collections;
+using Mathematics.Algorithms;
 
 namespace Mathematics.AlgebraicStructures.Polynomial
 {
@@ -75,25 +76,33 @@ namespace Mathematics.AlgebraicStructures.Polynomial
             this.variables.AddRange(variables);
         }
 
-        public SymmetricPolynomial(List<string> variables, List<int> degree, T coeff, R ring)
+        public SymmetricPolynomial(List<string> variables, int elementarySymmIndex, R ring)
             : this(variables, ring)
         {
-            var innerDegree = this.GetSimplifiedDegree(degree);
-            if (degree.Count > this.variables.Count)
+            if (elementarySymmIndex < 0 || elementarySymmIndex > variables.Count)
             {
-                throw new ArgumentException("The number of non zero elements on degree must not surpass the number of defined variables.");
+                throw new IndexOutOfRangeException("The specified elementary symmetric index must be between zero and the number of variables.");
             }
-
-            if (!this.ring.IsAdditiveUnity(coeff))
+            else
             {
-                this.polynomialTerms.Add(innerDegree, coeff);
+
             }
         }
 
         public SymmetricPolynomial(List<string> variables, List<int> degree, T coeff, R ring)
             : this(variables, ring)
         {
+            if (coeff == null)
+            {
+                throw new ArgumentNullException("coeff");
+            }
+
             var innerDegree = this.GetSimplifiedDegree(degree);
+            if (degree.Count > this.variables.Count)
+            {
+                throw new ArgumentException("The number elements on degree must not surpass the number of defined variables.");
+            }
+
             if (!this.ring.IsAdditiveUnity(coeff))
             {
                 this.polynomialTerms.Add(innerDegree, coeff);
@@ -103,7 +112,41 @@ namespace Mathematics.AlgebraicStructures.Polynomial
         public SymmetricPolynomial(List<string> variables, Dictionary<int, int> degree, T coeff, R ring)
             : this(variables, ring)
         {
-            throw new NotImplementedException();
+            if (coeff == null)
+            {
+                throw new ArgumentNullException("coeff");
+            }
+
+            if (degree != null && !ring.IsAdditiveUnity(coeff))
+            {
+                var innerDegree = new Dictionary<int, int>();
+                var degreeCount = 0;
+                foreach (var kvp in degree)
+                {
+                    if (kvp.Key < 0)
+                    {
+                        throw new ArgumentException("Every degree in symmetric polynomial can't be negative.");
+                    }
+                    else if (kvp.Value <= 0)
+                    {
+                        throw new ArgumentException("Every degree count in symmetric polynomial must be non-negative.");
+                    }
+                    else
+                    {
+                        ++degreeCount;
+                        innerDegree.Add(kvp.Key, kvp.Value);
+                    }
+                }
+
+                if (degreeCount != variables.Count)
+                {
+                    throw new ArgumentException("The number elements on degree must not surpass the number of defined variables.");
+                }
+                else
+                {
+                    this.polynomialTerms.Add(innerDegree, coeff);
+                }
+            }
         }
 
         /// <summary>
@@ -250,11 +293,35 @@ namespace Mathematics.AlgebraicStructures.Polynomial
             {
                 foreach (var rightTerm in right.polynomialTerms)
                 {
-
+                    var factors = this.MultiplyMonomials(
+                        thisTerm.Value,
+                        thisTerm.Key,
+                        rightTerm.Value,
+                        rightTerm.Key);
+                    foreach (var factorKvp in factors)
+                    {
+                        var coeff = default(T);
+                        if (result.polynomialTerms.TryGetValue(factorKvp.Key, out coeff))
+                        {
+                            coeff = result.ring.Add(coeff, factorKvp.Value);
+                            if (this.ring.IsAdditiveUnity(coeff))
+                            {
+                                result.polynomialTerms.Remove(factorKvp.Key);
+                            }
+                            else
+                            {
+                                result.polynomialTerms[factorKvp.Key] = coeff;
+                            }
+                        }
+                        else
+                        {
+                            result.polynomialTerms.Add(factorKvp.Key, factorKvp.Value);
+                        }
+                    }
                 }
             }
 
-            throw new NotImplementedException();
+            return result;
         }
 
         /// <summary>
@@ -267,7 +334,96 @@ namespace Mathematics.AlgebraicStructures.Polynomial
         /// <returns>A respresentação polinomial do polinómio simétrico como combinação dos polinómios simétricos elementares.</returns>
         public Polynomial<T, R> GetElementarySymmetricRepresentation(Dictionary<int, Tuple<bool, string, T>> elementarySymmetricVarDefs)
         {
+            var result = new Polynomial<T, R>(this.ring);
+
             throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Obtém uma representação do monómio correspondente em termos dos polinómios simétricos elementares.
+        /// </summary>
+        /// <param name="monomialDegree">O grau do monómio.</param>
+        /// <param name="coeff">O coeficiente do monómio.</param>
+        /// <param name="elementarySymmetricVarDefs">
+        /// Um dicionário que permite mapear entre o n-ésimo polinómios simétrico e o seu nome, caso a primeira entrada do tuplo
+        /// se encontre a falso e o seu valor caso esta se encontre a verdadeiro.
+        /// </param>
+        /// <returns>A representação polinomial.</returns>
+        private Polynomial<T, R> GetElementarySymmetricMonomialRepresentation(
+            Dictionary<int, int> monomialDegree,
+            T coeff,
+            Dictionary<int, Tuple<bool, string, T>> elementarySymmetricVarDefs)
+        {
+            var result = new Polynomial<T, R>(this.ring.AdditiveUnity, this.ring);
+            var monomialStack = new Stack<KeyValuePair<Dictionary<int, int>, T>>();
+            var operationTypeStack = new Stack<OperationType>();
+            monomialStack.Push(new KeyValuePair<Dictionary<int, int>, T>(monomialDegree, coeff));
+            operationTypeStack.Push(OperationType.ADD);
+            while (monomialStack.Count != 0)
+            {
+                var topMonomial = monomialStack.Pop();
+                var topOperation = operationTypeStack.Pop();
+                var index = this.GetelementarySymmetricIndex(topMonomial.Key);
+                if (index == -1)
+                {
+                    // TODO: completar esta parte da função
+                }
+                else
+                {
+                    Polynomial<T, R> symPolRes;
+                    Tuple<bool, string, T> varDefs = null;
+                    if (elementarySymmetricVarDefs.TryGetValue(index, out varDefs))
+                    {
+                        if (varDefs.Item1)
+                        {
+                            var variableCoeff = varDefs.Item3;
+                            if (this.ring.IsAdditiveUnity(variableCoeff))
+                            {
+                                symPolRes = new Polynomial<T, R>(variableCoeff, this.ring);
+                            }
+                            else
+                            {
+                                variableCoeff = this.ring.Multiply(variableCoeff, topMonomial.Value);
+                                symPolRes = new Polynomial<T, R>(variableCoeff, this.ring);
+                            }
+                        }
+                        else
+                        {
+                            symPolRes = new Polynomial<T, R>(topMonomial.Value, varDefs.Item2, this.ring);
+                        }
+                    }
+                    else
+                    {
+                        var defaultSymmetricName = this.GetElementarySymmDefaultName(index);
+                        symPolRes = new Polynomial<T, R>(topMonomial.Value, defaultSymmetricName, this.ring);
+                    }
+
+                    if (topOperation == OperationType.ADD)
+                    {
+                        result = result.Add(symPolRes);
+                    }
+                    else if (topOperation == OperationType.MULTIPLY)
+                    {
+                        result = result.Multiply(symPolRes);
+                    }
+                    else
+                    {
+                        throw new NotImplementedException("Unknown operation type.");
+                    }
+                }
+            }
+
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Obtém o nome por defeito do simétrico elementar.
+        /// </summary>
+        /// <param name="index">O índice do simétrico elementar.</param>
+        /// <returns>O nome por defeito.</returns>
+        private string GetElementarySymmDefaultName(int index)
+        {
+            return string.Format("s[{0}]", index);
         }
 
         /// <summary>
@@ -296,7 +452,7 @@ namespace Mathematics.AlgebraicStructures.Polynomial
                 {
                     if (degreeItem < 0)
                     {
-                        throw new ArgumentException("The degree in symmetric polynomial can't be zero.");
+                        throw new ArgumentException("Every degree in symmetric polynomial can't be negative.");
                     }
                     else
                     {
@@ -372,18 +528,18 @@ namespace Mathematics.AlgebraicStructures.Polynomial
 
             int[] permutationDegree;
             int[] fixedDegree;
-            IntegerFactorialFraction permutationDegreeNumber;
+            Dictionary<int, int> fixedCompactDegree;
             if (firstDegreeNumberNumerator < secondDegreeNumberNumerator)
             {
                 permutationDegree = this.ExpandDegree(firstMonomialDegree);
                 fixedDegree = this.ExpandDegree(secondMonomialDegree);
-                permutationDegreeNumber = firstDegreeNumber;
+                fixedCompactDegree = secondMonomialDegree;
             }
             else
             {
                 permutationDegree = this.ExpandDegree(secondMonomialDegree);
                 fixedDegree = this.ExpandDegree(firstMonomialDegree);
-                permutationDegreeNumber = secondDegreeNumber;
+                fixedCompactDegree = firstMonomialDegree;
             }
 
             var result = new Dictionary<Dictionary<int, int>, T>(this.degreeComparer);
@@ -401,10 +557,162 @@ namespace Mathematics.AlgebraicStructures.Polynomial
                 }
 
                 var compactSum = this.CompactDegree(sumDegree);
-                // TODO: somar o grau à variável degrees count e, fora do ciclo, proceder ao respectivo processamento.
+                var degreeCount = 0;
+                if (degreesCount.TryGetValue(compactSum, out degreeCount))
+                {
+                    degreesCount[compactSum] = degreeCount + 1;
+                }
+                else
+                {
+                    degreesCount.Add(compactSum, 1);
+                }
             }
 
-            throw new NotImplementedException();
+            var coeffProd = this.ring.Multiply(firstMonomialCoeff, secondMonomialCoeff);
+            foreach (var degreeCountKvp in degreesCount)
+            {
+                var scaleFactor = this.GetFactorScale(fixedCompactDegree, degreeCountKvp.Key);
+                scaleFactor.NumeratorNumberMultiply(degreeCountKvp.Value);
+                coeffProd = MathFunctions.AddPower(coeffProd, scaleFactor.Numerator, this.ring);
+                result.Add(degreeCountKvp.Key, coeffProd);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Obtém o grau corresopndente ao simétrico elementar especificado pelo índice respectivo.
+        /// </summary>
+        /// <param name="elementaryIndex">O índice do polinómio simétrico elementar.</param>
+        /// <returns>O grau do polinómio simétrico elementar.</returns>
+        private Dictionary<int, int> GetElementarySymmetric(int elementaryIndex)
+        {
+            var result = new Dictionary<int, int>();
+            if (elementaryIndex == 0)
+            {
+                result.Add(0, this.variables.Count);
+            }
+            else if (this.variables.Count == 0)
+            {
+                result.Add(1, elementaryIndex);
+            }
+            else
+            {
+                result.Add(1, elementaryIndex);
+                result.Add(0, this.variables.Count - elementaryIndex);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Obtém o índice do polinómio simétrico elementar.
+        /// </summary>
+        /// <param name="degree">O grau do polinómio simétrico elementar.</param>
+        /// <returns>O índice do polinómio simétrico elementar. Retorna -1 se não se trata de um simétrico elementar.</returns>
+        private int GetelementarySymmetricIndex(Dictionary<int, int> degree)
+        {
+            var result = -1;
+            var degreeEnumerator = degree.GetEnumerator();
+            if (degreeEnumerator.MoveNext())
+            {
+                if (degreeEnumerator.Current.Key == 1)
+                {
+                    var count = degreeEnumerator.Current.Value;
+                    if (degreeEnumerator.MoveNext())
+                    {
+                        if (degreeEnumerator.Current.Key == 0)
+                        {
+                            if (degreeEnumerator.MoveNext())
+                            {
+                                result = -1;
+                            }
+                            else
+                            {
+                                result = count;
+                            }
+                        }
+                        else
+                        {
+                            result = -1;
+                        }
+                    }
+                    else
+                    {
+                        result = degreeEnumerator.Current.Value;
+                    }
+                }
+                else if (degreeEnumerator.Current.Key == 0)
+                {
+                    if (degreeEnumerator.MoveNext())
+                    {
+                        if (degreeEnumerator.Current.Key == 1)
+                        {
+                            if (degreeEnumerator.MoveNext())
+                            {
+                                result = -1;
+                            }
+                            else
+                            {
+                                result = degreeEnumerator.Current.Value;
+                            }
+                        }
+                        else
+                        {
+                            result = -1;
+                        }
+                    }
+                    else
+                    {
+                        result = 0;
+                    }
+                }
+                else
+                {
+                    result = -1;
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Obtém o maior simétrico elementar que divide o grau considerado.
+        /// </summary>
+        /// <param name="degree">O grau considerado.</param>
+        /// <returns>O simétrico elementar.</returns>
+        private Dictionary<int, int> GetMaximumSymmetricDivisor(Dictionary<int, int> degree)
+        {
+            var zeroCount = 0;
+            var nonZeroCount = 0;
+            foreach (var degreeKvp in degree)
+            {
+                if (degreeKvp.Key == 0)
+                {
+                    ++zeroCount;
+                }
+                else
+                {
+                    ++nonZeroCount;
+                }
+            }
+
+            var result = new Dictionary<int, int>();
+            if (zeroCount == 0)
+            {
+                result.Add(1, nonZeroCount);
+            }
+            else if (nonZeroCount == 0)
+            {
+                result.Add(0, zeroCount);
+            }
+            else
+            {
+                result.Add(1, nonZeroCount);
+                result.Add(0, nonZeroCount);
+            }
+
+            return result;
         }
 
         /// <summary>
@@ -489,6 +797,16 @@ namespace Mathematics.AlgebraicStructures.Polynomial
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Serve para identificar o tipo de operação que é realizada nas etapas da determinação
+        /// de uma representação do polinómio simétrico em termos dos polinómios simétricos elementares.
+        /// </summary>
+        private enum OperationType
+        {
+            ADD,
+            MULTIPLY
         }
     }
 }
