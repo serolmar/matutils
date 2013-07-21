@@ -42,7 +42,10 @@
             : this(coefficientRing)
         {
             var list = new List<int>();
-            this.coeffsMap.Add(list, coeff);
+            if (!this.polynomialCoeffRing.IsAdditiveUnity(coeff))
+            {
+                this.coeffsMap.Add(list, coeff);
+            }
         }
 
         public Polynomial(T coeff, int degree, string var, R coefficientRing)
@@ -59,13 +62,16 @@
             }
 
             var list = new List<int>();
-            if (degree != 0)
+            if (!this.polynomialCoeffRing.IsAdditiveUnity(coeff))
             {
-                list.Add(degree);
-                this.variables.Add(new PolynomialGeneralVariable<T, R>(var));
-            }
+                if (degree != 0)
+                {
+                    list.Add(degree);
+                    this.variables.Add(new PolynomialGeneralVariable<T, R>(var));
+                }
 
-            this.coeffsMap.Add(list, coeff);
+                this.coeffsMap.Add(list, coeff);
+            }
         }
 
         public Polynomial(T coeff,
@@ -80,45 +86,48 @@
             }
 
             var list = new List<int>();
-            if (degree != null)
+            if (!this.polynomialCoeffRing.IsAdditiveUnity(coeff))
             {
-                var degreeEnumerator = degree.GetEnumerator();
-                var varsEnumerator = vars.GetEnumerator();
-                var degreeState = degreeEnumerator.MoveNext();
-                var varsState = varsEnumerator.MoveNext();
-
-                while (degreeState && varsState)
+                if (degree != null)
                 {
-                    if (!string.IsNullOrEmpty(varsEnumerator.Current))
+                    var degreeEnumerator = degree.GetEnumerator();
+                    var varsEnumerator = vars.GetEnumerator();
+                    var degreeState = degreeEnumerator.MoveNext();
+                    var varsState = varsEnumerator.MoveNext();
+
+                    while (degreeState && varsState)
                     {
-                        if (degreeEnumerator.Current < 0)
+                        if (!string.IsNullOrEmpty(varsEnumerator.Current))
                         {
-                            throw new MathematicsException("Negative degrees aren't allowed in polynomial.");
+                            if (degreeEnumerator.Current < 0)
+                            {
+                                throw new MathematicsException("Negative degrees aren't allowed in polynomial.");
+                            }
+
+                            if (degreeEnumerator.Current != 0)
+                            {
+                                list.Add(degreeEnumerator.Current);
+                                this.variables.Add(new PolynomialGeneralVariable<T, R>(varsEnumerator.Current));
+                            }
                         }
 
+                        degreeState = degreeEnumerator.MoveNext();
+                        varsState = varsEnumerator.MoveNext();
+                    }
+
+                    while (degreeState)
+                    {
                         if (degreeEnumerator.Current != 0)
                         {
-                            list.Add(degreeEnumerator.Current);
-                            this.variables.Add(new PolynomialGeneralVariable<T, R>(varsEnumerator.Current));
+                            throw new MathematicsException("Number of non-zero degrees must be lesser than the number of non empty variables.");
                         }
-                    }
 
-                    degreeState = degreeEnumerator.MoveNext();
-                    varsState = varsEnumerator.MoveNext();
+                        degreeState = degreeEnumerator.MoveNext();
+                    }
                 }
 
-                while (degreeState)
-                {
-                    if (degreeEnumerator.Current != 0)
-                    {
-                        throw new MathematicsException("Number of non-zero degrees must be lesser than the number of non empty variables.");
-                    }
-
-                    degreeState = degreeEnumerator.MoveNext();
-                }
+                this.coeffsMap.Add(list, coeff);
             }
-
-            this.coeffsMap.Add(list, coeff);
         }
 
         public Polynomial(T coeff, string var, R coefficientRing)

@@ -34,9 +34,11 @@
                 return multiplier.MultiplicativeUnity;
             }
 
+            var innerPow = GetInversion(pow);
+
             var result = val;
-            var rem = pow % 2;
-            pow = pow / 2;
+            var rem = innerPow % 2;
+            innerPow = innerPow / 2;
             while (pow > 0)
             {
                 result = multiplier.Multiply(result, result);
@@ -45,8 +47,8 @@
                     result = multiplier.Multiply(val, result);
                 }
 
-                rem = pow % 2;
-                pow = pow / 2;
+                rem = innerPow % 2;
+                innerPow = innerPow / 2;
             }
 
             return result;
@@ -79,10 +81,12 @@
                 return modnoid.AdditiveUnity;
             }
 
+            var innerPow = GetInversion(pow);
+
             var result = val;
-            var rem = pow % 2;
-            pow = pow / 2;
-            while (pow > 0)
+            var rem = innerPow % 2;
+            innerPow = innerPow / 2;
+            while (innerPow > 0)
             {
                 result = modnoid.Add(result, result);
                 if (rem == 1)
@@ -90,8 +94,8 @@
                     result = modnoid.Add(val, result);
                 }
 
-                rem = pow % 2;
-                pow = pow / 2;
+                rem = innerPow % 2;
+                innerPow = innerPow / 2;
             }
 
             return result;
@@ -144,6 +148,31 @@
             }
 
             return a;
+        }
+
+        /// <summary>
+        /// Gets the power inversion.
+        /// </summary>
+        /// <param name="pow">The power to be inverted.</param>
+        /// <returns>The inverted power.</returns>
+        private static int GetInversion(int pow)
+        {
+            var result = 1;
+            var rem = pow % 2;
+            pow = pow / 2;
+            while (pow > 0)
+            {
+                result = result * 2;
+                if (rem == 1)
+                {
+                    result = result + 1;
+                }
+
+                rem = pow % 2;
+                pow = pow / 2;
+            }
+
+            return result;
         }
     }
 }

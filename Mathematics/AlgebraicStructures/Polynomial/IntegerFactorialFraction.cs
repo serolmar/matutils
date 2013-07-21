@@ -257,13 +257,13 @@ namespace Mathematics.AlgebraicStructures.Polynomial
                                     if (currentKvpAux != 1)
                                     {
                                         var degree = 0;
-                                        if (auxiliary.TryGetValue(currentKvp, out degree))
+                                        if (auxiliary.TryGetValue(currentKvpAux, out degree))
                                         {
-                                            auxiliary[currentKvp] = degree + 1;
+                                            auxiliary[currentKvpAux] = degree + 1;
                                         }
                                         else
                                         {
-                                            auxiliary.Add(currentKvp, 1);
+                                            auxiliary.Add(currentKvpAux, 1);
                                         }
 
                                         currentKvp = currentKvpAux;

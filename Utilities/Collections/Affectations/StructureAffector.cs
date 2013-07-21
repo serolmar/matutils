@@ -99,7 +99,8 @@ namespace Utilities.Collections
                 StructureAffector affector = this.thisFastAffector as StructureAffector;
                 int indexBeingAffected = affector.affectorMatrix[this.currentPointer][this.currentAffectationIndices[this.currentPointer]];
 
-                if (affector.numberOfPossibleAffectationsByIndice.ContainsKey(indexBeingAffected))
+                if (affector.numberOfPossibleAffectationsByIndice != null &&
+                    affector.numberOfPossibleAffectationsByIndice.ContainsKey(indexBeingAffected))
                 {
                     if (!this.affectedIndices.ContainsKey(indexBeingAffected))
                     {

@@ -18,6 +18,17 @@
     {
         static void Main(string[] args)
         {
+            var dictionary = new Dictionary<int, int>();
+            dictionary.Add(2, 2);
+            dictionary.Add(0, 2);
+            var symmetric = new SymmetricPolynomial<int, IntegerDomain>(
+                new List<string>() { "x", "y", "z", "w" },
+                dictionary,
+                1,
+                new IntegerDomain());
+
+            var rep = symmetric.GetElementarySymmetricRepresentation(new Dictionary<int, Tuple<bool, string, int>>());
+
             var tester = new ObjectTester();
             tester.Run(Console.In, Console.Out);
         }
