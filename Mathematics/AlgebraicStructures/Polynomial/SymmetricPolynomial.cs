@@ -337,144 +337,146 @@ namespace Mathematics.AlgebraicStructures.Polynomial
             var symmetricTermsStack = new Stack<Dictionary<Dictionary<int, int>, T>>();
             var resultStack = new Stack<Polynomial<T, R>>();
             symmetricTermsStack.Push(this.polynomialTerms);
+            resultStack.Push(new Polynomial<T, R>(this.ring.AdditiveUnity, this.ring));
             resultStack.Push(new Polynomial<T, R>(this.ring.MultiplicativeUnity, this.ring));
             resultStack.Push(new Polynomial<T, R>(this.ring.AdditiveUnity, this.ring));
             while (symmetricTermsStack.Count > 0)
             {
                 var topMonomials = symmetricTermsStack.Pop();
-                var otherResultTop = resultStack.Pop();
-                var resultTop = resultStack.Pop();
                 var topEnumerator = topMonomials.GetEnumerator();
                 if (topEnumerator.MoveNext())
                 {
                     var topMonomial = topEnumerator.Current;
-                    if (topMonomial.Key.Count > 0)
+                    var index = this.GetelementarySymmetricIndex(topMonomial.Key);
+                    if (index == -1)
                     {
-                        var index = this.GetelementarySymmetricIndex(topMonomial.Key);
-                        if (index == -1)
+                        var degreeDivisor = this.GetDivisor(topMonomial.Key);
+                        var maximumSymmetric = this.GetMaximumSymmetric(topMonomial.Key);
+                        var multTerms = this.MultiplyMonomials(
+                            this.ring.MultiplicativeUnity,
+                            degreeDivisor,
+                            this.ring.AdditiveInverse(topMonomial.Value),
+                            maximumSymmetric);
+
+                        var newTopMonomial = new Dictionary<Dictionary<int, int>, T>();
+                        multTerms.Remove(topMonomial.Key);
+                        while (topEnumerator.MoveNext())
                         {
-                            var degreeDivisor = this.GetDivisor(topMonomial.Key);
-                            var maximumSymmetric = this.GetMaximumSymmetric(topMonomial.Key);
-                            var multTerms = this.MultiplyMonomials(
-                                this.ring.MultiplicativeUnity,
-                                degreeDivisor,
-                                this.ring.AdditiveInverse(topMonomial.Value),
-                                maximumSymmetric);
-
-                            var newTopMonomial = new Dictionary<Dictionary<int, int>, T>();
-                            multTerms.Remove(topMonomial.Key);
-                            while (topEnumerator.MoveNext())
+                            T value = default(T);
+                            if (multTerms.TryGetValue(topEnumerator.Current.Key, out value))
                             {
-                                T value = default(T);
-                                if (multTerms.TryGetValue(topEnumerator.Current.Key, out value))
-                                {
-                                    value = this.ring.Add(value, topEnumerator.Current.Value);
-                                    multTerms.Remove(topEnumerator.Current.Key);
-                                }
-                                else
-                                {
-                                    value = topEnumerator.Current.Value;
-                                }
-
-                                newTopMonomial.Add(topEnumerator.Current.Key, value);
+                                value = this.ring.Add(value, topEnumerator.Current.Value);
+                                multTerms.Remove(topEnumerator.Current.Key);
+                            }
+                            else
+                            {
+                                value = topEnumerator.Current.Value;
                             }
 
-                            foreach (var multTerm in multTerms)
-                            {
-                                newTopMonomial.Add(multTerm.Key, multTerm.Value);
-                            }
+                            newTopMonomial.Add(topEnumerator.Current.Key, value);
+                        }
 
-                            resultStack.Push(resultTop);
-                            resultStack.Push(new Polynomial<T, R>(this.ring.AdditiveUnity, this.ring));
-                            symmetricTermsStack.Push(newTopMonomial);
+                        foreach (var multTerm in multTerms)
+                        {
+                            newTopMonomial.Add(multTerm.Key, multTerm.Value);
+                        }
 
-                            Tuple<bool, string, T> varDefs = null;
-                            index = this.GetelementarySymmetricIndex(maximumSymmetric);
-                            if (elementarySymmetricVarDefs.TryGetValue(index, out varDefs))
+                        symmetricTermsStack.Push(newTopMonomial);
+
+                        Tuple<bool, string, T> varDefs = null;
+                        index = this.GetelementarySymmetricIndex(maximumSymmetric);
+                        if (elementarySymmetricVarDefs.TryGetValue(index, out varDefs))
+                        {
+                            if (varDefs.Item1)
                             {
-                                if (varDefs.Item1)
+                                var variableCoeff = varDefs.Item3;
+                                if (!this.ring.IsAdditiveUnity(variableCoeff))
                                 {
-                                    var variableCoeff = varDefs.Item3;
-                                    if (!this.ring.IsAdditiveUnity(variableCoeff))
-                                    {
-                                        resultTop = resultTop.Multiply(new Polynomial<T, R>(variableCoeff, this.ring));
-                                        var newSymmetricPol = new Dictionary<Dictionary<int, int>, T>();
-                                        newSymmetricPol.Add(degreeDivisor, this.ring.MultiplicativeUnity);
-                                        symmetricTermsStack.Push(newSymmetricPol);
-                                        resultStack.Push(resultTop);
-                                        resultStack.Push(new Polynomial<T, R>(this.ring.AdditiveUnity, this.ring));
-                                    }
-                                }
-                                else
-                                {
-                                    resultTop = resultTop.Multiply(new Polynomial<T, R>(topMonomial.Value, varDefs.Item2, this.ring));
                                     var newSymmetricPol = new Dictionary<Dictionary<int, int>, T>();
                                     newSymmetricPol.Add(degreeDivisor, this.ring.MultiplicativeUnity);
                                     symmetricTermsStack.Push(newSymmetricPol);
-                                    resultStack.Push(resultTop);
+
+                                    resultStack.Push(new Polynomial<T, R>(variableCoeff, this.ring));
                                     resultStack.Push(new Polynomial<T, R>(this.ring.AdditiveUnity, this.ring));
+
                                 }
                             }
                             else
                             {
-                                var defaultSymmetricName = this.GetElementarySymmDefaultName(index);
-                                resultTop = new Polynomial<T, R>(topMonomial.Value, defaultSymmetricName, this.ring);
                                 var newSymmetricPol = new Dictionary<Dictionary<int, int>, T>();
                                 newSymmetricPol.Add(degreeDivisor, this.ring.MultiplicativeUnity);
                                 symmetricTermsStack.Push(newSymmetricPol);
-                                resultStack.Push(resultTop);
+
+                                resultStack.Push(new Polynomial<T, R>(topMonomial.Value, varDefs.Item2, this.ring));
                                 resultStack.Push(new Polynomial<T, R>(this.ring.AdditiveUnity, this.ring));
+
                             }
                         }
                         else
                         {
-                            resultTop = otherResultTop.Add(resultTop);
-                            Tuple<bool, string, T> varDefs = null;
-                            if (elementarySymmetricVarDefs.TryGetValue(index, out varDefs))
+                            var newSymmetricPol = new Dictionary<Dictionary<int, int>, T>();
+                            newSymmetricPol.Add(degreeDivisor, this.ring.MultiplicativeUnity);
+                            symmetricTermsStack.Push(newSymmetricPol);
+
+                            var defaultSymmetricName = this.GetElementarySymmDefaultName(index);
+
+                            resultStack.Push(new Polynomial<T, R>(topMonomial.Value, defaultSymmetricName, this.ring));
+                            resultStack.Push(new Polynomial<T, R>(this.ring.AdditiveUnity, this.ring));
+
+                        }
+                    }
+                    else
+                    {
+                        Tuple<bool, string, T> varDefs = null;
+                        if (elementarySymmetricVarDefs.TryGetValue(index, out varDefs))
+                        {
+                            if (varDefs.Item1)
                             {
-                                if (varDefs.Item1)
+                                var variableCoeff = varDefs.Item3;
+                                if (!this.ring.IsAdditiveUnity(variableCoeff))
                                 {
-                                    var variableCoeff = varDefs.Item3;
-                                    if (!this.ring.IsAdditiveUnity(variableCoeff))
-                                    {
-                                        resultTop = resultTop.Multiply(new Polynomial<T, R>(variableCoeff, this.ring));
-                                        var multTerm = resultStack.Pop();
-                                        resultTop = resultTop.Multiply(multTerm);
-                                        resultStack.Push(resultTop);
-                                    }
-                                }
-                                else
-                                {
-                                    resultTop = resultTop.Multiply(new Polynomial<T, R>(topMonomial.Value, varDefs.Item2, this.ring));
-                                    var multTerm = resultStack.Pop();
-                                    resultTop = resultTop.Multiply(multTerm);
-                                    resultStack.Push(resultTop);
+                                    var resultTop = resultStack.Pop();
+                                    resultStack.Push(resultTop.Add(new Polynomial<T, R>(variableCoeff, this.ring)));
                                 }
                             }
                             else
                             {
-                                var defaultSymmetricName = this.GetElementarySymmDefaultName(index);
-                                resultTop = resultTop.Multiply(new Polynomial<T, R>(topMonomial.Value, defaultSymmetricName, this.ring));
-                                resultStack.Push(resultTop);
+                                var resultTop = resultStack.Pop();
+                                resultStack.Push(resultTop.Add(new Polynomial<T, R>(topMonomial.Value, varDefs.Item2, this.ring)));
                             }
                         }
+                        else
+                        {
+                            var defaultSymmetricName = this.GetElementarySymmDefaultName(index);
+
+                            var resultTop = resultStack.Pop();
+                            resultStack.Push(resultTop.Add(new Polynomial<T, R>(topMonomial.Value, defaultSymmetricName, this.ring)));
+                        }
+
+                        topMonomials.Remove(topMonomial.Key);
+                        symmetricTermsStack.Push(topMonomials);
                     }
                 }
                 else
                 {
+                    var resultTop = resultStack.Pop();
+                    var toMultiply = resultStack.Pop();
+                    var toAdd = resultStack.Pop();
+                    resultTop = resultTop.Multiply(toMultiply);
+                    resultTop = resultTop.Add(toAdd);
                     resultStack.Push(resultTop);
                 }
             }
-            //foreach (var kvp in this.polynomialTerms)
-            //{
-            //    var currentRep = this.GetElementarySymmetricMonomialRepresentation(
-            //        kvp.Key,
-            //        kvp.Value,
-            //        elementarySymmetricVarDefs);
-            //    result = result.Add(currentRep);
-            //}
 
-            throw new NotImplementedException();
+            if (resultStack.Count != 1)
+            {
+                throw new MathematicsException("A severe error has occured.");
+            }
+            else
+            {
+                var result = resultStack.Pop();
+                return result;
+            }
         }
 
         /// <summary>

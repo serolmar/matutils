@@ -875,7 +875,7 @@
             var numberOfZeroes = 0;
             for (int i = 0; i < leftDegree.Count; ++i)
             {
-                if (leftDegree[i] != 0)
+                if (leftDegree[i] != 0 && i < right.variables.Count)
                 {
                     if (i >= this.variables.Count)
                     {
