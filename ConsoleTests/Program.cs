@@ -22,6 +22,25 @@
             tester.Run(Console.In, Console.Out);
         }
 
+        static void Test4()
+        {
+            var dictionary = new Dictionary<int, int>();
+            dictionary.Add(5, 2);
+            dictionary.Add(0, 2);
+
+            var varDictionary = new Dictionary<int, Tuple<bool, string, int>>();
+            varDictionary.Add(1, Tuple.Create(true, "s[1]", 0));
+
+            var symmetric = new SymmetricPolynomial<int, IntegerDomain>(
+                new List<string>() { "x", "y", "z", "w" },
+                dictionary,
+                1,
+                new IntegerDomain());
+
+            var rep = symmetric.GetElementarySymmetricRepresentation(varDictionary);
+
+        }
+
         static void Test3()
         {
             var permutaionBoxAffector = new PermutationBoxAffector(new[] { 2, 2, 2 }, 3);

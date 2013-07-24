@@ -8,16 +8,31 @@
     using Utilities.Collections;
     using Utilities.Parsers;
 
+    /// <summary>
+    /// Representa uma matriz multidimensional.
+    /// </summary>
+    /// <typeparam name="T">O tipo de dados das entradas da matriz.</typeparam>
     public class MultiDimensionalRange<T> : IEnumerable<T>
     {
+        /// <summary>
+        /// Contém todos os elementos.
+        /// </summary>
         private T[] elements;
 
+        /// <summary>
+        /// Contém a configuração das dimensões da matriz.
+        /// </summary>
         private int[] configuration;
 
         internal MultiDimensionalRange()
         {
         }
 
+        /// <summary>
+        /// Instancia uma classe do tipo <see cref="MultiDimensionalRange"/>, provendo a
+        /// respectiva configuração.
+        /// </summary>
+        /// <param name="dimensions">A configuração da matriz.</param>
         public MultiDimensionalRange(IEnumerable<int> dimensions)
         {
             var p = 1;

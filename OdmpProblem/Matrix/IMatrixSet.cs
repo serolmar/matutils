@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Mathematics
+namespace OdmpProblem
 {
     public interface IMatrixSet<ComponentType, LineType, ColumnType, out T> : 
         IEnumerable<IMatrix<ComponentType, LineType, ColumnType, T>>

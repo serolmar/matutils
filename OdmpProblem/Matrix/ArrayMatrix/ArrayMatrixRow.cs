@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Mathematics
+namespace OdmpProblem
 {
     class ArrayMatrixRow<T> : IMatrixRow<int, int, T>
     {
@@ -23,11 +23,11 @@ namespace Mathematics
             {
                 if (columnIndex < 0)
                 {
-                    throw new MathematicsException("Column index can't be negative.");
+                    throw new OdmpProblemException("Column index can't be negative.");
                 }
                 else if (columnIndex >= this.elements.GetLength(1))
                 {
-                    throw new MathematicsException("Column index can't be greater or equal to the number of elements in line.");
+                    throw new OdmpProblemException("Column index can't be greater or equal to the number of elements in line.");
                 }
                 else
                 {

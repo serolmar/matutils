@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Mathematics
+namespace OdmpProblem
 {
     class SparseDictionaryMatrixRow<LineType, ColumnType, T> : IMatrixRow<LineType, ColumnType, T>
     {
@@ -48,7 +48,7 @@ namespace Mathematics
                 T value = default(T);
                 if (!this.lineElements.TryGetValue(columnIndex, out value))
                 {
-                    throw new MathematicsException("int index doesn't exist.");
+                    throw new OdmpProblemException("int index doesn't exist.");
                 }
                 else
                 {

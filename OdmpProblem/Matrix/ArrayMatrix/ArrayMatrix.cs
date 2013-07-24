@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Mathematics
+namespace OdmpProblem
 {
     public class ArrayMatrix<T> : IMatrix<int, int, int, T>
     {
@@ -15,7 +15,7 @@ namespace Mathematics
         {
             if (lines <= 0 || columns <= 0)
             {
-                throw new MathematicsException("Lines and columns must be positive.");
+                throw new OdmpProblemException("Lines and columns must be positive.");
             }
 
             this.component = component;
@@ -28,11 +28,11 @@ namespace Mathematics
             {
                 if (line < 0)
                 {
-                    throw new MathematicsException("Line number can't be negative.");
+                    throw new OdmpProblemException("Line number can't be negative.");
                 }
                 else if (line > this.elements.GetLength(0))
                 {
-                    throw new MathematicsException("Line number can't be greater or equal to the number of lines in matrix.");
+                    throw new OdmpProblemException("Line number can't be greater or equal to the number of lines in matrix.");
                 }
                 else
                 {
@@ -46,19 +46,19 @@ namespace Mathematics
             get {
                 if (line < 0)
                 {
-                    throw new MathematicsException("Line number can't be negative.");
+                    throw new OdmpProblemException("Line number can't be negative.");
                 }
                 else if (line > this.elements.GetLength(0))
                 {
-                    throw new MathematicsException("Line number can't be greater or equal to the number of lines in matrix.");
+                    throw new OdmpProblemException("Line number can't be greater or equal to the number of lines in matrix.");
                 }
                 else if (column < 0)
                 {
-                    throw new MathematicsException("Column number can't be negative.");
+                    throw new OdmpProblemException("Column number can't be negative.");
                 }
                 else if (column > this.elements.GetLength(1))
                 {
-                    throw new MathematicsException("Column number can't be greater or equal to the number of columns in matrix.");
+                    throw new OdmpProblemException("Column number can't be greater or equal to the number of columns in matrix.");
                 }
                 else
                 {
@@ -69,19 +69,19 @@ namespace Mathematics
             {
                 if (line < 0)
                 {
-                    throw new MathematicsException("Line number can't be negative.");
+                    throw new OdmpProblemException("Line number can't be negative.");
                 }
                 else if (line > this.elements.GetLength(0))
                 {
-                    throw new MathematicsException("Line number can't be greater or equal to the number of lines in matrix.");
+                    throw new OdmpProblemException("Line number can't be greater or equal to the number of lines in matrix.");
                 }
                 else if (column < 0)
                 {
-                    throw new MathematicsException("Column number can't be negative.");
+                    throw new OdmpProblemException("Column number can't be negative.");
                 }
                 else if (column > this.elements.GetLength(1))
                 {
-                    throw new MathematicsException("Column number can't be greater or equal to the number of columns in matrix.");
+                    throw new OdmpProblemException("Column number can't be greater or equal to the number of columns in matrix.");
                 }
                 else
                 {
@@ -100,7 +100,7 @@ namespace Mathematics
 
         public int Component
         {
-            get { throw new NotImplementedException(); }
+            get { return this.component; }
         }
 
         public int Count

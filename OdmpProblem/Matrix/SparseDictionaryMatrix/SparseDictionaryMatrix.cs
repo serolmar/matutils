@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Mathematics
+namespace OdmpProblem
 {
     public class SparseDictionaryMatrix<ComponentType, LineType, ColumnType, T> : IMatrix<ComponentType, LineType, ColumnType, T>
     {
@@ -57,7 +57,7 @@ namespace Mathematics
                 SparseDictionaryMatrixRow<LineType, ColumnType, T> result = null;
                 if (!this.lines.TryGetValue(line, out result))
                 {
-                    throw new MathematicsException("int doesn't exist.");
+                    throw new OdmpProblemException("int doesn't exist.");
                 }
                 else
                 {
@@ -80,7 +80,7 @@ namespace Mathematics
                     T result = default(T);
                     if (!dictionaryint.LineElements.TryGetValue(column, out result))
                     {
-                        throw new MathematicsException("Line doesn't exist in specified line.");
+                        throw new OdmpProblemException("Line doesn't exist in specified line.");
                     }
 
                     return result;

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Mathematics
+namespace OdmpProblem
 {
     internal class MatrixColumn<ColumnType, T> : IMatrixColumn<ColumnType, T>
     {

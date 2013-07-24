@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Mathematics
+namespace OdmpProblem
 {
     class MatrixSet<ComponentType, LineType, ColumnType, T> : IMatrixSet<ComponentType, LineType, ColumnType, T>
     {
@@ -37,7 +37,7 @@ namespace Mathematics
                 }
                 else
                 {
-                    throw new MathematicsException("Matrix index doesn't exist.");
+                    throw new OdmpProblemException("Matrix index doesn't exist.");
                 }
             }
         }
@@ -62,7 +62,7 @@ namespace Mathematics
         {
             if (matrix == null)
             {
-                throw new MathematicsException("A matrix must be provided.");
+                throw new OdmpProblemException("A matrix must be provided.");
             }
 
             if (this.components.ContainsKey(componentIndex))

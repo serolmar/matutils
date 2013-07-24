@@ -6,7 +6,7 @@ using System.Text;
 using Utilities.Parsers;
 using System.Globalization;
 
-namespace Mathematics
+namespace OdmpProblem
 {
     public class SparseMatrixSetReader<ComponentType, LineType, ColumnType, T>
     {
@@ -53,19 +53,19 @@ namespace Mathematics
         {
             if (objectElementsReader == null)
             {
-                throw new MathematicsException("An object parser must be provided.");
+                throw new OdmpProblemException("An object parser must be provided.");
             }
             else if (componentElementsReader == null)
             {
-                throw new MathematicsException("A component parser must be provided.");
+                throw new OdmpProblemException("A component parser must be provided.");
             }
             else if (lineElementsReader == null)
             {
-                throw new MathematicsException("A line parser must be provided.");
+                throw new OdmpProblemException("A line parser must be provided.");
             }
             else if (columnElementsReader == null)
             {
-                throw new MathematicsException("A column parser must be provided.");
+                throw new OdmpProblemException("A column parser must be provided.");
             }
             else
             {
@@ -115,11 +115,11 @@ namespace Mathematics
         {
             if (string.IsNullOrWhiteSpace(openDelimiterType))
             {
-                throw new MathematicsException("Open delimiter type can't be null.");
+                throw new OdmpProblemException("Open delimiter type can't be null.");
             }
             else if (string.IsNullOrWhiteSpace(closeDelimiterType))
             {
-                throw new MathematicsException("Close delimiter type can't be null.");
+                throw new OdmpProblemException("Close delimiter type can't be null.");
             }
             else
             {
@@ -166,7 +166,7 @@ namespace Mathematics
             var readed = reader.Get();
             if (reader.IsAtEOF())
             {
-                throw new MathematicsException("Unexpected end of file.");
+                throw new OdmpProblemException("Unexpected end of file.");
             }
 
             if (readed.SymbolType == "left_bracket")
@@ -211,7 +211,7 @@ namespace Mathematics
             }
             else
             {
-                throw new MathematicsException(string.Format("Unexpected symbol {0}.", readed.SymbolValue));
+                throw new OdmpProblemException(string.Format("Unexpected symbol {0}.", readed.SymbolValue));
             }
         }
 
@@ -226,7 +226,7 @@ namespace Mathematics
             var readed = reader.Get();
             if (reader.IsAtEOF())
             {
-                throw new MathematicsException("Unexpected end of file.");
+                throw new OdmpProblemException("Unexpected end of file.");
             }
 
             this.currentReadingValues.Clear();
@@ -234,7 +234,7 @@ namespace Mathematics
             {
                 if (this.coordState != 3)
                 {
-                    throw new MathematicsException(string.Format(
+                    throw new OdmpProblemException(string.Format(
                         "Wrong number, {0}, of coordinates. Expecting 3.",
                         this.coordState));
                 }
@@ -260,26 +260,26 @@ namespace Mathematics
                 case 0:
                     if (!this.componentElementsReader.TryParse(this.currentReadingValues.ToArray(), out this.componentCoord))
                     {
-                        throw new MathematicsException(string.Format("Can't parse component coordinate: {0}.", readed.SymbolValue));
+                        throw new OdmpProblemException(string.Format("Can't parse component coordinate: {0}.", readed.SymbolValue));
                     }
 
                     break;
                 case 1:
                     if (!this.lineElementsReader.TryParse(this.currentReadingValues.ToArray(), out this.lineCoord))
                     {
-                        throw new MathematicsException(string.Format("Can't parse line coordinate: {0}.", readed.SymbolValue));
+                        throw new OdmpProblemException(string.Format("Can't parse line coordinate: {0}.", readed.SymbolValue));
                     }
 
                     break;
                 case 2:
                     if (!this.columnElementsReader.TryParse(this.currentReadingValues.ToArray(), out this.columnCoord))
                     {
-                        throw new MathematicsException(string.Format("Can't parse column coordinate: {0}.", readed.SymbolValue));
+                        throw new OdmpProblemException(string.Format("Can't parse column coordinate: {0}.", readed.SymbolValue));
                     }
 
                     break;
                 default:
-                    throw new MathematicsException("An internal error has occured.");
+                    throw new OdmpProblemException("An internal error has occured.");
             }
 
             ++this.coordState;
@@ -297,7 +297,7 @@ namespace Mathematics
             var readed = reader.Get();
             if (reader.IsAtEOF())
             {
-                throw new MathematicsException("Unexpected end of file.");
+                throw new OdmpProblemException("Unexpected end of file.");
             }
 
             this.currentReadingValues.Clear();
@@ -317,7 +317,7 @@ namespace Mathematics
             var value = default(T);
             if (!this.objectElementsReader.TryParse(this.currentReadingValues.ToArray(), out value))
             {
-                throw new MathematicsException(string.Format("Can't parse value {0}.", readed.SymbolValue));
+                throw new OdmpProblemException(string.Format("Can't parse value {0}.", readed.SymbolValue));
             }
 
             this.SetValueInMatrixSet(this.componentCoord, this.lineCoord, this.columnCoord, value);
@@ -360,7 +360,7 @@ namespace Mathematics
             {
                 if (reader.IsAtEOF())
                 {
-                    throw new MathematicsException("Matriz set is in a wrong format.");
+                    throw new OdmpProblemException("Matriz set is in a wrong format.");
                 }
                 else
                 {
@@ -379,7 +379,7 @@ namespace Mathematics
             {
                 if (reader.IsAtEOF())
                 {
-                    throw new MathematicsException("Matriz set is in a wrong format.");
+                    throw new OdmpProblemException("Matriz set is in a wrong format.");
                 }
                 else
                 {
