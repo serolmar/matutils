@@ -4,10 +4,11 @@ using System.Linq;
 using System.Text;
 using Utilities.Parsers;
 using Utilities.Collections;
+using System.Collections.ObjectModel;
 
 namespace Mathematics
 {
-    public abstract class AMultiDimensionalRangeParser<T, SymbValue, SymbType, InputReader>
+    public abstract class ARangeReader<T, SymbValue, SymbType, InputReader>
     {
         #region Fields
         protected List<ISymbol<SymbValue, SymbType>> currentElementSymbols = new List<ISymbol<SymbValue, SymbType>>();
@@ -20,16 +21,122 @@ namespace Mathematics
 
         protected SymbType separatorSymb;
 
+        /// <summary>
+        /// Valor que indica se a leitura foi iniciada.
+        /// </summary>
+        protected bool hasStarted;
+
+        /// <summary>
+        /// Valor que indica se a leitura foi bem sucedida ou não.
+        /// </summary>
+        protected bool hasErrors;
+
+        /// <summary>
+        /// O conjunto de mensagens enviadas.
+        /// </summary>
+        protected List<string> errorMessages;
+
+        /// <summary>
+        /// Mantém a lista de símbolos que são ignorados.
+        /// </summary>
         protected List<SymbType> blancks = new List<SymbType>();
         #endregion
 
-        public AMultiDimensionalRangeParser()
+        public ARangeReader()
         {
+            this.hasErrors = false;
+            this.errorMessages = new List<string>();
         }
 
-        public abstract MultiDimensionalRange<T> ParseRange(
+        public void ReadRangeValues(
             MementoSymbolReader<InputReader, SymbValue, SymbType> reader,
-            IParse<T, SymbValue, SymbType> parser);
+            IParse<T, SymbValue, SymbType> parser)
+        {
+            if (this.hasStarted)
+            {
+                throw new MathematicsException("Reader has already been started.");
+            }
+            else
+            {
+                try
+                {
+                    if (this.mapInternalOpenDelimitersToCloseDelimitersTypes.Objects.Count == 0)
+                    {
+                        throw new MathematicsException("No internal delimiter symbols were provided.");
+                    }
+                    else if (this.separatorSymb == null)
+                    {
+                        throw new MathematicsException("No separator symbol was provided.");
+                    }
+                    else
+                    {
+                        this.hasStarted = true;
+                        this.errorMessages.Clear();
+                        this.hasErrors = false;
+                        this.InnerReadRangeValues(reader, parser);
+                        this.hasStarted = false;
+                    }
+                }
+                catch (Exception exception)
+                {
+                    this.hasStarted = false;
+                    this.hasErrors = true;
+                    throw exception;
+                }
+            }
+        }
+
+        public IEnumerable<int> Configuration
+        {
+            get
+            {
+                return this.GetFinalCofiguration();
+            }
+        }
+
+        public ReadOnlyCollection<T> Elements
+        {
+            get
+            {
+                return this.GetElements();
+            }
+        }
+
+        public bool HasErrors
+        {
+            get
+            {
+                return this.hasErrors;
+            }
+        }
+
+        public ReadOnlyCollection<string> ErrorMessages
+        {
+            get
+            {
+                return this.errorMessages.AsReadOnly();
+            }
+        }
+
+        public bool HasStarted
+        {
+            get
+            {
+                return this.hasStarted;
+            }
+        }
+
+        public SymbType SeparatorSymbType
+        {
+            get
+            {
+                return this.separatorSymb;
+            }
+            set
+            {
+                this.separatorSymb = value;
+            }
+        }
 
         #region Public Methods
         public void MapInternalDelimiters(SymbType openSymbolType, SymbType closeSymbType)
@@ -90,5 +197,12 @@ namespace Mathematics
             this.blancks.Clear();
         }
         #endregion
+
+        protected abstract void InnerReadRangeValues(MementoSymbolReader<InputReader, SymbValue, SymbType> reader,
+            IParse<T, SymbValue, SymbType> parser);
+
+        protected abstract IEnumerable<int> GetFinalCofiguration();
+
+        protected abstract ReadOnlyCollection<T> GetElements();
     }
 }

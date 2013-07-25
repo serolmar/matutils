@@ -71,7 +71,8 @@ namespace Mathematics.MathematicsInterpreter
 
             var lispStyleListParser = LispStyleList<AMathematicsObject>.GetParser(this);
 
-            var multidimensionalRangeParser = new MultiDimensionalRangeNoConfigParser<AMathematicsObject, string, string, CharSymbolReader>();
+            var rangeReader = new RangeNoConfigReader<AMathematicsObject, string, string, CharSymbolReader>();
+            var multidimensionalRangeParser = new MultiDimensionalRangeParser<AMathematicsObject, string, string, CharSymbolReader>(rangeReader);
             var multidimensionalRange = multidimensionalRangeParser.ParseRange(symbolReader , this);
             throw new NotImplementedException();
         }

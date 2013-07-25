@@ -18,8 +18,56 @@
     {
         static void Main(string[] args)
         {
+            Test6();
+        }
+
+        static void RunObjectTester()
+        {
             var tester = new ObjectTester();
             tester.Run(Console.In, Console.Out);
+        }
+
+        static void Test6()
+        {
+            // Note-se que neste caso estamos na presença de um conjunto de vectores coluna.
+            var input = "[[1,-1,2], [3,4,5], [2,1,1]]";
+
+            var reader = new StringReader(input);
+            var stringsymbolReader = new StringSymbolReader(reader, true);
+            var integerParser = new IntegerParser();
+
+            var arrayMatrixReader = new ArrayMatrixReader<int, string, string, CharSymbolReader>(3, 3);
+            arrayMatrixReader.MapInternalDelimiters("left_bracket", "right_bracket");
+            arrayMatrixReader.AddBlanckSymbolType("blancks");
+            arrayMatrixReader.SeparatorSymbType = "comma";
+
+            var matrix = arrayMatrixReader.ParseMatrix(stringsymbolReader, integerParser);
+            Console.WriteLine(matrix);
+
+            var permutationDeterminant = new PermutationDeterminantCalculator<int, IntegerDomain>(new IntegerDomain());
+            var computedDeterminant = permutationDeterminant.Run(matrix);
+
+            Console.WriteLine("O determinante vale: {0}.", computedDeterminant);
+            Console.ReadLine();
+        }
+
+        static void Test5()
+        {
+            var input = "[[1,2,3,4,5],[6,7,8,9,0]]";
+            var reader = new StringReader(input);
+            var stringsymbolReader = new StringSymbolReader(reader, true);
+            var integerParser = new IntegerParser();
+
+            var rangeNoConfig = new RangeNoConfigReader<int, string, string, CharSymbolReader>();
+            rangeNoConfig.MapInternalDelimiters("left_bracket", "right_bracket");
+            rangeNoConfig.AddBlanckSymbolType("blancks");
+            rangeNoConfig.SeparatorSymbType = "comma";
+
+            var multiDimensionalRangeReader = new MultiDimensionalRangeParser<int, string, string, CharSymbolReader>(rangeNoConfig);
+            var range = multiDimensionalRangeReader.ParseRange(stringsymbolReader, integerParser);
+
+            Console.WriteLine(range);
+            Console.ReadKey();
         }
 
         static void Test4()

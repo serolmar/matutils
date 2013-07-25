@@ -6,7 +6,11 @@ using Utilities.Parsers;
 
 namespace Mathematics
 {
-    class MultidimensionalRangeParserMementoManager
+    /// <summary>
+    /// Clase responsável por gerenciar os mementos aferentes à leitura
+    /// arbitrária de matrizes.
+    /// </summary>
+    class RangeReaderMementoManager
     {
         private IMemento memento;
 

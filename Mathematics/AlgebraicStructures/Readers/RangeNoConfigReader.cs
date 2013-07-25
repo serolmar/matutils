@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Utilities.Parsers;
+using System.Collections.ObjectModel;
 
 namespace Mathematics
 {
-    public class MultiDimensionalRangeNoConfigParser<T, SymbValue, SymbType, InputReader> : AMultiDimensionalRangeParser<T, SymbValue, SymbType, InputReader>
+    public class RangeNoConfigReader<T, SymbValue, SymbType, InputReader> : ARangeReader<T, SymbValue, SymbType, InputReader>
     {
         /// <summary>
         /// The element parser.
@@ -23,35 +24,13 @@ namespace Mathematics
 
         private Stack<SymbType> opsStack = new Stack<SymbType>();
 
-        private Stack<MultidimensionalRangeParserMementoManager> mementoStack = new Stack<MultidimensionalRangeParserMementoManager>();
+        private Stack<RangeReaderMementoManager> mementoStack = new Stack<RangeReaderMementoManager>();
 
         private List<IState<InputReader, SymbValue, SymbType>> stateList = new List<IState<InputReader, SymbValue, SymbType>>();
 
-        public MultiDimensionalRangeNoConfigParser()
+        public RangeNoConfigReader()
         {
             this.InitStates();
-        }
-
-        public SymbType SeparatorSymbType
-        {
-            get
-            {
-                return this.separatorSymb;
-            }
-            set
-            {
-                this.separatorSymb = value;
-            }
-        }
-
-        public override MultiDimensionalRange<T> ParseRange(MementoSymbolReader<InputReader, SymbValue, SymbType> reader,
-            IParse<T, SymbValue, SymbType> parser)
-        {
-            this.Reset();
-            this.parser = parser;
-            var range = new MultiDimensionalRange<T>();
-            this.ParseNoConfig(range, reader);
-            return range;
         }
 
         /// <summary>
@@ -60,20 +39,36 @@ namespace Mathematics
         /// <param name="range">The range.</param>
         /// <param name="reader">The reader.</param>
         /// <returns>The result.</returns>
-        private void ParseNoConfig(
-            MultiDimensionalRange<T> range,
-            MementoSymbolReader<InputReader, SymbValue, SymbType> reader)
+        protected override void InnerReadRangeValues(
+            MementoSymbolReader<InputReader, SymbValue, SymbType> reader,
+            IParse<T, SymbValue, SymbType> parser)
         {
-            this.finalConfiguration.Clear();
-            this.readedElements = new List<T>();
-            this.RunStateMchine(reader);
-            range.InternalElements = this.readedElements.ToArray();
-            var count = this.currentReadedConfiguration.Count - 1;
-            range.InnerConfiguration = new int[count];
-            for (int i = 0; i < count; ++i)
+            if (reader == null)
             {
-                range.InnerConfiguration[i] = this.finalConfiguration[i];
+                throw new ArgumentNullException("reader");
             }
+            else if (parser == null)
+            {
+                throw new ArgumentNullException("parser");
+            }
+            else
+            {
+                this.parser = parser;
+                this.finalConfiguration.Clear();
+                this.readedElements = new List<T>();
+                this.RunStateMchine(reader);
+                this.finalConfiguration.RemoveAt(this.finalConfiguration.Count - 1);
+            }
+        }
+
+        protected override IEnumerable<int> GetFinalCofiguration()
+        {
+            return this.finalConfiguration;
+        }
+
+        protected override ReadOnlyCollection<T> GetElements()
+        {
+            return this.readedElements.AsReadOnly();
         }
 
         private void RunStateMchine(MementoSymbolReader<InputReader, SymbValue, SymbType> reader)
@@ -104,7 +99,9 @@ namespace Mathematics
         {
             if (reader.IsAtEOF())
             {
-                throw new ExpressionReaderException("Expecting open delimiter but found end of expression.");
+                this.hasErrors = true;
+                this.errorMessages.Add("Expecting open delimiter but found end of expression.");
+                return this.stateList[1];
             }
             else
             {
@@ -120,7 +117,9 @@ namespace Mathematics
                 }
                 else
                 {
-                    throw new ExpressionReaderException("Expecting open delimiter at the begining of expression.");
+                    this.hasErrors = true;
+                    this.errorMessages.Add("Expecting open delimiter at the begining of expression.");
+                    return this.stateList[1];
                 }
             }
 
@@ -137,7 +136,9 @@ namespace Mathematics
             {
                 if (opsStack.Count != 0)
                 {
-                    throw new ExpressionReaderException("Delimiters mismatch.");
+                    this.hasErrors = true;
+                    this.errorMessages.Add("Delimiters mismatch.");
+                    return this.stateList[1];
                 }
 
                 return this.stateList[1];
@@ -159,7 +160,9 @@ namespace Mathematics
                         }
                         else
                         {
-                            throw new ExpressionReaderException("Expression doesn't match range dimensions.");
+                            this.hasErrors = true;
+                            this.errorMessages.Add("Expression doesn't match range dimensions.");
+                            return this.stateList[1];
                         }
                     }
                     else
@@ -189,7 +192,9 @@ namespace Mathematics
                 }
                 else
                 {
-                    throw new ExpressionReaderException("Parenthesis mismatch.");
+                    this.hasErrors = true;
+                    this.errorMessages.Add("Parenthesis mismatch.");
+                    return this.stateList[1];
                 }
             }
             else
@@ -198,7 +203,9 @@ namespace Mathematics
                 var readedSymbol = reader.Peek();
                 if (this.opsStack.Count == 0)
                 {
-                    throw new ExpressionReaderException("Unexpected symbol after final close delimiter.");
+                    this.hasErrors = true;
+                    this.errorMessages.Add("Unexpected symbol after final close delimiter.");
+                    return this.stateList[1];
                 }
                 else if (this.mapInternalOpenDelimitersToCloseDelimitersTypes.ContainsTarget(readedSymbol.SymbolType))
                 {
@@ -206,7 +213,9 @@ namespace Mathematics
                     if (!this.mapInternalOpenDelimitersToCloseDelimitersTypes.TargetFor(topOperator).Contains(
                         readedSymbol.SymbolType))
                     {
-                        throw new ExpressionReaderException("Delimiters mismatch.");
+                        this.hasErrors = true;
+                        this.errorMessages.Add("Delimiters mismatch.");
+                        return this.stateList[1];
                     }
                     else
                     {
@@ -246,7 +255,9 @@ namespace Mathematics
                             }
                             else
                             {
-                                throw new ExpressionReaderException("The number of readed elements in range doesn't match the initial configuration.");
+                                this.hasErrors = true;
+                                this.errorMessages.Add("The number of readed elements in range doesn't match the initial configuration.");
+                                return this.stateList[1];
                             }
                         }
                         else
@@ -259,15 +270,22 @@ namespace Mathematics
                 }
                 else if (this.mapInternalOpenDelimitersToCloseDelimitersTypes.ContainsObject(readedSymbol.SymbolType))
                 {
-                    throw new ExpressionReaderException("Unexpected open delimiter.");
+                    this.hasErrors = true;
+                    this.errorMessages.Add("Unexpected open delimiter.");
+                    return this.stateList[1];
                 }
                 else if (this.mapExternalOpenDelimitersToCloseDelimitersTypes.ContainsTarget(readedSymbol.SymbolType))
                 {
-                    throw new ExpressionReaderException("Unexpected open delimiter.");
+                    this.hasErrors = true;
+                    this.errorMessages.Add("Unexpected open delimiter.");
+                    return this.stateList[1];
+                    throw new ExpressionReaderException("");
                 }
                 else if (this.mapExternalOpenDelimitersToCloseDelimitersTypes.ContainsObject(readedSymbol.SymbolType))
                 {
-                    throw new ExpressionReaderException("Unexpected close delimiter.");
+                    this.hasErrors = true;
+                    this.errorMessages.Add("Unexpected close delimiter.");
+                    return this.stateList[1];
                 }
                 else if (readedSymbol.SymbolType.Equals(this.separatorSymb))
                 {
@@ -294,7 +312,9 @@ namespace Mathematics
                         }
                         else
                         {
-                            throw new ExpressionReaderException("The number of readed elements in range doesn't match the current configuration configuration.");
+                            this.hasErrors = true;
+                            this.errorMessages.Add("The number of readed elements in range doesn't match the current configuration configuration.");
+                            return this.stateList[1];
                         }
                     }
                     else
@@ -305,7 +325,9 @@ namespace Mathematics
                 }
                 else
                 {
-                    throw new ExpressionReaderException("Parse error.");
+                    this.hasErrors = true;
+                    this.errorMessages.Add("Parse error.");
+                    return this.stateList[1];
                 }
             }
         }
@@ -314,7 +336,9 @@ namespace Mathematics
         {
             if (reader.IsAtEOF())
             {
-                throw new ExpressionReaderException("Expecting open delimiter but found end of expression.");
+                this.hasErrors = true;
+                this.errorMessages.Add("Expecting open delimiter but found end of expression.");
+                return this.stateList[1];
             }
             else
             {
@@ -336,7 +360,9 @@ namespace Mathematics
                         }
                         else
                         {
-                            throw new ExpressionReaderException("Can't parse object value.");
+                            this.hasErrors = true;
+                            this.errorMessages.Add("Can't parse object value.");
+                            return this.stateList[1];
                         }
                     }
                     else
@@ -357,7 +383,9 @@ namespace Mathematics
         {
             if (reader.IsAtEOF())
             {
-                throw new ExpressionReaderException("Expecting open delimiter but found end of expression.");
+                this.hasErrors = true;
+                this.errorMessages.Add("Expecting open delimiter but found end of expression.");
+                return this.stateList[1];
             }
             else
             {
@@ -376,7 +404,9 @@ namespace Mathematics
                         }
                         else
                         {
-                            throw new ExpressionReaderException("Expression doesn't match range dimensions.");
+                            this.hasErrors = true;
+                            this.errorMessages.Add("Expression doesn't match range dimensions.");
+                            return this.stateList[1];
                         }
                     }
                     else
@@ -395,7 +425,9 @@ namespace Mathematics
                     {
                         if (this.currentReadedConfiguration[this.level] == this.finalConfiguration[this.level])
                         {
-                            throw new ExpressionReaderException("Invalid range dimensions.");
+                            this.hasErrors = true;
+                            this.errorMessages.Add("Invalid range dimensions.");
+                            return this.stateList[1];
                         }
                         else
                         {
@@ -408,20 +440,28 @@ namespace Mathematics
                     }
                     else
                     {
-                        throw new ExpressionReaderException("Unexpected open delimiter after operator within range dimensions.");
+                        this.hasErrors = true;
+                        this.errorMessages.Add("Unexpected open delimiter after operator within range dimensions.");
+                        return this.stateList[1];
                     }
                 }
                 else if (this.mapInternalOpenDelimitersToCloseDelimitersTypes.ContainsTarget(readedSymbol.SymbolType))
                 {
-                    throw new ExpressionReaderException("Unexpected close delimiter after separator.");
+                    this.hasErrors = true;
+                    this.errorMessages.Add("Unexpected close delimiter after separator.");
+                    return this.stateList[1];
                 }
                 else if (this.mapExternalOpenDelimitersToCloseDelimitersTypes.ContainsTarget(readedSymbol.SymbolType))
                 {
-                    throw new ExpressionReaderException("Unexpected close delimiter after separator.");
+                    this.hasErrors = true;
+                    this.errorMessages.Add("Unexpected close delimiter after separator.");
+                    return this.stateList[1];
                 }
                 else if (readedSymbol.SymbolType.Equals(this.separatorSymb))
                 {
-                    throw new ExpressionReaderException("Unexpected separator after separator.");
+                    this.hasErrors = true;
+                    this.errorMessages.Add("Unexpected separator after separator.");
+                    return this.stateList[1];
                 }
                 else
                 {
@@ -447,7 +487,9 @@ namespace Mathematics
                         }
                         else
                         {
-                            throw new ExpressionReaderException("Invalid range dimensions.");
+                            this.hasErrors = true;
+                            this.errorMessages.Add("Invalid range dimensions.");
+                            return this.stateList[1];
                         }
                     }
                     else
@@ -461,7 +503,9 @@ namespace Mathematics
                         }
                         else
                         {
-                            throw new ExpressionReaderException("Can't parse object value.");
+                            this.hasErrors = true;
+                            this.errorMessages.Add("Can't parse object value.");
+                            return this.stateList[1];
                         }
                     }
                 }
@@ -474,7 +518,9 @@ namespace Mathematics
             {
                 if (opsStack.Count != 0)
                 {
-                    throw new ExpressionReaderException("Delimiters mismatch.");
+                    this.hasErrors = true;
+                    this.errorMessages.Add("Delimiters mismatch.");
+                    return this.stateList[1];
                 }
 
                 return this.stateList[1];
@@ -484,7 +530,9 @@ namespace Mathematics
                 var readedSymbol = reader.Peek();
                 if (this.mapInternalOpenDelimitersToCloseDelimitersTypes.ContainsTarget(readedSymbol.SymbolType))
                 {
-                    throw new ExpressionReaderException("Unexpected close delimiter.");
+                    this.hasErrors = true;
+                    this.errorMessages.Add("Unexpected close delimiter.");
+                    return this.stateList[1];
                 }
                 else if (this.mapExternalOpenDelimitersToCloseDelimitersTypes.ContainsObject(readedSymbol.SymbolType))
                 {
@@ -496,11 +544,15 @@ namespace Mathematics
                 }
                 else if (this.mapExternalOpenDelimitersToCloseDelimitersTypes.ContainsTarget(readedSymbol.SymbolType))
                 {
-                    throw new ExpressionReaderException("Unexpected close delimiter.");
+                    this.hasErrors = true;
+                    this.errorMessages.Add("Unexpected close delimiter.");
+                    return this.stateList[1];
                 }
                 else if (readedSymbol.SymbolType.Equals(separatorSymb))
                 {
-                    throw new ExpressionReaderException("Unexpected separator symbol.");
+                    this.hasErrors = true;
+                    this.errorMessages.Add("Unexpected separator symbol.");
+                    return this.stateList[1];
                 }
                 else
                 {
@@ -513,7 +565,9 @@ namespace Mathematics
                     }
                     else
                     {
-                        throw new ExpressionReaderException("Can't parse object value.");
+                        this.hasErrors = true;
+                        this.errorMessages.Add("Can't parse object value.");
+                        return this.stateList[1];
                     }
                 }
             }
@@ -523,7 +577,9 @@ namespace Mathematics
         {
             if (reader.IsAtEOF())
             {
-                throw new ExpressionReaderException("Expecting open delimiter but found end of expression.");
+                this.hasErrors = true;
+                this.errorMessages.Add("Expecting open delimiter but found end of expression.");
+                return this.stateList[1];
             }
             else
             {
@@ -532,7 +588,7 @@ namespace Mathematics
                 if (this.mapInternalOpenDelimitersToCloseDelimitersTypes.ContainsObject(readedSymbol.SymbolType))
                 {
                     this.opsStack.Push(readedSymbol.SymbolType);
-                    var memento = new MultidimensionalRangeParserMementoManager()
+                    var memento = new RangeReaderMementoManager()
                     {
                         Level = this.level,
                         Memento = (reader as MementoSymbolReader<InputReader, SymbValue, SymbType>).SaveToMemento(),
@@ -549,7 +605,9 @@ namespace Mathematics
                 }
                 else if (this.mapInternalOpenDelimitersToCloseDelimitersTypes.ContainsTarget(readedSymbol.SymbolType))
                 {
-                    throw new ExpressionReaderException("Unexpected close delimiter.");
+                    this.hasErrors = true;
+                    this.errorMessages.Add("Unexpected close delimiter.");
+                    return this.stateList[1];
                 }
                 else if (this.mapExternalOpenDelimitersToCloseDelimitersTypes.ContainsObject(readedSymbol.SymbolType))
                 {
@@ -561,11 +619,15 @@ namespace Mathematics
                 }
                 else if (this.mapExternalOpenDelimitersToCloseDelimitersTypes.ContainsTarget(readedSymbol.SymbolType))
                 {
-                    throw new ExpressionReaderException("Unexpected close delimiter.");
+                    this.hasErrors = true;
+                    this.errorMessages.Add("Unexpected close delimiter.");
+                    return this.stateList[1];
                 }
                 else if (readedSymbol.SymbolType.Equals(separatorSymb))
                 {
-                    throw new ExpressionReaderException("Unexpected separator symbol.");
+                    this.hasErrors = true;
+                    this.errorMessages.Add("Unexpected separator symbol.");
+                    return this.stateList[1];
                 }
                 else
                 {
@@ -578,7 +640,9 @@ namespace Mathematics
                     }
                     else
                     {
-                        throw new ExpressionReaderException("Can't parse object value.");
+                        this.hasErrors = true;
+                        this.errorMessages.Add("Can't parse object value.");
+                        return this.stateList[1];
                     }
                 }
             }

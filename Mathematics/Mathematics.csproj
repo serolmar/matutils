@@ -50,11 +50,10 @@
     <Compile Include="AlgebraicStructures\LogicInterfaces\IMultipliable.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\IRing.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\ISemigroup.cs" />
-    <Compile Include="AlgebraicStructures\MultiDimensionalRange\AMultiDimensionalRangeParser.cs" />
+    <Compile Include="AlgebraicStructures\Matrix\ArrayMatrix.cs" />
+    <Compile Include="AlgebraicStructures\Matrix\ArrayMatrixReader.cs" />
     <Compile Include="AlgebraicStructures\MultiDimensionalRange\MultiDimensionalRange.cs" />
-    <Compile Include="AlgebraicStructures\MultiDimensionalRange\MultiDimensionalRangeConfigParser.cs" />
-    <Compile Include="AlgebraicStructures\MultiDimensionalRange\MultiDimensionalRangeNoConfigParser.cs" />
-    <Compile Include="AlgebraicStructures\MultiDimensionalRange\MultidimensionalRangeParserMementoManager.cs" />
+    <Compile Include="AlgebraicStructures\MultiDimensionalRange\MultiDimensionalRangeParser.cs" />
     <Compile Include="AlgebraicStructures\Polynomial\DegreeEqualityComparer.cs" />
     <Compile Include="AlgebraicStructures\Polynomial\IntegerFactorialFraction.cs" />
     <Compile Include="AlgebraicStructures\Polynomial\Polynomial.cs" />
@@ -63,6 +62,14 @@
     <Compile Include="AlgebraicStructures\Polynomial\SimplePolynomialParser.cs" />
     <Compile Include="AlgebraicStructures\Polynomial\SymmetricPolynomial.cs" />
     <Compile Include="AlgebraicStructures\Polynomial\SymmetricPolynomialDegreeEqualityComparer.cs" />
+    <Compile Include="AlgebraicStructures\Readers\ARangeReader.cs" />
+    <Compile Include="AlgebraicStructures\Readers\RangeConfigReader.cs" />
+    <Compile Include="AlgebraicStructures\Readers\RangeNoConfigReader.cs" />
+    <Compile Include="AlgebraicStructures\Readers\RangeReaderMementoManager.cs" />
+    <Compile Include="Algorithms\IAlgorithm.cs" />
+    <Compile Include="Algorithms\Matrix\Determinant\ADeterminant.cs" />
+    <Compile Include="Algorithms\Matrix\Determinant\ExpansionDeterminantCalculator.cs" />
+    <Compile Include="Algorithms\Matrix\Determinant\PermutationDeterminantCalculator.cs" />
     <Compile Include="MathFunctions.cs" />
     <Compile Include="Algorithms\Simplex\RevisedSimplexWithDoubles.cs" />
     <Compile Include="Algorithms\Transportation\MaxDoubleNumberField.cs" />
@@ -110,6 +117,7 @@
       <Name>Utilities</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
