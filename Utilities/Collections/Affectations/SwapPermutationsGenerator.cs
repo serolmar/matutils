@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Utilities.Collections.Affectations
+namespace Utilities.Collections
 {
     public class SwapPermutationsGenerator : IEnumerable<int[]>
     {

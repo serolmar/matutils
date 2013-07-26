@@ -472,7 +472,7 @@
                     }
                     else
                     {
-                        result.variables.Add(new PolynomialGeneralVariable<T,R>(replacedPol));
+                        result.variables.Add(new PolynomialGeneralVariable<T, R>(replacedPol));
                     }
                 }
             }
@@ -607,7 +607,7 @@
                     }
                 }
             }
-            
+
             //O código restante deverá ser semelhante ao anterior - talvez seja digno de uma função
             foreach (var kvp in this.coeffsMap)
             {
@@ -713,7 +713,7 @@
                         else if (this.variables[i].IsPolynomial)
                         {
                             temporary = this.variables[i].GetPolynomial().Clone();
-                            temporary = this.Power(temporary, degree[i]);
+                            temporary = this.Power(temporary.GetExpanded(), degree[i]);
                         }
 
                         term.MultiplyExpanded(temporary);
@@ -1037,25 +1037,30 @@
         {
             if (exponent == 0)
             {
-                return new Polynomial<T, R>(this.polynomialCoeffRing.MultiplicativeUnity, this.polynomialCoeffRing);
+                return new Polynomial<T, R>(
+                    this.polynomialCoeffRing.MultiplicativeUnity,
+                    this.polynomialCoeffRing);
             }
-
-            var result = pol;
-            var rem = exponent % 2;
-            exponent = exponent / 2;
-            while (exponent > 0)
+            else
             {
-                result.MultiplyExpanded(result.coeffsMap);
-                if (rem == 1)
+                var result = pol;
+                var innerExponent = MathFunctions.GetInversion(exponent);
+                var rem = innerExponent % 2;
+                innerExponent = innerExponent / 2;
+                while (innerExponent > 0)
                 {
-                    result.MultiplyExpanded(pol.coeffsMap);
+                    result.MultiplyExpanded(result.coeffsMap);
+                    if (rem == 1)
+                    {
+                        result.MultiplyExpanded(pol.coeffsMap);
+                    }
+
+                    rem = innerExponent % 2;
+                    innerExponent = innerExponent / 2;
                 }
 
-                rem = exponent % 2;
-                exponent = exponent / 2;
+                return result;
             }
-
-            return result;
         }
 
         private List<int> GetDegreeSum(List<int> first, List<int> second)

@@ -155,7 +155,7 @@
         /// </summary>
         /// <param name="pow">The power to be inverted.</param>
         /// <returns>The inverted power.</returns>
-        private static int GetInversion(int pow)
+        public static int GetInversion(int pow)
         {
             var result = 1;
             var rem = pow % 2;

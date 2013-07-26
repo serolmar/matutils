@@ -41,19 +41,23 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AlgebraicStructures\Fraction.cs" />
+    <Compile Include="AlgebraicStructures\Implementations\FractionField.cs" />
     <Compile Include="AlgebraicStructures\Implementations\IntegerDomain.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\IEuclideanDomain.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\IField.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\IGroup.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\IMatrix.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\IMonoid.cs" />
+    <Compile Include="AlgebraicStructures\LogicInterfaces\IMultiDimensionalRange.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\IMultipliable.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\IRing.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\ISemigroup.cs" />
     <Compile Include="AlgebraicStructures\Matrix\ArrayMatrix.cs" />
     <Compile Include="AlgebraicStructures\Matrix\ArrayMatrixReader.cs" />
+    <Compile Include="AlgebraicStructures\Matrix\SubMatrix.cs" />
     <Compile Include="AlgebraicStructures\MultiDimensionalRange\MultiDimensionalRange.cs" />
     <Compile Include="AlgebraicStructures\MultiDimensionalRange\MultiDimensionalRangeParser.cs" />
+    <Compile Include="AlgebraicStructures\MultiDimensionalRange\SubMultiDimensionalRange.cs" />
     <Compile Include="AlgebraicStructures\Polynomial\DegreeEqualityComparer.cs" />
     <Compile Include="AlgebraicStructures\Polynomial\IntegerFactorialFraction.cs" />
     <Compile Include="AlgebraicStructures\Polynomial\Polynomial.cs" />

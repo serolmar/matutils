@@ -12,7 +12,7 @@
     /// Representa uma matriz multidimensional.
     /// </summary>
     /// <typeparam name="T">O tipo de dados das entradas da matriz.</typeparam>
-    public class MultiDimensionalRange<T> : IEnumerable<T>
+    public class MultiDimensionalRange<T> : IMultiDimensionalRange<T>
     {
         /// <summary>
         /// Contém todos os elementos.
@@ -83,6 +83,17 @@
                 }
 
                 this.elements[p] = value;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o número de dimensões da matriz multidimensional.
+        /// </summary>
+        public int Rank
+        {
+            get
+            {
+                return this.configuration.Length;
             }
         }
 
@@ -469,5 +480,10 @@
             return true;
         }
         #endregion
+
+        public IMatrix<T> GetSubMultiDimensionalRange(IMultiDimensionalRange<T> subRangeConfiguration)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

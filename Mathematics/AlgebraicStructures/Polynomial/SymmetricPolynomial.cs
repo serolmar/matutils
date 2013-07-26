@@ -464,7 +464,7 @@ namespace Mathematics.AlgebraicStructures.Polynomial
                     var toAdd = resultStack.Pop();
                     resultTop = resultTop.Multiply(toMultiply);
                     resultTop = resultTop.Add(toAdd);
-                    resultStack.Push(resultTop.GetExpanded());
+                    resultStack.Push(resultTop);
                 }
             }
 

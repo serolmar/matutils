@@ -23,11 +23,11 @@ namespace Mathematics
         {
             get
             {
-                if (line < 0 || line >= elements.GetLength(0))
+                if (line < 0 || line >= this.elements.GetLength(0))
                 {
                     throw new IndexOutOfRangeException("Index line must be non-negative and lesser than the number of lines in matrix.");
                 }
-                else if (column < 0 || column >= elements.GetLength(1))
+                else if (column < 0 || column >= this.elements.GetLength(1))
                 {
                     throw new IndexOutOfRangeException("Index column must be non-negative and lesser than the number of columns in matrix.");
                 }
@@ -38,11 +38,11 @@ namespace Mathematics
             }
             set
             {
-                if (line < 0 || line >= elements.GetLength(0))
+                if (line < 0 || line >= this.elements.GetLength(0))
                 {
                     throw new IndexOutOfRangeException("Index line must be non-negative and lesser than the number of lines in matrix.");
                 }
-                else if (column < 0 || column >= elements.GetLength(1))
+                else if (column < 0 || column >= this.elements.GetLength(1))
                 {
                     throw new IndexOutOfRangeException("Index column must be non-negative and lesser than the number of columns in matrix.");
                 }
@@ -71,32 +71,118 @@ namespace Mathematics
             }
             else
             {
-                for (int i = 0; i < lines.Length; ++i)
-                {
-                    if (lines[i] < 0 || lines[i] >= this.elements.GetLength(0))
-                    {
-                        throw new IndexOutOfRangeException("The lines parameter contain elements that are out of the coords range of matrix.");
-                    }
-                }
+                return new SubMatrix<ObjectType>(this, lines, columns);
+            }
+        }
 
-                for (int i = 0; i < lines.Length; ++i)
+        /// <summary>
+        /// Obtém a soma da matriz corrente com outra matriz.
+        /// </summary>
+        /// <param name="right">A outra matriz.</param>
+        /// <param name="semigroup">O semigrupo.</param>
+        /// <returns>O resultado da soma.</returns>
+        public ArrayMatrix<ObjectType> Sum(ArrayMatrix<ObjectType> right, ISemigroup<ObjectType> semigroup)
+        {
+            if (right == null)
+            {
+                throw new ArgumentNullException("right");
+            }
+            else if (semigroup == null)
+            {
+                throw new ArgumentNullException("semigroup");
+            }
+            else
+            {
+                var lineNumber = this.elements.GetLength(0);
+                var columnNumber = this.elements.GetLength(1);
+                if (lineNumber == right.elements.GetLength(0) &&
+                    columnNumber == right.elements.GetLength(1))
                 {
-                    if (columns[i] < 0 || columns[i] >= this.elements.GetLength(1))
+                    var result = new ArrayMatrix<ObjectType>(
+                        lineNumber,
+                        columnNumber);
+                    for (int i = 0; i < lineNumber; ++i)
                     {
-                        throw new IndexOutOfRangeException("The columns parameter contain elements that are out of the coords range of matrix.");
+                        for (int j = 0; j < columnNumber; ++j)
+                        {
+                            result.elements[i, j] = semigroup.Add(
+                                this.elements[i, j],
+                                right.elements[i, j]);
+                        }
                     }
-                }
 
-                var result = new ArrayMatrix<ObjectType>(lines.Length, columns.Length);
-                for (int i = 0; i < lines.Length; ++i)
+                    return result;
+                }
+                else
                 {
-                    for (int j = 0; j < columns.Length; ++j)
-                    {
-                        result[i, j] = this.elements[lines[i], columns[j]];
-                    }
+                    throw new ArgumentException("Matrices don't have the same dimensions.");
                 }
+            }
+        }
 
-                return result;
+        /// <summary>
+        /// Obtém o produto da matriz corrente com outra matriz.
+        /// </summary>
+        /// <param name="right">A outra matriz.</param>
+        /// <param name="ring">O anel.</param>
+        /// <returns>O resultado do produto.</returns>
+        public ArrayMatrix<ObjectType> Multiply(
+            ArrayMatrix<ObjectType> right, 
+            IRing<ObjectType> ring)
+        {
+            if (right == null)
+            {
+                throw new ArgumentNullException("right");
+            }
+            else if (ring == null)
+            {
+                throw new ArgumentNullException("ring");
+            }
+            else
+            {
+                var columnNumber = this.elements.GetLength(1);
+                var lineNumber = right.elements.GetLength(0);
+                if (columnNumber != lineNumber)
+                {
+                    throw new MathematicsException("To multiply two matrices, the number of columns of the first must match the number of lines of second.");
+                }
+                else
+                {
+                    var firstDimension = this.elements.GetLength(0);
+                    var secondDimension = right.elements.GetLength(1);
+                    var result = new ArrayMatrix<ObjectType>(
+                        firstDimension,
+                        secondDimension);
+                    for (int i = 0; i < firstDimension; ++i)
+                    {
+                        for (int j = 0; j < secondDimension; ++j)
+                        {
+                            var addResult = ring.AdditiveUnity;
+                            for (int k = 0; k < columnNumber; ++k)
+                            {
+                                var multResult = ring.Multiply(
+                                    this.elements[i, k],
+                                    right.elements[k, j]);
+                                addResult = ring.Add(addResult, multResult);
+                            }
+
+                            result.elements[i, j] = addResult;
+                        }
+                    }
+
+                    return result;
+                }
+            }
+        }
+
+        public IEnumerator<ObjectType> GetEnumerator()
+        {
+            for (int i = 0; i < this.elements.GetLength(0); ++i)
+            {
+                for (int j = 0; j < this.elements.GetLength(1); ++j)
+                {
+                    yield return this.elements[i, j];
+                }
             }
         }
 
@@ -136,6 +222,11 @@ namespace Mathematics
 
             resultBuilder.Append("]");
             return resultBuilder.ToString();
+        }
+
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+        {
+            return this.GetEnumerator();
         }
     }
 }

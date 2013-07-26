@@ -52,9 +52,22 @@ namespace Mathematics
                 throw new ArgumentNullException("euclideanDomain");
             }
 
-            this.numerator = numerator;
-            this.denominator = denominator;
-            this.Reduce();
+            if (euclideanDomain.IsAdditiveUnity(denominator))
+            {
+                throw new ArgumentException("Denominator can't be zero.");
+            }
+
+            if (this.euclideanDomain.IsAdditiveUnity(this.numerator))
+            {
+                this.numerator = numerator;
+                this.denominator = this.euclideanDomain.MultiplicativeUnity;
+            }
+            else
+            {
+                this.numerator = numerator;
+                this.denominator = denominator;
+                this.Reduce();
+            }
         }
 
         /// <summary>
@@ -177,10 +190,42 @@ namespace Mathematics
             {
                 throw new ArgumentNullException("right");
             }
+            else if (this.euclideanDomain.IsAdditiveUnity(right.numerator))
+            {
+                throw new DivideByZeroException();
+            }
+            else
+            {
+                var resultNumerator = this.euclideanDomain.Multiply(this.numerator, right.denominator);
+                var resultDenominator = this.euclideanDomain.Multiply(this.denominator, right.numerator);
+                return new Fraction<T, D>(resultNumerator, resultDenominator, this.euclideanDomain);
+            }
+        }
 
-            var resultNumerator = this.euclideanDomain.Multiply(this.numerator, right.denominator);
-            var resultDenominator = this.euclideanDomain.Multiply(this.denominator, right.numerator);
-            return new Fraction<T, D>(resultNumerator, resultDenominator, this.euclideanDomain);
+        /// <summary>
+        /// Obtém a respectiva inversa.
+        /// </summary>
+        /// <returns>A inversa.</returns>
+        public Fraction<T, D> GetInverse()
+        {
+            if (this.euclideanDomain.IsAdditiveUnity(this.numerator))
+            {
+                throw new DivideByZeroException();
+            }
+            else
+            {
+                return new Fraction<T, D>(this.denominator, this.numerator, this.euclideanDomain);
+            }
+        }
+
+        /// <summary>
+        /// Obtém a fracção simétrica.
+        /// </summary>
+        /// <returns>A fracção simétrica.</returns>
+        public Fraction<T, D> GetSymmetric()
+        {
+            var symmetricNumerator = this.euclideanDomain.AdditiveInverse(this.numerator);
+            return new Fraction<T, D>(symmetricNumerator, this.denominator, this.euclideanDomain);
         }
 
         /// <summary>

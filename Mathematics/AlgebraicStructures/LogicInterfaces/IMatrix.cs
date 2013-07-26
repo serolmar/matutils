@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Mathematics
 {
-    public interface IMatrix<ObjectType>
+    public interface IMatrix<ObjectType> : IEnumerable<ObjectType>
     {
         /// <summary>
         /// Obtém e atribui o valor da entrada especificada.

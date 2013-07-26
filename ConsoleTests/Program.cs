@@ -3,22 +3,19 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using System.Linq;
     using System.Text;
-    using Utilities.ExpressionBuilders;
-    using Utilities.Collections;
     using Mathematics;
-    using Mathematics.Algorithms;
-    using Utilities.Parsers;
-    using Utilities.Collections.Affectations;
-    using Mathematics.MathematicsInterpreter;
     using Mathematics.AlgebraicStructures.Polynomial;
+    using Mathematics.MathematicsInterpreter;
+    using Utilities.Collections;
+    using Utilities.ExpressionBuilders;
+    using Utilities.Parsers;
 
     class Program
     {
         static void Main(string[] args)
         {
-            Test6();
+            Test4();
         }
 
         static void RunObjectTester()
@@ -44,10 +41,16 @@
             var matrix = arrayMatrixReader.ParseMatrix(stringsymbolReader, integerParser);
             Console.WriteLine(matrix);
 
-            var permutationDeterminant = new PermutationDeterminantCalculator<int, IntegerDomain>(new IntegerDomain());
+            var integerDomain = new IntegerDomain();
+            var permutationDeterminant = new PermutationDeterminantCalculator<int, IntegerDomain>(integerDomain);
             var computedDeterminant = permutationDeterminant.Run(matrix);
 
-            Console.WriteLine("O determinante vale: {0}.", computedDeterminant);
+            Console.WriteLine("O determinante usando permutações vale: {0}.", computedDeterminant);
+
+            var expansionDeterminant = new ExpansionDeterminantCalculator<int, IntegerDomain>(integerDomain);
+            computedDeterminant = expansionDeterminant.Run(matrix);
+
+            Console.WriteLine("O determinante usando expansão vale: {0}.", computedDeterminant);
             Console.ReadLine();
         }
 
@@ -86,7 +89,7 @@
                 new IntegerDomain());
 
             var rep = symmetric.GetElementarySymmetricRepresentation(varDictionary);
-
+            var expanded = rep.GetExpanded();
         }
 
         static void Test3()
