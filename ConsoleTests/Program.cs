@@ -15,7 +15,7 @@
     {
         static void Main(string[] args)
         {
-            Test4();
+            Test5();
         }
 
         static void RunObjectTester()
@@ -24,6 +24,9 @@
             tester.Run(Console.In, Console.Out);
         }
 
+        /// <summary>
+        /// Teste às matrizes habituais.
+        /// </summary>
         static void Test6()
         {
             // Note-se que neste caso estamos na presença de um conjunto de vectores coluna.
@@ -54,6 +57,9 @@
             Console.ReadLine();
         }
 
+        /// <summary>
+        /// Teste às matrizes multidimensionais.
+        /// </summary>
         static void Test5()
         {
             var input = "[[1,2,3,4,5],[6,7,8,9,0]]";
@@ -69,10 +75,16 @@
             var multiDimensionalRangeReader = new MultiDimensionalRangeParser<int, string, string, CharSymbolReader>(rangeNoConfig);
             var range = multiDimensionalRangeReader.ParseRange(stringsymbolReader, integerParser);
 
-            Console.WriteLine(range);
+            var config = new int[][] { new int[] { 1, 1, 4, 3 }, new int[] { 0, 1, 0, 1 } };
+            var subRange = range.GetSubMultiDimensionalRange(config);
+
+            Console.WriteLine(subRange);
             Console.ReadKey();
         }
 
+        /// <summary>
+        /// Teste aos polinómios simétricos.
+        /// </summary>
         static void Test4()
         {
             var dictionary = new Dictionary<int, int>();
@@ -92,6 +104,9 @@
             var expanded = rep.GetExpanded();
         }
 
+        /// <summary>
+        /// Teste aos afectadores.
+        /// </summary>
         static void Test3()
         {
             var permutaionBoxAffector = new PermutationBoxAffector(new[] { 2, 2, 2 }, 3);
@@ -141,6 +156,9 @@
             }
         }
 
+        /// <summary>
+        /// Teste ao interpretador.
+        /// </summary>
         static void Test2()
         {
             Console.WriteLine("Please insert expression to be evaluated:");
@@ -149,6 +167,9 @@
             Console.ReadKey();
         }
 
+        /// <summary>
+        /// Contém código arbitrário.
+        /// </summary>
         static void Test1()
         {
             Console.WriteLine("Please insert expression to be evaluated:");

@@ -66,12 +66,14 @@
     <Compile Include="AlgebraicStructures\Polynomial\SimplePolynomialParser.cs" />
     <Compile Include="AlgebraicStructures\Polynomial\SymmetricPolynomial.cs" />
     <Compile Include="AlgebraicStructures\Polynomial\SymmetricPolynomialDegreeEqualityComparer.cs" />
+    <Compile Include="AlgebraicStructures\Polynomial\UnivariatePolynomialNormalForm.cs" />
     <Compile Include="AlgebraicStructures\Readers\ARangeReader.cs" />
     <Compile Include="AlgebraicStructures\Readers\RangeConfigReader.cs" />
     <Compile Include="AlgebraicStructures\Readers\RangeNoConfigReader.cs" />
     <Compile Include="AlgebraicStructures\Readers\RangeReaderMementoManager.cs" />
     <Compile Include="Algorithms\IAlgorithm.cs" />
     <Compile Include="Algorithms\Matrix\Determinant\ADeterminant.cs" />
+    <Compile Include="Algorithms\Matrix\Determinant\CondensationDeterminantCalculator.cs" />
     <Compile Include="Algorithms\Matrix\Determinant\ExpansionDeterminantCalculator.cs" />
     <Compile Include="Algorithms\Matrix\Determinant\PermutationDeterminantCalculator.cs" />
     <Compile Include="MathFunctions.cs" />

@@ -31,5 +31,19 @@ namespace Mathematics
         /// <param name="columns">As correnadas das colunas que constituem a submatriz.</param>
         /// <returns>A submatriz procurada.</returns>
         IMatrix<ObjectType> GetSubMatrix(int[] lines, int[] columns);
+
+        /// <summary>
+        /// Troca duas linhas.
+        /// </summary>
+        /// <param name="i">O índice da primeira linha.</param>
+        /// <param name="j">O índice da segunda linha.</param>
+        void SwapLines(int i, int j);
+
+        /// <summary>
+        /// Troca duas colunas.
+        /// </summary>
+        /// <param name="i">O índice da primeira coluna.</param>
+        /// <param name="j">O índice da segunda coluna.</param>
+        void SwapColumns(int i, int j);
     }
 }

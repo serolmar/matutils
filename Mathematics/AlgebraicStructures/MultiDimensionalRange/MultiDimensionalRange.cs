@@ -129,14 +129,14 @@
             }
         }
 
-        public int GetLength(int coord)
+        public int GetLength(int dimension)
         {
-            if (coord < 0 || coord > this.configuration.Length)
+            if (dimension < 0 || dimension >= this.configuration.Length)
             {
-                throw new IndexOutOfRangeException("Coord is out of bounds.");
+                throw new IndexOutOfRangeException("Parameter dimension is out of bounds.");
             }
 
-            return this.configuration[coord];
+            return this.configuration[dimension];
         }
 
         public MultiDimensionalRange<T> Sum(MultiDimensionalRange<T> right, ISemigroup<T> semiGroup)
@@ -316,6 +316,11 @@
             return result;
         }
 
+        public IMultiDimensionalRange<T> GetSubMultiDimensionalRange(int[][] subRangeConfiguration)
+        {
+            return new SubMultiDimensionalRange<T>(this, subRangeConfiguration);
+        }
+
         public IEnumerator<T> GetEnumerator()
         {
             for (int i = 0; i < this.elements.Length; ++i)
@@ -480,10 +485,5 @@
             return true;
         }
         #endregion
-
-        public IMatrix<T> GetSubMultiDimensionalRange(IMultiDimensionalRange<T> subRangeConfiguration)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

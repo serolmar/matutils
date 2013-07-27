@@ -43,8 +43,10 @@ namespace Mathematics
                 }
 
                 this.matrix = matrix;
-                this.lines = lines;
-                this.columns = columns;
+                this.lines = new int[lines.Length];
+                Array.Copy(lines, this.lines, lines.Length);
+                this.columns = new int[columns.Length];
+                Array.Copy(columns, this.columns, columns.Length);
             }
         }
 
@@ -107,6 +109,42 @@ namespace Mathematics
             else
             {
                 return new SubMatrix<ObjectType>(this, lines, columns);
+            }
+        }
+
+        public void SwapLines(int i, int j)
+        {
+            if (i < 0 || i > this.lines.Length)
+            {
+                throw new IndexOutOfRangeException("Index must be non-negative and less than the number of lines.");
+            }
+            else if (j < 0 || j > this.lines.Length)
+            {
+                throw new IndexOutOfRangeException("Index must be non-negative and less than the number of lines.");
+            }
+            else if (i != j)
+            {
+                var swapLine = this.lines[i];
+                this.lines[i] = this.lines[j];
+                this.lines[j] = swapLine;
+            }
+        }
+
+        public void SwapColumns(int i, int j)
+        {
+            if (i < 0 || i > this.columns.Length)
+            {
+                throw new IndexOutOfRangeException("Index must be non-negative and less than the number of lines.");
+            }
+            else if (j < 0 || j > this.columns.Length)
+            {
+                throw new IndexOutOfRangeException("Index must be non-negative and less than the number of lines.");
+            }
+            else if (i != j)
+            {
+                var swapColumn = this.columns[i];
+                this.columns[i] = this.columns[j];
+                this.columns[j] = swapColumn;
             }
         }
 

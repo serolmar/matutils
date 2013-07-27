@@ -251,6 +251,35 @@
             throw new MathematicsException("Can't convert polynomial to a name.");
         }
 
+        /// <summary>
+        /// Obtém todas as variáveis envolvidas no polinómio.
+        /// </summary>
+        /// <returns>O conjunto das variáveis.</returns>
+        public List<string> GetVariables()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Obtém o monómio principal quando lhe é proporcionado um comparador de graus.
+        /// </summary>
+        /// <param name="degreeComparable">O comparador de graus.</param>
+        /// <returns>O maior monómio correspondente.</returns>
+        public Polynomial<T, R> GetLeadingMonomial(IComparable<List<int>> degreeComparable)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Obtém o monómio corresopndente ao menor grau.
+        /// </summary>
+        /// <param name="degreeComparable">O comparador de graus.</param>
+        /// <returns>O monómio correspondente.</returns>
+        public Polynomial<T, R> GetTailMonomial(IComparable<List<int>> degreeComparable)
+        {
+            throw new NotImplementedException();
+        }
+
         #region Operations
         public Polynomial<T, R> Add(Polynomial<T, R> right)
         {

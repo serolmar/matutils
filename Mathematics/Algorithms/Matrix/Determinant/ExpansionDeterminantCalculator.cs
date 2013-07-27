@@ -9,9 +9,35 @@ namespace Mathematics
     public class ExpansionDeterminantCalculator<ElementsType, RingType> : ADeterminant<ElementsType, RingType>
         where RingType : IRing<ElementsType>
     {
+        private int expansionNumber = 1;
+
+        /// <summary>
+        /// Instancia uma classe que permite calcular o determinante aplicando a expansão por uma linha ou coluna.
+        /// </summary>
+        /// <param name="ring">O tipo do anel responsável pelas operações.</param>
         public ExpansionDeterminantCalculator(RingType ring)
             : base(ring)
         {
+        }
+
+        /// <summary>
+        /// Instancia uma classe que permite calcular o determinante aplicando a expansão por várias linhas ou colunas.
+        /// </summary>
+        /// <remarks>
+        /// Se o número de linhas ou colunas a aplicar for superior à ordem da matriz então será utilizado o valor unitário
+        /// por defeito.
+        /// </remarks>
+        /// <param name="expansionNumber">O número de linhas ou colunas a aplicar.</param>
+        /// <param name="ring">O anel reponsável pelas operações.</param>
+        public ExpansionDeterminantCalculator(int expansionNumber, RingType ring)
+            : base(ring)
+        {
+            if (expansionNumber <= 0)
+            {
+                throw new ArgumentOutOfRangeException("Parameter expansionNumber must be positive.");
+            }
+
+            this.expansionNumber = expansionNumber;
         }
 
         protected override ElementsType ComputeDeterminant(IMatrix<ElementsType> data)
@@ -40,8 +66,7 @@ namespace Mathematics
             {
                 var matrixOrder = data.GetLength(0);
 
-                // Determina o número de itens a fixar
-                var itemsNumber = matrixOrder / 2;
+                var itemsNumber = this.expansionNumber < matrixOrder ? this.expansionNumber : 1;
 
                 var linesZeroesCount = this.GetLinesByZeroesCount(data, itemsNumber);
                 var columnsZeroesCount = this.GetColumnsByZeroesCount(data, itemsNumber);
@@ -63,15 +88,19 @@ namespace Mathematics
                         var otherColumns = this.GetOtherCoords(columnsCombination, matrixOrder);
                         var subMatrix = new SubMatrix<ElementsType>(data, linesToBeFixed, columnsCombination);
                         var firstDeterminant = this.ComputeDeterminant(subMatrix);
-                        subMatrix = new SubMatrix<ElementsType>(data, otherLinesToBeFixed, otherColumns);
-                        var secondDeterminant = this.ComputeDeterminant(subMatrix);
-                        var multiplied = this.ring.Multiply(firstDeterminant, secondDeterminant);
-                        if (negativeSign)
+                        if (!this.ring.IsAdditiveUnity(firstDeterminant))
                         {
-                            multiplied = this.ring.Multiply(multiplied, inverseValue);
+                            subMatrix = new SubMatrix<ElementsType>(data, otherLinesToBeFixed, otherColumns);
+                            var secondDeterminant = this.ComputeDeterminant(subMatrix);
+                            var multiplied = this.ring.Multiply(firstDeterminant, secondDeterminant);
+                            if (negativeSign)
+                            {
+                                multiplied = this.ring.Multiply(multiplied, inverseValue);
+                            }
+
+                            result = this.ring.Add(result, multiplied);
                         }
 
-                        result = this.ring.Add(result, multiplied);
                         negativeSign = !negativeSign;
                     }
 
@@ -90,15 +119,19 @@ namespace Mathematics
                         var otherLines = this.GetOtherCoords(linesCombination, matrixOrder);
                         var subMatrix = new SubMatrix<ElementsType>(data, linesCombination, columnsToBeFixed);
                         var firstDeterminant = this.ComputeDeterminant(subMatrix);
-                        subMatrix = new SubMatrix<ElementsType>(data, otherLines, columnsToBeFixed);
-                        var secondDeterminant = this.ComputeDeterminant(subMatrix);
-                        var multiplied = this.ring.Multiply(firstDeterminant, secondDeterminant);
-                        if (negativeSign)
+                        if (!this.ring.IsAdditiveUnity(firstDeterminant))
                         {
-                            multiplied = this.ring.Multiply(multiplied, inverseValue);
+                            subMatrix = new SubMatrix<ElementsType>(data, otherLines, columnsToBeFixed);
+                            var secondDeterminant = this.ComputeDeterminant(subMatrix);
+                            var multiplied = this.ring.Multiply(firstDeterminant, secondDeterminant);
+                            if (negativeSign)
+                            {
+                                multiplied = this.ring.Multiply(multiplied, inverseValue);
+                            }
+
+                            result = this.ring.Add(result, multiplied);
                         }
 
-                        result = this.ring.Add(result, multiplied);
                         negativeSign = !negativeSign;
                     }
 

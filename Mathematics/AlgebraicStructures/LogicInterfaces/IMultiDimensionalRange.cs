@@ -31,8 +31,8 @@ namespace Mathematics
         /// <summary>
         /// Obtém a submatriz multidimensional indicada no argumento.
         /// </summary>
-        /// <param name="subRangeConfiguration">As correnadas dos elementos que constituem a submatriz multidimensional.</param>
+        /// <param name="subRangeConfiguration">As coordenadas dos elementos que constituem a submatriz multidimensional.</param>
         /// <returns>A submatriz multidimensional procurada.</returns>
-        IMatrix<ObjectType> GetSubMultiDimensionalRange(IMultiDimensionalRange<ObjectType> subRangeConfiguration);
+        IMultiDimensionalRange<ObjectType> GetSubMultiDimensionalRange(int[][] subRangeConfiguration);
     }
 }
