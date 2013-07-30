@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Mathematics.Algorithms;
+using Utilities.Collections;
 
 namespace Mathematics
 {
@@ -71,6 +72,75 @@ namespace Mathematics
             get
             {
                 return this.terms.Count < 2;
+            }
+        }
+
+        /// <summary>
+        /// Obtém um valor que verifica se o polinómio é nulo.
+        /// </summary>
+        public bool IsZero
+        {
+            get
+            {
+                return this.terms.Count == 0;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o grau do polinómio.
+        /// </summary>
+        public int Degree
+        {
+            get
+            {
+                var result = 0;
+                foreach (var kvp in terms)
+                {
+                    if (kvp.Key > result)
+                    {
+                        result = kvp.Key;
+                    }
+                }
+
+                return result;
+            }
+        }
+
+        /// <summary>
+        /// Obtém um valor que indica se o polinómio é unitário.
+        /// </summary>
+        public bool IsUnity
+        {
+            get
+            {
+                var termsEnumerator = this.terms.GetEnumerator();
+                if (termsEnumerator.MoveNext())
+                {
+                    var currentValue = termsEnumerator.Current;
+                    if (currentValue.Key == 0)
+                    {
+                        if (termsEnumerator.MoveNext())
+                        {
+                            return false;
+                        }
+                        else if (this.ring.IsMultiplicativeUnity(currentValue.Value))
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
             }
         }
 
@@ -164,9 +234,6 @@ namespace Mathematics
             {
                 throw new ArgumentNullException("right");
             }
-            else if(!this.ring.Equals(right.ring)){
-                throw new MathematicsException("Can't add polynomials with coefficients in different rings.");
-            }
             else if (right.variableName != this.variableName)
             {
                 throw new MathematicsException("Can't multiply two univariate polynomials with different variable names.");
@@ -207,6 +274,44 @@ namespace Mathematics
         }
 
         /// <summary>
+        /// Obtém a soma do polinómio corrente com um termo constante.
+        /// </summary>
+        /// <param name="right">O termo constante.</param>
+        /// <returns>A soma.</returns>
+        public UnivariatePolynomialNormalForm<CoeffType, RingType> Add(CoeffType coeff)
+        {
+            if (coeff == null)
+            {
+                throw new ArgumentNullException("coeff");
+            }
+            else
+            {
+                var result = new UnivariatePolynomialNormalForm<CoeffType, RingType>(this.ring);
+                result.variableName = this.variableName;
+                result.terms = new Dictionary<int, CoeffType>();
+                var zeroDegreeCoeff = coeff;
+                foreach (var kvp in this.terms)
+                {
+                    if (kvp.Key == 0)
+                    {
+                        zeroDegreeCoeff = this.ring.Add(zeroDegreeCoeff, kvp.Value);
+                    }
+                    else
+                    {
+                        result.terms.Add(kvp.Key, kvp.Value);
+                    }
+                }
+
+                if (!this.ring.IsAdditiveUnity(zeroDegreeCoeff))
+                {
+                    result.terms.Add(0, zeroDegreeCoeff);
+                }
+
+                return result;
+            }
+        }
+
+        /// <summary>
         /// Obtém a diferença entre o polinómio corrente e o polinómio providenciado.
         /// </summary>
         /// <param name="right">O outro polinómio.</param>
@@ -217,10 +322,6 @@ namespace Mathematics
             if (right == null)
             {
                 throw new ArgumentNullException("right");
-            }
-            else if (!this.ring.Equals(right.ring))
-            {
-                throw new MathematicsException("Can't add polynomials with coefficients in different rings.");
             }
             else if (right.variableName != this.variableName)
             {
@@ -262,6 +363,44 @@ namespace Mathematics
         }
 
         /// <summary>
+        /// Obtém a diferença entre o polinómio corrente e um termo constante.
+        /// </summary>
+        /// <param name="right">O termo constante.</param>
+        /// <returns>A diferença.</returns>
+        public UnivariatePolynomialNormalForm<CoeffType, RingType> Subtract(CoeffType coeff)
+        {
+            if (coeff == null)
+            {
+                throw new ArgumentNullException("coeff");
+            }
+            else
+            {
+                var result = new UnivariatePolynomialNormalForm<CoeffType, RingType>(this.ring);
+                result.variableName = this.variableName;
+                result.terms = new Dictionary<int, CoeffType>();
+                var zeroDegreeCoeff = this.ring.AdditiveInverse(coeff);
+                foreach (var kvp in this.terms)
+                {
+                    if (kvp.Key == 0)
+                    {
+                        zeroDegreeCoeff = this.ring.Add(zeroDegreeCoeff, kvp.Value);
+                    }
+                    else
+                    {
+                        result.terms.Add(kvp.Key, kvp.Value);
+                    }
+                }
+
+                if (!this.ring.IsAdditiveUnity(zeroDegreeCoeff))
+                {
+                    result.terms.Add(0, zeroDegreeCoeff);
+                }
+
+                return result;
+            }
+        }
+
+        /// <summary>
         /// Obtém produto do polinómio corrente com o polinómio providenciado.
         /// </summary>
         /// <param name="right">O outro polinómio.</param>
@@ -273,10 +412,6 @@ namespace Mathematics
             {
                 throw new ArgumentNullException("right");
             }
-            else if (!this.ring.Equals(right.ring))
-            {
-                throw new MathematicsException("Can't add polynomials with coefficients in different rings.");
-            }
             else if (right.variableName != this.variableName)
             {
                 throw new MathematicsException("Can't multiply two univariate polynomials with different variable names.");
@@ -285,7 +420,7 @@ namespace Mathematics
             {
                 var result = new UnivariatePolynomialNormalForm<CoeffType, RingType>(this.ring);
                 result.variableName = this.variableName;
-                result.terms = new Dictionary<int,CoeffType>();
+                result.terms = new Dictionary<int, CoeffType>();
                 foreach (var thisTerm in this.terms)
                 {
                     if (!this.ring.IsAdditiveUnity(thisTerm.Value))
@@ -323,6 +458,51 @@ namespace Mathematics
         }
 
         /// <summary>
+        /// Obtém produto do polinómio corrente com um termo constante.
+        /// </summary>
+        /// <param name="right">O termo constante.</param>
+        /// <returns>O produto.</returns>
+        public UnivariatePolynomialNormalForm<CoeffType, RingType> Multiply(CoeffType coeff)
+        {
+            if (coeff == null)
+            {
+                throw new ArgumentNullException("coeff");
+            }
+            else
+            {
+                var result = new UnivariatePolynomialNormalForm<CoeffType, RingType>(this.ring);
+                result.variableName = this.variableName;
+                result.terms = new Dictionary<int, CoeffType>();
+                if (!this.ring.IsAdditiveUnity(coeff))
+                {
+                    foreach (var thisTerm in this.terms)
+                    {
+                        result.terms.Add(thisTerm.Key, this.ring.Multiply(thisTerm.Value, coeff));
+                    }
+                }
+
+                return result;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o polinómio simétrico do actual.
+        /// </summary>
+        /// <returns>O polinómio simétrico do actual.</returns>
+        public UnivariatePolynomialNormalForm<CoeffType, RingType> GetSymmetric()
+        {
+            var result = new UnivariatePolynomialNormalForm<CoeffType, RingType>(this.ring);
+            result.variableName = this.variableName;
+            result.terms = new Dictionary<int, CoeffType>();
+            foreach (var kvp in this.terms)
+            {
+                result.terms.Add(kvp.Key, this.ring.AdditiveInverse(kvp.Value));
+            }
+
+            return result;
+        }
+
+        /// <summary>
         /// Substitui a variável pelo coeficiente especificado e calcula o resultado.
         /// </summary>
         /// <param name="coeff">O coeficiente.</param>
@@ -335,13 +515,34 @@ namespace Mathematics
             }
             else
             {
-                var result = this.ring.AdditiveUnity;
+                var ordered = new InsertionSortedCollection<int>(Comparer<int>.Default);
                 foreach (var term in this.terms)
                 {
-                    var powered = MathFunctions.Power(coeff, term.Key, this.ring);
+                    ordered.InsertSortElement(term.Key);
                 }
 
-                throw new NotImplementedException();
+                if (ordered.Count > 0)
+                {
+                    var result = this.terms[ordered.Last];
+                    var previousDegree = ordered.Last;
+                    ordered.RemoveElement(previousDegree);
+                    while (ordered.Count > 0)
+                    {
+                        var power = MathFunctions.Power(coeff, previousDegree - ordered.Last, this.ring);
+                        result = this.ring.Multiply(result, power);
+                        result = this.ring.Add(result, this.terms[ordered.Last]);
+                        previousDegree = ordered.Last;
+                        ordered.RemoveElement(previousDegree);
+                    }
+
+                    var lastPower = MathFunctions.Power(coeff, previousDegree, this.ring);
+                    result = this.ring.Multiply(result, lastPower);
+                    return result;
+                }
+                else
+                {
+                    return this.ring.AdditiveUnity;
+                }
             }
         }
 
@@ -352,7 +553,22 @@ namespace Mathematics
         /// <returns>O polinómio com a variável substituída.</returns>
         public UnivariatePolynomialNormalForm<CoeffType, RingType> Replace(string variableName)
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrWhiteSpace(variableName))
+            {
+                throw new ArgumentException("Variable must not be empty.");
+            }
+            else
+            {
+                var result = new UnivariatePolynomialNormalForm<CoeffType, RingType>(this.ring);
+                result.variableName = variableName;
+                result.terms = new Dictionary<int, CoeffType>();
+                foreach (var kvp in this.terms)
+                {
+                    result.terms.Add(kvp.Key, kvp.Value);
+                }
+
+                return result;
+            }
         }
 
         /// <summary>
@@ -363,7 +579,42 @@ namespace Mathematics
         public UnivariatePolynomialNormalForm<CoeffType, RingType> Replace(
             UnivariatePolynomialNormalForm<CoeffType, RingType> other)
         {
-            throw new NotImplementedException();
+            if (other == null)
+            {
+                throw new ArgumentNullException("other");
+            }
+            else
+            {
+                var polynomialRing = new UnivarPolynomRing<CoeffType, RingType>(this.variableName, this.ring);
+                var ordered = new InsertionSortedCollection<int>(Comparer<int>.Default);
+                foreach (var term in this.terms)
+                {
+                    ordered.InsertSortElement(term.Key);
+                }
+
+                if (ordered.Count > 0)
+                {
+                    var result = new UnivariatePolynomialNormalForm<CoeffType, RingType>(this.terms[ordered.Last], 0, this.variableName, this.ring);
+                    var previousDegree = ordered.Last;
+                    ordered.RemoveElement(previousDegree);
+                    while (ordered.Count > 0)
+                    {
+                        var power = MathFunctions.Power(other, previousDegree - ordered.Last, polynomialRing);
+                        result = result.Multiply(power);
+                        result = result.Add(this.terms[ordered.Last]);
+                        previousDegree = ordered.Last;
+                        ordered.RemoveElement(previousDegree);
+                    }
+
+                    var lastPower = MathFunctions.Power(other, previousDegree, polynomialRing);
+                    result = result.Multiply(lastPower);
+                    return result;
+                }
+                else
+                {
+                    return polynomialRing.AdditiveUnity;
+                }
+            }
         }
         #endregion Operações
     }

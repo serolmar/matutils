@@ -271,6 +271,39 @@ namespace Mathematics
             return resultBuilder.ToString();
         }
 
+        public static IMatrix<ObjectType> GetIdentity<RingType>(int order, RingType ring)
+            where RingType : IRing<ObjectType>
+        {
+            if (ring == null)
+            {
+                throw new ArgumentNullException("ring");
+            }
+            else if (order <= 0)
+            {
+                throw new ArgumentOutOfRangeException("Order of identity matrix must be greater than one.");
+            }
+            else
+            {
+                var result = new ArrayMatrix<ObjectType>(order, order);
+                for (int i = 0; i < order; ++i)
+                {
+                    for (int j = 0; j < order; ++j)
+                    {
+                        if (i == j)
+                        {
+                            result.elements[i][j] = ring.MultiplicativeUnity;
+                        }
+                        else
+                        {
+                            result.elements[i][j] = ring.AdditiveUnity;
+                        }
+                    }
+                }
+
+                return result;
+            }
+        }
+
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
             return this.GetEnumerator();
