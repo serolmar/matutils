@@ -67,6 +67,20 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Obtém o nome da variável.
+        /// </summary>
+        public string VariableName
+        {
+            get
+            {
+                return this.variableName;
+            }
+        }
+
+        /// <summary>
+        /// Obtém um valor que indica se se trata de um monómio.
+        /// </summary>
         public bool IsMonomial
         {
             get
@@ -542,6 +556,56 @@ namespace Mathematics
                 else
                 {
                     return this.ring.AdditiveUnity;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Determina o valor da substituição da variável por um elemento de uma álgebra.
+        /// </summary>
+        /// <typeparam name="ResultType">O tipo do elemento da álgebra.</typeparam>
+        /// <param name="value">O valor do elemento.</param>
+        /// <param name="algebra">A álgebra.</param>
+        /// <returns>O resultado da substituição.</returns>
+        public ResultType Replace<ResultType>(ResultType value, IAlgebra<CoeffType, ResultType> algebra)
+        {
+            if (algebra == null)
+            {
+                throw new ArgumentNullException("algebra");
+            }
+            else if (value == null)
+            {
+                throw new ArgumentNullException("value");
+            }
+            else
+            {
+                var ordered = new InsertionSortedCollection<int>(Comparer<int>.Default);
+                foreach (var term in this.terms)
+                {
+                    ordered.InsertSortElement(term.Key);
+                }
+
+                if (ordered.Count > 0)
+                {
+                    var result = algebra.MultiplyScalar(this.terms[ordered.Last], algebra.MultiplicativeUnity);
+                    var previousDegree = ordered.Last;
+                    ordered.RemoveElement(previousDegree);
+                    while (ordered.Count > 0)
+                    {
+                        var power = MathFunctions.Power(value, previousDegree - ordered.Last, algebra);
+                        result = algebra.Multiply(result, power);
+                        result = algebra.Add(result, algebra.MultiplyScalar(this.terms[ordered.Last], algebra.MultiplicativeUnity));
+                        previousDegree = ordered.Last;
+                        ordered.RemoveElement(previousDegree);
+                    }
+
+                    var lastPower = MathFunctions.Power(value, previousDegree, algebra);
+                    result = algebra.Multiply(result, lastPower);
+                    return result;
+                }
+                else
+                {
+                    return algebra.AdditiveUnity;
                 }
             }
         }

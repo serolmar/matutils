@@ -44,6 +44,7 @@
     <Compile Include="AlgebraicStructures\Implementations\FractionField.cs" />
     <Compile Include="AlgebraicStructures\Implementations\IntegerDomain.cs" />
     <Compile Include="AlgebraicStructures\Implementations\UnivarPolynomRing.cs" />
+    <Compile Include="AlgebraicStructures\LogicInterfaces\IAlgebra.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\IEuclideanDomain.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\IField.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\IGroup.cs" />
@@ -53,6 +54,7 @@
     <Compile Include="AlgebraicStructures\LogicInterfaces\IMultipliable.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\IRing.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\ISemigroup.cs" />
+    <Compile Include="AlgebraicStructures\LogicInterfaces\IVectorSpace.cs" />
     <Compile Include="AlgebraicStructures\Matrix\ArrayMatrix.cs" />
     <Compile Include="AlgebraicStructures\Matrix\ArrayMatrixReader.cs" />
     <Compile Include="AlgebraicStructures\Matrix\SubMatrix.cs" />
@@ -63,11 +65,12 @@
     <Compile Include="AlgebraicStructures\Polynomial\IntegerFactorialFraction.cs" />
     <Compile Include="AlgebraicStructures\Polynomial\Polynomial.cs" />
     <Compile Include="AlgebraicStructures\Polynomial\PolynomialGeneralVariable.cs" />
-    <Compile Include="AlgebraicStructures\Polynomial\PolynomialParser.cs" />
-    <Compile Include="AlgebraicStructures\Polynomial\SimplePolynomialParser.cs" />
+    <Compile Include="AlgebraicStructures\Polynomial\PolynomialReaders\PolynomialParser.cs" />
+    <Compile Include="AlgebraicStructures\Polynomial\PolynomialReaders\SimplePolynomialParser.cs" />
     <Compile Include="AlgebraicStructures\Polynomial\SymmetricPolynomial.cs" />
     <Compile Include="AlgebraicStructures\Polynomial\SymmetricPolynomialDegreeEqualityComparer.cs" />
     <Compile Include="AlgebraicStructures\Polynomial\UnivariatePolynomialNormalForm.cs" />
+    <Compile Include="AlgebraicStructures\Polynomial\UnivarPolynomNormalFormParser.cs" />
     <Compile Include="AlgebraicStructures\Readers\ARangeReader.cs" />
     <Compile Include="AlgebraicStructures\Readers\RangeConfigReader.cs" />
     <Compile Include="AlgebraicStructures\Readers\RangeNoConfigReader.cs" />
