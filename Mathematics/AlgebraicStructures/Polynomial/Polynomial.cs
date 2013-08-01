@@ -281,6 +281,11 @@
         }
 
         #region Operations
+        /// <summary>
+        /// Obtém a soma do polinómio corrente com outro polinómio.
+        /// </summary>
+        /// <param name="right">O outro polinómio.</param>
+        /// <returns>O resultado da soma.</returns>
         public Polynomial<T, R> Add(Polynomial<T, R> right)
         {
             if (right == null)
@@ -340,6 +345,147 @@
             return result;
         }
 
+        /// <summary>
+        /// Adiciona um coeficiente ao polinómio.
+        /// </summary>
+        /// <param name="coeff">O coefieciente a ser adicionado.</param>
+        /// <returns>O resultado da adição.</returns>
+        public Polynomial<T, R> Add(T coeff)
+        {
+            if (coeff == null)
+            {
+                throw new ArgumentNullException("coeff");
+            }
+            else
+            {
+                var result = this.Clone();
+                if (!this.polynomialCoeffRing.IsAdditiveUnity(coeff))
+                {
+                    var degree = new List<int>();
+                    var resultCoeff = default(T);
+                    if (result.coeffsMap.TryGetValue(degree, out resultCoeff))
+                    {
+                        resultCoeff = this.polynomialCoeffRing.Add(resultCoeff, coeff);
+                        if (this.polynomialCoeffRing.IsAdditiveUnity(resultCoeff))
+                        {
+                            result.coeffsMap.Remove(degree);
+                        }
+                        else
+                        {
+                            result.coeffsMap[degree] = resultCoeff;
+                        }
+                    }
+                }
+
+                return result;
+            }
+        }
+
+        /// <summary>
+        /// Obtém a diferença entre polinómio corrente e outro polinómio.
+        /// </summary>
+        /// <param name="right">O outro polinómio.</param>
+        /// <returns>O resultado da diferença.</returns>
+        public Polynomial<T, R> Subtract(Polynomial<T, R> right)
+        {
+            if (right == null)
+            {
+                throw new MathematicsException("Can't add a null polynomial.");
+            }
+
+            var result = new Polynomial<T, R>(this.polynomialCoeffRing);
+            foreach (var kvp in this.coeffsMap)
+            {
+                result.coeffsMap.Add(kvp.Key, kvp.Value);
+            }
+
+            foreach (var vars in this.variables)
+            {
+                result.variables.Add(vars.Clone());
+            }
+
+            // TODO: speed up searches with dictionary
+            foreach (var vars in right.variables)
+            {
+                if (!result.variables.Contains(vars))
+                {
+                    result.variables.Add(vars);
+                }
+            }
+
+            foreach (var kvp in right.coeffsMap)
+            {
+                var resultDegree = result.GetDegreeFromRightPol(
+                    kvp.Key,
+                    right);
+
+                if (result.coeffsMap.ContainsKey(resultDegree))
+                {
+                    var resultCoeff = this.polynomialCoeffRing.Add(
+                        this.polynomialCoeffRing.AdditiveInverse(kvp.Value),
+                        result.coeffsMap[resultDegree]);
+
+                    if (this.polynomialCoeffRing.Equals(
+                        this.polynomialCoeffRing.AdditiveUnity,
+                        resultCoeff))
+                    {
+                        result.coeffsMap.Remove(resultDegree);
+                    }
+                    else
+                    {
+                        result.coeffsMap[resultDegree] = resultCoeff;
+                    }
+                }
+                else
+                {
+                    result.coeffsMap.Add(resultDegree, this.polynomialCoeffRing.AdditiveInverse(kvp.Value));
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Subtrai um coeficiente ao polinómio.
+        /// </summary>
+        /// <param name="coeff">O coefieciente a ser subtraído.</param>
+        /// <returns>O resultado da subtracção.</returns>
+        public Polynomial<T, R> Subtract(T coeff)
+        {
+            if (coeff == null)
+            {
+                throw new ArgumentNullException("coeff");
+            }
+            else
+            {
+                var result = this.Clone();
+                if (!this.polynomialCoeffRing.IsAdditiveUnity(coeff))
+                {
+                    var degree = new List<int>();
+                    var resultCoeff = default(T);
+                    if (result.coeffsMap.TryGetValue(degree, out resultCoeff))
+                    {
+                        resultCoeff = this.polynomialCoeffRing.Add(resultCoeff, this.polynomialCoeffRing.AdditiveInverse(coeff));
+                        if (this.polynomialCoeffRing.IsAdditiveUnity(resultCoeff))
+                        {
+                            result.coeffsMap.Remove(degree);
+                        }
+                        else
+                        {
+                            result.coeffsMap[degree] = resultCoeff;
+                        }
+                    }
+                }
+
+                return result;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o produto do polinómio corrente com outro polinómio.
+        /// </summary>
+        /// <param name="right">O outro polinómio.</param>
+        /// <returns>O resultado do produto.</returns>
         public Polynomial<T, R> Multiply(Polynomial<T, R> right)
         {
             var result = new Polynomial<T, R>(this.polynomialCoeffRing);
@@ -466,6 +612,66 @@
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Obtém o produto do polinómio por uma constante.
+        /// </summary>
+        /// <param name="coeff">A constante.</param>
+        /// <returns>O produto.</returns>
+        public Polynomial<T, R> Multiply(T coeff)
+        {
+            if (coeff == null)
+            {
+                throw new ArgumentNullException("coeff");
+            }
+            else
+            {
+                var result = new Polynomial<T, R>(this.polynomialCoeffRing);
+                foreach (var variable in this.variables)
+                {
+                    result.variables.Add(variable.Clone());
+                }
+
+                foreach (var kvp in this.coeffsMap)
+                {
+                    var product = this.polynomialCoeffRing.Multiply(kvp.Value, coeff);
+                    result.coeffsMap.Add(kvp.Key, product);
+                }
+
+                return result;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o polinómio simétrico.
+        /// </summary>
+        /// <returns>O polinómio simétrico.</returns>
+        public Polynomial<T, R> GetSymmetric()
+        {
+            var result = new Polynomial<T, R>(this.polynomialCoeffRing);
+            foreach (var variable in this.variables)
+            {
+                result.variables.Add(variable.Clone());
+            }
+
+            foreach (var kvp in this.coeffsMap)
+            {
+                var product = this.polynomialCoeffRing.Multiply(kvp.Value, this.polynomialCoeffRing.AdditiveInverse(kvp.Value));
+                result.coeffsMap.Add(kvp.Key, product);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Obtém a potência do polinómio actual.
+        /// </summary>
+        /// <param name="exponent">O expoente.</param>
+        /// <returns>O resultado da potência.</returns>
+        public Polynomial<T, R> Power(int exponent)
+        {
+            throw new NotImplementedException();
         }
 
         public Polynomial<T, R> Replace(Dictionary<string, T> replace)

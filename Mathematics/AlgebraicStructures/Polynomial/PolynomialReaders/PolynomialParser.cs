@@ -5,6 +5,7 @@
     using System.IO;
     using System.Linq;
     using System.Text;
+    using Algorithms;
     using Utilities.Parsers;
 
     public class PolynomialParser<T, RingType>
@@ -24,6 +25,11 @@
         /// Maps the external delimiters. External delimiters bounds entire elementary subexpressions.
         /// </summary>
         private Dictionary<string, List<string>> externalDelimitersTypes = new Dictionary<string, List<string>>();
+
+        /// <summary>
+        /// O domínio que contém as funções sobre inteiros.
+        /// </summary>
+        private IntegerDomain integerRing = new IntegerDomain();
 
         public PolynomialParser(IParse<T, string, string> coeffParser, RingType ring)
         {
@@ -109,44 +115,82 @@
         /// <returns>O polinómio resultante.</returns>
         protected virtual ParsePolynomialItem<T, RingType> Add(ParsePolynomialItem<T, RingType> left, ParsePolynomialItem<T, RingType> right)
         {
+            var result = new ParsePolynomialItem<T, RingType>();
             if (left.ValueType == EParsePolynomialValueType.COEFFICIENT)
             {
                 if (right.ValueType == EParsePolynomialValueType.COEFFICIENT)
                 {
+                    result.Coeff = this.ring.Add(left.Coeff, right.Coeff);
                 }
                 else if (right.ValueType == EParsePolynomialValueType.INTEGER)
                 {
+                    if (typeof(int).IsAssignableFrom(typeof(T)))
+                    {
+                        result.Coeff = this.ring.Add(left.Coeff, (T)(object)right.Degree);
+                    }
+                    else
+                    {
+                        throw new MathematicsException("Can't convert an integer value to polynomial coefficient type.");
+                    }
                 }
                 else if (right.ValueType == EParsePolynomialValueType.POLYNOMIAL)
                 {
+                    result.Polynomial = right.Polynomial.Add(left.Coeff);
                 }
             }
             else if (left.ValueType == EParsePolynomialValueType.INTEGER)
             {
                 if (right.ValueType == EParsePolynomialValueType.COEFFICIENT)
                 {
+                    if (typeof(int).IsAssignableFrom(typeof(T)))
+                    {
+                        result.Coeff = this.ring.Add((T)(object)left.Degree, right.Coeff);
+                    }
+                    else
+                    {
+                        throw new MathematicsException("Can't convert an integer value to polynomial coefficient type.");
+                    }
                 }
                 else if (right.ValueType == EParsePolynomialValueType.INTEGER)
                 {
+                    result.Degree = left.Degree + right.Degree;
                 }
                 else if (right.ValueType == EParsePolynomialValueType.POLYNOMIAL)
                 {
+                    if (typeof(int).IsAssignableFrom(typeof(T)))
+                    {
+                        result.Polynomial = right.Polynomial.Add((T)(object)left.Degree);
+                    }
+                    else
+                    {
+                        throw new MathematicsException("Can't convert an integer value to polynomial coefficient type.");
+                    }
                 }
             }
             else if (left.ValueType == EParsePolynomialValueType.POLYNOMIAL)
             {
                 if (right.ValueType == EParsePolynomialValueType.COEFFICIENT)
                 {
+                    result.Polynomial = left.Polynomial.Add(right.Coeff);
                 }
                 else if (right.ValueType == EParsePolynomialValueType.INTEGER)
                 {
+                    if (typeof(int).IsAssignableFrom(typeof(T)))
+                    {
+                        result.Polynomial = left.Polynomial.Add((T)(object)right.Degree);
+                    }
+                    else
+                    {
+                        throw new MathematicsException("Can't convert an integer value to polynomial coefficient type.");
+                    }
                 }
                 else if (right.ValueType == EParsePolynomialValueType.POLYNOMIAL)
                 {
+                    result.Polynomial = left.Polynomial.Add(right.Polynomial);
                 }
             }
 
-            throw new NotImplementedException("Something went very wrong.");
+            return result;
         }
 
         /// <summary>
@@ -157,44 +201,82 @@
         /// <returns>O polinómio resultante.</returns>
         protected virtual ParsePolynomialItem<T, RingType> Multiply(ParsePolynomialItem<T, RingType> left, ParsePolynomialItem<T, RingType> right)
         {
+            var result = new ParsePolynomialItem<T, RingType>();
             if (left.ValueType == EParsePolynomialValueType.COEFFICIENT)
             {
                 if (right.ValueType == EParsePolynomialValueType.COEFFICIENT)
                 {
+                    result.Coeff = this.ring.Multiply(left.Coeff, right.Coeff);
                 }
                 else if (right.ValueType == EParsePolynomialValueType.INTEGER)
                 {
+                    if (typeof(int).IsAssignableFrom(typeof(T)))
+                    {
+                        result.Coeff = this.ring.Multiply(left.Coeff, (T)(object)right.Degree);
+                    }
+                    else
+                    {
+                        throw new MathematicsException("Can't convert an integer value to polynomial coefficient type.");
+                    }
                 }
                 else if (right.ValueType == EParsePolynomialValueType.POLYNOMIAL)
                 {
+                    result.Polynomial = right.Polynomial.Multiply(left.Coeff);
                 }
             }
             else if (left.ValueType == EParsePolynomialValueType.INTEGER)
             {
                 if (right.ValueType == EParsePolynomialValueType.COEFFICIENT)
                 {
+                    if (typeof(int).IsAssignableFrom(typeof(T)))
+                    {
+                        result.Coeff = this.ring.Multiply((T)(object)left.Degree, right.Coeff);
+                    }
+                    else
+                    {
+                        throw new MathematicsException("Can't convert an integer value to polynomial coefficient type.");
+                    }
                 }
                 else if (right.ValueType == EParsePolynomialValueType.INTEGER)
                 {
+                    result.Degree = left.Degree * right.Degree;
                 }
                 else if (right.ValueType == EParsePolynomialValueType.POLYNOMIAL)
                 {
+                    if (typeof(int).IsAssignableFrom(typeof(T)))
+                    {
+                        result.Polynomial = right.Polynomial.Multiply((T)(object)left.Degree);
+                    }
+                    else
+                    {
+                        throw new MathematicsException("Can't convert an integer value to polynomial coefficient type.");
+                    }
                 }
             }
             else if (left.ValueType == EParsePolynomialValueType.POLYNOMIAL)
             {
                 if (right.ValueType == EParsePolynomialValueType.COEFFICIENT)
                 {
+                    result.Polynomial = left.Polynomial.Multiply(right.Coeff);
                 }
                 else if (right.ValueType == EParsePolynomialValueType.INTEGER)
                 {
+                    if (typeof(int).IsAssignableFrom(typeof(T)))
+                    {
+                        result.Polynomial = left.Polynomial.Multiply((T)(object)right.Degree);
+                    }
+                    else
+                    {
+                        throw new MathematicsException("Can't convert an integer value to polynomial coefficient type.");
+                    }
                 }
                 else if (right.ValueType == EParsePolynomialValueType.POLYNOMIAL)
                 {
+                    result.Polynomial = left.Polynomial.Multiply(right.Polynomial);
                 }
             }
 
-            throw new NotImplementedException("Something went very wrong.");
+            return result;
         }
 
         /// <summary>
@@ -205,44 +287,82 @@
         /// <returns>O polinómio resultante.</returns>
         protected virtual ParsePolynomialItem<T, RingType> Subtract(ParsePolynomialItem<T, RingType> left, ParsePolynomialItem<T, RingType> right)
         {
+            var result = new ParsePolynomialItem<T, RingType>();
             if (left.ValueType == EParsePolynomialValueType.COEFFICIENT)
             {
                 if (right.ValueType == EParsePolynomialValueType.COEFFICIENT)
                 {
+                    result.Coeff = this.ring.Add(left.Coeff, this.ring.AdditiveInverse(right.Coeff));
                 }
                 else if (right.ValueType == EParsePolynomialValueType.INTEGER)
                 {
+                    if (typeof(int).IsAssignableFrom(typeof(T)))
+                    {
+                        result.Coeff = this.ring.Add(left.Coeff, (T)(object)(-right.Degree));
+                    }
+                    else
+                    {
+                        throw new MathematicsException("Can't convert an integer value to polynomial coefficient type.");
+                    }
                 }
                 else if (right.ValueType == EParsePolynomialValueType.POLYNOMIAL)
                 {
+                    result.Polynomial = right.Polynomial.Subtract(left.Coeff);
                 }
             }
             else if (left.ValueType == EParsePolynomialValueType.INTEGER)
             {
                 if (right.ValueType == EParsePolynomialValueType.COEFFICIENT)
                 {
+                    if (typeof(int).IsAssignableFrom(typeof(T)))
+                    {
+                        result.Coeff = this.ring.Add((T)(object)left.Degree, this.ring.AdditiveInverse(right.Coeff));
+                    }
+                    else
+                    {
+                        throw new MathematicsException("Can't convert an integer value to polynomial coefficient type.");
+                    }
                 }
                 else if (right.ValueType == EParsePolynomialValueType.INTEGER)
                 {
+                    result.Degree = left.Degree - right.Degree;
                 }
                 else if (right.ValueType == EParsePolynomialValueType.POLYNOMIAL)
                 {
+                    if (typeof(int).IsAssignableFrom(typeof(T)))
+                    {
+                        result.Polynomial = right.Polynomial.Subtract((T)(object)left.Degree);
+                    }
+                    else
+                    {
+                        throw new MathematicsException("Can't convert an integer value to polynomial coefficient type.");
+                    }
                 }
             }
             else if (left.ValueType == EParsePolynomialValueType.POLYNOMIAL)
             {
                 if (right.ValueType == EParsePolynomialValueType.COEFFICIENT)
                 {
+                    result.Polynomial = left.Polynomial.Subtract(right.Coeff);
                 }
                 else if (right.ValueType == EParsePolynomialValueType.INTEGER)
                 {
+                    if (typeof(int).IsAssignableFrom(typeof(T)))
+                    {
+                        result.Polynomial = left.Polynomial.Subtract((T)(object)right.Degree);
+                    }
+                    else
+                    {
+                        throw new MathematicsException("Can't convert an integer value to polynomial coefficient type.");
+                    }
                 }
                 else if (right.ValueType == EParsePolynomialValueType.POLYNOMIAL)
                 {
+                    result.Polynomial = left.Polynomial.Subtract(right.Polynomial);
                 }
             }
 
-            throw new NotImplementedException("Something went very wrong.");
+            return result;
         }
 
         /// <summary>
@@ -327,17 +447,21 @@
         {
             //var inversedUnity = new Polynomial<T, RingType>(this.ring.AdditiveInverse(this.ring.MultiplicativeUnity), this.ring);
             //return pol.Multiply(inversedUnity);
+            var result = new ParsePolynomialItem<T, RingType>();
             if (pol.ValueType == EParsePolynomialValueType.COEFFICIENT)
             {
+                result.Coeff = this.ring.AdditiveInverse(pol.Coeff);
             }
             else if (pol.ValueType == EParsePolynomialValueType.INTEGER)
             {
+                result.Degree = -pol.Degree;
             }
             else if (pol.ValueType == EParsePolynomialValueType.POLYNOMIAL)
             {
+                result.Polynomial = pol.Polynomial.GetSymmetric();
             }
 
-            throw new NotImplementedException("Something went very wrong.");
+            return result;
         }
 
         /// <summary>
@@ -348,44 +472,109 @@
         /// <returns>O resultado da potência.</returns>
         protected virtual ParsePolynomialItem<T, RingType> Power(ParsePolynomialItem<T, RingType> left, ParsePolynomialItem<T, RingType> right)
         {
+            var result = new ParsePolynomialItem<T, RingType>();
             if (left.ValueType == EParsePolynomialValueType.COEFFICIENT)
             {
                 if (right.ValueType == EParsePolynomialValueType.COEFFICIENT)
                 {
+                    if (typeof(int).IsAssignableFrom(typeof(T)))
+                    {
+                        var exponent = (int)(object)right.Coeff;
+                        result.Coeff = MathFunctions.Power(left.Coeff, exponent, this.ring);
+                    }
+                    else
+                    {
+                        throw new MathematicsException("Can't compute power of non integer values.");
+                    }
                 }
                 else if (right.ValueType == EParsePolynomialValueType.INTEGER)
                 {
+                    if (typeof(int).IsAssignableFrom(typeof(T)))
+                    {
+                        result.Coeff = MathFunctions.Power(left.Coeff, right.Degree, this.ring);
+                    }
+                    else
+                    {
+                        throw new MathematicsException("Can't compute power of non integer values.");
+                    }
                 }
                 else if (right.ValueType == EParsePolynomialValueType.POLYNOMIAL)
                 {
+                    if (typeof(int).IsAssignableFrom(typeof(T)))
+                    {
+                        var exponent = (int)(object)right.Polynomial.GetAsValue();
+                        result.Coeff = MathFunctions.Power(left.Coeff, exponent, this.ring);
+                    }
+                    else
+                    {
+                        throw new MathematicsException("Can't compute power of non integer values.");
+                    }
                 }
             }
             else if (left.ValueType == EParsePolynomialValueType.INTEGER)
             {
                 if (right.ValueType == EParsePolynomialValueType.COEFFICIENT)
                 {
+                    if (typeof(int).IsAssignableFrom(typeof(T)))
+                    {
+                        var exponent = (int)(object)right.Coeff;
+                        result.Degree = MathFunctions.Power(left.Degree, exponent, this.integerRing);
+                    }
+                    else
+                    {
+                        throw new MathematicsException("Can't compute power of non integer values.");
+                    }
                 }
                 else if (right.ValueType == EParsePolynomialValueType.INTEGER)
                 {
+                    result.Degree = MathFunctions.Power(left.Degree, right.Degree, this.integerRing);
                 }
                 else if (right.ValueType == EParsePolynomialValueType.POLYNOMIAL)
                 {
+                    if (typeof(int).IsAssignableFrom(typeof(T)))
+                    {
+                        var exponent = (int)(object)right.Polynomial.GetAsValue();
+                        result.Degree = MathFunctions.Power(left.Degree, exponent, this.integerRing);
+                    }
+                    else
+                    {
+                        throw new MathematicsException("Can't compute power of non integer values.");
+                    }
                 }
             }
             else if (left.ValueType == EParsePolynomialValueType.POLYNOMIAL)
             {
                 if (right.ValueType == EParsePolynomialValueType.COEFFICIENT)
                 {
+                    if (typeof(int).IsAssignableFrom(typeof(T)))
+                    {
+                        var exponent = (int)(object)right.Coeff;
+                        result.Polynomial = left.Polynomial.Power(exponent);
+                    }
+                    else
+                    {
+                        throw new MathematicsException("Can't compute power of non integer values.");
+                    }
                 }
                 else if (right.ValueType == EParsePolynomialValueType.INTEGER)
                 {
+                    result.Polynomial = left.Polynomial.Power(right.Degree);
                 }
                 else if (right.ValueType == EParsePolynomialValueType.POLYNOMIAL)
                 {
+                    if (typeof(int).IsAssignableFrom(typeof(T)))
+                    {
+                        var exponent = (int)(object)right.Polynomial.GetAsValue();
+                        result.Polynomial = left.Polynomial.Power(exponent);
+                    }
+                    else
+                    {
+                        throw new MathematicsException("Can't compute power of non integer values.");
+                    }
                 }
             }
 
-            throw new NotImplementedException("Something went very wrong.");
+            return result;
         }
     }
 }
