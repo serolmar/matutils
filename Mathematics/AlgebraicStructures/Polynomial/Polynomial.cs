@@ -375,6 +375,10 @@
                             result.coeffsMap[degree] = resultCoeff;
                         }
                     }
+                    else
+                    {
+                        result.coeffsMap.Add(degree, coeff);
+                    }
                 }
 
                 return result;
@@ -474,6 +478,10 @@
                         {
                             result.coeffsMap[degree] = resultCoeff;
                         }
+                    }
+                    else
+                    {
+                        result.coeffsMap.Add(degree, this.polynomialCoeffRing.AdditiveInverse(coeff));
                     }
                 }
 
@@ -671,7 +679,59 @@
         /// <returns>O resultado da potência.</returns>
         public Polynomial<T, R> Power(int exponent)
         {
-            throw new NotImplementedException();
+            if (exponent < 0)
+            {
+                throw new ArgumentOutOfRangeException("Exponent can't be a negative number.");
+            }
+            else if (exponent == 1)
+            {
+                return this.Clone();
+            }
+            else
+            {
+                var result = new Polynomial<T, R>(this.polynomialCoeffRing);
+                var termsCount = this.coeffsMap.Count;
+                if (termsCount > 1)
+                {
+                    var variable = new PolynomialGeneralVariable<T, R>(this.Clone());
+                    result.variables.Add(variable);
+                    result.coeffsMap.Add(new List<int>() { exponent }, this.polynomialCoeffRing.MultiplicativeUnity);
+                }
+                else if (termsCount == 1)
+                {
+                    var termsEnum = this.coeffsMap.GetEnumerator();
+                    termsEnum.MoveNext();
+                    var degree = termsEnum.Current.Key;
+                    var coeff = termsEnum.Current.Value;
+                    if (degree.Count == 0)
+                    {
+                        if (!this.polynomialCoeffRing.IsAdditiveUnity(coeff))
+                        {
+                            result.coeffsMap.Add(degree, MathFunctions.Power(coeff, exponent, this.polynomialCoeffRing));
+                            foreach (var variable in this.variables)
+                            {
+                                result.variables.Add(variable.Clone());
+                            }
+                        }
+                    }
+                    else
+                    {
+                        var newDegree = new List<int>();
+                        foreach (var deg in degree)
+                        {
+                            newDegree.Add(exponent * deg);
+                        }
+
+                        result.coeffsMap.Add(newDegree, MathFunctions.Power(coeff, exponent, this.polynomialCoeffRing));
+                        foreach (var variable in this.variables)
+                        {
+                            result.variables.Add(variable.Clone());
+                        }
+                    }
+                }
+
+                return result;
+            }
         }
 
         public Polynomial<T, R> Replace(Dictionary<string, T> replace)

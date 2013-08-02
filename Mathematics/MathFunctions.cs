@@ -39,7 +39,7 @@
             var result = val;
             var rem = innerPow % 2;
             innerPow = innerPow / 2;
-            while (pow > 0)
+            while (innerPow > 0)
             {
                 result = multiplier.Multiply(result, result);
                 if (rem == 1)

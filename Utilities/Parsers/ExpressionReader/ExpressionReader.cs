@@ -753,7 +753,6 @@ namespace Utilities.Parsers
                 if (this.parser.TryParse(this.currentSymbolValues.ToArray(), out parsed))
                 {
                     this.elementStack.Push(parsed);
-                    reader.Get();
                 }
                 else
                 {

@@ -15,13 +15,23 @@
     {
         static void Main(string[] args)
         {
-            Test5();
+            Test7();
         }
 
         static void RunObjectTester()
         {
             var tester = new ObjectTester();
             tester.Run(Console.In, Console.Out);
+        }
+
+        static void Test7()
+        {
+            var input = "x+y^2*(z-1)^3";
+            var integerParser = new IntegerParser();
+
+            var polynomialParser = new PolynomialParser<int, IntegerDomain>(integerParser, new IntegerDomain());
+            var readed = polynomialParser.ParsePolynomial(input);
+            Console.WriteLine(readed);
         }
 
         /// <summary>
