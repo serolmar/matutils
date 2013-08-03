@@ -6,7 +6,7 @@
     using System.Text;
     using Utilities.Parsers;
 
-    class PolynomialParser<CoeffType, RingType> : IParse<Polynomial<CoeffType, RingType>, string, string>
+    public class UnivarPolNormalFormParser<CoeffType, RingType> : IParse<UnivariatePolynomialNormalForm<CoeffType, RingType>, string, string>
         where RingType : IRing<CoeffType>
     {
         /// <summary>
@@ -17,16 +17,25 @@
         /// <summary>
         /// O leitor de matrizes multidimensionais.
         /// </summary>
-        private PolynomialReader<CoeffType, RingType, ISymbol<string, string>[]> polynomialReader;
+        private UnivariatePolynomialReader<CoeffType, RingType, ISymbol<string, string>[]> polynomialReader;
 
         /// <summary>
         /// O leitor dos elmentos contidos na matriz multidimensional.
         /// </summary>
         private IParse<CoeffType, string, string> elementsParser;
 
-        public PolynomialParser(IParse<CoeffType, string, string> elementsParser, RingType ring)
+        /// <summary>
+        /// O nome da variável.
+        /// </summary>
+        private string variable;
+
+        public UnivarPolNormalFormParser(string variable, IParse<CoeffType, string, string> elementsParser, RingType ring)
         {
-            if (ring == null)
+            if (string.IsNullOrWhiteSpace(variable))
+            {
+                throw new ArgumentException("Variable must hava a non empty value.");
+            }
+            else if (ring == null)
             {
                 throw new ArgumentNullException("ring");
             }
@@ -36,15 +45,17 @@
             }
             else
             {
+                this.variable = variable;
                 this.coefficientsRing = ring;
                 this.elementsParser = elementsParser;
-                this.polynomialReader = new PolynomialReader<CoeffType, RingType, ISymbol<string, string>[]>(
+                this.polynomialReader = new UnivariatePolynomialReader<CoeffType, RingType, ISymbol<string, string>[]>(
+                    variable,
                     this.elementsParser,
                     this.coefficientsRing);
             }
         }
 
-        public bool TryParse(ISymbol<string, string>[] symbolListToParse, out Polynomial<CoeffType, RingType> value)
+        public bool TryParse(ISymbol<string, string>[] symbolListToParse, out UnivariatePolynomialNormalForm<CoeffType, RingType> value)
         {
             var arrayReader = new ArraySymbolReader<string, string>(symbolListToParse, "eof");
             return this.polynomialReader.TryParsePolynomial(arrayReader, out value);

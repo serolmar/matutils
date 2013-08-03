@@ -66,7 +66,7 @@ namespace Utilities.Parsers
 
         public override bool IsAtEOF()
         {
-            return this.bufferPointer >= this.symbolBuffer.Count;
+            return this.bufferPointer >= this.symbolBuffer.Count - 1;
         }
 
         private class ArraySymbol : ISymbol<TSymbVal, TSymbType>

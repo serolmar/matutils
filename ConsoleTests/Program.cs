@@ -15,7 +15,7 @@
     {
         static void Main(string[] args)
         {
-            Test7();
+            Test8();
             Console.ReadLine();
         }
 
@@ -25,15 +25,44 @@
             tester.Run(Console.In, Console.Out);
         }
 
+        static void Test8()
+        {
+            var input = "[[1-x,2],[3-x,4]]";
+            var inputReader = new StringSymbolReader(new StringReader(input), false);
+            var integerParser = new IntegerParser();
+            var integerDomain = new IntegerDomain();
+            var univariatePolParser = new UnivarPolNormalFormParser<int, IntegerDomain>(
+                "x",
+                integerParser,
+                integerDomain);
+            var arrayReader = new ArrayMatrixReader<UnivariatePolynomialNormalForm<int, IntegerDomain>, string, string, CharSymbolReader>(
+                2,
+                2);
+            arrayReader.MapInternalDelimiters("left_bracket", "right_bracket");
+            arrayReader.AddBlanckSymbolType("blancks");
+            arrayReader.SeparatorSymbType = "comma";
+
+            var readed = default(ArrayMatrix<UnivariatePolynomialNormalForm<int, IntegerDomain>>);
+            if (arrayReader.TryParseMatrix(inputReader, univariatePolParser, out readed))
+            {
+                Console.WriteLine(readed);
+            }
+            else
+            {
+                Console.WriteLine("Errors found.");
+            }
+        }
+
         static void Test7()
         {
             var input = "x+y^2*(z-1)^3-x";
             var integerParser = new IntegerParser();
 
-            var polynomialParser = new PolynomialParser<int, IntegerDomain>(integerParser, new IntegerDomain());
+            var inputReader = new StringSymbolReader(new StringReader(input), false);
+            var polynomialParser = new PolynomialReader<int, IntegerDomain, CharSymbolReader>(integerParser, new IntegerDomain());
             var readed = default(Polynomial<int, IntegerDomain>);
             var errors = new List<string>();
-            if (polynomialParser.ParsePolynomial(input, errors, out readed))
+            if (polynomialParser.TryParsePolynomial(inputReader, errors, out readed))
             {
                 Console.WriteLine(readed);
             }
@@ -106,7 +135,7 @@
             rangeNoConfig.AddBlanckSymbolType("blancks");
             rangeNoConfig.SeparatorSymbType = "comma";
 
-            var multiDimensionalRangeReader = new MultiDimensionalRangeParser<int, string, string, CharSymbolReader>(rangeNoConfig);
+            var multiDimensionalRangeReader = new MultiDimensionalRangeReader<int, string, string, CharSymbolReader>(rangeNoConfig);
             var range = default(MultiDimensionalRange<int>);
             var errors = new List<string>();
             if (multiDimensionalRangeReader.TryParseRange(stringsymbolReader, integerParser, errors, out range))

@@ -1,61 +1,42 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Utilities.Parsers;
-
-namespace Mathematics
+﻿namespace Mathematics
 {
-    public class MultiDimensionalRangeParser<T, SymbValue, SymbType, InputReader>
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using Utilities.Parsers;
+
+    public class MultiDimensionalRangeParser<T> : 
+        IParse<MultiDimensionalRange<T>, string, string>
     {
-        private ARangeReader<T, SymbValue, SymbType, InputReader> rangeReader;
+        /// <summary>
+        /// O leitor de matrizes multidimensionais.
+        /// </summary>
+        private MultiDimensionalRangeReader<T, string, string, ISymbol<string,string>[]> multiDimensionalReader;
 
-        public MultiDimensionalRangeParser(ARangeReader<T, SymbValue, SymbType, InputReader> rangeReader)
+        /// <summary>
+        /// O leitor dos elmentos contidos na matriz multidimensional.
+        /// </summary>
+        private IParse<T, string, string> elementsParser;
+
+        public MultiDimensionalRangeParser(IParse<T,string,string> elementsParser)
         {
-            if (rangeReader == null)
+            if (elementsParser == null)
             {
-                throw new ArgumentNullException("rangeReader");
+                throw new ArgumentNullException("elementsParser");
             }
             else
             {
-                this.rangeReader = rangeReader;
+                this.multiDimensionalReader = new MultiDimensionalRangeReader<T, string, string, ISymbol<string, string>[]>(
+                    new RangeNoConfigReader<T, string, string, ISymbol<string, string>[]>());
+                this.elementsParser = elementsParser;
             }
         }
 
-        public bool TryParseRange(
-            MementoSymbolReader<InputReader, SymbValue, SymbType> reader,
-            IParse<T, SymbValue, SymbType> parser,
-            out MultiDimensionalRange<T> result)
+        public bool TryParse(ISymbol<string, string>[] symbolListToParse, out MultiDimensionalRange<T> value)
         {
-            return this.TryParseRange(reader, parser, null, out result);
-        }
-
-        public bool TryParseRange(
-            MementoSymbolReader<InputReader, SymbValue, SymbType> reader,
-            IParse<T, SymbValue, SymbType> parser,
-            List<string> errors,
-            out MultiDimensionalRange<T> result)
-        {
-            result = default(MultiDimensionalRange<T>);
-            this.rangeReader.ReadRangeValues(reader, parser);
-            if (this.rangeReader.HasErrors)
-            {
-                if (errors != null)
-                {
-                    foreach (var message in this.rangeReader.ErrorMessages)
-                    {
-                        errors.Add(message);
-                    }
-                }
-
-                return false;
-            }
-            else
-            {
-                result = new MultiDimensionalRange<T>(this.rangeReader.Configuration);
-                result.InternalElements = this.rangeReader.Elements.ToArray();
-                return true;
-            }
+            var arrayReader = new ArraySymbolReader<string, string>(symbolListToParse, "eof");
+            return this.multiDimensionalReader.TryParseRange(arrayReader, this.elementsParser, out value);
         }
     }
 }

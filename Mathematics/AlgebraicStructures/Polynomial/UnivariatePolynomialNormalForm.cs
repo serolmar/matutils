@@ -101,6 +101,33 @@ namespace Mathematics
         }
 
         /// <summary>
+        /// Obtém um valor que indica se o polinómio contém apenas um valor.
+        /// </summary>
+        public bool IsValue
+        {
+            get
+            {
+                var termsEnumerator = this.terms.GetEnumerator();
+                if (termsEnumerator.MoveNext())
+                {
+                    var currentTerm = termsEnumerator.Current;
+                    if (termsEnumerator.MoveNext())
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        return currentTerm.Key == 0;
+                    }
+                }
+                else
+                {
+                    return true;
+                }
+            }
+        }
+
+        /// <summary>
         /// Obtém o grau do polinómio.
         /// </summary>
         public int Degree
@@ -155,6 +182,31 @@ namespace Mathematics
                 {
                     return false;
                 }
+            }
+        }
+
+        /// <summary>
+        /// Obtém o polinómio como sendo um valor.
+        /// </summary>
+        /// <returns>O polinómio.</returns>
+        public CoeffType GetAsValue()
+        {
+            var termsEnumerator = this.terms.GetEnumerator();
+            if (termsEnumerator.MoveNext())
+            {
+                var currentTerm = termsEnumerator.Current;
+                if (termsEnumerator.MoveNext() || currentTerm.Key != 0)
+                {
+                    throw new MathematicsException("Polynomail can't be converted to a value.");
+                }
+                else
+                {
+                    return currentTerm.Value;
+                }
+            }
+            else
+            {
+                return this.ring.AdditiveUnity;
             }
         }
 

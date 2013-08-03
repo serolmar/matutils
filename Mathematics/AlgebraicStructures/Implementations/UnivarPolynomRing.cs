@@ -40,7 +40,8 @@ namespace Mathematics
 
         public UnivariatePolynomialNormalForm<CoeffType, RingType> MultiplicativeUnity
         {
-            get {
+            get
+            {
                 return new UnivariatePolynomialNormalForm<CoeffType, RingType>(this.ring.MultiplicativeUnity, 0, this.variableName, this.ring);
             }
         }
