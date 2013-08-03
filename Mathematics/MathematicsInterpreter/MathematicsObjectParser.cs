@@ -73,7 +73,8 @@ namespace Mathematics.MathematicsInterpreter
 
             var rangeReader = new RangeNoConfigReader<AMathematicsObject, string, string, CharSymbolReader>();
             var multidimensionalRangeParser = new MultiDimensionalRangeParser<AMathematicsObject, string, string, CharSymbolReader>(rangeReader);
-            var multidimensionalRange = multidimensionalRangeParser.ParseRange(symbolReader , this);
+            var multidimensionalRange = default(MultiDimensionalRange<AMathematicsObject>);
+            var parsed = multidimensionalRangeParser.TryParseRange(symbolReader, this, out multidimensionalRange);
             throw new NotImplementedException();
         }
 

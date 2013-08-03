@@ -22,27 +22,39 @@ namespace Mathematics
             }
         }
 
-        public MultiDimensionalRange<T> ParseRange(
+        public bool TryParseRange(
             MementoSymbolReader<InputReader, SymbValue, SymbType> reader,
-            IParse<T, SymbValue, SymbType> parser)
+            IParse<T, SymbValue, SymbType> parser,
+            out MultiDimensionalRange<T> result)
         {
+            return this.TryParseRange(reader, parser, null, out result);
+        }
+
+        public bool TryParseRange(
+            MementoSymbolReader<InputReader, SymbValue, SymbType> reader,
+            IParse<T, SymbValue, SymbType> parser,
+            List<string> errors,
+            out MultiDimensionalRange<T> result)
+        {
+            result = default(MultiDimensionalRange<T>);
             this.rangeReader.ReadRangeValues(reader, parser);
             if (this.rangeReader.HasErrors)
             {
-                var messageBuilder = new StringBuilder();
-                messageBuilder.AppendLine("Found some errors while reading the range:");
-                foreach (var message in this.rangeReader.ErrorMessages)
+                if (errors != null)
                 {
-                    messageBuilder.AppendLine(message);
+                    foreach (var message in this.rangeReader.ErrorMessages)
+                    {
+                        errors.Add(message);
+                    }
                 }
 
-                throw new MathematicsException(messageBuilder.ToString());
+                return false;
             }
             else
             {
-                var result = new MultiDimensionalRange<T>(this.rangeReader.Configuration);
+                result = new MultiDimensionalRange<T>(this.rangeReader.Configuration);
                 result.InternalElements = this.rangeReader.Elements.ToArray();
-                return result;
+                return true;
             }
         }
     }

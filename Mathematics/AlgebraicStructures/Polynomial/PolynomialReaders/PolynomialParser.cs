@@ -51,14 +51,17 @@
         /// Efectua a leitura de um polinómio.
         /// </summary>
         /// <param name="polynomial">A cadeia de carácteres que contém o polinómimo.</param>
-        /// <returns>O polinómio lido.</returns>
-        public Polynomial<T, RingType> ParsePolynomial(string polynomial)
+        /// <param name="errors">A lista de errros encontrados.</param>
+        /// <param name="resultPolynomial">O polinómio lido.</param>
+        /// <returns>Verdadeiro caso a leitura seja bem sucedida e falso caso contrário.</returns>
+        public bool ParsePolynomial(string polynomial, List<string> errors, out Polynomial<T, RingType> resultPolynomial)
         {
             if (string.IsNullOrWhiteSpace(polynomial))
             {
                 throw new MathematicsException("Empty string for polynomial.");
             }
 
+            resultPolynomial = default(Polynomial<T, RingType>);
             var stringSymbolReader = new StringSymbolReader(new StringReader(polynomial), false);
             var expressionReader = new ExpressionReader<ParsePolynomialItem<T, RingType>, CharSymbolReader>(new SimplePolynomialParser<T, RingType>(this.coeffParser, this.ring));
             expressionReader.RegisterBinaryOperator("plus", Add, 0);
@@ -81,8 +84,16 @@
             expressionReader.AddVoid("carriage_return");
             expressionReader.AddVoid("new_line");
 
-            var expressionResult = expressionReader.Parse(stringSymbolReader);
-            return expressionResult.Polynomial;
+            var expressionResult = default(ParsePolynomialItem<T, RingType>);
+            if (expressionReader.TryParse(stringSymbolReader, errors, out expressionResult))
+            {
+                resultPolynomial = expressionResult.Polynomial;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         /// <summary>

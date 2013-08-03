@@ -82,6 +82,11 @@ namespace Utilities.Parsers
         private List<ISymbol<string, string>> currentSymbolValues = new List<ISymbol<string,string>>();
 
         /// <summary>
+        /// Mensagens de erro.
+        /// </summary>
+        private List<string> errorMessages = new List<string>();
+
+        /// <summary>
         /// Intantiates a new instance of the <see cref="ExpressionReader"/> class.
         /// </summary>
         /// <param name="parser">The expression element's parser.</param>
@@ -107,15 +112,72 @@ namespace Utilities.Parsers
         /// <returns>The parsed object.</returns>
         public ObjType Parse(SymbolReader<InputReader, string, string> reader)
         {
+            this.errorMessages.Clear();
             StateMachine<InputReader, string, string> stateMchine = new StateMachine<InputReader, string, string>(this.stateList[0], this.stateList[1]);
             stateMchine.RunMachine(reader);
-            if (this.elementStack.Count != 0)
+            if (this.errorMessages.Count > 0)
             {
-                return this.elementStack.Pop();
+                var errorBuilder = new StringBuilder();
+                errorBuilder.AppendLine("Found the following errors while reading the expression:");
+                foreach (var message in this.errorMessages)
+                {
+                    errorBuilder.AppendLine(message);
+                }
+
+                throw new ExpressionReaderException(errorBuilder.ToString());
             }
             else
             {
-                throw new ExpressionReaderException("Empty value.");
+                if (this.elementStack.Count != 0)
+                {
+                    return this.elementStack.Pop();
+                }
+                else
+                {
+                    throw new ExpressionReaderException("Empty value.");
+                }
+            }
+        }
+
+        public bool TryParse(SymbolReader<InputReader, string, string> reader, out ObjType result)
+        {
+            return this.TryParse(reader, null, out result);
+        }
+
+        public bool TryParse(SymbolReader<InputReader, string, string> reader, List<string> errors, out ObjType result)
+        {
+            result = default(ObjType);
+            this.errorMessages.Clear();
+            StateMachine<InputReader, string, string> stateMchine = new StateMachine<InputReader, string, string>(this.stateList[0], this.stateList[1]);
+            stateMchine.RunMachine(reader);
+            if (this.errorMessages.Count > 0)
+            {
+                if (errors != null)
+                {
+                    foreach (var message in this.errorMessages)
+                    {
+                        errors.Add(message);
+                    }
+                }
+
+                return false;
+            }
+            else
+            {
+                if (this.elementStack.Count != 0)
+                {
+                    result = this.elementStack.Pop();
+                    return true;
+                }
+                else
+                {
+                    if (errors != null)
+                    {
+                        errors.Add("Empty value.");
+                    }
+
+                    return false;
+                }
             }
         }
 
@@ -175,6 +237,11 @@ namespace Utilities.Parsers
             }
         }
 
+        /// <summary>
+        /// Regista possíveis delimitadores externos.
+        /// </summary>
+        /// <param name="openDelimiter">O delimitador de abertura.</param>
+        /// <param name="closeDelimiter">O respectivo delimitador de fecho.</param>
         public void RegisterExternalDelimiterTypes(string openDelimiter, string closeDelimiter)
         {
             if (this.expressionDelimitersTypes.ContainsKey(openDelimiter))
@@ -197,6 +264,11 @@ namespace Utilities.Parsers
             }
         }
 
+        /// <summary>
+        /// Regista delimitadores de sequência.
+        /// </summary>
+        /// <param name="openDelimiter">O delimitador de abertura.</param>
+        /// <param name="closeDelimiter">O delimitador de fecho.</param>
         public void RegisterSequenceDelimiterTypes(string openDelimiter, string closeDelimiter)
         {
             if (this.sequenceDelimitersTypes.ContainsKey(openDelimiter))
@@ -243,6 +315,11 @@ namespace Utilities.Parsers
             }
         }
 
+        /// <summary>
+        /// Regista delimitadores de expressão que não correspondem a um operador específico.
+        /// </summary>
+        /// <param name="openDelimiter">O delimitador de abertura.</param>
+        /// <param name="closeDelimiter">O delimitador de fecho.</param>
         public void RegisterExpressionDelimiterTypes(string openDelimiter, string closeDelimiter)
         {
             this.RegisterExpressionDelimiterTypes(openDelimiter, closeDelimiter, null);
@@ -418,12 +495,15 @@ namespace Utilities.Parsers
         }
 
         /// <summary>
-        /// Evaluates the stacks and computes each value.
+        /// Avalia os elementos contidos na pilha.
         /// </summary>
-        /// <param name="closeDelimiterType">The close delimiter type before function calling.</param>
-        /// <param name="precedence">The precedence of operator where to stop.</param>
-        /// <param name="ignorePrecedence">True if evaluation is to be computed until operator stack is empty or to expression delimiters.</param>
-        private void Eval(int precedence, bool ignorePrecedence)
+        /// <param name="closeDelimiterType">O delimitador de fecho anterior à chamada.</param>
+        /// <param name="precedence">A precedência de paragem.</param>
+        /// <param name="ignorePrecedence">Recebe um valor verdadeiro caso seja para avaliar enquanto existirem
+        /// elementos na pilha.
+        /// </param>
+        /// <returns>Um valor que determina se a avaliação foi bem sucedida.</returns>
+        private bool Eval(int precedence, bool ignorePrecedence)
         {
             while (!(this.operatorStack.Count == 0))
             {
@@ -434,11 +514,12 @@ namespace Utilities.Parsers
                     if (this.unaryOperators[topOperator.Symbol].Precedence < precedence && !ignorePrecedence)
                     {
                         this.operatorStack.Push(topOperator);
-                        return;
+                        return true;
                     }
                     if (this.elementStack.Count == 0)
                     {
-                        throw new ExpressionReaderException("Internal error.");
+                        this.errorMessages.Add("Internal error.");
+                        return false;
                     }
                     ObjType res = this.elementStack.Pop();
                     res = this.InvokeUnaryOperator(topOperator.Symbol, res);
@@ -449,12 +530,14 @@ namespace Utilities.Parsers
                     if (this.binaryOperators[topOperator.Symbol].Precedence < precedence && !ignorePrecedence)
                     {
                         this.operatorStack.Push(topOperator);
-                        return;
+                        return true;
                     }
                     if (this.elementStack.Count < 2)
                     {
-                        throw new ExpressionReaderException("Internal error.");
+                        this.errorMessages.Add("Internal error.");
+                        return false;
                     }
+
                     ObjType b = this.elementStack.Pop();
                     ObjType a = this.elementStack.Pop();
                     ObjType res = this.InvokeBinaryOperator(topOperator.Symbol, a, b);
@@ -463,13 +546,16 @@ namespace Utilities.Parsers
                 else if (topOperator.OperatorType == EOperatorType.INTERNAL_DELIMITER)
                 {
                     this.operatorStack.Push(topOperator);
-                    return;
+                    return true;
                 }
                 else
                 {
-                    throw new Exception("Internal error.");
+                    this.errorMessages.Add("Internal error.");
+                    return false;
                 }
             }
+
+            return true;
         }
 
         #region State Functions
@@ -502,9 +588,10 @@ namespace Utilities.Parsers
             }
             if (this.IsExpressionCloseDelimiter(readedSymbol.SymbolType) || this.IsExternalCloseDelimiter(readedSymbol.SymbolType))
             {
-                throw new ExpressionReaderException(string.Format(
+                this.errorMessages.Add(string.Format(
                     "Unexpected {0} in expression.",
                     readedSymbol.SymbolValue));
+                return this.stateList[1];
             }
             if (this.IsUnaryOperator(readedSymbol.SymbolType))
             {
@@ -539,14 +626,17 @@ namespace Utilities.Parsers
             this.IgnoreVoids(reader);
             if (reader.IsAtEOF())
             {
-                throw new ExpressionReaderException("Unexpected end of expression.");
+                this.errorMessages.Add("Unexpected end of expression.");
+                return this.stateList[1];
             }
+
             ISymbol<string, string> readedSymbol = reader.Peek();
             this.currentSymbolValues.Clear();
             if (this.IsExpressionOpenDelimiter(readedSymbol.SymbolType))
             {
                 return this.stateList[0];
             }
+
             if (this.IsExternalOpenDelimiter(readedSymbol.SymbolType))
             {
                 this.operatorStack.Push(new OperatorDefinition<string>(readedSymbol.SymbolType, EOperatorType.EXTERNAL_DELIMITER));
@@ -554,6 +644,7 @@ namespace Utilities.Parsers
                 reader.Get();
                 return this.stateList[4];
             }
+
             if (this.IsUnaryOperator(readedSymbol.SymbolType))
             {
                 // TODO: verificar no topo da pilha dos operadores se existe algum que esteja marcado como admitindo um sinal unário
@@ -561,9 +652,11 @@ namespace Utilities.Parsers
                 reader.Get();
                 return this.stateList[2];
             }
+
             if (this.IsBinaryOperator(readedSymbol.SymbolType))
             {
-                throw new ExpressionReaderException("Unexpected binary operator. Binary operators are forbidden after other operators.");
+                this.errorMessages.Add("Unexpected binary operator. Binary operators are forbidden after other operators.");
+                return this.stateList[1];
             }
 
             this.currentSymbolValues.Add(readedSymbol);
@@ -581,63 +674,86 @@ namespace Utilities.Parsers
             this.IgnoreVoids(reader);
             if (reader.IsAtEOF())
             {
-                this.Eval(0, true);
-                if (this.operatorStack.Count > 0)
+                if (this.Eval(0, true))
                 {
-                    throw new ExpressionReaderException("There are unmatched expression delimiters.");
+                    if (this.operatorStack.Count > 0)
+                    {
+                        this.errorMessages.Add("There are unmatched expression delimiters.");
+                    }
+
+                    return this.stateList[1];
                 }
-                return this.stateList[1];
+                else
+                {
+                    return this.stateList[1];
+                }
             }
             ISymbol<string, string> readedSymbol = reader.Peek();
             if (this.IsBinaryOperator(readedSymbol.SymbolType))
             {
-                this.Eval(this.binaryOperators[readedSymbol.SymbolType].Precedence, false);
-                this.operatorStack.Push(new OperatorDefinition<string>(readedSymbol.SymbolType, EOperatorType.BINARY));
-                reader.Get();
-                return this.stateList[2];
+                if (this.Eval(this.binaryOperators[readedSymbol.SymbolType].Precedence, false))
+                {
+                    this.operatorStack.Push(new OperatorDefinition<string>(readedSymbol.SymbolType, EOperatorType.BINARY));
+                    reader.Get();
+                    return this.stateList[2];
+                }
+                else
+                {
+                    return this.stateList[1];
+                }
             }
             if (this.IsUnaryOperator(readedSymbol.SymbolType))
             {
-                throw new ExpressionReaderException("Unexpected unary operator.");
+                this.errorMessages.Add("Unexpected unary operator.");
+                return this.stateList[1];
             }
             if (this.IsExpressionCloseDelimiter(readedSymbol.SymbolType))
             {
-                this.Eval(0, true);
-                if (this.operatorStack.Count == 0)
+                if (this.Eval(0, true))
                 {
-                    throw new ExpressionReaderException(string.Format(
-                        "Found close delimiter {0} but no open delimiter is matched.",
-                        readedSymbol.SymbolType));
-                }
-
-                var delimiterType = this.operatorStack.Pop().Symbol;
-                if (!this.IsExpressionOpenDelimiterFor(readedSymbol.SymbolType, delimiterType))
-                {
-                    throw new ExpressionReaderException(string.Format(
-                        "Found close delimiter {0} that matches with unmtchable {1} open delimiter",
-                        readedSymbol.SymbolType,
-                        delimiterType));
-                }
-
-                var compoundDelimiter = this.GetDelegateCompoundForPair(delimiterType, readedSymbol.SymbolType);
-
-                if (compoundDelimiter.DelimiterOperator != null)
-                {
-                    if (this.elementStack.Count != 0)
+                    if (this.operatorStack.Count == 0)
                     {
-                        ObjType res = this.elementStack.Pop();
-                        res = compoundDelimiter.DelimiterOperator.Invoke(res);
-                        this.elementStack.Push(res);
+                        this.errorMessages.Add(string.Format(
+                            "Found close delimiter {0} but no open delimiter is matched.",
+                            readedSymbol.SymbolType));
+                        return this.stateList[1];
                     }
-                }
 
-                reader.Get();
-                return this.stateList[3];
+                    var delimiterType = this.operatorStack.Pop().Symbol;
+                    if (!this.IsExpressionOpenDelimiterFor(readedSymbol.SymbolType, delimiterType))
+                    {
+                        this.errorMessages.Add(string.Format(
+                            "Found close delimiter {0} that matches with unmtchable {1} open delimiter",
+                            readedSymbol.SymbolType,
+                            delimiterType));
+                        return this.stateList[1];
+                    }
+
+                    var compoundDelimiter = this.GetDelegateCompoundForPair(delimiterType, readedSymbol.SymbolType);
+
+                    if (compoundDelimiter.DelimiterOperator != null)
+                    {
+                        if (this.elementStack.Count != 0)
+                        {
+                            ObjType res = this.elementStack.Pop();
+                            res = compoundDelimiter.DelimiterOperator.Invoke(res);
+                            this.elementStack.Push(res);
+                        }
+                    }
+
+                    reader.Get();
+                    return this.stateList[3];
+                }
+                else
+                {
+                    return this.stateList[1];
+                }
             }
 
-            throw new ExpressionReaderException(string.Format(
+            this.errorMessages.Add(string.Format(
                 "Expected operator but received {0}",
                 readedSymbol.SymbolValue));
+            return this.stateList[1];
         }
 
         /// <summary>
@@ -650,7 +766,8 @@ namespace Utilities.Parsers
             ISymbol<string, string> readedSymbol = reader.Peek();
             if (readedSymbol.SymbolType == "eof")
             {
-                throw new ExpressionReaderException("An external delimiter was opened but wasn't closed.");
+                this.errorMessages.Add("An external delimiter was opened but wasn't closed.");
+                return this.stateList[1];
             }
             else if (this.IsExternalOpenDelimiter(readedSymbol.SymbolType))
             {
@@ -661,14 +778,16 @@ namespace Utilities.Parsers
             {
                 if (this.operatorStack.Count == 0)
                 {
-                    throw new ExpressionReaderException("External delimiters mismatch.");
+                    this.errorMessages.Add("External delimiters mismatch.");
+                    return this.stateList[1];
                 }
                 else
                 {
                     var delimiter = this.operatorStack.Pop();
                     if (delimiter.OperatorType == EOperatorType.INTERNAL_DELIMITER)
                     {
-                        throw new ExpressionReaderException("Delimiters mismatch or confusion with internal delimiters.");
+                        this.errorMessages.Add("Delimiters mismatch or confusion with internal delimiters.");
+                        return this.stateList[1];
                     }
                     else if (delimiter.OperatorType == EOperatorType.EXTERNAL_DELIMITER)
                     {
@@ -685,7 +804,8 @@ namespace Utilities.Parsers
                                 }
                                 else
                                 {
-                                    throw new ExpressionReaderException("Can't parse expression.");
+                                    this.errorMessages.Add("Can't parse expression.");
+                                    return this.stateList[1];
                                 }
 
                                 return this.stateList[3];
@@ -704,7 +824,8 @@ namespace Utilities.Parsers
                                     }
                                     else
                                     {
-                                        throw new ExpressionReaderException("Can't parse expression.");
+                                        this.errorMessages.Add("Can't parse expression.");
+                                        return this.stateList[1];
                                     }
 
                                     return this.stateList[3];
@@ -713,12 +834,14 @@ namespace Utilities.Parsers
                         }
                         else
                         {
-                            throw new ExpressionReaderException("External delimiters mismatch.");
+                            this.errorMessages.Add("External delimiters mismatch.");
+                            return this.stateList[1];
                         }
                     }
                     else
                     {
-                        throw new ExpressionReaderException("External delimiters mismatch.");
+                        this.errorMessages.Add("External delimiters mismatch.");
+                        return this.stateList[1];
                     }
                 }
             }
@@ -756,7 +879,8 @@ namespace Utilities.Parsers
                 }
                 else
                 {
-                    throw new ExpressionReaderException("Can't parse expression.");
+                    this.errorMessages.Add("Can't parse expression.");
+                    return this.stateList[1];
                 }
 
                 return this.stateList[3];
@@ -781,7 +905,8 @@ namespace Utilities.Parsers
 
             if (reader.IsAtEOF())
             {
-                throw new ExpressionReaderException("A sequence delimiter was opened but wasn't closed.");
+                this.errorMessages.Add("A sequence delimiter was opened but wasn't closed.");
+                return this.stateList[1];
             }
             else
             {
@@ -795,7 +920,8 @@ namespace Utilities.Parsers
                 }
                 else
                 {
-                    throw new ExpressionReaderException("Can't parse expression.");
+                    this.errorMessages.Add("Can't parse expression.");
+                    return this.stateList[1];
                 }
 
                 return this.stateList[3];

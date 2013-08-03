@@ -16,6 +16,7 @@
         static void Main(string[] args)
         {
             Test7();
+            Console.ReadLine();
         }
 
         static void RunObjectTester()
@@ -26,12 +27,24 @@
 
         static void Test7()
         {
-            var input = "x+y^2*(z-1)^3";
+            var input = "x+y^2*(z-1)^3-x";
             var integerParser = new IntegerParser();
 
             var polynomialParser = new PolynomialParser<int, IntegerDomain>(integerParser, new IntegerDomain());
-            var readed = polynomialParser.ParsePolynomial(input);
-            Console.WriteLine(readed);
+            var readed = default(Polynomial<int, IntegerDomain>);
+            var errors = new List<string>();
+            if (polynomialParser.ParsePolynomial(input, errors, out readed))
+            {
+                Console.WriteLine(readed);
+            }
+            else
+            {
+                foreach (var message in errors)
+                {
+                    Console.WriteLine("Errors parsing range:");
+                    Console.WriteLine(message);
+                }
+            }
         }
 
         /// <summary>
@@ -51,20 +64,31 @@
             arrayMatrixReader.AddBlanckSymbolType("blancks");
             arrayMatrixReader.SeparatorSymbType = "comma";
 
-            var matrix = arrayMatrixReader.ParseMatrix(stringsymbolReader, integerParser);
-            Console.WriteLine(matrix);
+            var matrix = default(ArrayMatrix<int>);
+            var errors = new List<string>();
+            if (arrayMatrixReader.TryParseMatrix(stringsymbolReader, integerParser, errors, out matrix))
+            {
+                Console.WriteLine(matrix);
 
-            var integerDomain = new IntegerDomain();
-            var permutationDeterminant = new PermutationDeterminantCalculator<int, IntegerDomain>(integerDomain);
-            var computedDeterminant = permutationDeterminant.Run(matrix);
+                var integerDomain = new IntegerDomain();
+                var permutationDeterminant = new PermutationDeterminantCalculator<int, IntegerDomain>(integerDomain);
+                var computedDeterminant = permutationDeterminant.Run(matrix);
 
-            Console.WriteLine("O determinante usando permutações vale: {0}.", computedDeterminant);
+                Console.WriteLine("O determinante usando permutações vale: {0}.", computedDeterminant);
 
-            var expansionDeterminant = new ExpansionDeterminantCalculator<int, IntegerDomain>(integerDomain);
-            computedDeterminant = expansionDeterminant.Run(matrix);
+                var expansionDeterminant = new ExpansionDeterminantCalculator<int, IntegerDomain>(integerDomain);
+                computedDeterminant = expansionDeterminant.Run(matrix);
 
-            Console.WriteLine("O determinante usando expansão vale: {0}.", computedDeterminant);
-            Console.ReadLine();
+                Console.WriteLine("O determinante usando expansão vale: {0}.", computedDeterminant);
+            }
+            else
+            {
+                foreach (var message in errors)
+                {
+                    Console.WriteLine("Errors parsing range:");
+                    Console.WriteLine(message);
+                }
+            }   
         }
 
         /// <summary>
@@ -83,12 +107,23 @@
             rangeNoConfig.SeparatorSymbType = "comma";
 
             var multiDimensionalRangeReader = new MultiDimensionalRangeParser<int, string, string, CharSymbolReader>(rangeNoConfig);
-            var range = multiDimensionalRangeReader.ParseRange(stringsymbolReader, integerParser);
+            var range = default(MultiDimensionalRange<int>);
+            var errors = new List<string>();
+            if (multiDimensionalRangeReader.TryParseRange(stringsymbolReader, integerParser, errors, out range))
+            {
+                var config = new int[][] { new int[] { 1, 1, 4, 3 }, new int[] { 0, 1, 0, 1 } };
+                var subRange = range.GetSubMultiDimensionalRange(config);
+                Console.WriteLine(subRange);
+            }
+            else
+            {
+                foreach (var message in errors)
+                {
+                    Console.WriteLine("Errors parsing range:");
+                    Console.WriteLine(message);
+                }
+            }
 
-            var config = new int[][] { new int[] { 1, 1, 4, 3 }, new int[] { 0, 1, 0, 1 } };
-            var subRange = range.GetSubMultiDimensionalRange(config);
-
-            Console.WriteLine(subRange);
             Console.ReadKey();
         }
 

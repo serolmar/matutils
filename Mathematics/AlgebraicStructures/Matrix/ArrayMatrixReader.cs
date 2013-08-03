@@ -29,21 +29,33 @@ namespace Mathematics
             }
         }
 
-        public ArrayMatrix<T> ParseMatrix(
+        public bool TryParseMatrix(
             MementoSymbolReader<InputReader, SymbValue, SymbType> reader,
-            IParse<T, SymbValue, SymbType> parser)
+            IParse<T, SymbValue, SymbType> parser,
+            out ArrayMatrix<T> matrix)
         {
+            return this.TryParseMatrix(reader, parser, null, out matrix);
+        }
+
+        public bool TryParseMatrix(
+            MementoSymbolReader<InputReader, SymbValue, SymbType> reader,
+            IParse<T, SymbValue, SymbType> parser,
+            List<string> errors,
+            out ArrayMatrix<T> matrix)
+        {
+            matrix = default(ArrayMatrix<T>);
             this.rangeReader.ReadRangeValues(reader, parser);
             if (this.rangeReader.HasErrors)
             {
-                var messageBuilder = new StringBuilder();
-                messageBuilder.AppendLine("Found some errors while reading the range:");
-                foreach (var message in this.rangeReader.ErrorMessages)
+                if (errors != null)
                 {
-                    messageBuilder.AppendLine(message);
+                    foreach (var message in this.rangeReader.ErrorMessages)
+                    {
+                        errors.Add(message);
+                    }
                 }
 
-                throw new MathematicsException(messageBuilder.ToString());
+                return false;
             }
             else
             {
@@ -59,9 +71,9 @@ namespace Mathematics
                     }
                 }
 
-                var result = new ArrayMatrix<T>(lines, columns);
-                this.SetupResultMatrix(result, new int[] { lines, columns }, this.rangeReader.Elements);
-                return result;
+                matrix = new ArrayMatrix<T>(lines, columns);
+                this.SetupResultMatrix(matrix, new int[] { lines, columns }, this.rangeReader.Elements);
+                return true;
             }
         }
 
