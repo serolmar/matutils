@@ -733,5 +733,62 @@ namespace Mathematics
             }
         }
         #endregion Operações
+
+        /// <summary>
+        /// Obtém uma representação textual do polinómio.
+        /// </summary>
+        /// <returns>A repesentação textual do polinómio.</returns>
+        public override string ToString()
+        {
+            var resultBuilder = new StringBuilder();
+            if (terms.Count == 0)
+            {
+                resultBuilder.Append(this.ring.AdditiveUnity);
+            }
+            else
+            {
+                var insertedSortedCollection = new InsertionSortedCollection<int>(
+                    Comparer<int>.Default,
+                    true);
+                foreach (var term in this.terms)
+                {
+                    insertedSortedCollection.InsertSortElement(term.Key);
+                }
+
+                var invertedEnum = insertedSortedCollection.GetReversedEnumerator();
+                if (invertedEnum.MoveNext())
+                {
+                    var currentDegree = invertedEnum.Current;
+                    var currentValue = this.terms[invertedEnum.Current];
+                    resultBuilder.AppendFormat("{0}", currentValue);
+                    if (currentDegree == 1)
+                    {
+                        resultBuilder.AppendFormat("*{0}", this.variableName);
+                    }
+                    else if (currentDegree > 1)
+                    {
+                        resultBuilder.AppendFormat("*{0}^{1}", this.variableName, currentDegree);
+                    }
+
+                    while (invertedEnum.MoveNext())
+                    {
+                        resultBuilder.Append("+");
+                        currentDegree = invertedEnum.Current;
+                        currentValue = this.terms[invertedEnum.Current];
+                        resultBuilder.AppendFormat("{0}", currentValue);
+                        if (currentDegree == 1)
+                        {
+                            resultBuilder.AppendFormat("*{0}", this.variableName);
+                        }
+                        else if (currentDegree > 1)
+                        {
+                            resultBuilder.AppendFormat("*{0}^{1}", this.variableName, currentDegree);
+                        }
+                    }
+                }
+            }
+
+            return resultBuilder.ToString();
+        }
     }
 }

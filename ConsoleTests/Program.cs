@@ -27,7 +27,7 @@
 
         static void Test8()
         {
-            var input = "[[1-x,2],[3-x,4]]";
+            var input = "[[1-x,2],[4, 3-x]]";
             var inputReader = new StringSymbolReader(new StringReader(input), false);
             var integerParser = new IntegerParser();
             var integerDomain = new IntegerDomain();
@@ -45,6 +45,23 @@
             var readed = default(ArrayMatrix<UnivariatePolynomialNormalForm<int, IntegerDomain>>);
             if (arrayReader.TryParseMatrix(inputReader, univariatePolParser, out readed))
             {
+                var polynomialRing = new UnivarPolynomRing<int, IntegerDomain>("x", integerDomain);
+                var permutationDeterminant = new PermutationDeterminantCalculator<
+                    UnivariatePolynomialNormalForm<int, IntegerDomain>, 
+                    UnivarPolynomRing<int, IntegerDomain>>(polynomialRing);
+
+                var computedDeterminant = permutationDeterminant.Run(readed);
+
+                Console.WriteLine("O determinante usando permutações vale: {0}.", computedDeterminant);
+
+                var expansionDeterminant = new ExpansionDeterminantCalculator<
+                    UnivariatePolynomialNormalForm<int, IntegerDomain>, 
+                    UnivarPolynomRing<int, IntegerDomain>>(polynomialRing);
+
+                computedDeterminant = expansionDeterminant.Run(readed);
+
+                Console.WriteLine("O determinante usando expansão vale: {0}.", computedDeterminant);
+
                 Console.WriteLine(readed);
             }
             else

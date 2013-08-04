@@ -165,8 +165,6 @@ namespace Mathematics
                     {
                         if (this.mapExternalOpenDelimitersToCloseDelimitersTypes.ContainsObject(readedSymbol.SymbolType))
                         {
-                            this.opsStack.Push(readedSymbol.SymbolType);
-                            this.currentElementSymbols.Add(readedSymbol);
                             return this.stateList[4];
                         }
                         else
@@ -200,8 +198,6 @@ namespace Mathematics
                 }
                 else if (this.mapExternalOpenDelimitersToCloseDelimitersTypes.ContainsObject(readedSymbol.SymbolType))
                 {
-                    this.opsStack.Push(readedSymbol.SymbolType);
-                    this.currentElementSymbols.Add(readedSymbol);
                     return this.stateList[4];
                 }
                 else if (this.mapExternalOpenDelimitersToCloseDelimitersTypes.ContainsTarget(readedSymbol.SymbolType))
@@ -220,10 +216,20 @@ namespace Mathematics
                 {
                     if (this.level == this.finalConfiguration.Length - 1)
                     {
+                        this.currentElementSymbols.Clear();
+                        while (!this.separatorSymb.Equals(readedSymbol.SymbolType) &&
+                            !this.mapInternalOpenDelimitersToCloseDelimitersTypes.ContainsObject(readedSymbol.SymbolType) &&
+                            !this.mapInternalOpenDelimitersToCloseDelimitersTypes.ContainsTarget(readedSymbol.SymbolType))
+                        {
+                            this.currentElementSymbols.Add(readedSymbol);
+                            readedSymbol = reader.Get();
+                        }
+
                         var currentElement = default(T);
-                        if (this.parser.TryParse(new[] { readedSymbol }, out currentElement))
+                        if (this.parser.TryParse(this.currentElementSymbols.ToArray(), out currentElement))
                         {
                             this.readedElements.Add(currentElement);
+                            reader.UnGet();
                             return this.stateList[3];
                         }
                         else
@@ -346,38 +352,38 @@ namespace Mathematics
             else
             {
                 this.IgnoreVoids(reader);
-                var readedSymbol = reader.Get();
-                if (this.mapExternalOpenDelimitersToCloseDelimitersTypes.ContainsTarget(readedSymbol.SymbolType))
+                var readedSymbol = reader.Peek();
+                this.currentElementSymbols.Clear();
+                this.currentElementSymbols.Add(readedSymbol);
+                var temporaryStack = new Stack<SymbType>();
+                temporaryStack.Push(readedSymbol.SymbolType);
+                while (temporaryStack.Count > 0)
                 {
-                    var topOperator = this.opsStack.Pop();
-                    if (this.mapExternalOpenDelimitersToCloseDelimitersTypes.ObjectFor(readedSymbol.SymbolType).Contains(
-                        topOperator))
+                    readedSymbol = reader.Get();
+                    if (this.mapExternalOpenDelimitersToCloseDelimitersTypes.ContainsObject(readedSymbol.SymbolType))
                     {
-                        this.currentElementSymbols.Add(readedSymbol);
-                        var readedElement = default(T);
-                        if (this.parser.TryParse(this.currentElementSymbols.ToArray(), out readedElement))
-                        {
-                            this.readedElements.Add(readedElement);
-                            this.currentElementSymbols.Clear();
-                            return this.stateList[3];
-                        }
-                        else
-                        {
-                            this.errorMessages.Add("Can't parse object value.");
-                            this.hasErrors = true;
-                            return this.stateList[1];
-                        }
+                        temporaryStack.Push(readedSymbol.SymbolType);
                     }
-                    else
+                    else if (this.mapExternalOpenDelimitersToCloseDelimitersTypes.ContainsTarget(readedSymbol.SymbolType))
                     {
-                        this.opsStack.Push(topOperator);
-                        return this.stateList[4];
+                        temporaryStack.Pop();
                     }
+
+                    this.currentElementSymbols.Add(readedSymbol);
+                }
+
+                var currentElement = default(T);
+                if (this.parser.TryParse(this.currentElementSymbols.ToArray(), out currentElement))
+                {
+                    this.readedElements.Add(currentElement);
+                    this.currentElementSymbols.Clear();
+                    return this.stateList[3];
                 }
                 else
                 {
-                    this.currentElementSymbols.Add(readedSymbol);
-                    return this.stateList[4];
+                    this.errorMessages.Add("Can't parse object value.");
+                    this.hasErrors = true;
+                    return this.stateList[1];
                 }
             }
         }
@@ -400,8 +406,6 @@ namespace Mathematics
                     {
                         if (this.mapExternalOpenDelimitersToCloseDelimitersTypes.ContainsObject(readedSymbol.SymbolType))
                         {
-                            this.opsStack.Push(readedSymbol.SymbolType);
-                            this.currentElementSymbols.Add(readedSymbol);
                             return this.stateList[4];
                         }
                         else
@@ -439,8 +443,6 @@ namespace Mathematics
                         }
                         else
                         {
-                            this.currentElementSymbols.Add(readedSymbol);
-                            this.opsStack.Push(readedSymbol.SymbolType);
                             return this.stateList[4];
                         }
                     }
@@ -479,10 +481,20 @@ namespace Mathematics
                     }
                     else
                     {
-                        var readedElement = default(T);
-                        if (this.parser.TryParse(new[] { readedSymbol }, out readedElement))
+                        this.currentElementSymbols.Clear();
+                        while (!this.separatorSymb.Equals(readedSymbol.SymbolType) &&
+                            !this.mapInternalOpenDelimitersToCloseDelimitersTypes.ContainsObject(readedSymbol.SymbolType) &&
+                            !this.mapInternalOpenDelimitersToCloseDelimitersTypes.ContainsTarget(readedSymbol.SymbolType))
                         {
-                            this.readedElements.Add(readedElement);
+                            this.currentElementSymbols.Add(readedSymbol);
+                            readedSymbol = reader.Get();
+                        }
+
+                        var currentElement = default(T);
+                        if (this.parser.TryParse(this.currentElementSymbols.ToArray(), out currentElement))
+                        {
+                            this.readedElements.Add(currentElement);
+                            reader.UnGet();
                             return this.stateList[3];
                         }
                         else

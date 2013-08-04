@@ -188,9 +188,25 @@ namespace Utilities.Collections
             }
         }
 
+        /// <summary>
+        /// Obtém um enumerador para a colecção.
+        /// </summary>
+        /// <returns>O enumerador.</returns>
         public IEnumerator<T> GetEnumerator()
         {
             return this.elements.GetEnumerator();
+        }
+
+        /// <summary>
+        /// Obtém um enumerador invertido para a colecção.
+        /// </summary>
+        /// <returns>O enumerador invertido.</returns>
+        public IEnumerator<T> GetReversedEnumerator()
+        {
+            for (int i = this.elements.Count - 1; i >= 0; --i)
+            {
+                yield return this.elements[i];
+            }
         }
 
         /// <summary>
