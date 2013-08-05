@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Mathematics.Algorithms.Matrix.Determinant
+namespace Mathematics.Algorithms
 {
     /// <summary>
     /// Calcula o valor do determinante com o recurso ao método da condensação.
@@ -25,6 +25,8 @@ namespace Mathematics.Algorithms.Matrix.Determinant
 
         protected override ObjectType ComputeDeterminant(IMatrix<ObjectType> data)
         {
+            var positiveResult = true;
+            var determinantFactors = new List<ObjectType>();
             throw new NotImplementedException();
         }
     }

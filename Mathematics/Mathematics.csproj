@@ -54,10 +54,14 @@
     <Compile Include="AlgebraicStructures\LogicInterfaces\IMultipliable.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\IRing.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\ISemigroup.cs" />
+    <Compile Include="AlgebraicStructures\LogicInterfaces\ISparseMatrix.cs" />
+    <Compile Include="AlgebraicStructures\LogicInterfaces\ISparseMatrixLine.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\IVectorSpace.cs" />
     <Compile Include="AlgebraicStructures\Matrix\ArrayMatrix.cs" />
     <Compile Include="AlgebraicStructures\Matrix\ArrayMatrixParser.cs" />
     <Compile Include="AlgebraicStructures\Matrix\ArrayMatrixReader.cs" />
+    <Compile Include="AlgebraicStructures\Matrix\SparseDictionaryMatrix.cs" />
+    <Compile Include="AlgebraicStructures\Matrix\SparseDictionaryMatrixLine.cs" />
     <Compile Include="AlgebraicStructures\Matrix\SubMatrix.cs" />
     <Compile Include="AlgebraicStructures\MultiDimensionalRange\MultiDimensionalRange.cs" />
     <Compile Include="AlgebraicStructures\MultiDimensionalRange\MultiDimensionalRangeParser.cs" />

@@ -82,6 +82,22 @@ namespace Mathematics
 
         public IMatrix<ObjectType> GetSubMatrix(int[] lines, int[] columns)
         {
+            for (int i = 0; i < lines.Length; ++i)
+            {
+                if (lines[i] < 0 || lines[i] >= this.elements.GetLength(0))
+                {
+                    throw new IndexOutOfRangeException("The lines parameter contain elements that are out of the coords range of matrix.");
+                }
+            }
+
+            for (int i = 0; i < lines.Length; ++i)
+            {
+                if (columns[i] < 0 || columns[i] >= this.elements.GetLength(1))
+                {
+                    throw new IndexOutOfRangeException("The columns parameter contain elements that are out of the coords range of matrix.");
+                }
+            }
+
             return new SubMatrix<ObjectType>(this, lines, columns);
         }
 

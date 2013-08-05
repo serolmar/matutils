@@ -26,22 +26,6 @@ namespace Mathematics
             }
             else
             {
-                for (int i = 0; i < lines.Length; ++i)
-                {
-                    if (lines[i] < 0 || lines[i] >= matrix.GetLength(0))
-                    {
-                        throw new IndexOutOfRangeException("The lines parameter contain elements that are out of the coords range of matrix.");
-                    }
-                }
-
-                for (int i = 0; i < lines.Length; ++i)
-                {
-                    if (columns[i] < 0 || columns[i] >= matrix.GetLength(1))
-                    {
-                        throw new IndexOutOfRangeException("The columns parameter contain elements that are out of the coords range of matrix.");
-                    }
-                }
-
                 this.matrix = matrix;
                 this.lines = new int[lines.Length];
                 Array.Copy(lines, this.lines, lines.Length);
