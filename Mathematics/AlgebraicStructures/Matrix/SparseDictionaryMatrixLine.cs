@@ -96,6 +96,10 @@ namespace Mathematics
             {
                 return this.afterLastColumnNumber;
             }
+            internal set
+            {
+                this.afterLastColumnNumber = value;
+            }
         }
 
         internal Dictionary<int, ObjectType> MatrixEntries
@@ -133,6 +137,20 @@ namespace Mathematics
         public IEnumerator<KeyValuePair<int,ObjectType>> GetEnumerator()
         {
             return this.matrixEntries.GetEnumerator();
+        }
+
+        public void UpdateAfterLastLine()
+        {
+            var maximumValue = 0;
+            foreach (var kvp in this.matrixEntries)
+            {
+                if (kvp.Key > maximumValue)
+                {
+                    maximumValue = kvp.Key;
+                }
+            }
+
+            this.afterLastColumnNumber = maximumValue + 1;
         }
 
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()

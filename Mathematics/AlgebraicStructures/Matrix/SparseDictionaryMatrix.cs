@@ -25,7 +25,7 @@
         /// <summary>
         /// As linhas da matriz.
         /// </summary>
-        private Dictionary<int, SparseDictionaryMatrixLine<ObjectType>> matrixLines = 
+        private Dictionary<int, SparseDictionaryMatrixLine<ObjectType>> matrixLines =
             new Dictionary<int, SparseDictionaryMatrixLine<ObjectType>>();
 
         public SparseDictionaryMatrix(ObjectType defaultValue)
@@ -81,6 +81,7 @@
                     if (line >= this.afterLastLine)
                     {
                         var newLine = new SparseDictionaryMatrixLine<ObjectType>(this);
+                        newLine[column] = value;
                         this.matrixLines.Add(line, newLine);
                         this.afterLastLine = line + 1;
                     }
@@ -208,7 +209,7 @@
                         {
                             this.afterLastLine = j + 1;
                         }
-                        else if(i == this.afterLastLine - 1)
+                        else if (i == this.afterLastLine - 1)
                         {
                             var maximumIndex = 0;
                             foreach (var kvp in this.matrixLines)
@@ -254,7 +255,85 @@
 
         public void SwapColumns(int i, int j)
         {
-            throw new NotImplementedException();
+            if (i < 0)
+            {
+                throw new IndexOutOfRangeException("Index i must be non negative.");
+            }
+            else if (j < 0)
+            {
+                throw new IndexOutOfRangeException("Index j must be non-negative.");
+            }
+            else
+            {
+                foreach (var lineKvp in this.matrixLines)
+                {
+                    var lineDictionary = lineKvp.Value.MatrixEntries;
+                    var firstLineEntry = default(ObjectType);
+                    if (lineDictionary.TryGetValue(i, out firstLineEntry))
+                    {
+                        var secondLineEntry = default(ObjectType);
+                        if (lineDictionary.TryGetValue(j, out secondLineEntry))
+                        {
+                            lineDictionary[i] = secondLineEntry;
+                            lineDictionary[j] = firstLineEntry;
+                        }
+                        else
+                        {
+                            lineDictionary.Remove(i);
+                            lineDictionary.Add(j, firstLineEntry);
+                            if (j >= this.afterLastColumn)
+                            {
+                                this.afterLastColumn = j + 1;
+                                lineKvp.Value.AfterLastColumnNumber = j + 1;
+                            }
+                            else if (i == this.afterLastColumn - 1)
+                            {
+                                var maximumColumnNumber = 0;
+                                lineKvp.Value.UpdateAfterLastLine();
+                                foreach (var kvp in this.matrixLines)
+                                {
+                                    var comparisionValue = kvp.Value.AfterLastColumnNumber;
+                                    if (comparisionValue > maximumColumnNumber)
+                                    {
+                                        maximumColumnNumber = comparisionValue;
+                                    }
+                                }
+
+                                this.afterLastColumn = maximumColumnNumber;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        var secondLineEntry = default(ObjectType);
+                        if (lineDictionary.TryGetValue(j, out secondLineEntry))
+                        {
+                            lineDictionary.Remove(j);
+                            lineDictionary.Add(i, secondLineEntry);
+                            if (i >= this.afterLastColumn)
+                            {
+                                this.afterLastColumn = i + 1;
+                                lineKvp.Value.AfterLastColumnNumber = i + 1;
+                            }
+                            else if (j == this.afterLastColumn - 1)
+                            {
+                                var maximumColumnNumber = 0;
+                                lineKvp.Value.UpdateAfterLastLine();
+                                foreach (var kvp in this.matrixLines)
+                                {
+                                    var comparisionValue = kvp.Value.AfterLastColumnNumber;
+                                    if (comparisionValue > maximumColumnNumber)
+                                    {
+                                        maximumColumnNumber = comparisionValue;
+                                    }
+                                }
+
+                                this.afterLastColumn = maximumColumnNumber;
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         public IEnumerator<ObjectType> GetEnumerator()

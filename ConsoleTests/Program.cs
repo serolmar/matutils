@@ -15,7 +15,7 @@
     {
         static void Main(string[] args)
         {
-            Test8();
+            Test9();
             Console.ReadLine();
         }
 
@@ -23,6 +23,26 @@
         {
             var tester = new ObjectTester();
             tester.Run(Console.In, Console.Out);
+        }
+
+        public void Test9()
+        {
+            var sparseDictionaryMatrix = new SparseDictionaryMatrix<int>(0);
+            Console.WriteLine("Linhas: {0}; Colunas: {1}", sparseDictionaryMatrix.GetLength(0), sparseDictionaryMatrix.GetLength(1));
+            Console.WriteLine("[0,0] = {0}", sparseDictionaryMatrix[0, 0]);
+
+            sparseDictionaryMatrix[2, 3] = 0;
+            sparseDictionaryMatrix[4, 1] = 5;
+
+            Console.WriteLine("Linhas: {0}; Colunas: {1}", sparseDictionaryMatrix.GetLength(0), sparseDictionaryMatrix.GetLength(1));
+            Console.WriteLine("[4,1] = {0}", sparseDictionaryMatrix[4, 1]);
+
+            sparseDictionaryMatrix.SwapLines(4, 1);
+            Console.WriteLine("Linhas: {0}; Colunas: {1}", sparseDictionaryMatrix.GetLength(0), sparseDictionaryMatrix.GetLength(1));
+            Console.WriteLine("[1,1] = {0}", sparseDictionaryMatrix[1, 1]);
+
+            sparseDictionaryMatrix.SwapColumns(3, 5);
+            Console.WriteLine("Linhas: {0}; Colunas: {1}", sparseDictionaryMatrix.GetLength(0), sparseDictionaryMatrix.GetLength(1));
         }
 
         static void Test8()
@@ -119,13 +139,15 @@
                 var integerDomain = new IntegerDomain();
                 var permutationDeterminant = new PermutationDeterminantCalculator<int, IntegerDomain>(integerDomain);
                 var computedDeterminant = permutationDeterminant.Run(matrix);
-
                 Console.WriteLine("O determinante usando permutações vale: {0}.", computedDeterminant);
 
                 var expansionDeterminant = new ExpansionDeterminantCalculator<int, IntegerDomain>(integerDomain);
                 computedDeterminant = expansionDeterminant.Run(matrix);
-
                 Console.WriteLine("O determinante usando expansão vale: {0}.", computedDeterminant);
+
+                var condensationDeterminant = new CondensationDeterminantCalculator<int, IntegerDomain>(integerDomain);
+                computedDeterminant = condensationDeterminant.Run(matrix);
+                Console.WriteLine("O determinante usando a condensação vale: {0}.", computedDeterminant);
             }
             else
             {
