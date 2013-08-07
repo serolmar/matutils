@@ -25,7 +25,7 @@
             tester.Run(Console.In, Console.Out);
         }
 
-        public void Test9()
+        public static void Test9()
         {
             var sparseDictionaryMatrix = new SparseDictionaryMatrix<int>(0);
             Console.WriteLine("Linhas: {0}; Colunas: {1}", sparseDictionaryMatrix.GetLength(0), sparseDictionaryMatrix.GetLength(1));

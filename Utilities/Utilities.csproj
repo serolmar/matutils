@@ -54,6 +54,7 @@
     <Compile Include="Collections\GeneralMapper.cs" />
     <Compile Include="Collections\InjectiveMapper.cs" />
     <Compile Include="Collections\InsertionSortedCollection.cs" />
+    <Compile Include="Collections\IntegerSequence.cs" />
     <Compile Include="Collections\Interfaces\IIndexed.cs" />
     <Compile Include="Collections\LispStyleList.cs" />
     <Compile Include="ExpressionBuilders\BoolExpressionParser.cs" />
