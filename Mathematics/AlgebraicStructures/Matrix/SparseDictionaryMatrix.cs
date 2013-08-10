@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
+    using Utilities.Collections;
 
     public class SparseDictionaryMatrix<ObjectType> : ISparseMatrix<ObjectType>
     {
@@ -178,6 +179,11 @@
         public IMatrix<ObjectType> GetSubMatrix(int[] lines, int[] columns)
         {
             return new SubMatrix<ObjectType>(this, lines, columns);
+        }
+
+        public IMatrix<ObjectType> GetSubMatrix(IntegerSequence lines, IntegerSequence columns)
+        {
+            return new IntegerSequenceSubMatrix<ObjectType>(this, lines, columns);
         }
 
         public void SwapLines(int i, int j)

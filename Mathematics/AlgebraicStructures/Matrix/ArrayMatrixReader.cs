@@ -71,7 +71,7 @@ namespace Mathematics
                     }
                 }
 
-                matrix = new ArrayMatrix<T>(lines, columns);
+                matrix = new ArrayMatrix<T>(lines, columns, default(T));
                 this.SetupResultMatrix(matrix, new int[] { lines, columns }, this.rangeReader.Elements);
                 return true;
             }

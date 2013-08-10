@@ -15,7 +15,7 @@
     {
         static void Main(string[] args)
         {
-            Test9();
+            Test10();
             Console.ReadLine();
         }
 
@@ -23,6 +23,19 @@
         {
             var tester = new ObjectTester();
             tester.Run(Console.In, Console.Out);
+        }
+
+        public static void Test10()
+        {
+            var integerSequence = new IntegerSequence();
+            integerSequence.Add(0, 10);
+            integerSequence.Remove(5,8);
+            integerSequence.Remove(1,6);
+
+            foreach (var value in integerSequence)
+            {
+                Console.Write(" {0}", value);
+            }
         }
 
         public static void Test9()

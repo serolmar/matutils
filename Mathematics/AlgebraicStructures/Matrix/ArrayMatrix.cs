@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Utilities.Collections;
 
 namespace Mathematics
 {
@@ -13,7 +14,7 @@ namespace Mathematics
 
         private ObjectType[][] elements;
 
-        public ArrayMatrix(int line, int column)
+        public ArrayMatrix(int line, int column, ObjectType defaultValue)
         {
             if (line < 0 || column < 0)
             {
@@ -24,6 +25,10 @@ namespace Mathematics
             for (int i = 0; i < line; ++i)
             {
                 this.elements[i] = new ObjectType[column];
+                for (int j = 0; j < column; ++j)
+                {
+                    this.elements[i][j] = defaultValue;
+                }
             }
 
             this.numberOfLines = line;
@@ -82,23 +87,12 @@ namespace Mathematics
 
         public IMatrix<ObjectType> GetSubMatrix(int[] lines, int[] columns)
         {
-            for (int i = 0; i < lines.Length; ++i)
-            {
-                if (lines[i] < 0 || lines[i] >= this.elements.GetLength(0))
-                {
-                    throw new IndexOutOfRangeException("The lines parameter contain elements that are out of the coords range of matrix.");
-                }
-            }
-
-            for (int i = 0; i < lines.Length; ++i)
-            {
-                if (columns[i] < 0 || columns[i] >= this.elements.GetLength(1))
-                {
-                    throw new IndexOutOfRangeException("The columns parameter contain elements that are out of the coords range of matrix.");
-                }
-            }
-
             return new SubMatrix<ObjectType>(this, lines, columns);
+        }
+
+        public IMatrix<ObjectType> GetSubMatrix(IntegerSequence lines, IntegerSequence columns)
+        {
+            return new IntegerSequenceSubMatrix<ObjectType>(this, lines, columns);
         }
 
         /// <summary>
@@ -124,7 +118,8 @@ namespace Mathematics
                 {
                     var result = new ArrayMatrix<ObjectType>(
                         this.numberOfLines,
-                        this.numberOfColumns);
+                        this.numberOfColumns,
+                        default(ObjectType));
                     for (int i = 0; i < this.numberOfLines; ++i)
                     {
                         for (int j = 0; j < this.numberOfColumns; ++j)
@@ -176,7 +171,8 @@ namespace Mathematics
                     var secondDimension = right.numberOfColumns;
                     var result = new ArrayMatrix<ObjectType>(
                         firstDimension,
-                        secondDimension);
+                        secondDimension,
+                        default(ObjectType));
                     for (int i = 0; i < firstDimension; ++i)
                     {
                         for (int j = 0; j < secondDimension; ++j)
@@ -300,7 +296,7 @@ namespace Mathematics
             }
             else
             {
-                var result = new ArrayMatrix<ObjectType>(order, order);
+                var result = new ArrayMatrix<ObjectType>(order, order, default(ObjectType));
                 for (int i = 0; i < order; ++i)
                 {
                     for (int j = 0; j < order; ++j)

@@ -1,10 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Mathematics
+﻿namespace Mathematics
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using Utilities.Collections;
+
     public interface IMatrix<ObjectType> : IEnumerable<ObjectType>
     {
         /// <summary>
@@ -33,17 +34,11 @@ namespace Mathematics
         IMatrix<ObjectType> GetSubMatrix(int[] lines, int[] columns);
 
         /// <summary>
-        /// Troca duas linhas.
+        /// Obtém a submatriz indicada no argumento considerado como sequência de inteiros.
         /// </summary>
-        /// <param name="i">O índice da primeira linha.</param>
-        /// <param name="j">O índice da segunda linha.</param>
-        void SwapLines(int i, int j);
-
-        /// <summary>
-        /// Troca duas colunas.
-        /// </summary>
-        /// <param name="i">O índice da primeira coluna.</param>
-        /// <param name="j">O índice da segunda coluna.</param>
-        void SwapColumns(int i, int j);
+        /// <param name="lines">As correnadas das linhas que constituem a submatriz.</param>
+        /// <param name="columns">As correnadas das colunas que constituem a submatriz.</param>
+        /// <returns>A submatriz procurada.</returns>
+        IMatrix<ObjectType> GetSubMatrix(IntegerSequence lines, IntegerSequence columns);
     }
 }

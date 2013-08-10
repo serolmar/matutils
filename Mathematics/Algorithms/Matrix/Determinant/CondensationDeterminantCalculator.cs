@@ -35,7 +35,7 @@ namespace Mathematics
             }
             else
             {
-                var temporaryArray = new ArrayMatrix<ObjectType>(matrixDimension, matrixDimension);
+                var temporaryArray = new ArrayMatrix<ObjectType>(matrixDimension, matrixDimension,default(ObjectType));
                 for (int i = 0; i < matrixDimension; ++i)
                 {
                     for (int j = 0; j < matrixDimension; ++j)

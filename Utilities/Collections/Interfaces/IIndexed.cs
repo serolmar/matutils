@@ -8,5 +8,6 @@ namespace Utilities.Collections
     public interface IIndexed<in T, out P>
     {
         P this[T index] { get; }
+        int Count { get; }
     }
 }
