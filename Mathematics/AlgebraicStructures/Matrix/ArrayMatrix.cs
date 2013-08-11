@@ -14,25 +14,54 @@ namespace Mathematics
 
         private ObjectType[][] elements;
 
+        public ArrayMatrix(int line, int column)
+        {
+            if (line < 0)
+            {
+                throw new ArgumentOutOfRangeException("line");
+            }
+            else if (column < 0)
+            {
+                throw new ArgumentOutOfRangeException("column");
+            }
+            else
+            {
+                this.elements = new ObjectType[line][];
+                for (int i = 0; i < line; ++i)
+                {
+                    this.elements[i] = new ObjectType[column];
+                }
+
+                this.numberOfLines = line;
+                this.numberOfColumns = column;
+            }
+        }
+
         public ArrayMatrix(int line, int column, ObjectType defaultValue)
         {
-            if (line < 0 || column < 0)
+            if (line < 0)
             {
-                throw new ArgumentOutOfRangeException("The arguments line and column must be non-negative in matrix definition.");
+                throw new ArgumentOutOfRangeException("line");
             }
-
-            this.elements = new ObjectType[line][];
-            for (int i = 0; i < line; ++i)
+            else if (column < 0)
             {
-                this.elements[i] = new ObjectType[column];
-                for (int j = 0; j < column; ++j)
+                throw new ArgumentOutOfRangeException("column");
+            }
+            else
+            {
+                this.elements = new ObjectType[line][];
+                for (int i = 0; i < line; ++i)
                 {
-                    this.elements[i][j] = defaultValue;
+                    this.elements[i] = new ObjectType[column];
+                    for (int j = 0; j < column; ++j)
+                    {
+                        this.elements[i][j] = defaultValue;
+                    }
                 }
-            }
 
-            this.numberOfLines = line;
-            this.numberOfColumns = column;
+                this.numberOfLines = line;
+                this.numberOfColumns = column;
+            }
         }
 
         public ObjectType this[int line, int column]
@@ -118,8 +147,7 @@ namespace Mathematics
                 {
                     var result = new ArrayMatrix<ObjectType>(
                         this.numberOfLines,
-                        this.numberOfColumns,
-                        default(ObjectType));
+                        this.numberOfColumns);
                     for (int i = 0; i < this.numberOfLines; ++i)
                     {
                         for (int j = 0; j < this.numberOfColumns; ++j)
@@ -171,8 +199,7 @@ namespace Mathematics
                     var secondDimension = right.numberOfColumns;
                     var result = new ArrayMatrix<ObjectType>(
                         firstDimension,
-                        secondDimension,
-                        default(ObjectType));
+                        secondDimension);
                     for (int i = 0; i < firstDimension; ++i)
                     {
                         for (int j = 0; j < secondDimension; ++j)
@@ -296,7 +323,7 @@ namespace Mathematics
             }
             else
             {
-                var result = new ArrayMatrix<ObjectType>(order, order, default(ObjectType));
+                var result = new ArrayMatrix<ObjectType>(order, order);
                 for (int i = 0; i < order; ++i)
                 {
                     for (int j = 0; j < order; ++j)

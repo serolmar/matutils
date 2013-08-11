@@ -346,6 +346,17 @@ namespace Mathematics
         /// <returns>A soma.</returns>
         public UnivariatePolynomialNormalForm<CoeffType, RingType> Add(CoeffType coeff)
         {
+            return this.Add(coeff, 0);
+        }
+
+        /// <summary>
+        /// Obtém a soma do polinómio corrente com um monómio.
+        /// </summary>
+        /// <param name="right">Os elementos do monómio.</param>
+        /// <param name="degree">O grau do coeficiente.</param>
+        /// <returns>A soma.</returns>
+        public UnivariatePolynomialNormalForm<CoeffType, RingType> Add(CoeffType coeff, int degree)
+        {
             if (coeff == null)
             {
                 throw new ArgumentNullException("coeff");
@@ -355,12 +366,12 @@ namespace Mathematics
                 var result = new UnivariatePolynomialNormalForm<CoeffType, RingType>(this.ring);
                 result.variableName = this.variableName;
                 result.terms = new Dictionary<int, CoeffType>();
-                var zeroDegreeCoeff = coeff;
+                var degreeCoeff = coeff;
                 foreach (var kvp in this.terms)
                 {
-                    if (kvp.Key == 0)
+                    if (kvp.Key == degree)
                     {
-                        zeroDegreeCoeff = this.ring.Add(zeroDegreeCoeff, kvp.Value);
+                        degreeCoeff = this.ring.Add(degreeCoeff, kvp.Value);
                     }
                     else
                     {
@@ -368,9 +379,9 @@ namespace Mathematics
                     }
                 }
 
-                if (!this.ring.IsAdditiveUnity(zeroDegreeCoeff))
+                if (!this.ring.IsAdditiveUnity(degreeCoeff))
                 {
-                    result.terms.Add(0, zeroDegreeCoeff);
+                    result.terms.Add(0, degreeCoeff);
                 }
 
                 return result;
@@ -435,6 +446,17 @@ namespace Mathematics
         /// <returns>A diferença.</returns>
         public UnivariatePolynomialNormalForm<CoeffType, RingType> Subtract(CoeffType coeff)
         {
+            return this.Subtract(coeff, 0);
+        }
+
+        /// <summary>
+        /// Obtém a diferença entre o polinómio corrente e um monómio.
+        /// </summary>
+        /// <param name="coeff">O coeficiente.</param>
+        /// <param name="degree">O grau.</param>
+        /// <returns>A diferença.</returns>
+        public UnivariatePolynomialNormalForm<CoeffType, RingType> Subtract(CoeffType coeff, int degree)
+        {
             if (coeff == null)
             {
                 throw new ArgumentNullException("coeff");
@@ -444,12 +466,12 @@ namespace Mathematics
                 var result = new UnivariatePolynomialNormalForm<CoeffType, RingType>(this.ring);
                 result.variableName = this.variableName;
                 result.terms = new Dictionary<int, CoeffType>();
-                var zeroDegreeCoeff = this.ring.AdditiveInverse(coeff);
+                var degreeCoeff = this.ring.AdditiveInverse(coeff);
                 foreach (var kvp in this.terms)
                 {
-                    if (kvp.Key == 0)
+                    if (kvp.Key == degree)
                     {
-                        zeroDegreeCoeff = this.ring.Add(zeroDegreeCoeff, kvp.Value);
+                        degreeCoeff = this.ring.Add(degreeCoeff, kvp.Value);
                     }
                     else
                     {
@@ -457,9 +479,9 @@ namespace Mathematics
                     }
                 }
 
-                if (!this.ring.IsAdditiveUnity(zeroDegreeCoeff))
+                if (!this.ring.IsAdditiveUnity(degreeCoeff))
                 {
-                    result.terms.Add(0, zeroDegreeCoeff);
+                    result.terms.Add(0, degreeCoeff);
                 }
 
                 return result;

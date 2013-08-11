@@ -5,7 +5,8 @@ using System.Text;
 
 namespace Mathematics
 {
-    public interface ISemigroup<T> : IEqualityComparer<T>, IAdditionOperation<T>
+    public interface IMultiplicationOperation<T>
     {
+        T Multiply(T left, T right);
     }
 }

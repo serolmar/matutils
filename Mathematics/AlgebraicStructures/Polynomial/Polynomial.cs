@@ -7,10 +7,15 @@
     using Algorithms;
 
     /// <summary>
-    /// Class that represents a polynom.
+    /// Classe que representa um polinómio.
     /// </summary>
-    /// <typeparam name="T">The type of coefficients in polynom.</typeparam>
-    /// <typeparam name="R">The type of ring evaluator.</typeparam>
+    /// <remarks>
+    /// O recurso ao tipo genérico constrangido ao invés de simplesmente atribuir
+    /// o construtor permite limitar, em tempo de compilação, os tipos admitidos
+    /// num algoritmo que possa recorrer ao polinómio.
+    /// </remarks>
+    /// <typeparam name="T">O tipo dos coeficientes no polinómio.</typeparam>
+    /// <typeparam name="R">O tipo do avaliador.</typeparam>
     public class Polynomial<T, R>
         where R : IRing<T>
     {

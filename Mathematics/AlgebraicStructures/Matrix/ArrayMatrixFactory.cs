@@ -7,6 +7,11 @@ namespace Mathematics
 {
     public class ArrayMatrixFactory<ObjectType> : IMatrixFactory<ObjectType>
     {
+        public IMatrix<ObjectType> CreateMatrix(int lines, int columns)
+        {
+            return new ArrayMatrix<ObjectType>(lines, columns);
+        }
+
         public IMatrix<ObjectType> CreateMatrix(int lines, int columns, ObjectType defaultValue)
         {
             return new ArrayMatrix<ObjectType>(lines, columns, defaultValue);

@@ -7,14 +7,24 @@ using Utilities.Parsers;
 
 namespace Mathematics
 {
-    public class ArrayMatrixReader<T, SymbValue, SymbType, InputReader>
+    public class ConfigMatrixReader<T, SymbValue, SymbType, InputReader>
     {
         private ARangeReader<T, SymbValue, SymbType, InputReader> rangeReader;
 
-        public ArrayMatrixReader(int lines, int columns)
+        private IMatrixFactory<T> matrixFactory;
+
+        public ConfigMatrixReader(int lines, int columns, IMatrixFactory<T> matrixFactory)
         {
-            this.rangeReader = new RangeConfigReader<T, SymbValue, SymbType, InputReader>(
-                new int[] { lines, columns });
+            if (matrixFactory == null)
+            {
+                throw new ArgumentNullException("matrixFactory");
+            }
+            else
+            {
+                this.matrixFactory = matrixFactory;
+                this.rangeReader = new RangeConfigReader<T, SymbValue, SymbType, InputReader>(
+                    new int[] { lines, columns });
+            }
         }
 
         public SymbType SeparatorSymbType
@@ -32,7 +42,7 @@ namespace Mathematics
         public bool TryParseMatrix(
             MementoSymbolReader<InputReader, SymbValue, SymbType> reader,
             IParse<T, SymbValue, SymbType> parser,
-            out ArrayMatrix<T> matrix)
+            out IMatrix<T> matrix)
         {
             return this.TryParseMatrix(reader, parser, null, out matrix);
         }
@@ -41,7 +51,7 @@ namespace Mathematics
             MementoSymbolReader<InputReader, SymbValue, SymbType> reader,
             IParse<T, SymbValue, SymbType> parser,
             List<string> errors,
-            out ArrayMatrix<T> matrix)
+            out IMatrix<T> matrix)
         {
             matrix = default(ArrayMatrix<T>);
             this.rangeReader.ReadRangeValues(reader, parser);
@@ -71,7 +81,7 @@ namespace Mathematics
                     }
                 }
 
-                matrix = new ArrayMatrix<T>(lines, columns, default(T));
+                matrix = this.matrixFactory.CreateMatrix(lines, columns);
                 this.SetupResultMatrix(matrix, new int[] { lines, columns }, this.rangeReader.Elements);
                 return true;
             }
@@ -102,7 +112,7 @@ namespace Mathematics
             this.rangeReader.ClearBlanckSymbols();
         }
 
-        private void SetupResultMatrix(ArrayMatrix<T> matrix, int[] configuration, ReadOnlyCollection<T> elements)
+        private void SetupResultMatrix(IMatrix<T> matrix, int[] configuration, ReadOnlyCollection<T> elements)
         {
             var currentLine = -1;
             var currentColumn = 0;

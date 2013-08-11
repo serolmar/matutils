@@ -15,7 +15,7 @@
     {
         static void Main(string[] args)
         {
-            Test10();
+            Test6();
             Console.ReadLine();
         }
 
@@ -68,14 +68,17 @@
                 "x",
                 integerParser,
                 integerDomain);
-            var arrayReader = new ArrayMatrixReader<UnivariatePolynomialNormalForm<int, IntegerDomain>, string, string, CharSymbolReader>(
+
+            var arrayMatrixFactory = new ArrayMatrixFactory<UnivariatePolynomialNormalForm<int, IntegerDomain>>();
+            var arrayReader = new ConfigMatrixReader<UnivariatePolynomialNormalForm<int, IntegerDomain>, string, string, CharSymbolReader>(
                 2,
-                2);
+                2,
+                arrayMatrixFactory);
             arrayReader.MapInternalDelimiters("left_bracket", "right_bracket");
             arrayReader.AddBlanckSymbolType("blancks");
             arrayReader.SeparatorSymbType = "comma";
 
-            var readed = default(ArrayMatrix<UnivariatePolynomialNormalForm<int, IntegerDomain>>);
+            var readed = default(IMatrix<UnivariatePolynomialNormalForm<int, IntegerDomain>>);
             if (arrayReader.TryParseMatrix(inputReader, univariatePolParser, out readed))
             {
                 var polynomialRing = new UnivarPolynomRing<int, IntegerDomain>("x", integerDomain);
@@ -138,12 +141,13 @@
             var stringsymbolReader = new StringSymbolReader(reader, true);
             var integerParser = new IntegerParser();
 
-            var arrayMatrixReader = new ArrayMatrixReader<int, string, string, CharSymbolReader>(3, 3);
+            var arrayMatrixFactory = new ArrayMatrixFactory<int>();
+            var arrayMatrixReader = new ConfigMatrixReader<int, string, string, CharSymbolReader>(3, 3, arrayMatrixFactory);
             arrayMatrixReader.MapInternalDelimiters("left_bracket", "right_bracket");
             arrayMatrixReader.AddBlanckSymbolType("blancks");
             arrayMatrixReader.SeparatorSymbType = "comma";
 
-            var matrix = default(ArrayMatrix<int>);
+            var matrix = default(IMatrix<int>);
             var errors = new List<string>();
             if (arrayMatrixReader.TryParseMatrix(stringsymbolReader, integerParser, errors, out matrix))
             {

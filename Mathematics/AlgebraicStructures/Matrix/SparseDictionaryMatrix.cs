@@ -29,6 +29,40 @@
         private Dictionary<int, SparseDictionaryMatrixLine<ObjectType>> matrixLines =
             new Dictionary<int, SparseDictionaryMatrixLine<ObjectType>>();
 
+        public SparseDictionaryMatrix(int lines, int columns, ObjectType defaultValue) : this(defaultValue)
+        {
+            if (lines < 0)
+            {
+                throw new ArgumentOutOfRangeException("line");
+            }
+            else if (columns < 0)
+            {
+                throw new ArgumentOutOfRangeException("column");
+            }
+            else
+            {
+                this.afterLastLine = lines;
+                this.afterLastColumn = columns;
+            }
+        }
+
+        public SparseDictionaryMatrix(int lines, int columns) : this(default(ObjectType))
+        {
+            if (lines < 0)
+            {
+                throw new ArgumentOutOfRangeException("line");
+            }
+            else if (columns < 0)
+            {
+                throw new ArgumentOutOfRangeException("column");
+            }
+            else
+            {
+                this.afterLastLine = lines;
+                this.afterLastColumn = columns;
+            }
+        }
+        
         public SparseDictionaryMatrix(ObjectType defaultValue)
         {
             this.defaultValue = defaultValue;
