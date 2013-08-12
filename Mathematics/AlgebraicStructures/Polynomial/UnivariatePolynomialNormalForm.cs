@@ -381,7 +381,7 @@ namespace Mathematics
 
                 if (!this.ring.IsAdditiveUnity(degreeCoeff))
                 {
-                    result.terms.Add(0, degreeCoeff);
+                    result.terms.Add(degree, degreeCoeff);
                 }
 
                 return result;
@@ -481,7 +481,7 @@ namespace Mathematics
 
                 if (!this.ring.IsAdditiveUnity(degreeCoeff))
                 {
-                    result.terms.Add(0, degreeCoeff);
+                    result.terms.Add(degree, degreeCoeff);
                 }
 
                 return result;
@@ -811,6 +811,23 @@ namespace Mathematics
             }
 
             return resultBuilder.ToString();
+        }
+
+        /// <summary>
+        /// Obtém todos os coeficientes ordenados pelo grau de acordo com o comparador especificado.
+        /// </summary>
+        /// <param name="degreeComparer">O comparador.</param>
+        /// <returns>Uma colecção ordenada com os coeficientes.</returns>
+        public SortedList<int, CoeffType> GetOrderedCoefficients(
+            IComparer<int> degreeComparer)
+        {
+            var result = new SortedList<int, CoeffType>(degreeComparer);
+            foreach (var kvp in this.terms)
+            {
+                result.Add(kvp.Key, kvp.Value);
+            }
+
+            return result;
         }
     }
 }

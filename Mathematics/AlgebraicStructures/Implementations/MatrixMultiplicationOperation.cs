@@ -61,7 +61,7 @@ namespace Mathematics
             else
             {
                 var leftLinesDimension = left.GetLength(0);
-                var leftColumnsDimension = right.GetLength(1);
+                var leftColumnsDimension = left.GetLength(1);
                 var rightLinesDimension = right.GetLength(0);
                 var rightColumnsDimension = right.GetLength(1);
                 if (leftColumnsDimension != rightLinesDimension)

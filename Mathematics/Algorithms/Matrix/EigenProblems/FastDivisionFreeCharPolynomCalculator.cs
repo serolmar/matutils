@@ -6,6 +6,12 @@
     using System.Text;
     using Utilities.Collections;
 
+    /// <summary>
+    /// Permite determinar o polinómio característico de uma matriz sem necessitar
+    /// divisões. Implementa o algoritmo de Berkowitz.
+    /// </summary>
+    /// <typeparam name="ElementType">O tipo das entradas da matriz.</typeparam>
+    /// <typeparam name="RingType">O anel responsável pelas operações.</typeparam>
     public class FastDivisionFreeCharPolynomCalculator<ElementType, RingType>
         : IAlgorithm<IMatrix<ElementType>, UnivariatePolynomialNormalForm<ElementType, RingType>>
         where RingType : IRing<ElementType>
@@ -102,13 +108,13 @@
                                 otherMultiplicationMatrix);
 
                             multiplicationMatrix = matrixMultiplicator.Multiply(multiplicationMatrix, otherMultiplicationMatrix);
-                            --currentDimension;
+                            ++currentDimension;
                         }
 
-                        var result = new UnivariatePolynomialNormalForm<ElementType, RingType>(multiplicationMatrix[0, 0], 0, this.variableName, this.ring);
+                        var result = new UnivariatePolynomialNormalForm<ElementType, RingType>(multiplicationMatrix[0, 0], lines, this.variableName, this.ring);
                         for (int i = 1; i <= lines; ++i)
                         {
-                            result = result.Add(multiplicationMatrix[0, i], i);
+                            result = result.Add(multiplicationMatrix[i, 0], lines - i);
                         }
 
                         return result;
@@ -145,7 +151,7 @@
             }
 
             vectorsMultiply = multiplicator.Multiply(rowSubMatrix, mainSubMatrix);
-            vectorsMultiply = multiplicator.Multiply(mainSubMatrix, columnSubMatrix);
+            vectorsMultiply = multiplicator.Multiply(vectorsMultiply, columnSubMatrix);
             for (int i = 0; i < dimension - 2; ++i)
             {
                 multiplicationMatrix[i + 3, i] = this.ring.AdditiveInverse(vectorsMultiply[0, 0]);

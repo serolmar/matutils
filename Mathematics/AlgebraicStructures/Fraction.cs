@@ -106,12 +106,27 @@ namespace Mathematics
         /// <summary>
         /// Obtém o que resta da fracção quando lhe é extraída a sua parte inteira.
         /// </summary>
-        public Fraction<T,D> RemainderPart
+        public Fraction<T,D> FractionalPart
         {
             get
             {
                 var remainder = this.euclideanDomain.Rem(this.numerator, this.denominator);
                 return new Fraction<T, D>(remainder, this.denominator, this.euclideanDomain);
+            }
+        }
+
+        /// <summary>
+        /// Obtém a decomposição da fracção em parte inteira e fracionária na mesma função.
+        /// </summary>
+        public FractionDecompositionResult<T, D> FractionDecomposition
+        {
+            get
+            {
+                var domainResult = this.euclideanDomain.GetQuotientAndRemainder(this.numerator, this.denominator);
+                return new FractionDecompositionResult<T,D>(
+                    domainResult.Quotient,
+                    new Fraction<T,D>(domainResult.Remainder, this.denominator, this.euclideanDomain));
+                    
             }
         }
 

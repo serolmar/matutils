@@ -67,5 +67,11 @@ namespace Mathematics
         {
             return (uint)Math.Abs(value);
         }
+
+
+        public DomainResult<int> GetQuotientAndRemainder(int dividend, int divisor)
+        {
+            return new DomainResult<int>(dividend / divisor, dividend % divisor);
+        }
     }
 }

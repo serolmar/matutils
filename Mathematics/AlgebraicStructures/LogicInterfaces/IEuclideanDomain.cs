@@ -7,8 +7,29 @@ namespace Mathematics
 {
     public interface IEuclidenDomain<T> : IRing<T>
     {
+        /// <summary>
+        /// Obtém o quociente entre o dividendo e o divisor.
+        /// </summary>
+        /// <param name="dividend">O dividendo.</param>
+        /// <param name="divisor">O divisor.</param>
+        /// <returns>O quociente.</returns>
         T Quo(T dividend, T divisor);
+
+        /// <summary>
+        /// Obtém o resto da divisão do dividendo pelo divisor.
+        /// </summary>
+        /// <param name="dividend">O dividendo.</param>
+        /// <param name="divisor">O divisor.</param>
+        /// <returns>O resto da divisão.</returns>
         T Rem(T dividend, T divisor);
+
+        /// <summary>
+        /// Obtém o quociente e o resto da divisão do dividendo pelo divisor.
+        /// </summary>
+        /// <param name="dividend">O dividendo.</param>
+        /// <param name="divisor">O divisor.</param>
+        /// <returns>O quociente e o resto.</returns>
+        DomainResult<T> GetQuotientAndRemainder(T dividend, T divisor);
 
         /// <summary>
         /// Obtém o grau do valor no domínimo euclideano.

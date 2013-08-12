@@ -41,10 +41,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AlgebraicStructures\Fraction.cs" />
+    <Compile Include="AlgebraicStructures\FractionDecompositionResult.cs" />
+    <Compile Include="AlgebraicStructures\Implementations\DomainResult.cs" />
     <Compile Include="AlgebraicStructures\Implementations\FractionField.cs" />
     <Compile Include="AlgebraicStructures\Implementations\IntegerDomain.cs" />
     <Compile Include="AlgebraicStructures\Implementations\MatrixAdditionOperation.cs" />
     <Compile Include="AlgebraicStructures\Implementations\MatrixMultiplicationOperation.cs" />
+    <Compile Include="AlgebraicStructures\Implementations\UnivarPolynomEuclideanDomain.cs" />
     <Compile Include="AlgebraicStructures\Implementations\UnivarPolynomRing.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\IAdditionOperation.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\IAlgebra.cs" />
@@ -75,6 +78,8 @@
     <Compile Include="AlgebraicStructures\MultiDimensionalRange\MultiDimensionalRangeParser.cs" />
     <Compile Include="AlgebraicStructures\MultiDimensionalRange\MultiDimensionalRangeReader.cs" />
     <Compile Include="AlgebraicStructures\MultiDimensionalRange\SubMultiDimensionalRange.cs" />
+    <Compile Include="AlgebraicStructures\Polynomial\CoefficientComparer.cs" />
+    <Compile Include="AlgebraicStructures\Polynomial\CoefficientDegreePair.cs" />
     <Compile Include="AlgebraicStructures\Polynomial\DegreeEqualityComparer.cs" />
     <Compile Include="AlgebraicStructures\Polynomial\IntegerFactorialFraction.cs" />
     <Compile Include="AlgebraicStructures\Polynomial\Polynomial.cs" />
@@ -95,12 +100,15 @@
     <Compile Include="AlgebraicStructures\Readers\RangeConfigReader.cs" />
     <Compile Include="AlgebraicStructures\Readers\RangeNoConfigReader.cs" />
     <Compile Include="AlgebraicStructures\Readers\RangeReaderMementoManager.cs" />
+    <Compile Include="Algorithms\General\LagrangeAlgorithm.cs" />
     <Compile Include="Algorithms\IAlgorithm.cs" />
     <Compile Include="Algorithms\Matrix\Determinant\ADeterminant.cs" />
     <Compile Include="Algorithms\Matrix\Determinant\CondensationDeterminantCalculator.cs" />
     <Compile Include="Algorithms\Matrix\Determinant\ExpansionDeterminantCalculator.cs" />
     <Compile Include="Algorithms\Matrix\Determinant\PermutationDeterminantCalculator.cs" />
     <Compile Include="Algorithms\Matrix\EigenProblems\FastDivisionFreeCharPolynomCalculator.cs" />
+    <Compile Include="Algorithms\Polynomials\UnivarSquareFreeDecomposition.cs" />
+    <Compile Include="BacheBezoutResult.cs" />
     <Compile Include="MathFunctions.cs" />
     <Compile Include="Algorithms\Simplex\RevisedSimplexWithDoubles.cs" />
     <Compile Include="Algorithms\Transportation\MaxDoubleNumberField.cs" />
