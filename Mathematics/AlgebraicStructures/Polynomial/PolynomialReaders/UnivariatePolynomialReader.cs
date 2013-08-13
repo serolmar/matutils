@@ -89,6 +89,7 @@ namespace Mathematics
             expressionReader.RegisterBinaryOperator("minus", Subtract, 0);
             expressionReader.RegisterBinaryOperator("hat", Power, 2);
             expressionReader.RegisterUnaryOperator("minus", Symmetric, 0);
+            expressionReader.RegisterBinaryOperator("over", Divide, 1);
 
             expressionReader.RegisterExpressionDelimiterTypes("left_parenthesis", "right_parenthesis");
             expressionReader.RegisterSequenceDelimiterTypes("left_parenthesis", "right_parenthesis");
@@ -733,8 +734,8 @@ namespace Mathematics
                     if (typeof(int).IsAssignableFrom(typeof(T)))
                     {
                         var exponent = (int)(object)right.Coeff;
-                        result.Polynomial = MathFunctions.Power(left.Polynomial, 
-                            exponent, 
+                        result.Polynomial = MathFunctions.Power(left.Polynomial,
+                            exponent,
                             new UnivarPolynomRing<T, RingType>(left.Polynomial.VariableName, this.ring));
                     }
                     else

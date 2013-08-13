@@ -57,10 +57,10 @@ namespace Mathematics
                 throw new ArgumentException("Denominator can't be zero.");
             }
 
-            if (this.euclideanDomain.IsAdditiveUnity(this.numerator))
+            if (euclideanDomain.IsAdditiveUnity(this.numerator))
             {
                 this.numerator = numerator;
-                this.denominator = this.euclideanDomain.MultiplicativeUnity;
+                this.denominator = euclideanDomain.MultiplicativeUnity;
             }
             else
             {
@@ -68,6 +68,8 @@ namespace Mathematics
                 this.denominator = denominator;
                 this.Reduce();
             }
+
+            this.euclideanDomain = euclideanDomain;
         }
 
         /// <summary>

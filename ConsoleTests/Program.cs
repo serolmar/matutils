@@ -15,7 +15,7 @@
     {
         static void Main(string[] args)
         {
-            Test11();
+            Test12();
             Console.ReadLine();
         }
 
@@ -23,6 +23,53 @@
         {
             var tester = new ObjectTester();
             tester.Run(Console.In, Console.Out);
+        }
+
+        public static void Test12()
+        {
+            var firstInput = "x^3-1/3*x^2+x/5-1/2";
+            var secondInput = "x^2-x/2+1";
+
+            var reader = new StringReader(firstInput);
+            var stringSymbolReader = new StringSymbolReader(reader, false);
+            var integerDomain = new IntegerDomain();
+            var fractionField = new FractionField<int, IntegerDomain>(integerDomain);
+            var integerParser = new IntegerParser();
+            var fractionParser = new ElementFractionParser<int, IntegerDomain>(integerParser, integerDomain);
+            var polynomialParser = new UnivariatePolynomialReader<
+                Fraction<int, IntegerDomain>, 
+                FractionField<int, IntegerDomain>, 
+                CharSymbolReader>(
+                "x", 
+                fractionParser, 
+                fractionField);
+
+            var firstPol = default(UnivariatePolynomialNormalForm<Fraction<int, IntegerDomain>, FractionField<int, IntegerDomain>>);
+            if (polynomialParser.TryParsePolynomial(stringSymbolReader, out firstPol))
+            {
+                reader = new StringReader(secondInput);
+                stringSymbolReader = new StringSymbolReader(reader, false);
+                var secondPol = default(UnivariatePolynomialNormalForm<Fraction<int, IntegerDomain>, FractionField<int, IntegerDomain>>);
+                if (polynomialParser.TryParsePolynomial(stringSymbolReader, out firstPol))
+                {
+                    var polynomialEuclideanDomain = new UnivarPolynomEuclideanDomain<
+                        Fraction<int, IntegerDomain>, 
+                        FractionField<int, IntegerDomain>>(
+                        "x",
+                        fractionField);
+
+                    var quotient = polynomialEuclideanDomain.Quo(firstPol, secondPol);
+                    Console.WriteLine(quotient);
+                }
+                else
+                {
+                    Console.WriteLine("Can't parse the second polynomial.");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Can't parse the first polynomial.");
+            }
         }
 
         public static void Test11()

@@ -84,6 +84,7 @@
     <Compile Include="AlgebraicStructures\Polynomial\IntegerFactorialFraction.cs" />
     <Compile Include="AlgebraicStructures\Polynomial\Polynomial.cs" />
     <Compile Include="AlgebraicStructures\Polynomial\PolynomialGeneralVariable.cs" />
+    <Compile Include="AlgebraicStructures\Polynomial\PolynomialReaders\ElementFractionParser.cs" />
     <Compile Include="AlgebraicStructures\Polynomial\PolynomialReaders\EParsePolynomialValueType.cs" />
     <Compile Include="AlgebraicStructures\Polynomial\PolynomialReaders\ParsePolynomialItem.cs" />
     <Compile Include="AlgebraicStructures\Polynomial\PolynomialReaders\ParseUnivarPolynomNormalFormItem.cs" />
