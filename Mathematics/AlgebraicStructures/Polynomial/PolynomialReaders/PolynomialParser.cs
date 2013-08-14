@@ -24,11 +24,23 @@
         /// </summary>
         private IParse<CoeffType, string, string> elementsParser;
 
-        public PolynomialParser(IParse<CoeffType, string, string> elementsParser, RingType ring)
+        /// <summary>
+        /// O conversor entre os coeficientes e os inteiros.
+        /// </summary>
+        private IConversion<int, CoeffType> conversion;
+
+        public PolynomialParser(
+            IParse<CoeffType, string, string> elementsParser, 
+            IConversion<int, CoeffType> conversion,
+            RingType ring)
         {
             if (ring == null)
             {
                 throw new ArgumentNullException("ring");
+            }
+            else if (conversion == null)
+            {
+                throw new ArgumentNullException("conversion");
             }
             else if (elementsParser == null)
             {
@@ -37,6 +49,7 @@
             else
             {
                 this.coefficientsRing = ring;
+                this.conversion = conversion;
                 this.elementsParser = elementsParser;
                 this.polynomialReader = new PolynomialReader<CoeffType, RingType, ISymbol<string, string>[]>(
                     this.elementsParser,
@@ -47,7 +60,7 @@
         public bool TryParse(ISymbol<string, string>[] symbolListToParse, out Polynomial<CoeffType, RingType> value)
         {
             var arrayReader = new ArraySymbolReader<string, string>(symbolListToParse, "eof");
-            return this.polynomialReader.TryParsePolynomial(arrayReader, out value);
+            return this.polynomialReader.TryParsePolynomial(arrayReader, this.conversion, out value);
         }
     }
 }

@@ -43,6 +43,8 @@
     <Compile Include="AlgebraicStructures\Fraction.cs" />
     <Compile Include="AlgebraicStructures\FractionDecompositionResult.cs" />
     <Compile Include="AlgebraicStructures\Implementations\DomainResult.cs" />
+    <Compile Include="AlgebraicStructures\Implementations\ElementFractionConversion.cs" />
+    <Compile Include="AlgebraicStructures\Implementations\ElementToElementConversion.cs" />
     <Compile Include="AlgebraicStructures\Implementations\FractionField.cs" />
     <Compile Include="AlgebraicStructures\Implementations\IntegerDomain.cs" />
     <Compile Include="AlgebraicStructures\Implementations\MatrixAdditionOperation.cs" />
@@ -51,6 +53,7 @@
     <Compile Include="AlgebraicStructures\Implementations\UnivarPolynomRing.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\IAdditionOperation.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\IAlgebra.cs" />
+    <Compile Include="AlgebraicStructures\LogicInterfaces\IConversion.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\IEuclideanDomain.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\IField.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\IGroup.cs" />

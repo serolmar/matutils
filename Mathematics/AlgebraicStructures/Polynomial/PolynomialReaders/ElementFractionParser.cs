@@ -29,6 +29,7 @@
             else
             {
                 this.elementParser = elementParser;
+                this.domain = domain;
             }
         }
 

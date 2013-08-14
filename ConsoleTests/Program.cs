@@ -44,13 +44,14 @@
                 fractionParser, 
                 fractionField);
 
+            var fractionConversion = new ElementFractionConversion<int, IntegerDomain>(integerDomain);
             var firstPol = default(UnivariatePolynomialNormalForm<Fraction<int, IntegerDomain>, FractionField<int, IntegerDomain>>);
-            if (polynomialParser.TryParsePolynomial(stringSymbolReader, out firstPol))
+            if (polynomialParser.TryParsePolynomial(stringSymbolReader, fractionConversion, out firstPol))
             {
                 reader = new StringReader(secondInput);
                 stringSymbolReader = new StringSymbolReader(reader, false);
                 var secondPol = default(UnivariatePolynomialNormalForm<Fraction<int, IntegerDomain>, FractionField<int, IntegerDomain>>);
-                if (polynomialParser.TryParsePolynomial(stringSymbolReader, out firstPol))
+                if (polynomialParser.TryParsePolynomial(stringSymbolReader, fractionConversion, out secondPol))
                 {
                     var polynomialEuclideanDomain = new UnivarPolynomEuclideanDomain<
                         Fraction<int, IntegerDomain>, 
@@ -58,8 +59,9 @@
                         "x",
                         fractionField);
 
-                    var quotient = polynomialEuclideanDomain.Quo(firstPol, secondPol);
-                    Console.WriteLine(quotient);
+                    var result = polynomialEuclideanDomain.GetQuotientAndRemainder(firstPol, secondPol);
+                    Console.WriteLine("Quotient: {0}", result.Quotient);
+                    Console.WriteLine("Remainder: {0}", result.Remainder);
                 }
                 else
                 {
@@ -136,8 +138,10 @@
             var inputReader = new StringSymbolReader(new StringReader(input), false);
             var integerParser = new IntegerParser();
             var integerDomain = new IntegerDomain();
+            var conversion = new ElementToElementConversion<int>();
             var univariatePolParser = new UnivarPolNormalFormParser<int, IntegerDomain>(
                 "x",
+                conversion,
                 integerParser,
                 integerDomain);
 
@@ -187,7 +191,8 @@
             var polynomialParser = new PolynomialReader<int, IntegerDomain, CharSymbolReader>(integerParser, new IntegerDomain());
             var readed = default(Polynomial<int, IntegerDomain>);
             var errors = new List<string>();
-            if (polynomialParser.TryParsePolynomial(inputReader, errors, out readed))
+            var elementConversion = new ElementToElementConversion<int>();
+            if (polynomialParser.TryParsePolynomial(inputReader, elementConversion, errors, out readed))
             {
                 Console.WriteLine(readed);
             }
@@ -304,6 +309,7 @@
 
             var rep = symmetric.GetElementarySymmetricRepresentation(varDictionary);
             var expanded = rep.GetExpanded();
+            Console.WriteLine(expanded);
         }
 
         /// <summary>

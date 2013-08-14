@@ -58,7 +58,7 @@
                         var factor = this.field.Multiply(
                             remainderLeadingCoeff,
                             inverseDivisorLeadingCoeff);
-                        quotientCoeffs.Add(factor, differenceDegree);
+                        quotientCoeffs = quotientCoeffs.Add(factor, differenceDegree);
                         remainderSortedCoeffs.Remove(remainderLeadingDegree);
                         for (int i = 0; i < divisorSorteCoeffs.Keys.Count - 1; ++i)
                         {
@@ -93,7 +93,7 @@
                         remainderLeadingDegree = remainderSortedCoeffs.Keys[remainderSortedCoeffs.Keys.Count - 1];
                     }
 
-                    return divisor;
+                    return quotientCoeffs;
                 }
             }
         }
@@ -116,7 +116,61 @@
             }
             else
             {
-                throw new NotImplementedException();
+                if (divisor.Degree > dividend.Degree)
+                {
+                    return dividend.Clone();
+                }
+                else
+                {
+                    var remainderSortedCoeffs = dividend.GetOrderedCoefficients(Comparer<int>.Default);
+                    var divisorSorteCoeffs = divisor.GetOrderedCoefficients(Comparer<int>.Default);
+                    var remainderLeadingDegree = remainderSortedCoeffs.Keys[remainderSortedCoeffs.Keys.Count - 1];
+                    var divisorLeadingDegree = divisorSorteCoeffs.Keys[divisorSorteCoeffs.Keys.Count - 1];
+                    var inverseDivisorLeadingCoeff = this.field.MultiplicativeInverse(divisorSorteCoeffs[divisorLeadingDegree]);
+                    while (remainderLeadingDegree >= divisorLeadingDegree)
+                    {
+                        var remainderLeadingCoeff = remainderSortedCoeffs[remainderLeadingDegree];
+                        var differenceDegree = remainderLeadingDegree - divisorLeadingDegree;
+                        var factor = this.field.Multiply(
+                            remainderLeadingCoeff,
+                            inverseDivisorLeadingCoeff);
+                        remainderSortedCoeffs.Remove(remainderLeadingDegree);
+                        for (int i = 0; i < divisorSorteCoeffs.Keys.Count - 1; ++i)
+                        {
+                            var currentDivisorDegree = divisorSorteCoeffs.Keys[i];
+                            var currentCoeff = this.field.Multiply(
+                                divisorSorteCoeffs[currentDivisorDegree],
+                                factor);
+                            currentDivisorDegree += differenceDegree;
+                            var addCoeff = default(CoeffType);
+                            if (remainderSortedCoeffs.TryGetValue(currentDivisorDegree, out addCoeff))
+                            {
+                                addCoeff = this.field.Add(
+                                    addCoeff,
+                                    this.field.AdditiveInverse(currentCoeff));
+                                if (this.field.IsAdditiveUnity(addCoeff))
+                                {
+                                    remainderSortedCoeffs.Remove(currentDivisorDegree);
+                                }
+                                else
+                                {
+                                    remainderSortedCoeffs[currentDivisorDegree] = addCoeff;
+                                }
+                            }
+                            else
+                            {
+                                remainderSortedCoeffs.Add(
+                                    currentDivisorDegree,
+                                    this.field.AdditiveInverse(currentCoeff));
+                            }
+                        }
+
+                        remainderLeadingDegree = remainderSortedCoeffs.Keys[remainderSortedCoeffs.Keys.Count - 1];
+                    }
+
+                    var remainder = new UnivariatePolynomialNormalForm<CoeffType, FieldType>(remainderSortedCoeffs, this.variableName, this.field);
+                    return remainder;
+                }
             }
         }
 
@@ -138,7 +192,67 @@
             }
             else
             {
-                throw new NotImplementedException();
+                if (divisor.Degree > dividend.Degree)
+                {
+                    return new DomainResult<UnivariatePolynomialNormalForm<CoeffType, FieldType>>(
+                        new UnivariatePolynomialNormalForm<CoeffType, FieldType>(this.variableName, this.field),
+                        dividend);
+                }
+                else
+                {
+                    var remainderSortedCoeffs = dividend.GetOrderedCoefficients(Comparer<int>.Default);
+                    var divisorSorteCoeffs = divisor.GetOrderedCoefficients(Comparer<int>.Default);
+                    var quotientCoeffs = new UnivariatePolynomialNormalForm<CoeffType, FieldType>(this.variableName, this.field);
+                    var remainderLeadingDegree = remainderSortedCoeffs.Keys[remainderSortedCoeffs.Keys.Count - 1];
+                    var divisorLeadingDegree = divisorSorteCoeffs.Keys[divisorSorteCoeffs.Keys.Count - 1];
+                    var inverseDivisorLeadingCoeff = this.field.MultiplicativeInverse(divisorSorteCoeffs[divisorLeadingDegree]);
+                    while (remainderLeadingDegree >= divisorLeadingDegree)
+                    {
+                        var remainderLeadingCoeff = remainderSortedCoeffs[remainderLeadingDegree];
+                        var differenceDegree = remainderLeadingDegree - divisorLeadingDegree;
+                        var factor = this.field.Multiply(
+                            remainderLeadingCoeff,
+                            inverseDivisorLeadingCoeff);
+                        quotientCoeffs = quotientCoeffs.Add(factor, differenceDegree);
+                        remainderSortedCoeffs.Remove(remainderLeadingDegree);
+                        for (int i = 0; i < divisorSorteCoeffs.Keys.Count - 1; ++i)
+                        {
+                            var currentDivisorDegree = divisorSorteCoeffs.Keys[i];
+                            var currentCoeff = this.field.Multiply(
+                                divisorSorteCoeffs[currentDivisorDegree],
+                                factor);
+                            currentDivisorDegree += differenceDegree;
+                            var addCoeff = default(CoeffType);
+                            if (remainderSortedCoeffs.TryGetValue(currentDivisorDegree, out addCoeff))
+                            {
+                                addCoeff = this.field.Add(
+                                    addCoeff,
+                                    this.field.AdditiveInverse(currentCoeff));
+                                if (this.field.IsAdditiveUnity(addCoeff))
+                                {
+                                    remainderSortedCoeffs.Remove(currentDivisorDegree);
+                                }
+                                else
+                                {
+                                    remainderSortedCoeffs[currentDivisorDegree] = addCoeff;
+                                }
+                            }
+                            else
+                            {
+                                remainderSortedCoeffs.Add(
+                                    currentDivisorDegree,
+                                    this.field.AdditiveInverse(currentCoeff));
+                            }
+                        }
+
+                        remainderLeadingDegree = remainderSortedCoeffs.Keys[remainderSortedCoeffs.Keys.Count - 1];
+                    }
+
+                    var remainder = new UnivariatePolynomialNormalForm<CoeffType, FieldType>(remainderSortedCoeffs, this.variableName, this.field);
+                    return new DomainResult<UnivariatePolynomialNormalForm<CoeffType,FieldType>>(
+                        quotientCoeffs,
+                        remainder);
+                }
             }
         }
 

@@ -52,12 +52,13 @@ namespace Mathematics
                 throw new ArgumentNullException("euclideanDomain");
             }
 
+            this.euclideanDomain = euclideanDomain;
             if (euclideanDomain.IsAdditiveUnity(denominator))
             {
                 throw new ArgumentException("Denominator can't be zero.");
             }
 
-            if (euclideanDomain.IsAdditiveUnity(this.numerator))
+            if (euclideanDomain.IsAdditiveUnity(numerator))
             {
                 this.numerator = numerator;
                 this.denominator = euclideanDomain.MultiplicativeUnity;
@@ -68,8 +69,6 @@ namespace Mathematics
                 this.denominator = denominator;
                 this.Reduce();
             }
-
-            this.euclideanDomain = euclideanDomain;
         }
 
         /// <summary>
@@ -243,6 +242,11 @@ namespace Mathematics
         {
             var symmetricNumerator = this.euclideanDomain.AdditiveInverse(this.numerator);
             return new Fraction<T, D>(symmetricNumerator, this.denominator, this.euclideanDomain);
+        }
+
+        public override string ToString()
+        {
+            return string.Format("({0})/({1})", this.numerator, this.denominator);
         }
 
         /// <summary>

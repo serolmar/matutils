@@ -32,6 +32,11 @@ namespace Mathematics
             return left + right;
         }
 
+        public int AddRepeated(int left, int right)
+        {
+            return left * right;
+        }
+
         public bool Equals(int x, int y)
         {
             return x == y;

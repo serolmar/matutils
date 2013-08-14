@@ -138,6 +138,19 @@ namespace Mathematics
             }
         }
 
+        public Fraction<T, D> AddRepeated(Fraction<T, D> element, int times)
+        {
+            if (this.euclideanDomain.IsAdditiveUnity(element.Numerator))
+            {
+                return new Fraction<T, D>(element.Numerator, element.Denominator, this.euclideanDomain);
+            }
+            else
+            {
+                var added = this.euclideanDomain.AddRepeated(element.Numerator, times);
+                return new Fraction<T, D>(added, element.Denominator, this.euclideanDomain);
+            }
+        }
+
         public bool Equals(Fraction<T, D> x, Fraction<T, D> y)
         {
             if (x == null && y == null)

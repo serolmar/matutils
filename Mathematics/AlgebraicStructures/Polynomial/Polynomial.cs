@@ -354,8 +354,14 @@
                                 {
                                     result.variables.Add(variable.Clone());
                                 }
-
-                                result.coeffsMap.Add(resultDegree, resultCoeff);
+                            }
+                        }
+                        else if(!this.polynomialCoeffRing.IsAdditiveUnity(term.Value))
+                        {
+                            result.coeffsMap.Add(resultDegree, term.Value);
+                            foreach (var variable in appendResultVars)
+                            {
+                                result.variables.Add(variable.Clone());
                             }
                         }
                     }

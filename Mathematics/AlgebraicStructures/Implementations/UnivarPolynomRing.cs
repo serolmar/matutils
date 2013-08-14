@@ -123,5 +123,10 @@ namespace Mathematics
                 return value.IsUnity;
             }
         }
+
+        public UnivariatePolynomialNormalForm<CoeffType, RingType> AddRepeated(UnivariatePolynomialNormalForm<CoeffType, RingType> element, int times)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

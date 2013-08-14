@@ -67,6 +67,30 @@ namespace Mathematics
             }
         }
 
+
+        public UnivariatePolynomialNormalForm(IDictionary<int, CoeffType> terms, string variable, RingType ring)
+            : this(variable, ring)
+        {
+            if (terms == null)
+            {
+                throw new ArgumentNullException("terms");
+            }
+            else
+            {
+                foreach (var kvp in terms)
+                {
+                    if (kvp.Key < 0)
+                    {
+                        throw new ArgumentException("Negative degrees aren't allowed.");
+                    }
+                    else if (!this.ring.IsAdditiveUnity(kvp.Value))
+                    {
+                        this.terms.Add(kvp.Key, kvp.Value);
+                    }
+                }
+            }
+        }
+
         /// <summary>
         /// Obtém o nome da variável.
         /// </summary>
@@ -287,6 +311,25 @@ namespace Mathematics
             return result;
         }
 
+        /// <summary>
+        /// Obtém a derivada do polinómio corrente.
+        /// </summary>
+        /// <returns>A derivada.</returns>
+        public UnivariatePolynomialNormalForm<CoeffType, RingType> GetPolynomialDerivative()
+        {
+            var result = new UnivariatePolynomialNormalForm<CoeffType, RingType>(this.ring);
+            result.variableName = this.variableName;
+            foreach (var termKvp in this.terms)
+            {
+                if (termKvp.Key > 0)
+                {
+
+                }
+            }
+
+            throw new NotImplementedException();
+        }
+
         #region Operações
         /// <summary>
         /// Obtém a soma do polinómio corrente com o polinómio providenciado.
@@ -431,7 +474,7 @@ namespace Mathematics
                     }
                     else
                     {
-                        result.terms.Add(term.Key, term.Value);
+                        result.terms.Add(term.Key, this.ring.AdditiveInverse(term.Value));
                     }
                 }
 

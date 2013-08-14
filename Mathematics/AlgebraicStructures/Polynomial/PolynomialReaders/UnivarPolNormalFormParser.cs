@@ -25,15 +25,27 @@
         private IParse<CoeffType, string, string> elementsParser;
 
         /// <summary>
+        /// O conversor entre os coeficientes e os inteiros.
+        /// </summary>
+        private IConversion<int, CoeffType> conversion;
+
+        /// <summary>
         /// O nome da variável.
         /// </summary>
         private string variable;
 
-        public UnivarPolNormalFormParser(string variable, IParse<CoeffType, string, string> elementsParser, RingType ring)
+        public UnivarPolNormalFormParser(
+            string variable, 
+            IConversion<int, CoeffType> conversion,
+            IParse<CoeffType, string, string> elementsParser, RingType ring)
         {
             if (string.IsNullOrWhiteSpace(variable))
             {
                 throw new ArgumentException("Variable must hava a non empty value.");
+            }
+            else if (conversion == null)
+            {
+                throw new ArgumentNullException("conversion");
             }
             else if (ring == null)
             {
@@ -46,6 +58,7 @@
             else
             {
                 this.variable = variable;
+                this.conversion = conversion;
                 this.coefficientsRing = ring;
                 this.elementsParser = elementsParser;
                 this.polynomialReader = new UnivariatePolynomialReader<CoeffType, RingType, ISymbol<string, string>[]>(
@@ -58,7 +71,7 @@
         public bool TryParse(ISymbol<string, string>[] symbolListToParse, out UnivariatePolynomialNormalForm<CoeffType, RingType> value)
         {
             var arrayReader = new ArraySymbolReader<string, string>(symbolListToParse, "eof");
-            return this.polynomialReader.TryParsePolynomial(arrayReader, out value);
+            return this.polynomialReader.TryParsePolynomial(arrayReader, this.conversion, out value);
         }
     }
 }

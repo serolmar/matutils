@@ -845,7 +845,7 @@ namespace Mathematics.AlgebraicStructures.Polynomial
             {
                 var scaleFactor = this.GetFactorScale(degreeCountKvp.Key, fixedCompactDegree);
                 scaleFactor.NumeratorNumberMultiply(degreeCountKvp.Value);
-                var auxCoeffProd = MathFunctions.AddPower(coeffProd, scaleFactor.Numerator, this.ring);
+                var auxCoeffProd = this.ring.AddRepeated(coeffProd, scaleFactor.Numerator);
                 result.Add(degreeCountKvp.Key, auxCoeffProd);
             }
 
