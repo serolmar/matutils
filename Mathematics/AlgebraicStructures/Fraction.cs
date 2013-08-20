@@ -192,6 +192,7 @@ namespace Mathematics
 
             var resultNumerator = this.euclideanDomain.Multiply(this.numerator, right.numerator);
             var resultDenominator = this.euclideanDomain.Multiply(this.denominator, right.denominator);
+
             return new Fraction<T, D>(resultNumerator, resultDenominator, this.euclideanDomain);
         }
 

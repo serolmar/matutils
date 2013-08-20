@@ -42,6 +42,7 @@
   <ItemGroup>
     <Compile Include="AlgebraicStructures\Fraction.cs" />
     <Compile Include="AlgebraicStructures\FractionDecompositionResult.cs" />
+    <Compile Include="AlgebraicStructures\FractionParser.cs" />
     <Compile Include="AlgebraicStructures\Implementations\DomainResult.cs" />
     <Compile Include="AlgebraicStructures\Implementations\ElementFractionConversion.cs" />
     <Compile Include="AlgebraicStructures\Implementations\ElementToElementConversion.cs" />
@@ -113,6 +114,7 @@
     <Compile Include="Algorithms\Matrix\EigenProblems\FastDivisionFreeCharPolynomCalculator.cs" />
     <Compile Include="Algorithms\Polynomials\UnivarSquareFreeDecomposition.cs" />
     <Compile Include="BacheBezoutResult.cs" />
+    <Compile Include="AlgebraicStructures\FractionExpressionParser.cs" />
     <Compile Include="MathFunctions.cs" />
     <Compile Include="Algorithms\Simplex\RevisedSimplexWithDoubles.cs" />
     <Compile Include="Algorithms\Transportation\MaxDoubleNumberField.cs" />

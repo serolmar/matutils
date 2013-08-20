@@ -6,7 +6,7 @@ using Utilities.Parsers;
 
 namespace Utilities.Parsers
 {
-    class StringSymbol : ISymbol<string,string>
+    class StringSymbol<SymbType> : ISymbol<string, SymbType>
     {
         #region ISymbol Members
 
@@ -16,12 +16,13 @@ namespace Utilities.Parsers
             set;
         }
 
-        public string SymbolType
+        public SymbType SymbolType
         {
             get;
             set;
         }
         #endregion
+
         public override string ToString()
         {
             return string.Format("{0}:{1}", this.SymbolValue, this.SymbolType);

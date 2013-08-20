@@ -92,6 +92,17 @@ namespace Mathematics
         }
 
         /// <summary>
+        /// O anel associado ao polinómio.
+        /// </summary>
+        public RingType Ring
+        {
+            get
+            {
+                return this.ring;
+            }
+        }
+
+        /// <summary>
         /// Obtém o nome da variável.
         /// </summary>
         public string VariableName
@@ -319,15 +330,16 @@ namespace Mathematics
         {
             var result = new UnivariatePolynomialNormalForm<CoeffType, RingType>(this.ring);
             result.variableName = this.variableName;
+            result.terms = new Dictionary<int, CoeffType>();
             foreach (var termKvp in this.terms)
             {
                 if (termKvp.Key > 0)
                 {
-
+                    result.terms.Add(termKvp.Key -1, this.ring.AddRepeated(termKvp.Value, termKvp.Key));
                 }
             }
 
-            throw new NotImplementedException();
+            return result;
         }
 
         #region Operações

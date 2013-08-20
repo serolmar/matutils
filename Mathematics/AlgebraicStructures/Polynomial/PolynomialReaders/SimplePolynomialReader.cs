@@ -18,7 +18,7 @@
         /// <summary>
         /// O leitor de inteiros.
         /// </summary>
-        private IParse<int, string, string> integerParser = new IntegerParser();
+        private IParse<int, string, string> integerParser = new IntegerParser<string>();
 
         /// <summary>
         /// O anel responsável pela aplicação das operações sobre os coeficientes.

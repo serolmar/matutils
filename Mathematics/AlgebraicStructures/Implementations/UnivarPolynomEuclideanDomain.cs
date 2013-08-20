@@ -51,7 +51,7 @@
                     var remainderLeadingDegree = remainderSortedCoeffs.Keys[remainderSortedCoeffs.Keys.Count - 1];
                     var divisorLeadingDegree = divisorSorteCoeffs.Keys[divisorSorteCoeffs.Keys.Count - 1];
                     var inverseDivisorLeadingCoeff = this.field.MultiplicativeInverse(divisorSorteCoeffs[divisorLeadingDegree]);
-                    while (remainderLeadingDegree >= divisorLeadingDegree)
+                    while (remainderLeadingDegree >= divisorLeadingDegree && remainderSortedCoeffs.Count > 0)
                     {
                         var remainderLeadingCoeff = remainderSortedCoeffs[remainderLeadingDegree];
                         var differenceDegree = remainderLeadingDegree - divisorLeadingDegree;
@@ -90,7 +90,14 @@
                             }
                         }
 
-                        remainderLeadingDegree = remainderSortedCoeffs.Keys[remainderSortedCoeffs.Keys.Count - 1];
+                        if (remainderSortedCoeffs.Count > 0)
+                        {
+                            remainderLeadingDegree = remainderSortedCoeffs.Keys[remainderSortedCoeffs.Keys.Count - 1];
+                        }
+                        else
+                        {
+                            remainderLeadingDegree = 0;
+                        }
                     }
 
                     return quotientCoeffs;
@@ -127,7 +134,7 @@
                     var remainderLeadingDegree = remainderSortedCoeffs.Keys[remainderSortedCoeffs.Keys.Count - 1];
                     var divisorLeadingDegree = divisorSorteCoeffs.Keys[divisorSorteCoeffs.Keys.Count - 1];
                     var inverseDivisorLeadingCoeff = this.field.MultiplicativeInverse(divisorSorteCoeffs[divisorLeadingDegree]);
-                    while (remainderLeadingDegree >= divisorLeadingDegree)
+                    while (remainderLeadingDegree >= divisorLeadingDegree && remainderSortedCoeffs.Count > 0)
                     {
                         var remainderLeadingCoeff = remainderSortedCoeffs[remainderLeadingDegree];
                         var differenceDegree = remainderLeadingDegree - divisorLeadingDegree;
@@ -165,7 +172,14 @@
                             }
                         }
 
-                        remainderLeadingDegree = remainderSortedCoeffs.Keys[remainderSortedCoeffs.Keys.Count - 1];
+                        if (remainderSortedCoeffs.Count > 0)
+                        {
+                            remainderLeadingDegree = remainderSortedCoeffs.Keys[remainderSortedCoeffs.Keys.Count - 1];
+                        }
+                        else
+                        {
+                            remainderLeadingDegree = 0;
+                        }
                     }
 
                     var remainder = new UnivariatePolynomialNormalForm<CoeffType, FieldType>(remainderSortedCoeffs, this.variableName, this.field);
@@ -206,7 +220,7 @@
                     var remainderLeadingDegree = remainderSortedCoeffs.Keys[remainderSortedCoeffs.Keys.Count - 1];
                     var divisorLeadingDegree = divisorSorteCoeffs.Keys[divisorSorteCoeffs.Keys.Count - 1];
                     var inverseDivisorLeadingCoeff = this.field.MultiplicativeInverse(divisorSorteCoeffs[divisorLeadingDegree]);
-                    while (remainderLeadingDegree >= divisorLeadingDegree)
+                    while (remainderLeadingDegree >= divisorLeadingDegree && remainderSortedCoeffs.Count > 0)
                     {
                         var remainderLeadingCoeff = remainderSortedCoeffs[remainderLeadingDegree];
                         var differenceDegree = remainderLeadingDegree - divisorLeadingDegree;
@@ -245,7 +259,14 @@
                             }
                         }
 
-                        remainderLeadingDegree = remainderSortedCoeffs.Keys[remainderSortedCoeffs.Keys.Count - 1];
+                        if (remainderSortedCoeffs.Count > 0)
+                        {
+                            remainderLeadingDegree = remainderSortedCoeffs.Keys[remainderSortedCoeffs.Keys.Count - 1];
+                        }
+                        else
+                        {
+                            remainderLeadingDegree = 0;
+                        }
                     }
 
                     var remainder = new UnivariatePolynomialNormalForm<CoeffType, FieldType>(remainderSortedCoeffs, this.variableName, this.field);

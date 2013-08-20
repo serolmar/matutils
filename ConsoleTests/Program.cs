@@ -27,19 +27,20 @@
 
         public static void Test12()
         {
-            var firstInput = "x^3-1/3*x^2+x/5-1/2";
+            var firstInput = "    x^3-1/3*x^2+ - -x/5-1/2";
             var secondInput = "x^2-x/2+1";
+            var thirdInput = "x^2-2*x+1";
 
             var reader = new StringReader(firstInput);
             var stringSymbolReader = new StringSymbolReader(reader, false);
             var integerDomain = new IntegerDomain();
             var fractionField = new FractionField<int, IntegerDomain>(integerDomain);
-            var integerParser = new IntegerParser();
+            var integerParser = new IntegerParser<string>();
             var fractionParser = new ElementFractionParser<int, IntegerDomain>(integerParser, integerDomain);
             var polynomialParser = new UnivariatePolynomialReader<
                 Fraction<int, IntegerDomain>, 
-                FractionField<int, IntegerDomain>, 
-                CharSymbolReader>(
+                FractionField<int, IntegerDomain>,
+                CharSymbolReader<string>>(
                 "x", 
                 fractionParser, 
                 fractionField);
@@ -72,6 +73,24 @@
             {
                 Console.WriteLine("Can't parse the first polynomial.");
             }
+
+            reader = new StringReader(thirdInput);
+            stringSymbolReader = new StringSymbolReader(reader, false);
+            var thirdPol = default(UnivariatePolynomialNormalForm<Fraction<int, IntegerDomain>, FractionField<int, IntegerDomain>>);
+            if (polynomialParser.TryParsePolynomial(stringSymbolReader, fractionConversion, out thirdPol))
+            {
+                var univarSquareFreeAlg = new UnivarSquareFreeDecomposition<Fraction<int, IntegerDomain>, FractionField<int, IntegerDomain>>();
+                var result = univarSquareFreeAlg.Run(thirdPol);
+                Console.WriteLine("The squarefree factors are:");
+                foreach (var factor in result)
+                {
+                    Console.WriteLine(factor);
+                }
+            }
+            else
+            {
+                Console.WriteLine("Can't parse the third polynomial.");
+            }
         }
 
         public static void Test11()
@@ -80,10 +99,10 @@
 
             var reader = new StringReader(input);
             var stringsymbolReader = new StringSymbolReader(reader, true);
-            var integerParser = new IntegerParser();
+            var integerParser = new IntegerParser<string>();
 
             var arrayMatrixFactory = new ArrayMatrixFactory<int>();
-            var arrayMatrixReader = new ConfigMatrixReader<int, string, string, CharSymbolReader>(3, 3, arrayMatrixFactory);
+            var arrayMatrixReader = new ConfigMatrixReader<int, string, string, CharSymbolReader<string>>(3, 3, arrayMatrixFactory);
             arrayMatrixReader.MapInternalDelimiters("left_bracket", "right_bracket");
             arrayMatrixReader.AddBlanckSymbolType("blancks");
             arrayMatrixReader.SeparatorSymbType = "comma";
@@ -136,7 +155,7 @@
         {
             var input = "[[1-x,2],[4, 3-x]]";
             var inputReader = new StringSymbolReader(new StringReader(input), false);
-            var integerParser = new IntegerParser();
+            var integerParser = new IntegerParser<string>();
             var integerDomain = new IntegerDomain();
             var conversion = new ElementToElementConversion<int>();
             var univariatePolParser = new UnivarPolNormalFormParser<int, IntegerDomain>(
@@ -146,7 +165,7 @@
                 integerDomain);
 
             var arrayMatrixFactory = new ArrayMatrixFactory<UnivariatePolynomialNormalForm<int, IntegerDomain>>();
-            var arrayReader = new ConfigMatrixReader<UnivariatePolynomialNormalForm<int, IntegerDomain>, string, string, CharSymbolReader>(
+            var arrayReader = new ConfigMatrixReader<UnivariatePolynomialNormalForm<int, IntegerDomain>, string, string, CharSymbolReader<string>>(
                 2,
                 2,
                 arrayMatrixFactory);
@@ -185,10 +204,10 @@
         static void Test7()
         {
             var input = "x+y^2*(z-1)^3-x";
-            var integerParser = new IntegerParser();
+            var integerParser = new IntegerParser<string>();
 
             var inputReader = new StringSymbolReader(new StringReader(input), false);
-            var polynomialParser = new PolynomialReader<int, IntegerDomain, CharSymbolReader>(integerParser, new IntegerDomain());
+            var polynomialParser = new PolynomialReader<int, IntegerDomain, CharSymbolReader<string>>(integerParser, new IntegerDomain());
             var readed = default(Polynomial<int, IntegerDomain>);
             var errors = new List<string>();
             var elementConversion = new ElementToElementConversion<int>();
@@ -216,10 +235,10 @@
 
             var reader = new StringReader(input);
             var stringsymbolReader = new StringSymbolReader(reader, true);
-            var integerParser = new IntegerParser();
+            var integerParser = new IntegerParser<string>();
 
             var arrayMatrixFactory = new ArrayMatrixFactory<int>();
-            var arrayMatrixReader = new ConfigMatrixReader<int, string, string, CharSymbolReader>(3, 3, arrayMatrixFactory);
+            var arrayMatrixReader = new ConfigMatrixReader<int, string, string, CharSymbolReader<string>>(3, 3, arrayMatrixFactory);
             arrayMatrixReader.MapInternalDelimiters("left_bracket", "right_bracket");
             arrayMatrixReader.AddBlanckSymbolType("blancks");
             arrayMatrixReader.SeparatorSymbType = "comma";
@@ -261,14 +280,14 @@
             var input = "[[1,2,3,4,5],[6,7,8,9,0]]";
             var reader = new StringReader(input);
             var stringsymbolReader = new StringSymbolReader(reader, true);
-            var integerParser = new IntegerParser();
+            var integerParser = new IntegerParser<string>();
 
-            var rangeNoConfig = new RangeNoConfigReader<int, string, string, CharSymbolReader>();
+            var rangeNoConfig = new RangeNoConfigReader<int, string, string, CharSymbolReader<string>>();
             rangeNoConfig.MapInternalDelimiters("left_bracket", "right_bracket");
             rangeNoConfig.AddBlanckSymbolType("blancks");
             rangeNoConfig.SeparatorSymbType = "comma";
 
-            var multiDimensionalRangeReader = new MultiDimensionalRangeReader<int, string, string, CharSymbolReader>(rangeNoConfig);
+            var multiDimensionalRangeReader = new MultiDimensionalRangeReader<int, string, string, CharSymbolReader<string>>(rangeNoConfig);
             var range = default(MultiDimensionalRange<int>);
             var errors = new List<string>();
             if (multiDimensionalRangeReader.TryParseRange(stringsymbolReader, integerParser, errors, out range))
@@ -381,12 +400,12 @@
         static void Test1()
         {
             Console.WriteLine("Please insert expression to be evaluated:");
-            var input = Console.ReadLine();
-            var reader = new StringReader(input);
-            var result = new IntegerExpressionParser().Parse(reader);
+            //var input = Console.ReadLine();
+            //var reader = new StringReader(input);
+            //var result = new IntegerExpressionParser<TextReader>().Parse(reader);
             // var result = new DoubleExpressionParser().Parse(reader);
             //var result = new BoolExpressionParser().Parse(reader);
-            Console.WriteLine("The result is {0}.", result);
+            //Console.WriteLine("The result is {0}.", result);
 
             //var ring = new IntegerRing();
             //var polList = new List<Polynomial<int, IntegerRing>>();

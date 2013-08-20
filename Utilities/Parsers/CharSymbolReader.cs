@@ -7,17 +7,24 @@ using Utilities.Parsers;
 
 namespace Utilities.Parsers
 {
-    public class CharSymbolReader : MementoSymbolReader<TextReader, string, string>
+    public class CharSymbolReader<SymbType> : MementoSymbolReader<TextReader, string, SymbType>
     {
-        public delegate string TypeOfReadedChar(char c);
+        public delegate SymbType TypeOfReadedChar(char c);
 
-        private readonly static string genericType = "any";
-        private readonly static string endOfFileType = "eof";
+        /// <summary>
+        /// O tipo por defeito.
+        /// </summary>
+        private SymbType genericType;
+
+        /// <summary>
+        /// O tipo associado ao fim de ficheiro.
+        /// </summary>
+        private SymbType endOfFileType;
 
         private TypeOfReadedChar deciderFunction = null;
 
-        private Dictionary<char, string> charTypes = new Dictionary<char, string>();
-        List<StructRangeType> registeredRanges = new List<StructRangeType>();
+        private Dictionary<char, SymbType> charTypes = new Dictionary<char, SymbType>();
+        List<StructRangeType<SymbType>> registeredRanges = new List<StructRangeType<SymbType>>();
 
         public TypeOfReadedChar DeciderFunction
         {
@@ -35,9 +42,47 @@ namespace Utilities.Parsers
             }
         }
 
+        public SymbType GenericType
+        {
+            get
+            {
+                return this.genericType;
+            }
+            set
+            {
+                if (value == null)
+                {
+                    throw new ExpressionReaderException("Type can't be null.");
+                }
+                else
+                {
+                    this.genericType = value;
+                }
+            }
+        }
+
+        public SymbType EndOfFileType
+        {
+            get
+            {
+                return this.endOfFileType;
+            }
+            set
+            {
+                if (value == null)
+                {
+                    throw new ExpressionReaderException("Type can't be null.");
+                }
+                else
+                {
+                    this.endOfFileType = value;
+                }
+            }
+        }
+
         public CharSymbolReader(TextReader inputReader) : base(inputReader) { }
 
-        public void RegisterCharType(char charToRegister, string typeOfChar)
+        public void RegisterCharType(char charToRegister, SymbType typeOfChar)
         {
             if (this.started)
             {
@@ -65,7 +110,7 @@ namespace Utilities.Parsers
             }
         }
 
-        public void RegisterCharRangeType(char charOne, char charTwo, string type)
+        public void RegisterCharRangeType(char charOne, char charTwo, SymbType type)
         {
             if (this.started)
             {
@@ -74,7 +119,7 @@ namespace Utilities.Parsers
             CharRange range = new CharRange(charOne, charTwo);
             if (!range.IsEmptyRange() && !type.Equals(string.Empty))
             {
-                this.registeredRanges.Add(new StructRangeType() { Range = range, Type = type });
+                this.registeredRanges.Add(new StructRangeType<SymbType>() { Range = range, Type = type });
             }
         }
 
@@ -88,7 +133,7 @@ namespace Utilities.Parsers
             this.registeredRanges.Clear();
         }
 
-        public override ISymbol<string,string> Peek()
+        public override ISymbol<string, SymbType> Peek()
         {
             if (!this.started)
             {
@@ -98,11 +143,13 @@ namespace Utilities.Parsers
             {
                 this.AddNextSymbolFromStream();
             }
-            StringSymbol result = new StringSymbol()
+
+            var result = new StringSymbol<SymbType>()
             {
                 SymbolType = this.symbolBuffer[this.bufferPointer].SymbolType,
                 SymbolValue = this.symbolBuffer[this.bufferPointer].SymbolValue
             };
+
             return result;
         }
 
@@ -126,13 +173,14 @@ namespace Utilities.Parsers
         //    }
         //}
 
-        public override ISymbol<string,string> Get()
+        public override ISymbol<string,SymbType> Get()
         {
             if (!this.started)
             {
                 this.started = true;
             }
-            ISymbol<string, string> result = this.Peek();
+
+            var result = this.Peek();
             if (result.SymbolType.Equals(endOfFileType))
             {
                 return result;
@@ -154,10 +202,10 @@ namespace Utilities.Parsers
 
         public override bool IsAtEOF()
         {
-            return this.Peek().SymbolType.Equals(CharSymbolReader.endOfFileType);
+            return this.Peek().SymbolType.Equals(this.endOfFileType);
         }
 
-        public override bool IsAtEOFSymbol(ISymbol<string, string> symbol)
+        public override bool IsAtEOFSymbol(ISymbol<string, SymbType> symbol)
         {
             if (symbol == null)
             {
@@ -165,7 +213,7 @@ namespace Utilities.Parsers
             }
             else
             {
-                return symbol.SymbolType.Equals(CharSymbolReader.endOfFileType);
+                return symbol.SymbolType.Equals(this.endOfFileType);
             }
         }
 
@@ -174,11 +222,11 @@ namespace Utilities.Parsers
         /// </summary>
         private void AddNextSymbolFromStream()
         {
-            StringSymbol result = new StringSymbol();
+            var result = new StringSymbol<SymbType>();
             int readedSymbol = this.inputStream.Read();
             if (readedSymbol == -1)
             {
-                result.SymbolType = CharSymbolReader.endOfFileType;
+                result.SymbolType = this.endOfFileType;
             }
             else
             {
@@ -188,26 +236,29 @@ namespace Utilities.Parsers
                 {
                     result.SymbolType = this.deciderFunction.Invoke(readedChar);
                 }
-                string tempSymbol = this.GetCharTypeFromRanges(readedSymbol);
-                if (!tempSymbol.Equals(string.Empty))
+
+                var tempSymbol = this.GetCharTypeFromRanges(readedSymbol);
+                if (tempSymbol != null)
                 {
                     result.SymbolType = tempSymbol;
                 }
+
                 if (this.charTypes.ContainsKey(readedChar))
                 {
                     result.SymbolType = this.charTypes[readedChar];
                 }
-                else if (string.IsNullOrEmpty(result.SymbolType))
+                else if (result.SymbolType == null)
                 {
-                    result.SymbolType = CharSymbolReader.genericType;
+                    result.SymbolType = this.genericType;
                 }
             }
+
             this.symbolBuffer.Add(result);
         }
 
-        private string GetCharTypeFromRanges(int c)
+        private SymbType GetCharTypeFromRanges(int c)
         {
-            string result = string.Empty;
+            var result = default(SymbType);
             foreach (var range in this.registeredRanges)
             {
                 if (range.Range.HasChar(c))
@@ -215,6 +266,7 @@ namespace Utilities.Parsers
                     result = range.Type;
                 }
             }
+
             return result;
         }
 
@@ -343,10 +395,10 @@ namespace Utilities.Parsers
             }
         }
 
-        private struct StructRangeType
+        private struct StructRangeType<Symb>
         {
             public CharRange Range { get; set; }
-            public string Type { get; set; }
+            public Symb Type { get; set; }
         }
     }
 }

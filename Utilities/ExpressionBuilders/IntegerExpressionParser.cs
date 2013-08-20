@@ -7,34 +7,33 @@ using Utilities.Parsers;
 
 namespace Utilities.ExpressionBuilders
 {
-    public class IntegerExpressionParser
+    public class IntegerExpressionParser : IParse<int, string, string>
     {
-        public int Parse(string valueToParse)
-        {
-            if (string.IsNullOrWhiteSpace(valueToParse))
-            {
-                throw new ExpressionReaderException("Error: no value provided.");
-            }
+        private ExpressionReader<int, string, string, ISymbol<string, string>[]> expressionReader;
 
-            var stringReader = new StringReader(valueToParse);
-            return this.Parse(stringReader);
+        public IntegerExpressionParser()
+        {
+            this.expressionReader = new ExpressionReader<int, string, string, ISymbol<string, string>[]>(
+                new IntegerParser<string>());
+            this.expressionReader.RegisterBinaryOperator("plus", Add, 0);
+            this.expressionReader.RegisterBinaryOperator("times", Multiply, 1);
+            this.expressionReader.RegisterBinaryOperator("minus", Subtract, 0);
+            this.expressionReader.RegisterUnaryOperator("minus", Symmetric, 0);
+            this.expressionReader.RegisterBinaryOperator("over", Divide, 1);
+            this.expressionReader.RegisterBinaryOperator("mod", Remainder, 1);
+            this.expressionReader.RegisterBinaryOperator("hat", Power, 2);
+            this.expressionReader.RegisterExpressionDelimiterTypes("left_parenthesis", "right_parenthesis");
+            this.expressionReader.RegisterSequenceDelimiterTypes("left_parenthesis", "right_parenthesis");
+            this.expressionReader.AddVoid("blancks");
+            this.expressionReader.AddVoid("space");
+            this.expressionReader.AddVoid("carriage_return");
+            this.expressionReader.AddVoid("new_line");
         }
 
-        public int Parse(TextReader reader)
+        public bool TryParse(ISymbol<string, string>[] symbolListToParse, out int value)
         {
-            var symbolReader = new StringSymbolReader(reader, false);
-            ExpressionReader<int, string, string, CharSymbolReader> result = new ExpressionReader<int, string, string, CharSymbolReader>(new IntegerParser());
-            result.RegisterBinaryOperator("plus", Add, 0);
-            result.RegisterBinaryOperator("times", Multiply, 1);
-            result.RegisterBinaryOperator("minus", Subtract, 0);
-            result.RegisterUnaryOperator("minus", Symmetric, 0);
-            result.RegisterExpressionDelimiterTypes("left_parenthesis", "right_parenthesis");
-            result.RegisterSequenceDelimiterTypes("left_parenthesis", "right_parenthesis");
-            result.AddVoid("space");
-            result.AddVoid("carriage_return");
-            result.AddVoid("new_line");
-            
-            return result.Parse(symbolReader);
+            var arrayReader = new ArraySymbolReader<string, string>(symbolListToParse, "eof");
+            return this.expressionReader.TryParse(arrayReader, out value);
         }
 
         private int Add(int i, int j)
@@ -65,6 +64,23 @@ namespace Utilities.ExpressionBuilders
         private int Symmetric(int i)
         {
             return -i;
+        }
+
+        private int Remainder(int dividend, int divisor)
+        {
+            return dividend % divisor;
+        }
+
+        private int Power(int value, int exponent)
+        {
+            if (exponent < 0)
+            {
+                throw new ExpressionReaderException("Negative exponents aren't allowed.");
+            }
+            else
+            {
+                return (int)Math.Pow(value, exponent);
+            }
         }
     }
 }

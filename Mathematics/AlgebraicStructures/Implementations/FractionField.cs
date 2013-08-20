@@ -38,6 +38,14 @@ namespace Mathematics
             }
         }
 
+        public D EuclideanDomain
+        {
+            get
+            {
+                return this.euclideanDomain;
+            }
+        }
+
         public Fraction<T, D> AdditiveUnity
         {
             get

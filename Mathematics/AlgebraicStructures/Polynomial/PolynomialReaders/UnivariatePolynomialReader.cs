@@ -125,6 +125,7 @@ namespace Mathematics
                 }
             }
 
+            expressionReader.AddVoid("blancks");
             expressionReader.AddVoid("space");
             expressionReader.AddVoid("carriage_return");
             expressionReader.AddVoid("new_line");

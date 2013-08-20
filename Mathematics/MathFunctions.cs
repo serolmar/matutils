@@ -1,4 +1,4 @@
-﻿namespace Mathematics.Algorithms
+﻿namespace Mathematics
 {
     using System;
     using System.Collections.Generic;
@@ -140,7 +140,7 @@
 
             var a = firstValue;
             var b = secondValue;
-            while (!euclideanDomain.Equals(b, euclideanDomain.AdditiveUnity))
+            while (!euclideanDomain.IsAdditiveUnity(b))
             {
                 T temp = b;
                 b = euclideanDomain.Rem(a, b);

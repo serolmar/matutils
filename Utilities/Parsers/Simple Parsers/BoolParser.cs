@@ -5,9 +5,9 @@ using System.Text;
 
 namespace Utilities.Parsers
 {
-    public class BoolParser : IParse<bool, string, string>
+    public class BoolParser<SymbType> : IParse<bool, string, SymbType>
     {
-        public bool TryParse(ISymbol<string, string>[] symbolListToParse, out bool value)
+        public bool TryParse(ISymbol<string, SymbType>[] symbolListToParse, out bool value)
         {
             value = false;
             if (symbolListToParse.Length > 1)

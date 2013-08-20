@@ -8,17 +8,17 @@ using Utilities.Parsers;
 
 namespace Utilities.Parsers
 {
-    public class StringSymbolReader : MementoSymbolReader<CharSymbolReader,string, string>
+    public class StringSymbolReader : MementoSymbolReader<CharSymbolReader<string>,string, string>
     {
         private static string endOfFile = "eof";
 
-        private ISymbol<string,string> currentSymbol = new StringSymbol();
+        private ISymbol<string,string> currentSymbol = new StringSymbol<string>();
         private List<IState<TextReader, string, string>> stateList = new List<IState<TextReader, string, string>>();
         private Dictionary<string, string> keyWords = new Dictionary<string, string>();
         private bool readNegativeNumbers = true;
 
         public StringSymbolReader(TextReader reader, bool isToReadNegativeNumbers)
-            : base(new CppCompliantCharSymbolReaderBuilder().BuildReader(reader) as CharSymbolReader)
+            : base(new CppCompliantCharSymbolReaderBuilder().BuildReader(reader) as CharSymbolReader<string>)
         {
             this.readNegativeNumbers = isToReadNegativeNumbers;
             this.currentSymbol.SymbolType = "any";
@@ -51,7 +51,7 @@ namespace Utilities.Parsers
             {
                 this.AddNextSymbolFromStream();
             }
-            StringSymbol result = new StringSymbol()
+            StringSymbol<string> result = new StringSymbol<string>()
             {
                 SymbolType = this.symbolBuffer[this.bufferPointer].SymbolType,
                 SymbolValue = this.symbolBuffer[this.bufferPointer].SymbolValue
@@ -112,12 +112,12 @@ namespace Utilities.Parsers
 
         private void AddNextSymbolFromStream()
         {
-            this.currentSymbol = new StringSymbol() { SymbolType = string.Empty, SymbolValue = string.Empty };
+            this.currentSymbol = new StringSymbol<string>() { SymbolType = string.Empty, SymbolValue = string.Empty };
             StateMachine<TextReader, string, string> machine = new StateMachine<TextReader, string,string>(
                 this.stateList[0],
                 this.stateList[16]);
             machine.RunMachine(this.inputStream);
-            StringSymbol result = new StringSymbol();
+            var result = new StringSymbol<string>();
             result.SymbolType = this.currentSymbol.SymbolType;
             result.SymbolValue = this.currentSymbol.SymbolValue;
             this.symbolBuffer.Add(result);
@@ -627,7 +627,7 @@ namespace Utilities.Parsers
                     val = val.Substring(0, val.Length - 2);
                     reader.UnGet();
                 }
-                this.currentSymbol = new StringSymbol()
+                this.currentSymbol = new StringSymbol<string>()
                 {
                     SymbolType = this.GetTypeFromNumberRepresentation(val),
                     SymbolValue = val
