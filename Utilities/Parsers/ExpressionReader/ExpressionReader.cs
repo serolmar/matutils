@@ -24,52 +24,53 @@ namespace Utilities.Parsers
     /// <returns>The result of operation.</returns>
     public delegate ObjType UnaryOperator<ObjType>(ObjType operand);
 
-    public class ExpressionReader<ObjType, InputReader>
+    public class ExpressionReader<ObjType, SymbValue, SymbType, InputReader>
     {
         /// <summary>
         /// Parse the objects from readed elements.
         /// </summary>
-        private IParse<ObjType, string, string> parser;
+        private IParse<ObjType, SymbValue, SymbType> parser;
 
         /// <summary>
         /// The list of available states.
         /// </summary>
-        private List<IState<InputReader, string, string>> stateList = new List<IState<InputReader, string, string>>();
+        private List<IState<InputReader, SymbValue, SymbType>> stateList = new List<IState<InputReader, SymbValue, SymbType>>();
 
         /// <summary>
         /// A list with the binary operators and precedences.
         /// </summary>
-        private Dictionary<string, SOperatorPrecedence<BinaryOperator<ObjType>>> binaryOperators;
+        private Dictionary<SymbType, SOperatorPrecedence<BinaryOperator<ObjType>>> binaryOperators;
 
         /// <summary>
         /// A list with unary operators and precedences.
         /// </summary>
-        private Dictionary<string, SOperatorPrecedence<UnaryOperator<ObjType>>> unaryOperators;
+        private Dictionary<SymbType, SOperatorPrecedence<UnaryOperator<ObjType>>> unaryOperators;
 
         /// <summary>
         /// The mapped expression delimiters. An expression delimiter alter the operators precedences.
         /// </summary>
-        private Dictionary<string, List<ExpressionCompoundDelimiter<ObjType>>> expressionDelimitersTypes = new Dictionary<string, List<ExpressionCompoundDelimiter<ObjType>>>();
+        private Dictionary<SymbType, List<ExpressionCompoundDelimiter<ObjType, SymbType>>> expressionDelimitersTypes = 
+            new Dictionary<SymbType, List<ExpressionCompoundDelimiter<ObjType, SymbType>>>();
 
         /// <summary>
         /// Maps the external delimiters. External delimiters bounds entire elementary subexpressions.
         /// </summary>
-        private Dictionary<string, List<string>> externalDelimitersTypes = new Dictionary<string, List<string>>();
+        private Dictionary<SymbType, List<SymbType>> externalDelimitersTypes = new Dictionary<SymbType, List<SymbType>>();
 
         /// <summary>
         /// Maps sequence delimiters. Sequence delimiters bounds function expressions.
         /// </summary>
-        private Dictionary<string, List<string>> sequenceDelimitersTypes = new Dictionary<string, List<string>>();
+        private Dictionary<SymbType, List<SymbType>> sequenceDelimitersTypes = new Dictionary<SymbType, List<SymbType>>();
 
         /// <summary>
         /// A list with all items in expression that will be ignored like blanck spaces or changes of line.
         /// </summary>
-        private List<string> expressionVoids = new List<string>();
+        private List<SymbType> expressionVoids = new List<SymbType>();
 
         /// <summary>
         /// The operators stack.
         /// </summary>
-        private Stack<OperatorDefinition<string>> operatorStack = new Stack<OperatorDefinition<string>>();
+        private Stack<OperatorDefinition<SymbType>> operatorStack = new Stack<OperatorDefinition<SymbType>>();
 
         /// <summary>
         /// The elements stack.
@@ -79,7 +80,7 @@ namespace Utilities.Parsers
         /// <summary>
         /// The current readed value.
         /// </summary>
-        private List<ISymbol<string, string>> currentSymbolValues = new List<ISymbol<string,string>>();
+        private List<ISymbol<SymbValue, SymbType>> currentSymbolValues = new List<ISymbol<SymbValue, SymbType>>();
 
         /// <summary>
         /// Mensagens de erro.
@@ -90,18 +91,18 @@ namespace Utilities.Parsers
         /// Intantiates a new instance of the <see cref="ExpressionReader"/> class.
         /// </summary>
         /// <param name="parser">The expression element's parser.</param>
-        public ExpressionReader(IParse<ObjType, string, string> parser)
+        public ExpressionReader(IParse<ObjType, SymbValue, SymbType> parser)
         {
             this.parser = parser;
-            this.binaryOperators = new Dictionary<string, SOperatorPrecedence<BinaryOperator<ObjType>>>();
-            this.unaryOperators = new Dictionary<string, SOperatorPrecedence<UnaryOperator<ObjType>>>();
-            this.stateList.Add(new DelegateDrivenState<InputReader, string, string>(0, "start", this.StartTransition));
-            this.stateList.Add(new DelegateDrivenState<InputReader, string, string>(1, "end", this.EndTransition));
-            this.stateList.Add(new DelegateDrivenState<InputReader, string, string>(2, "element", this.ElementTransition));
-            this.stateList.Add(new DelegateDrivenState<InputReader, string, string>(3, "operator", this.OperatorTransition));
-            this.stateList.Add(new DelegateDrivenState<InputReader, string, string>(4, "external delimiters", this.InsideExternalDelimitersTransition));
-            this.stateList.Add(new DelegateDrivenState<InputReader, string, string>(5, "sequence peek", this.SequencePeekDelimitersTransition));
-            this.stateList.Add(new DelegateDrivenState<InputReader, string, string>(6, "end", this.InsideSequenceDelimitersTransition));
+            this.binaryOperators = new Dictionary<SymbType, SOperatorPrecedence<BinaryOperator<ObjType>>>();
+            this.unaryOperators = new Dictionary<SymbType, SOperatorPrecedence<UnaryOperator<ObjType>>>();
+            this.stateList.Add(new DelegateDrivenState<InputReader, SymbValue, SymbType>(0, "start", this.StartTransition));
+            this.stateList.Add(new DelegateDrivenState<InputReader, SymbValue, SymbType>(1, "end", this.EndTransition));
+            this.stateList.Add(new DelegateDrivenState<InputReader, SymbValue, SymbType>(2, "element", this.ElementTransition));
+            this.stateList.Add(new DelegateDrivenState<InputReader, SymbValue, SymbType>(3, "operator", this.OperatorTransition));
+            this.stateList.Add(new DelegateDrivenState<InputReader, SymbValue, SymbType>(4, "external delimiters", this.InsideExternalDelimitersTransition));
+            this.stateList.Add(new DelegateDrivenState<InputReader, SymbValue, SymbType>(5, "sequence peek", this.SequencePeekDelimitersTransition));
+            this.stateList.Add(new DelegateDrivenState<InputReader, SymbValue, SymbType>(6, "end", this.InsideSequenceDelimitersTransition));
         }
 
         #region Public Methods
@@ -110,10 +111,12 @@ namespace Utilities.Parsers
         /// </summary>
         /// <param name="reader">The symbol reader.</param>
         /// <returns>The parsed object.</returns>
-        public ObjType Parse(SymbolReader<InputReader, string, string> reader)
+        public ObjType Parse(SymbolReader<InputReader, SymbValue, SymbType> reader)
         {
             this.errorMessages.Clear();
-            StateMachine<InputReader, string, string> stateMchine = new StateMachine<InputReader, string, string>(this.stateList[0], this.stateList[1]);
+            StateMachine<InputReader, SymbValue, SymbType> stateMchine = new StateMachine<InputReader, SymbValue, SymbType>(
+                this.stateList[0], 
+                this.stateList[1]);
             stateMchine.RunMachine(reader);
             if (this.errorMessages.Count > 0)
             {
@@ -139,16 +142,16 @@ namespace Utilities.Parsers
             }
         }
 
-        public bool TryParse(SymbolReader<InputReader, string, string> reader, out ObjType result)
+        public bool TryParse(SymbolReader<InputReader, SymbValue, SymbType> reader, out ObjType result)
         {
             return this.TryParse(reader, null, out result);
         }
 
-        public bool TryParse(SymbolReader<InputReader, string, string> reader, List<string> errors, out ObjType result)
+        public bool TryParse(SymbolReader<InputReader, SymbValue, SymbType> reader, List<string> errors, out ObjType result)
         {
             result = default(ObjType);
             this.errorMessages.Clear();
-            StateMachine<InputReader, string, string> stateMchine = new StateMachine<InputReader, string, string>(this.stateList[0], this.stateList[1]);
+            StateMachine<InputReader, SymbValue, SymbType> stateMchine = new StateMachine<InputReader, SymbValue, SymbType>(this.stateList[0], this.stateList[1]);
             stateMchine.RunMachine(reader);
             if (this.errorMessages.Count > 0)
             {
@@ -187,7 +190,7 @@ namespace Utilities.Parsers
         /// <param name="opDesignation">The operator name.</param>
         /// <param name="functionOperator">The operator function delegate.</param>
         /// <param name="precedence">The operator's precedence.</param>
-        public void RegisterBinaryOperator(string opDesignation, BinaryOperator<ObjType> functionOperator, int precedence)
+        public void RegisterBinaryOperator(SymbType opDesignation, BinaryOperator<ObjType> functionOperator, int precedence)
         {
             if (!this.binaryOperators.ContainsKey(opDesignation))
             {
@@ -215,7 +218,7 @@ namespace Utilities.Parsers
         /// <param name="opDesignation">The operator name.</param>
         /// <param name="functionOperator">The operator function delegate.</param>
         /// <param name="precedence">The operator's precedence.</param>
-        public void RegisterUnaryOperator(string opDesignation, UnaryOperator<ObjType> functionOperator, int precedence)
+        public void RegisterUnaryOperator(SymbType opDesignation, UnaryOperator<ObjType> functionOperator, int precedence)
         {
             if (this.unaryOperators.ContainsKey(opDesignation))
             {
@@ -242,7 +245,7 @@ namespace Utilities.Parsers
         /// </summary>
         /// <param name="openDelimiter">O delimitador de abertura.</param>
         /// <param name="closeDelimiter">O respectivo delimitador de fecho.</param>
-        public void RegisterExternalDelimiterTypes(string openDelimiter, string closeDelimiter)
+        public void RegisterExternalDelimiterTypes(SymbType openDelimiter, SymbType closeDelimiter)
         {
             if (this.expressionDelimitersTypes.ContainsKey(openDelimiter))
             {
@@ -258,7 +261,7 @@ namespace Utilities.Parsers
             }
             else
             {
-                List<string> temporary = new List<string>();
+                var temporary = new List<SymbType>();
                 temporary.Add(closeDelimiter);
                 this.externalDelimitersTypes.Add(openDelimiter, temporary);
             }
@@ -269,7 +272,7 @@ namespace Utilities.Parsers
         /// </summary>
         /// <param name="openDelimiter">O delimitador de abertura.</param>
         /// <param name="closeDelimiter">O delimitador de fecho.</param>
-        public void RegisterSequenceDelimiterTypes(string openDelimiter, string closeDelimiter)
+        public void RegisterSequenceDelimiterTypes(SymbType openDelimiter, SymbType closeDelimiter)
         {
             if (this.sequenceDelimitersTypes.ContainsKey(openDelimiter))
             {
@@ -280,7 +283,7 @@ namespace Utilities.Parsers
             }
             else
             {
-                List<string> temporary = new List<string>();
+                var temporary = new List<SymbType>();
                 temporary.Add(closeDelimiter);
                 this.sequenceDelimitersTypes.Add(openDelimiter, temporary);
             }
@@ -292,14 +295,14 @@ namespace Utilities.Parsers
         /// </summary>
         /// <param name="openDelimiter">The open delimiter.</param>
         /// <param name="closeDelimiter">The close delimiter.</param>
-        public void RegisterExpressionDelimiterTypes(string openDelimiter, string closeDelimiter, UnaryOperator<ObjType> unaryOp)
+        public void RegisterExpressionDelimiterTypes(SymbType openDelimiter, SymbType closeDelimiter, UnaryOperator<ObjType> unaryOp)
         {
             if (this.externalDelimitersTypes.ContainsKey(openDelimiter))
             {
                 throw new ExpressionReaderException("The specified expression open delimiter was already setup for an external open delimiter.");
             }
 
-            ExpressionCompoundDelimiter<ObjType> compound = new ExpressionCompoundDelimiter<ObjType>() { DelimiterType = closeDelimiter, DelimiterOperator = unaryOp };
+            ExpressionCompoundDelimiter<ObjType, SymbType> compound = new ExpressionCompoundDelimiter<ObjType, SymbType>() { DelimiterType = closeDelimiter, DelimiterOperator = unaryOp };
             if (this.expressionDelimitersTypes.ContainsKey(openDelimiter))
             {
                 if (!this.expressionDelimitersTypes[openDelimiter].Contains(compound))
@@ -309,7 +312,7 @@ namespace Utilities.Parsers
             }
             else
             {
-                List<ExpressionCompoundDelimiter<ObjType>> temporary = new List<ExpressionCompoundDelimiter<ObjType>>();
+                List<ExpressionCompoundDelimiter<ObjType, SymbType>> temporary = new List<ExpressionCompoundDelimiter<ObjType, SymbType>>();
                 temporary.Add(compound);
                 this.expressionDelimitersTypes.Add(openDelimiter, temporary);
             }
@@ -320,7 +323,7 @@ namespace Utilities.Parsers
         /// </summary>
         /// <param name="openDelimiter">O delimitador de abertura.</param>
         /// <param name="closeDelimiter">O delimitador de fecho.</param>
-        public void RegisterExpressionDelimiterTypes(string openDelimiter, string closeDelimiter)
+        public void RegisterExpressionDelimiterTypes(SymbType openDelimiter, SymbType closeDelimiter)
         {
             this.RegisterExpressionDelimiterTypes(openDelimiter, closeDelimiter, null);
         }
@@ -329,46 +332,46 @@ namespace Utilities.Parsers
         /// Adds symbol types that are to be ignored. If an operator is added as a void than it will be ignored.
         /// </summary>
         /// <param name="voidType">The symbol type.</param>
-        public void AddVoid(string voidType)
+        public void AddVoid(SymbType voidType)
         {
             this.expressionVoids.Add(voidType);
         }
         #endregion
 
-        private bool IsBinaryOperator(string operatorType)
+        private bool IsBinaryOperator(SymbType operatorType)
         {
             return this.binaryOperators.ContainsKey(operatorType);
         }
 
-        private bool IsUnaryOperator(string operatorType)
+        private bool IsUnaryOperator(SymbType operatorType)
         {
             return this.unaryOperators.ContainsKey(operatorType);
         }
 
-        private bool IsExpressionOpenDelimiter(string operatorType)
+        private bool IsExpressionOpenDelimiter(SymbType operatorType)
         {
             return this.expressionDelimitersTypes.ContainsKey(operatorType);
         }
 
-        private bool IsExpressionCloseDelimiter(string operatorType)
+        private bool IsExpressionCloseDelimiter(SymbType operatorType)
         {
-            var compound = new ExpressionCompoundDelimiter<ObjType>() { DelimiterType = operatorType };
+            var compound = new ExpressionCompoundDelimiter<ObjType, SymbType>() { DelimiterType = operatorType };
             return (from pair in this.expressionDelimitersTypes
                     where pair.Value.Contains(compound)
                     select pair).Any();
         }
 
-        private bool IsExpressionOpenDelimiterFor(string closeDelimiter, string openDelimiter)
+        private bool IsExpressionOpenDelimiterFor(SymbType closeDelimiter, SymbType openDelimiter)
         {
-            var compound = new ExpressionCompoundDelimiter<ObjType>() { DelimiterType = closeDelimiter };
+            var compound = new ExpressionCompoundDelimiter<ObjType, SymbType>() { DelimiterType = closeDelimiter };
             return (from res in this.expressionDelimitersTypes
                     where res.Key.Equals(openDelimiter) && res.Value.Contains(compound)
                     select res).Any();
         }
 
-        private ExpressionCompoundDelimiter<ObjType> GetDelegateCompoundForPair(string openDelimiterType, string closeDelimiterType)
+        private ExpressionCompoundDelimiter<ObjType, SymbType> GetDelegateCompoundForPair(SymbType openDelimiterType, SymbType closeDelimiterType)
         {
-            var compound = new ExpressionCompoundDelimiter<ObjType>() { DelimiterType = closeDelimiterType };
+            var compound = new ExpressionCompoundDelimiter<ObjType, SymbType>() { DelimiterType = closeDelimiterType };
             var q =
                        (from res in this.expressionDelimitersTypes
                         where res.Key.Equals(openDelimiterType)
@@ -384,9 +387,9 @@ namespace Utilities.Parsers
 
         }
 
-        private bool MapOpenDelimiterType(string operatorTypeToMatch, string openDelimiterType)
+        private bool MapOpenDelimiterType(SymbType operatorTypeToMatch, SymbType openDelimiterType)
         {
-            var compound = new ExpressionCompoundDelimiter<ObjType>() { DelimiterType = openDelimiterType };
+            var compound = new ExpressionCompoundDelimiter<ObjType, SymbType>() { DelimiterType = openDelimiterType };
             if (!this.expressionDelimitersTypes.ContainsKey(operatorTypeToMatch))
             {
                 return false;
@@ -394,26 +397,26 @@ namespace Utilities.Parsers
             return this.expressionDelimitersTypes[operatorTypeToMatch].Contains(compound);
         }
 
-        private bool IsExternalOpenDelimiter(string operatorType)
+        private bool IsExternalOpenDelimiter(SymbType operatorType)
         {
             return this.externalDelimitersTypes.ContainsKey(operatorType);
         }
 
-        private bool IsExternalCloseDelimiter(string operatorType)
+        private bool IsExternalCloseDelimiter(SymbType operatorType)
         {
             return (from pair in this.externalDelimitersTypes
                     where pair.Value.Contains(operatorType)
                     select pair).Any();
         }
 
-        private bool IsExternalCloseDelimiterFor(string closeDelimiter, string openDelimiter)
+        private bool IsExternalCloseDelimiterFor(SymbType closeDelimiter, SymbType openDelimiter)
         {
             return (from res in this.externalDelimitersTypes
                     where res.Key.Equals(openDelimiter) && res.Value.Contains(closeDelimiter)
                     select res).Any();
         }
 
-        private bool MapOpenExternalDelimiterType(string operatorTypeToMatch, string openExternalDelimiterType)
+        private bool MapOpenExternalDelimiterType(SymbType operatorTypeToMatch, SymbType openExternalDelimiterType)
         {
             if (!this.externalDelimitersTypes.ContainsKey(operatorTypeToMatch))
             {
@@ -422,26 +425,26 @@ namespace Utilities.Parsers
             return this.externalDelimitersTypes[operatorTypeToMatch].Contains(openExternalDelimiterType);
         }
 
-        private bool IsSequenceOpenDelimiter(string operatorType)
+        private bool IsSequenceOpenDelimiter(SymbType operatorType)
         {
             return this.sequenceDelimitersTypes.ContainsKey(operatorType);
         }
 
-        private bool IsSequenceCloseDelimiter(string operatorType)
+        private bool IsSequenceCloseDelimiter(SymbType operatorType)
         {
             return (from pair in this.sequenceDelimitersTypes
                     where pair.Value.Contains(operatorType)
                     select pair).Any();
         }
 
-        private bool IsSequenceCloseDelimiterFor(string closeDelimiter, string openDelimiter)
+        private bool IsSequenceCloseDelimiterFor(SymbType closeDelimiter, SymbType openDelimiter)
         {
             return (from res in this.sequenceDelimitersTypes
                     where res.Key.Equals(openDelimiter) && res.Value.Contains(closeDelimiter)
                     select res).Any();
         }
 
-        private bool MapOpenSequenceDelimiterType(string operatorTypeToMatch, string openExternalDelimiterType)
+        private bool MapOpenSequenceDelimiterType(SymbType operatorTypeToMatch, SymbType openExternalDelimiterType)
         {
             if (!this.sequenceDelimitersTypes.ContainsKey(operatorTypeToMatch))
             {
@@ -450,7 +453,7 @@ namespace Utilities.Parsers
             return this.externalDelimitersTypes[operatorTypeToMatch].Contains(openExternalDelimiterType);
         }
 
-        private List<ExpressionCompoundDelimiter<ObjType>> GetExpressionCloseMatches(string openType)
+        private List<ExpressionCompoundDelimiter<ObjType, SymbType>> GetExpressionCloseMatches(SymbType openType)
         {
             try
             {
@@ -458,11 +461,11 @@ namespace Utilities.Parsers
             }
             catch (Exception)
             {
-                return new List<ExpressionCompoundDelimiter<ObjType>>();
+                return new List<ExpressionCompoundDelimiter<ObjType, SymbType>>();
             }
         }
 
-        private List<string> GetExternalCloseMatchcs(string openType)
+        private List<SymbType> GetExternalCloseMatchcs(SymbType openType)
         {
             try
             {
@@ -470,13 +473,13 @@ namespace Utilities.Parsers
             }
             catch (Exception)
             {
-                return new List<string>();
+                return new List<SymbType>();
             }
         }
 
-        private void IgnoreVoids(SymbolReader<InputReader, string, string> symbolReader)
+        private void IgnoreVoids(SymbolReader<InputReader, SymbValue, SymbType> symbolReader)
         {
-            ISymbol<string, string> symbol = symbolReader.Peek();
+            var symbol = symbolReader.Peek();
             while (this.expressionVoids.Contains(symbol.SymbolType))
             {
                 symbolReader.Get();
@@ -484,12 +487,12 @@ namespace Utilities.Parsers
             }
         }
 
-        private ObjType InvokeBinaryOperator(string operatorType, ObjType left, ObjType right)
+        private ObjType InvokeBinaryOperator(SymbType operatorType, ObjType left, ObjType right)
         {
             return this.binaryOperators[operatorType].Op.Invoke(left, right);
         }
 
-        private ObjType InvokeUnaryOperator(string operatorType, ObjType obj)
+        private ObjType InvokeUnaryOperator(SymbType operatorType, ObjType obj)
         {
             return this.unaryOperators[operatorType].Op.Invoke(obj);
         }
@@ -564,7 +567,7 @@ namespace Utilities.Parsers
         /// </summary>
         /// <param name="reader">The symbol reader.</param>
         /// <returns>The next state.</returns>
-        private IState<InputReader, string, string> StartTransition(SymbolReader<InputReader, string, string> reader)
+        private IState<InputReader, SymbValue, SymbType> StartTransition(SymbolReader<InputReader, SymbValue, SymbType> reader)
         {
             this.IgnoreVoids(reader);
             if (reader.IsAtEOF())
@@ -572,16 +575,16 @@ namespace Utilities.Parsers
                 return this.stateList[1];
             }
 
-            ISymbol<string, string> readedSymbol = reader.Peek();
+            var readedSymbol = reader.Peek();
             if (this.IsExpressionOpenDelimiter(readedSymbol.SymbolType))
             {
-                this.operatorStack.Push(new OperatorDefinition<string>(readedSymbol.SymbolType, EOperatorType.INTERNAL_DELIMITER));
+                this.operatorStack.Push(new OperatorDefinition<SymbType>(readedSymbol.SymbolType, EOperatorType.INTERNAL_DELIMITER));
                 reader.Get();
                 return this.stateList[0];
             }
             if (this.IsExternalOpenDelimiter(readedSymbol.SymbolType))
             {
-                this.operatorStack.Push(new OperatorDefinition<string>(readedSymbol.SymbolType, EOperatorType.EXTERNAL_DELIMITER));
+                this.operatorStack.Push(new OperatorDefinition<SymbType>(readedSymbol.SymbolType, EOperatorType.EXTERNAL_DELIMITER));
                 this.currentSymbolValues.Add(readedSymbol);
                 reader.Get();
                 return this.stateList[4];
@@ -595,7 +598,7 @@ namespace Utilities.Parsers
             }
             if (this.IsUnaryOperator(readedSymbol.SymbolType))
             {
-                this.operatorStack.Push(new OperatorDefinition<string>(readedSymbol.SymbolType, EOperatorType.UNARY));
+                this.operatorStack.Push(new OperatorDefinition<SymbType>(readedSymbol.SymbolType, EOperatorType.UNARY));
                 reader.Get();
                 return this.stateList[2];
             }
@@ -611,7 +614,7 @@ namespace Utilities.Parsers
         /// </summary>
         /// <param name="reader">The symbol reader.</param>
         /// <returns>The next state.</returns>
-        private IState<InputReader, string, string> EndTransition(SymbolReader<InputReader, string, string> reader)
+        private IState<InputReader, SymbValue, SymbType> EndTransition(SymbolReader<InputReader, SymbValue, SymbType> reader)
         {
             return null;
         }
@@ -621,7 +624,7 @@ namespace Utilities.Parsers
         /// </summary>
         /// <param name="reader">The symbol reader.</param>
         /// <returns>The next state.</returns>
-        private IState<InputReader, string, string> ElementTransition(SymbolReader<InputReader, string, string> reader)
+        private IState<InputReader, SymbValue, SymbType> ElementTransition(SymbolReader<InputReader, SymbValue, SymbType> reader)
         {
             this.IgnoreVoids(reader);
             if (reader.IsAtEOF())
@@ -630,7 +633,7 @@ namespace Utilities.Parsers
                 return this.stateList[1];
             }
 
-            ISymbol<string, string> readedSymbol = reader.Peek();
+            var readedSymbol = reader.Peek();
             this.currentSymbolValues.Clear();
             if (this.IsExpressionOpenDelimiter(readedSymbol.SymbolType))
             {
@@ -639,7 +642,7 @@ namespace Utilities.Parsers
 
             if (this.IsExternalOpenDelimiter(readedSymbol.SymbolType))
             {
-                this.operatorStack.Push(new OperatorDefinition<string>(readedSymbol.SymbolType, EOperatorType.EXTERNAL_DELIMITER));
+                this.operatorStack.Push(new OperatorDefinition<SymbType>(readedSymbol.SymbolType, EOperatorType.EXTERNAL_DELIMITER));
                 this.currentSymbolValues.Add(readedSymbol);
                 reader.Get();
                 return this.stateList[4];
@@ -648,7 +651,7 @@ namespace Utilities.Parsers
             if (this.IsUnaryOperator(readedSymbol.SymbolType))
             {
                 // TODO: verificar no topo da pilha dos operadores se existe algum que esteja marcado como admitindo um sinal unário
-                this.operatorStack.Push(new OperatorDefinition<string>(readedSymbol.SymbolType, EOperatorType.UNARY));
+                this.operatorStack.Push(new OperatorDefinition<SymbType>(readedSymbol.SymbolType, EOperatorType.UNARY));
                 reader.Get();
                 return this.stateList[2];
             }
@@ -669,7 +672,7 @@ namespace Utilities.Parsers
         /// </summary>
         /// <param name="reader">The symbol reader.</param>
         /// <returns>The next state.</returns>
-        private IState<InputReader, string, string> OperatorTransition(SymbolReader<InputReader, string, string> reader)
+        private IState<InputReader, SymbValue, SymbType> OperatorTransition(SymbolReader<InputReader, SymbValue, SymbType> reader)
         {
             this.IgnoreVoids(reader);
             if (reader.IsAtEOF())
@@ -688,12 +691,13 @@ namespace Utilities.Parsers
                     return this.stateList[1];
                 }
             }
-            ISymbol<string, string> readedSymbol = reader.Peek();
+
+            var readedSymbol = reader.Peek();
             if (this.IsBinaryOperator(readedSymbol.SymbolType))
             {
                 if (this.Eval(this.binaryOperators[readedSymbol.SymbolType].Precedence, false))
                 {
-                    this.operatorStack.Push(new OperatorDefinition<string>(readedSymbol.SymbolType, EOperatorType.BINARY));
+                    this.operatorStack.Push(new OperatorDefinition<SymbType>(readedSymbol.SymbolType, EOperatorType.BINARY));
                     reader.Get();
                     return this.stateList[2];
                 }
@@ -761,10 +765,10 @@ namespace Utilities.Parsers
         /// </summary>
         /// <param name="reader">The symbol reader.</param>
         /// <returns>The next state.</returns>
-        private IState<InputReader, string, string> InsideExternalDelimitersTransition(SymbolReader<InputReader, string, string> reader)
+        private IState<InputReader, SymbValue, SymbType> InsideExternalDelimitersTransition(SymbolReader<InputReader, SymbValue, SymbType> reader)
         {
-            ISymbol<string, string> readedSymbol = reader.Peek();
-            if (readedSymbol.SymbolType == "eof")
+            var readedSymbol = reader.Peek();
+            if (reader.IsAtEOFSymbol(readedSymbol))
             {
                 this.errorMessages.Add("An external delimiter was opened but wasn't closed.");
                 return this.stateList[1];
@@ -772,7 +776,7 @@ namespace Utilities.Parsers
             else if (this.IsExternalOpenDelimiter(readedSymbol.SymbolType))
             {
                 this.currentSymbolValues.Add(readedSymbol);
-                this.operatorStack.Push(new OperatorDefinition<string>(readedSymbol.SymbolType, EOperatorType.EXTERNAL_DELIMITER));
+                this.operatorStack.Push(new OperatorDefinition<SymbType>(readedSymbol.SymbolType, EOperatorType.EXTERNAL_DELIMITER));
             }
             else if (this.IsExternalCloseDelimiter(readedSymbol.SymbolType))
             {
@@ -859,13 +863,13 @@ namespace Utilities.Parsers
         /// </summary>
         /// <param name="reader">The symbol reader.</param>
         /// <returns>The next state.</returns>
-        private IState<InputReader, string, string> SequencePeekDelimitersTransition(SymbolReader<InputReader, string, string> reader)
+        private IState<InputReader, SymbValue, SymbType> SequencePeekDelimitersTransition(SymbolReader<InputReader, SymbValue, SymbType> reader)
         {
             this.IgnoreVoids(reader);
             var readedSymbol = reader.Peek();
             if (this.IsSequenceOpenDelimiter(readedSymbol.SymbolType))
             {
-                this.operatorStack.Push(new OperatorDefinition<string>(readedSymbol.SymbolType, EOperatorType.SEQUENCE_DELIMITER));
+                this.operatorStack.Push(new OperatorDefinition<SymbType>(readedSymbol.SymbolType, EOperatorType.SEQUENCE_DELIMITER));
                 this.currentSymbolValues.Add(readedSymbol);
                 reader.Get();
                 return this.stateList[6];
@@ -892,10 +896,10 @@ namespace Utilities.Parsers
         /// </summary>
         /// <param name="reader">The symbol reader.</param>
         /// <returns>The next state.</returns>
-        private IState<InputReader, string, string> InsideSequenceDelimitersTransition(SymbolReader<InputReader, string, string> reader)
+        private IState<InputReader, SymbValue, SymbType> InsideSequenceDelimitersTransition(SymbolReader<InputReader, SymbValue, SymbType> reader)
         {
-            ISymbol<string, string> readedSymbol = reader.Peek();
-            string delimiterType = this.operatorStack.Pop().Symbol;
+            var readedSymbol = reader.Peek();
+            var delimiterType = this.operatorStack.Pop().Symbol;
             while (!this.IsSequenceCloseDelimiterFor(readedSymbol.SymbolType, delimiterType) && !reader.IsAtEOF())
             {
                 readedSymbol = reader.Get();

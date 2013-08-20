@@ -14,7 +14,7 @@ namespace Mathematics.MathematicsInterpreter
         /// <summary>
         /// The expression reader.
         /// </summary>
-        private ExpressionReader<AMathematicsObject, CharSymbolReader> expressionReader;
+        private ExpressionReader<AMathematicsObject, string, string, CharSymbolReader> expressionReader;
 
         /// <summary>
         /// The mathematis interpreter mediator.
@@ -81,9 +81,9 @@ namespace Mathematics.MathematicsInterpreter
             this.scopeDefinitionStack.Push(new ScopeDefinition() { ScopeType = EScopeType.MAIN });
         }
 
-        private ExpressionReader<AMathematicsObject, CharSymbolReader> PrepareExpressionReader()
+        private ExpressionReader<AMathematicsObject, string, string, CharSymbolReader> PrepareExpressionReader()
         {
-            var result = new ExpressionReader<AMathematicsObject, CharSymbolReader>(new MathematicsObjectParser(this.mediator));
+            var result = new ExpressionReader<AMathematicsObject, string, string, CharSymbolReader>(new MathematicsObjectParser(this.mediator));
 
             result.RegisterBinaryOperator("equal", this.Assign, 0);
             result.RegisterBinaryOperator("plus", this.Add, 2);

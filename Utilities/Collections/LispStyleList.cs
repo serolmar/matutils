@@ -330,7 +330,7 @@ namespace Utilities.Collections
 
         private class LispStyleParser<R> : ILispStyleListParser<R>
         {
-            private ExpressionReader<LispStyleList<R>.ElementList<R>, CharSymbolReader> expressionReader;
+            private ExpressionReader<LispStyleList<R>.ElementList<R>, string, string, CharSymbolReader> expressionReader;
 
             public LispStyleParser(IParse<R, string, string> parserForT)
                 : this(parserForT, LispDelimiterType.PARENTHESIS)
@@ -367,7 +367,7 @@ namespace Utilities.Collections
                         throw new CollectionsException("Delimiter types not yet implemented.");
                 }
 
-                this.expressionReader = new ExpressionReader<LispStyleList<R>.ElementList<R>, CharSymbolReader>(new ElementParser<R>(parserForT));
+                this.expressionReader = new ExpressionReader<LispStyleList<R>.ElementList<R>, string, string, CharSymbolReader>(new ElementParser<R>(parserForT));
                 this.expressionReader.RegisterExpressionDelimiterTypes(openType, closeType, this.Parenthesis);
                 this.expressionReader.RegisterBinaryOperator("comma", this.Concatenate, 0);
             }

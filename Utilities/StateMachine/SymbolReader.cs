@@ -26,5 +26,6 @@ namespace Utilities.Parsers
         public abstract ISymbol<TSymbVal, TSymbType> Get();
         public abstract void UnGet();
         public abstract bool IsAtEOF();
+        public abstract bool IsAtEOFSymbol(ISymbol<TSymbVal, TSymbType> symbol);
     }
 }

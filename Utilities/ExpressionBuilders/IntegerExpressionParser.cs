@@ -23,7 +23,7 @@ namespace Utilities.ExpressionBuilders
         public int Parse(TextReader reader)
         {
             var symbolReader = new StringSymbolReader(reader, false);
-            ExpressionReader<int, CharSymbolReader> result = new ExpressionReader<int, CharSymbolReader>(new IntegerParser());
+            ExpressionReader<int, string, string, CharSymbolReader> result = new ExpressionReader<int, string, string, CharSymbolReader>(new IntegerParser());
             result.RegisterBinaryOperator("plus", Add, 0);
             result.RegisterBinaryOperator("times", Multiply, 1);
             result.RegisterBinaryOperator("minus", Subtract, 0);

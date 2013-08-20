@@ -12,7 +12,7 @@ namespace Utilities.ExpressionBuilders
         public bool Parse(TextReader reader)
         {
             var symbolReader = new StringSymbolReader(reader, false);
-            ExpressionReader<bool, CharSymbolReader> result = new ExpressionReader<bool, CharSymbolReader>(new BoolParser());
+            ExpressionReader<bool, string, string, CharSymbolReader> result = new ExpressionReader<bool, string, string, CharSymbolReader>(new BoolParser());
             result.RegisterBinaryOperator("double_or", Or, 0);
             result.RegisterBinaryOperator("double_and", And, 1);
             result.RegisterUnaryOperator("not", Not, 0);

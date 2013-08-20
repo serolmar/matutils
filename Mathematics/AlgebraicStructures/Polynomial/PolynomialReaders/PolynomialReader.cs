@@ -93,7 +93,7 @@
 
             this.conversion = conversion;
             resultPolynomial = default(Polynomial<T, RingType>);
-            var expressionReader = new ExpressionReader<ParsePolynomialItem<T, RingType>, InputReader>(new SimplePolynomialReader<T, RingType>(this.coeffParser, this.ring));
+            var expressionReader = new ExpressionReader<ParsePolynomialItem<T, RingType>, string, string, InputReader>(new SimplePolynomialReader<T, RingType>(this.coeffParser, this.ring));
             expressionReader.RegisterBinaryOperator("plus", Add, 0);
             expressionReader.RegisterBinaryOperator("times", Multiply, 1);
             expressionReader.RegisterBinaryOperator("minus", Subtract, 0);

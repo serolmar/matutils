@@ -9,25 +9,26 @@ namespace Utilities.Parsers
     /// Compounds the delimiter with operation it represents.
     /// </summary>
     /// <typeparam name="ObjType">The type of object being parsed.</typeparam>
-    public class ExpressionCompoundDelimiter<ObjType>
+    public class ExpressionCompoundDelimiter<ObjType, SymbType>
     {
         public ExpressionCompoundDelimiter()
         {
-            this.DelimiterType = string.Empty;
+            this.DelimiterType = default(SymbType);
         }
-        public string DelimiterType { get; set; }
+
+        public SymbType DelimiterType { get; set; }
         public UnaryOperator<ObjType> DelimiterOperator { get; set; }
 
         public override bool Equals(object obj)
         {
-            var delim = obj as ExpressionCompoundDelimiter<ObjType>;
+            var delim = obj as ExpressionCompoundDelimiter<ObjType, SymbType>;
             if (delim == null)
             {
                 return base.Equals(obj);
             }
             else
             {
-                return this.DelimiterType == delim.DelimiterType;
+                return this.DelimiterType.Equals(delim.DelimiterType);
             }
         }
 

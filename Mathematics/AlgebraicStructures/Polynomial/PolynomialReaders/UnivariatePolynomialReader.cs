@@ -106,7 +106,8 @@ namespace Mathematics
 
             this.conversion = conversion;
             resultPolynomial = default(UnivariatePolynomialNormalForm<T, RingType>);
-            var expressionReader = new ExpressionReader<ParseUnivarPolynomNormalFormItem<T, RingType>, InputReader>(new SimpleUnivarPolynomNormalFormReader<T, RingType>(this.coeffParser, this.ring));
+            var expressionReader = new ExpressionReader<ParseUnivarPolynomNormalFormItem<T, RingType>, string, string, InputReader>(
+                new SimpleUnivarPolynomNormalFormReader<T, RingType>(this.coeffParser, this.ring));
             expressionReader.RegisterBinaryOperator("plus", Add, 0);
             expressionReader.RegisterBinaryOperator("times", Multiply, 1);
             expressionReader.RegisterBinaryOperator("minus", Subtract, 0);

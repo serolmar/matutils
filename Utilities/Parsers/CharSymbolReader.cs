@@ -157,6 +157,18 @@ namespace Utilities.Parsers
             return this.Peek().SymbolType.Equals(CharSymbolReader.endOfFileType);
         }
 
+        public override bool IsAtEOFSymbol(ISymbol<string, string> symbol)
+        {
+            if (symbol == null)
+            {
+                throw new ArgumentNullException("symbol");
+            }
+            else
+            {
+                return symbol.SymbolType.Equals(CharSymbolReader.endOfFileType);
+            }
+        }
+
         /// <summary>
         /// Adds the next readed symbol from stream to buffer list.
         /// </summary>

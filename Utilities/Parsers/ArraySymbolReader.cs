@@ -69,6 +69,18 @@ namespace Utilities.Parsers
             return this.bufferPointer >= this.symbolBuffer.Count - 1;
         }
 
+        public override bool IsAtEOFSymbol(ISymbol<TSymbVal, TSymbType> symbol)
+        {
+            if (symbol == null)
+            {
+                throw new ArgumentNullException("symbol");
+            }
+            else
+            {
+                return this.endOfFileSymbolType.Equals(symbol.SymbolType);
+            }
+        }
+
         private class ArraySymbol : ISymbol<TSymbVal, TSymbType>
         {
             private TSymbVal symbolValue;

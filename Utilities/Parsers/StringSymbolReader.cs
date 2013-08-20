@@ -86,6 +86,18 @@ namespace Utilities.Parsers
             return this.Peek().SymbolType.Equals(StringSymbolReader.endOfFile);
         }
 
+        public override bool IsAtEOFSymbol(ISymbol<string, string> symbol)
+        {
+            if (symbol == null)
+            {
+                throw new ArgumentNullException("symbol");
+            }
+            else
+            {
+                return symbol.SymbolType.Equals(StringSymbolReader.endOfFile);
+            }
+        }
+
         public void RegisterKeyWordType(string key, string type)
         {
             if (this.keyWords.ContainsKey(key))
