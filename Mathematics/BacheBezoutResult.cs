@@ -20,22 +20,26 @@ namespace Mathematics
 
         private T greatestCommonDivisor;
 
-        private T leastCommonMultiple;
+        private T firstCofactor;
 
-        public BacheBezoutResult(
+        private T secondCofactor;
+
+        internal BacheBezoutResult(
             T firstItem,
             T secondItem,
             T firstFactor,
             T secondFactor,
             T greatestCommonDivisor,
-            T leastCommonMultiple)
+            T firstCofactor,
+            T secondCofactor)
         {
             this.firstItem = firstItem;
             this.secondItem = secondItem;
             this.firstFactor = firstFactor;
             this.secondFactor = secondFactor;
             this.greatestCommonDivisor = greatestCommonDivisor;
-            this.leastCommonMultiple = leastCommonMultiple;
+            this.firstCofactor = firstCofactor;
+            this.secondCofactor = secondCofactor;
         }
 
         public T FirstItem
@@ -78,11 +82,19 @@ namespace Mathematics
             }
         }
 
-        public T LeastCommonMultiple
+        public T FirstCofactor
         {
             get
             {
-                return this.leastCommonMultiple;
+                return this.firstCofactor;
+            }
+        }
+
+        public T SecondCofactor
+        {
+            get
+            {
+                return this.secondCofactor;
             }
         }
     }

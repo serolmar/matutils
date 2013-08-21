@@ -190,10 +190,20 @@ namespace Mathematics
                 throw new ArgumentNullException("right");
             }
 
-            var resultNumerator = this.euclideanDomain.Multiply(this.numerator, right.numerator);
-            var resultDenominator = this.euclideanDomain.Multiply(this.denominator, right.denominator);
+            var crossGcd = MathFunctions.GreatCommonDivisor(this.numerator, right.denominator, this.euclideanDomain);
+            var firstNumerator = this.euclideanDomain.Quo(this.numerator, crossGcd);
+            var secondDenominator = this.euclideanDomain.Quo(right.denominator, crossGcd);
+            crossGcd = MathFunctions.GreatCommonDivisor(this.denominator, right.numerator, this.euclideanDomain);
+            var secondNumerator = this.euclideanDomain.Quo(right.numerator, crossGcd);
+            var firstDenominator = this.euclideanDomain.Quo(this.denominator, crossGcd);
 
-            return new Fraction<T, D>(resultNumerator, resultDenominator, this.euclideanDomain);
+            var resultNumerator = this.euclideanDomain.Multiply(firstNumerator, secondNumerator);
+            var resultDenominator = this.euclideanDomain.Multiply(firstDenominator, secondDenominator);
+
+            var result = new Fraction<T, D>(this.euclideanDomain);
+            result.numerator = resultNumerator;
+            result.denominator = resultDenominator;
+            return result;
         }
 
         /// <summary>

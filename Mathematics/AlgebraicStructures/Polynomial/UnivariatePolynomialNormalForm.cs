@@ -293,13 +293,11 @@ namespace Mathematics
         }
 
         /// <summary>
-        /// Obtém o monómio com o menor grau.
+        /// Obtém o coeficiente do monómio com o maior grau.
         /// </summary>
-        /// <returns>O monómio.</returns>
-        public UnivariatePolynomialNormalForm<CoeffType, RingType> GetTailMonomial()
+        /// <returns>O coeficiente.</returns>
+        public CoeffType GetLeadingCoefficient()
         {
-            var result = new UnivariatePolynomialNormalForm<CoeffType, RingType>(this.ring);
-            result.variableName = this.variableName;
             var greatestDegree = 0;
             var greatestCoeff = this.ring.AdditiveUnity;
             var termsEnum = this.terms.GetEnumerator();
@@ -309,7 +307,7 @@ namespace Mathematics
                 greatestCoeff = termsEnum.Current.Value;
                 while (termsEnum.MoveNext())
                 {
-                    if (greatestDegree > termsEnum.Current.Key)
+                    if (greatestDegree < termsEnum.Current.Key)
                     {
                         greatestDegree = termsEnum.Current.Key;
                         greatestCoeff = termsEnum.Current.Value;
@@ -317,9 +315,63 @@ namespace Mathematics
                 }
             }
 
+            return greatestCoeff;
+        }
+
+        /// <summary>
+        /// Obtém o monómio com o menor grau.
+        /// </summary>
+        /// <returns>O monómio.</returns>
+        public UnivariatePolynomialNormalForm<CoeffType, RingType> GetTailMonomial()
+        {
+            var result = new UnivariatePolynomialNormalForm<CoeffType, RingType>(this.ring);
+            result.variableName = this.variableName;
+            var leastDegree = 0;
+            var leastCoeff = this.ring.AdditiveUnity;
+            var termsEnum = this.terms.GetEnumerator();
+            if (termsEnum.MoveNext())
+            {
+                leastDegree = termsEnum.Current.Key;
+                leastCoeff = termsEnum.Current.Value;
+                while (termsEnum.MoveNext())
+                {
+                    if (leastDegree < termsEnum.Current.Key)
+                    {
+                        leastDegree = termsEnum.Current.Key;
+                        leastCoeff = termsEnum.Current.Value;
+                    }
+                }
+            }
+
             result.terms = new Dictionary<int, CoeffType>();
-            result.terms.Add(greatestDegree, greatestCoeff);
+            result.terms.Add(leastDegree, leastCoeff);
             return result;
+        }
+
+        /// <summary>
+        /// Obtém o coeficiente do monómio com o menor grau.
+        /// </summary>
+        /// <returns>O coeficiente.</returns>
+        public CoeffType GetTailCoefficient()
+        {
+            var leastDegree = 0;
+            var leastCoeff = this.ring.AdditiveUnity;
+            var termsEnum = this.terms.GetEnumerator();
+            if (termsEnum.MoveNext())
+            {
+                leastDegree = termsEnum.Current.Key;
+                leastCoeff = termsEnum.Current.Value;
+                while (termsEnum.MoveNext())
+                {
+                    if (leastDegree < termsEnum.Current.Key)
+                    {
+                        leastDegree = termsEnum.Current.Key;
+                        leastCoeff = termsEnum.Current.Value;
+                    }
+                }
+            }
+
+            return leastCoeff;
         }
 
         /// <summary>

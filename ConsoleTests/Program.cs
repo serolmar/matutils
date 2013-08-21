@@ -15,7 +15,7 @@
     {
         static void Main(string[] args)
         {
-            Test12();
+            Test13();
             Console.ReadLine();
         }
 
@@ -25,11 +25,27 @@
             tester.Run(Console.In, Console.Out);
         }
 
+        public static void Test13()
+        {
+            var integerDomain = new IntegerDomain();
+            var lagrangeAlg = new LagrangeAlgorithm<int, IntegerDomain>(integerDomain);
+            var firstValue = 51;
+            var secondValue = 192;
+            var result = lagrangeAlg.Run(firstValue, secondValue);
+            Console.WriteLine("First: {0}", result.FirstItem);
+            Console.WriteLine("Second: {0}", result.SecondItem);
+            Console.WriteLine("First Bezout factor: {0}", result.FirstFactor);
+            Console.WriteLine("Second Bezout factor: {0}", result.SecondFactor);
+            Console.WriteLine("GCD: {0}", result.GreatestCommonDivisor);
+            Console.WriteLine("First cofactor: {0}", result.FirstCofactor);
+            Console.WriteLine("Second cofactor: {0}", result.SecondCofactor);
+        }
+
         public static void Test12()
         {
             var firstInput = "    x^3-1/3*x^2+ - -x/5-1/2";
             var secondInput = "x^2-x/2+1";
-            var thirdInput = "x^2-2*x+1";
+            var thirdInput = "(2*x^2-4*x+2)*(3*x-1)";
 
             var reader = new StringReader(firstInput);
             var stringSymbolReader = new StringSymbolReader(reader, false);
