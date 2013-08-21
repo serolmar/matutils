@@ -42,6 +42,9 @@ namespace Mathematics
             this.secondCofactor = secondCofactor;
         }
 
+        /// <summary>
+        /// Obtém o primeiro número sobre o qual se processa a identidade.
+        /// </summary>
         public T FirstItem
         {
             get
@@ -50,6 +53,9 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Obtém o segundo número sobre o qual se processa a identidade.
+        /// </summary>
         public T SecondItem
         {
             get
@@ -58,6 +64,9 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Obtém o primeiro factor da identidade.
+        /// </summary>
         public T FirstFactor
         {
             get
@@ -66,6 +75,9 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Obtém o segundo factor da identidade.
+        /// </summary>
         public T SecondFactor
         {
             get
@@ -74,6 +86,9 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Obtém o máximo divisor comum.
+        /// </summary>
         public T GreatestCommonDivisor
         {
             get
@@ -82,6 +97,9 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Obtém o co-factor do primeiro número associado ao máximo divisor comum.
+        /// </summary>
         public T FirstCofactor
         {
             get
@@ -90,6 +108,9 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Obtém o co-factor do segundo número associado ao máximo divisor comum.
+        /// </summary>
         public T SecondCofactor
         {
             get

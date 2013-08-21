@@ -40,6 +40,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AlgebraicStructures\ComplexNumber.cs" />
     <Compile Include="AlgebraicStructures\Fraction.cs" />
     <Compile Include="AlgebraicStructures\FractionDecompositionResult.cs" />
     <Compile Include="AlgebraicStructures\FractionParser.cs" />
@@ -50,6 +51,8 @@
     <Compile Include="AlgebraicStructures\Implementations\IntegerDomain.cs" />
     <Compile Include="AlgebraicStructures\Implementations\MatrixAdditionOperation.cs" />
     <Compile Include="AlgebraicStructures\Implementations\MatrixMultiplicationOperation.cs" />
+    <Compile Include="AlgebraicStructures\Implementations\ModularIntegerField.cs" />
+    <Compile Include="AlgebraicStructures\Implementations\ModularUnivarPolynomField.cs" />
     <Compile Include="AlgebraicStructures\Implementations\UnivarPolynomEuclideanDomain.cs" />
     <Compile Include="AlgebraicStructures\Implementations\UnivarPolynomRing.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\IAdditionOperation.cs" />
