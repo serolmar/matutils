@@ -33,6 +33,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Numerics" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -44,6 +45,7 @@
     <Compile Include="AlgebraicStructures\Fraction.cs" />
     <Compile Include="AlgebraicStructures\FractionDecompositionResult.cs" />
     <Compile Include="AlgebraicStructures\FractionParser.cs" />
+    <Compile Include="AlgebraicStructures\Implementations\BigIntegerDomain.cs" />
     <Compile Include="AlgebraicStructures\Implementations\DomainResult.cs" />
     <Compile Include="AlgebraicStructures\Implementations\ElementFractionConversion.cs" />
     <Compile Include="AlgebraicStructures\Implementations\ElementToElementConversion.cs" />
@@ -52,7 +54,7 @@
     <Compile Include="AlgebraicStructures\Implementations\MatrixAdditionOperation.cs" />
     <Compile Include="AlgebraicStructures\Implementations\MatrixMultiplicationOperation.cs" />
     <Compile Include="AlgebraicStructures\Implementations\ModularIntegerField.cs" />
-    <Compile Include="AlgebraicStructures\Implementations\ModularUnivarPolynomField.cs" />
+    <Compile Include="AlgebraicStructures\Implementations\ModularBachetBezoutField.cs" />
     <Compile Include="AlgebraicStructures\Implementations\UnivarPolynomEuclideanDomain.cs" />
     <Compile Include="AlgebraicStructures\Implementations\UnivarPolynomRing.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\IAdditionOperation.cs" />
@@ -108,6 +110,7 @@
     <Compile Include="AlgebraicStructures\Readers\RangeConfigReader.cs" />
     <Compile Include="AlgebraicStructures\Readers\RangeNoConfigReader.cs" />
     <Compile Include="AlgebraicStructures\Readers\RangeReaderMementoManager.cs" />
+    <Compile Include="Algorithms\General\IBachetBezoutAlgorithm.cs" />
     <Compile Include="Algorithms\General\LagrangeAlgorithm.cs" />
     <Compile Include="Algorithms\IAlgorithm.cs" />
     <Compile Include="Algorithms\Matrix\Determinant\ADeterminant.cs" />

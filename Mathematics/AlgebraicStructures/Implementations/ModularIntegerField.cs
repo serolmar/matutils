@@ -77,7 +77,7 @@
                 }
 
                 var bezoutResult = this.inverseAlgorithm.Run(this.module, innerNumber);
-                if (bezoutResult.GreatestCommonDivisor != 1)
+                if (bezoutResult.GreatestCommonDivisor == 1)
                 {
                     return -bezoutResult.SecondFactor;
                 }

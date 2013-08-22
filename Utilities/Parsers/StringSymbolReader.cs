@@ -75,7 +75,7 @@ namespace Utilities.Parsers
 
         public override void UnGet()
         {
-            if (bufferPointer > 0)
+            if (this.bufferPointer > 0)
             {
                 --this.bufferPointer;
             }

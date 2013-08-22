@@ -22,6 +22,14 @@ namespace Utilities.Parsers
             this.inputStream = inputTextStream;
         }
 
+        public bool Started
+        {
+            get
+            {
+                return this.started;
+            }
+        }
+
         public abstract ISymbol<TSymbVal, TSymbType> Peek();
         public abstract ISymbol<TSymbVal, TSymbType> Get();
         public abstract void UnGet();

@@ -33,6 +33,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Numerics" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -67,6 +68,7 @@
     <Compile Include="Parsers\ExpressionReader\OperatorDefinition.cs" />
     <Compile Include="Parsers\ExpressionReader\SOperatorPrecedence.cs" />
     <Compile Include="Parsers\IParse.cs" />
+    <Compile Include="Parsers\Simple Parsers\BigIntegerParser.cs" />
     <Compile Include="Parsers\Simple Parsers\BoolParser.cs" />
     <Compile Include="Parsers\CharSymbolReader.cs" />
     <Compile Include="ExpressionBuilders\CppCompliantCharSymbolReaderBuilder.cs" />

@@ -3,19 +3,19 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Numerics;
     using System.Text;
     using Mathematics;
     using Mathematics.AlgebraicStructures.Polynomial;
     using Mathematics.MathematicsInterpreter;
     using Utilities.Collections;
-    using Utilities.ExpressionBuilders;
     using Utilities.Parsers;
 
     class Program
     {
         static void Main(string[] args)
         {
-            Test13();
+            Test12();
             Console.ReadLine();
         }
 
@@ -45,7 +45,7 @@
         {
             var firstInput = "    x^3-1/3*x^2+ - -x/5-1/2";
             var secondInput = "x^2-x/2+1";
-            var thirdInput = "(2*x^2-4*x+2)*(3*x-1)";
+            var thirdInput = "(x^2+3*x+2)*(x^2-4*x+3)^3";
 
             var reader = new StringReader(firstInput);
             var stringSymbolReader = new StringSymbolReader(reader, false);
@@ -92,15 +92,27 @@
 
             reader = new StringReader(thirdInput);
             stringSymbolReader = new StringSymbolReader(reader, false);
-            var thirdPol = default(UnivariatePolynomialNormalForm<Fraction<int, IntegerDomain>, FractionField<int, IntegerDomain>>);
-            if (polynomialParser.TryParsePolynomial(stringSymbolReader, fractionConversion, out thirdPol))
+            var bigIntegerDomain = new BigIntegerDomain();
+            var bigIntegerParser = new BigIntegerParser();
+            var otherFractionParser = new ElementFractionParser<BigInteger, BigIntegerDomain>(bigIntegerParser, bigIntegerDomain);
+            var otherFractionField = new FractionField<BigInteger, BigIntegerDomain>(bigIntegerDomain);
+            var otherPolParser = new UnivariatePolynomialReader<
+                Fraction<BigInteger, BigIntegerDomain>,
+                FractionField<BigInteger, BigIntegerDomain>,
+                CharSymbolReader<string>>(
+                "x",
+                otherFractionParser,
+                otherFractionField);
+            var otherFractionConversion = new BigIntegerFractionToIntConversion();
+            var thirdPol = default(UnivariatePolynomialNormalForm<Fraction<BigInteger, BigIntegerDomain>, FractionField<BigInteger, BigIntegerDomain>>);
+            if (otherPolParser.TryParsePolynomial(stringSymbolReader, otherFractionConversion, out thirdPol))
             {
-                var univarSquareFreeAlg = new UnivarSquareFreeDecomposition<Fraction<int, IntegerDomain>, FractionField<int, IntegerDomain>>();
+                var univarSquareFreeAlg = new UnivarSquareFreeDecomposition<Fraction<BigInteger, BigIntegerDomain>, FractionField<BigInteger, BigIntegerDomain>>();
                 var result = univarSquareFreeAlg.Run(thirdPol);
                 Console.WriteLine("The squarefree factors are:");
                 foreach (var factor in result)
                 {
-                    Console.WriteLine(factor);
+                    Console.WriteLine("Factor: {0}; Degree: {1}", factor.Value, factor.Key);
                 }
             }
             else

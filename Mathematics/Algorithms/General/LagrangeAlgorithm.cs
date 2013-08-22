@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Mathematics
 {
-    public class LagrangeAlgorithm<T, D> : IAlgorithm<T, T, BacheBezoutResult<T>>
+    public class LagrangeAlgorithm<T, D> : IBachetBezoutAlgorithm<T, D>
         where D : IEuclidenDomain<T>
     {
         private D domain;
@@ -19,6 +19,17 @@ namespace Mathematics
             else
             {
                 this.domain = domain;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o domínio inerente ao algoritmo corrente.
+        /// </summary>
+        public D Domain
+        {
+            get
+            {
+                return this.domain;
             }
         }
 

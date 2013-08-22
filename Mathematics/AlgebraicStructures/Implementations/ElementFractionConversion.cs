@@ -31,6 +31,13 @@ namespace Mathematics
             }
         }
 
+        public DomainType Domain {
+            get
+            {
+                return this.domain;
+            }
+        }
+
         public bool CanApplyDirectConversion(Fraction<ElementType, DomainType> objectToConvert)
         {
             if (objectToConvert == null)
