@@ -1,4 +1,4 @@
-﻿namespace Mathematics.AlgebraicStructures.Implementations
+﻿namespace Mathematics
 {
     using System;
     using System.Collections.Generic;
@@ -31,6 +31,32 @@
                 this.module = module;
                 this.inverseAlgorithm = new LagrangeAlgorithm<int, IntegerDomain>(
                     new IntegerDomain());
+            }
+        }
+
+        /// <summary>
+        /// Obtém e atribui o valor do módulo no corpo aritmético.
+        /// </summary>
+        /// <remarks>
+        /// Esta operação não é segura quando a classe se encontra a ser utilizada
+        /// em várias fluxos paralelos de execução (threads).
+        /// </remarks>
+        public int Module
+        {
+            get
+            {
+                return this.module;
+            }
+            set
+            {
+                if (value == 0 || value == 1 || value == -1)
+                {
+                    throw new ArgumentException("Module can't neither 0, 1 nor -1.");
+                }
+                else
+                {
+                    this.module = value;
+                }
             }
         }
 

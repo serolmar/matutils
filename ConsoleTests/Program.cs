@@ -15,7 +15,7 @@
     {
         static void Main(string[] args)
         {
-            Test12();
+            Test13();
             Console.ReadLine();
         }
 
@@ -23,6 +23,27 @@
         {
             var tester = new ObjectTester();
             tester.Run(Console.In, Console.Out);
+        }
+
+        public static void Test14()
+        {
+            var input = "  {1 , 5,  2,3}  intersection ({3,2} union {1,5})";
+            var reader = new StringReader(input);
+            var symbolReader = new SetSymbolReader(reader);
+            var hashSetExpressionParser = new SetExpressionParser<int>(new IntegerParser<ESymbolSetType>());
+            var parsed = default(HashSet<int>);
+            if (hashSetExpressionParser.TryParse(symbolReader, out parsed))
+            {
+                Console.WriteLine("Elements in set are:");
+                foreach (var element in parsed)
+                {
+                    Console.WriteLine(element);
+                }
+            }
+            else
+            {
+                Console.WriteLine("Can't parse expression.");
+            }
         }
 
         public static void Test13()
@@ -39,6 +60,15 @@
             Console.WriteLine("GCD: {0}", result.GreatestCommonDivisor);
             Console.WriteLine("First cofactor: {0}", result.FirstCofactor);
             Console.WriteLine("Second cofactor: {0}", result.SecondCofactor);
+
+            var naiveFactorizationAlgorithm = new NaiveIntegerFactorizationAlgorithm();
+            var n = 35349384;
+            Console.WriteLine("The factors of {0} are:", n);
+            var factorsResult = naiveFactorizationAlgorithm.Run(n);
+            foreach (var factor in factorsResult)
+            {
+                Console.WriteLine("{0}^{1}", factor.Key, factor.Value);
+            }
         }
 
         public static void Test12()

@@ -30,6 +30,25 @@ namespace Mathematics
             }
         }
 
+        public ObjectType Module
+        {
+            get
+            {
+                return this.module;
+            }
+            set
+            {
+                if (value == null)
+                {
+                    throw new ArgumentNullException("module");
+                }
+                else
+                {
+                    this.module = value;
+                }
+            }
+        }
+
         public ObjectType MultiplicativeUnity
         {
             get

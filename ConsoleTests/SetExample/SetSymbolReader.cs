@@ -1,4 +1,4 @@
-﻿namespace ConsoleTests.SetExample
+﻿namespace ConsoleTests
 {
     using System;
     using System.Collections.Generic;
@@ -15,7 +15,7 @@
             this.inputStream.EndOfFileType = ESymbolSetType.EOF;
             this.inputStream.GenericType = ESymbolSetType.ANY;
             this.inputStream.RegisterCharType('{', ESymbolSetType.LBRACE);
-            this.inputStream.RegisterCharType('{', ESymbolSetType.LBRACE);
+            this.inputStream.RegisterCharType('}', ESymbolSetType.RBRACE);
             this.inputStream.RegisterCharType('[', ESymbolSetType.LBRACK);
             this.inputStream.RegisterCharType(']', ESymbolSetType.RBRACK);
             this.inputStream.RegisterCharType('(', ESymbolSetType.OPAR);
@@ -94,36 +94,51 @@
         {
             var readed = string.Empty;
             var state = 0;
-            while (state == 0)
+            while (state != -1)
             {
-                var readedChar = this.inputStream.Peek();
-                if (readedChar.SymbolType == ESymbolSetType.EOF)
+                if (state == 0)
                 {
-                    this.symbolBuffer.Add(readedChar);
-                    state = -1;
+                    var readedChar = this.inputStream.Get();
+                    if (readedChar.SymbolType == ESymbolSetType.EOF)
+                    {
+                        this.symbolBuffer.Add(readedChar);
+                        state = -1;
+                    }
+                    else if (readedChar.SymbolType == ESymbolSetType.ANY)
+                    {
+                        readed += readedChar.SymbolValue;
+                        state = 1;
+                    }
+                    else
+                    {
+                        this.symbolBuffer.Add(readedChar);
+                        state = -1;
+                    }
                 }
-                else if (readedChar.SymbolType == ESymbolSetType.ANY)
+                else if (state == 1)
                 {
-                    readed += readedChar.SymbolValue;
-                    state = 1;
-                }
-                else
-                {
-                    this.symbolBuffer.Add(readedChar);
-                }
-            }
+                    var readedChar = this.inputStream.Peek();
+                    if (readedChar.SymbolType == ESymbolSetType.ANY)
+                    {
+                        readed += readedChar.SymbolValue;
+                        this.inputStream.Get();
+                    }
+                    else
+                    {
+                        var result = new SetSymbol() { SymbolValue = readed, SymbolType = ESymbolSetType.ANY };
 
-            if (state == 1)
-            {
-                var result = new SetSymbol() { SymbolValue = readed, SymbolType = ESymbolSetType.ANY };
+                        if (readed == "union")
+                        {
+                            result.SymbolType = ESymbolSetType.UNION;
+                        }
+                        else if (readed == "intersection")
+                        {
+                            result.SymbolType = ESymbolSetType.INTERSECTION;
+                        }
 
-                if (readed == "union")
-                {
-                    result.SymbolType = ESymbolSetType.UNION;
-                }
-                else if (readed == "intersection")
-                {
-                    result.SymbolType = ESymbolSetType.INTERSECTION;
+                        this.symbolBuffer.Add(result);
+                        state = -1;
+                    }
                 }
             }
         }

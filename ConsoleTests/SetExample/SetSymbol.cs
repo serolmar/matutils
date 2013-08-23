@@ -1,4 +1,4 @@
-﻿namespace ConsoleTests.SetExample
+﻿namespace ConsoleTests
 {
     using System;
     using System.Collections.Generic;
