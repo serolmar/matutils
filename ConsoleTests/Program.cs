@@ -15,7 +15,7 @@
     {
         static void Main(string[] args)
         {
-            Test13();
+            Test4();
             Console.ReadLine();
         }
 
@@ -48,6 +48,15 @@
 
         public static void Test13()
         {
+            Console.WriteLine(MathFunctions.Power(2,6, new IntegerDomain()));
+            var legendreJacobiAlg = new LegendreJacobiSymbolAlgorithm();
+            Console.WriteLine(legendreJacobiAlg.Run(12345, 331));
+            Console.WriteLine(legendreJacobiAlg.Run(13, 44));
+
+            var resSol = new ResSolAlgorithm();
+            Console.WriteLine(PrintVector(resSol.Run(10, 13)));
+            Console.WriteLine(PrintVector(resSol.Run(17, 47)));
+
             var integerDomain = new IntegerDomain();
             var lagrangeAlg = new LagrangeAlgorithm<int, IntegerDomain>(integerDomain);
             var firstValue = 51;

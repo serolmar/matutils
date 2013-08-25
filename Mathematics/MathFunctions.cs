@@ -29,26 +29,18 @@
                 throw new MathematicsException("Can't computer the powers with negative expoents.");
             }
 
-            if (pow == 0)
-            {
-                return multiplier.MultiplicativeUnity;
-            }
-
-            var innerPow = GetInversion(pow);
-
-            var result = val;
-            var rem = innerPow % 2;
-            innerPow = innerPow / 2;
+            var result = multiplier.MultiplicativeUnity;
+            var innerPow = pow;
+            var innerVal = val;
             while (innerPow > 0)
             {
-                result = multiplier.Multiply(result, result);
-                if (rem == 1)
+                if (innerPow % 2 == 1)
                 {
-                    result = multiplier.Multiply(val, result);
+                    result = multiplier.Multiply(result, innerVal);
                 }
 
-                rem = innerPow % 2;
                 innerPow = innerPow / 2;
+                innerVal = multiplier.Multiply(innerVal, innerVal);
             }
 
             return result;
@@ -61,12 +53,12 @@
         /// <typeparam name="D">A classe que define a soma.</typeparam>
         /// <param name="val">O valor.</param>
         /// <param name="pow">O expoente.</param>
-        /// <param name="modnoid">A classe que define a soma sobre o valor.</param>
+        /// <param name="monoid">A classe que define a soma sobre o valor.</param>
         /// <returns>A potência do valor.</returns>
-        public static T AddPower<T, D>(T val, int pow, D modnoid)
+        public static T AddPower<T, D>(T val, int pow, D monoid)
             where D : IMonoid<T>
         {
-            if (modnoid == null)
+            if (monoid == null)
             {
                 throw new MathematicsException("Parameter multiplier can't be null.");
             }
@@ -76,26 +68,18 @@
                 throw new MathematicsException("Can't computer the powers with negative expoents.");
             }
 
-            if (pow == 0)
-            {
-                return modnoid.AdditiveUnity;
-            }
-
-            var innerPow = GetInversion(pow);
-
-            var result = val;
-            var rem = innerPow % 2;
-            innerPow = innerPow / 2;
+            var result = monoid.AdditiveUnity;
+            var innerPow = pow;
+            var innerVal = val;
             while (innerPow > 0)
             {
-                result = modnoid.Add(result, result);
-                if (rem == 1)
+                if (innerPow % 2 == 1)
                 {
-                    result = modnoid.Add(val, result);
+                    result = monoid.Add(result, innerVal);
                 }
 
-                rem = innerPow % 2;
                 innerPow = innerPow / 2;
+                innerVal = monoid.Add(innerVal, innerVal);
             }
 
             return result;
