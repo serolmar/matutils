@@ -6,7 +6,8 @@
     using System.Text;
 
     /// <summary>
-    /// Implementa o algoritmo de Tonelli-Shanks.
+    /// Implementa o algoritmo de Tonelli-Shanks que permite resolver, quando possível,
+    /// a congruência x^2 = a (mod p) onde p é um número primo.
     /// </summary>
     public class ResSolAlgorithm : IAlgorithm<int, int, List<int>>
     {

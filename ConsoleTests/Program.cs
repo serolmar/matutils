@@ -15,7 +15,7 @@
     {
         static void Main(string[] args)
         {
-            Test4();
+            Test12();
             Console.ReadLine();
         }
 
@@ -56,6 +56,21 @@
             var resSol = new ResSolAlgorithm();
             Console.WriteLine(PrintVector(resSol.Run(10, 13)));
             Console.WriteLine(PrintVector(resSol.Run(17, 47)));
+
+            var perfectPowerAlgotithm = new PerfectPowerTestAlgorithm();
+            for (int i = 0; i <= 1000000; ++i)
+            {
+                if (perfectPowerAlgotithm.Run(i))
+                {
+                    Console.WriteLine(i);
+                }
+            }
+
+            var primeNumberEnumerator = new PrimeNumbersIterator(100);
+            foreach (var primeNumber in primeNumberEnumerator)
+            {
+                Console.WriteLine(primeNumber);
+            }
 
             var integerDomain = new IntegerDomain();
             var lagrangeAlg = new LagrangeAlgorithm<int, IntegerDomain>(integerDomain);

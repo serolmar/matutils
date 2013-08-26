@@ -21,7 +21,7 @@ namespace Mathematics
     {
         RingType ring;
 
-        private Dictionary<int, CoeffType> terms;
+        private SortedList<int, CoeffType> terms;
 
         private string variableName;
 
@@ -45,7 +45,7 @@ namespace Mathematics
             else
             {
                 this.ring = ring;
-                this.terms = new Dictionary<int, CoeffType>();
+                this.terms = new SortedList<int, CoeffType>(new InverseIntegerComparer());
                 this.variableName = variable;
             }
         }
@@ -253,7 +253,7 @@ namespace Mathematics
         {
             var result = new UnivariatePolynomialNormalForm<CoeffType, RingType>(this.ring);
             result.variableName = this.variableName;
-            result.terms = new Dictionary<int, CoeffType>();
+            result.terms = new SortedList<int, CoeffType>(Comparer<int>.Default);
             foreach (var kvp in this.terms)
             {
                 result.terms.Add(kvp.Key, kvp.Value);
@@ -270,25 +270,13 @@ namespace Mathematics
         {
             var result = new UnivariatePolynomialNormalForm<CoeffType, RingType>(this.ring);
             result.variableName = this.variableName;
-            var greatestDegree = 0;
-            var greatestCoeff = this.ring.AdditiveUnity;
-            var termsEnum = this.terms.GetEnumerator();
-            if (termsEnum.MoveNext())
+            if (this.terms.Count != 0)
             {
-                greatestDegree = termsEnum.Current.Key;
-                greatestCoeff = termsEnum.Current.Value;
-                while (termsEnum.MoveNext())
-                {
-                    if (greatestDegree < termsEnum.Current.Key)
-                    {
-                        greatestDegree = termsEnum.Current.Key;
-                        greatestCoeff = termsEnum.Current.Value;
-                    }
-                }
+                var degree = this.terms.Keys[0];
+                var coeff = this.terms[degree];
+                result.terms.Add(degree, coeff);
             }
 
-            result.terms = new Dictionary<int, CoeffType>();
-            result.terms.Add(greatestDegree, greatestCoeff);
             return result;
         }
 
@@ -298,24 +286,14 @@ namespace Mathematics
         /// <returns>O coeficiente.</returns>
         public CoeffType GetLeadingCoefficient()
         {
-            var greatestDegree = 0;
-            var greatestCoeff = this.ring.AdditiveUnity;
-            var termsEnum = this.terms.GetEnumerator();
-            if (termsEnum.MoveNext())
+            if (this.terms.Count == 0)
             {
-                greatestDegree = termsEnum.Current.Key;
-                greatestCoeff = termsEnum.Current.Value;
-                while (termsEnum.MoveNext())
-                {
-                    if (greatestDegree < termsEnum.Current.Key)
-                    {
-                        greatestDegree = termsEnum.Current.Key;
-                        greatestCoeff = termsEnum.Current.Value;
-                    }
-                }
+                return this.ring.AdditiveUnity;
             }
-
-            return greatestCoeff;
+            else
+            {
+                return this.terms[this.terms.Keys[0]];
+            }
         }
 
         /// <summary>
@@ -326,25 +304,13 @@ namespace Mathematics
         {
             var result = new UnivariatePolynomialNormalForm<CoeffType, RingType>(this.ring);
             result.variableName = this.variableName;
-            var leastDegree = 0;
-            var leastCoeff = this.ring.AdditiveUnity;
-            var termsEnum = this.terms.GetEnumerator();
-            if (termsEnum.MoveNext())
+            if (this.terms.Count != 0)
             {
-                leastDegree = termsEnum.Current.Key;
-                leastCoeff = termsEnum.Current.Value;
-                while (termsEnum.MoveNext())
-                {
-                    if (leastDegree < termsEnum.Current.Key)
-                    {
-                        leastDegree = termsEnum.Current.Key;
-                        leastCoeff = termsEnum.Current.Value;
-                    }
-                }
+                var degree = this.terms.Keys[this.terms.Count - 1];
+                var coeff = this.terms[degree];
+                result.terms.Add(degree, coeff);
             }
 
-            result.terms = new Dictionary<int, CoeffType>();
-            result.terms.Add(leastDegree, leastCoeff);
             return result;
         }
 
@@ -354,24 +320,14 @@ namespace Mathematics
         /// <returns>O coeficiente.</returns>
         public CoeffType GetTailCoefficient()
         {
-            var leastDegree = 0;
-            var leastCoeff = this.ring.AdditiveUnity;
-            var termsEnum = this.terms.GetEnumerator();
-            if (termsEnum.MoveNext())
+            if (this.terms.Count == 0)
             {
-                leastDegree = termsEnum.Current.Key;
-                leastCoeff = termsEnum.Current.Value;
-                while (termsEnum.MoveNext())
-                {
-                    if (leastDegree < termsEnum.Current.Key)
-                    {
-                        leastDegree = termsEnum.Current.Key;
-                        leastCoeff = termsEnum.Current.Value;
-                    }
-                }
+                return this.ring.AdditiveUnity;
             }
-
-            return leastCoeff;
+            else
+            {
+                return this.terms[this.terms.Keys[this.terms.Count - 1]];
+            }
         }
 
         /// <summary>
@@ -382,12 +338,12 @@ namespace Mathematics
         {
             var result = new UnivariatePolynomialNormalForm<CoeffType, RingType>(this.ring);
             result.variableName = this.variableName;
-            result.terms = new Dictionary<int, CoeffType>();
+            result.terms = new SortedList<int, CoeffType>(Comparer<int>.Default);
             foreach (var termKvp in this.terms)
             {
                 if (termKvp.Key > 0)
                 {
-                    result.terms.Add(termKvp.Key -1, this.ring.AddRepeated(termKvp.Value, termKvp.Key));
+                    result.terms.Add(termKvp.Key - 1, this.ring.AddRepeated(termKvp.Value, termKvp.Key));
                 }
             }
 
@@ -415,7 +371,7 @@ namespace Mathematics
             {
                 var result = new UnivariatePolynomialNormalForm<CoeffType, RingType>(this.ring);
                 result.variableName = this.variableName;
-                result.terms = new Dictionary<int, CoeffType>();
+                result.terms = new SortedList<int, CoeffType>(Comparer<int>.Default);
                 foreach (var term in this.terms)
                 {
                     result.terms.Add(term.Key, term.Value);
@@ -472,7 +428,7 @@ namespace Mathematics
             {
                 var result = new UnivariatePolynomialNormalForm<CoeffType, RingType>(this.ring);
                 result.variableName = this.variableName;
-                result.terms = new Dictionary<int, CoeffType>();
+                result.terms = new SortedList<int, CoeffType>(Comparer<int>.Default);
                 var degreeCoeff = coeff;
                 foreach (var kvp in this.terms)
                 {
@@ -515,7 +471,7 @@ namespace Mathematics
             {
                 var result = new UnivariatePolynomialNormalForm<CoeffType, RingType>(this.ring);
                 result.variableName = this.variableName;
-                result.terms = new Dictionary<int, CoeffType>();
+                result.terms = new SortedList<int, CoeffType>(Comparer<int>.Default);
                 foreach (var term in this.terms)
                 {
                     result.terms.Add(term.Key, term.Value);
@@ -572,7 +528,7 @@ namespace Mathematics
             {
                 var result = new UnivariatePolynomialNormalForm<CoeffType, RingType>(this.ring);
                 result.variableName = this.variableName;
-                result.terms = new Dictionary<int, CoeffType>();
+                result.terms = new SortedList<int, CoeffType>(Comparer<int>.Default);
                 var degreeCoeff = this.ring.AdditiveInverse(coeff);
                 foreach (var kvp in this.terms)
                 {
@@ -615,7 +571,7 @@ namespace Mathematics
             {
                 var result = new UnivariatePolynomialNormalForm<CoeffType, RingType>(this.ring);
                 result.variableName = this.variableName;
-                result.terms = new Dictionary<int, CoeffType>();
+                result.terms = new SortedList<int, CoeffType>(Comparer<int>.Default);
                 foreach (var thisTerm in this.terms)
                 {
                     if (!this.ring.IsAdditiveUnity(thisTerm.Value))
@@ -667,7 +623,7 @@ namespace Mathematics
             {
                 var result = new UnivariatePolynomialNormalForm<CoeffType, RingType>(this.ring);
                 result.variableName = this.variableName;
-                result.terms = new Dictionary<int, CoeffType>();
+                result.terms = new SortedList<int, CoeffType>(Comparer<int>.Default);
                 if (!this.ring.IsAdditiveUnity(coeff))
                 {
                     foreach (var thisTerm in this.terms)
@@ -688,7 +644,7 @@ namespace Mathematics
         {
             var result = new UnivariatePolynomialNormalForm<CoeffType, RingType>(this.ring);
             result.variableName = this.variableName;
-            result.terms = new Dictionary<int, CoeffType>();
+            result.terms = new SortedList<int, CoeffType>(Comparer<int>.Default);
             foreach (var kvp in this.terms)
             {
                 result.terms.Add(kvp.Key, this.ring.AdditiveInverse(kvp.Value));
@@ -710,24 +666,18 @@ namespace Mathematics
             }
             else
             {
-                var ordered = new InsertionSortedCollection<int>(Comparer<int>.Default);
-                foreach (var term in this.terms)
+                var termsEnumerator = this.terms.GetEnumerator();
+                if (termsEnumerator.MoveNext())
                 {
-                    ordered.InsertSortElement(term.Key);
-                }
-
-                if (ordered.Count > 0)
-                {
-                    var result = this.terms[ordered.Last];
-                    var previousDegree = ordered.Last;
-                    ordered.RemoveElement(previousDegree);
-                    while (ordered.Count > 0)
+                    var result = termsEnumerator.Current.Value;
+                    var previousDegree = termsEnumerator.Current.Key;
+                    while (termsEnumerator.MoveNext())
                     {
-                        var power = MathFunctions.Power(coeff, previousDegree - ordered.Last, this.ring);
+                        var currentDegree = termsEnumerator.Current.Key;
+                        var power = MathFunctions.Power(coeff, previousDegree - currentDegree, this.ring);
                         result = this.ring.Multiply(result, power);
-                        result = this.ring.Add(result, this.terms[ordered.Last]);
-                        previousDegree = ordered.Last;
-                        ordered.RemoveElement(previousDegree);
+                        result = this.ring.Add(result, termsEnumerator.Current.Value);
+                        previousDegree = currentDegree;
                     }
 
                     var lastPower = MathFunctions.Power(coeff, previousDegree, this.ring);
@@ -760,24 +710,22 @@ namespace Mathematics
             }
             else
             {
-                var ordered = new InsertionSortedCollection<int>(Comparer<int>.Default);
-                foreach (var term in this.terms)
+                var termsEnumerator = this.terms.GetEnumerator();
+                if (termsEnumerator.MoveNext())
                 {
-                    ordered.InsertSortElement(term.Key);
-                }
-
-                if (ordered.Count > 0)
-                {
-                    var result = algebra.MultiplyScalar(this.terms[ordered.Last], algebra.MultiplicativeUnity);
-                    var previousDegree = ordered.Last;
-                    ordered.RemoveElement(previousDegree);
-                    while (ordered.Count > 0)
+                    var result = algebra.MultiplyScalar(
+                        termsEnumerator.Current.Value, 
+                        algebra.MultiplicativeUnity);
+                    var previousDegree = termsEnumerator.Current.Key;
+                    while (termsEnumerator.MoveNext())
                     {
-                        var power = MathFunctions.Power(value, previousDegree - ordered.Last, algebra);
+                        var currentDegree = termsEnumerator.Current.Key;
+                        var power = MathFunctions.Power(value, previousDegree - currentDegree, algebra);
                         result = algebra.Multiply(result, power);
-                        result = algebra.Add(result, algebra.MultiplyScalar(this.terms[ordered.Last], algebra.MultiplicativeUnity));
-                        previousDegree = ordered.Last;
-                        ordered.RemoveElement(previousDegree);
+                        result = algebra.Add(
+                            result, 
+                            algebra.MultiplyScalar(termsEnumerator.Current.Value, algebra.MultiplicativeUnity));
+                        previousDegree = currentDegree;
                     }
 
                     var lastPower = MathFunctions.Power(value, previousDegree, algebra);
@@ -806,7 +754,7 @@ namespace Mathematics
             {
                 var result = new UnivariatePolynomialNormalForm<CoeffType, RingType>(this.ring);
                 result.variableName = variableName;
-                result.terms = new Dictionary<int, CoeffType>();
+                result.terms = new SortedList<int, CoeffType>(Comparer<int>.Default);
                 foreach (var kvp in this.terms)
                 {
                     result.terms.Add(kvp.Key, kvp.Value);
@@ -831,24 +779,22 @@ namespace Mathematics
             else
             {
                 var polynomialRing = new UnivarPolynomRing<CoeffType, RingType>(this.variableName, this.ring);
-                var ordered = new InsertionSortedCollection<int>(Comparer<int>.Default);
-                foreach (var term in this.terms)
+                var termsEnumerator = this.terms.GetEnumerator();
+                if (termsEnumerator.MoveNext())
                 {
-                    ordered.InsertSortElement(term.Key);
-                }
-
-                if (ordered.Count > 0)
-                {
-                    var result = new UnivariatePolynomialNormalForm<CoeffType, RingType>(this.terms[ordered.Last], 0, this.variableName, this.ring);
-                    var previousDegree = ordered.Last;
-                    ordered.RemoveElement(previousDegree);
-                    while (ordered.Count > 0)
+                    var result = new UnivariatePolynomialNormalForm<CoeffType, RingType>(
+                        termsEnumerator.Current.Value,
+                        0, 
+                        this.variableName, 
+                        this.ring);
+                    var previousDegree = termsEnumerator.Current.Key;
+                    while (termsEnumerator.MoveNext())
                     {
-                        var power = MathFunctions.Power(other, previousDegree - ordered.Last, polynomialRing);
+                        var currentDegree = termsEnumerator.Current.Key;
+                        var power = MathFunctions.Power(other, previousDegree - currentDegree, polynomialRing);
                         result = result.Multiply(power);
-                        result = result.Add(this.terms[ordered.Last]);
-                        previousDegree = ordered.Last;
-                        ordered.RemoveElement(previousDegree);
+                        result = result.Add(termsEnumerator.Current.Value);
+                        previousDegree = currentDegree;
                     }
 
                     var lastPower = MathFunctions.Power(other, previousDegree, polynomialRing);

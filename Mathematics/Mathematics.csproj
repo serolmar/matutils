@@ -118,8 +118,12 @@
     <Compile Include="Algorithms\Matrix\Determinant\ExpansionDeterminantCalculator.cs" />
     <Compile Include="Algorithms\Matrix\Determinant\PermutationDeterminantCalculator.cs" />
     <Compile Include="Algorithms\Matrix\EigenProblems\FastDivisionFreeCharPolynomCalculator.cs" />
+    <Compile Include="Algorithms\NumberTheory\AksPrimalityTest.cs" />
     <Compile Include="Algorithms\NumberTheory\LegendreJacobiSymbolAlgorithm.cs" />
     <Compile Include="Algorithms\NumberTheory\NaiveIntegerFactorizationAlgorithm.cs" />
+    <Compile Include="Algorithms\NumberTheory\PerfectPowerTestAlgorithm.cs" />
+    <Compile Include="Algorithms\NumberTheory\PollardRhoAlgorithm.cs" />
+    <Compile Include="Algorithms\NumberTheory\PrimeNumbersIterator.cs" />
     <Compile Include="Algorithms\NumberTheory\ResSolAlgorithm.cs" />
     <Compile Include="Algorithms\Polynomials\UnivarSquareFreeDecomposition.cs" />
     <Compile Include="BacheBezoutResult.cs" />
