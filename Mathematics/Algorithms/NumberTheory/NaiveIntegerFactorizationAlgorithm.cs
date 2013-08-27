@@ -35,7 +35,7 @@
             else
             {
                 var result = new Dictionary<int, int>();
-                var innerData = (int)Math.Abs(data);
+                var innerData = Math.Abs(data);
                 var power = 0;
                 while (innerData % 2 == 0)
                 {

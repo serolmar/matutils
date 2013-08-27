@@ -15,7 +15,7 @@
     {
         static void Main(string[] args)
         {
-            Test12();
+            Test13();
             Console.ReadLine();
         }
 
@@ -48,6 +48,16 @@
 
         public static void Test13()
         {
+            var eulerFunction = new EulerTotFuncAlg();
+            Console.WriteLine(eulerFunction.Run(1937));
+
+            var pollardRhoAlg = new PollardRhoAlgorithm();
+            var n = 38;
+            var pollardResult = pollardRhoAlg.Run(n);
+            var pollardBlockedResult = pollardRhoAlg.Run(n, 10);
+            Console.WriteLine("[{0}, {1}]", pollardResult.Item1, pollardResult.Item2);
+            Console.WriteLine("[{0}, {1}]", pollardBlockedResult.Item1, pollardBlockedResult.Item2);
+
             Console.WriteLine(MathFunctions.Power(2,6, new IntegerDomain()));
             var legendreJacobiAlg = new LegendreJacobiSymbolAlgorithm();
             Console.WriteLine(legendreJacobiAlg.Run(12345, 331));
@@ -58,7 +68,7 @@
             Console.WriteLine(PrintVector(resSol.Run(17, 47)));
 
             var perfectPowerAlgotithm = new PerfectPowerTestAlgorithm();
-            for (int i = 0; i <= 1000000; ++i)
+            for (int i = 0; i <= 10; ++i)
             {
                 if (perfectPowerAlgotithm.Run(i))
                 {
@@ -66,7 +76,7 @@
                 }
             }
 
-            var primeNumberEnumerator = new PrimeNumbersIterator(100);
+            var primeNumberEnumerator = new PrimeNumbersIterator(10);
             foreach (var primeNumber in primeNumberEnumerator)
             {
                 Console.WriteLine(primeNumber);
@@ -86,7 +96,7 @@
             Console.WriteLine("Second cofactor: {0}", result.SecondCofactor);
 
             var naiveFactorizationAlgorithm = new NaiveIntegerFactorizationAlgorithm();
-            var n = 35349384;
+            n = 35349384;
             Console.WriteLine("The factors of {0} are:", n);
             var factorsResult = naiveFactorizationAlgorithm.Run(n);
             foreach (var factor in factorsResult)

@@ -371,7 +371,7 @@ namespace Mathematics
             {
                 var result = new UnivariatePolynomialNormalForm<CoeffType, RingType>(this.ring);
                 result.variableName = this.variableName;
-                result.terms = new SortedList<int, CoeffType>(Comparer<int>.Default);
+                result.terms = new SortedList<int, CoeffType>(new InverseIntegerComparer());
                 foreach (var term in this.terms)
                 {
                     result.terms.Add(term.Key, term.Value);
@@ -428,7 +428,7 @@ namespace Mathematics
             {
                 var result = new UnivariatePolynomialNormalForm<CoeffType, RingType>(this.ring);
                 result.variableName = this.variableName;
-                result.terms = new SortedList<int, CoeffType>(Comparer<int>.Default);
+                result.terms = new SortedList<int, CoeffType>(new InverseIntegerComparer());
                 var degreeCoeff = coeff;
                 foreach (var kvp in this.terms)
                 {
@@ -471,7 +471,7 @@ namespace Mathematics
             {
                 var result = new UnivariatePolynomialNormalForm<CoeffType, RingType>(this.ring);
                 result.variableName = this.variableName;
-                result.terms = new SortedList<int, CoeffType>(Comparer<int>.Default);
+                result.terms = new SortedList<int, CoeffType>(new InverseIntegerComparer());
                 foreach (var term in this.terms)
                 {
                     result.terms.Add(term.Key, term.Value);
@@ -528,7 +528,7 @@ namespace Mathematics
             {
                 var result = new UnivariatePolynomialNormalForm<CoeffType, RingType>(this.ring);
                 result.variableName = this.variableName;
-                result.terms = new SortedList<int, CoeffType>(Comparer<int>.Default);
+                result.terms = new SortedList<int, CoeffType>(new InverseIntegerComparer());
                 var degreeCoeff = this.ring.AdditiveInverse(coeff);
                 foreach (var kvp in this.terms)
                 {
@@ -571,7 +571,7 @@ namespace Mathematics
             {
                 var result = new UnivariatePolynomialNormalForm<CoeffType, RingType>(this.ring);
                 result.variableName = this.variableName;
-                result.terms = new SortedList<int, CoeffType>(Comparer<int>.Default);
+                result.terms = new SortedList<int, CoeffType>(new InverseIntegerComparer());
                 foreach (var thisTerm in this.terms)
                 {
                     if (!this.ring.IsAdditiveUnity(thisTerm.Value))
@@ -623,7 +623,7 @@ namespace Mathematics
             {
                 var result = new UnivariatePolynomialNormalForm<CoeffType, RingType>(this.ring);
                 result.variableName = this.variableName;
-                result.terms = new SortedList<int, CoeffType>(Comparer<int>.Default);
+                result.terms = new SortedList<int, CoeffType>(new InverseIntegerComparer());
                 if (!this.ring.IsAdditiveUnity(coeff))
                 {
                     foreach (var thisTerm in this.terms)
@@ -644,7 +644,7 @@ namespace Mathematics
         {
             var result = new UnivariatePolynomialNormalForm<CoeffType, RingType>(this.ring);
             result.variableName = this.variableName;
-            result.terms = new SortedList<int, CoeffType>(Comparer<int>.Default);
+            result.terms = new SortedList<int, CoeffType>(new InverseIntegerComparer());
             foreach (var kvp in this.terms)
             {
                 result.terms.Add(kvp.Key, this.ring.AdditiveInverse(kvp.Value));
@@ -681,6 +681,49 @@ namespace Mathematics
                     }
 
                     var lastPower = MathFunctions.Power(coeff, previousDegree, this.ring);
+                    result = this.ring.Multiply(result, lastPower);
+                    return result;
+                }
+                else
+                {
+                    return this.ring.AdditiveUnity;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Substitui a variável pelo coeficiente especificado e calcula o resultado.
+        /// </summary>
+        /// <param name="coeff">O coeficiente.</param>
+        /// <param name="outerRing">O anel.</param>
+        /// <returns>O resultado.</returns>
+        public CoeffType Replace(CoeffType coeff, IRing<CoeffType> outerRing)
+        {
+            if (outerRing == null)
+            {
+                throw new ArgumentNullException("outerRing");
+            }
+            if (coeff == null)
+            {
+                throw new ArgumentNullException("coeff");
+            }
+            else
+            {
+                var termsEnumerator = this.terms.GetEnumerator();
+                if (termsEnumerator.MoveNext())
+                {
+                    var result = termsEnumerator.Current.Value;
+                    var previousDegree = termsEnumerator.Current.Key;
+                    while (termsEnumerator.MoveNext())
+                    {
+                        var currentDegree = termsEnumerator.Current.Key;
+                        var power = MathFunctions.Power(coeff, previousDegree - currentDegree, outerRing);
+                        result = outerRing.Multiply(result, power);
+                        result = outerRing.Add(result, termsEnumerator.Current.Value);
+                        previousDegree = currentDegree;
+                    }
+
+                    var lastPower = MathFunctions.Power(coeff, previousDegree, outerRing);
                     result = this.ring.Multiply(result, lastPower);
                     return result;
                 }
@@ -754,7 +797,7 @@ namespace Mathematics
             {
                 var result = new UnivariatePolynomialNormalForm<CoeffType, RingType>(this.ring);
                 result.variableName = variableName;
-                result.terms = new SortedList<int, CoeffType>(Comparer<int>.Default);
+                result.terms = new SortedList<int, CoeffType>(new InverseIntegerComparer());
                 foreach (var kvp in this.terms)
                 {
                     result.terms.Add(kvp.Key, kvp.Value);
@@ -807,6 +850,52 @@ namespace Mathematics
                 }
             }
         }
+
+        /// <summary>
+        /// Substitui a variável pelo polinómio especificado e calcula o resultado.
+        /// </summary>
+        /// <param name="other">O polinómio a substituir.</param>
+        /// <param name="outerRing">O anel exterior.</param>
+        /// <returns>O resultado da substituição.</returns>
+        public UnivariatePolynomialNormalForm<CoeffType, RingType> Replace(
+            UnivariatePolynomialNormalForm<CoeffType, RingType> other,
+            IRing<CoeffType> outerRing)
+        {
+            if (other == null)
+            {
+                throw new ArgumentNullException("other");
+            }
+            else
+            {
+                var polynomialRing = new UnivarPolynomRing<CoeffType, RingType>(this.variableName, this.ring);
+                var termsEnumerator = this.terms.GetEnumerator();
+                if (termsEnumerator.MoveNext())
+                {
+                    var result = new UnivariatePolynomialNormalForm<CoeffType, RingType>(
+                        termsEnumerator.Current.Value,
+                        0,
+                        this.variableName,
+                        this.ring);
+                    var previousDegree = termsEnumerator.Current.Key;
+                    while (termsEnumerator.MoveNext())
+                    {
+                        var currentDegree = termsEnumerator.Current.Key;
+                        var power = MathFunctions.Power(other, previousDegree - currentDegree, polynomialRing);
+                        result = result.Multiply(power);
+                        result = result.Add(termsEnumerator.Current.Value);
+                        previousDegree = currentDegree;
+                    }
+
+                    var lastPower = MathFunctions.Power(other, previousDegree, polynomialRing);
+                    result = result.Multiply(lastPower);
+                    return result;
+                }
+                else
+                {
+                    return polynomialRing.AdditiveUnity;
+                }
+            }
+        }
         #endregion Operações
 
         /// <summary>
@@ -822,19 +911,11 @@ namespace Mathematics
             }
             else
             {
-                var insertedSortedCollection = new InsertionSortedCollection<int>(
-                    Comparer<int>.Default,
-                    true);
-                foreach (var term in this.terms)
+                var termsEnum = this.terms.GetEnumerator();
+                if (termsEnum.MoveNext())
                 {
-                    insertedSortedCollection.InsertSortElement(term.Key);
-                }
-
-                var invertedEnum = insertedSortedCollection.GetReversedEnumerator();
-                if (invertedEnum.MoveNext())
-                {
-                    var currentDegree = invertedEnum.Current;
-                    var currentValue = this.terms[invertedEnum.Current];
+                    var currentDegree = termsEnum.Current.Key;
+                    var currentValue = termsEnum.Current.Value;
                     resultBuilder.AppendFormat("{0}", currentValue);
                     if (currentDegree == 1)
                     {
@@ -845,11 +926,11 @@ namespace Mathematics
                         resultBuilder.AppendFormat("*{0}^{1}", this.variableName, currentDegree);
                     }
 
-                    while (invertedEnum.MoveNext())
+                    while (termsEnum.MoveNext())
                     {
                         resultBuilder.Append("+");
-                        currentDegree = invertedEnum.Current;
-                        currentValue = this.terms[invertedEnum.Current];
+                        currentDegree = termsEnum.Current.Key;
+                        currentValue = termsEnum.Current.Value;
                         resultBuilder.AppendFormat("{0}", currentValue);
                         if (currentDegree == 1)
                         {
