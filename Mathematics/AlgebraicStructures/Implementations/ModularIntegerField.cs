@@ -210,7 +210,7 @@
             result = result % this.module;
             if (result < 0)
             {
-                result = this.module - result;
+                result = this.module + result;
             }
 
             return result;

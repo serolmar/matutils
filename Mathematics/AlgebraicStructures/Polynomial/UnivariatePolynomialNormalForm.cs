@@ -898,6 +898,58 @@ namespace Mathematics
         }
         #endregion Operações
 
+        public override bool Equals(object obj)
+        {
+            var innerObj = obj as UnivariatePolynomialNormalForm<CoeffType, RingType>;
+            if (innerObj == null)
+            {
+                return false;
+            }
+            else
+            {
+                if (this.variableName != innerObj.variableName)
+                {
+                    return false;
+                }
+                else
+                {
+                    if (this.terms.Count != innerObj.terms.Count)
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        foreach (var term in this.terms)
+                        {
+                            var otherTerm = default(CoeffType);
+                            if (innerObj.terms.TryGetValue(term.Key, out otherTerm))
+                            {
+                                return this.ring.Equals(term.Value, otherTerm);
+                            }
+                            else
+                            {
+                                return false;
+                            }
+                        }
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        public override int GetHashCode()
+        {
+            var result = this.variableName.GetHashCode();
+            foreach (var term in this.terms)
+            {
+                result ^= term.Key.GetHashCode();
+                result ^= this.ring.GetHashCode(term.Value);
+            }
+
+            return result;
+        }
+
         /// <summary>
         /// Obtém uma representação textual do polinómio.
         /// </summary>

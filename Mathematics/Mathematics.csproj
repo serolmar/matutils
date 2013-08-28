@@ -125,6 +125,7 @@
     <Compile Include="Algorithms\NumberTheory\PerfectPowerTestAlgorithm.cs" />
     <Compile Include="Algorithms\NumberTheory\PollardRhoAlgorithm.cs" />
     <Compile Include="Algorithms\NumberTheory\PrimeNumbersIterator.cs" />
+    <Compile Include="Algorithms\NumberTheory\QuadraticFieldSieve.cs" />
     <Compile Include="Algorithms\NumberTheory\ResSolAlgorithm.cs" />
     <Compile Include="Algorithms\Polynomials\UnivarSquareFreeDecomposition.cs" />
     <Compile Include="BacheBezoutResult.cs" />

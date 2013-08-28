@@ -48,11 +48,22 @@
 
         public static void Test13()
         {
+            var aksPrimalityTest = new AksPrimalityTest();
+            var n = 521;
+            if (aksPrimalityTest.Run(n))
+            {
+                Console.WriteLine("{0} is prime", n);
+            }
+            else
+            {
+                Console.WriteLine("{0} isn't prime", n);
+            }
+
             var eulerFunction = new EulerTotFuncAlg();
             Console.WriteLine(eulerFunction.Run(1937));
 
             var pollardRhoAlg = new PollardRhoAlgorithm();
-            var n = 38;
+            n = 38;
             var pollardResult = pollardRhoAlg.Run(n);
             var pollardBlockedResult = pollardRhoAlg.Run(n, 10);
             Console.WriteLine("[{0}, {1}]", pollardResult.Item1, pollardResult.Item2);

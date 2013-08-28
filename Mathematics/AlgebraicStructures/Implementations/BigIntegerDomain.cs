@@ -10,14 +10,16 @@
     {
         public BigInteger AdditiveUnity
         {
-            get {
+            get
+            {
                 return 0;
             }
         }
 
         public BigInteger MultiplicativeUnity
         {
-            get {
+            get
+            {
                 return 1;
             }
         }
