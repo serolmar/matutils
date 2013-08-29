@@ -96,7 +96,7 @@
                         for (int i = 1; i <= limit; ++i)
                         {
                             terms.Clear();
-                            terms.Add(0, 1);
+                            terms.Add(0, i);
                             terms.Add(1, 1);
                             var polynomial = new UnivariatePolynomialNormalForm<int, ModularIntegerField>(
                             terms,
@@ -104,7 +104,7 @@
                             modularField);
 
                             terms.Clear();
-                            terms.Add(0, 1);
+                            terms.Add(0, i);
                             terms.Add(innerData, 1);
                             var comparisionPol = new UnivariatePolynomialNormalForm<int, ModularIntegerField>(
                             terms,
@@ -141,10 +141,10 @@
         private int EvaluateLimitValue(int data, double log)
         {
             var squaredLog = log * log;
-            var order = 2;
             for (int i = 2; i < data; ++i)
             {
-                var power = i;
+
+                var order = 2;
                 if (order > squaredLog)
                 {
                     return i;
@@ -152,7 +152,19 @@
                 else
                 {
                     ++order;
-                    power = (power * i) % data;
+                    var power = (i * i) % data;
+                    while (power != 1)
+                    {
+                        if (order > squaredLog)
+                        {
+                            return i;
+                        }
+                        else
+                        {
+                            power = (power * i) % data;
+                            ++order;
+                        }
+                    }
                 }
             }
 

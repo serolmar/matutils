@@ -48,6 +48,8 @@
 
         public static void Test13()
         {
+            var quadraticSieve = new QuadraticFieldSieve();
+            var temp = quadraticSieve.Run(13457, 50, 20);
             var aksPrimalityTest = new AksPrimalityTest();
             var n = 521;
             if (aksPrimalityTest.Run(n))
