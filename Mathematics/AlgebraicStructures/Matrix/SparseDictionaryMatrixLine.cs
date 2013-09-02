@@ -118,39 +118,11 @@ namespace Mathematics
         public void Remove(int columnIndex)
         {
             this.matrixEntries.Remove(columnIndex);
-            this.owner.UpdateLastColumnNumber(this.afterLastColumnNumber);
-            if (columnIndex == this.afterLastColumnNumber - 1)
-            {
-                var maximumIndex = 0;
-                foreach (var kvp in this.matrixEntries)
-                {
-                    if (kvp.Key > maximumIndex)
-                    {
-                        maximumIndex = kvp.Key;
-                    }
-                }
-
-                this.afterLastColumnNumber = maximumIndex + 1;
-            }
         }
 
         public IEnumerator<KeyValuePair<int,ObjectType>> GetEnumerator()
         {
             return this.matrixEntries.GetEnumerator();
-        }
-
-        public void UpdateAfterLastLine()
-        {
-            var maximumValue = 0;
-            foreach (var kvp in this.matrixEntries)
-            {
-                if (kvp.Key > maximumValue)
-                {
-                    maximumValue = kvp.Key;
-                }
-            }
-
-            this.afterLastColumnNumber = maximumValue + 1;
         }
 
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()

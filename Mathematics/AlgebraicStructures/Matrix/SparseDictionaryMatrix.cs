@@ -72,13 +72,13 @@
         {
             get
             {
-                if (line < 0)
+                if (line < 0 || line >= this.afterLastLine)
                 {
-                    throw new ArgumentOutOfRangeException("Line index must be a non-negative number.");
+                    throw new ArgumentOutOfRangeException("line");
                 }
-                else if (column < 0)
+                else if (column < 0 || column >= this.afterLastColumn)
                 {
-                    throw new ArgumentOutOfRangeException("Column index must be a non-negative number.");
+                    throw new ArgumentOutOfRangeException("column");
                 }
                 else
                 {
@@ -103,41 +103,25 @@
             }
             set
             {
-                if (line < 0)
+                if (line < 0 || line >= this.afterLastLine)
                 {
-                    throw new ArgumentOutOfRangeException("Line index must be a non-negative number.");
+                    throw new ArgumentOutOfRangeException("line");
                 }
-                else if (column < 0)
+                else if (column < 0 || column >= this.afterLastColumn)
                 {
-                    throw new ArgumentOutOfRangeException("Column index must be a non-negative number.");
+                    throw new ArgumentOutOfRangeException("column");
                 }
                 else
                 {
-                    if (line >= this.afterLastLine)
+                    var currentLine = default(SparseDictionaryMatrixLine<ObjectType>);
+                    if (this.matrixLines.TryGetValue(line, out currentLine))
                     {
-                        var newLine = new SparseDictionaryMatrixLine<ObjectType>(this);
-                        newLine[column] = value;
-                        this.matrixLines.Add(line, newLine);
-                        this.afterLastLine = line + 1;
+                        currentLine[column] = value;
                     }
                     else
                     {
-                        var currentLine = default(SparseDictionaryMatrixLine<ObjectType>);
-                        if (this.matrixLines.TryGetValue(line, out currentLine))
-                        {
-                            currentLine[column] = value;
-                        }
-                        else
-                        {
-                            var newLine = new SparseDictionaryMatrixLine<ObjectType>(this);
-                            this.matrixLines.Add(line, newLine);
-                        }
-
-                    }
-
-                    if (column >= this.afterLastColumn)
-                    {
-                        this.afterLastColumn = column + 1;
+                        var newLine = new SparseDictionaryMatrixLine<ObjectType>(this);
+                        this.matrixLines.Add(line, newLine);
                     }
                 }
             }
@@ -151,11 +135,87 @@
             }
         }
 
+        /// <summary>
+        /// Obtém o número de linhas com entradas diferentes do valor por defeito.
+        /// </summary>
         public int NumberOfLines
         {
             get
             {
                 return this.matrixLines.Count;
+            }
+        }
+
+        /// <summary>
+        /// Exapande a matriz um número específico de vezes.
+        /// </summary>
+        /// <param name="numberOfLines">O número de linhas a acrescentar.</param>
+        /// <param name="numberOfColumns">O número de colunas a acrescentar.</param>
+        public void ExpandMatrix(int numberOfLines, int numberOfColumns)
+        {
+            if (numberOfLines < 0)
+            {
+                throw new ArgumentException("The number of lines must be non-negative.");
+            }
+            else if (numberOfColumns < 0)
+            {
+                throw new ArgumentException("The number of columns must be non-negative.");
+            }
+            else
+            {
+                this.afterLastLine += numberOfLines;
+                this.afterLastColumn += numberOfColumns;
+            }
+        }
+
+        /// <summary>
+        /// Verifica se se trata de uma matriz simétrica.
+        /// </summary>
+        /// <param name="equalityComparer">O comparador das entradas.</param>
+        /// <returns>Verdadeiro caso se trate de uma matriz simétrica e falso no caso contrário.</returns>
+        public bool IsSymmetric(IEqualityComparer<ObjectType> equalityComparer)
+        {
+            var innerEqualityComparer = equalityComparer;
+            if (innerEqualityComparer == null)
+            {
+                innerEqualityComparer = EqualityComparer<ObjectType>.Default;
+            }
+
+            if (this.afterLastLine != this.afterLastColumn)
+            {
+                return false;
+            }
+            else
+            {
+                foreach (var line in this.matrixLines)
+                {
+                    foreach (var column in line.Value)
+                    {
+                        if (line.Key != column.Key)
+                        {
+                            var entryLine = default(SparseDictionaryMatrixLine<ObjectType>);
+                            if (this.matrixLines.TryGetValue(column.Key, out entryLine))
+                            {
+                                var entry = default(ObjectType);
+                                if (entryLine.MatrixEntries.TryGetValue(line.Key, out entry))
+                                {
+                                    return innerEqualityComparer.Equals(column.Value, entry);
+                                }
+                                else
+                                {
+                                    return innerEqualityComparer.Equals(column.Value, this.defaultValue);
+                                }
+                            }
+                            else
+                            {
+                                return innerEqualityComparer.Equals(column.Value, this.defaultValue);
+                            }
+                        }
+                    }
+                }
+
+                // A matriz nula é simétrica
+                return true;
             }
         }
 
@@ -175,21 +235,6 @@
                 if (this.matrixLines.TryGetValue(lineNumber, out currentLine))
                 {
                     this.matrixLines.Remove(lineNumber);
-                    if (lineNumber == this.afterLastLine - 1)
-                    {
-                        var maximumIndex = 0;
-                        foreach (var kvp in this.matrixLines)
-                        {
-                            if (kvp.Key > maximumIndex)
-                            {
-                                maximumIndex = kvp.Key;
-                            }
-                        }
-
-                        this.afterLastLine = maximumIndex + 1;
-                    }
-
-                    this.UpdateLastColumnNumber(currentLine.AfterLastColumnNumber);
                 }
             }
         }
@@ -295,13 +340,13 @@
 
         public void SwapColumns(int i, int j)
         {
-            if (i < 0)
+            if (i < 0 || i >= this.afterLastLine)
             {
-                throw new IndexOutOfRangeException("Index i must be non negative.");
+                throw new IndexOutOfRangeException("i");
             }
-            else if (j < 0)
+            else if (j < 0 || j >= this.afterLastColumn)
             {
-                throw new IndexOutOfRangeException("Index j must be non-negative.");
+                throw new IndexOutOfRangeException("j");
             }
             else
             {
@@ -321,26 +366,6 @@
                         {
                             lineDictionary.Remove(i);
                             lineDictionary.Add(j, firstLineEntry);
-                            if (j >= this.afterLastColumn)
-                            {
-                                this.afterLastColumn = j + 1;
-                                lineKvp.Value.AfterLastColumnNumber = j + 1;
-                            }
-                            else if (i == this.afterLastColumn - 1)
-                            {
-                                var maximumColumnNumber = 0;
-                                lineKvp.Value.UpdateAfterLastLine();
-                                foreach (var kvp in this.matrixLines)
-                                {
-                                    var comparisionValue = kvp.Value.AfterLastColumnNumber;
-                                    if (comparisionValue > maximumColumnNumber)
-                                    {
-                                        maximumColumnNumber = comparisionValue;
-                                    }
-                                }
-
-                                this.afterLastColumn = maximumColumnNumber;
-                            }
                         }
                     }
                     else
@@ -350,26 +375,6 @@
                         {
                             lineDictionary.Remove(j);
                             lineDictionary.Add(i, secondLineEntry);
-                            if (i >= this.afterLastColumn)
-                            {
-                                this.afterLastColumn = i + 1;
-                                lineKvp.Value.AfterLastColumnNumber = i + 1;
-                            }
-                            else if (j == this.afterLastColumn - 1)
-                            {
-                                var maximumColumnNumber = 0;
-                                lineKvp.Value.UpdateAfterLastLine();
-                                foreach (var kvp in this.matrixLines)
-                                {
-                                    var comparisionValue = kvp.Value.AfterLastColumnNumber;
-                                    if (comparisionValue > maximumColumnNumber)
-                                    {
-                                        maximumColumnNumber = comparisionValue;
-                                    }
-                                }
-
-                                this.afterLastColumn = maximumColumnNumber;
-                            }
                         }
                     }
                 }
@@ -384,28 +389,6 @@
                 {
                     yield return columnKvp.Value;
                 }
-            }
-        }
-
-        /// <summary>
-        /// Actualiza o valor da última coluna no caso de serem removidas entradas
-        /// a uma linha.
-        /// </summary>
-        /// <param name="numberOfElementsInLine">O número de elementos na linha que foi removida.</param>
-        internal void UpdateLastColumnNumber(int numberOfElementsInLine)
-        {
-            if (numberOfElementsInLine > this.afterLastColumn)
-            {
-                var maximumColumn = 0;
-                foreach (var kvp in this.matrixLines)
-                {
-                    if (kvp.Value.AfterLastColumnNumber > maximumColumn)
-                    {
-                        maximumColumn = kvp.Value.AfterLastColumnNumber;
-                    }
-                }
-
-                this.afterLastColumn = maximumColumn;
             }
         }
 

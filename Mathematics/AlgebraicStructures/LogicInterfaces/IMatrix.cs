@@ -17,6 +17,13 @@
         ObjectType this[int line, int column] { get; set; }
 
         /// <summary>
+        /// Verifica se se trata de uma matriz simétrica.
+        /// </summary>
+        /// <param name="equalityComparer">O comparador das entradas.</param>
+        /// <returns>Verdadeiro caso se trate de uma matriz simétrica e falso no caso contrário.</returns>
+        bool IsSymmetric(IEqualityComparer<ObjectType> equalityComparer);
+
+        /// <summary>
         /// Obtém o número de linhas ou colunas da matriz.
         /// </summary>
         /// <param name="dimension">Zero caso seja pretendido o número de linhas e um caso seja pretendido

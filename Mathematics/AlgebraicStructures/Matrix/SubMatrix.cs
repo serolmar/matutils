@@ -85,6 +85,42 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Verifica se se trata de uma matriz simétrica.
+        /// </summary>
+        /// <param name="equalityComparer">O comparador das entradas.</param>
+        /// <returns>Verdadeiro caso se trate de uma matriz simétrica e falso no caso contrário.</returns>
+        public bool IsSymmetric(IEqualityComparer<ObjectType> equalityComparer)
+        {
+            var innerEqualityComparer = equalityComparer;
+            if (innerEqualityComparer == null)
+            {
+                innerEqualityComparer = EqualityComparer<ObjectType>.Default;
+            }
+
+            if (this.lines != this.columns)
+            {
+                return false;
+            }
+            else
+            {
+                for (int i = 0; i < this.lines.Length; ++i)
+                {
+                    for (int j = i + 1; j < this.columns.Length; ++j)
+                    {
+                        var currentEntry = this.matrix[this.lines[i], this.columns[j]];
+                        var symmetricEntry = this.matrix[this.lines[j], this.columns[i]];
+                        if (!innerEqualityComparer.Equals(currentEntry, symmetricEntry))
+                        {
+                            return false;
+                        }
+                    }
+                }
+
+                return true;
+            }
+        }
+
         public IMatrix<ObjectType> GetSubMatrix(int[] lines, int[] columns)
         {
                 return new SubMatrix<ObjectType>(this, lines, columns);
@@ -99,11 +135,11 @@ namespace Mathematics
         {
             if (i < 0 || i > this.lines.Length)
             {
-                throw new IndexOutOfRangeException("Index must be non-negative and less than the number of lines.");
+                throw new IndexOutOfRangeException("i");
             }
             else if (j < 0 || j > this.lines.Length)
             {
-                throw new IndexOutOfRangeException("Index must be non-negative and less than the number of lines.");
+                throw new IndexOutOfRangeException("j");
             }
             else if (i != j)
             {
@@ -117,11 +153,11 @@ namespace Mathematics
         {
             if (i < 0 || i > this.columns.Length)
             {
-                throw new IndexOutOfRangeException("Index must be non-negative and less than the number of lines.");
+                throw new IndexOutOfRangeException("i");
             }
             else if (j < 0 || j > this.columns.Length)
             {
-                throw new IndexOutOfRangeException("Index must be non-negative and less than the number of lines.");
+                throw new IndexOutOfRangeException("j");
             }
             else if (i != j)
             {

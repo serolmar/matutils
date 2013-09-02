@@ -68,7 +68,7 @@
         /// <param name="sieveInterval">O intervalo de crivo.</param>
         /// <param name="primesList">A base de primos.</param>
         /// <returns>A matriz com o vector.</returns>
-        public int[,] ComputeSievetep(int innerData, int sieveInterval, List<int> primesList)
+        public Tuple<int[,], int[]> ComputeSievetep(int innerData, int sieveInterval, List<int> primesList)
         {
             var sqrt = (int)Math.Floor(Math.Sqrt(innerData));
             var innerSieveInterval = sieveInterval;
@@ -195,16 +195,22 @@
                 }
             }
 
-            var result = new int[matrixList.Count, primesList.Count + 1];
+            var matrix = new int[matrixList.Count, primesList.Count];
             for (int i = 0; i < matrixList.Count; ++i)
             {
-                for (int j = 0; j < primesList.Count + 1; ++j)
+                for (int j = 0; j < primesList.Count; ++j)
                 {
-                    result[i, j] = matrixList[i][j];
+                    matrix[i, j] = matrixList[i][j];
                 }
             }
 
-            return result;
+            var vector = new int[matrixList.Count];
+            for (int i = 0; i < matrixList.Count; ++i)
+            {
+                vector[i] = matrixList[i][primesList.Count];
+            }
+
+            return Tuple.Create(matrix, vector);
         }
 
         /// <summary>

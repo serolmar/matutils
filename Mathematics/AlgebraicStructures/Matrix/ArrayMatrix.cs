@@ -98,6 +98,42 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Verifica se se trata de uma matriz simétrica.
+        /// </summary>
+        /// <param name="equalityComparer">O comparador das entradas.</param>
+        /// <returns>Verdadeiro caso se trate de uma matriz simétrica e falso no caso contrário.</returns>
+        public bool IsSymmetric(IEqualityComparer<ObjectType> equalityComparer)
+        {
+            var innerEqualityComparer = equalityComparer;
+            if (innerEqualityComparer == null)
+            {
+                innerEqualityComparer = EqualityComparer<ObjectType>.Default;
+            }
+
+            if (this.numberOfLines != this.numberOfColumns)
+            {
+                return false;
+            }
+            else
+            {
+                for (int i = 0; i < this.numberOfLines; ++i)
+                {
+                    for (int j = i + 1; j < this.numberOfColumns; ++j)
+                    {
+                        var currentEntry = this.elements[i][j];
+                        var symmetricEntry = this.elements[j][i];
+                        if (!innerEqualityComparer.Equals(currentEntry, symmetricEntry))
+                        {
+                            return false;
+                        }
+                    }
+                }
+
+                return true;
+            }
+        }
+
         public int GetLength(int dimension)
         {
             if (dimension == 0)

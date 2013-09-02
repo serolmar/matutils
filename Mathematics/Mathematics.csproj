@@ -83,6 +83,7 @@
     <Compile Include="AlgebraicStructures\Matrix\SparseDictionaryMatrixFactory.cs" />
     <Compile Include="AlgebraicStructures\Matrix\SparseDictionaryMatrixLine.cs" />
     <Compile Include="AlgebraicStructures\Matrix\SubMatrix.cs" />
+    <Compile Include="AlgebraicStructures\Matrix\TransposeMatrix.cs" />
     <Compile Include="AlgebraicStructures\MultiDimensionalRange\MultiDimensionalRange.cs" />
     <Compile Include="AlgebraicStructures\MultiDimensionalRange\MultiDimensionalRangeParser.cs" />
     <Compile Include="AlgebraicStructures\MultiDimensionalRange\MultiDimensionalRangeReader.cs" />
@@ -118,6 +119,7 @@
     <Compile Include="Algorithms\Matrix\Determinant\ExpansionDeterminantCalculator.cs" />
     <Compile Include="Algorithms\Matrix\Determinant\PermutationDeterminantCalculator.cs" />
     <Compile Include="Algorithms\Matrix\EigenProblems\FastDivisionFreeCharPolynomCalculator.cs" />
+    <Compile Include="Algorithms\Matrix\Linear Systems\SequentialLanczosAlgorithm.cs" />
     <Compile Include="Algorithms\NumberTheory\AksPrimalityTest.cs" />
     <Compile Include="Algorithms\NumberTheory\EulerTotFuncAlg.cs" />
     <Compile Include="Algorithms\NumberTheory\LegendreJacobiSymbolAlgorithm.cs" />

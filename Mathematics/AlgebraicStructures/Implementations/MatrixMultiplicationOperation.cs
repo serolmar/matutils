@@ -48,6 +48,39 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Obtém o objecto responsável pela multiplicação das entradas da matriz.
+        /// </summary>
+        public MultiplicationOperationType MultiplicationOperation
+        {
+            get
+            {
+                return this.multiplicationOperation;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o objecto responsável pela adição das entradas da matriz.
+        /// </summary>
+        public AdditionOperationType AdditionOperation
+        {
+            get
+            {
+                return this.additionOperation;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o objecto responsável pela instanciação da matriz produto.
+        /// </summary>
+        public IMatrixFactory<ObjectType> MatrixFactory
+        {
+            get
+            {
+                return this.matrixFactory;
+            }
+        }
+
         public IMatrix<ObjectType> Multiply(IMatrix<ObjectType> left, IMatrix<ObjectType> right)
         {
             if (left == null)

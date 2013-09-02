@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Mathematics
+﻿namespace Mathematics
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+
     public class MatrixAdditionOperation<ObjectType, AdditionOperationType> : IAdditionOperation<IMatrix<ObjectType>>
         where AdditionOperationType : IAdditionOperation<ObjectType>
     {
@@ -32,6 +32,17 @@ namespace Mathematics
             {
                 this.additionOperation = additionOperation;
                 this.matrixFactory = matrixFactory;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o objecto responsável pela instanciação da matriz soma.
+        /// </summary>
+        public IMatrixFactory<ObjectType> MatrixFactory
+        {
+            get
+            {
+                return this.matrixFactory;
             }
         }
 
