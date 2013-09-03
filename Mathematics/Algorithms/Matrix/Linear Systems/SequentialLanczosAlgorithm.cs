@@ -75,7 +75,8 @@
         /// </summary>
         /// <remarks>
         /// Se a matriz em questão não for simétrica, então o processo é aplicado sobre a matriz AT * A
-        /// onde AT corresponde à transposta de A.
+        /// onde AT corresponde à transposta de A e sobre o vector AT * v, onde v representa o vector
+        /// independente inicial.
         /// </remarks>
         /// <param name="linearSystemMatrix">A matriz de entrada.</param>
         /// <param name="independentVector">O vector independente.</param>
@@ -97,6 +98,7 @@
                 var linearSystemColumns = linearSystemMatrix.GetLength(1);
                 var independentVectorLines = independentVector.GetLength(0);
                 var innerLinearSystemMatrix = linearSystemMatrix;
+                var innerIndependentVector = independentVector;
                 if (linearSystemColumns != independentVectorLines)
                 {
                     throw new MathematicsException("The number of linear system matrix columns must be equal to the number of independent vector lines.");
@@ -109,9 +111,12 @@
                         innerLinearSystemMatrix = this.multiplicationOperation.Multiply(
                             transposed,
                             innerLinearSystemMatrix);
+                        innerIndependentVector = this.multiplicationOperation.Multiply(
+                            transposed,
+                            independentVector);
                     }
 
-                    var w0 = independentVector;
+                    var w0 = innerIndependentVector;
                     var resultVector = this.matrixFactory.CreateMatrix(
                         linearSystemColumns,
                         1,
@@ -123,29 +128,62 @@
                             innerLinearSystemMatrix);
 
                         var transposed = new TransposeMatrix<ElementType>(w0);
-                        var psi0 = this.multiplicationOperation.Multiply(
+                        var psi = this.multiplicationOperation.Multiply(
                             transposed,
                             squaredMatrix);
-                        var eta0 = this.multiplicationOperation.Multiply(
+                        var eta = this.multiplicationOperation.Multiply(
                             transposed,
                             innerLinearSystemMatrix);
-                        var chi0 = this.multiplicationOperation.Multiply(eta0,
+                        var chi = this.multiplicationOperation.Multiply(eta,
                             w0)[0,0];
 
+                        resultVector = this.GetNewSolution(
+                            resultVector,
+                            innerIndependentVector,
+                            w0,
+                            transposed,
+                            chi);
+
                         var w1 = w0;
-                        w0 = this.ComputeVector(w1, psi0, chi0);
+                        w0 = this.ComputeVector(w1, w1, psi, chi);
                         var additionVector = this.multiplicationOperation.Multiply(
                             innerLinearSystemMatrix,
                             w1);
                         w0 = this.additionOperation.Add(additionVector, w0);
                         while (!this.IsEmptyVector(w0))
                         {
+                            additionVector = this.ComputeVector(w1, w0, psi, chi);
+                            transposed = new TransposeMatrix<ElementType>(w0);
+                            psi = this.multiplicationOperation.Multiply(
+                            transposed,
+                            squaredMatrix);
+                            eta = this.multiplicationOperation.Multiply(
+                            transposed,
+                            innerLinearSystemMatrix);
+                            chi = this.multiplicationOperation.Multiply(eta,
+                            w0)[0, 0];
+
+                            resultVector = this.GetNewSolution(
+                            resultVector,
+                            innerIndependentVector,
+                            w0,
+                            transposed,
+                            chi);
+
+                            additionVector = this.additionOperation.Add(
+                                additionVector,
+                                this.ComputeVector(w0, w0, psi, chi));
+                            w1 = w0;
+                            w0 = this.multiplicationOperation.Multiply(
+                            innerLinearSystemMatrix,
+                            w0);
+                            w0 = this.additionOperation.Add(additionVector, w0);
                         }
                     }
+
+                    return resultVector;
                 }
             }
-
-            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -169,36 +207,63 @@
         /// <summary>
         /// Determina o vector a ser adicionado durante a iteração.
         /// </summary>
-        /// <param name="w">O vector sobre o qual se pretende calcular o coeficiente.</param>
+        /// <param name="previousVector">O vector sobre o qual se pretende calcular o coeficiente.</param>
+        /// <param name="vector">O vector correspondente à iteração.</param>
         /// <param name="psi">O valor pré-calculado do numerador.</param>
         /// <param name="chi">O valor do denominador.</param>
         /// <returns>O coeficiente procurado.</returns>
         private IMatrix<ElementType> ComputeVector(
-            IMatrix<ElementType> w,
+            IMatrix<ElementType> previousVector,
+            IMatrix<ElementType> vector,
             IMatrix<ElementType> psi, 
             ElementType chi)
         {
             var temp = this.multiplicationOperation.Multiply(
                 psi,
-                w)[0,0];
-            temp = this.field.Multiply(temp, this.field.AdditiveInverse(chi));
+                vector)[0,0];
+            temp = this.field.Multiply(temp, this.field.MultiplicativeInverse(chi));
             temp = this.field.AdditiveInverse(temp);
-            var result = this.matrixFactory.CreateMatrix(w.GetLength(0), 1, this.field.AdditiveUnity);
-            for (int i = 0; i < w.GetLength(0); ++i)
+            var result = this.matrixFactory.CreateMatrix(previousVector.GetLength(0), 1, this.field.AdditiveUnity);
+            for (int i = 0; i < previousVector.GetLength(0); ++i)
             {
-                result[i, 0] = this.field.Multiply(temp, w[i, 0]);
+                result[i, 0] = this.field.Multiply(temp, previousVector[i, 0]);
             }
 
             return result;
         }
 
+        /// <summary>
+        /// Obtém a nova solução sendo proporcionados os elementos que permitem o respectivo
+        /// cálculo.
+        /// </summary>
+        /// <param name="oldSolution">A solução anterior.</param>
+        /// <param name="systemVector">O vector independente do sistema de equações.</param>
+        /// <param name="currentVector">O vector actual da iteração.</param>
+        /// <param name="transposedVector">O vector actual transposto.</param>
+        /// <param name="chi">O valor do denominador.</param>
+        /// <returns>A nova aproximação para a solução.</returns>
         private IMatrix<ElementType> GetNewSolution(
             IMatrix<ElementType> oldSolution,
-            IMatrix<ElementType> vector,
+            IMatrix<ElementType> systemVector,
+            IMatrix<ElementType> currentVector,
             TransposeMatrix<ElementType> transposedVector,
             ElementType chi)
         {
-            throw new NotImplementedException();
+            var coeff = this.multiplicationOperation.Multiply(
+                transposedVector,
+                systemVector)[0, 0];
+            coeff = this.field.Multiply(coeff, this.field.MultiplicativeInverse(chi));
+            var result = this.matrixFactory.CreateMatrix(
+                currentVector.GetLength(0),
+                1,
+                this.field.AdditiveUnity);
+            for (int i = 0; i < currentVector.GetLength(0); ++i)
+            {
+                result[i, 0] = this.field.Multiply(coeff, currentVector[i, 0]);
+            }
+
+            result = this.additionOperation.Add(result, oldSolution);
+            return result;
         }
     }
 }

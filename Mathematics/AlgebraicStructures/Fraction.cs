@@ -189,21 +189,37 @@ namespace Mathematics
             {
                 throw new ArgumentNullException("right");
             }
+            else if (this.euclideanDomain.IsAdditiveUnity(this.numerator))
+            {
+                var result = new Fraction<T, D>(this.euclideanDomain);
+                result.numerator = this.euclideanDomain.AdditiveUnity;
+                result.denominator = this.euclideanDomain.MultiplicativeUnity;
+                return result;
+            }
+            else if (this.euclideanDomain.IsAdditiveUnity(right.numerator))
+            {
+                var result = new Fraction<T, D>(this.euclideanDomain);
+                result.numerator = this.euclideanDomain.AdditiveUnity;
+                result.denominator = this.euclideanDomain.MultiplicativeUnity;
+                return result;
+            }
+            else
+            {
+                var crossGcd = MathFunctions.GreatCommonDivisor(this.numerator, right.denominator, this.euclideanDomain);
+                var firstNumerator = this.euclideanDomain.Quo(this.numerator, crossGcd);
+                var secondDenominator = this.euclideanDomain.Quo(right.denominator, crossGcd);
+                crossGcd = MathFunctions.GreatCommonDivisor(this.denominator, right.numerator, this.euclideanDomain);
+                var secondNumerator = this.euclideanDomain.Quo(right.numerator, crossGcd);
+                var firstDenominator = this.euclideanDomain.Quo(this.denominator, crossGcd);
 
-            var crossGcd = MathFunctions.GreatCommonDivisor(this.numerator, right.denominator, this.euclideanDomain);
-            var firstNumerator = this.euclideanDomain.Quo(this.numerator, crossGcd);
-            var secondDenominator = this.euclideanDomain.Quo(right.denominator, crossGcd);
-            crossGcd = MathFunctions.GreatCommonDivisor(this.denominator, right.numerator, this.euclideanDomain);
-            var secondNumerator = this.euclideanDomain.Quo(right.numerator, crossGcd);
-            var firstDenominator = this.euclideanDomain.Quo(this.denominator, crossGcd);
+                var resultNumerator = this.euclideanDomain.Multiply(firstNumerator, secondNumerator);
+                var resultDenominator = this.euclideanDomain.Multiply(firstDenominator, secondDenominator);
 
-            var resultNumerator = this.euclideanDomain.Multiply(firstNumerator, secondNumerator);
-            var resultDenominator = this.euclideanDomain.Multiply(firstDenominator, secondDenominator);
-
-            var result = new Fraction<T, D>(this.euclideanDomain);
-            result.numerator = resultNumerator;
-            result.denominator = resultDenominator;
-            return result;
+                var result = new Fraction<T, D>(this.euclideanDomain);
+                result.numerator = resultNumerator;
+                result.denominator = resultDenominator;
+                return result;
+            }
         }
 
         /// <summary>

@@ -72,10 +72,10 @@
                 }
                 else
                 {
-                    var result = this.matrixFactory.CreateMatrix(leftLinesDimension, rightLinesDimension);
+                    var result = this.matrixFactory.CreateMatrix(leftLinesDimension, leftColumnsDimension);
                     for (int i = 0; i < leftLinesDimension; ++i)
                     {
-                        for (int j = 0; j < rightLinesDimension; ++j)
+                        for (int j = 0; j < leftColumnsDimension; ++j)
                         {
                             result[i, j] = this.additionOperation.Add(left[i, j], right[i, j]);
                         }

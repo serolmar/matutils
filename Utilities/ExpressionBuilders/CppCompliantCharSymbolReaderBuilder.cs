@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using Utilities.Parsers;
-
-namespace Utilities.ExpressionBuilders
+﻿namespace Utilities.ExpressionBuilders
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+    using System.Text;
+    using Utilities.Parsers;
+
     public interface ReaderBuilder
     {
         SymbolReader<TextReader,string, string> BuildReader(TextReader input);

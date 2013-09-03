@@ -5,31 +5,31 @@ using System.Text;
 
 namespace Utilities.Collections
 {
-    class BitList : IList<int>
+    public class BitList : IList<int>
     {
         #region fields
         /// <summary>
-        /// Number of bits contained in a byte.
+        /// Número de bits contidos num byte.
         /// </summary>
         public static readonly int byteNumber = 8;
 
         /// <summary>
-        /// The number of bits in an array variable.
+        /// Número de bits numa variável do vector.
         /// </summary>
         public static readonly int bitNumber = byteNumber * sizeof(ulong);
 
         /// <summary>
-        /// The variable array.
+        /// O vector.
         /// </summary>
         private List<ulong> elements;
 
         /// <summary>
-        /// The number of bits setted.
+        /// O número de bits atribuídos.
         /// </summary>
         private int countBits = 0;
 
         /// <summary>
-        /// A mask that contains variables with only one bit setted in each position of variable.
+        /// Máscara que identifica os bits atribuídos em cada entrada do vector.
         /// </summary>
         private ulong[] maskPositionBits;
 
@@ -43,8 +43,8 @@ namespace Utilities.Collections
 
         public BitList(int capacity)
         {
-            Reserve(capacity);
-            InitMask();
+            this.Reserve(capacity);
+            this.InitMask();
         }
 
         public BitList(int numberOfBits, bool set)
@@ -171,9 +171,10 @@ namespace Utilities.Collections
         #region ICollection<int> Members
 
         /// <summary>
-        /// Adds a bit to list of bits. Value 0 maps to off bit and other integer maps to on bit.
+        /// Adiciona um bit à lista de bits. Se o valor for zero, adiciona o bit zero. Caso contrário, adiciona o
+        /// bit 1.
         /// </summary>
-        /// <param name="item">The bit to add.</param>
+        /// <param name="item">The bit to add.O bit a ser adicionado.</param>
         public void Add(int item)
         {
             long elementCounter = countBits % bitNumber;
@@ -329,9 +330,9 @@ namespace Utilities.Collections
         #endregion
 
         /// <summary>
-        /// Adds a bit list content to the end of this bit list. It behaves like a merge.
+        /// Adiciona um conjunto de bits à lista.
         /// </summary>
-        /// <param name="range">The bit list range to add.</param>
+        /// <param name="range">O conjunto de bits a ser adicionado.</param>
         public void AddRange(BitList range)
         {
             int rem = this.countBits % BitList.bitNumber;
@@ -354,10 +355,10 @@ namespace Utilities.Collections
         }
 
         /// <summary>
-        /// Inserts another bit list begining at specified index.
+        /// Insere uma lista de bits a partir de uma determinada posição.
         /// </summary>
-        /// <param name="index">The index where to start.</param>
-        /// <param name="range">The bit list range.</param>
+        /// <param name="index">O índice de inserção.</param>
+        /// <param name="range">O conjunto de bits a ser inserido.</param>
         public void InsertRange(int index, BitList range)
         {
             if (index < 0 || index > countBits)
@@ -429,11 +430,11 @@ namespace Utilities.Collections
         }
 
         /// <summary>
-        /// Get the sub bit list without check for bounds.
+        /// Obtém uma sublista de bits sem efectuar a verificação das restrições.
         /// </summary>
-        /// <param name="startIndex">The start index.</param>
-        /// <param name="numberOfBits">The number of bits.</param>
-        /// <returns>The sub bit list.</returns>
+        /// <param name="startIndex">O índice de partida.</param>
+        /// <param name="numberOfBits">O número de bits.</param>
+        /// <returns>A sublista procurada.</returns>
         private BitList GetUnckeckedSubBitList(int startIndex, int numberOfBits)
         {
             BitList bitlist = new BitList();
@@ -482,7 +483,7 @@ namespace Utilities.Collections
         }
 
         /// <summary>
-        /// This function updates the list of elements after a set of operations
+        /// Actualiza a lista após algum conjunto de operações, eliminando os termos remanescentes.
         /// </summary>
         private void UpdateList()
         {
@@ -497,14 +498,14 @@ namespace Utilities.Collections
         }
 
         /// <summary>
-        /// Rotates the bits of a variable comprehended between the specified indices. Indices are included in rotation.
+        /// Roda os bits compreendidos entre os dois índices inclusivé.
         /// </summary>
-        /// <param name="index1">The left most index.</param>
-        /// <param name="index2">The right most index.</param>
-        /// <param name="variable">The variable to rotate.</param>
-        /// <param name="rotationNumber">The number of rotation places.</param>
-        /// <param name="direction">True for rotate left and false for rotate right.</param>
-        /// <returns>The variable with bits rotated.</returns>
+        /// <param name="index1">O índice menor.</param>
+        /// <param name="index2">O índice maior.</param>
+        /// <param name="variable">A variável a ser rodada.</param>
+        /// <param name="rotationNumber">A magnitude da rotação.</param>
+        /// <param name="direction">Verdadeiro caso seja para rodar à esquerda e falso para rodar à direita.</param>
+        /// <returns>A variável com os respectivos bits rodados.</returns>
         private ulong RotateVariableBetweenIndices(int index1, int index2, ulong variable, int rotationNumber, bool direction)
         {
             if (index1 > index2)
@@ -533,11 +534,11 @@ namespace Utilities.Collections
         }
 
         /// <summary>
-        /// Find the first bit in an array variable.
+        /// Procura pelo primeiro bit na variável.
         /// </summary>
-        /// <param name="bitToFind">The value of bit to find. A bit is represent either by a zero or a value different from zero.</param>
-        /// <param name="variable">The variable to search.</param>
-        /// <returns>The index of first occurence and -1 otherwise.</returns>
+        /// <param name="bitToFind">O valor do bit pretendido.</param>
+        /// <param name="variable">A variável sobre a qual se efectua a pesquisa.</param>
+        /// <returns>O índice da primeira ocorrência e -1 caso contrário.</returns>
         private int FindFirstBitInVariable(int bitToFind, ulong variable)
         {
             for (int i = 0; i < bitNumber; ++i)
@@ -574,23 +575,22 @@ namespace Utilities.Collections
         }
 
         /// <summary>
-        /// Gets a bit from variable specified by index. Out of bound errors will by the class interface functions.
-        /// Do not forget to account for index bounds when this function is used.
+        /// Obtém o bit de uma variável sem efectuar verificação de limites.
         /// </summary>
-        /// <param name="variable">The variable from where to get the bit.</param>
-        /// <param name="index">The zero-based index position for bit retrieving.</param>
-        /// <returns></returns>
+        /// <param name="variable">A variável.</param>
+        /// <param name="index">O índice da posição do bit.</param>
+        /// <returns>O bit.</returns>
         private int GetBitFromVariable(ulong variable, int index)
         {
             return (maskPositionBits[index] & variable) == 0 ? 0 : 1;
         }
 
         /// <summary>
-        /// Gets a string with all bits in the array.
+        /// Obtém uma representação textual de todos os bits no vector.
         /// </summary>
-        /// <param name="array">The array to extract the bit string.</param>
-        /// <param name="countBits">How many bits are there in the array.</param>
-        /// <returns>The string with the specified bits.</returns>
+        /// <param name="array">O vector.</param>
+        /// <param name="countBits">O número de bits válidos contidos no vector.</param>
+        /// <returns>A representação textual do vector.</returns>
         private string GetBitsFromLongArray(ulong[] array, long countBits)
         {
             if (countBits / bitNumber > array.Length)
@@ -654,10 +654,10 @@ namespace Utilities.Collections
          }
 
         /// <summary>
-        /// Dumps all bits from a variable.
+        /// Descarrega todos os bits do vector.
         /// </summary>
-        /// <param name="variable">The variable containing the bits to dump.</param>
-        /// <returns>A string with the dumped bits.</returns>
+        /// <param name="variable">A variável que contém os bits.</param>
+        /// <returns>A representação textual de todos os bits.</returns>
         private string DumpVariable(ulong variable)
         {
             StringBuilder resultBuilder = new StringBuilder();
@@ -672,34 +672,34 @@ namespace Utilities.Collections
         {
             #region fields
             /// <summary>
-            /// The number of bits in a variable.
+            /// O número de bits na variável.
             /// </summary>
             int bitNumber;
 
             ulong[] maskPositionBits;
 
             /// <summary>
-            /// The bitlist elements.
+            /// Os elementos da lista.
             /// </summary>
             List<ulong> elements;
 
             /// <summary>
-            /// The bitlist number of bits.
+            /// O número de bits na lista.
             /// </summary>
             int countBits;
 
             /// <summary>
-            /// Pointer for each of list elements.
+            /// Apontador para cada um dos elementos.
             /// </summary>
             int variablePointer;
 
             /// <summary>
-            /// Pointer for each bit in variable and is less than bit number.
+            /// Apontador para cada bit na variável.
             /// </summary>
             int bitPointer;
 
             /// <summary>
-            /// General controling pointer.
+            /// Apontador geral.
             /// </summary>
             int elementPointer;
             #endregion

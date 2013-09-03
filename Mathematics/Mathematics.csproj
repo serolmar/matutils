@@ -119,6 +119,7 @@
     <Compile Include="Algorithms\Matrix\Determinant\ExpansionDeterminantCalculator.cs" />
     <Compile Include="Algorithms\Matrix\Determinant\PermutationDeterminantCalculator.cs" />
     <Compile Include="Algorithms\Matrix\EigenProblems\FastDivisionFreeCharPolynomCalculator.cs" />
+    <Compile Include="Algorithms\Matrix\Linear Systems\BlockLanczosAlgorithm.cs" />
     <Compile Include="Algorithms\Matrix\Linear Systems\SequentialLanczosAlgorithm.cs" />
     <Compile Include="Algorithms\NumberTheory\AksPrimalityTest.cs" />
     <Compile Include="Algorithms\NumberTheory\EulerTotFuncAlg.cs" />

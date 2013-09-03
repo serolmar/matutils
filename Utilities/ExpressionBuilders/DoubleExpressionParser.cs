@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using Utilities.Parsers;
-
-namespace Utilities.ExpressionBuilders
+﻿namespace Utilities
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+    using System.Text;
+    using Utilities.Parsers;
+
     public class DoubleExpressionParser : IParse<double, string, string>
     {
         private ExpressionReader<double, string, string, ISymbol<string, string>[]> expressionReader;

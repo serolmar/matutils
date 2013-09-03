@@ -15,7 +15,7 @@
     {
         static void Main(string[] args)
         {
-            Test13();
+            Test15();
             Console.ReadLine();
         }
 
@@ -23,6 +23,53 @@
         {
             var tester = new ObjectTester();
             tester.Run(Console.In, Console.Out);
+        }
+
+        public static void Test15()
+        {
+            var inputMatrix = "[[1,2,1],[2,-1,-1],[1,-1,3]]";
+            var inputVector = "[[1,2,3]]";
+
+            var reader = new StringReader(inputMatrix);
+            var stringsymbolReader = new StringSymbolReader(reader, false);
+            var integerDomain = new BigIntegerDomain();
+            var integerParser = new BigIntegerParser();
+            var fractionField = new FractionField<BigInteger, BigIntegerDomain>(integerDomain);
+            var fractionParser = new FractionExpressionParser<BigInteger, BigIntegerDomain>(
+                integerParser,
+                fractionField);
+
+            var arrayMatrixFactory = new ArrayMatrixFactory<Fraction<BigInteger, BigIntegerDomain>>();
+            var arrayMatrixReader = new ConfigMatrixReader<Fraction<BigInteger, BigIntegerDomain>, string, string, CharSymbolReader<string>>(
+                3, 
+                3, 
+                arrayMatrixFactory);
+            arrayMatrixReader.MapInternalDelimiters("left_bracket", "right_bracket");
+            arrayMatrixReader.AddBlanckSymbolType("blancks");
+            arrayMatrixReader.SeparatorSymbType = "comma";
+
+            var matrix = default(IMatrix<Fraction<BigInteger, BigIntegerDomain>>);
+            if (arrayMatrixReader.TryParseMatrix(stringsymbolReader, fractionParser, out matrix))
+            {
+                arrayMatrixReader = new ConfigMatrixReader<Fraction<BigInteger, BigIntegerDomain>, string, string, CharSymbolReader<string>>(
+                3,
+                1,
+                arrayMatrixFactory);
+                arrayMatrixReader.MapInternalDelimiters("left_bracket", "right_bracket");
+                arrayMatrixReader.AddBlanckSymbolType("blancks");
+                arrayMatrixReader.SeparatorSymbType = "comma";
+
+                var independentVector = default(IMatrix<Fraction<BigInteger, BigIntegerDomain>>);
+                reader = new StringReader(inputVector);
+                stringsymbolReader = new StringSymbolReader(reader, false);
+                if (arrayMatrixReader.TryParseMatrix(stringsymbolReader, fractionParser, out independentVector))
+                {
+                    var systemSolver = new SequentialLanczosAlgorithm<Fraction<BigInteger, BigIntegerDomain>, FractionField<BigInteger, BigIntegerDomain>>(
+                        arrayMatrixFactory,
+                        fractionField);
+                    var result = systemSolver.Run(matrix, independentVector);
+                }
+            }
         }
 
         public static void Test14()
