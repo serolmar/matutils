@@ -6,7 +6,8 @@ using System.Text;
 namespace Mathematics.Algorithms
 {
     /// <summary>
-    /// Revised simplex method using <see cref="double"/> as variable type. The function run will alter all input variable status.
+    /// Revised simplex method using <see cref="double"/> as variable type. 
+    /// The function run will alter all input variable status.
     /// </summary>
     public class RevisedSimplexWithDoubles
     {
@@ -92,6 +93,7 @@ namespace Mathematics.Algorithms
                     minimumCost = objectiveFunctionVector[i];
                 }
             }
+
             if (minimumCost >= 0)
             {
                 state = false;

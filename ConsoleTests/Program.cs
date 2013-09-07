@@ -27,7 +27,10 @@
 
         public static void Test15()
         {
+            // Note-se que a leitura é realizada coluna a coluna.
             var inputMatrix = "[[1,2,1],[2,-1,-1],[1,-1,3]]";
+
+            // Vector coluna.
             var inputVector = "[[1,2,3]]";
 
             var reader = new StringReader(inputMatrix);

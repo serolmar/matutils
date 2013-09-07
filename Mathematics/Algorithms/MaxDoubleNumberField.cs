@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Mathematics.Algorithms
+namespace Mathematics
 {
     /// <summary>
     /// Permite somar, subtrair e comparar números máximos, à semelhança dos números complexos.
