@@ -7,7 +7,7 @@
     using System.Text;
     using Utilities.Parsers;
 
-    public class DoubleExpressionParser : IParse<double, string, string>
+    public class DoubleExpressionParser : IParse<double, string, string>, IParse<object, string, string>
     {
         private ExpressionReader<double, string, string, ISymbol<string, string>[]> expressionReader;
 
@@ -33,6 +33,21 @@
         {
             var arrayReader = new ArraySymbolReader<string, string>(symbolListToParse, "eof");
             return this.expressionReader.TryParse(arrayReader, out value);
+        }
+
+        public bool TryParse(ISymbol<string, string>[] symbolListToParse, out object value)
+        {
+            var temp = default(double);
+            if (this.TryParse(symbolListToParse, out temp))
+            {
+                value = temp;
+                return true;
+            }
+            else
+            {
+                value = default(object);
+                return false;
+            }
         }
 
         private double Add(double i, double j)

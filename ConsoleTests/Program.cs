@@ -15,7 +15,7 @@
     {
         static void Main(string[] args)
         {
-            Test15();
+            Test16();
             Console.ReadLine();
         }
 
@@ -25,6 +25,97 @@
             tester.Run(Console.In, Console.Out);
         }
 
+        /// <summary>
+        /// Teste ao método do simplex habitual (implementação paralela).
+        /// </summary>
+        public static void Test16()
+        {
+            var inputConstraintsMatrix = "[[1,0,3],[0,2,2]]";
+            var inputConstraintsVector = "[[4,12,18]]";
+            var inputObjectiveFunc = "[[-3],[-2]]";
+            var cost = 0.0;
+            var nonBasicVariables = new[] { 0, 1 };
+            var basicVariables = new[] { 2, 3, 4 };
+
+            // Responsável pela leitura de apenas um elemento, incluindo o sinal
+            var doubleSimpleParser = new DoubleParser<string>();
+
+            // O sinal negativo é lido automaticamente uma vez que não é necessária a leitura de uma expressão
+            var stringSymbolReader = new StringSymbolReader(new StringReader(inputConstraintsMatrix), true);
+
+            var matrixFactory = new ArrayMatrixFactory<double>();
+            var arrayMatrixReader = new ConfigMatrixReader<double, string, string, CharSymbolReader<string>>(
+                3,
+                2,
+                matrixFactory);
+            arrayMatrixReader.MapInternalDelimiters("left_bracket", "right_bracket");
+            arrayMatrixReader.AddBlanckSymbolType("blancks");
+            arrayMatrixReader.SeparatorSymbType = "comma";
+
+            var constraintsMatrix = default(IMatrix<double>);
+            if (arrayMatrixReader.TryParseMatrix(stringSymbolReader, doubleSimpleParser, out constraintsMatrix))
+            {
+                stringSymbolReader = new StringSymbolReader(new StringReader(inputConstraintsVector), true);
+
+                arrayMatrixReader = new ConfigMatrixReader<double, string, string, CharSymbolReader<string>>(
+                3,
+                1,
+                matrixFactory);
+                arrayMatrixReader.MapInternalDelimiters("left_bracket", "right_bracket");
+                arrayMatrixReader.AddBlanckSymbolType("blancks");
+                arrayMatrixReader.SeparatorSymbType = "comma";
+
+                var constraintsVector = default(IMatrix<double>);
+                if (arrayMatrixReader.TryParseMatrix(stringSymbolReader, doubleSimpleParser, out constraintsVector))
+                {
+                    stringSymbolReader = new StringSymbolReader(new StringReader(inputObjectiveFunc), true);
+
+                    arrayMatrixReader = new ConfigMatrixReader<double, string, string, CharSymbolReader<string>>(
+                    1,
+                    2,
+                    matrixFactory);
+                    arrayMatrixReader.MapInternalDelimiters("left_bracket", "right_bracket");
+                    arrayMatrixReader.AddBlanckSymbolType("blancks");
+                    arrayMatrixReader.SeparatorSymbType = "comma";
+
+                    var objectiveFunction = default(IMatrix<double>);
+                    if (arrayMatrixReader.TryParseMatrix(stringSymbolReader, doubleSimpleParser, out objectiveFunction))
+                    {
+                        var doubleField = new DoubleField();
+                        var simplexInput = new SimplexInput<double, double>(
+                            basicVariables,
+                            nonBasicVariables,
+                            objectiveFunction,
+                            cost,
+                            constraintsMatrix,
+                            constraintsVector);
+
+                        var simplexAlg = new SimplexAlgorithm<double>(
+                            Comparer<double>.Default,
+                            doubleField);
+
+                        var simplexOut = simplexAlg.Run(simplexInput);
+                        Console.WriteLine("Cost: {0}", simplexOut.Cost);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Can't parse objective function.");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Can't parse constraints vector.");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Can't parse constraints matrix.");
+            }
+        }
+
+        /// <summary>
+        /// Teste aos méotodos relacionados com a resolução de sistemas de equações.
+        /// </summary>
         public static void Test15()
         {
             // Note-se que a leitura é realizada coluna a coluna.
@@ -36,7 +127,7 @@
             var reader = new StringReader(inputMatrix);
             var stringsymbolReader = new StringSymbolReader(reader, false);
             var integerDomain = new BigIntegerDomain();
-            var integerParser = new BigIntegerParser();
+            var integerParser = new BigIntegerParser<string>();
             var fractionField = new FractionField<BigInteger, BigIntegerDomain>(integerDomain);
             var fractionParser = new FractionExpressionParser<BigInteger, BigIntegerDomain>(
                 integerParser,
@@ -44,8 +135,8 @@
 
             var arrayMatrixFactory = new ArrayMatrixFactory<Fraction<BigInteger, BigIntegerDomain>>();
             var arrayMatrixReader = new ConfigMatrixReader<Fraction<BigInteger, BigIntegerDomain>, string, string, CharSymbolReader<string>>(
-                3, 
-                3, 
+                3,
+                3,
                 arrayMatrixFactory);
             arrayMatrixReader.MapInternalDelimiters("left_bracket", "right_bracket");
             arrayMatrixReader.AddBlanckSymbolType("blancks");
@@ -121,7 +212,7 @@
             Console.WriteLine("[{0}, {1}]", pollardResult.Item1, pollardResult.Item2);
             Console.WriteLine("[{0}, {1}]", pollardBlockedResult.Item1, pollardBlockedResult.Item2);
 
-            Console.WriteLine(MathFunctions.Power(2,6, new IntegerDomain()));
+            Console.WriteLine(MathFunctions.Power(2, 6, new IntegerDomain()));
             var legendreJacobiAlg = new LegendreJacobiSymbolAlgorithm();
             Console.WriteLine(legendreJacobiAlg.Run(12345, 331));
             Console.WriteLine(legendreJacobiAlg.Run(13, 44));
@@ -181,11 +272,11 @@
             var integerParser = new IntegerParser<string>();
             var fractionParser = new ElementFractionParser<int, IntegerDomain>(integerParser, integerDomain);
             var polynomialParser = new UnivariatePolynomialReader<
-                Fraction<int, IntegerDomain>, 
+                Fraction<int, IntegerDomain>,
                 FractionField<int, IntegerDomain>,
                 CharSymbolReader<string>>(
-                "x", 
-                fractionParser, 
+                "x",
+                fractionParser,
                 fractionField);
 
             var fractionConversion = new ElementFractionConversion<int, IntegerDomain>(integerDomain);
@@ -198,7 +289,7 @@
                 if (polynomialParser.TryParsePolynomial(stringSymbolReader, fractionConversion, out secondPol))
                 {
                     var polynomialEuclideanDomain = new UnivarPolynomEuclideanDomain<
-                        Fraction<int, IntegerDomain>, 
+                        Fraction<int, IntegerDomain>,
                         FractionField<int, IntegerDomain>>(
                         "x",
                         fractionField);
@@ -220,7 +311,7 @@
             reader = new StringReader(thirdInput);
             stringSymbolReader = new StringSymbolReader(reader, false);
             var bigIntegerDomain = new BigIntegerDomain();
-            var bigIntegerParser = new BigIntegerParser();
+            var bigIntegerParser = new BigIntegerParser<string>();
             var otherFractionParser = new ElementFractionParser<BigInteger, BigIntegerDomain>(bigIntegerParser, bigIntegerDomain);
             var otherFractionField = new FractionField<BigInteger, BigIntegerDomain>(bigIntegerDomain);
             var otherPolParser = new UnivariatePolynomialReader<
@@ -277,8 +368,8 @@
         {
             var integerSequence = new IntegerSequence();
             integerSequence.Add(0, 10);
-            integerSequence.Remove(5,8);
-            integerSequence.Remove(1,6);
+            integerSequence.Remove(5, 8);
+            integerSequence.Remove(1, 6);
 
             foreach (var value in integerSequence)
             {
@@ -333,7 +424,7 @@
             {
                 var polynomialRing = new UnivarPolynomRing<int, IntegerDomain>("x", integerDomain);
                 var permutationDeterminant = new PermutationDeterminantCalculator<
-                    UnivariatePolynomialNormalForm<int, IntegerDomain>, 
+                    UnivariatePolynomialNormalForm<int, IntegerDomain>,
                     UnivarPolynomRing<int, IntegerDomain>>(polynomialRing);
 
                 var computedDeterminant = permutationDeterminant.Run(readed);
@@ -341,7 +432,7 @@
                 Console.WriteLine("O determinante usando permutações vale: {0}.", computedDeterminant);
 
                 var expansionDeterminant = new ExpansionDeterminantCalculator<
-                    UnivariatePolynomialNormalForm<int, IntegerDomain>, 
+                    UnivariatePolynomialNormalForm<int, IntegerDomain>,
                     UnivarPolynomRing<int, IntegerDomain>>(polynomialRing);
 
                 computedDeterminant = expansionDeterminant.Run(readed);
@@ -424,7 +515,7 @@
                     Console.WriteLine("Errors parsing range:");
                     Console.WriteLine(message);
                 }
-            }   
+            }
         }
 
         /// <summary>

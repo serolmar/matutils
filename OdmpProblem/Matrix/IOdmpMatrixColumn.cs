@@ -5,7 +5,7 @@ using System.Text;
 
 namespace OdmpProblem
 {
-    public interface IMatrixColumn<ColumnType, out T>
+    public interface IOdmpMatrixColumn<ColumnType, out T>
     {
         ColumnType Column { get; }
 

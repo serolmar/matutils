@@ -110,9 +110,9 @@ namespace Mathematics
             }
         }
 
-        public IEnumerator<KeyValuePair<int, ObjectType>> GetColumns()
+        public IEnumerable<KeyValuePair<int, ObjectType>> GetColumns()
         {
-            return this.matrixEntries.GetEnumerator();
+            return this.matrixEntries;
         }
 
         public void Remove(int columnIndex)

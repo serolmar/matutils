@@ -8,7 +8,7 @@ using System.Globalization;
 
 namespace OdmpProblem
 {
-    public class SparseMatrixSetReader<ComponentType, LineType, ColumnType, T>
+    public class OdmpSparseMatrixSetReader<ComponentType, LineType, ColumnType, T>
     {
         private string[] voidTypes = new string[] { "space", "carriage_return", "new_line" };
 
@@ -24,7 +24,7 @@ namespace OdmpProblem
 
         private int coordState;
 
-        private MatrixSet<ComponentType, LineType, ColumnType, T> matrixSet;
+        private OdmpMatrixSet<ComponentType, LineType, ColumnType, T> matrixSet;
 
         private IParse<T, string, string> objectElementsReader;
 
@@ -45,7 +45,7 @@ namespace OdmpProblem
         // Mantém o valor lido quando é encontrado um delimitador.
         private List<ISymbol<string, string>> currentReadingValues = new List<ISymbol<string, string>>();
 
-        public SparseMatrixSetReader(
+        public OdmpSparseMatrixSetReader(
             IParse<T, string, string> objectElementsReader,
             IParse<ComponentType, string, string> componentElementsReader,
             IParse<LineType, string, string> lineElementsReader,
@@ -69,7 +69,7 @@ namespace OdmpProblem
             }
             else
             {
-                this.matrixSet = new MatrixSet<ComponentType, LineType, ColumnType, T>(this.componentComparer);
+                this.matrixSet = new OdmpMatrixSet<ComponentType, LineType, ColumnType, T>(this.componentComparer);
                 this.objectElementsReader = objectElementsReader;
                 this.componentElementsReader = componentElementsReader;
                 this.lineElementsReader = lineElementsReader;
@@ -79,7 +79,7 @@ namespace OdmpProblem
             }
         }
 
-        public IMatrixSet<ComponentType, LineType, ColumnType, T> Read(Stream stream,
+        public IOdmpMatrixSet<ComponentType, LineType, ColumnType, T> Read(Stream stream,
             T defaultValue = default(T),
             IEqualityComparer<ComponentType> componentComparer = null,
             IEqualityComparer<LineType> lineComparer = null,
@@ -338,16 +338,16 @@ namespace OdmpProblem
 
         private void SetValueInMatrixSet(ComponentType component, LineType line, ColumnType column, T value)
         {
-            IMatrix<ComponentType, LineType, ColumnType, T> matrix = null;
+            IOdmpMatrix<ComponentType, LineType, ColumnType, T> matrix = null;
             if (!this.matrixSet.Components.TryGetValue(component, out matrix))
             {
-                var innerMatrix = new SparseDictionaryMatrix<ComponentType, LineType, ColumnType, T>(component, this.defaultValue);
+                var innerMatrix = new OdmpSparseDictionaryMatrix<ComponentType, LineType, ColumnType, T>(component, this.defaultValue);
                 innerMatrix[line, column] = value;
                 this.matrixSet.Components.Add(component, innerMatrix);
             }
             else
             {
-                var innerMatrix = matrix as SparseDictionaryMatrix<ComponentType, LineType, ColumnType, T>;
+                var innerMatrix = matrix as OdmpSparseDictionaryMatrix<ComponentType, LineType, ColumnType, T>;
                 innerMatrix[line, column] = value;
             }
         }

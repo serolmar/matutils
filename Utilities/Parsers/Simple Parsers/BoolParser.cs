@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Utilities.Parsers
 {
-    public class BoolParser<SymbType> : IParse<bool, string, SymbType>
+    public class BoolParser<SymbType> : IParse<bool, string, SymbType>, IParse<object, string, SymbType>
     {
         public bool TryParse(ISymbol<string, SymbType>[] symbolListToParse, out bool value)
         {
@@ -19,6 +19,21 @@ namespace Utilities.Parsers
             {
                 var firstSymbol = symbolListToParse[0];
                 return bool.TryParse(firstSymbol.SymbolValue, out value);
+            }
+        }
+
+        public bool TryParse(ISymbol<string, SymbType>[] symbolListToParse, out object value)
+        {
+            var temp = default(bool);
+            if (this.TryParse(symbolListToParse, out temp))
+            {
+                value = temp;
+                return true;
+            }
+            else
+            {
+                value = default(object);
+                return false;
             }
         }
     }

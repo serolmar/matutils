@@ -6,9 +6,9 @@
     using System.Numerics;
     using System.Text;
 
-    public class BigIntegerParser : IParse<BigInteger, string, string>
+    public class BigIntegerParser<SymbType> : IParse<BigInteger, string, SymbType>, IParse<object, string, SymbType>
     {
-        public bool TryParse(ISymbol<string, string>[] symbolListToParse, out BigInteger value)
+        public bool TryParse(ISymbol<string, SymbType>[] symbolListToParse, out BigInteger value)
         {
             if (symbolListToParse.Length > 1)
             {
@@ -19,6 +19,21 @@
             {
                 var firstSymbol = symbolListToParse[0];
                 return BigInteger.TryParse(firstSymbol.SymbolValue, out value);
+            }
+        }
+
+        public bool TryParse(ISymbol<string, SymbType>[] symbolListToParse, out object value)
+        {
+            var temp = default(BigInteger);
+            if (this.TryParse(symbolListToParse, out temp))
+            {
+                value = temp;
+                return true;
+            }
+            else
+            {
+                value = default(object);
+                return false;
             }
         }
     }

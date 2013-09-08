@@ -219,12 +219,13 @@
             }
         }
 
-        public IEnumerator<KeyValuePair<int, ISparseMatrixLine<ObjectType>>> GetLines()
+        /// <summary>
+        /// Obtém um enumerador para todas as linhas com valores diferentes do valor por defeito.
+        /// </summary>
+        /// <returns>O enumerador para as linhas.</returns>
+        public IEnumerable<KeyValuePair<int, ISparseMatrixLine<ObjectType>>> GetLines()
         {
-            foreach (var kvp in this.matrixLines)
-            {
-                yield return new KeyValuePair<int, ISparseMatrixLine<ObjectType>>(kvp.Key, kvp.Value);
-            }
+            return new LinesEnumerable<ObjectType>(this.matrixLines);
         }
 
         public void Remove(int lineNumber)
@@ -395,6 +396,29 @@
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
             return this.GetEnumerator();
+        }
+
+        private class LinesEnumerable<T> : IEnumerable<KeyValuePair<int, ISparseMatrixLine<T>>>
+        {
+            private Dictionary<int, SparseDictionaryMatrixLine<T>> lines;
+
+            public LinesEnumerable(Dictionary<int, SparseDictionaryMatrixLine<T>> lines)
+            {
+                this.lines = lines;
+            }
+
+            public IEnumerator<KeyValuePair<int, ISparseMatrixLine<T>>> GetEnumerator()
+            {
+                foreach (var line in this.lines)
+                {
+                    yield return new KeyValuePair<int, ISparseMatrixLine<T>>(line.Key, line.Value);
+                }
+            }
+
+            System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+            {
+                return this.GetEnumerator();
+            }
         }
     }
 }

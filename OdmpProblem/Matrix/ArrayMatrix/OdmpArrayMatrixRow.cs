@@ -5,19 +5,19 @@ using System.Text;
 
 namespace OdmpProblem
 {
-    class ArrayMatrixRow<T> : IMatrixRow<int, int, T>
+    class OdmpArrayMatrixRow<T> : IOdmpMatrixRow<int, int, T>
     {
         private T[,] elements;
 
         private int lineNumber;
 
-        public ArrayMatrixRow(int lineNumber, T[,] elements)
+        public OdmpArrayMatrixRow(int lineNumber, T[,] elements)
         {
             this.lineNumber = lineNumber;
             this.elements = elements;
         }
 
-        public IMatrixColumn<int, T> this[int columnIndex]
+        public IOdmpMatrixColumn<int, T> this[int columnIndex]
         {
             get
             {
@@ -31,7 +31,7 @@ namespace OdmpProblem
                 }
                 else
                 {
-                    return new MatrixColumn<int, T>(columnIndex, this.elements[this.lineNumber, columnIndex]);
+                    return new OdmpMatrixColumn<int, T>(columnIndex, this.elements[this.lineNumber, columnIndex]);
                 }
             }
         }
@@ -64,11 +64,11 @@ namespace OdmpProblem
             }
         }
 
-        public IEnumerator<IMatrixColumn<int, T>> GetEnumerator()
+        public IEnumerator<IOdmpMatrixColumn<int, T>> GetEnumerator()
         {
             for (int i = 0; i < this.elements.GetLength(1); ++i)
             {
-                yield return new MatrixColumn<int, T>(i, this.elements[this.lineNumber, i]);
+                yield return new OdmpMatrixColumn<int, T>(i, this.elements[this.lineNumber, i]);
             }
         }
 

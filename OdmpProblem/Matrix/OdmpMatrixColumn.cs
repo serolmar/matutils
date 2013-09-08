@@ -5,13 +5,13 @@ using System.Text;
 
 namespace OdmpProblem
 {
-    internal class MatrixColumn<ColumnType, T> : IMatrixColumn<ColumnType, T>
+    internal class OdmpMatrixColumn<ColumnType, T> : IOdmpMatrixColumn<ColumnType, T>
     {
         private ColumnType column;
 
         private T value;
 
-        internal MatrixColumn(ColumnType column, T value)
+        internal OdmpMatrixColumn(ColumnType column, T value)
         {
             this.column = column;
             this.value = value;

@@ -5,21 +5,21 @@ using System.Text;
 
 namespace OdmpProblem
 {
-    class SparseDictionaryMatrixRow<LineType, ColumnType, T> : IMatrixRow<LineType, ColumnType, T>
+    class OdmpSparseDictionaryMatrixRow<LineType, ColumnType, T> : IOdmpMatrixRow<LineType, ColumnType, T>
     {
         private Dictionary<ColumnType, T> lineElements;
 
         private LineType line;
 
-        public SparseDictionaryMatrixRow(LineType line) : this(line, null, null) { }
+        public OdmpSparseDictionaryMatrixRow(LineType line) : this(line, null, null) { }
 
-        public SparseDictionaryMatrixRow(LineType line, IEqualityComparer<ColumnType> columnsEqualityComparer)
+        public OdmpSparseDictionaryMatrixRow(LineType line, IEqualityComparer<ColumnType> columnsEqualityComparer)
             : this(line, columnsEqualityComparer, null)
         {
             this.line = line;
         }
 
-        internal SparseDictionaryMatrixRow(LineType line, IEqualityComparer<ColumnType> columnsEqualityComparer, Dictionary<ColumnType, T> dictionary)
+        internal OdmpSparseDictionaryMatrixRow(LineType line, IEqualityComparer<ColumnType> columnsEqualityComparer, Dictionary<ColumnType, T> dictionary)
         {
             if (columnsEqualityComparer == null)
             {
@@ -41,7 +41,7 @@ namespace OdmpProblem
             }
         }
 
-        public IMatrixColumn<ColumnType, T> this[ColumnType columnIndex]
+        public IOdmpMatrixColumn<ColumnType, T> this[ColumnType columnIndex]
         {
             get
             {
@@ -52,7 +52,7 @@ namespace OdmpProblem
                 }
                 else
                 {
-                    return new MatrixColumn<ColumnType, T>(columnIndex, value);
+                    return new OdmpMatrixColumn<ColumnType, T>(columnIndex, value);
                 }
             }
         }
@@ -86,11 +86,11 @@ namespace OdmpProblem
             return this.lineElements.ContainsKey(index);
         }
 
-        public IEnumerator<IMatrixColumn<ColumnType, T>> GetEnumerator()
+        public IEnumerator<IOdmpMatrixColumn<ColumnType, T>> GetEnumerator()
         {
             foreach (var kvp in this.lineElements)
             {
-                yield return new MatrixColumn<ColumnType, T>(kvp.Key, kvp.Value);
+                yield return new OdmpMatrixColumn<ColumnType, T>(kvp.Key, kvp.Value);
             }
         }
 

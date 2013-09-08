@@ -5,41 +5,41 @@ using System.Text;
 
 namespace OdmpProblem
 {
-    public class SparseDictionaryMatrix<ComponentType, LineType, ColumnType, T> : IMatrix<ComponentType, LineType, ColumnType, T>
+    public class OdmpSparseDictionaryMatrix<ComponentType, LineType, ColumnType, T> : IOdmpMatrix<ComponentType, LineType, ColumnType, T>
     {
         private T defaultValue;
 
-        private Dictionary<LineType, SparseDictionaryMatrixRow<LineType, ColumnType, T>> lines;
+        private Dictionary<LineType, OdmpSparseDictionaryMatrixRow<LineType, ColumnType, T>> lines;
 
         private IEqualityComparer<ColumnType> columnsComparer;
 
         private ComponentType component;
 
-        public SparseDictionaryMatrix(ComponentType component, T defaultValue)
+        public OdmpSparseDictionaryMatrix(ComponentType component, T defaultValue)
             : this(component, null, defaultValue)
         {
             this.defaultValue = defaultValue;
         }
 
-        public SparseDictionaryMatrix(ComponentType component, T defaultValue, IEqualityComparer<LineType> linesComparer, IEqualityComparer<ColumnType> columnsComparer)
+        public OdmpSparseDictionaryMatrix(ComponentType component, T defaultValue, IEqualityComparer<LineType> linesComparer, IEqualityComparer<ColumnType> columnsComparer)
         {
             if (linesComparer == null)
             {
-                this.lines = new Dictionary<LineType, SparseDictionaryMatrixRow<LineType, ColumnType, T>>();
+                this.lines = new Dictionary<LineType, OdmpSparseDictionaryMatrixRow<LineType, ColumnType, T>>();
             }
             else
             {
-                this.lines = new Dictionary<LineType, SparseDictionaryMatrixRow<LineType, ColumnType, T>>(linesComparer);
+                this.lines = new Dictionary<LineType, OdmpSparseDictionaryMatrixRow<LineType, ColumnType, T>>(linesComparer);
             }
 
             this.columnsComparer = columnsComparer;
         }
 
-        internal SparseDictionaryMatrix(ComponentType component, Dictionary<LineType, SparseDictionaryMatrixRow<LineType, ColumnType, T>> lines, T defaultValue)
+        internal OdmpSparseDictionaryMatrix(ComponentType component, Dictionary<LineType, OdmpSparseDictionaryMatrixRow<LineType, ColumnType, T>> lines, T defaultValue)
         {
             if (lines == null)
             {
-                this.lines = new Dictionary<LineType, SparseDictionaryMatrixRow<LineType, ColumnType, T>>();
+                this.lines = new Dictionary<LineType, OdmpSparseDictionaryMatrixRow<LineType, ColumnType, T>>();
             }
             else
             {
@@ -50,11 +50,11 @@ namespace OdmpProblem
             this.defaultValue = defaultValue;
         }
 
-        public IMatrixRow<LineType, ColumnType, T> this[LineType line]
+        public IOdmpMatrixRow<LineType, ColumnType, T> this[LineType line]
         {
             get
             {
-                SparseDictionaryMatrixRow<LineType, ColumnType, T> result = null;
+                OdmpSparseDictionaryMatrixRow<LineType, ColumnType, T> result = null;
                 if (!this.lines.TryGetValue(line, out result))
                 {
                     throw new OdmpProblemException("int doesn't exist.");
@@ -70,7 +70,7 @@ namespace OdmpProblem
         {
             get
             {
-                SparseDictionaryMatrixRow<LineType, ColumnType, T> dictionaryint = null;
+                OdmpSparseDictionaryMatrixRow<LineType, ColumnType, T> dictionaryint = null;
                 if (!this.lines.TryGetValue(line, out dictionaryint))
                 {
                     return this.defaultValue;
@@ -88,7 +88,7 @@ namespace OdmpProblem
             }
             set
             {
-                SparseDictionaryMatrixRow<LineType, ColumnType, T> dictionaryint = null;
+                OdmpSparseDictionaryMatrixRow<LineType, ColumnType, T> dictionaryint = null;
                 if (this.lines.TryGetValue(line, out dictionaryint))
                 {
                     if (dictionaryint.LineElements.ContainsKey(column))
@@ -102,7 +102,7 @@ namespace OdmpProblem
                 }
                 else
                 {
-                    dictionaryint = new SparseDictionaryMatrixRow<LineType, ColumnType, T>(line, this.columnsComparer);
+                    dictionaryint = new OdmpSparseDictionaryMatrixRow<LineType, ColumnType, T>(line, this.columnsComparer);
                     this.lines.Add(line, dictionaryint);
                     dictionaryint.LineElements.Add(column, value);
                 }
@@ -132,7 +132,7 @@ namespace OdmpProblem
 
         public bool ContainsColumn(LineType line, ColumnType column)
         {
-            SparseDictionaryMatrixRow<LineType, ColumnType, T> dictionaryint = null;
+            OdmpSparseDictionaryMatrixRow<LineType, ColumnType, T> dictionaryint = null;
             if (!this.lines.TryGetValue(line, out dictionaryint))
             {
                 return false;
@@ -143,7 +143,7 @@ namespace OdmpProblem
             }
         }
 
-        public IEnumerator<IMatrixRow<LineType, ColumnType, T>> GetEnumerator()
+        public IEnumerator<IOdmpMatrixRow<LineType, ColumnType, T>> GetEnumerator()
         {
             return this.lines.Values.GetEnumerator();
         }

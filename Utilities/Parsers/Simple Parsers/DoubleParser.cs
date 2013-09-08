@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Utilities.Parsers
 {
-    public class DoubleParser<SymbType> : IParse<double, string, SymbType>
+    public class DoubleParser<SymbType> : IParse<double, string, SymbType>, IParse<object, string, SymbType>
     {
         private NumberStyles numberStyles;
 
@@ -42,6 +42,21 @@ namespace Utilities.Parsers
                     this.numberStyles,
                     this.formatProvider,
                     out value);
+            }
+        }
+
+        public bool TryParse(ISymbol<string, SymbType>[] symbolListToParse, out object value)
+        {
+            var temp = default(double);
+            if (this.TryParse(symbolListToParse, out temp))
+            {
+                value = temp;
+                return true;
+            }
+            else
+            {
+                value = default(object);
+                return false;
             }
         }
     }

@@ -5,9 +5,21 @@ using System.Text;
 
 namespace Utilities.Collections
 {
+    /// <summary>
+    /// Estabelece uma correspondência biunívoca entre dois domínios.
+    /// </summary>
+    /// <typeparam name="ObjectSetType">O tipo de objectos de partida.</typeparam>
+    /// <typeparam name="TargetSetType">O tipo dos objectos de chegada.</typeparam>
     public class InjectiveMapper<ObjectSetType, TargetSetType>
     {
+        /// <summary>
+        /// Realiza o mapeamento directo.
+        /// </summary>
         private Dictionary<ObjectSetType, TargetSetType> mappObjectToTarget;
+
+        /// <summary>
+        /// Realiza o mapeamento inverso.
+        /// </summary>
         private Dictionary<TargetSetType, ObjectSetType> mappTargetToObject;
 
         public InjectiveMapper()

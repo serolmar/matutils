@@ -1,4 +1,4 @@
-﻿namespace Mathematics.Algorithms.Simplex
+﻿namespace Mathematics
 {
     using System;
     using System.Collections.Generic;
@@ -30,6 +30,11 @@
         private IMatrix<ObjectiveCoeffType> objectiveFunction;
 
         /// <summary>
+        /// O custo actual.
+        /// </summary>
+        private ObjectiveCoeffType cost;
+
+        /// <summary>
         /// A matriz das restrições.
         /// </summary>
         private IMatrix<ConstraintsType> constraintsMatrix;
@@ -43,6 +48,7 @@
             int[] basicVariables,
             int[] nonBasicVariables,
             IMatrix<ObjectiveCoeffType> objectiveFunction,
+            ObjectiveCoeffType cost,
             IMatrix<ConstraintsType> constraintsMatrix,
             IMatrix<ConstraintsType> constraintsVector)
         {
@@ -58,6 +64,10 @@
             {
                 throw new ArgumentNullException("objectiveFunction");
             }
+            else if (cost == null)
+            {
+                throw new ArgumentNullException("cost");
+            }
             else if (constraintsMatrix == null)
             {
                 throw new ArgumentNullException("constraintsMatrix");
@@ -72,7 +82,7 @@
                 {
                     throw new ArgumentException("Objective function must be a column vector.");
                 }
-                else if (constraintsVector.GetLength(0) != 1)
+                else if (constraintsVector.GetLength(1) != 1)
                 {
                     throw new ArgumentException("Constraints vector must be a column vector.");
                 }
@@ -80,11 +90,11 @@
                 {
                     throw new ArgumentException("Constraints matrix must have the same number of lines as constraints vector.");
                 }
-                else if (basicVariables.Length + nonBasicVariables.Length != constraintsMatrix.GetLength(1))
+                else if (nonBasicVariables.Length != constraintsMatrix.GetLength(1))
                 {
                     throw new ArgumentException("The number of variables must be equal to the number of columns in constraints matrix.");
                 }
-                else if (nonBasicVariables.Length != objectiveFunction.GetLength(0))
+                else if (nonBasicVariables.Length != objectiveFunction.GetLength(1))
                 {
                     throw new ArgumentException("The number of non basic variables must be equal to the number of coefficients in objective funcion.");
                 }
@@ -92,6 +102,7 @@
                 this.basicVariables = basicVariables;
                 this.nonBasicVariables = nonBasicVariables;
                 this.objectiveFunction = objectiveFunction;
+                this.cost = cost;
                 this.constraintsMatrix = constraintsMatrix;
                 this.constraintsVector = constraintsVector;
             }
@@ -127,6 +138,28 @@
             get
             {
                 return this.objectiveFunction;
+            }
+        }
+
+        /// <summary>
+        /// Obtém e atribui o custo actual.
+        /// </summary>
+        public ObjectiveCoeffType Cost
+        {
+            get
+            {
+                return this.cost;
+            }
+            set
+            {
+                if (value == null)
+                {
+                    throw new MathematicsException("Cost can't be a null value.");
+                }
+                else
+                {
+                    this.cost = value;
+                }
             }
         }
 

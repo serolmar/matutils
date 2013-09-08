@@ -47,6 +47,7 @@
     <Compile Include="AlgebraicStructures\FractionParser.cs" />
     <Compile Include="AlgebraicStructures\Implementations\BigIntegerDomain.cs" />
     <Compile Include="AlgebraicStructures\Implementations\DomainResult.cs" />
+    <Compile Include="AlgebraicStructures\Implementations\DoubleField.cs" />
     <Compile Include="AlgebraicStructures\Implementations\ElementFractionConversion.cs" />
     <Compile Include="AlgebraicStructures\Implementations\ElementToElementConversion.cs" />
     <Compile Include="AlgebraicStructures\Implementations\FractionField.cs" />

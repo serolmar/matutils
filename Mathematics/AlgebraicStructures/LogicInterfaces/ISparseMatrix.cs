@@ -21,7 +21,7 @@
         /// Obtém um enumerador para todas as linhas não nulas da matriz.
         /// </summary>
         /// <returns>As linhas não nulas da matriz.</returns>
-        IEnumerator<KeyValuePair<int, ISparseMatrixLine<ObjectType>>> GetLines();
+        IEnumerable<KeyValuePair<int, ISparseMatrixLine<ObjectType>>> GetLines();
 
         /// <summary>
         /// Remove a linha.

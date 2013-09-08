@@ -5,9 +5,9 @@ using System.Text;
 
 namespace OdmpProblem
 {
-    public interface IMatrix<ComponentType, LineType, ColumnType, out T> : IEnumerable<IMatrixRow<LineType, ColumnType, T>>
+    public interface IOdmpMatrix<ComponentType, LineType, ColumnType, out T> : IEnumerable<IOdmpMatrixRow<LineType, ColumnType, T>>
     {
-        IMatrixRow<LineType, ColumnType, T> this[LineType line] { get; }
+        IOdmpMatrixRow<LineType, ColumnType, T> this[LineType line] { get; }
 
         T this[LineType line, ColumnType column] { get; }
 

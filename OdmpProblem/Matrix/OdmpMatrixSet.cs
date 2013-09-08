@@ -5,32 +5,32 @@ using System.Text;
 
 namespace OdmpProblem
 {
-    class MatrixSet<ComponentType, LineType, ColumnType, T> : IMatrixSet<ComponentType, LineType, ColumnType, T>
+    class OdmpMatrixSet<ComponentType, LineType, ColumnType, T> : IOdmpMatrixSet<ComponentType, LineType, ColumnType, T>
     {
-        private Dictionary<ComponentType, IMatrix<ComponentType, LineType, ColumnType, T>> components;
+        private Dictionary<ComponentType, IOdmpMatrix<ComponentType, LineType, ColumnType, T>> components;
 
-        public MatrixSet()
+        public OdmpMatrixSet()
             : this(null)
         {
         }
 
-        public MatrixSet(IEqualityComparer<ComponentType> componentIndexComparer)
+        public OdmpMatrixSet(IEqualityComparer<ComponentType> componentIndexComparer)
         {
             if (componentIndexComparer != null)
             {
-                this.components = new Dictionary<ComponentType, IMatrix<ComponentType, LineType, ColumnType, T>>(componentIndexComparer);
+                this.components = new Dictionary<ComponentType, IOdmpMatrix<ComponentType, LineType, ColumnType, T>>(componentIndexComparer);
             }
             else
             {
-                this.components = new Dictionary<ComponentType, IMatrix<ComponentType, LineType, ColumnType, T>>();
+                this.components = new Dictionary<ComponentType, IOdmpMatrix<ComponentType, LineType, ColumnType, T>>();
             }
         }
 
-        public IMatrix<ComponentType, LineType, ColumnType, T> this[ComponentType componentIndex]
+        public IOdmpMatrix<ComponentType, LineType, ColumnType, T> this[ComponentType componentIndex]
         {
             get
             {
-                IMatrix<ComponentType, LineType, ColumnType, T> matrix = null;
+                IOdmpMatrix<ComponentType, LineType, ColumnType, T> matrix = null;
                 if (this.components.TryGetValue(componentIndex, out matrix))
                 {
                     return matrix;
@@ -50,7 +50,7 @@ namespace OdmpProblem
             }
         }
 
-        internal Dictionary<ComponentType, IMatrix<ComponentType, LineType, ColumnType, T>> Components
+        internal Dictionary<ComponentType, IOdmpMatrix<ComponentType, LineType, ColumnType, T>> Components
         {
             get
             {
@@ -58,7 +58,7 @@ namespace OdmpProblem
             }
         }
 
-        public void Set(ComponentType componentIndex, IMatrix<ComponentType, LineType, ColumnType, T> matrix)
+        public void Set(ComponentType componentIndex, IOdmpMatrix<ComponentType, LineType, ColumnType, T> matrix)
         {
             if (matrix == null)
             {
@@ -85,7 +85,7 @@ namespace OdmpProblem
             this.components.Clear();
         }
 
-        public IEnumerator<IMatrix<ComponentType, LineType, ColumnType, T>> GetEnumerator()
+        public IEnumerator<IOdmpMatrix<ComponentType, LineType, ColumnType, T>> GetEnumerator()
         {
             return this.components.Values.GetEnumerator();
         }

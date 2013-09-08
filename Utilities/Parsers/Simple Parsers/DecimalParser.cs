@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Utilities.Parsers
 {
-    public class DecimalParser : IParse<decimal, string, string>
+    public class DecimalParser<SymbType> : IParse<decimal, string, SymbType>, IParse<object, string, SymbType>
     {
         private NumberStyles numberStyles;
 
@@ -28,7 +28,7 @@ namespace Utilities.Parsers
             this.formatProvider = formatProvider;
         }
 
-        public bool TryParse(ISymbol<string, string>[] symbolListToParse, out decimal value)
+        public bool TryParse(ISymbol<string, SymbType>[] symbolListToParse, out decimal value)
         {
             if (symbolListToParse.Length > 1)
             {
@@ -42,6 +42,21 @@ namespace Utilities.Parsers
                     this.numberStyles,
                     this.formatProvider,
                     out value);
+            }
+        }
+
+        public bool TryParse(ISymbol<string, SymbType>[] symbolListToParse, out object value)
+        {
+            var temp = default(decimal);
+            if (this.TryParse(symbolListToParse, out temp))
+            {
+                value = temp;
+                return true;
+            }
+            else
+            {
+                value = default(object);
+                return false;
             }
         }
     }

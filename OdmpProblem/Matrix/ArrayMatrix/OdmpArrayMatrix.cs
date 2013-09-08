@@ -5,13 +5,13 @@ using System.Text;
 
 namespace OdmpProblem
 {
-    public class ArrayMatrix<T> : IMatrix<int, int, int, T>
+    public class OdmpArrayMatrix<T> : IOdmpMatrix<int, int, int, T>
     {
         private T[,] elements;
 
         private int component;
 
-        public ArrayMatrix(int component, int lines, int columns)
+        public OdmpArrayMatrix(int component, int lines, int columns)
         {
             if (lines <= 0 || columns <= 0)
             {
@@ -22,7 +22,7 @@ namespace OdmpProblem
             this.elements = new T[lines, columns];
         }
 
-        public IMatrixRow<int, int, T> this[int line]
+        public IOdmpMatrixRow<int, int, T> this[int line]
         {
             get
             {
@@ -36,7 +36,7 @@ namespace OdmpProblem
                 }
                 else
                 {
-                    return new ArrayMatrixRow<T>(line, this.elements);
+                    return new OdmpArrayMatrixRow<T>(line, this.elements);
                 }
             }
         }
@@ -144,11 +144,11 @@ namespace OdmpProblem
             return this.elements.GetLength(dimension);
         }
 
-        public IEnumerator<IMatrixRow<int, int, T>> GetEnumerator()
+        public IEnumerator<IOdmpMatrixRow<int, int, T>> GetEnumerator()
         {
             for (int i = 0; i < this.elements.GetLength(0); ++i)
             {
-                yield return new ArrayMatrixRow<T>(i, this.elements);
+                yield return new OdmpArrayMatrixRow<T>(i, this.elements);
             }
         }
 

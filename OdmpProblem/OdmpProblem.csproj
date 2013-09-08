@@ -40,26 +40,33 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Matrix\ArrayMatrix\ArrayMatrix.cs" />
-    <Compile Include="Matrix\ArrayMatrix\ArrayMatrixRow.cs" />
-    <Compile Include="Matrix\IMatrix.cs" />
-    <Compile Include="Matrix\IMatrixColumn.cs" />
-    <Compile Include="Matrix\IMatrixRow.cs" />
-    <Compile Include="Matrix\IMatrixSet.cs" />
-    <Compile Include="Matrix\MatrixColumn.cs" />
-    <Compile Include="Matrix\MatrixReader\SparseMatrixSetReader.cs" />
-    <Compile Include="Matrix\MatrixSet.cs" />
-    <Compile Include="Matrix\SparseDictionaryMatrix\SparseDictionaryMatrix.cs" />
-    <Compile Include="Matrix\SparseDictionaryMatrix\SparseDictionaryMatrixRow.cs" />
+    <Compile Include="Algorithms\GreedyAlgSolution.cs" />
+    <Compile Include="Algorithms\DirectGreedyRefGetAlgorithm.cs" />
+    <Compile Include="Matrix\ArrayMatrix\OdmpArrayMatrix.cs" />
+    <Compile Include="Matrix\ArrayMatrix\OdmpArrayMatrixRow.cs" />
+    <Compile Include="Matrix\IOdmpMatrix.cs" />
+    <Compile Include="Matrix\IOdmpMatrixColumn.cs" />
+    <Compile Include="Matrix\IOdmpMatrixRow.cs" />
+    <Compile Include="Matrix\IOdmpMatrixSet.cs" />
+    <Compile Include="Matrix\OdmpMatrixColumn.cs" />
+    <Compile Include="Matrix\MatrixReader\OdmpSparseMatrixSetReader.cs" />
+    <Compile Include="Matrix\OdmpMatrixSet.cs" />
+    <Compile Include="Matrix\SparseDictionaryMatrix\OdmpSparseDictionaryMatrix.cs" />
+    <Compile Include="Matrix\SparseDictionaryMatrix\OdmpSparseDictionaryMatrixRow.cs" />
     <Compile Include="OdmpProblemException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Mathematics\Mathematics.csproj">
+      <Project>{0C268918-73CB-46FB-93C8-87792CF351FA}</Project>
+      <Name>Mathematics</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Utilities\Utilities.csproj">
       <Project>{301A8CA6-8B0D-40B5-A6AC-0671FE9EE74D}</Project>
       <Name>Utilities</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

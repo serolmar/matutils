@@ -23,7 +23,7 @@
         /// Obtém um enumerador para todas as colunas não nulas.
         /// </summary>
         /// <returns>O enumerador.</returns>
-        IEnumerator<KeyValuePair<int, ObjectType>> GetColumns();
+        IEnumerable<KeyValuePair<int, ObjectType>> GetColumns();
 
         /// <summary>
         /// Remove a entrada espeficada pelo índice.
