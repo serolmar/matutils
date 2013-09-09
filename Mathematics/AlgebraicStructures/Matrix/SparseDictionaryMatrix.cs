@@ -29,7 +29,8 @@
         private Dictionary<int, SparseDictionaryMatrixLine<ObjectType>> matrixLines =
             new Dictionary<int, SparseDictionaryMatrixLine<ObjectType>>();
 
-        public SparseDictionaryMatrix(int lines, int columns, ObjectType defaultValue) : this(defaultValue)
+        public SparseDictionaryMatrix(int lines, int columns, ObjectType defaultValue)
+            : this(defaultValue)
         {
             if (lines < 0)
             {
@@ -46,7 +47,8 @@
             }
         }
 
-        public SparseDictionaryMatrix(int lines, int columns) : this(default(ObjectType))
+        public SparseDictionaryMatrix(int lines, int columns)
+            : this(default(ObjectType))
         {
             if (lines < 0)
             {
@@ -62,7 +64,7 @@
                 this.afterLastColumn = columns;
             }
         }
-        
+
         public SparseDictionaryMatrix(ObjectType defaultValue)
         {
             this.defaultValue = defaultValue;
@@ -378,6 +380,41 @@
                             lineDictionary.Add(i, secondLineEntry);
                         }
                     }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Verifica se a matriz esparsa contém a linha especificada.
+        /// </summary>
+        /// <param name="line">A linha.</param>
+        /// <returns>Verdadeiro caso a matriz contenha a linha e falso caso contrário.</returns>
+        public bool ContainsLine(int line)
+        {
+            return this.matrixLines.ContainsKey(line);
+        }
+
+        /// <summary>
+        /// Obtém as colunas atribuídas à linha especificada.
+        /// </summary>
+        /// <param name="line">A linha.</param>
+        /// <returns>As colunas atribuídas.</returns>
+        public IEnumerable<KeyValuePair<int, ObjectType>> GetColumns(int line)
+        {
+            if (line < 0 || line >= this.afterLastLine)
+            {
+                throw new ArgumentOutOfRangeException("line");
+            }
+            else
+            {
+                var lineElement = default(SparseDictionaryMatrixLine<ObjectType>);
+                if (this.matrixLines.TryGetValue(line, out lineElement))
+                {
+                    return lineElement.GetColumns();
+                }
+                else
+                {
+                    return Enumerable.Empty<KeyValuePair<int, ObjectType>>();
                 }
             }
         }

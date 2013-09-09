@@ -31,9 +31,9 @@ namespace Mathematics
         {
             get
             {
-                if (index < 0)
+                if (index < 0 || index >= this.afterLastColumnNumber)
                 {
-                    throw new ArgumentOutOfRangeException("Index must be a non-negative number.");
+                    throw new ArgumentOutOfRangeException("index");
                 }
                 else
                 {
@@ -50,27 +50,19 @@ namespace Mathematics
             }
             set
             {
-                if (index < 0)
+                if (index < 0 || index >= this.afterLastColumnNumber)
                 {
-                    throw new ArgumentOutOfRangeException("Index must be a non-negative number.");
+                    throw new ArgumentOutOfRangeException("index");
                 }
                 else
                 {
-                    if (index >= this.afterLastColumnNumber)
+                    if (this.matrixEntries.ContainsKey(index))
                     {
-                        this.matrixEntries.Add(index, value);
-                        this.afterLastColumnNumber = index + 1;
+                        this.matrixEntries[index] = value;
                     }
                     else
                     {
-                        if (this.matrixEntries.ContainsKey(index))
-                        {
-                            this.matrixEntries[index] = value;
-                        }
-                        else
-                        {
-                            this.matrixEntries.Add(index, value);
-                        }
+                        this.matrixEntries.Add(index, value);
                     }
                 }
             }
@@ -118,6 +110,16 @@ namespace Mathematics
         public void Remove(int columnIndex)
         {
             this.matrixEntries.Remove(columnIndex);
+        }
+
+        /// <summary>
+        /// Verifica se a linha esparsa contém a coluna especificada.
+        /// </summary>
+        /// <param name="column">A coluna.</param>
+        /// <returns>Verdadeiro caso a linha contenha a coluna e falso caso contrário.</returns>
+        public bool ContainsColumn(int column)
+        {
+            return this.matrixEntries.ContainsKey(column);
         }
 
         public IEnumerator<KeyValuePair<int,ObjectType>> GetEnumerator()

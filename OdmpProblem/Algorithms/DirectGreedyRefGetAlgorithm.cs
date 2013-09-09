@@ -30,12 +30,51 @@
         /// </summary>
         private IComparer<ElementType> comparer;
 
+        public DirectGreedyRefGetAlgorithm(IComparer<ElementType> comparer, IRing<ElementType> ring)
+        {
+            if (ring == null)
+            {
+                throw new ArgumentNullException("ring");
+            }
+            else
+            {
+                if (comparer == null)
+                {
+                    this.comparer = Comparer<ElementType>.Default;
+                }
+
+                this.ring = ring;
+            }
+        }
+
+        /// <summary>
+        /// O corpo responsável pelas operações sobre os elementos.
+        /// </summary>
+        public IRing<ElementType> Ring
+        {
+            get
+            {
+                return this.ring;
+            }
+        }
+
+        /// <summary>
+        /// O comparador de elementos.
+        /// </summary>
+        public IComparer<ElementType> Comparer
+        {
+            get
+            {
+                return this.comparer;
+            }
+        }
+
         /// <summary>
         /// Escolhe a referência que maximiza o ganho.
         /// </summary>
         /// <param name="chosenReferences">As referências escolhidas anteriormente.</param>
         /// <param name="currentMatrix">A matriz dos custos.</param>
-        /// <param name="currentLineBoard">A linha que contém a condensação dos custos da linha escolhida.</param>
+        /// <param name="currentLineBoard">A linha que contém a condensação dos custos das linhas escolhidas.</param>
         /// <returns>O índice da linha corresponde à próxima referência bem como o ganho respectivo.</returns>
         public Tuple<int, ElementType> Run(
             IntegerSequence chosenReferences,

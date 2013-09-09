@@ -28,5 +28,19 @@
         /// </summary>
         /// <param name="lineNumber">O número da linha a ser removida.</param>
         void Remove(int lineNumber);
+
+        /// <summary>
+        /// Verifica se a matriz esparsa contém a linha especificada.
+        /// </summary>
+        /// <param name="line">A linha.</param>
+        /// <returns>Verdadeiro caso a matriz contenha a linha e falso caso contrário.</returns>
+        bool ContainsLine(int line);
+
+        /// <summary>
+        /// Obtém as colunas atribuídas à linha especificada.
+        /// </summary>
+        /// <param name="line">A linha.</param>
+        /// <returns>As colunas atribuídas.</returns>
+        IEnumerable<KeyValuePair<int, ObjectType>> GetColumns(int line);
     }
 }

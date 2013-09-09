@@ -30,5 +30,12 @@
         /// </summary>
         /// <param name="columnIndex">O índice da entrada a ser removido.</param>
         void Remove(int columnIndex);
+
+        /// <summary>
+        /// Verifica se a linha esparsa contém a coluna especificada.
+        /// </summary>
+        /// <param name="column">A coluna.</param>
+        /// <returns>Verdadeiro caso a linha contenha a coluna e falso caso contrário.</returns>
+        bool ContainsColumn(int column);
     }
 }
