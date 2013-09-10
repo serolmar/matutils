@@ -1,4 +1,4 @@
-﻿namespace OdmpProblem.Algorithms
+﻿namespace OdmpProblem
 {
     using System;
     using System.Collections.Generic;

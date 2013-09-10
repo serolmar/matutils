@@ -13,11 +13,6 @@ namespace Mathematics
         private SparseDictionaryMatrix<ObjectType> owner;
 
         /// <summary>
-        /// O valor que sucede a entrada com o maior número da linha.
-        /// </summary>
-        private int afterLastColumnNumber;
-
-        /// <summary>
         /// As entradas.
         /// </summary>
         private Dictionary<int, ObjectType> matrixEntries = new Dictionary<int, ObjectType>();
@@ -31,7 +26,7 @@ namespace Mathematics
         {
             get
             {
-                if (index < 0 || index >= this.afterLastColumnNumber)
+                if (index < 0 || index >= this.owner.GetLength(1))
                 {
                     throw new ArgumentOutOfRangeException("index");
                 }
@@ -50,7 +45,7 @@ namespace Mathematics
             }
             set
             {
-                if (index < 0 || index >= this.afterLastColumnNumber)
+                if (index < 0 || index >= this.owner.GetLength(1))
                 {
                     throw new ArgumentOutOfRangeException("index");
                 }
@@ -69,6 +64,17 @@ namespace Mathematics
         }
 
         /// <summary>
+        /// Obtém o comprimento total da linha que iguala a dimensão da matriz.
+        /// </summary>
+        public int Length
+        {
+            get
+            {
+                return this.owner.GetLength(1);
+            }
+        }
+
+        /// <summary>
         /// Obtém o número de entradas não nulas.
         /// </summary>
         public int NumberOfColumns
@@ -76,21 +82,6 @@ namespace Mathematics
             get
             {
                 return this.matrixEntries.Count;
-            }
-        }
-
-        /// <summary>
-        /// Obtém o número que sucede o da última coluna.
-        /// </summary>
-        public int AfterLastColumnNumber
-        {
-            get
-            {
-                return this.afterLastColumnNumber;
-            }
-            internal set
-            {
-                this.afterLastColumnNumber = value;
             }
         }
 

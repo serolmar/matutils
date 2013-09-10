@@ -40,10 +40,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Algorithms\AGreedyAlg.cs" />
-    <Compile Include="Algorithms\GreedyAlgSolution.cs" />
-    <Compile Include="Algorithms\DirectGreedyRefGetAlgorithm.cs" />
-    <Compile Include="Algorithms\InverseGreedyRefGetAlgorithm.cs" />
+    <Compile Include="Algorithms\Dual\DualHeuristicAlgorithm.cs" />
+    <Compile Include="Algorithms\Greedy\DirectGreedyAlgorithm.cs" />
+    <Compile Include="Algorithms\Greedy\GreedyAlgSolution.cs" />
+    <Compile Include="Algorithms\Greedy\DirectGreedyRefGetAlgorithm.cs" />
+    <Compile Include="Algorithms\Greedy\InverseGreedyAlgorithm.cs" />
+    <Compile Include="Algorithms\Greedy\InverseGreedyRefGetAlgorithm.cs" />
     <Compile Include="Matrix\ArrayMatrix\OdmpArrayMatrix.cs" />
     <Compile Include="Matrix\ArrayMatrix\OdmpArrayMatrixRow.cs" />
     <Compile Include="Matrix\IOdmpMatrix.cs" />

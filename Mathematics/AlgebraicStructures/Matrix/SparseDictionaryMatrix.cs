@@ -129,6 +129,35 @@
             }
         }
 
+        /// <summary>
+        /// Obtém a linha pelo respectivo valor.
+        /// </summary>
+        /// <param name="line">O índice.</param>
+        /// <returns>A linha caso exista.</returns>
+        /// <exception cref="MathematicsException">Se a linha não existir.</exception>
+        public ISparseMatrixLine<ObjectType> this[int line]
+        {
+            get
+            {
+                if (line < 0 || line >= this.afterLastLine)
+                {
+                    throw new ArgumentOutOfRangeException("line");
+                }
+                else
+                {
+                    var currentLine = default(SparseDictionaryMatrixLine<ObjectType>);
+                    if (this.matrixLines.TryGetValue(line, out currentLine))
+                    {
+                        return currentLine;
+                    }
+                    else
+                    {
+                        throw new MathematicsException("Line doesn't exist.");
+                    }
+                }
+            }
+        }
+
         public ObjectType DefaultValue
         {
             get
