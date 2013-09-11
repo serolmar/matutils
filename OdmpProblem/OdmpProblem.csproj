@@ -40,7 +40,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Algorithms\Dual\DualHeuristicAlgInput.cs" />
     <Compile Include="Algorithms\Dual\DualHeuristicAlgorithm.cs" />
+    <Compile Include="Algorithms\Dual\DualHeuristicInitAlgorithm.cs" />
     <Compile Include="Algorithms\Greedy\DirectGreedyAlgorithm.cs" />
     <Compile Include="Algorithms\Greedy\GreedyAlgSolution.cs" />
     <Compile Include="Algorithms\Greedy\DirectGreedyRefGetAlgorithm.cs" />
