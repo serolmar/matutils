@@ -35,6 +35,7 @@ namespace Mathematics
             }
             else
             {
+                // Copia a matriz uma vez que o algoritmo a vai alterar
                 var temporaryArray = new ArrayMatrix<ObjectType>(matrixDimension, matrixDimension);
                 for (int i = 0; i < matrixDimension; ++i)
                 {
