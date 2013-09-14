@@ -22,10 +22,16 @@
         /// </summary>
         private Dictionary<int, ElementType> taus;
 
+        /// <summary>
+        /// O conjunto de valo
+        /// </summary>
+        private Dictionary<int, ElementType> cbar;
+
         public DualHeuristicAlgInput()
         {
             this.lambdas = new Dictionary<int, ElementType>();
-            this.lambdas = new Dictionary<int, ElementType>();
+            this.taus = new Dictionary<int, ElementType>();
+            this.cbar = new Dictionary<int, ElementType>();
         }
 
         /// <summary>
@@ -62,6 +68,17 @@
             get
             {
                 return this.taus;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o conjunto dos valores limite.
+        /// </summary>
+        public Dictionary<int, ElementType> Cbar
+        {
+            get
+            {
+                return this.cbar;
             }
         }
     }

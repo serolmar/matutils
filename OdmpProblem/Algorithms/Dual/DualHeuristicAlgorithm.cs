@@ -22,6 +22,12 @@
         /// </summary>
         private IComparer<ElementType> comparer;
 
+        /// <summary>
+        /// O objecto responsável pela inicialização das variáveis.
+        /// </summary>
+        private IAlgorithm<SparseDictionaryMatrix<ElementType>, DualHeuristicAlgInput<ElementType>, ElementType>
+            dualGammaEstimAlgorithm;
+
         public DualHeuristicAlgorithm(IComparer<ElementType> comparer, IRing<ElementType> ring)
         {
             if (ring == null)
@@ -36,6 +42,9 @@
             {
                 this.comparer = comparer;
                 this.ring = ring;
+                this.dualGammaEstimAlgorithm = new DualMatrixGammaEstimAlgorithm<ElementType>(
+                    comparer,
+                    ring);
             }
         }
 
@@ -69,79 +78,9 @@
             }
             else
             {
-                var cbar = this.Initialize(matrix, input);
-                return this.Process(refsNumber, matrix, input, cbar);
+                this.dualGammaEstimAlgorithm.Run(matrix, input);
+                return this.Process(refsNumber, matrix, input);
             }
-        }
-
-        /// <summary>
-        /// Inicializa as variáveis tau e os valores limite para o respectivo aumento.
-        /// </summary>
-        /// <param name="matrix">A matriz dos custos.</param>
-        /// <param name="input">O resultado da inicialização do algoritmo dual.</param>
-        /// <returns>Os valores limite.</returns>
-        private Dictionary<int, ElementType> Initialize(
-            SparseDictionaryMatrix<ElementType> matrix,
-            DualHeuristicAlgInput<ElementType> input)
-        {
-            input.Taus.Clear();
-            var result = new Dictionary<int, ElementType>();
-            var cbarForComponent = new Dictionary<int, ElementType>();
-            foreach (var line in matrix.GetLines())
-            {
-                // Setup the tau and cbar values
-                var tempTau = input.Lambdas[line.Key];
-                foreach (var coveredLine in line.Value.GetColumns())
-                {
-                    if (coveredLine.Key != line.Key)
-                    {
-                        var difference = this.ring.Add(
-                            input.Lambdas[coveredLine.Key],
-                            this.ring.AdditiveInverse(coveredLine.Value));
-                        if (this.comparer.Compare(difference, this.ring.AdditiveUnity) < 0)
-                        {
-                            tempTau = this.ring.Add(tempTau, difference);
-                        }
-                    }
-                }
-
-                if (this.comparer.Compare(input.Gamma, tempTau) < 0)
-                {
-                    throw new OdmpProblemException("The gamma value must be greater than every computed tau value.");
-                }
-
-                input.Taus.Add(line.Key, tempTau);
-            }
-
-            foreach (var line in matrix.GetLines())
-            {
-                foreach (var coveredLine in line.Value.GetColumns())
-                {
-                    if (coveredLine.Key != line.Key)
-                    {
-                        var tempCbarValue = this.ring.Add(
-                            coveredLine.Value,
-                            this.ring.AdditiveInverse(input.Lambdas[coveredLine.Key]));
-                        if (this.comparer.Compare(this.ring.AdditiveUnity, tempCbarValue) < 0)
-                        {
-                            var currentCbarInCoveredVertice = this.ring.AdditiveUnity;
-                            if (cbarForComponent.TryGetValue(coveredLine.Key, out currentCbarInCoveredVertice))
-                            {
-                                if (this.comparer.Compare(tempCbarValue, currentCbarInCoveredVertice) < 0)
-                                {
-                                    cbarForComponent[coveredLine.Key] = coveredLine.Value;
-                                }
-                            }
-                            else
-                            {
-                                cbarForComponent.Add(coveredLine.Key, coveredLine.Value);
-                            }
-                        }
-                    }
-                }
-            }
-
-            return cbarForComponent;
         }
 
         /// <summary>
@@ -150,13 +89,11 @@
         /// <param name="refsNumber">O número de referências.</param>
         /// <param name="matrix">A matriz dos custos.</param>
         /// <param name="input">Os dados de entrada.</param>
-        /// <param name="cbar">O conjunto dos valores limite.</param>
         /// <returns>O valor do custo dual.</returns>
         private ElementType Process(
             int refsNumber,
             SparseDictionaryMatrix<ElementType> matrix,
-            DualHeuristicAlgInput<ElementType> input,
-            Dictionary<int, ElementType> cbar)
+            DualHeuristicAlgInput<ElementType> input)
         {
             var multiplicativeSymmetric = this.ring.AdditiveInverse(this.ring.MultiplicativeUnity);
             var delta = this.ring.AdditiveUnity;
@@ -170,16 +107,16 @@
                         matrix);
 
                     var currentLambda = input.Lambdas[line.Key];
-                    if (cbar.ContainsKey(line.Key))
+                    if (input.Cbar.ContainsKey(line.Key))
                     {
                         var value = this.ring.Add(
-                            cbar[line.Key],
+                            input.Cbar[line.Key],
                             this.ring.AdditiveInverse(currentLambda));
                         if (this.comparer.Compare(value, bigDelta) < 0)
                         {
                             bigDelta = value;
                             delta = this.ring.MultiplicativeUnity;
-                            cbar.Remove(line.Key);
+                            input.Cbar.Remove(line.Key);
 
                             // TODO: cbar = min(u que cobre line tal que o custo é maior que lambda[line]
                             foreach (var coverLine in matrix.GetLines())
@@ -193,16 +130,16 @@
                                         if (this.comparer.Compare(compareCost, currentCost) < 0)
                                         {
                                             var currentCbar = this.ring.AdditiveUnity;
-                                            if (cbar.TryGetValue(line.Key, out currentCbar))
+                                            if (input.Cbar.TryGetValue(line.Key, out currentCbar))
                                             {
                                                 if (this.comparer.Compare(currentCost, currentCbar) < 0)
                                                 {
-                                                    cbar[line.Key] = currentCost;
+                                                    input.Cbar[line.Key] = currentCost;
                                                 }
                                             }
                                             else
                                             {
-                                                cbar.Add(line.Key, currentCost);
+                                                input.Cbar.Add(line.Key, currentCost);
                                             }
                                         }
                                     }

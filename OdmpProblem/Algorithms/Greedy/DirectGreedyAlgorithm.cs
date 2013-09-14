@@ -29,22 +29,13 @@
         /// <summary>
         /// O comparador responsável pela comparação dos elementos.
         /// </summary>
-        private Comparer<ElementType> comparer;
+        private IComparer<ElementType> comparer;
 
         public DirectGreedyAlgorithm(
-            Comparer<ElementType> comparer,
-            IRing<ElementType> ring,
-            IAlgorithm<
-                            IntegerSequence,
-                            SparseDictionaryMatrix<ElementType>,
-                            ElementType[],
-                            Tuple<int, ElementType>> refGetAlgorithm)
+            IComparer<ElementType> comparer,
+            IRing<ElementType> ring)
         {
-            if (refGetAlgorithm == null)
-            {
-                throw new ArgumentNullException("refGetAlgorithm");
-            }
-            else if (ring == null)
+            if (ring == null)
             {
                 throw new ArgumentNullException("ring");
             }
