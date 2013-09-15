@@ -155,6 +155,25 @@ namespace Utilities.Collections
             }
         }
 
+        public void Add(IntegerSequence sequence)
+        {
+            if (this.isReadonly)
+            {
+                throw new Exception("Can't edit readonly collections.");
+            }
+            else if (sequence == null)
+            {
+                throw new ArgumentNullException("sequence");
+            }
+            else
+            {
+                foreach (var item in sequence.sequenceElements)
+                {
+                    this.Add(item.Item1, item.Item2);
+                }
+            }
+        }
+
         public void Clear()
         {
             if (this.isReadonly)

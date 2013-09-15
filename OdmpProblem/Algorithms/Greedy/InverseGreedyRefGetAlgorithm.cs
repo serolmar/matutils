@@ -30,7 +30,7 @@
         /// </summary>
         private IComparer<ElementType> comparer;
 
-        public InverseGreedyRefGetAlgorithm(Comparer<ElementType> comparer, IRing<ElementType> ring)
+        public InverseGreedyRefGetAlgorithm(IComparer<ElementType> comparer, IRing<ElementType> ring)
         {
             if (ring == null)
             {

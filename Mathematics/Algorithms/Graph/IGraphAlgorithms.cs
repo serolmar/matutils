@@ -20,11 +20,20 @@ namespace Mathematics
         List<IGraph<VertexType>> GetConnectedComponents();
 
         /// <summary>
+        /// Obtém a lista de ciclos simples de um grafo classificados por componentes conexas bem
+        /// como as respectivas componentes.
+        /// </summary>
+        /// <returns>A lista de ciclos simples e as componentes conexas.</returns>
+        GraphCyclesComponentsPair<VertexType> GetCyclesAndConnectedComponents();
+
+        /// <summary>
         /// Obtém uma árvore de cobertura mínima que se inicia num vértice.
         /// </summary>
         /// <param name="startVertex">O vértice inicial.</param>
         /// <param name="weight">Um dicionário que permite mapear o peso das arestas.</param>
         /// <returns>A árvore.</returns>
-        IGraph<VertexType> GetMinimumSpanningTree(VertexType startVertex, Dictionary<IEdge<VertexType>, double> weight);
+        IGraph<VertexType> GetMinimumSpanningTree(
+            VertexType startVertex, 
+            Dictionary<IEdge<VertexType>, double> weight);
     }
 }

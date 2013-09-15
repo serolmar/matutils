@@ -23,7 +23,7 @@ namespace Mathematics
         /// <returns>Uma lista com os ciclos por componente conexa.</returns>
         public List<List<IGraph<VertexType>>> GetCycles()
         {
-            List<List<IGraph<VertexType>>> result = new List<List<IGraph<VertexType>>>();
+            var result = new List<List<IGraph<VertexType>>>();
             var verticesEnumerator = this.graph.VerticesDictionary.GetEnumerator();
             var linkNodesQueue = new Queue<LinkNode<VertexType>>();
             while (verticesEnumerator.MoveNext())
@@ -82,6 +82,15 @@ namespace Mathematics
                                 linkNodesQueue.Enqueue(newLinkedNode);
                             }
                         }
+                        else
+                        {
+                            var newLinkedNode = new LinkNode<VertexType>()
+                            {
+                                Node = otherNode
+                            };
+
+                            linkNodesQueue.Enqueue(newLinkedNode);
+                        }
                     }
                 }
 
@@ -97,7 +106,7 @@ namespace Mathematics
         /// <returns>As componentes conexas.</returns>
         public List<IGraph<VertexType>> GetConnectedComponents()
         {
-            List<IGraph<VertexType>> result = new List<IGraph<VertexType>>();
+            var result = new List<IGraph<VertexType>>();
             var nodesQueue = new Queue<VertexType>();
             Dictionary<VertexType, bool> visitedNodes = null;
             if (graph.VertexEqualityComparer == null)
@@ -180,12 +189,118 @@ namespace Mathematics
         }
 
         /// <summary>
+        /// Obtém a lista de ciclos simples de um grafo classificados por componentes conexas bem
+        /// como as respectivas componentes.
+        /// </summary>
+        /// <returns>A lista de ciclos simples e as componentes conexas.</returns>
+        public GraphCyclesComponentsPair<VertexType> GetCyclesAndConnectedComponents()
+        {
+            var resultCycles = new List<List<IGraph<VertexType>>>();
+            var resultComponents = new List<IGraph<VertexType>>();
+            var verticesEnumerator = this.graph.VerticesDictionary.GetEnumerator();
+            var linkNodesQueue = new Queue<LinkNode<VertexType>>();
+            while (verticesEnumerator.MoveNext())
+            {
+                linkNodesQueue.Clear();
+                linkNodesQueue.Enqueue(new LinkNode<VertexType>() { Node = verticesEnumerator.Current.Key });
+                var cyclesList = new List<IGraph<VertexType>>();
+
+                Dictionary<VertexType, bool> visitedNodes = null;
+                if (graph.VertexEqualityComparer == null)
+                {
+                    visitedNodes = new Dictionary<VertexType, bool>();
+                }
+                else
+                {
+                    visitedNodes = new Dictionary<VertexType, bool>(graph.VertexEqualityComparer);
+                }
+
+                // A componente conexa actual
+                var currentGraph = new EdgeListGraph<VertexType>(graph.Directed);
+
+                visitedNodes.Add(verticesEnumerator.Current.Key, true);
+                while (linkNodesQueue.Count > 0)
+                {
+                    var currentLinkNode = linkNodesQueue.Dequeue();
+                    var edges = this.graph.VerticesDictionary[currentLinkNode.Node];
+                    foreach (var edge in edges)
+                    {
+                        var otherNode = edge.InitialVertex;
+                        var inverseEdge = true;
+                        if (this.graph.VertexEqualityComparer == null)
+                        {
+                            if (currentLinkNode.Node.Equals(edge.InitialVertex))
+                            {
+                                currentGraph.AddEdge(edge.InitialVertex, edge.FinalVertex);
+                                otherNode = edge.FinalVertex;
+                                inverseEdge = false;
+                            }
+                            else
+                            {
+                                currentGraph.AddEdge(edge.InitialVertex, currentLinkNode.Node);
+                            }
+                        }
+                        else
+                        {
+                            if (this.graph.VertexEqualityComparer.Equals(currentLinkNode.Node, edge.InitialVertex))
+                            {
+                                currentGraph.AddEdge(edge.InitialVertex, edge.FinalVertex);
+                                otherNode = edge.FinalVertex;
+                                inverseEdge = false;
+                            }
+                            else
+                            {
+                                currentGraph.AddEdge(edge.InitialVertex, currentLinkNode.Node);
+                            }
+                        }
+
+                        if (!inverseEdge || !this.graph.Directed)
+                        {
+                            var newLinkedNode = new LinkNode<VertexType>()
+                            {
+                                Node = otherNode,
+                                Link = currentLinkNode
+                            };
+
+                            if (visitedNodes.ContainsKey(otherNode))
+                            {
+                                var cycle = this.GetCycleFromLink(newLinkedNode, this.graph.Directed);
+                                cyclesList.Add(cycle);
+                            }
+                            else
+                            {
+                                visitedNodes.Add(otherNode, true);
+                                linkNodesQueue.Enqueue(newLinkedNode);
+                            }
+                        }
+                        else
+                        {
+                            var newLinkedNode = new LinkNode<VertexType>()
+                            {
+                                Node = otherNode
+                            };
+
+                            linkNodesQueue.Enqueue(newLinkedNode);
+                        }
+                    }
+                }
+
+                resultCycles.Add(cyclesList);
+                resultComponents.Add(currentGraph);
+            }
+
+            return new GraphCyclesComponentsPair<VertexType>(resultComponents, resultCycles);
+        }
+
+        /// <summary>
         /// Obtém a árvore de cobertura mínima.
         /// </summary>
         /// <param name="startVertex">O vértice raiz.</param>
         /// <param name="weight">Um dicionário com o peso das arestas.</param>
         /// <returns>A árvore de cobertura mínima.</returns>
-        public IGraph<VertexType> GetMinimumSpanningTree(VertexType startVertex, Dictionary<IEdge<VertexType>, double> weight)
+        public IGraph<VertexType> GetMinimumSpanningTree(
+            VertexType startVertex, 
+            Dictionary<IEdge<VertexType>, double> weight)
         {
             throw new NotImplementedException();
         }

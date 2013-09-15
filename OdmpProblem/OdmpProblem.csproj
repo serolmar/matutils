@@ -47,7 +47,8 @@
     <Compile Include="Algorithms\Dual\DualHeuristicInitAlgorithm.cs" />
     <Compile Include="Algorithms\Dual\DualMatrixGammaEstimAlgorithm.cs" />
     <Compile Include="Algorithms\Greedy\DirectGreedyAlgorithm.cs" />
-    <Compile Include="Algorithms\Greedy\DirectGreedyCorrectorAlgorithm.cs" />
+    <Compile Include="Algorithms\Greedy\GreedyCompsCorrectorAlgorithm.cs" />
+    <Compile Include="Algorithms\Greedy\GreedyCorrectorAlgorithm.cs" />
     <Compile Include="Algorithms\Greedy\GreedyAlgSolution.cs" />
     <Compile Include="Algorithms\Greedy\DirectGreedyRefGetAlgorithm.cs" />
     <Compile Include="Algorithms\Greedy\InverseGreedyAlgorithm.cs" />
