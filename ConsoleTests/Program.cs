@@ -15,7 +15,7 @@
     {
         static void Main(string[] args)
         {
-            Test16();
+            Test17();
             Console.ReadLine();
         }
 
@@ -23,6 +23,22 @@
         {
             var tester = new ObjectTester();
             tester.Run(Console.In, Console.Out);
+        }
+
+        public static void Test17()
+        {
+            var costs = new List<List<int>>();
+            costs.Add(new List<int>() { 12, 9, 7, 6, 4 });
+            costs.Add(new List<int>() { 12, 11, 8, 7, 5 });
+            costs.Add(new List<int>() { 13, 10, 9, 6, 3 });
+            costs.Add(new List<int>() { 12, 8, 6, 4, 2 });
+
+            var numberTdecomposition = new IntegerMinWeightTdecomposition<int>(
+                Comparer<int>.Default,
+                new IntegerDomain());
+
+            var result = numberTdecomposition.Run(8, costs);
+            Console.WriteLine(PrintVector(result));
         }
 
         /// <summary>
