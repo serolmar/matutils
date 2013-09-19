@@ -37,7 +37,7 @@
                 Comparer<int>.Default,
                 new IntegerDomain());
 
-            var result = numberTdecomposition.Run(8, costs);
+            var result = numberTdecomposition.Run(18, costs);
             Console.WriteLine(PrintVector(result));
         }
 

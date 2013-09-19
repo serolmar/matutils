@@ -78,9 +78,12 @@
                     if (0 < p)
                     {
                         var verticesInfoLine = new List<VertexCostPair>();
+                        var offSets = new int[p - 1];
                         var precomputedNumber = n - p + 1;
                         var currentCosts = matrix[0];
-                        for (int j = 0; j < currentCosts.Count && j < precomputedNumber; ++j)
+                        var generalOffset = n - countVertices - 1;
+                        offSets[0] = Math.Max(generalOffset + currentCosts.Count, 0);
+                        for (int j = offSets[0]; j < currentCosts.Count && j < precomputedNumber; ++j)
                         {
                             var currentCost = currentCosts[j];
                             verticesInfoLine.Add(new VertexCostPair()
@@ -96,11 +99,13 @@
                         {
                             var previousInfoLine = verticesInfoLine;
                             verticesInfoLine = new List<VertexCostPair>();
-                            currentCosts = matrix[i];
+                            currentCosts = matrix[i];;
+                            offSets[i] = Math.Max(generalOffset+currentCosts.Count, 0);
+                            precomputedNumber -= offSets[i];
 
                             var count = 0;
                             var previousLineValue = previousInfoLine[0];
-                            for (int k = 0; k < currentCosts.Count && count < precomputedNumber; ++k)
+                            for (int k = offSets[i]; k < currentCosts.Count && count < precomputedNumber; ++k)
                             {
                                 verticesInfoLine.Add(new VertexCostPair()
                                 {
@@ -111,7 +116,7 @@
                                 ++count;
                             }
 
-                            var lastIndex = count - 1;
+                            var lastIndex = count - 1 + offSets[i];
                             var lastCost = currentCosts[lastIndex];
                             for (int j = 1; j < previousInfoLine.Count && count < precomputedNumber; ++j)
                             {
@@ -127,11 +132,11 @@
                             for (int j = 1; j < previousInfoLine.Count && j < precomputedNumber; ++j)
                             {
                                 var maxValue = precomputedNumber - j;
-                                for (int k = 0; k < currentCosts.Count - 1 && k < maxValue; ++k)
+                                for (int k = offSets[i]; k < currentCosts.Count - 1 && k < maxValue; ++k)
                                 {
                                     var currentPreviousValue = previousInfoLine[j].Cost;
                                     var tempCost = this.ring.Add(currentPreviousValue, currentCosts[k]);
-                                    var currentVertexLine = verticesInfoLine[k + j];
+                                    var currentVertexLine = verticesInfoLine[k + j - offSets[i]];
                                     if (this.comparer.Compare(tempCost, currentVertexLine.Cost) < 0)
                                     {
                                         currentVertexLine.Cost = tempCost;
@@ -144,9 +149,11 @@
                         }
 
                         // p iguala o número total de componentes do custo
+                        currentCosts = matrix[p - 1];
+                        var lastOffSet = Math.Max(generalOffset + currentCosts.Count, 0);
+                        precomputedNumber -= lastOffSet;
                         var vertex = verticesInfoLine.Count;
                         var diff = precomputedNumber - vertex;
-                        currentCosts = matrix[p - 1];
                         --vertex;
                         var lastValue = new VertexCostPair()
                         {
@@ -167,7 +174,7 @@
                             --vertex;
                         }
 
-                        return this.GetSolution(n, p, lastValue, verticesInfoTable);
+                        return this.GetSolution(n, p, offSets, lastValue, verticesInfoTable);
                     }
                 }
             }
@@ -180,25 +187,33 @@
         /// </summary>
         /// <param name="n">O número a ser decomposto.</param>
         /// <param name="p">The number of components.</param>
+        /// <param name="offsets">Os deslocamentos iniciais.</param>
         /// <param name="lastValue">The last computed value.</param>
         /// <param name="table">The table.</param>
         /// <returns>The solution.</returns>
         private List<int> GetSolution(
             int n,
             int p,
+            int[] offsets,
             VertexCostPair lastValue, 
             List<List<VertexCostPair>> table)
         {
+            var sum = 0;
+            for (int j = 0; j < offsets.Length; ++j) {
+                sum += offsets[j];
+            }
+
             var temporarySolution = new int[p + 1];
             var i = p;
             temporarySolution[i] = n;
             --i;
-            temporarySolution[i] = lastValue.Vertex + i;
+            temporarySolution[i] = lastValue.Vertex + i + sum;
             --i;
             for (; i > 0; --i)
             {
+                sum -= offsets[i];
                 lastValue = table[i][lastValue.Vertex];
-                temporarySolution[i] = lastValue.Vertex + i;
+                temporarySolution[i] = lastValue.Vertex + i + sum;
             }
 
             var result = new List<int>();
