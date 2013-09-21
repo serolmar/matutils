@@ -16,7 +16,7 @@ namespace Mathematics
     /// </remarks>
     /// <typeparam name="ObjectType">O tipo de dados dos coeficientes.</typeparam>
     /// <typeparam name="RingType">O tipo de dados do anel responsável pelas respectivas operações.</typeparam>
-    public class UnivariatePolynomialNormalForm<CoeffType, RingType>
+    public class UnivariatePolynomialNormalForm<CoeffType, RingType> : IEnumerable<KeyValuePair<int, CoeffType>>
         where RingType : IRing<CoeffType>
     {
         RingType ring;
@@ -1014,6 +1014,25 @@ namespace Mathematics
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Obtém um enumerador para os termos do polinómio como par chave/valor na qual a chave
+        /// contém o grau e o valor contém o respectivo coeficiente.
+        /// </summary>
+        /// <returns>O enumerador.</returns>
+        public IEnumerator<KeyValuePair<int, CoeffType>> GetEnumerator()
+        {
+            return this.terms.GetEnumerator();
+        }
+
+        /// <summary>
+        /// Obtém o enumerador genérico para os termos do polinómio.
+        /// </summary>
+        /// <returns>O enumerador gen+erico.</returns>
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+        {
+            return this.GetEnumerator();
         }
     }
 }

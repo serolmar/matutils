@@ -15,7 +15,7 @@
     {
         static void Main(string[] args)
         {
-            Test17();
+            Test13();
             Console.ReadLine();
         }
 
@@ -25,6 +25,23 @@
             tester.Run(Console.In, Console.Out);
         }
 
+        /// <summary>
+        /// Testes ao método da condensação.
+        /// </summary>
+        public static void Test18()
+        {
+            var doubleArrayMatrixReader = new DoubleArrayMatrixReader();
+            var independentMatrix = doubleArrayMatrixReader.ReadArray(3, 4, "[[1,0,0],[0,0,0],[0,3,3],[2,0,1]]");
+            var dependentMatrix = doubleArrayMatrixReader.ReadArray(3, 1, "[[1,3,3]]");
+
+            var linearSystemAlg = new ArrayMatrixCondLinSysAlgorithm<double>(
+                new DoubleField());
+            var result = linearSystemAlg.Run(independentMatrix, dependentMatrix);
+        }
+
+        /// <summary>
+        /// Testes ao algoritmo de decomposição.
+        /// </summary>
         public static void Test17()
         {
             var costs = new List<List<int>>();
@@ -182,6 +199,9 @@
             }
         }
 
+        /// <summary>
+        /// Teste à leitura de expressões que envolvem conjuntos.
+        /// </summary>
         public static void Test14()
         {
             var input = "  {1 , 5,  2,3}  intersection ({3,2} union {1,5})";
@@ -203,12 +223,23 @@
             }
         }
 
+        /// <summary>
+        /// Teste aos algoritmos relacionados com números primos.
+        /// </summary>
         public static void Test13()
         {
-            var quadraticSieve = new QuadraticFieldSieve();
-            var temp = quadraticSieve.Run(13457, 50, 20);
+            var mod = 86501;
+            var modularArith = new ModularIntegerField(mod);
+            var n1 = 324135;
+            var n2 = 112341235;
+            var mult = modularArith.Multiply(n1, n2);
+
+            var temp1 = ((n1 % mod) * (n2 % mod)) % mod;
+
+            //var quadraticSieve = new QuadraticFieldSieve();
+            //var temp = quadraticSieve.Run(13457, 50, 20);
             var aksPrimalityTest = new AksPrimalityTest();
-            var n = 521;
+            var n = 99991;
             if (aksPrimalityTest.Run(n))
             {
                 Console.WriteLine("{0} is prime", n);
@@ -222,7 +253,7 @@
             Console.WriteLine(eulerFunction.Run(1937));
 
             var pollardRhoAlg = new PollardRhoAlgorithm();
-            n = 38;
+            //n = 38;
             var pollardResult = pollardRhoAlg.Run(n);
             var pollardBlockedResult = pollardRhoAlg.Run(n, 10);
             Console.WriteLine("[{0}, {1}]", pollardResult.Item1, pollardResult.Item2);

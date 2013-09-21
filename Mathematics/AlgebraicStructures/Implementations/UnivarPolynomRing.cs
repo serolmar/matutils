@@ -9,7 +9,7 @@ namespace Mathematics
         IRing<UnivariatePolynomialNormalForm<CoeffType, RingType>>
         where RingType : IRing<CoeffType>
     {
-        private RingType ring;
+        protected RingType ring;
 
         protected string variableName;
 
@@ -30,7 +30,7 @@ namespace Mathematics
             }
         }
 
-        public UnivariatePolynomialNormalForm<CoeffType, RingType> AdditiveUnity
+        public virtual UnivariatePolynomialNormalForm<CoeffType, RingType> AdditiveUnity
         {
             get
             {
@@ -38,15 +38,20 @@ namespace Mathematics
             }
         }
 
-        public UnivariatePolynomialNormalForm<CoeffType, RingType> MultiplicativeUnity
+        public virtual UnivariatePolynomialNormalForm<CoeffType, RingType> MultiplicativeUnity
         {
             get
             {
-                return new UnivariatePolynomialNormalForm<CoeffType, RingType>(this.ring.MultiplicativeUnity, 0, this.variableName, this.ring);
+                return new UnivariatePolynomialNormalForm<CoeffType, RingType>(
+                    this.ring.MultiplicativeUnity, 
+                    0, 
+                    this.variableName, 
+                    this.ring);
             }
         }
 
-        public UnivariatePolynomialNormalForm<CoeffType, RingType> AdditiveInverse(UnivariatePolynomialNormalForm<CoeffType, RingType> number)
+        public virtual UnivariatePolynomialNormalForm<CoeffType, RingType> AdditiveInverse(
+            UnivariatePolynomialNormalForm<CoeffType, RingType> number)
         {
             if (number == null)
             {
@@ -58,7 +63,7 @@ namespace Mathematics
             }
         }
 
-        public bool IsAdditiveUnity(UnivariatePolynomialNormalForm<CoeffType, RingType> value)
+        public virtual bool IsAdditiveUnity(UnivariatePolynomialNormalForm<CoeffType, RingType> value)
         {
             if (value == null)
             {
@@ -70,7 +75,9 @@ namespace Mathematics
             }
         }
 
-        public UnivariatePolynomialNormalForm<CoeffType, RingType> Add(UnivariatePolynomialNormalForm<CoeffType, RingType> left, UnivariatePolynomialNormalForm<CoeffType, RingType> right)
+        public virtual UnivariatePolynomialNormalForm<CoeffType, RingType> Add(
+            UnivariatePolynomialNormalForm<CoeffType, RingType> left, 
+            UnivariatePolynomialNormalForm<CoeffType, RingType> right)
         {
             if (left == null)
             {
@@ -86,17 +93,43 @@ namespace Mathematics
             }
         }
 
-        public bool Equals(UnivariatePolynomialNormalForm<CoeffType, RingType> x, UnivariatePolynomialNormalForm<CoeffType, RingType> y)
+        public virtual bool Equals(
+            UnivariatePolynomialNormalForm<CoeffType, RingType> x, 
+            UnivariatePolynomialNormalForm<CoeffType, RingType> y)
         {
-            throw new NotImplementedException();
+            if (x == null && y == null)
+            {
+                return true;
+            }
+            else if (x == null)
+            {
+                return false;
+            }
+            else if (y == null)
+            {
+                return false;
+            }
+            else
+            {
+                return x.Equals(y);
+            }
         }
 
-        public int GetHashCode(UnivariatePolynomialNormalForm<CoeffType, RingType> obj)
+        public virtual int GetHashCode(UnivariatePolynomialNormalForm<CoeffType, RingType> obj)
         {
-            throw new NotImplementedException();
+            if (obj == null)
+            {
+                return 0;
+            }
+            else
+            {
+                return obj.GetHashCode();
+            }
         }
 
-        public UnivariatePolynomialNormalForm<CoeffType, RingType> Multiply(UnivariatePolynomialNormalForm<CoeffType, RingType> left, UnivariatePolynomialNormalForm<CoeffType, RingType> right)
+        public virtual UnivariatePolynomialNormalForm<CoeffType, RingType> Multiply(
+            UnivariatePolynomialNormalForm<CoeffType, RingType> left, 
+            UnivariatePolynomialNormalForm<CoeffType, RingType> right)
         {
             if (left == null)
             {
@@ -112,7 +145,7 @@ namespace Mathematics
             }
         }
 
-        public bool IsMultiplicativeUnity(UnivariatePolynomialNormalForm<CoeffType, RingType> value)
+        public virtual bool IsMultiplicativeUnity(UnivariatePolynomialNormalForm<CoeffType, RingType> value)
         {
             if (value == null)
             {
@@ -124,9 +157,26 @@ namespace Mathematics
             }
         }
 
-        public UnivariatePolynomialNormalForm<CoeffType, RingType> AddRepeated(UnivariatePolynomialNormalForm<CoeffType, RingType> element, int times)
+        public virtual UnivariatePolynomialNormalForm<CoeffType, RingType> AddRepeated(
+            UnivariatePolynomialNormalForm<CoeffType, RingType> element, 
+            int times)
         {
-            throw new NotImplementedException();
+            if (element == null)
+            {
+                throw new ArgumentNullException("element");
+            }
+            else
+            {
+                var result = new UnivariatePolynomialNormalForm<CoeffType, RingType>(this.variableName, this.ring);
+                foreach (var termsKvp in element)
+                {
+                    result = result.Add(
+                        this.ring.AddRepeated(termsKvp.Value, times),
+                        termsKvp.Key);
+                }
+
+                return result;
+            }
         }
     }
 }

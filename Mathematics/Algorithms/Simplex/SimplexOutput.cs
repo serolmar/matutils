@@ -33,6 +33,7 @@
         {
             this.solution = solution;
             this.cost = cost;
+            this.hasSolution = hasSolution;
         }
 
         /// <summary>

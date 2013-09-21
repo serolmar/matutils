@@ -98,6 +98,16 @@
             return new IntegerSequenceSubMatrix<ObjectType>(this, lines, columns);
         }
 
+        public void SwapLines(int i, int j)
+        {
+            this.matrix.SwapColumns(i, j);
+        }
+
+        public void SwapColumns(int i, int j)
+        {
+            this.SwapLines(i, j);
+        }
+
         public IEnumerator<ObjectType> GetEnumerator()
         {
             for (int i = 0; i < this.matrix.GetLength(1); ++i)

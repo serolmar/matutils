@@ -170,6 +170,7 @@
                             secondSequenceValue = polynomial.Replace(secondSequenceTemp, modularRing);
                             blockProduct = (blockProduct * Math.Abs(firstSequenceValue - secondSequenceValue)) %
                                 innerNumber;
+                            ++blocksNumber;
                         }
 
                         if (blockProduct == 0)
@@ -207,7 +208,7 @@
 
                     } while (gcd == 1);
 
-                    if (gcd != innerNumber)
+                    if (gcd != innerNumber && gcd != 0)
                     {
                         return Tuple.Create(gcd, innerNumber / gcd);
                     }

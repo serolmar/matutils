@@ -131,6 +131,18 @@
             return new IntegerSequenceSubMatrix<ObjectType>(this, lines, columns);
         }
 
+        public void SwapLines(int i, int j)
+        {
+            // Não é suportado por uma submatriz definida por uma sequência ordenada
+            throw new MathematicsException("Can't swap integer sequence submatrix lines.");
+        }
+
+        public void SwapColumns(int i, int j)
+        {
+            // Não é suportado por uma submatriz definida por uma sequência ordenada
+            throw new MathematicsException("Can't swap integer sequence submatrix columns.");
+        }
+
         public IEnumerator<ObjectType> GetEnumerator()
         {
             for (int i = 0; i < this.lines.Count; ++i)

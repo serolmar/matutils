@@ -47,5 +47,19 @@
         /// <param name="columns">As correnadas das colunas que constituem a submatriz.</param>
         /// <returns>A submatriz procurada.</returns>
         IMatrix<ObjectType> GetSubMatrix(IntegerSequence lines, IntegerSequence columns);
+
+        /// <summary>
+        /// Troca duas linhas da matriz.
+        /// </summary>
+        /// <param name="i">A primeira linha a ser trocada.</param>
+        /// <param name="j">A segunda linha a ser trocada.</param>
+        void SwapLines(int i, int j);
+
+        /// <summary>
+        /// Troca duas colunas da matriz.
+        /// </summary>
+        /// <param name="i">A primeira coluna a ser trocaada.</param>
+        /// <param name="j">A segunda coluna a ser trocada.</param>
+        void SwapColumns(int i, int j);
     }
 }

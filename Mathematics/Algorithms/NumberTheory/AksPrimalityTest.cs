@@ -72,27 +72,14 @@
                         }
                     }
 
-                    if (innerData <= r)
-                    {
-                        return true;
-                    }
-                    else
-                    {
-                        var limit = (int)Math.Floor(Math.Sqrt(innerData) * log);
+                    var limit = (int)Math.Floor(Math.Sqrt(innerData) * log);
                         var modularField = new ModularIntegerField(innerData);
                         var terms = new Dictionary<int, int>();
 
-                        var lagrangeAlgorithm = new LagrangeAlgorithm<
-                            UnivariatePolynomialNormalForm<int, ModularIntegerField>,
-                            UnivarPolynomEuclideanDomain<int, ModularIntegerField>>(
-                            new UnivarPolynomEuclideanDomain<int, ModularIntegerField>("x", modularField));
-                        terms.Clear();
-                        terms.Add(r, 1);
-                        terms.Add(0, -1);
-                        var modularPolynomial = new UnivariatePolynomialNormalForm<int, ModularIntegerField>(
-                                terms,
-                                "x",
-                                modularField);
+                        var modularPolynomialRing = new AuxAksModArithmRing<int, ModularIntegerField>(
+                            r, 
+                            "x",
+                            modularField);
                         for (int i = 1; i <= limit; ++i)
                         {
                             terms.Clear();
@@ -111,21 +98,12 @@
                             "x",
                             modularField);
 
-                            var modularAritmeticField = new ModularBachetBezoutField<
-                                                            UnivariatePolynomialNormalForm<int, ModularIntegerField>,
-                                                            UnivarPolynomEuclideanDomain<int, ModularIntegerField>,
-                                                            LagrangeAlgorithm<
-                                                                UnivariatePolynomialNormalForm<int, ModularIntegerField>,
-                                                                UnivarPolynomEuclideanDomain<int, ModularIntegerField>>>(
-                                                                                            modularPolynomial,
-                                                                                            lagrangeAlgorithm);
-                            var poweredPol = MathFunctions.Power(polynomial, innerData, modularAritmeticField);
-                            if (!poweredPol.Equals(modularAritmeticField.GetReduced(comparisionPol)))
+                            var poweredPol = MathFunctions.Power(polynomial, innerData, modularPolynomialRing);
+                            if (!poweredPol.Equals(modularPolynomialRing.GetReduced(comparisionPol)))
                             {
                                 return false;
                             }
                         }
-                    }
 
                     return true;
                 }
@@ -143,7 +121,6 @@
             var squaredLog = log * log;
             for (int i = 2; i < data; ++i)
             {
-
                 var order = 2;
                 if (order > squaredLog)
                 {
