@@ -74,6 +74,8 @@
     <Compile Include="AlgebraicStructures\LogicInterfaces\ISparseMatrix.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\ISparseMatrixLine.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\IVectorSpace.cs" />
+    <Compile Include="AlgebraicStructures\Matrix\ArrayBitMatrix.cs" />
+    <Compile Include="AlgebraicStructures\Matrix\ArrayBitMatrixFactory.cs" />
     <Compile Include="AlgebraicStructures\Matrix\ArrayMatrix.cs" />
     <Compile Include="AlgebraicStructures\Matrix\ArrayMatrixFactory.cs" />
     <Compile Include="AlgebraicStructures\Matrix\ConfigMatrixParser.cs" />

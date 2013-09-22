@@ -53,7 +53,7 @@
                     primesList.Insert(0, 2);
                 }
 
-                var sieveMatrix = this.ComputeSievetep(innerData, sieveInterval, primesList);
+                var sieveMatrix = this.ComputeSieveStep(innerData, sieveInterval, primesList);
 
                 // Implementação do algoritmo associado à combinação linear para a obtenção do resultado
             }
@@ -68,7 +68,7 @@
         /// <param name="sieveInterval">O intervalo de crivo.</param>
         /// <param name="primesList">A base de primos.</param>
         /// <returns>A matriz com o vector.</returns>
-        public Tuple<int[,], int[]> ComputeSievetep(int innerData, int sieveInterval, List<int> primesList)
+        public Tuple<ArrayBitMatrix, int[]> ComputeSieveStep(int innerData, int sieveInterval, List<int> primesList)
         {
             var sqrt = (int)Math.Floor(Math.Sqrt(innerData));
             var innerSieveInterval = sieveInterval;
@@ -195,7 +195,7 @@
                 }
             }
 
-            var matrix = new int[matrixList.Count, primesList.Count];
+            var matrix = new ArrayBitMatrix(matrixList.Count, primesList.Count, 0);
             for (int i = 0; i < matrixList.Count; ++i)
             {
                 for (int j = 0; j < primesList.Count; ++j)

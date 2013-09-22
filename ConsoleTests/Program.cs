@@ -228,7 +228,7 @@
         /// </summary>
         public static void Test13()
         {
-            var mod = 86501;
+            var mod = 2;
             var modularArith = new ModularIntegerField(mod);
             var n1 = 324135;
             var n2 = 112341235;
