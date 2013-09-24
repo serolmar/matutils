@@ -80,6 +80,7 @@
     <Compile Include="AlgebraicStructures\Matrix\ArrayMatrixFactory.cs" />
     <Compile Include="AlgebraicStructures\Matrix\ConfigMatrixParser.cs" />
     <Compile Include="AlgebraicStructures\Matrix\ConfigMatrixReader.cs" />
+    <Compile Include="AlgebraicStructures\Matrix\IdentityMatrix.cs" />
     <Compile Include="AlgebraicStructures\Matrix\IMatrixFactory.cs" />
     <Compile Include="AlgebraicStructures\Matrix\IntegerSequenceSubMatrix.cs" />
     <Compile Include="AlgebraicStructures\Matrix\SparseDictionaryMatrix.cs" />
@@ -87,6 +88,7 @@
     <Compile Include="AlgebraicStructures\Matrix\SparseDictionaryMatrixLine.cs" />
     <Compile Include="AlgebraicStructures\Matrix\SubMatrix.cs" />
     <Compile Include="AlgebraicStructures\Matrix\TransposeMatrix.cs" />
+    <Compile Include="AlgebraicStructures\Matrix\ZeroMatrix.cs" />
     <Compile Include="AlgebraicStructures\MultiDimensionalRange\MultiDimensionalRange.cs" />
     <Compile Include="AlgebraicStructures\MultiDimensionalRange\MultiDimensionalRangeParser.cs" />
     <Compile Include="AlgebraicStructures\MultiDimensionalRange\MultiDimensionalRangeReader.cs" />
@@ -125,8 +127,8 @@
     <Compile Include="Algorithms\Matrix\Determinant\PermutationDeterminantCalculator.cs" />
     <Compile Include="Algorithms\Matrix\EigenProblems\FastDivisionFreeCharPolynomCalculator.cs" />
     <Compile Include="Algorithms\Matrix\Linear Systems\BlockLanczosAlgorithm.cs" />
-    <Compile Include="Algorithms\Matrix\Linear Systems\ArrayMatrixCondensationMethodAlgorithm.cs" />
-    <Compile Include="Algorithms\Matrix\Linear Systems\ArrayMatrixCondLinSysAlgorithm.cs" />
+    <Compile Include="Algorithms\Matrix\Linear Systems\DenseCondensationMethodAlgorithm.cs" />
+    <Compile Include="Algorithms\Matrix\Linear Systems\DenseCondensationLinSysAlgorithm.cs" />
     <Compile Include="Algorithms\Matrix\Linear Systems\LinearSystemSolution.cs" />
     <Compile Include="Algorithms\Matrix\Linear Systems\SequentialLanczosAlgorithm.cs" />
     <Compile Include="Algorithms\NumberTheory\AksPrimalityTest.cs" />

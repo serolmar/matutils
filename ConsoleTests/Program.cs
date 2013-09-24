@@ -15,6 +15,7 @@
     {
         static void Main(string[] args)
         {
+            Console.Write(int.MaxValue);
             Test13();
             Console.ReadLine();
         }
@@ -34,7 +35,7 @@
             var independentMatrix = doubleArrayMatrixReader.ReadArray(3, 4, "[[1,0,0],[0,0,0],[0,3,3],[2,0,1]]");
             var dependentMatrix = doubleArrayMatrixReader.ReadArray(3, 1, "[[1,3,3]]");
 
-            var linearSystemAlg = new ArrayMatrixCondLinSysAlgorithm<double>(
+            var linearSystemAlg = new DenseCondensationLinSysAlgorithm<double>(
                 new DoubleField());
             var result = linearSystemAlg.Run(independentMatrix, dependentMatrix);
         }
@@ -228,16 +229,9 @@
         /// </summary>
         public static void Test13()
         {
-            var mod = 2;
-            var modularArith = new ModularIntegerField(mod);
-            var n1 = 324135;
-            var n2 = 112341235;
-            var mult = modularArith.Multiply(n1, n2);
+            var quadraticSieve = new QuadraticFieldSieve();
+            var temp = quadraticSieve.Run(13459, 100, 50);
 
-            var temp1 = ((n1 % mod) * (n2 % mod)) % mod;
-
-            //var quadraticSieve = new QuadraticFieldSieve();
-            //var temp = quadraticSieve.Run(13457, 50, 20);
             var aksPrimalityTest = new AksPrimalityTest();
             var n = 99991;
             if (aksPrimalityTest.Run(n))

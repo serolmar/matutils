@@ -9,15 +9,15 @@
     /// Implementa a condensação de Gauss Jordan para resolver um sistema linear.
     /// </summary>
     /// <typeparam name="ElementType">O tipo de dados dos coeficientes.</typeparam>
-    public class ArrayMatrixCondensationMethodAlgorithm<ElementType>
-        : IAlgorithm<ArrayMatrix<ElementType>, ArrayMatrix<ElementType>, bool>
+    public class DenseCondensationMethodAlgorithm<ElementType>
+        : IAlgorithm<IMatrix<ElementType>, IMatrix<ElementType>, bool>
     {
         /// <summary>
         /// O corpo responsável pelas operações.
         /// </summary>
         IField<ElementType> field;
 
-        public ArrayMatrixCondensationMethodAlgorithm(IField<ElementType> field)
+        public DenseCondensationMethodAlgorithm(IField<ElementType> field)
         {
             if (field == null)
             {
@@ -40,8 +40,8 @@
         /// <param name="independentVector">A matriz dependente.</param>
         /// <returns>Verdadeiro caso tenha sido realizada alguma operação e falso caso contrário.</returns>
         public bool Run(
-            ArrayMatrix<ElementType> initialMatrix,
-            ArrayMatrix<ElementType> finalMatrix)
+            IMatrix<ElementType> initialMatrix,
+            IMatrix<ElementType> finalMatrix)
         {
             if (initialMatrix == null)
             {
@@ -76,8 +76,8 @@
                     if (this.field.IsAdditiveUnity(pivotValue))
                     {
                         var nextPivotCandidate = this.GetNextNonEmptyPivotLineNumber(
-                            i, 
-                            currentPivotColumn, 
+                            i,
+                            currentPivotColumn,
                             initialMatrix);
                         if (nextPivotCandidate != -1)
                         {
@@ -150,6 +150,9 @@
                     ++currentPivotColumn;
                 }
 
+                i = Math.Min(initialMatrixLines - 1, initialMatrixColumns - 1);
+                currentPivotColumn = i;
+
                 while (i > 0 && currentPivotColumn > 0)
                 {
                     var pivotValue = initialMatrix[i, currentPivotColumn];
@@ -160,7 +163,16 @@
                             var value = initialMatrix[j, currentPivotColumn];
                             if (!this.field.IsAdditiveUnity(value))
                             {
+                                result = true;
                                 initialMatrix[j, currentPivotColumn] = this.field.AdditiveUnity;
+                                for (int k = i + 1; k < matrixDimension; ++k)
+                                {
+                                    var temp = this.field.Multiply(value, initialMatrix[i, k]);
+                                    initialMatrix[j, k] = this.field.Add(
+                                        initialMatrix[j, k],
+                                        this.field.AdditiveInverse(temp));
+                                }
+
                                 for (int k = 0; k < finalMatrixColumns; ++k)
                                 {
                                     var temp = this.field.Multiply(value, finalMatrix[i, k]);
@@ -170,10 +182,9 @@
                                 }
                             }
                         }
-
-                        --i;
                     }
 
+                    --i;
                     --currentPivotColumn;
                 }
 

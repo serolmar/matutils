@@ -98,6 +98,10 @@
                             bitListLine.Add(this.defaultValue);
                         }
 
+                        bitListLine.Add(value);
+                    }
+                    else
+                    {
                         bitListLine[column] = value;
                     }
                 }
@@ -156,7 +160,7 @@
             return new SubMatrix<int>(this, lines, columns);
         }
 
-        public IMatrix<int> GetSubMatrix(Utilities.Collections.IntegerSequence lines, Utilities.Collections.IntegerSequence columns)
+        public IMatrix<int> GetSubMatrix(IntegerSequence lines, IntegerSequence columns)
         {
             return new IntegerSequenceSubMatrix<int>(this, lines, columns);
         }

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using Mathematics.Algorithms;
 
-namespace Mathematics.AlgebraicStructures.Polynomial
+namespace Mathematics
 {
     /// <summary>
     /// Classe útil na determinação do valor dos coeficientes

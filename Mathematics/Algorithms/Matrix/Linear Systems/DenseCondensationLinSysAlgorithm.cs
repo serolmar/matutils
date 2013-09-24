@@ -8,8 +8,8 @@
     /// <summary>
     /// Algoritmo que permite resolver sistemas de equações com base no método de Gauss-Jordan.
     /// </summary>
-    public class ArrayMatrixCondLinSysAlgorithm<ElementType>
-        : IAlgorithm<ArrayMatrix<ElementType>, ArrayMatrix<ElementType>, LinearSystemSolution<ElementType>>
+    public class DenseCondensationLinSysAlgorithm<ElementType>
+        : IAlgorithm<IMatrix<ElementType>, IMatrix<ElementType>, LinearSystemSolution<ElementType>>
     {
         /// <summary>
         /// O corpo responsável pelas operações.
@@ -19,9 +19,9 @@
         /// <summary>
         /// O algoritmo responsável pela condensação das matrizes.
         /// </summary>
-        IAlgorithm<ArrayMatrix<ElementType>, ArrayMatrix<ElementType>, bool> condensationAlgorithm;
+        IAlgorithm<IMatrix<ElementType>, IMatrix<ElementType>, bool> condensationAlgorithm;
 
-        public ArrayMatrixCondLinSysAlgorithm(IField<ElementType> field)
+        public DenseCondensationLinSysAlgorithm(IField<ElementType> field)
         {
             if (field == null)
             {
@@ -30,7 +30,7 @@
             else
             {
                 this.field = field;
-                this.condensationAlgorithm = new ArrayMatrixCondensationMethodAlgorithm<ElementType>(
+                this.condensationAlgorithm = new DenseCondensationMethodAlgorithm<ElementType>(
                     field);
             }
         }
@@ -42,8 +42,8 @@
         /// <param name="independentVector">O vector independente.</param>
         /// <returns>A solução do sistema.</returns>
         public LinearSystemSolution<ElementType> Run(
-            ArrayMatrix<ElementType> coefficientsMatrix,
-            ArrayMatrix<ElementType> independentVector)
+            IMatrix<ElementType> coefficientsMatrix,
+            IMatrix<ElementType> independentVector)
         {
             this.condensationAlgorithm.Run(coefficientsMatrix, independentVector);
             var result = new LinearSystemSolution<ElementType>();

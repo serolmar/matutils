@@ -12,6 +12,24 @@
     public class QuadraticFieldSieve : IAlgorithm<int, int, int, Tuple<int, int>>
     {
         /// <summary>
+        /// Algoritmo que permite resolver o sistema de equações.
+        /// </summary>
+        private IAlgorithm<IMatrix<int>, IMatrix<int>, LinearSystemSolution<int>>
+            linearSystemAlgorithm;
+
+        /// <summary>
+        /// O corpo responsável pelas operações módulo dois.
+        /// </summary>
+        private ModularIntegerField field;
+
+        public QuadraticFieldSieve()
+        {
+            this.field = new ModularIntegerField(2);
+            this.linearSystemAlgorithm = new DenseCondensationLinSysAlgorithm<int>(
+                this.field);
+        }
+
+        /// <summary>
         /// Obtém a factorização do módulo do número especificado.
         /// </summary>
         /// <param name="data">O número.</param>
@@ -33,7 +51,7 @@
             }
             else if (innerData == 1 || innerData == 2 || innerData == 3)
             {
-                return Tuple.Create(innerData, 1);
+                return Tuple.Create(1, innerData);
             }
             else
             {
@@ -55,10 +73,95 @@
 
                 var sieveMatrix = this.ComputeSieveStep(innerData, sieveInterval, primesList);
 
+                var modularMatrix = this.GetBitMatrixFromList(sieveMatrix, primesList);
+
                 // Implementação do algoritmo associado à combinação linear para a obtenção do resultado
+                var solution = this.linearSystemAlgorithm.Run(
+                    modularMatrix,
+                    new ZeroMatrix<int, ModularIntegerField>(modularMatrix.GetLength(0), 1, this.field));
+
+                return this.GetSolution(solution, sieveMatrix, primesList, innerData);
+            }
+        }
+
+        /// <summary>
+        /// Obtém os valores
+        /// </summary>
+        /// <param name="solution">A solução do sistema modular.</param>
+        /// <param name="matrixList">A matriz.</param>
+        /// <param name="innerDataModularField">O corpo responsável pelas operações de multiplicação.</param>
+        /// <param name="primesList">A lista dos números primos da base.</param>
+        /// <param name="innerData">O número que está a ser factorizado.</param>
+        /// <returns>Os factores.</returns>
+        private Tuple<int, int> GetSolution(
+            LinearSystemSolution<int> solution,
+            List<int[]> matrixList,
+            List<int> primesList,
+            int innerData)
+        {
+            var innerDataModularField = new ModularIntegerField(innerData);
+            var countFactors = primesList.Count - 1;
+            foreach (var solutionBase in solution.VectorSpaceBasis)
+            {
+                var firstValue = 1;
+                var factorsCount = new Dictionary<int, int>();
+                for (int i = 0; i < matrixList.Count; ++i)
+                {
+                    var currentMatrixLine = matrixList[i];
+                    if (solutionBase[i, 0] == 1)
+                    {
+                        firstValue = innerDataModularField.Multiply(
+                            firstValue,
+                            Math.Abs(currentMatrixLine[currentMatrixLine.Length - 1]));
+
+                        for (int j = 0; j < countFactors; ++j)
+                        {
+                            if (currentMatrixLine[j] != 0)
+                            {
+                                var countValue = 0;
+                                if (factorsCount.TryGetValue(primesList[j], out countValue))
+                                {
+                                    countValue += currentMatrixLine[j];
+                                    factorsCount[primesList[j]] = countValue;
+                                }
+                                else
+                                {
+                                    factorsCount.Add(primesList[j], currentMatrixLine[j]);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                var secondValue = 1;
+                foreach (var factorCountKvp in factorsCount)
+                {
+                    var primePower = MathFunctions.Power(
+                        factorCountKvp.Key, 
+                        factorCountKvp.Value / 2, 
+                        innerDataModularField);
+
+                    secondValue = innerDataModularField.Multiply(
+                        secondValue,
+                        primePower);
+                }
+
+                if (firstValue != secondValue)
+                {
+                    var integerDomain = new IntegerDomain();
+                    var firstFactor = MathFunctions.GreatCommonDivisor(
+                        innerData,
+                        Math.Abs(firstValue - secondValue),
+                        integerDomain);
+                    if (firstFactor != 1)
+                    {
+                        var secondFactor = innerData / firstFactor;
+                        return Tuple.Create(firstFactor, secondFactor);
+                    }
+                }
             }
 
-            throw new NotImplementedException();
+            return Tuple.Create(1, innerData);
         }
 
         /// <summary>
@@ -68,7 +171,10 @@
         /// <param name="sieveInterval">O intervalo de crivo.</param>
         /// <param name="primesList">A base de primos.</param>
         /// <returns>A matriz com o vector.</returns>
-        public Tuple<ArrayBitMatrix, int[]> ComputeSieveStep(int innerData, int sieveInterval, List<int> primesList)
+        private List<int[]> ComputeSieveStep(
+            int innerData, 
+            int sieveInterval, 
+            List<int> primesList)
         {
             var sqrt = (int)Math.Floor(Math.Sqrt(innerData));
             var innerSieveInterval = sieveInterval;
@@ -195,22 +301,27 @@
                 }
             }
 
-            var matrix = new ArrayBitMatrix(matrixList.Count, primesList.Count, 0);
-            for (int i = 0; i < matrixList.Count; ++i)
+            return matrixList;
+        }
+
+        /// <summary>
+        /// Obtém a matriz sobre a qual se pretende obter o espaço nulo.
+        /// </summary>
+        /// <param name="matrixList">A matriz original.</param>
+        /// <param name="primesList">A lista dos primos.</param>
+        /// <returns>A matriz de "bits".</returns>
+        private ArrayBitMatrix GetBitMatrixFromList(List<int[]> matrixList, List<int> primesList)
+        {
+            var matrix = new ArrayBitMatrix(primesList.Count, matrixList.Count, 0);
+            for (int i = 0; i < primesList.Count; ++i)
             {
-                for (int j = 0; j < primesList.Count; ++j)
+                for (int j = 0; j < matrixList.Count; ++j)
                 {
-                    matrix[i, j] = matrixList[i][j];
+                    matrix[i, j] = matrixList[j][i] % 2;
                 }
             }
 
-            var vector = new int[matrixList.Count];
-            for (int i = 0; i < matrixList.Count; ++i)
-            {
-                vector[i] = matrixList[i][primesList.Count];
-            }
-
-            return Tuple.Create(matrix, vector);
+            return matrix;
         }
 
         /// <summary>

@@ -244,7 +244,15 @@
             var leftQuo = this.module / innerLeft;
             if (leftQuo >= innerRight)
             {
-                return innerLeft * innerRight * sign;
+                var result = (innerLeft * innerRight * sign) % this.module;
+                if (result >= 0)
+                {
+                    return result;
+                }
+                else
+                {
+                    return this.module + result;
+                }
             }
             else
             {
