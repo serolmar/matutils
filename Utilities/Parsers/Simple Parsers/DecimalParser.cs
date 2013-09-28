@@ -21,7 +21,7 @@ namespace Utilities.Parsers
         {
             if (formatProvider == null)
             {
-                throw new ExpressionReaderException("Expecting a non null format provider.");
+                throw new UtilitiesDataException("Expecting a non null format provider.");
             }
 
             this.numberStyles = numberStyles;

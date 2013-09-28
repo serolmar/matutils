@@ -33,6 +33,8 @@
         /// Obtém a factorização do módulo do número especificado.
         /// </summary>
         /// <param name="data">O número.</param>
+        /// <param name="factorBase">O limite máximo para os números primos da base.</param>
+        /// <param name="sieveInterval">O intervalo sobre os quais são crivados os números.</param>
         /// <returns>A decomposição do número especificado num produto de dois factores.</returns>
         public Tuple<int, int> Run(int data, int factorBase, int sieveInterval)
         {
@@ -85,7 +87,7 @@
         }
 
         /// <summary>
-        /// Obtém os valores
+        /// Obtém os valores da solução.
         /// </summary>
         /// <param name="solution">A solução do sistema modular.</param>
         /// <param name="matrixList">A matriz.</param>

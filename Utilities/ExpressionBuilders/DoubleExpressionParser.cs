@@ -69,7 +69,7 @@
         {
             if (j == 0)
             {
-                throw new ExpressionReaderException("Error: division by zero.");
+                throw new UtilitiesDataException("Error: division by zero.");
             }
 
             return i / j;

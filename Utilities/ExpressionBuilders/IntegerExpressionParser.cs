@@ -70,7 +70,7 @@
         {
             if (j == 0)
             {
-                throw new ExpressionReaderException("Error: division by zero.");
+                throw new UtilitiesDataException("Error: division by zero.");
             }
 
             return i / j;
@@ -90,7 +90,7 @@
         {
             if (exponent < 0)
             {
-                throw new ExpressionReaderException("Negative exponents aren't allowed.");
+                throw new UtilitiesDataException("Negative exponents aren't allowed.");
             }
             else
             {

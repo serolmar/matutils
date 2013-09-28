@@ -127,7 +127,7 @@ namespace Utilities.Parsers
                     errorBuilder.AppendLine(message);
                 }
 
-                throw new ExpressionReaderException(errorBuilder.ToString());
+                throw new UtilitiesDataException(errorBuilder.ToString());
             }
             else
             {
@@ -137,7 +137,7 @@ namespace Utilities.Parsers
                 }
                 else
                 {
-                    throw new ExpressionReaderException("Empty value.");
+                    throw new UtilitiesDataException("Empty value.");
                 }
             }
         }
@@ -249,7 +249,7 @@ namespace Utilities.Parsers
         {
             if (this.expressionDelimitersTypes.ContainsKey(openDelimiter))
             {
-                throw new ExpressionReaderException("The specified external open delimiter was already setup for an expression open delimiter.");
+                throw new UtilitiesDataException("The specified external open delimiter was already setup for an expression open delimiter.");
             }
 
             if (this.externalDelimitersTypes.ContainsKey(openDelimiter))
@@ -299,7 +299,7 @@ namespace Utilities.Parsers
         {
             if (this.externalDelimitersTypes.ContainsKey(openDelimiter))
             {
-                throw new ExpressionReaderException("The specified expression open delimiter was already setup for an external open delimiter.");
+                throw new UtilitiesDataException("The specified expression open delimiter was already setup for an external open delimiter.");
             }
 
             ExpressionCompoundDelimiter<ObjType, SymbType> compound = new ExpressionCompoundDelimiter<ObjType, SymbType>() { DelimiterType = closeDelimiter, DelimiterOperator = unaryOp };

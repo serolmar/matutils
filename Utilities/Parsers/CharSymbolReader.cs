@@ -52,7 +52,7 @@ namespace Utilities.Parsers
             {
                 if (value == null)
                 {
-                    throw new ExpressionReaderException("Type can't be null.");
+                    throw new UtilitiesDataException("Type can't be null.");
                 }
                 else
                 {
@@ -71,7 +71,7 @@ namespace Utilities.Parsers
             {
                 if (value == null)
                 {
-                    throw new ExpressionReaderException("Type can't be null.");
+                    throw new UtilitiesDataException("Type can't be null.");
                 }
                 else
                 {

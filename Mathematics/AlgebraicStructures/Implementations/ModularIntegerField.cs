@@ -126,16 +126,7 @@
             }
             else
             {
-                var innerElement = element % this.module;
-                var innerTimes = times % this.module;
-                var result = innerElement * innerTimes;
-                result = result % this.module;
-                if (result < 0)
-                {
-                    result = this.module - result;
-                }
-
-                return result;
+                return this.Multiply(element, times);
             }
         }
 

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Utilities.Parsers
+namespace Utilities
 {
     public class UtilitiesDataException : Exception
     {
