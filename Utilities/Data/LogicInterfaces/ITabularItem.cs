@@ -10,6 +10,12 @@
         : IIndexed<int, ITabularRow>, 
         IEnumerable<ITabularRow>
     {
+        void AddValidation(IDataValidation<int, object> validation);
+
+        void RemoveValidation(IDataValidation<int, object> validation);
+
+        void ClearValidations();
+
         /// <summary>
         /// Atribui o valor a uma célula.
         /// </summary>

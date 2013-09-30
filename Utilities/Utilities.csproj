@@ -58,6 +58,8 @@
     <Compile Include="Collections\IntegerSequence.cs" />
     <Compile Include="Collections\Interfaces\IIndexed.cs" />
     <Compile Include="Collections\LispStyleList.cs" />
+    <Compile Include="Data\LogicInterfaces\IDataIndex.cs" />
+    <Compile Include="Data\LogicInterfaces\IDataValidation.cs" />
     <Compile Include="Data\UtilitiesDataException.cs" />
     <Compile Include="Data\Implementations\TabularLists\TabularListCell.cs" />
     <Compile Include="Data\Implementations\TabularLists\TabularListRow.cs" />
@@ -94,6 +96,7 @@
     <Compile Include="Parsers\StringSymbol.cs" />
     <Compile Include="Parsers\StringSymbolReader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Specifications\IActionSpecification.cs" />
     <Compile Include="StateMachine\DelegateDrivenState.cs" />
     <Compile Include="StateMachine\DelegateStateImplementation.cs" />
     <Compile Include="StateMachine\IMemento.cs" />

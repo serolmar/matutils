@@ -10,13 +10,21 @@
     using Mathematics.MathematicsInterpreter;
     using Utilities.Collections;
     using Utilities.Parsers;
+    using System.Linq.Expressions;
 
     class Program
     {
+        delegate void Temp();
+
         static void Main(string[] args)
         {
             //Test13();
             Console.ReadLine();
+        }
+
+        static void Example()
+        {
+            //return 0;
         }
 
         static void RunObjectTester()
