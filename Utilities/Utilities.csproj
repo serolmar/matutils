@@ -58,7 +58,8 @@
     <Compile Include="Collections\IntegerSequence.cs" />
     <Compile Include="Collections\Interfaces\IIndexed.cs" />
     <Compile Include="Collections\LispStyleList.cs" />
-    <Compile Include="Data\LogicInterfaces\IDataIndex.cs" />
+    <Compile Include="Data\Implementations\Files\CSV\CsvFileParser.cs" />
+    <Compile Include="Data\Implementations\Files\CSV\CsvFileReaderWriter.cs" />
     <Compile Include="Data\LogicInterfaces\IDataValidation.cs" />
     <Compile Include="Data\UtilitiesDataException.cs" />
     <Compile Include="Data\Implementations\TabularLists\TabularListCell.cs" />
