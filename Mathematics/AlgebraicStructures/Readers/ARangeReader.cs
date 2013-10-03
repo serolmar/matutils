@@ -143,7 +143,7 @@ namespace Mathematics
         {
             if (this.blancks.Contains(openSymbolType) || this.blancks.Contains(closeSymbType))
             {
-                throw new UtilitiesDataException("Can't mark a blanck symbol as a delimiter type. Please remove symbol from blancks before mark it as a delimiter.");
+                throw new ExpressionReaderException("Can't mark a blanck symbol as a delimiter type. Please remove symbol from blancks before mark it as a delimiter.");
             }
             else
             {
@@ -155,7 +155,7 @@ namespace Mathematics
         {
             if (this.blancks.Contains(openSymbType) || this.blancks.Contains(closeSymbType))
             {
-                throw new UtilitiesDataException("Can't mark a blanck symbol as a delimiter type. Please remove symbol from blancks before mark it as a delimiter.");
+                throw new ExpressionReaderException("Can't mark a blanck symbol as a delimiter type. Please remove symbol from blancks before mark it as a delimiter.");
             }
             else
             {
@@ -169,15 +169,15 @@ namespace Mathematics
             {
                 if (symbolType.Equals(this.separatorSymb))
                 {
-                    throw new UtilitiesDataException("Can't mark the separator as a blank symbol.");
+                    throw new ExpressionReaderException("Can't mark the separator as a blank symbol.");
                 }
                 else if (this.mapInternalOpenDelimitersToCloseDelimitersTypes.ContainsObject(symbolType) || this.mapInternalOpenDelimitersToCloseDelimitersTypes.ContainsTarget(symbolType))
                 {
-                    throw new UtilitiesDataException("Can't mark a delimiter as a blank symbol.");
+                    throw new ExpressionReaderException("Can't mark a delimiter as a blank symbol.");
                 }
                 else if (this.mapExternalOpenDelimitersToCloseDelimitersTypes.ContainsObject(symbolType) || this.mapExternalOpenDelimitersToCloseDelimitersTypes.ContainsTarget(symbolType))
                 {
-                    throw new UtilitiesDataException("Can't mark a delimiter as a blank symbol.");
+                    throw new ExpressionReaderException("Can't mark a delimiter as a blank symbol.");
                 }
 
                 if (!this.blancks.Contains(symbolType))

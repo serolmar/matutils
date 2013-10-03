@@ -11,6 +11,7 @@
     using Utilities.Collections;
     using Utilities.Parsers;
     using System.Linq.Expressions;
+    using Utilities;
 
     class Program
     {
@@ -18,7 +19,11 @@
 
         static void Main(string[] args)
         {
-            //Test13();
+            var test = "(1;2);3\n4:5";
+            var stringReader = new StringReader(test);
+            var csvReader = new CsvFileReaderWriter();
+
+            var parsed = csvReader.Read(stringReader);
             Console.ReadLine();
         }
 

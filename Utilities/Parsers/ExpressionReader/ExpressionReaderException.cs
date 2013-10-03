@@ -1,19 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Utilities.Parsers
+﻿namespace Utilities.Parsers
 {
-    public class UtilitiesDataException : Exception
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+
+    public class ExpressionReaderException : Exception
     {
-        public UtilitiesDataException() : base() { }
+        public ExpressionReaderException() : base() { }
 
-        public UtilitiesDataException(string message) : base(message) { }
+        public ExpressionReaderException(string message) : base(message) { }
 
-        public UtilitiesDataException(string message, Exception innerException) : base(message, innerException) { }
+        public ExpressionReaderException(string message, Exception innerException) : base(message, innerException) { }
 
-        public UtilitiesDataException(
+        public ExpressionReaderException(
             System.Runtime.Serialization.SerializationInfo info,
             System.Runtime.Serialization.StreamingContext context
             )

@@ -30,7 +30,7 @@ namespace Mathematics
         {
             if (finalConfiguration == null)
             {
-                throw new UtilitiesDataException("Parameter range can't be null.");
+                throw new ExpressionReaderException("Parameter range can't be null.");
             }
 
             for (int i = 0; i < finalConfiguration.Length; ++i)

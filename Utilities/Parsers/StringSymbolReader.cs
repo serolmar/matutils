@@ -16,11 +16,25 @@ namespace Utilities.Parsers
         private List<IState<TextReader, string, string>> stateList = new List<IState<TextReader, string, string>>();
         private Dictionary<string, string> keyWords = new Dictionary<string, string>();
         private bool readNegativeNumbers = true;
+        private bool joinBlancks = true;
 
-        public StringSymbolReader(TextReader reader, bool isToReadNegativeNumbers)
+        /// <summary>
+        /// Instancia um leitor de símbolos.
+        /// </summary>
+        /// <param name="reader">O leitor.</param>
+        /// <param name="isToReadNegativeNumbers">
+        /// Veradeiro caso seja para ler números negativos e falso caso seja para ler o sinal
+        /// e posteriormente o valor.
+        /// </param>
+        /// <param name="joinBlancks">
+        /// Verdadeiro caso seja para condensar os vazios como espaços, mudanças de linha ou tabulações
+        /// e falso se for para ler cada elemento independentemente.
+        /// </param>
+        public StringSymbolReader(TextReader reader, bool isToReadNegativeNumbers, bool joinBlancks = true)
             : base(new CppCompliantCharSymbolReaderBuilder().BuildReader(reader) as CharSymbolReader<string>)
         {
             this.readNegativeNumbers = isToReadNegativeNumbers;
+            this.joinBlancks = joinBlancks;
             this.currentSymbol.SymbolType = "any";
             stateList.Add(new DelegateDrivenState<TextReader, string, string>(0, "start", this.StartTransition));
             stateList.Add(new DelegateDrivenState<TextReader, string, string>(1, "string", this.StringTransition));
@@ -160,7 +174,17 @@ namespace Utilities.Parsers
                 case "new_line":
                 case "carriage_return":
                 case "tab":
-                    return this.stateList[14];
+                    if (this.joinBlancks)
+                    {
+                        return this.stateList[14];
+                    }
+                    else
+                    {
+                        this.currentSymbol = peeked;
+                        reader.Get();
+                    }
+
+                    break;
                 default:
                     this.currentSymbol = peeked;
                     reader.Get();
@@ -581,6 +605,7 @@ namespace Utilities.Parsers
             {
                 this.currentSymbol.SymbolType = "blancks";
             }
+
             this.currentSymbol.SymbolValue += symbol.SymbolValue;
             symbol = reader.Peek();
             switch (symbol.SymbolType)
@@ -591,6 +616,7 @@ namespace Utilities.Parsers
                 case "tab":
                     return this.stateList[14];
             }
+
             return this.stateList[16];
         }
 

@@ -276,7 +276,6 @@ namespace Mathematics
                     this.hasErrors = true;
                     this.errorMessages.Add("Unexpected open delimiter.");
                     return this.stateList[1];
-                    throw new UtilitiesDataException("");
                 }
                 else if (this.mapExternalOpenDelimitersToCloseDelimitersTypes.ContainsObject(readedSymbol.SymbolType))
                 {

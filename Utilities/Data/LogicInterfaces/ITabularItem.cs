@@ -10,10 +10,21 @@
         : IIndexed<int, ITabularRow>, 
         IEnumerable<ITabularRow>
     {
+        /// <summary>
+        /// Adiciona uma validação ao item tabular.
+        /// </summary>
+        /// <param name="validation">A validação.</param>
         void AddValidation(IDataValidation<int, object> validation);
 
+        /// <summary>
+        /// Remove a validações especificada do item tabular.
+        /// </summary>
+        /// <param name="validation">A validação a ser removida.</param>
         void RemoveValidation(IDataValidation<int, object> validation);
 
+        /// <summary>
+        /// Limpa todas as validações do item tabular.
+        /// </summary>
         void ClearValidations();
 
         /// <summary>

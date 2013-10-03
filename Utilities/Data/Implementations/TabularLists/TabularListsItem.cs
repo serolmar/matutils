@@ -762,9 +762,9 @@
                     }
                 }
 
-                while (currentLineEnumerator.MoveNext())
+                while (elementsEnumerator.MoveNext())
                 {
-                    resultBuilder.AppendLine();
+                    resultBuilder.Append(System.Environment.NewLine);
                     var currentLinEnum = elementsEnumerator.Current.GetEnumerator();
                     if (currentLinEnum.MoveNext())
                     {
