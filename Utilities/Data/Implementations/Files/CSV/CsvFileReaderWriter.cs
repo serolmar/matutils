@@ -103,17 +103,23 @@
             }
         }
 
-        public ITabularItem Read(Stream stream)
+        /// <summary>
+        /// Realiza a leitura de um csv.
+        /// </summary>
+        /// <param name="tabularItem">O item tabular a ser lido.</param>
+        /// <param name="stream">O leitor de informação.</param>
+        public void Read(ITabularItem tabularItem, Stream stream)
         {
-            return this.Read(stream, Encoding.ASCII);
+            this.Read(tabularItem, stream, Encoding.ASCII);
         }
 
-        public ITabularItem Read(Stream stream, List<IDataValidation<int, object>> validations)
-        {
-            throw new NotImplementedException();
-        }
-
-        public ITabularItem Read(Stream stream, Encoding encoding)
+        /// <summary>
+        /// Realiza a leitura de um csv providenciando a codificação dos carácteres.
+        /// </summary>
+        /// <param name="tabularItem">O item tabular a ser lido.</param>
+        /// <param name="stream">O leitor de informação.</param>
+        /// <param name="encoding">A codificação.</param>
+        public void Read(ITabularItem tabularItem, Stream stream, Encoding encoding)
         {
             if (stream == null)
             {
@@ -128,75 +134,28 @@
                 }
 
                 var textReader = new StreamReader(stream, innerEncoding);
-                return this.Read(textReader);
-            }
-        }
-
-        public ITabularItem Read(
-            Stream stream,
-            Encoding encoding,
-            List<IDataValidation<int, object>> validations)
-        {
-            if (stream == null)
-            {
-                throw new ArgumentException("stream");
-            }
-            else
-            {
-                var innerEncoding = encoding;
-                if (encoding == null)
-                {
-                    innerEncoding = Encoding.ASCII;
-                }
-
-                var textReader = new StreamReader(stream, innerEncoding);
-                return this.Read(textReader, validations);
+                this.Read(tabularItem,textReader);
             }
         }
 
         /// <summary>
         /// Faz a leitura do csv.
         /// </summary>
+        /// <param name="tabularItem">O item tabular.</param>
         /// <param name="reader">O leitor.</param>
-        /// <returns>O item tabular que representa o csv.</returns>
-        public ITabularItem Read(TextReader reader)
+        public void Read(ITabularItem tabularItem, TextReader reader)
         {
             if (reader == null)
             {
                 throw new ArgumentNullException("reader");
             }
-            else
+            else if (tabularItem == null)
             {
-                var result = new TabularListsItem();
-                this.ReadCsv(reader, result);
-                return result;
-            }
-        }
-
-        /// <summary>
-        /// Faz a leitura do csv.
-        /// </summary>
-        /// <param name="reader">O leitor.</param>
-        /// <returns>O item tabular que representa o csv.</returns>
-        public ITabularItem Read(TextReader reader, List<IDataValidation<int, object>> validations)
-        {
-            if (reader == null)
-            {
-                throw new ArgumentNullException("reader");
+                throw new ArgumentNullException("tabularItem");
             }
             else
             {
-                var result = new TabularListsItem();
-                this.ReadCsv(reader, result);
-                if (validations != null)
-                {
-                    foreach (var validation in validations)
-                    {
-                        result.AddValidation(validation);
-                    }
-                }
-
-                return result;
+                this.ReadCsv(tabularItem, reader);
             }
         }
 
@@ -205,7 +164,7 @@
         /// </summary>
         /// <param name="stream">O controlo da cadeia de escrita do csv.</param>
         /// <param name="tabularItem">O item tabular.</param>
-        private void Write(Stream stream, ITabularItem tabularItem)
+        public void Write(Stream stream, ITabularItem tabularItem)
         {
             this.Write(stream, tabularItem, Encoding.ASCII);
         }
@@ -216,7 +175,7 @@
         /// <param name="stream">O controlo da cadeia de escrita do csv.</param>
         /// <param name="tabularItem">O item tabular.</param>
         /// <param name="encoding">A codificação de escrita.</param>
-        private void Write(Stream stream, ITabularItem tabularItem, Encoding encoding)
+        public void Write(Stream stream, ITabularItem tabularItem, Encoding encoding)
         {
             if (stream == null)
             {
@@ -238,7 +197,7 @@
         /// </summary>
         /// <param name="writer">O contentor.</param>
         /// <param name="tabularItem">O item tabular.</param>
-        private void Write(TextWriter writer, ITabularItem tabularItem)
+        public void Write(TextWriter writer, ITabularItem tabularItem)
         {
             if (writer == null)
             {
@@ -267,6 +226,7 @@
 
                     while (lineEnumerator.MoveNext())
                     {
+                        currentLine = lineEnumerator.Current;
                         writer.Write(this.lineSeparatorType);
                         columnEnumerator = currentLine.GetEnumerator();
                         if (columnEnumerator.MoveNext())
@@ -286,9 +246,9 @@
         /// <summary>
         /// Completa a leitura do csv.
         /// </summary>
-        /// <param name="reader">O leitor de texto.</param>
         /// <param name="result">O contentor da leitura.</param>
-        private void ReadCsv(TextReader reader, TabularListsItem result)
+        /// <param name="reader">O leitor de texto.</param>
+        private void ReadCsv(ITabularItem result, TextReader reader)
         {
             var elements = new List<object>();
             var currentItem = string.Empty;
@@ -388,7 +348,7 @@
                                 if (DateTime.TryParse(
                                     text,
                                     currentCulture.DateTimeFormat,
-                                    DateTimeStyles.AllowWhiteSpaces,
+                                    DateTimeStyles.AllowWhiteSpaces | DateTimeStyles.NoCurrentDateDefault,
                                     out dateTime))
                                 {
                                     return dateTime;

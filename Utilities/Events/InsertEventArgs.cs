@@ -11,13 +11,13 @@
     /// <typeparam name="T">O tipo de elemento a ser inserido.</typeparam>
     /// <param name="sender">O objecto que envia o evento.</param>
     /// <param name="eventArgs">Os argumentos do evento.</param>
-    internal delegate void InsertEventHandler<T>(object sender, InsertEventArgs<T> eventArgs);
+    public delegate void InsertEventHandler<T>(object sender, InsertEventArgs<T> eventArgs);
 
     /// <summary>
     /// Representa os argumentos de um evento que ocorre aquando da inserção de um objecto.
     /// </summary>
     /// <typeparam name="T">O tipo de objecto.</typeparam>
-    internal class InsertEventArgs<T> : EventArgs
+    public class InsertEventArgs<T> : EventArgs
     {
         /// <summary>
         /// A posição onde o elemento será introduzido.

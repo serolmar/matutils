@@ -8,15 +8,15 @@
     public interface IDataValidation<out ColumnType, in ObjectType>
     {
         /// <summary>
-        /// Obtém o número das colunas que estarão envolvidas na validação.
+        /// Obtém o índice das colunas que estarão envolvidas na validação.
         /// </summary>
-        ColumnType[] Columns { get; }
+        IEnumerable<ColumnType> Columns { get; }
 
         /// <summary>
         /// Valida o elemento especificado.
         /// </summary>
         /// <param name="element">O elemento a ser validado.</param>
         /// <returns>Veradeiro caso o elemento seja válido e falso caso contrário.</returns>
-        bool Validate(ObjectType[] element);
+        bool Validate(IEnumerable<ObjectType> element);
     }
 }

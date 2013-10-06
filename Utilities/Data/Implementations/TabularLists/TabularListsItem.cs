@@ -8,7 +8,7 @@
     /// <summary>
     /// Classe que permite representar uma tabela por intermédio de listas.
     /// </summary>
-    internal class TabularListsItem : ITabularItem, ITabularItemEvent
+    public class TabularListsItem : ITabularItem
     {
         /// <summary>
         /// Mantém a tabela dos elementos.
@@ -16,14 +16,14 @@
         protected List<List<object>> elements;
 
         /// <summary>
-        /// O conjunto de validações.
+        /// O conjunto de validações às células.
         /// </summary>
-        protected List<IDataValidation<int, object>> dataValidations;
+        protected List<IDataValidation<int, object>> dataCellValidations;
 
         public TabularListsItem()
         {
             this.elements = new List<List<object>>();
-            this.dataValidations = new List<IDataValidation<int, object>>();
+            this.dataCellValidations = new List<IDataValidation<int, object>>();
         }
 
         public ITabularRow this[int index]
@@ -68,7 +68,7 @@
                     }
                 }
 
-                this.dataValidations.Add(validation);
+                this.dataCellValidations.Add(validation);
             }
         }
 
@@ -76,13 +76,13 @@
         {
             if (validation != null)
             {
-                this.dataValidations.Remove(validation);
+                this.dataCellValidations.Remove(validation);
             }
         }
 
         public void ClearValidations()
         {
-            this.dataValidations.Clear();
+            this.dataCellValidations.Clear();
         }
         #endregion Validações
 
@@ -109,29 +109,38 @@
                 }
 
                 var lineToValidate = this.elements[rowNumber];
-                for (int i = 0; i < this.dataValidations.Count; ++i)
+                for (int i = 0; i < this.dataCellValidations.Count; ++i)
                 {
-                    var currentDataValidation = this.dataValidations[i];
-                    var objectSet = new object[currentDataValidation.Columns.Length];
-                    for (int j = 0; j < currentDataValidation.Columns.Length; ++j)
+                    var currentDataValidation = this.dataCellValidations[i];
+                    if (currentDataValidation.Columns == null)
                     {
-                        var currentIndexColumn = currentDataValidation.Columns[j];
-                        var objectValue = default(object);
-                        if (currentIndexColumn == cellNumber)
+                        if (!currentDataValidation.Validate(lineToValidate))
                         {
-                            objectValue = value;
+                            throw new UtilitiesDataException("A validation has failed for the specified value.");
                         }
-                        else if (currentIndexColumn < lineToValidate.Count)
-                        {
-                            objectValue = lineToValidate[currentIndexColumn];
-                        }
-
-                        objectSet[j] = objectValue;
                     }
-
-                    if (currentDataValidation.Validate(objectSet))
+                    else
                     {
-                        throw new UtilitiesDataException("A validation has failed for the specified value.");
+                        var objectSet = new List<object>();
+                        foreach (var currentIndexColumn in currentDataValidation.Columns)
+                        {
+                            var objectValue = default(object);
+                            if (currentIndexColumn == cellNumber)
+                            {
+                                objectValue = value;
+                            }
+                            else if (currentIndexColumn < lineToValidate.Count)
+                            {
+                                objectValue = lineToValidate[currentIndexColumn];
+                            }
+
+                            objectSet.Add(objectValue);
+                        }
+
+                        if (!currentDataValidation.Validate(objectSet))
+                        {
+                            throw new UtilitiesDataException("A validation has failed for the specified value.");
+                        }
                     }
                 }
 
@@ -260,9 +269,9 @@
                 this.BeforeAddEvent.Invoke(this, eventArgs);
             }
 
-            for (int i = 0; i < this.dataValidations.Count; ++i)
+            for (int i = 0; i < this.dataCellValidations.Count; ++i)
             {
-                if (!this.ValidateRow(elementsToAdd, this.dataValidations[i]))
+                if (!this.ValidateRow(elementsToAdd, this.dataCellValidations[i]))
                 {
                     throw new UtilitiesDataException("Added line isn't valid.");
                 }
@@ -300,14 +309,6 @@
                     this.BeforeAddKeyedValuesEvent.Invoke(this, eventArgs);
                 }
 
-                for (int i = 0; i < this.dataValidations.Count; ++i)
-                {
-                    if (!this.ValidateRow(elementsToAdd, this.dataValidations[i]))
-                    {
-                        throw new UtilitiesDataException("Added line isn't valid.");
-                    }
-                }
-
                 var addElementsList = new List<object>();
                 foreach (var kvp in elementsToAdd)
                 {
@@ -317,6 +318,23 @@
                     }
 
                     addElementsList.Add(kvp.Value);
+                }
+
+                for (int i= 0; i < this.dataCellValidations.Count; ++i)
+                {
+                    var currentValidation = this.dataCellValidations[i];
+                    if (currentValidation.Columns == null)
+                    {
+                        currentValidation.Validate(addElementsList);
+                    }
+                }
+
+                for (int i = 0; i < this.dataCellValidations.Count; ++i)
+                {
+                    if (!this.ValidateRow(addElementsList, this.dataCellValidations[i]))
+                    {
+                        throw new UtilitiesDataException("Added line isn't valid.");
+                    }
                 }
 
                 this.elements.Add(addElementsList);
@@ -350,9 +368,9 @@
 
             foreach (var elementToAdd in elementsToAdd)
             {
-                for (int i = 0; i < this.dataValidations.Count; ++i)
+                for (int i = 0; i < this.dataCellValidations.Count; ++i)
                 {
-                    if (!this.ValidateRow(elementToAdd, this.dataValidations[i]))
+                    if (!this.ValidateRow(elementToAdd, this.dataCellValidations[i]))
                     {
                         throw new UtilitiesDataException("Added line isn't valid.");
                     }
@@ -396,17 +414,6 @@
                 this.BeforeKeyedValuesAddRangeEvent.Invoke(this, eventArgs);
             }
 
-            foreach (var elementToAdd in elementsDictionary)
-            {
-                for (int i = 0; i < this.dataValidations.Count; ++i)
-                {
-                    if (!this.ValidateRow(elementToAdd, this.dataValidations[i]))
-                    {
-                        throw new UtilitiesDataException("Added line isn't valid.");
-                    }
-                }
-            }
-
             foreach (var elementsDictionaryItem in elementsDictionary)
             {
                 var addElementsList = new List<object>();
@@ -418,6 +425,14 @@
                     }
 
                     addElementsList.Add(kvp.Value);
+                }
+
+                for (int i = 0; i < this.dataCellValidations.Count; ++i)
+                {
+                    if (!this.ValidateRow(addElementsList, this.dataCellValidations[i]))
+                    {
+                        throw new UtilitiesDataException("Added line isn't valid.");
+                    }
                 }
 
                 this.elements.Add(addElementsList);
@@ -457,9 +472,9 @@
                     this.BeforeInsertEvent.Invoke(this, eventArgs);
                 }
 
-                for (int i = 0; i < this.dataValidations.Count; ++i)
+                for (int i = 0; i < this.dataCellValidations.Count; ++i)
                 {
-                    if (!this.ValidateRow(elementsToAdd, this.dataValidations[i]))
+                    if (!this.ValidateRow(elementsToAdd, this.dataCellValidations[i]))
                     {
                         throw new UtilitiesDataException("Added line isn't valid.");
                     }
@@ -516,9 +531,9 @@
                         addElementsList.Add(kvp.Value);
                     }
 
-                    for (int i = 0; i < this.dataValidations.Count; ++i)
+                    for (int i = 0; i < this.dataCellValidations.Count; ++i)
                     {
-                        if (!this.ValidateRow(elementsToAdd, this.dataValidations[i]))
+                        if (!this.ValidateRow(addElementsList, this.dataCellValidations[i]))
                         {
                             throw new UtilitiesDataException("Added line isn't valid.");
                         }
@@ -563,9 +578,9 @@
 
                 foreach (var elementToAdd in elementsToAdd)
                 {
-                    for (int i = 0; i < this.dataValidations.Count; ++i)
+                    for (int i = 0; i < this.dataCellValidations.Count; ++i)
                     {
-                        if (!this.ValidateRow(elementToAdd, this.dataValidations[i]))
+                        if (!this.ValidateRow(elementToAdd, this.dataCellValidations[i]))
                         {
                             throw new UtilitiesDataException("Added line isn't valid.");
                         }
@@ -613,17 +628,6 @@
                 this.BeforeKeyedValuesInsertRangeEvent.Invoke(this, eventArgs);
             }
 
-            foreach (var elementToAdd in elementsDictionary)
-            {
-                for (int i = 0; i < this.dataValidations.Count; ++i)
-                {
-                    if (!this.ValidateRow(elementToAdd, this.dataValidations[i]))
-                    {
-                        throw new UtilitiesDataException("Added line isn't valid.");
-                    }
-                }
-            }
-
             for (int i = elementsDictionary.Count - 1; i >= 0; --i)
             {
                 var elementsDictionaryItem = elementsDictionary[i];
@@ -636,6 +640,14 @@
                     }
 
                     addElementsList.Add(kvp.Value);
+                }
+
+                for (int j = 0; j < this.dataCellValidations.Count; ++j)
+                {
+                    if (!this.ValidateRow(addElementsList, this.dataCellValidations[j]))
+                    {
+                        throw new UtilitiesDataException("Added line isn't valid.");
+                    }
                 }
 
                 this.elements.Insert(index, addElementsList);
@@ -805,38 +817,26 @@
         /// <returns>Verdadeiro caso a linha seja válida e falso caso contrário.</returns>
         private bool ValidateRow(List<object> row, IDataValidation<int, object> validation)
         {
-            var objectsSet = new object[validation.Columns.Length];
-            for (int i = 0; i < validation.Columns.Length; ++i)
+            if (validation.Columns == null)
             {
-                var currentValidationColumn = validation.Columns[i];
-                var objectValue = default(object);
-                if (currentValidationColumn < row.Count)
+                return validation.Validate(row);
+            }
+            else
+            {
+                var objectsSet = new List<object>();
+                foreach (var currentValidationColumn in validation.Columns)
                 {
-                    objectValue = row[currentValidationColumn];
+                    var objectValue = default(object);
+                    if (currentValidationColumn < row.Count)
+                    {
+                        objectValue = row[currentValidationColumn];
+                    }
+
+                    objectsSet.Add(objectValue);
                 }
 
-                objectsSet[i] = objectValue;
+                return validation.Validate(objectsSet);
             }
-
-            return validation.Validate(objectsSet);
-        }
-
-        /// <summary>
-        /// Valida uma linha que é proporcionada na forma de dicionário.
-        /// </summary>
-        /// <param name="row">A linha.</param>
-        /// <param name="validation">A validação.</param>
-        /// <returns>Verdadeiro se a linha for válida e falso caso contrário.</returns>
-        private bool ValidateRow(IDictionary<int, object> row, IDataValidation<int, object> validation)
-        {
-            var objectSet = new object[validation.Columns.Length];
-            for (int i = 0; i < validation.Columns.Length; ++i)
-            {
-                var columnIndex = validation.Columns[i];
-                row.TryGetValue(columnIndex, out objectSet[i]);
-            }
-
-            return validation.Validate(objectSet);
         }
 
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()

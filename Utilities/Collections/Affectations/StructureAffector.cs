@@ -6,7 +6,8 @@ using System.Text;
 namespace Utilities.Collections
 {
     /// <summary>
-    /// Affects a structure given by a matrix containing the positions to which indices can be affected.
+    /// Itera sobre todas as afectações recorrendo a uma estrutura na qual é possível identificar
+    /// quais as posições possíveis para afectar os vários índices.
     /// </summary>
     public class StructureAffector : FastAfector
     {

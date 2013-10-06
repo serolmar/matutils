@@ -5,7 +5,7 @@
     using System.Linq;
     using System.Text;
 
-    internal interface ITabularItemEvent
+    public interface ITabularItemEvent
     {
         /// <summary>
         /// Define o evento que é despoletado antes do valor duma célula ser alterado.

@@ -10,7 +10,7 @@
     /// </summary>
     /// <typeparam name="T">O tipo de dados do valor.</typeparam>
     /// <param name="eventArgs">Os argumentos do evento.</param>
-    internal delegate void UpdateEventHandler<OldValueType, NewValueType>(
+    public delegate void UpdateEventHandler<OldValueType, NewValueType>(
     object sender,
     UpdateEventArgs<OldValueType, NewValueType> eventArgs);
 
@@ -19,7 +19,7 @@
     /// </summary>
     /// <typeparam name="OldValueType">O tipo do valor inicial.</typeparam>
     /// <typeparam name="NewValueType">O tipo do valor final.</typeparam>
-    internal class UpdateEventArgs<OldValueType, NewValueType> : EventArgs
+    public class UpdateEventArgs<OldValueType, NewValueType> : EventArgs
     {
         /// <summary>
         /// O valor anterior.

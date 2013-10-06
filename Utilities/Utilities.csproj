@@ -61,6 +61,7 @@
     <Compile Include="Data\Implementations\Files\CSV\CsvFileParser.cs" />
     <Compile Include="Data\Implementations\Files\CSV\CsvFileReaderWriter.cs" />
     <Compile Include="Data\LogicInterfaces\IDataValidation.cs" />
+    <Compile Include="Data\LogicInterfaces\IDataRowValidation.cs" />
     <Compile Include="Data\UtilitiesDataException.cs" />
     <Compile Include="Data\Implementations\TabularLists\TabularListCell.cs" />
     <Compile Include="Data\Implementations\TabularLists\TabularListRow.cs" />

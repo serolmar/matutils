@@ -8,6 +8,7 @@
 
     public interface ITabularItem
         : IIndexed<int, ITabularRow>, 
+        ITabularItemEvent,
         IEnumerable<ITabularRow>
     {
         /// <summary>

@@ -75,6 +75,10 @@
       <Project>{0C268918-73CB-46FB-93C8-87792CF351FA}</Project>
       <Name>Mathematics</Name>
     </ProjectReference>
+    <ProjectReference Include="..\OdmpProblem\OdmpProblem.csproj">
+      <Project>{4480DDC7-E675-4EC1-912D-64DE05948E54}</Project>
+      <Name>OdmpProblem</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Utilities\Utilities.csproj">
       <Project>{301A8CA6-8B0D-40B5-A6AC-0671FE9EE74D}</Project>
       <Name>Utilities</Name>

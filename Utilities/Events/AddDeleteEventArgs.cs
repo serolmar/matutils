@@ -11,13 +11,13 @@
     /// <typeparam name="T">O tipo de objecto a ser adicionado.</typeparam>
     /// <param name="sender">O objecto que envia o evento.</param>
     /// <param name="eventArgs">Os argumentos do evento.</param>
-    internal delegate void AddDeleteEventHandler<T>(object sender, AddDeleteEventArgs<T> eventArgs);
+    public delegate void AddDeleteEventHandler<T>(object sender, AddDeleteEventArgs<T> eventArgs);
 
     /// <summary>
     /// Representa os argumentos de um evento que ocorre aquando da adição de um objecto.
     /// </summary>
     /// <typeparam name="T">O tipo de objecto a ser adicionado.</typeparam>
-    internal class AddDeleteEventArgs<T> : EventArgs
+    public class AddDeleteEventArgs<T> : EventArgs
     {
         /// <summary>
         /// O objecto adicionado ou removido.

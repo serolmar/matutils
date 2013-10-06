@@ -40,6 +40,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Algorithms\ComponentBoundsAlgorithm.cs" />
+    <Compile Include="Algorithms\ComponentBoundsItemResult.cs" />
     <Compile Include="Algorithms\Dual\DualComponentsHeuristicAlgorithm.cs" />
     <Compile Include="Algorithms\Dual\DualCompsGammaEstimAlgorithm.cs" />
     <Compile Include="Algorithms\Dual\DualHeuristicAlgInput.cs" />

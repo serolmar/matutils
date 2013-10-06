@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.IO;
     using System.Numerics;
     using System.Text;
@@ -12,6 +13,7 @@
     using Utilities.Parsers;
     using System.Linq.Expressions;
     using Utilities;
+    using OdmpProblem;
 
     class Program
     {
@@ -19,11 +21,29 @@
 
         static void Main(string[] args)
         {
-            var test = "(1;2);3\n4:5";
-            var stringReader = new StringReader(test);
-            var csvReader = new CsvFileReaderWriter();
+            var perms = new PermutationAffector(10, 3, new int[]{3,3,3,1,1,1,1,1,1,2});
+            var watch = new Stopwatch();
+            watch.Start();
+            var count = 0;
+            foreach (var perm in perms)
+            {
+                Console.WriteLine(PrintVector(perm));
+                ++count;
+            }
 
-            var parsed = csvReader.Read(stringReader);
+            Console.WriteLine(count);
+            watch.Stop();
+            Console.Write(watch.Elapsed);
+
+            //var test = "(1;2);3\n4:5";
+            //var stringReader = new StringReader(test);
+            //var csvReader = new CsvFileReaderWriter();
+            //var tabularItem = new TabularListsItem();
+            //csvReader.Read(tabularItem, stringReader);
+
+            //// Envia para a consola
+            //csvReader.Write(Console.Out, tabularItem);
+            //Test17();
             Console.ReadLine();
         }
 
@@ -57,18 +77,32 @@
         /// </summary>
         public static void Test17()
         {
-            var costs = new List<List<int>>();
+            var costs = new List<IList<int>>();
             costs.Add(new List<int>() { 12, 9, 7, 6, 4 });
             costs.Add(new List<int>() { 12, 11, 8, 7, 5 });
             costs.Add(new List<int>() { 13, 10, 9, 6, 3 });
             costs.Add(new List<int>() { 12, 8, 6, 4, 2 });
 
+            var integerDomain = new IntegerDomain();
             var numberTdecomposition = new IntegerMinWeightTdecomposition<int>(
                 Comparer<int>.Default,
-                new IntegerDomain());
+                integerDomain);
 
             var result = numberTdecomposition.Run(18, costs);
-            Console.WriteLine(PrintVector(result));
+            Console.WriteLine("Cost: {0}", result.Cost);
+            Console.WriteLine(PrintVector(result.Medians));;
+
+            var upperCosts = new List<IList<int>>();
+            upperCosts.Add(new List<int>() { 12, 9, 7, 6, 4 });
+            upperCosts.Add(new List<int>() { 12, 11, 8, 7, 5 });
+            upperCosts.Add(new List<int>() { 13, 10, 9, 6, 3 });
+            upperCosts.Add(new List<int>() { 12, 8, 6, 4, 2 });
+
+            var boundsAlg = new ComponentBoundsAlgorithm<int>(
+                numberTdecomposition,
+                Comparer<int>.Default,
+                integerDomain);
+            var boundsResult = boundsAlg.Run(13, costs, upperCosts);
         }
 
         /// <summary>

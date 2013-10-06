@@ -119,6 +119,7 @@
     <Compile Include="AlgebraicStructures\Readers\RangeReaderMementoManager.cs" />
     <Compile Include="Algorithms\General\IBachetBezoutAlgorithm.cs" />
     <Compile Include="Algorithms\General\IntegerMinWeightTdecomposition.cs" />
+    <Compile Include="Algorithms\General\IntMinWeightTdecompResult.cs" />
     <Compile Include="Algorithms\General\LagrangeAlgorithm.cs" />
     <Compile Include="Algorithms\Graph\GraphCyclesComponentsPair.cs" />
     <Compile Include="Algorithms\IAlgorithm.cs" />
