@@ -21,29 +21,7 @@
 
         static void Main(string[] args)
         {
-            var perms = new PermutationAffector(10, 3, new int[]{3,3,3,1,1,1,1,1,1,2});
-            var watch = new Stopwatch();
-            watch.Start();
-            var count = 0;
-            foreach (var perm in perms)
-            {
-                Console.WriteLine(PrintVector(perm));
-                ++count;
-            }
-
-            Console.WriteLine(count);
-            watch.Stop();
-            Console.Write(watch.Elapsed);
-
-            //var test = "(1;2);3\n4:5";
-            //var stringReader = new StringReader(test);
-            //var csvReader = new CsvFileReaderWriter();
-            //var tabularItem = new TabularListsItem();
-            //csvReader.Read(tabularItem, stringReader);
-
-            //// Envia para a consola
-            //csvReader.Write(Console.Out, tabularItem);
-            //Test17();
+            Test16();
             Console.ReadLine();
         }
 

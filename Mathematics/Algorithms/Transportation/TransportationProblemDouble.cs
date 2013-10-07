@@ -390,19 +390,19 @@
 
         private void ApplyRussels()
         {
-            MaxDoubleNumberField[] largestRowsCosts = new MaxDoubleNumberField[supplyNumber];
-            MaxDoubleNumberField[] largestColumnsCosts = new MaxDoubleNumberField[demandNumber];
+            TransportationMaxDoubleNumberField[] largestRowsCosts = new TransportationMaxDoubleNumberField[supplyNumber];
+            TransportationMaxDoubleNumberField[] largestColumnsCosts = new TransportationMaxDoubleNumberField[demandNumber];
             bool[] isRowEliminated = new bool[this.supplyNumber];
             bool[] isColumnEliminated = new bool[this.demandNumber];
-            MaxDoubleNumberField temporary;
+            TransportationMaxDoubleNumberField temporary;
             for (int i = 0; i < this.supplyNumber; ++i)
             {
-                largestRowsCosts[i] = new MaxDoubleNumberField(this.transportationCost[i, 0]);
+                largestRowsCosts[i] = new TransportationMaxDoubleNumberField(this.transportationCost[i, 0]);
             }
 
             for (int i = 0; i < this.demandNumber; ++i)
             {
-                largestColumnsCosts[i] = new MaxDoubleNumberField(this.transportationCost[0, i]);
+                largestColumnsCosts[i] = new TransportationMaxDoubleNumberField(this.transportationCost[0, i]);
             }
 
             for (int i = 0; i < this.supplyNumber; ++i)
@@ -411,19 +411,19 @@
                 {
                     if (largestRowsCosts[i] < this.transportationCost[i, j])
                     {
-                        largestRowsCosts[i] = new MaxDoubleNumberField(this.transportationCost[i, j]);
+                        largestRowsCosts[i] = new TransportationMaxDoubleNumberField(this.transportationCost[i, j]);
                     }
 
                     if (largestColumnsCosts[j] < this.transportationCost[i, j])
                     {
-                        largestColumnsCosts[j] = new MaxDoubleNumberField(this.transportationCost[i, j]);
+                        largestColumnsCosts[j] = new TransportationMaxDoubleNumberField(this.transportationCost[i, j]);
                     }
                 }
             }
 
             int chosenLine = -1;
             int chosenColumn = -1;
-            MaxDoubleNumberField minimumDelta = new MaxDoubleNumberField(this.transportationCost[0, 0]);
+            TransportationMaxDoubleNumberField minimumDelta = new TransportationMaxDoubleNumberField(this.transportationCost[0, 0]);
             for (int i = 0; i < this.supplyNumber; ++i)
             {
                 for (int j = 0; j < this.demandNumber; ++j)
@@ -479,7 +479,7 @@
                     {
                         if (!isColumnEliminated[j])
                         {
-                            largestColumnsCosts[j] = new MaxDoubleNumberField(this.transportationCost[i, j]);
+                            largestColumnsCosts[j] = new TransportationMaxDoubleNumberField(this.transportationCost[i, j]);
                         }
                     }
                 }
@@ -493,7 +493,7 @@
                     {
                         if (!isRowEliminated[i])
                         {
-                            largestRowsCosts[i] = new MaxDoubleNumberField(this.transportationCost[i, j]);
+                            largestRowsCosts[i] = new TransportationMaxDoubleNumberField(this.transportationCost[i, j]);
                         }
                     }
                 }
@@ -508,12 +508,12 @@
                             {
                                 if (largestRowsCosts[i] < this.transportationCost[i, j])
                                 {
-                                    largestRowsCosts[i] = new MaxDoubleNumberField(this.transportationCost[i, j]);
+                                    largestRowsCosts[i] = new TransportationMaxDoubleNumberField(this.transportationCost[i, j]);
                                 }
 
                                 if (largestColumnsCosts[j] < this.transportationCost[i, j])
                                 {
-                                    largestColumnsCosts[j] = new MaxDoubleNumberField(this.transportationCost[i, j]);
+                                    largestColumnsCosts[j] = new TransportationMaxDoubleNumberField(this.transportationCost[i, j]);
                                 }
                             }
                         }
@@ -522,7 +522,7 @@
 
                 chosenLine = -1;
                 chosenColumn = -1;
-                minimumDelta = new MaxDoubleNumberField(double.MaxValue);
+                minimumDelta = new TransportationMaxDoubleNumberField(double.MaxValue);
                 for (int i = 0; i < this.supplyNumber; ++i)
                 {
                     if (!isRowEliminated[i])

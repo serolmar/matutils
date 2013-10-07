@@ -7,7 +7,8 @@
     using System.Threading.Tasks;
 
     public class SimplexAlgorithm<CoeffType> :
-        IAlgorithm<SimplexInput<CoeffType, CoeffType>, SimplexOutput<CoeffType>>
+        IAlgorithm<SimplexInput<CoeffType, CoeffType>, SimplexOutput<CoeffType>>,
+        IAlgorithm<SimplexInput<CoeffType, SimplexMaximumNumberField<CoeffType>>, SimplexOutput<CoeffType>>
     {
         /// <summary>
         /// O objecto responsável pelo bloqueio dos processos.
@@ -42,49 +43,6 @@
         }
 
         /// <summary>
-        /// Executa o algoritmo do simplex habitual sobre os dados de entrada.
-        /// </summary>
-        /// <param name="data">Os dados de entrada.</param>
-        /// <returns>O resultado da execução.</returns>
-        public SimplexOutput<CoeffType> Run(SimplexInput<CoeffType, CoeffType> data)
-        {
-            if (data == null)
-            {
-                throw new ArgumentNullException("data");
-            }
-            else
-            {
-                var hasSolution = true;
-                var enteringVariable = this.GetNextEnteringVariable(data);
-                var state = enteringVariable != -1;
-                while (state)
-                {
-                    var leavingVariable = this.GetNextLeavingVariable(enteringVariable, data);
-                    if (leavingVariable == -1)
-                    {
-                        hasSolution = false;
-                        state = false;
-                    }
-                    else
-                    {
-                        data.Cost = this.ProcessReduction(enteringVariable, leavingVariable, data, data.Cost);
-                        enteringVariable = this.GetNextEnteringVariable(data);
-                        state = enteringVariable != -1;
-                    }
-                }
-
-                if (hasSolution)
-                {
-                    return this.BuildSolution(data);
-                }
-                else
-                {
-                    return new SimplexOutput<CoeffType>(null, default(CoeffType), false);
-                }
-            }
-        }
-
-        /// <summary>
         /// Obtém o objecto responsável pelas operações sobre os coeficientes.
         /// </summary>
         public IField<CoeffType> CoeffsField
@@ -103,6 +61,138 @@
             get
             {
                 return this.coeffsComparer;
+            }
+        }
+
+        /// <summary>
+        /// Executa o algoritmo do simplex habitual sobre os dados de entrada.
+        /// </summary>
+        /// <param name="data">Os dados de entrada.</param>
+        /// <returns>O resultado da execução.</returns>
+        public SimplexOutput<CoeffType> Run(SimplexInput<CoeffType, CoeffType> data)
+        {
+            if (data == null)
+            {
+                throw new ArgumentNullException("data");
+            }
+            else
+            {
+                var hasSolution = true;
+                var enteringVariable = this.GetNextEnteringVariable(data);
+                var state = enteringVariable != -1;
+                while (state)
+                {
+                    var leavingVariable = this.GetNextLeavingVariable(
+                        enteringVariable,
+                        data.ConstraintsMatrix,
+                        data.ConstraintsVector);
+                    if (leavingVariable == -1)
+                    {
+                        hasSolution = false;
+                        state = false;
+                    }
+                    else
+                    {
+                        this.ProcessReduction(
+                            enteringVariable, 
+                            leavingVariable, 
+                            data.ConstraintsMatrix,
+                            data.ConstraintsVector,
+                            data.Cost);
+
+                        data.Cost = this.ProcessObjectiveFunction(
+                            enteringVariable,
+                            leavingVariable,
+                            data.BasicVariables,
+                            data.NonBasicVariables,
+                            data.Cost,
+                            data.ObjectiveFunction,
+                            data.ConstraintsMatrix,
+                            data.ConstraintsVector);
+
+                        enteringVariable = this.GetNextEnteringVariable(data);
+                        state = enteringVariable != -1;
+                    }
+                }
+
+                if (hasSolution)
+                {
+                    return this.BuildSolution(
+                        data.BasicVariables,
+                        data.NonBasicVariables,
+                        data.ConstraintsVector,
+                        data.Cost);
+                }
+                else
+                {
+                    return new SimplexOutput<CoeffType>(null, default(CoeffType), false);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Executa o algoritmo do simplex habitual tendo em consideração a notação de inteiro grande.
+        /// </summary>
+        /// <param name="data">Os dados de entrada.</param>
+        /// <returns>O resultado da execução.</returns>
+        public SimplexOutput<CoeffType> Run(SimplexInput<CoeffType, SimplexMaximumNumberField<CoeffType>> data)
+        {
+            if (data == null)
+            {
+                throw new ArgumentNullException("data");
+            }
+            else
+            {
+                var hasSolution = true;
+                var enteringVariable = this.GetNextEnteringVariable(data);
+                var state = enteringVariable != -1;
+                while (state)
+                {
+                    var leavingVariable = this.GetNextLeavingVariable(
+                        enteringVariable,
+                        data.ConstraintsMatrix,
+                        data.ConstraintsVector);
+                    if (leavingVariable == -1)
+                    {
+                        hasSolution = false;
+                        state = false;
+                    }
+                    else
+                    {
+                        this.ProcessReduction(
+                            enteringVariable,
+                            leavingVariable,
+                            data.ConstraintsMatrix,
+                            data.ConstraintsVector,
+                            data.Cost);
+
+                        data.Cost = this.ProcessObjectiveFunction(
+                            enteringVariable,
+                            leavingVariable,
+                            data.BasicVariables,
+                            data.NonBasicVariables,
+                            data.Cost,
+                            data.ObjectiveFunction,
+                            data.ConstraintsMatrix,
+                            data.ConstraintsVector);
+
+                        enteringVariable = this.GetNextEnteringVariable(data);
+                        state = enteringVariable != -1;
+                    }
+                }
+
+                if (hasSolution)
+                {
+                    return this.BuildSolution(
+                        data.BasicVariables,
+                        data.NonBasicVariables,
+                        data.ConstraintsVector,
+                        data.Cost);
+                }
+                else
+                {
+                    return new SimplexOutput<CoeffType>(null, default(CoeffType), false);
+                }
             }
         }
 
@@ -135,25 +225,59 @@
         }
 
         /// <summary>
+        /// Obtém a próxima variável de entrada.
+        /// </summary>
+        /// <param name="data">Os dados de entrada.</param>
+        /// <returns>A variável caso exista e -1 caso contrário.</returns>
+        private int GetNextEnteringVariable(SimplexInput<CoeffType, SimplexMaximumNumberField<CoeffType>> data)
+        {
+            var result = -1;
+            var value = new SimplexMaximumNumberField<CoeffType>(
+                this.coeffsField.AdditiveUnity,
+                this.coeffsField.AdditiveUnity);
+
+            Parallel.For(0, data.ObjectiveFunction.GetLength(1), i =>
+            {
+                var current = data.ObjectiveFunction[0, i];
+                if (this.coeffsComparer.Compare(current.BigPart, this.coeffsField.AdditiveUnity) < 0)
+                {
+                    if (this.ComapareBigNumbers(current, value) < 0)
+                    {
+                        lock (this.lockObject)
+                        {
+                            result = i;
+                            value = current;
+                        }
+                    }
+                }
+            });
+
+            return result;
+        }
+
+        /// <summary>
         /// Obtém a próxima variável de saída.
         /// </summary>
         /// <param name="enteringVariable">A variável de entrada.</param>
-        /// <param name="data">Os dados de entrada.</param>
+        /// <param name="constraintsMatrix">A matriz das restrições.</param>
+        /// <param name="constraintsVector">O vector das restrições.</param>
         /// <returns>A variável caso exista e -1 caso contrário.</returns>
-        private int GetNextLeavingVariable(int enteringVariable, SimplexInput<CoeffType, CoeffType> data)
+        private int GetNextLeavingVariable(int enteringVariable,
+            IMatrix<CoeffType> constraintsMatrix,
+            IMatrix<CoeffType> constraintsVector)
         {
             var result = -1;
             var value = this.coeffsField.AdditiveUnity;
 
             // Estabelece o primeiro valor para futura comparação.
             var index = 0;
-            while (index < data.ConstraintsMatrix.GetLength(0) && result == -1)
+            while (index < constraintsMatrix.GetLength(0) && result == -1)
             {
-                var currentValue = data.ConstraintsMatrix[index, enteringVariable];
+                var currentValue = constraintsMatrix[index, enteringVariable];
                 if (this.coeffsComparer.Compare(currentValue, this.coeffsField.AdditiveUnity) > 0)
                 {
                     value = this.coeffsField.Multiply(
-                        data.ConstraintsVector[index, 0],
+                        constraintsVector[index, 0],
                         this.coeffsField.MultiplicativeInverse(currentValue));
                     result = index;
                 }
@@ -163,13 +287,13 @@
 
             if (result != -1)
             {
-                Parallel.For(index, data.ConstraintsMatrix.GetLength(0), i =>
+                Parallel.For(index, constraintsMatrix.GetLength(0), i =>
                 {
-                    var currentValue = data.ConstraintsMatrix[i, enteringVariable];
+                    var currentValue = constraintsMatrix[i, enteringVariable];
                     if (this.coeffsComparer.Compare(currentValue, this.coeffsField.AdditiveUnity) > 0)
                     {
                         currentValue = this.coeffsField.Multiply(
-                            data.ConstraintsVector[i, 0],
+                            constraintsVector[i, 0],
                             this.coeffsField.MultiplicativeInverse(currentValue));
                         if (this.coeffsComparer.Compare(currentValue, value) < 0)
                         {
@@ -187,172 +311,282 @@
         }
 
         /// <summary>
+        /// Compara dois números enormes.
+        /// </summary>
+        /// <param name="firstNumber">O primeiro número a ser comparado.</param>
+        /// <param name="secondNumber">O segundo número a ser comparado.</param>
+        /// <returns>
+        /// Os valores -1, 0 e 1 caso o primeiro número seja respectivamente menor, igual ou maior
+        /// do que o segundo número.
+        /// </returns>
+        private int ComapareBigNumbers(
+            SimplexMaximumNumberField<CoeffType> firstNumber,
+            SimplexMaximumNumberField<CoeffType> secondNumber)
+        {
+            var compareValue = this.coeffsComparer.Compare(firstNumber.BigPart, secondNumber.BigPart);
+            if (compareValue == 0)
+            {
+                return this.coeffsComparer.Compare(firstNumber.FinitePart, secondNumber.FinitePart);
+            }
+            else
+            {
+                return compareValue;
+            }
+        }
+
+        /// <summary>
         /// Aplica a condensação a todas as linhas da matriz das restrições.
         /// </summary>
         /// <param name="enteringVariable">A variável de entrada.</param>
         /// <param name="leavingVariable">A variável de saída.</param>
-        /// <param name="data">Os dados de entrada.</param>
+        /// <param name="constraintsMatrix">A matriz das restrições.</param>
+        /// <param name="constraintsVector">O vector das restrições.</param>
         /// <param name="currentCost">O custo anterior.</param>
-        /// <returns>O custo após o processamento.</returns>
-        private CoeffType ProcessReduction(
+        private void ProcessReduction(
             int enteringVariable,
             int leavingVariable,
-            SimplexInput<CoeffType, CoeffType> data,
+            IMatrix<CoeffType> constraintsMatrix,
+            IMatrix<CoeffType> constraintsVector,
             CoeffType currentCost)
         {
-            var result = currentCost;
-
             // Actualiza a linha pivô
-            var multiplicativeProduct = data.ConstraintsMatrix[leavingVariable, enteringVariable];
+            var multiplicativeProduct = constraintsMatrix[leavingVariable, enteringVariable];
             if (!this.coeffsField.IsMultiplicativeUnity(multiplicativeProduct))
             {
                 multiplicativeProduct = this.coeffsField.MultiplicativeInverse(multiplicativeProduct);
                 Parallel.For(0, enteringVariable, i =>
                 {
-                    data.ConstraintsMatrix[leavingVariable, i] = this.coeffsField.Multiply(
-                        data.ConstraintsMatrix[leavingVariable, i],
+                    constraintsMatrix[leavingVariable, i] = this.coeffsField.Multiply(
+                        constraintsMatrix[leavingVariable, i],
                         multiplicativeProduct);
                 });
 
-                Parallel.For(enteringVariable + 1, data.ConstraintsMatrix.GetLength(1), i =>
+                Parallel.For(enteringVariable + 1, constraintsMatrix.GetLength(1), i =>
                 {
-                    data.ConstraintsMatrix[leavingVariable, i] = this.coeffsField.Multiply(
-                        data.ConstraintsMatrix[leavingVariable, i],
+                    constraintsMatrix[leavingVariable, i] = this.coeffsField.Multiply(
+                        constraintsMatrix[leavingVariable, i],
                         multiplicativeProduct);
                 });
 
-                data.ConstraintsVector[leavingVariable, 0] = this.coeffsField.Multiply(
-                    data.ConstraintsVector[leavingVariable, 0],
+                constraintsVector[leavingVariable, 0] = this.coeffsField.Multiply(
+                    constraintsVector[leavingVariable, 0],
                     multiplicativeProduct);
 
-                data.ConstraintsMatrix[leavingVariable, enteringVariable] = multiplicativeProduct;
+                constraintsMatrix[leavingVariable, enteringVariable] = multiplicativeProduct;
             }
 
             // Actualiza as restantes linhas e o vector
             Parallel.For(0, leavingVariable, line =>
             {
-                multiplicativeProduct = data.ConstraintsMatrix[line, enteringVariable];
+                multiplicativeProduct = constraintsMatrix[line, enteringVariable];
                 if (!this.coeffsField.IsAdditiveUnity(multiplicativeProduct))
                 {
                     multiplicativeProduct = this.coeffsField.AdditiveInverse(
-                        data.ConstraintsMatrix[line, enteringVariable]);
+                        constraintsMatrix[line, enteringVariable]);
                     for (int column = 0; column < enteringVariable; ++column)
                     {
-                        data.ConstraintsMatrix[line, column] = this.coeffsField.Add(
-                            data.ConstraintsMatrix[line, column],
-                            this.coeffsField.Multiply(data.ConstraintsMatrix[leavingVariable, column],
+                        constraintsMatrix[line, column] = this.coeffsField.Add(
+                            constraintsMatrix[line, column],
+                            this.coeffsField.Multiply(constraintsMatrix[leavingVariable, column],
                             multiplicativeProduct));
                     }
 
-                    data.ConstraintsMatrix[line, enteringVariable] = multiplicativeProduct;
+                    constraintsMatrix[line, enteringVariable] = multiplicativeProduct;
 
-                    for (int column = enteringVariable + 1; column < data.ConstraintsMatrix.GetLength(1); ++column)
+                    for (int column = enteringVariable + 1; column < constraintsMatrix.GetLength(1); ++column)
                     {
-                        data.ConstraintsMatrix[line, column] = this.coeffsField.Add(
-                            data.ConstraintsMatrix[line, column],
-                            this.coeffsField.Multiply(data.ConstraintsMatrix[leavingVariable, column],
+                        constraintsMatrix[line, column] = this.coeffsField.Add(
+                            constraintsMatrix[line, column],
+                            this.coeffsField.Multiply(constraintsMatrix[leavingVariable, column],
                             multiplicativeProduct));
                     }
 
-                    data.ConstraintsVector[line, 0] = this.coeffsField.Add(
-                            data.ConstraintsVector[line, 0],
-                            this.coeffsField.Multiply(data.ConstraintsVector[leavingVariable, 0],
+                    constraintsVector[line, 0] = this.coeffsField.Add(
+                            constraintsVector[line, 0],
+                            this.coeffsField.Multiply(constraintsVector[leavingVariable, 0],
                             multiplicativeProduct));
                 }
             });
 
-            Parallel.For(leavingVariable + 1, data.ConstraintsMatrix.GetLength(0), line =>
+            Parallel.For(leavingVariable + 1, constraintsMatrix.GetLength(0), line =>
             {
-                multiplicativeProduct = data.ConstraintsMatrix[line, enteringVariable];
+                multiplicativeProduct = constraintsMatrix[line, enteringVariable];
                 if (!this.coeffsField.IsAdditiveUnity(multiplicativeProduct))
                 {
                     multiplicativeProduct = this.coeffsField.AdditiveInverse(
-                        data.ConstraintsMatrix[line, enteringVariable]);
+                        constraintsMatrix[line, enteringVariable]);
                     for (int column = 0; column < enteringVariable; ++column)
                     {
-                        data.ConstraintsMatrix[line, column] = this.coeffsField.Add(
-                            data.ConstraintsMatrix[line, column],
-                            this.coeffsField.Multiply(data.ConstraintsMatrix[leavingVariable, column],
+                        constraintsMatrix[line, column] = this.coeffsField.Add(
+                            constraintsMatrix[line, column],
+                            this.coeffsField.Multiply(constraintsMatrix[leavingVariable, column],
                             multiplicativeProduct));
                     }
 
-                    data.ConstraintsMatrix[line, enteringVariable] = multiplicativeProduct;
+                    constraintsMatrix[line, enteringVariable] = multiplicativeProduct;
 
-                    for (int column = enteringVariable + 1; column < data.ConstraintsMatrix.GetLength(1); ++column)
+                    for (int column = enteringVariable + 1; column < constraintsMatrix.GetLength(1); ++column)
                     {
-                        data.ConstraintsMatrix[line, column] = this.coeffsField.Add(
-                            data.ConstraintsMatrix[line, column],
-                            this.coeffsField.Multiply(data.ConstraintsMatrix[leavingVariable, column],
+                        constraintsMatrix[line, column] = this.coeffsField.Add(
+                            constraintsMatrix[line, column],
+                            this.coeffsField.Multiply(constraintsMatrix[leavingVariable, column],
                             multiplicativeProduct));
                     }
 
-                    data.ConstraintsVector[line, 0] = this.coeffsField.Add(
-                            data.ConstraintsVector[line, 0],
-                            this.coeffsField.Multiply(data.ConstraintsVector[leavingVariable, 0],
+                    constraintsVector[line, 0] = this.coeffsField.Add(
+                            constraintsVector[line, 0],
+                            this.coeffsField.Multiply(constraintsVector[leavingVariable, 0],
                             multiplicativeProduct));
                 }
             });
+        }
 
-            // Função objectivo
-            multiplicativeProduct = this.coeffsField.AdditiveInverse(data.ObjectiveFunction[0, enteringVariable]);
+        /// <summary>
+        /// Processa a função objectivo.
+        /// </summary>
+        /// <param name="enteringVariable">A variável de entrada.</param>
+        /// <param name="leavingVariable">a variável de saída.</param>
+        /// <param name="nonBasicVariables">O conjunto de variáveis não-básicas.</param>
+        /// <param name="currentCost">O custo actual.</param>
+        /// <param name="objective">A função objectivo.</param>
+        /// <param name="constraintsMatrix">A matriz das restrições.</param>
+        /// <param name="constraintsVector">O vector das restrições.</param>
+        /// <returns>O resultado.</returns>
+        private CoeffType ProcessObjectiveFunction(
+            int enteringVariable,
+            int leavingVariable,
+            int[] basicVariables,
+            int[] nonBasicVariables,
+            CoeffType currentCost,
+            IMatrix<CoeffType> objective,
+            IMatrix<CoeffType> constraintsMatrix,
+            IMatrix<CoeffType> constraintsVector)
+        {
+            var result = currentCost;
+            var multiplicativeProduct = this.coeffsField.AdditiveInverse(objective[0, enteringVariable]);
             if (!this.coeffsField.IsAdditiveUnity(multiplicativeProduct))
             {
                 Parallel.For(0, enteringVariable, column =>
                 {
-                    data.ObjectiveFunction[0, column] = this.coeffsField.Add(
-                                data.ObjectiveFunction[0, column],
-                                this.coeffsField.Multiply(data.ConstraintsMatrix[leavingVariable, column],
+                    objective[0, column] = this.coeffsField.Add(
+                                objective[0, column],
+                                this.coeffsField.Multiply(constraintsMatrix[leavingVariable, column],
                                 multiplicativeProduct));
                 });
 
-                data.ObjectiveFunction[0, enteringVariable] = multiplicativeProduct;
+                objective[0, enteringVariable] = multiplicativeProduct;
 
-                Parallel.For(enteringVariable + 1, data.ObjectiveFunction.GetLength(1), column =>
+                Parallel.For(enteringVariable + 1, objective.GetLength(1), column =>
                 {
-                    data.ObjectiveFunction[0, column] = this.coeffsField.Add(
-                                data.ObjectiveFunction[0, column],
-                                this.coeffsField.Multiply(data.ConstraintsMatrix[leavingVariable, column],
+                    objective[0, column] = this.coeffsField.Add(
+                                objective[0, column],
+                                this.coeffsField.Multiply(constraintsMatrix[leavingVariable, column],
                                 multiplicativeProduct));
                 });
 
                 result = this.coeffsField.Add(
                             result,
-                            this.coeffsField.Multiply(data.ConstraintsVector[leavingVariable, 0],
+                            this.coeffsField.Multiply(constraintsVector[leavingVariable, 0],
                             multiplicativeProduct));
             }
 
             // Troca as variáveis
-            var swap = data.NonBasicVariables[enteringVariable];
-            data.NonBasicVariables[enteringVariable] = data.BasicVariables[leavingVariable];
-            data.BasicVariables[leavingVariable] = swap;
+            var swap = nonBasicVariables[enteringVariable];
+            nonBasicVariables[enteringVariable] = basicVariables[leavingVariable];
+            basicVariables[leavingVariable] = swap;
 
             return result;
         }
 
         /// <summary>
+        /// Processa a função objectivo.
+        /// </summary>
+        /// <param name="enteringVariable">A variável de entrada.</param>
+        /// <param name="leavingVariable">a variável de saída.</param>
+        /// <param name="nonBasicVariables">O conjunto de variáveis não-básicas.</param>
+        /// <param name="currentCost">O custo actual.</param>
+        /// <param name="objective">A função objectivo.</param>
+        /// <param name="constraintsMatrix">A matriz das restrições.</param>
+        /// <param name="constraintsVector">O vector das restrições.</param>
+        /// <returns>O resultado.</returns>
+        private CoeffType ProcessObjectiveFunction(
+            int enteringVariable,
+            int leavingVariable,
+            int[] basicVariables,
+            int[] nonBasicVariables,
+            CoeffType currentCost,
+            IMatrix<SimplexMaximumNumberField<CoeffType>> objective,
+            IMatrix<CoeffType> constraintsMatrix,
+            IMatrix<CoeffType> constraintsVector)
+        {
+            //var result = currentCost;
+            //var multiplicativeProduct = this.coeffsField.AdditiveInverse(objective[0, enteringVariable]);
+            //if (!this.coeffsField.IsAdditiveUnity(multiplicativeProduct))
+            //{
+            //    Parallel.For(0, enteringVariable, column =>
+            //    {
+            //        objective[0, column] = this.coeffsField.Add(
+            //                    objective[0, column],
+            //                    this.coeffsField.Multiply(constraintsMatrix[leavingVariable, column],
+            //                    multiplicativeProduct));
+            //    });
+
+            //    objective[0, enteringVariable] = multiplicativeProduct;
+
+            //    Parallel.For(enteringVariable + 1, objective.GetLength(1), column =>
+            //    {
+            //        objective[0, column] = this.coeffsField.Add(
+            //                    objective[0, column],
+            //                    this.coeffsField.Multiply(constraintsMatrix[leavingVariable, column],
+            //                    multiplicativeProduct));
+            //    });
+
+            //    result = this.coeffsField.Add(
+            //                result,
+            //                this.coeffsField.Multiply(constraintsVector[leavingVariable, 0],
+            //                multiplicativeProduct));
+            //}
+
+            //// Troca as variáveis
+            //var swap = nonBasicVariables[enteringVariable];
+            //nonBasicVariables[enteringVariable] = basicVariables[leavingVariable];
+            //basicVariables[leavingVariable] = swap;
+
+            //return result;
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
         /// Constrói a solução a partir da iteração actual.
         /// </summary>
-        /// <param name="data">Os dados de entrada.</param>
-        /// <param name="cost">O custo calculado.</param>
+        /// <param name="basicVariables">As variáveis básicas.</param>
+        /// <param name="nonBasicVariables">As variáveis não-básicas.</param>
+        /// <param name="constraintsVector">O vector das restrições.</param>
+        /// <param name="cost">O custo actual.</param>
         /// <returns>A solução.</returns>
-        private SimplexOutput<CoeffType> BuildSolution(SimplexInput<CoeffType, CoeffType> data)
+        private SimplexOutput<CoeffType> BuildSolution(
+            int[] basicVariables,
+            int[] nonBasicVariables,
+            IMatrix<CoeffType> constraintsVector,
+            CoeffType cost
+            )
         {
-            var solution = new CoeffType[data.NonBasicVariables.Length];
+            var solution = new CoeffType[nonBasicVariables.Length];
             for (int i = 0; i < solution.Length; ++i)
             {
                 solution[i] = this.coeffsField.AdditiveUnity;
             }
 
-            for (int i = 0; i < data.BasicVariables.Length; ++i)
+            for (int i = 0; i < basicVariables.Length; ++i)
             {
-                var basicVariable = data.BasicVariables[i];
+                var basicVariable = basicVariables[i];
                 if (basicVariable < solution.Length)
                 {
-                    solution[basicVariable] = data.ConstraintsVector[i, 0];
+                    solution[basicVariable] = constraintsVector[i, 0];
                 }
             }
 
-            return new SimplexOutput<CoeffType>(solution, data.Cost, true);
+            return new SimplexOutput<CoeffType>(solution, cost, true);
         }
     }
 }

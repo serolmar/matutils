@@ -8,14 +8,14 @@ namespace Mathematics
     /// <summary>
     /// Permite somar, subtrair e comparar números máximos, à semelhança dos números complexos.
     /// </summary>
-    class MaxDoubleNumberField
+    class TransportationMaxDoubleNumberField
     {
         double FiniteComponent { get; set; }
-        int MaximumComponent { get; set; }
+        double MaximumComponent { get; set; }
 
-        public MaxDoubleNumberField() { }
+        public TransportationMaxDoubleNumberField() { }
 
-        public MaxDoubleNumberField(double enteringValue)
+        public TransportationMaxDoubleNumberField(double enteringValue)
         {
             if (enteringValue == double.MaxValue)
             {
@@ -31,29 +31,29 @@ namespace Mathematics
             }
         }
 
-        public static MaxDoubleNumberField operator +(MaxDoubleNumberField left, MaxDoubleNumberField right)
+        public static TransportationMaxDoubleNumberField operator +(TransportationMaxDoubleNumberField left, TransportationMaxDoubleNumberField right)
         {
-            return new MaxDoubleNumberField()
+            return new TransportationMaxDoubleNumberField()
             {
                 FiniteComponent = left.FiniteComponent + right.FiniteComponent,
                 MaximumComponent = left.MaximumComponent + right.MaximumComponent
             };
         }
 
-        public static MaxDoubleNumberField operator -(MaxDoubleNumberField left, MaxDoubleNumberField right)
+        public static TransportationMaxDoubleNumberField operator -(TransportationMaxDoubleNumberField left, TransportationMaxDoubleNumberField right)
         {
-            return new MaxDoubleNumberField()
+            return new TransportationMaxDoubleNumberField()
             {
                 FiniteComponent = left.FiniteComponent - right.FiniteComponent,
                 MaximumComponent = left.MaximumComponent - right.MaximumComponent
             };
         }
 
-        public static MaxDoubleNumberField operator -(double left, MaxDoubleNumberField right)
+        public static TransportationMaxDoubleNumberField operator -(double left, TransportationMaxDoubleNumberField right)
         {
             if (left == double.MaxValue)
             {
-                return new MaxDoubleNumberField()
+                return new TransportationMaxDoubleNumberField()
                 {
                     FiniteComponent = -right.FiniteComponent,
                     MaximumComponent = 1 - right.MaximumComponent
@@ -61,7 +61,7 @@ namespace Mathematics
             }
             else if (left == double.MinValue)
             {
-                return new MaxDoubleNumberField()
+                return new TransportationMaxDoubleNumberField()
                 {
                     FiniteComponent = -right.FiniteComponent,
                     MaximumComponent = -1 - right.MaximumComponent
@@ -69,7 +69,7 @@ namespace Mathematics
             }
             else
             {
-                return new MaxDoubleNumberField()
+                return new TransportationMaxDoubleNumberField()
                 {
                     FiniteComponent = left - right.FiniteComponent,
                     MaximumComponent = -right.MaximumComponent
@@ -77,13 +77,13 @@ namespace Mathematics
             }
         }
 
-        public static bool operator >(MaxDoubleNumberField left, MaxDoubleNumberField right)
+        public static bool operator >(TransportationMaxDoubleNumberField left, TransportationMaxDoubleNumberField right)
         {
             return left.MaximumComponent > right.MaximumComponent ||
                 (left.MaximumComponent == right.MaximumComponent && left.FiniteComponent > right.FiniteComponent);
         }
 
-        public static bool operator >(MaxDoubleNumberField left, double right)
+        public static bool operator >(TransportationMaxDoubleNumberField left, double right)
         {
             return (left.MaximumComponent > 1 && right == double.MaxValue) ||
                 (left.MaximumComponent == 1 && right != double.MaxValue) ||
@@ -91,19 +91,19 @@ namespace Mathematics
                 (left.MaximumComponent == 0 && left.FiniteComponent > right);
         }
 
-        public static bool operator >=(MaxDoubleNumberField left, MaxDoubleNumberField right)
+        public static bool operator >=(TransportationMaxDoubleNumberField left, TransportationMaxDoubleNumberField right)
         {
             return left.MaximumComponent >= right.MaximumComponent ||
                 (left.MaximumComponent == right.MaximumComponent && left.FiniteComponent >= right.FiniteComponent);
         }
 
-        public static bool operator <(MaxDoubleNumberField left, MaxDoubleNumberField right)
+        public static bool operator <(TransportationMaxDoubleNumberField left, TransportationMaxDoubleNumberField right)
         {
             return left.MaximumComponent < right.MaximumComponent ||
                 (left.MaximumComponent == right.MaximumComponent && left.FiniteComponent < right.FiniteComponent);
         }
 
-        public static bool operator <(MaxDoubleNumberField left, double right)
+        public static bool operator <(TransportationMaxDoubleNumberField left, double right)
         {
             return (left.MaximumComponent < 1 && right == double.MaxValue) ||
                 (left.MaximumComponent < -1 && right == double.MinValue) ||
@@ -111,7 +111,7 @@ namespace Mathematics
                 (left.MaximumComponent == 0 && left.FiniteComponent < right);
         }
 
-        public static bool operator <=(MaxDoubleNumberField left, MaxDoubleNumberField right)
+        public static bool operator <=(TransportationMaxDoubleNumberField left, TransportationMaxDoubleNumberField right)
         {
             return left.MaximumComponent <= right.MaximumComponent ||
                 (left.MaximumComponent == right.MaximumComponent && left.FiniteComponent <= right.FiniteComponent);
@@ -124,7 +124,7 @@ namespace Mathematics
 
         public override bool Equals(object obj)
         {
-            MaxDoubleNumberField objToCompare = obj as MaxDoubleNumberField;
+            TransportationMaxDoubleNumberField objToCompare = obj as TransportationMaxDoubleNumberField;
             if (objToCompare == null)
             {
                 return base.Equals(obj);

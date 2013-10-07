@@ -146,12 +146,13 @@
     <Compile Include="Algorithms\Polynomials\UnivarSquareFreeDecomposition.cs" />
     <Compile Include="Algorithms\Simplex\SimplexAlgorithm.cs" />
     <Compile Include="Algorithms\Simplex\SimplexInput.cs" />
+    <Compile Include="Algorithms\Simplex\SimplexMaximumNumberField.cs" />
     <Compile Include="Algorithms\Simplex\SimplexOutput.cs" />
     <Compile Include="BacheBezoutResult.cs" />
     <Compile Include="AlgebraicStructures\FractionExpressionParser.cs" />
     <Compile Include="MathFunctions.cs" />
     <Compile Include="Algorithms\Simplex\RevisedSimplexWithDoubles.cs" />
-    <Compile Include="Algorithms\MaxDoubleNumberField.cs" />
+    <Compile Include="Algorithms\Transportation\TransportationMaxDoubleNumberField.cs" />
     <Compile Include="Algorithms\Transportation\TransportationMatrixTreeNode.cs" />
     <Compile Include="Algorithms\Transportation\TransportationProblemDouble.cs" />
     <Compile Include="Algorithms\Graph\Edge.cs" />
