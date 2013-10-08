@@ -32,7 +32,7 @@
         /// <summary>
         /// O custo actual.
         /// </summary>
-        private ConstraintsType cost;
+        private ObjectiveCoeffType cost;
 
         /// <summary>
         /// A matriz das restrições.
@@ -48,7 +48,7 @@
             int[] basicVariables,
             int[] nonBasicVariables,
             IMatrix<ObjectiveCoeffType> objectiveFunction,
-            ConstraintsType cost,
+            ObjectiveCoeffType cost,
             IMatrix<ConstraintsType> constraintsMatrix,
             IMatrix<ConstraintsType> constraintsVector)
         {
@@ -144,7 +144,7 @@
         /// <summary>
         /// Obtém e atribui o custo actual.
         /// </summary>
-        public ConstraintsType Cost
+        public ObjectiveCoeffType Cost
         {
             get
             {

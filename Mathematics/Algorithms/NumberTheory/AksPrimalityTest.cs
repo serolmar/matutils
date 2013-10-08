@@ -63,6 +63,7 @@
                 {
                     var log = Math.Log(innerData);
                     var r = this.EvaluateLimitValue(innerData, log);
+                    r = this.totientFunctionAlg.Run(r);
                     for (int i = 2; i <= r; ++i)
                     {
                         var gcd = MathFunctions.GreatCommonDivisor(innerData, i, this.integerDomain);
@@ -72,7 +73,7 @@
                         }
                     }
 
-                    var limit = (int)Math.Floor(Math.Sqrt(innerData) * log);
+                    var limit = (int)Math.Floor(Math.Sqrt(r) * log);
                         var modularField = new ModularIntegerField(innerData);
                         var terms = new Dictionary<int, int>();
 

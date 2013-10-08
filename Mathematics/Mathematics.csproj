@@ -135,6 +135,7 @@
     <Compile Include="Algorithms\Matrix\Linear Systems\SequentialLanczosAlgorithm.cs" />
     <Compile Include="Algorithms\NumberTheory\AksPrimalityTest.cs" />
     <Compile Include="Algorithms\NumberTheory\Auxiliary\AuxAksModArithmRing.cs" />
+    <Compile Include="Algorithms\NumberTheory\DecompositionFactorizationAlgorithm.cs" />
     <Compile Include="Algorithms\NumberTheory\EulerTotFuncAlg.cs" />
     <Compile Include="Algorithms\NumberTheory\LegendreJacobiSymbolAlgorithm.cs" />
     <Compile Include="Algorithms\NumberTheory\NaiveIntegerFactorizationAlgorithm.cs" />

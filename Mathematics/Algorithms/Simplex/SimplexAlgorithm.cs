@@ -97,8 +97,7 @@
                             enteringVariable, 
                             leavingVariable, 
                             data.ConstraintsMatrix,
-                            data.ConstraintsVector,
-                            data.Cost);
+                            data.ConstraintsVector);
 
                         data.Cost = this.ProcessObjectiveFunction(
                             enteringVariable,
@@ -163,8 +162,7 @@
                             enteringVariable,
                             leavingVariable,
                             data.ConstraintsMatrix,
-                            data.ConstraintsVector,
-                            data.Cost);
+                            data.ConstraintsVector);
 
                         data.Cost = this.ProcessObjectiveFunction(
                             enteringVariable,
@@ -341,13 +339,11 @@
         /// <param name="leavingVariable">A variável de saída.</param>
         /// <param name="constraintsMatrix">A matriz das restrições.</param>
         /// <param name="constraintsVector">O vector das restrições.</param>
-        /// <param name="currentCost">O custo anterior.</param>
         private void ProcessReduction(
             int enteringVariable,
             int leavingVariable,
             IMatrix<CoeffType> constraintsMatrix,
-            IMatrix<CoeffType> constraintsVector,
-            CoeffType currentCost)
+            IMatrix<CoeffType> constraintsVector)
         {
             // Actualiza a linha pivô
             var multiplicativeProduct = constraintsMatrix[leavingVariable, enteringVariable];
@@ -509,51 +505,114 @@
         /// <param name="constraintsMatrix">A matriz das restrições.</param>
         /// <param name="constraintsVector">O vector das restrições.</param>
         /// <returns>O resultado.</returns>
-        private CoeffType ProcessObjectiveFunction(
+        private SimplexMaximumNumberField<CoeffType> ProcessObjectiveFunction(
             int enteringVariable,
             int leavingVariable,
             int[] basicVariables,
             int[] nonBasicVariables,
-            CoeffType currentCost,
+            SimplexMaximumNumberField<CoeffType> currentCost,
             IMatrix<SimplexMaximumNumberField<CoeffType>> objective,
             IMatrix<CoeffType> constraintsMatrix,
             IMatrix<CoeffType> constraintsVector)
         {
-            //var result = currentCost;
-            //var multiplicativeProduct = this.coeffsField.AdditiveInverse(objective[0, enteringVariable]);
-            //if (!this.coeffsField.IsAdditiveUnity(multiplicativeProduct))
-            //{
-            //    Parallel.For(0, enteringVariable, column =>
-            //    {
-            //        objective[0, column] = this.coeffsField.Add(
-            //                    objective[0, column],
-            //                    this.coeffsField.Multiply(constraintsMatrix[leavingVariable, column],
-            //                    multiplicativeProduct));
-            //    });
+            var result = currentCost;
+            var multiplicativeProduct = this.GetAdditiveInverse(objective[0, enteringVariable]);
+            if (!this.IsAdditiveUnity(multiplicativeProduct))
+            {
+                Parallel.For(0, enteringVariable, column =>
+                {
+                    objective[0, column] = this.Add(
+                                objective[0, column],
+                                this.Multiply(constraintsMatrix[leavingVariable, column],
+                                multiplicativeProduct));
+                });
 
-            //    objective[0, enteringVariable] = multiplicativeProduct;
+                objective[0, enteringVariable] = multiplicativeProduct;
 
-            //    Parallel.For(enteringVariable + 1, objective.GetLength(1), column =>
-            //    {
-            //        objective[0, column] = this.coeffsField.Add(
-            //                    objective[0, column],
-            //                    this.coeffsField.Multiply(constraintsMatrix[leavingVariable, column],
-            //                    multiplicativeProduct));
-            //    });
+                Parallel.For(enteringVariable + 1, objective.GetLength(1), column =>
+                {
+                    objective[0, column] = this.Add(
+                                objective[0, column],
+                                this.Multiply(constraintsMatrix[leavingVariable, column],
+                                multiplicativeProduct));
+                });
 
-            //    result = this.coeffsField.Add(
-            //                result,
-            //                this.coeffsField.Multiply(constraintsVector[leavingVariable, 0],
-            //                multiplicativeProduct));
-            //}
+                result = this.Add(
+                            result,
+                            this.Multiply(constraintsVector[leavingVariable, 0],
+                            multiplicativeProduct));
+            }
 
-            //// Troca as variáveis
-            //var swap = nonBasicVariables[enteringVariable];
-            //nonBasicVariables[enteringVariable] = basicVariables[leavingVariable];
-            //basicVariables[leavingVariable] = swap;
+            // Troca as variáveis
+            var swap = nonBasicVariables[enteringVariable];
+            nonBasicVariables[enteringVariable] = basicVariables[leavingVariable];
+            basicVariables[leavingVariable] = swap;
 
-            //return result;
+            return result;
             throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Otbém o simétrico aditivo de um número enorme.
+        /// </summary>
+        /// <param name="maxNumberField">O número.</param>
+        /// <returns>O simétrico aditivo.</returns>
+        private SimplexMaximumNumberField<CoeffType> GetAdditiveInverse(
+            SimplexMaximumNumberField<CoeffType> maxNumberField)
+        {
+            return new SimplexMaximumNumberField<CoeffType>(
+                this.coeffsField.AdditiveInverse(maxNumberField.FinitePart),
+                this.coeffsField.AdditiveInverse(maxNumberField.BigPart));
+        }
+
+        /// <summary>
+        /// Verifica se um número enorme constitui uma unidade aditiva.
+        /// </summary>
+        /// <param name="number">O número enorme.</param>
+        /// <returns>Verdadeiro caso o número seja uma unidade aditiva e falso caso contrário.</returns>
+        private bool IsAdditiveUnity(SimplexMaximumNumberField<CoeffType> number)
+        {
+            return this.coeffsField.IsAdditiveUnity(number.FinitePart) &&
+                this.coeffsField.IsAdditiveUnity(number.BigPart);
+        }
+
+        /// <summary>
+        /// Obtém o produto de um coeficiente por um número enorme.
+        /// </summary>
+        /// <param name="coeff">O coeficiente.</param>
+        /// <param name="number">O número enorme.</param>
+        /// <returns>O número enorme que resulta do produto.</returns>
+        private SimplexMaximumNumberField<CoeffType> Multiply(
+            CoeffType coeff,
+            SimplexMaximumNumberField<CoeffType> number)
+        {
+            if (this.coeffsField.IsAdditiveUnity(coeff))
+            {
+                return new SimplexMaximumNumberField<CoeffType>(
+                    this.coeffsField.AdditiveUnity,
+                    this.coeffsField.AdditiveUnity);
+            }
+            else
+            {
+                return new SimplexMaximumNumberField<CoeffType>(
+                    this.coeffsField.Multiply(coeff, number.FinitePart),
+                    this.coeffsField.Multiply(coeff, number.BigPart));
+            }
+        }
+
+        /// <summary>
+        /// Adiciona dois números enormes.
+        /// </summary>
+        /// <param name="firstNumber">O primeiro número.</param>
+        /// <param name="secondNumber">O segundo número.</param>
+        /// <returns>O resultado da soma.</returns>
+        private SimplexMaximumNumberField<CoeffType> Add(
+            SimplexMaximumNumberField<CoeffType> firstNumber,
+            SimplexMaximumNumberField<CoeffType> secondNumber)
+        {
+            return new SimplexMaximumNumberField<CoeffType>(
+                this.coeffsField.Add(firstNumber.FinitePart, secondNumber.FinitePart),
+                this.coeffsField.Add(firstNumber.BigPart, secondNumber.BigPart));
         }
 
         /// <summary>
@@ -587,6 +646,39 @@
             }
 
             return new SimplexOutput<CoeffType>(solution, cost, true);
+        }
+
+        /// <summary>
+        /// Constrói a solução a partir da iteração actual.
+        /// </summary>
+        /// <param name="basicVariables">As variáveis básicas.</param>
+        /// <param name="nonBasicVariables">As variáveis não-básicas.</param>
+        /// <param name="constraintsVector">O vector das restrições.</param>
+        /// <param name="cost">O custo actual.</param>
+        /// <returns>A solução.</returns>
+        private SimplexOutput<CoeffType> BuildSolution(
+            int[] basicVariables,
+            int[] nonBasicVariables,
+            IMatrix<CoeffType> constraintsVector,
+            SimplexMaximumNumberField<CoeffType> cost
+            )
+        {
+            var solution = new CoeffType[nonBasicVariables.Length];
+            for (int i = 0; i < solution.Length; ++i)
+            {
+                solution[i] = this.coeffsField.AdditiveUnity;
+            }
+
+            for (int i = 0; i < basicVariables.Length; ++i)
+            {
+                var basicVariable = basicVariables[i];
+                if (basicVariable < solution.Length)
+                {
+                    solution[basicVariable] = constraintsVector[i, 0];
+                }
+            }
+
+            return new SimplexOutput<CoeffType>(solution, cost.FinitePart, true);
         }
     }
 }

@@ -23,14 +23,10 @@
             }
             else if (data == 1)
             {
-                var result = new Dictionary<int, int>();
-                result.Add(1, 1);
-                return result;
+                throw new ArgumentException("Unity is a trivial factor.");
             }
             else if (data == -1) {
-                var result = new Dictionary<int, int>();
-                result.Add(-1, 1);
-                return result;
+                throw new ArgumentException("Negative unity is a trivial factor.");
             }
             else
             {
@@ -73,12 +69,6 @@
                     {
                         result.Add(innerData, 1);
                     }
-                }
-
-                // O factor que representa o sinal no caso de ser necessário.
-                if (data < 0)
-                {
-                    result.Add(-1, 1);
                 }
 
                 return result;

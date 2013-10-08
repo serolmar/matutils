@@ -207,6 +207,11 @@
         {
             var innerLeft = left % this.module;
             var innerRight = right % this.module;
+            if (innerLeft == 0 || innerRight == 0)
+            {
+                return 0;
+            }
+            
             if (innerLeft < 0)
             {
                 innerLeft += this.module;
@@ -306,7 +311,12 @@
                         }
 
                         sign = -sign;
-                        innerLeft = this.module % innerLeft;
+                        var tempInnerLeft = this.module % innerLeft;
+                        if (tempInnerLeft != 0)
+                        {
+                            innerLeft = tempInnerLeft;
+                        }
+
                         innerRight = innerRight / leftQuo;
                     }
                 }
