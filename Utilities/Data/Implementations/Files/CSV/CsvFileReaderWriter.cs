@@ -26,8 +26,18 @@
         /// </summary>
         private char lineSeparatorType = '\n';
 
+        /// <summary>
+        /// O contentor de leitores de dados.
+        /// </summary>
+        private IDataReaderProvider<string> dataReaderProvider;
+
         public CsvFileReaderWriter()
         {
+        }
+
+        public CsvFileReaderWriter(IDataReaderProvider<string> dataReaderProvider)
+        {
+            this.dataReaderProvider = dataReaderProvider;
         }
 
         public CsvFileReaderWriter(char lineSeparatorType, char columnSeparatorType)
@@ -45,6 +55,15 @@
                 this.columnSeparatorType = columnSeparatorType;
                 this.lineSeparatorType = lineSeparatorType;
             }
+        }
+
+        public CsvFileReaderWriter(
+            char lineSeparatorType,
+            char columnSeparatorType,
+            IDataReaderProvider<string> dataReaderProvider)
+            : this(lineSeparatorType, columnSeparatorType)
+        {
+            this.dataReaderProvider = dataReaderProvider;
         }
 
         public CsvFileReaderWriter(
@@ -134,7 +153,7 @@
                 }
 
                 var textReader = new StreamReader(stream, innerEncoding);
-                this.Read(tabularItem,textReader);
+                this.Read(tabularItem, textReader);
             }
         }
 
@@ -155,7 +174,14 @@
             }
             else
             {
-                this.ReadCsv(tabularItem, reader);
+                if (this.dataReaderProvider == null)
+                {
+                    this.ReadCsv(tabularItem, reader);
+                }
+                else
+                {
+                    this.ReadCsv(tabularItem, reader, this.dataReaderProvider);
+                }
             }
         }
 
@@ -298,6 +324,142 @@
                 }
 
                 elements.Add(this.GetValues(currentItem));
+                result.Add(elements);
+            }
+        }
+
+        /// <summary>
+        /// Completa a leitura do csv tendo em conta os leitores individuais de dados.
+        /// </summary>
+        /// <param name="result">O resultado da leitura.</param>
+        /// <param name="reader">O leitor de texto.</param>
+        /// <param name="dataReaderProvider">O contentor de leitores.</param>
+        private void ReadCsv(
+            ITabularItem result,
+            TextReader reader,
+            IDataReaderProvider<string> dataReaderProvider)
+        {
+            var elements = new List<object>();
+            var currentItem = string.Empty;
+            var currentLine = 0;
+            var currentColumn = 0;
+            var readed = reader.Read();
+            if (readed != -1)
+            {
+                var readedChar = (char)readed;
+                if (readedChar == this.lineSeparatorType)
+                {
+                    ++currentLine;
+                    elements.Add(this.GetValues(currentItem));
+                    result.Add(elements);
+                    currentItem = string.Empty;
+                    elements.Clear();
+                }
+                else if (readedChar == this.columnSeparatorType)
+                {
+                    var dataReader = default(IDataReader<string>);
+                    if (!this.dataReaderProvider.TryGetDataReader(
+                        currentLine,
+                        currentColumn,
+                        out dataReader))
+                    {
+                        throw new UtilitiesDataException(string.Format(
+                            "No data reader was provided for cell with coords ({0},{1}).",
+                            currentLine,
+                            currentColumn));
+                    }
+
+                    var element = default(object);
+                    if (!dataReader.TryRead(currentItem, out element))
+                    {
+                        throw new UtilitiesDataException(string.Format(
+                            "Current data reader can't read text value '{0}' from cell with coords ({1},{2}).",
+                            currentItem,
+                            currentLine,
+                            currentColumn));
+                    }
+
+                    elements.Add(element);
+                    ++currentColumn;
+                    currentItem = string.Empty;
+                }
+                else
+                {
+                    currentItem += readedChar;
+                }
+
+                readed = reader.Read();
+                while (readed != -1)
+                {
+                    readedChar = (char)readed;
+                    if (readedChar == this.lineSeparatorType)
+                    {
+                        ++currentLine;
+                        elements.Add(this.GetValues(currentItem));
+                        result.Add(elements);
+                        currentItem = string.Empty;
+                        elements.Clear();
+                    }
+                    else if (readedChar == this.columnSeparatorType)
+                    {
+                        var dataReader = default(IDataReader<string>);
+                        if (!this.dataReaderProvider.TryGetDataReader(
+                            currentLine,
+                            currentColumn,
+                            out dataReader))
+                        {
+                            throw new UtilitiesDataException(string.Format(
+                                "No data reader was provided for cell with coords ({0},{1}).",
+                                currentLine,
+                                currentColumn));
+                        }
+
+                        var element = default(object);
+                        if (!dataReader.TryRead(currentItem, out element))
+                        {
+                            throw new UtilitiesDataException(string.Format(
+                                "Current data reader can't read text value '{0}' from cell with coords ({1},{2}).",
+                                currentItem,
+                                currentLine,
+                                currentColumn));
+                        }
+
+                        elements.Add(element);
+                        ++currentColumn;
+                        currentItem = string.Empty;
+                    }
+                    else
+                    {
+                        currentItem += readedChar;
+                    }
+
+                    readed = reader.Read();
+                }
+
+                var outerReader = default(IDataReader<string>);
+                if (!this.dataReaderProvider.TryGetDataReader(
+                    currentLine,
+                    currentColumn,
+                    out outerReader))
+                {
+                    throw new UtilitiesDataException(string.Format(
+                        "No data reader was provided for cell with coords ({0},{1}).",
+                        currentLine,
+                        currentColumn));
+                }
+
+                var outerElement = default(object);
+                if (!outerReader.TryRead(currentItem, out outerElement))
+                {
+                    throw new UtilitiesDataException(string.Format(
+                        "Current data reader can't read text value '{0}' from cell with coords ({1},{2}).",
+                        currentItem,
+                        currentLine,
+                        currentColumn));
+                }
+
+                elements.Add(outerElement);
+                currentItem = string.Empty;
                 result.Add(elements);
             }
         }

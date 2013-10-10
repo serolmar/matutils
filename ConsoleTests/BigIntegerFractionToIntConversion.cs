@@ -6,6 +6,7 @@
     using System.Numerics;
     using System.Text;
     using Mathematics;
+    using Utilities;
 
     class BigIntegerFractionToIntConversion : IConversion<int, Fraction<BigInteger, BigIntegerDomain>>
     {

@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
+    using Utilities;
     using Utilities.Parsers;
 
     public class UnivarPolNormalFormParser<CoeffType, RingType> : IParse<UnivariatePolynomialNormalForm<CoeffType, RingType>, string, string>

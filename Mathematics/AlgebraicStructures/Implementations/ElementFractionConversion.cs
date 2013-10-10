@@ -10,11 +10,13 @@ namespace Mathematics
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
+    using Utilities;
 
     /// <summary>
     /// Converte entre o elemento e a respectiva fracção.
     /// </summary>
-    public class ElementFractionConversion<ElementType, DomainType> : IConversion<ElementType, Fraction<ElementType, DomainType>>
+    public class ElementFractionConversion<ElementType, DomainType> 
+        : IConversion<ElementType, Fraction<ElementType, DomainType>>
         where DomainType : IEuclidenDomain<ElementType>
     {
         protected DomainType domain;

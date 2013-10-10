@@ -11,7 +11,6 @@ namespace Mathematics
     using System.Linq;
     using System.Text;
 
-
     public class ElementToElementConversion<ElementType> : IConversion<ElementType, ElementType>
     {
         public bool CanApplyDirectConversion(ElementType objectToConvert)

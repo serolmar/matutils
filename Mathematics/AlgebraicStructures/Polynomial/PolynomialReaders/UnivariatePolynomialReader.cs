@@ -1,13 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Utilities.Parsers;
-using Mathematics.Algorithms;
-using System.IO;
-
-namespace Mathematics
+﻿namespace Mathematics
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+    using System.Text;
+    using Mathematics.Algorithms;
+    using Utilities;
+    using Utilities.Parsers;
+
     public class UnivariatePolynomialReader<T, RingType, InputReader>
         where RingType : IRing<T>
     {

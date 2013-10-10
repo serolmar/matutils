@@ -6,6 +6,7 @@
     using System.Linq;
     using System.Text;
     using Algorithms;
+    using Utilities;
     using Utilities.Parsers;
 
     public class PolynomialReader<T, RingType, InputReader>
