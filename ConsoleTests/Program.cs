@@ -21,7 +21,22 @@
 
         static void Main(string[] args)
         {
-            Test16();
+            var count = 0;
+            var primeNumbersIterator = new BigIntPrimeNumbsIterator(int.MaxValue);
+            foreach (var prime in primeNumbersIterator)
+            {
+                ++count;
+            }
+
+            var count1 = 0;
+            var primeNumbsIter = new PrimeNumbersIterator(int.MaxValue);
+            foreach (var prime in primeNumbsIter)
+            {
+                ++count1;
+            }
+
+            Console.WriteLine("{0}, {1}", count, count1);
+            Test13();
             Console.ReadLine();
         }
 
@@ -295,7 +310,7 @@
                 }
             }
 
-            var primeNumberEnumerator = new PrimeNumbersIterator(10);
+            var primeNumberEnumerator = new PrimeNumbersIterator(100);
             foreach (var primeNumber in primeNumberEnumerator)
             {
                 Console.WriteLine(primeNumber);

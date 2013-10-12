@@ -11,6 +11,16 @@
     public class PrimeNumbersIterator : IEnumerable<int>
     {
         /// <summary>
+        /// Os primeiros números primos.
+        /// </summary>
+        private static int[] firstPrimes = new[] { 2, 3, 5 };
+
+        /// <summary>
+        /// As diferenças a serem analisadas quando são testados os números quanto à primalidade.
+        /// </summary>
+        private static int[] differenceNumbers = new[] { 6, 4, 2, 4, 2, 4, 6, 2 };
+
+        /// <summary>
         /// O limite superior do iterador.
         /// </summary>
         private int upperLimit;
@@ -33,7 +43,7 @@
 
         public IEnumerator<int> GetEnumerator()
         {
-            return new PrimesNumberEnumerator(this.upperLimit);
+            return new PrimesNumberEnumerator(this.upperLimit, firstPrimes, differenceNumbers);
         }
 
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
@@ -82,10 +92,10 @@
             /// </summary>
             private int firstPrimesPointer;
 
-            public PrimesNumberEnumerator(int upperLimit)
+            public PrimesNumberEnumerator(int upperLimit, int[] firstPrimes, int[] differenceNumbers)
             {
-                this.firstPrimes = new int[] { 2, 3, 5 };
-                this.differenceNumbers = new int[] { 6, 4, 2, 4, 2, 4, 6, 2 };
+                this.firstPrimes = firstPrimes;
+                this.differenceNumbers = differenceNumbers;
                 this.upperLimit = upperLimit;
                 this.Reset();
             }
@@ -164,7 +174,7 @@
                 this.sequenceNumber = 1;
                 this.collectionPointer = 0;
                 this.firstPrimesPointer = -1;
-                this.currentPrime = -1;
+                this.currentPrime = 1;
             }
 
             /// <summary>
