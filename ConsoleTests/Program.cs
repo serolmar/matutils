@@ -21,22 +21,93 @@
 
         static void Main(string[] args)
         {
-            var count = 0;
-            var primeNumbersIterator = new BigIntPrimeNumbsIterator(int.MaxValue);
-            foreach (var prime in primeNumbersIterator)
-            {
-                ++count;
-            }
+            //using (var streamWriter = new StreamWriter("temp.txt"))
+            //{
+            //    streamWriter.Write(2);
+            //    var primes = new[] { 3, 5, 7, 11, 13, 17, 19 };
+            //    var product = 1;
+            //    for (int i = 0; i < primes.Length; ++i)
+            //    {
+            //        product *= primes[i];
+            //    }
+
+            //    var previous = 23;
+            //    streamWriter.Write(",{0}", previous - 1);
+            //    var current = previous + 2;
+            //    while (current < product)
+            //    {
+            //        var divide = false;
+            //        for (int i = 0; i < primes.Length; ++i)
+            //        {
+            //            if (current % primes[i] == 0)
+            //            {
+            //                divide = true;
+            //                i = primes.Length;
+            //            }
+            //        }
+
+            //        if (!divide)
+            //        {
+            //            streamWriter.Write(",{0}", current - previous);
+            //            previous = current;
+            //        }
+
+            //        current += 2;
+            //    }
+
+            //    // 3*5*7*...+-2 está na mesma situação
+            //    streamWriter.Write(",{0}", 4);
+            //}
+
+            var n = 500000000;
+            var stopWatch = new Stopwatch();
+            //var count = 0;
+            //stopWatch.Start();
+            //var primeNumbersIterator = new BigIntPrimeNumbsIterator(n);
+            //foreach (var prime in primeNumbersIterator)
+            //{
+            //    ++count;
+            //}
+
+            //stopWatch.Stop();
+            //Console.WriteLine(stopWatch.Elapsed);
+
+            //count = 0;
+            //stopWatch.Reset();
+            //stopWatch.Start();
+            //primeNumbersIterator = new BigIntPrimeNumbsIterator(n);
+            //foreach (var prime in primeNumbersIterator)
+            //{
+            //    ++count;
+            //}
+
+            //stopWatch.Stop();
+            //Console.WriteLine(stopWatch.Elapsed);
 
             var count1 = 0;
-            var primeNumbsIter = new PrimeNumbersIterator(int.MaxValue);
+            stopWatch.Reset();
+            stopWatch.Start();
+            var primeNumbsIter = new PrimeNumbersIterator(n);
             foreach (var prime in primeNumbsIter)
             {
                 ++count1;
             }
 
-            Console.WriteLine("{0}, {1}", count, count1);
-            Test13();
+            stopWatch.Stop();
+            Console.WriteLine(stopWatch.Elapsed);
+
+            count1 = 0;
+            stopWatch.Reset();
+            stopWatch.Start();
+            primeNumbsIter = new PrimeNumbersIterator(n);
+            foreach (var prime in primeNumbsIter)
+            {
+                ++count1;
+            }
+
+            stopWatch.Stop();
+            Console.WriteLine(stopWatch.Elapsed);
+            //Test13();
             Console.ReadLine();
         }
 
