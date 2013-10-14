@@ -7,8 +7,19 @@
     using System.Text;
     using Utilities.Parsers;
 
-    public class CsvFileParser<InputType, SymbValue, SymbType>
+    public class CsvFileParser<MatrixType, ElementsType, InputType, SymbValue, SymbType>
     {
+        /// <summary>
+        /// O objecto responsável por fazer a sincronização dos processos.
+        /// </summary>
+        private object lockObject = new object();
+
+        /// <summary>
+        /// Indica se o leitor se encontra a realizar a leitura de outra
+        /// estrutura de dados.
+        /// </summary>
+        private bool hasStarted = false;
+
         /// <summary>
         /// O separador de linha.
         /// </summary>
@@ -18,6 +29,11 @@
         /// O separador de coluna.
         /// </summary>
         private SymbType columnSeparator;
+
+        /// <summary>
+        /// O providenciador de leitores.
+        /// </summary>
+        private IDataReaderProvider<IParse<ElementsType, SymbValue, SymbType>> provider;
 
         /// <summary>
         /// Os delimitadores.
@@ -32,17 +48,18 @@
         /// <summary>
         /// Referência para a tabela a ser carregada.
         /// </summary>
-        private ITabularItem currentTable;
+        private MatrixType currentTable;
 
         /// <summary>
         /// A linha corrente.
         /// </summary>
-        private List<object> currentRow = new List<object>();
+        private List<ElementsType> currentRow = new List<ElementsType>();
 
         /// <summary>
-        /// O elemento corrente.
+        /// O objecto responsável por adicionar um conjunto de elemntos a uma
+        /// estrutura tabular de objectos.
         /// </summary>
-        private string currentElement = string.Empty;
+        private IDataParseAdder<MatrixType, ElementsType> dataAdder;
 
         /// <summary>
         /// A linha actual.
@@ -55,17 +72,26 @@
         private int currentColumnNumber = 0;
 
         /// <summary>
-        /// O valor actual lido.
+        /// Os símbolos actualmente lidos.
         /// </summary>
-        private string currentReadedValue = string.Empty;
+        private List<ISymbol<SymbValue, SymbType>> currentSymbolValues = new List<ISymbol<SymbValue, SymbType>>();
 
         public CsvFileParser(
             SymbType lineSeparator,
-            SymbType columnSeparator)
+            SymbType columnSeparator,
+            IDataReaderProvider<IParse<ElementsType, SymbValue, SymbType>> provider)
         {
-            this.lineSeparator = lineSeparator;
-            this.columnSeparator = columnSeparator;
-            this.InitStates();
+            if (provider == null)
+            {
+                throw new ArgumentNullException("provider");
+            }
+            else
+            {
+                this.provider = provider;
+                this.lineSeparator = lineSeparator;
+                this.columnSeparator = columnSeparator;
+                this.InitStates();
+            }
         }
 
         public void MapDelimiters(SymbType openDelimiter, SymbType closeDelimiter)
@@ -117,25 +143,45 @@
             this.delimiters.Clear();
         }
 
-        public ITabularItem Parse(SymbolReader<InputType, SymbValue, SymbType> reader)
+        public void Parse(
+            SymbolReader<InputType, SymbValue, SymbType> reader,
+            MatrixType matrix,
+            IDataParseAdder<MatrixType, ElementsType> adder)
         {
             if (reader == null)
             {
                 throw new ArgumentNullException("reader");
             }
+            else if (matrix == null)
+            {
+                throw new ArgumentNullException("matrix");
+            }
+            else if (adder == null)
+            {
+                throw new ArgumentNullException("adder");
+            }
             else
             {
-                this.currentTable = new TabularListsItem();
-                this.currentRow.Clear();
-                this.currentElement = string.Empty;
+                lock (this.lockObject)
+                {
+                    if (this.hasStarted)
+                    {
+                        throw new UtilitiesDataException("Current parser has already been started.");
+                    }
+                    else
+                    {
+                        this.hasStarted = true;
+                    }
+                }
 
-                var machine =
-                    new StateMachine<InputType, SymbValue, SymbType>(
+                this.dataAdder = adder;
+                this.currentTable = matrix;
+
+                var stateMachine = new StateMachine<InputType, SymbValue, SymbType>(
                     this.states[0],
                     this.states[1]);
-                machine.RunMachine(reader);
-
-                return this.currentTable;
+                stateMachine.RunMachine(reader);
+                this.hasStarted = false;
             }
         }
 
@@ -162,13 +208,34 @@
                 var symbol = reader.Get();
                 if (symbol.SymbolType.Equals(this.lineSeparator))
                 {
-                    this.currentTable.Add(this.currentRow);
+                    this.dataAdder.Add(this.currentTable, this.currentRow);
                     ++this.currentRowNumber;
                     return this.states[2];
                 }
                 else if (symbol.SymbolType.Equals(this.columnSeparator))
                 {
-                    this.currentRow.Add(currentElement);
+                    var dataParser = default(IParse<ElementsType, SymbValue, SymbType>);
+                    if (!this.provider.TryGetDataReader(
+                        this.currentRowNumber,
+                        this.currentColumnNumber,
+                        out dataParser))
+                    {
+                        throw new UtilitiesDataException(string.Format(
+                            "No data reader was provided for cell with coords ({0},{1}).",
+                            this.currentRowNumber,
+                            this.currentRowNumber));
+                    }
+
+                    var parsed = default(ElementsType);
+                    if (!dataParser.TryParse(this.currentSymbolValues.ToArray(), out parsed))
+                    {
+                        throw new UtilitiesDataException(string.Format(
+                            "Can't parse value from cell with coords ({0},{1}) with the provided parser.",
+                            this.currentRowNumber,
+                            this.currentRowNumber));
+                    }
+
+                    this.currentRow.Add(parsed);
                     ++this.currentColumnNumber;
                     return this.states[2];
                 }
@@ -179,7 +246,7 @@
                 }
                 else
                 {
-                    this.currentElement += symbol.SymbolValue;
+                    this.currentSymbolValues.Add(symbol);
                     return this.states[2];
                 }
             }
@@ -194,8 +261,29 @@
         {
             if (reader.IsAtEOF())
             {
-                this.currentRow.Add(this.currentElement);
-                this.currentTable.Add(this.currentRow);
+                var dataParser = default(IParse<ElementsType, SymbValue, SymbType>);
+                if (!this.provider.TryGetDataReader(
+                    this.currentRowNumber,
+                    this.currentColumnNumber,
+                    out dataParser))
+                {
+                    throw new UtilitiesDataException(string.Format(
+                        "No data reader was provided for cell with coords ({0},{1}).",
+                        this.currentRowNumber,
+                        this.currentRowNumber));
+                }
+
+                var parsed = default(ElementsType);
+                if (!dataParser.TryParse(this.currentSymbolValues.ToArray(), out parsed))
+                {
+                    throw new UtilitiesDataException(string.Format(
+                        "Can't parse value from cell with coords ({0},{1}) with the provided parser.",
+                        this.currentRowNumber,
+                        this.currentRowNumber));
+                }
+
+                this.currentRow.Add(parsed);
+                this.dataAdder.Add(this.currentTable, this.currentRow);
                 return this.states[1];
             }
             else
@@ -203,9 +291,30 @@
                 var symbol = reader.Get();
                 if (symbol.SymbolType.Equals(this.lineSeparator))
                 {
-                    this.currentRow.Add(this.currentElement);
-                    this.currentElement = string.Empty;
-                    this.currentTable.Add(this.currentRow);
+                    var dataParser = default(IParse<ElementsType, SymbValue, SymbType>);
+                    if (!this.provider.TryGetDataReader(
+                        this.currentRowNumber,
+                        this.currentColumnNumber,
+                        out dataParser))
+                    {
+                        throw new UtilitiesDataException(string.Format(
+                            "No data reader was provided for cell with coords ({0},{1}).",
+                            this.currentRowNumber,
+                            this.currentRowNumber));
+                    }
+
+                    var parsed = default(ElementsType);
+                    if (!dataParser.TryParse(this.currentSymbolValues.ToArray(), out parsed))
+                    {
+                        throw new UtilitiesDataException(string.Format(
+                            "Can't parse value from cell with coords ({0},{1}) with the provided parser.",
+                            this.currentRowNumber,
+                            this.currentRowNumber));
+                    }
+
+                    this.currentRow.Add(parsed);
+                    this.currentSymbolValues.Clear();
+                    this.dataAdder.Add(this.currentTable, this.currentRow);
                     this.currentRow.Clear();
                     ++this.currentRowNumber;
                     this.currentColumnNumber = 0;
@@ -213,8 +322,29 @@
                 }
                 else if (symbol.SymbolType.Equals(this.columnSeparator))
                 {
-                    this.currentRow.Add(currentElement);
-                    this.currentElement = string.Empty;
+                    var dataParser = default(IParse<ElementsType, SymbValue, SymbType>);
+                    if (!this.provider.TryGetDataReader(
+                        this.currentRowNumber,
+                        this.currentColumnNumber,
+                        out dataParser))
+                    {
+                        throw new UtilitiesDataException(string.Format(
+                            "No data reader was provided for cell with coords ({0},{1}).",
+                            this.currentRowNumber,
+                            this.currentRowNumber));
+                    }
+
+                    var parsed = default(ElementsType);
+                    if (!dataParser.TryParse(this.currentSymbolValues.ToArray(), out parsed))
+                    {
+                        throw new UtilitiesDataException(string.Format(
+                            "Can't parse value from cell with coords ({0},{1}) with the provided parser.",
+                            this.currentRowNumber,
+                            this.currentRowNumber));
+                    }
+
+                    this.currentRow.Add(parsed);
+                    this.currentSymbolValues.Clear();
                     ++this.currentColumnNumber;
                     return this.states[2];
                 }
@@ -225,7 +355,7 @@
                 }
                 else
                 {
-                    this.currentElement += symbol.SymbolValue;
+                    this.currentSymbolValues.Add(symbol);
                     return this.states[2];
                 }
             }
@@ -236,19 +366,42 @@
             var symbolsStack = new Stack<SymbType>();
             var symbol = reader.Get();
             symbolsStack.Push(symbol.SymbolType);
-            this.currentElement += symbol.SymbolValue;
+            this.currentSymbolValues.Add(symbol);
             while (symbolsStack.Count > 0)
             {
                 var topValue = symbolsStack.Pop();
                 if (reader.IsAtEOF())
                 {
-                    throw new NotImplementedException();
+                    var dataParser = default(IParse<ElementsType, SymbValue, SymbType>);
+                    if (!this.provider.TryGetDataReader(
+                        this.currentRowNumber,
+                        this.currentColumnNumber,
+                        out dataParser))
+                    {
+                        throw new UtilitiesDataException(string.Format(
+                            "No data reader was provided for cell with coords ({0},{1}).",
+                            this.currentRowNumber,
+                            this.currentRowNumber));
+                    }
+
+                    var parsed = default(ElementsType);
+                    if (!dataParser.TryParse(this.currentSymbolValues.ToArray(), out parsed))
+                    {
+                        throw new UtilitiesDataException(string.Format(
+                            "Can't parse value from cell with coords ({0},{1}) with the provided parser.",
+                            this.currentRowNumber,
+                            this.currentRowNumber));
+                    }
+
+                    this.currentRow.Add(parsed);
+                    this.dataAdder.Add(this.currentTable, this.currentRow);
+                    return this.states[1];
                 }
                 else
                 {
                     symbol = reader.Get();
                     var close = this.delimiters[topValue];
-                    this.currentElement += symbol.SymbolValue;
+                    this.currentSymbolValues.Add(symbol);
                     if (!close.Contains(symbol.SymbolType))
                     {
                         symbolsStack.Push(topValue);

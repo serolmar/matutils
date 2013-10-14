@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Utilities
+﻿namespace Utilities
 {
-    class DoubleDataReader : IDataReader<string>
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+
+    public class DoubleDataReader : IDataReader<string>
     {
         public Type ObjectType
         {

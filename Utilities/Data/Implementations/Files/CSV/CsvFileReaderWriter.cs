@@ -19,58 +19,58 @@
         /// <summary>
         /// O separador de colunas no csv.
         /// </summary>
-        private char columnSeparatorType = ';';
+        private char columnSeparatorChar = ';';
 
         /// <summary>
         /// O separador de linhas no csv.
         /// </summary>
-        private char lineSeparatorType = '\n';
+        private char lineSeparatorChar = '\n';
 
         /// <summary>
         /// O contentor de leitores de dados.
         /// </summary>
-        private IDataReaderProvider<string> dataReaderProvider;
+        private IDataReaderProvider<IDataReader<string>> dataReaderProvider;
 
         public CsvFileReaderWriter()
         {
         }
 
-        public CsvFileReaderWriter(IDataReaderProvider<string> dataReaderProvider)
+        public CsvFileReaderWriter(IDataReaderProvider<IDataReader<string>> dataReaderProvider)
         {
             this.dataReaderProvider = dataReaderProvider;
         }
 
-        public CsvFileReaderWriter(char lineSeparatorType, char columnSeparatorType)
+        public CsvFileReaderWriter(char lineSeparatorChar, char columnSeparatorChar)
         {
-            if (char.IsLetterOrDigit(lineSeparatorType))
+            if (char.IsLetterOrDigit(lineSeparatorChar))
             {
                 throw new UtilitiesDataException("Line separator can't be a letter or digit.");
             }
-            else if (char.IsLetterOrDigit(columnSeparatorType))
+            else if (char.IsLetterOrDigit(columnSeparatorChar))
             {
                 throw new UtilitiesDataException("Column separator can't be a letter or digit.");
             }
             else
             {
-                this.columnSeparatorType = columnSeparatorType;
-                this.lineSeparatorType = lineSeparatorType;
+                this.columnSeparatorChar = columnSeparatorChar;
+                this.lineSeparatorChar = lineSeparatorChar;
             }
         }
 
         public CsvFileReaderWriter(
-            char lineSeparatorType,
-            char columnSeparatorType,
-            IDataReaderProvider<string> dataReaderProvider)
-            : this(lineSeparatorType, columnSeparatorType)
+            char lineSeparatorChar,
+            char columnSeparatorChar,
+            IDataReaderProvider<IDataReader<string>> dataReaderProvider)
+            : this(lineSeparatorChar, columnSeparatorChar)
         {
             this.dataReaderProvider = dataReaderProvider;
         }
 
         public CsvFileReaderWriter(
-            char lineSeparatorType,
-            char columnSeparatorType,
+            char lineSeparatorChar,
+            char columnSeparatorChar,
             CultureInfo cultureInfo)
-            : this(lineSeparatorType, columnSeparatorType)
+            : this(lineSeparatorChar, columnSeparatorChar)
         {
             if (cultureInfo != null)
             {
@@ -81,11 +81,11 @@
         /// <summary>
         /// Atribui e obtém o carácter que serve de separador das linhas do csv.
         /// </summary>
-        public char LineSeparatorType
+        public char LineSeparatorChar
         {
             get
             {
-                return this.lineSeparatorType;
+                return this.lineSeparatorChar;
             }
             set
             {
@@ -95,7 +95,7 @@
                 }
                 else
                 {
-                    this.lineSeparatorType = value;
+                    this.lineSeparatorChar = value;
                 }
             }
         }
@@ -103,11 +103,11 @@
         /// <summary>
         /// Atribui e obtém o carácter que serve de separador das colunas do csv.
         /// </summary>
-        public char ColumnSeparatorType
+        public char ColumnSeparatorChar
         {
             get
             {
-                return this.columnSeparatorType;
+                return this.columnSeparatorChar;
             }
             set
             {
@@ -117,7 +117,7 @@
                 }
                 else
                 {
-                    this.columnSeparatorType = value;
+                    this.columnSeparatorChar = value;
                 }
             }
         }
@@ -245,7 +245,7 @@
                         writer.Write(columnEnumerator.Current.GetCellValue<object>());
                         while (columnEnumerator.MoveNext())
                         {
-                            writer.Write(this.columnSeparatorType);
+                            writer.Write(this.columnSeparatorChar);
                             writer.Write(columnEnumerator.Current.GetCellValue<object>());
                         }
                     }
@@ -253,14 +253,14 @@
                     while (lineEnumerator.MoveNext())
                     {
                         currentLine = lineEnumerator.Current;
-                        writer.Write(this.lineSeparatorType);
+                        writer.Write(this.lineSeparatorChar);
                         columnEnumerator = currentLine.GetEnumerator();
                         if (columnEnumerator.MoveNext())
                         {
                             writer.Write(columnEnumerator.Current.GetCellValue<object>());
                             while (columnEnumerator.MoveNext())
                             {
-                                writer.Write(this.columnSeparatorType);
+                                writer.Write(this.columnSeparatorChar);
                                 writer.Write(columnEnumerator.Current.GetCellValue<object>());
                             }
                         }
@@ -282,14 +282,14 @@
             if (readed != -1)
             {
                 var readedChar = (char)readed;
-                if (readedChar == this.lineSeparatorType)
+                if (readedChar == this.lineSeparatorChar)
                 {
                     elements.Add(this.GetValues(currentItem));
                     result.Add(elements);
                     currentItem = string.Empty;
                     elements.Clear();
                 }
-                else if (readedChar == this.columnSeparatorType)
+                else if (readedChar == this.columnSeparatorChar)
                 {
                     elements.Add(this.GetValues(currentItem));
                     currentItem = string.Empty;
@@ -303,14 +303,14 @@
                 while (readed != -1)
                 {
                     readedChar = (char)readed;
-                    if (readedChar == this.lineSeparatorType)
+                    if (readedChar == this.lineSeparatorChar)
                     {
                         elements.Add(this.GetValues(currentItem));
                         result.Add(elements);
                         currentItem = string.Empty;
                         elements.Clear();
                     }
-                    else if (readedChar == this.columnSeparatorType)
+                    else if (readedChar == this.columnSeparatorChar)
                     {
                         elements.Add(this.GetValues(currentItem));
                         currentItem = string.Empty;
@@ -337,7 +337,7 @@
         private void ReadCsv(
             ITabularItem result,
             TextReader reader,
-            IDataReaderProvider<string> dataReaderProvider)
+            IDataReaderProvider<IDataReader<string>> dataReaderProvider)
         {
             var elements = new List<object>();
             var currentItem = string.Empty;
@@ -347,7 +347,7 @@
             if (readed != -1)
             {
                 var readedChar = (char)readed;
-                if (readedChar == this.lineSeparatorType)
+                if (readedChar == this.lineSeparatorChar)
                 {
                     ++currentLine;
                     elements.Add(this.GetValues(currentItem));
@@ -355,7 +355,7 @@
                     currentItem = string.Empty;
                     elements.Clear();
                 }
-                else if (readedChar == this.columnSeparatorType)
+                else if (readedChar == this.columnSeparatorChar)
                 {
                     var dataReader = default(IDataReader<string>);
                     if (!this.dataReaderProvider.TryGetDataReader(
@@ -392,7 +392,7 @@
                 while (readed != -1)
                 {
                     readedChar = (char)readed;
-                    if (readedChar == this.lineSeparatorType)
+                    if (readedChar == this.lineSeparatorChar)
                     {
                         ++currentLine;
                         elements.Add(this.GetValues(currentItem));
@@ -400,7 +400,7 @@
                         currentItem = string.Empty;
                         elements.Clear();
                     }
-                    else if (readedChar == this.columnSeparatorType)
+                    else if (readedChar == this.columnSeparatorChar)
                     {
                         var dataReader = default(IDataReader<string>);
                         if (!this.dataReaderProvider.TryGetDataReader(

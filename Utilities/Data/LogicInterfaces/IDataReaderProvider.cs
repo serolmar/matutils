@@ -5,7 +5,7 @@
     using System.Linq;
     using System.Text;
 
-    public interface IDataReaderProvider<ConversionType>
+    public interface IDataReaderProvider<ReaderType>
     {
         /// <summary>
         /// Tenta obter o leitor de dados para a célula especificada.
@@ -17,6 +17,6 @@
         bool TryGetDataReader(
             int rowNumber, 
             int columnNumber, 
-            out IDataReader<ConversionType> reader);
+            out ReaderType reader);
     }
 }

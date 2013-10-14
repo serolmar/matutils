@@ -1,30 +1,42 @@
-﻿namespace Utilities.Data.Implementations
+﻿namespace Utilities
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
 
-    public class DataReaderProvider : IDataReaderProvider<string>
+    public class DataReaderProvider<ReaderType> : IDataReaderProvider<ReaderType>
     {
         /// <summary>
         /// O leitor que se aplica à generalidade da tabela.
         /// </summary>
-        private IDataReader<string> mainDataReader = new StringDataReader();
+        private ReaderType mainDataReader;
 
         /// <summary>
         /// Os leitores associados às colunas da tabela.
         /// </summary>
-        private Dictionary<int, IDataReader<string>> columnDataReaders =
-            new Dictionary<int, IDataReader<string>>();
+        private Dictionary<int, ReaderType> columnDataReaders =
+            new Dictionary<int, ReaderType>();
 
         /// <summary>
         /// Os leitores particularizados por cada célula específica da tabela.
         /// </summary>
-        private Dictionary<Tuple<int, int>, IDataReader<string>> cellDataReaders =
-            new Dictionary<Tuple<int, int>, IDataReader<string>>();
+        private Dictionary<Tuple<int, int>, ReaderType> cellDataReaders =
+            new Dictionary<Tuple<int, int>, ReaderType>();
 
-        public IDataReader<string> MainDataReader
+        public DataReaderProvider(ReaderType mainDataReader)
+        {
+            if (mainDataReader == null)
+            {
+                throw new ArgumentNullException("mainDataReader");
+            }
+            else
+            {
+                this.mainDataReader = mainDataReader;
+            }
+        }
+
+        public ReaderType MainDataReader
         {
             get
             {
@@ -48,7 +60,7 @@
         /// </summary>
         /// <param name="columnNumber">O número da coluna.</param>
         /// <param name="dataReader">O leitor.</param>
-        public void RegisterDataReader(int columnNumber, IDataReader<string> dataReader)
+        public void RegisterDataReader(int columnNumber, ReaderType dataReader)
         {
             if (columnNumber < 0)
             {
@@ -98,7 +110,7 @@
         public void RegisterDataReader(
             int rowNumber,
             int columnNumber,
-            IDataReader<string> dataReader)
+            ReaderType dataReader)
         {
             if (rowNumber < 0)
             {
@@ -147,16 +159,16 @@
         public bool TryGetDataReader(
             int rowNumber,
             int columnNumber,
-            out IDataReader<string> reader)
+            out ReaderType reader)
         {
             if (rowNumber < 0)
             {
-                reader = null;
+                reader = default(ReaderType);
                 return false;
             }
             else if (columnNumber < 0)
             {
-                reader = null;
+                reader = default(ReaderType);
                 return false;
             }
             else
