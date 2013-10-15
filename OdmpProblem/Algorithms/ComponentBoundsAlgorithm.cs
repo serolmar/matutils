@@ -12,8 +12,8 @@
     /// </summary>
     /// <typeparam name="CostType">O tipo de dados associado ao custo.</typeparam>
     public class ComponentBoundsAlgorithm<CostType>
-        : IAlgorithm<int, IList<IList<CostType>>, IList<IList<CostType>>, ComponentBoundsItemResult[]>,
-        IAlgorithm<int, IList<IList<CostType>>, IntMinWeightTdecompResult<CostType>, ComponentBoundsItemResult[]>
+        : IAlgorithm<int, List<List<CostType>>, List<List<CostType>>, ComponentBoundsItemResult[]>,
+        IAlgorithm<int, List<List<CostType>>, IntMinWeightTdecompResult<CostType>, ComponentBoundsItemResult[]>
     {
         /// <summary>
         /// O anel responsável pelas operações.
@@ -28,10 +28,10 @@
         /// <summary>
         /// O algoritmo de decomposição de um inteiro.
         /// </summary>
-        IAlgorithm<int, IList<IList<CostType>>, IntMinWeightTdecompResult<CostType>> minWeightDecompAlg;
+        IAlgorithm<int, List<List<CostType>>, IntMinWeightTdecompResult<CostType>> minWeightDecompAlg;
 
         public ComponentBoundsAlgorithm(
-            IAlgorithm<int, IList<IList<CostType>>, IntMinWeightTdecompResult<CostType>> minWeightDecompAlg,
+            IAlgorithm<int, List<List<CostType>>, IntMinWeightTdecompResult<CostType>> minWeightDecompAlg,
             IComparer<CostType> comparer,
             IRing<CostType> ring)
         {
@@ -65,8 +65,8 @@
         /// <returns>O vector que contém os limites por componente.</returns>
         public ComponentBoundsItemResult[] Run(
             int medians,
-            IList<IList<CostType>> lowerBoundCosts,
-            IList<IList<CostType>> upperBoundCosts)
+            List<List<CostType>> lowerBoundCosts,
+            List<List<CostType>> upperBoundCosts)
         {
             if (lowerBoundCosts == null)
             {
@@ -105,7 +105,7 @@
         /// <returns>O vector que contém os limites por componente.</returns>
         public ComponentBoundsItemResult[] Run(
             int medians,
-            IList<IList<CostType>> lowerBoundCosts,
+            List<List<CostType>> lowerBoundCosts,
             IntMinWeightTdecompResult<CostType> upperBoundCost)
         {
             if (lowerBoundCosts == null)
@@ -144,7 +144,7 @@
         /// <returns>O vector que contém os limites por componente.</returns>
         public ComponentBoundsItemResult[] InternalRun(
             int medians,
-            IList<IList<CostType>> lowerBoundCosts,
+            List<List<CostType>> lowerBoundCosts,
             IntMinWeightTdecompResult<CostType> upperBoundCost)
         {
             var result = new ComponentBoundsItemResult[lowerBoundCosts.Count];
@@ -268,7 +268,7 @@
             CostType upperCost,
             CostType currentCost,
             int bound,
-            List<IList<CostType>> exceptList)
+            List<List<CostType>> exceptList)
         {
             var minWeightTdecomp = this.minWeightDecompAlg.Run(medians - bound, exceptList);
             var sum = this.ring.Add(minWeightTdecomp.Cost, currentCost);
@@ -281,9 +281,9 @@
         /// <param name="except">A componente a ignorar.</param>
         /// <param name="costs">A matriz dos custos.</param>
         /// <returns>A lista procurada.</returns>
-        private List<IList<CostType>> GetExcept(int except, IList<IList<CostType>> costs)
+        private List<List<CostType>> GetExcept(int except, List<List<CostType>> costs)
         {
-            var result = new List<IList<CostType>>();
+            var result = new List<List<CostType>>();
             for (int i = 0; i < costs.Count; ++i)
             {
                 if (i != except)

@@ -41,6 +41,11 @@
         private Dictionary<SymbType, List<SymbType>> delimiters = new Dictionary<SymbType, List<SymbType>>();
 
         /// <summary>
+        /// A lista de tipos de símbolos a serem ignorados.
+        /// </summary>
+        private List<SymbType> ignoreSymbolTypes = new List<SymbType>();
+
+        /// <summary>
         /// Lista com todos os estados necessários para processar o csv.
         /// </summary>
         private List<IState<InputType, SymbValue, SymbType>> states;
@@ -94,6 +99,11 @@
             }
         }
 
+        /// <summary>
+        /// Mapeia o delimitador de abertura ao delimitador de fecho.
+        /// </summary>
+        /// <param name="openDelimiter">O delimitador de abertura.</param>
+        /// <param name="closeDelimiter">O delimitador de fecho.</param>
         public void MapDelimiters(SymbType openDelimiter, SymbType closeDelimiter)
         {
             if (openDelimiter == null)
@@ -121,6 +131,11 @@
             }
         }
 
+        /// <summary>
+        /// Remove um mapeamento entre um delimitador de abertura e o delimitador de fecho.
+        /// </summary>
+        /// <param name="openDelimiter">O delimitador de abertura.</param>
+        /// <param name="closeDelimiter">O delimtiador de fecho.</param>
         public void UnmapDelimiters(SymbType openDelimiter, SymbType closeDelimiter)
         {
             if (openDelimiter != null &&
@@ -138,9 +153,57 @@
             }
         }
 
+        /// <summary>
+        /// Remove todos os mapeamentos associados a um delimtiador de abertura.
+        /// </summary>
+        /// <param name="openDelimiter">O delimitador de abertura.</param>
+        public void UnmapDelimiters(SymbType openDelimiter)
+        {
+            if (openDelimiter != null)
+            {
+                this.delimiters.Remove(openDelimiter);
+            }
+        }
+
+        /// <summary>
+        /// Elimina todos os delimitadores.
+        /// </summary>
         public void ClearDelimiters()
         {
             this.delimiters.Clear();
+        }
+
+        /// <summary>
+        /// Adiciona um tipo de símbolo que deverá ser ignorado durante a leitura.
+        /// </summary>
+        /// <param name="ignoreType">O tipo de símbolo a ser ignorado.</param>
+        public void AddIgnoreType(SymbType ignoreType)
+        {
+            if (ignoreType == null)
+            {
+                throw new ArgumentNullException("ignoreType");
+            }
+            else
+            {
+                this.ignoreSymbolTypes.Add(ignoreType);
+            }
+        }
+
+        /// <summary>
+        /// Remove o tipo de símbolo a ser ignorado.
+        /// </summary>
+        /// <param name="ignoreType">O tipo de símbolo a ser ignorado.</param>
+        public void RemoveIgnoreType(SymbType ignoreType)
+        {
+            this.ignoreSymbolTypes.Remove(ignoreType);
+        }
+
+        /// <summary>
+        /// Elimina todos os tipos de símbolo a serem ignorados.
+        /// </summary>
+        public void ClearIgnoreTypes()
+        {
+            this.ignoreSymbolTypes.Clear();
         }
 
         public void Parse(
@@ -173,6 +236,11 @@
                         this.hasStarted = true;
                     }
                 }
+
+                this.currentSymbolValues.Clear();
+                this.currentRow.Clear();
+                this.currentRowNumber = 0;
+                this.currentColumnNumber = 0;
 
                 this.dataAdder = adder;
                 this.currentTable = matrix;
@@ -246,7 +314,11 @@
                 }
                 else
                 {
-                    this.currentSymbolValues.Add(symbol);
+                    if (!this.ignoreSymbolTypes.Contains(symbol.SymbolType))
+                    {
+                        this.currentSymbolValues.Add(symbol);
+                    }
+
                     return this.states[2];
                 }
             }
@@ -261,29 +333,33 @@
         {
             if (reader.IsAtEOF())
             {
-                var dataParser = default(IParse<ElementsType, SymbValue, SymbType>);
-                if (!this.provider.TryGetDataReader(
-                    this.currentRowNumber,
-                    this.currentColumnNumber,
-                    out dataParser))
+                if (this.currentSymbolValues.Count > 0 || this.currentRow.Count > 0)
                 {
-                    throw new UtilitiesDataException(string.Format(
-                        "No data reader was provided for cell with coords ({0},{1}).",
+                    var dataParser = default(IParse<ElementsType, SymbValue, SymbType>);
+                    if (!this.provider.TryGetDataReader(
                         this.currentRowNumber,
-                        this.currentRowNumber));
+                        this.currentColumnNumber,
+                        out dataParser))
+                    {
+                        throw new UtilitiesDataException(string.Format(
+                            "No data reader was provided for cell with coords ({0},{1}).",
+                            this.currentRowNumber,
+                            this.currentRowNumber));
+                    }
+
+                    var parsed = default(ElementsType);
+                    if (!dataParser.TryParse(this.currentSymbolValues.ToArray(), out parsed))
+                    {
+                        throw new UtilitiesDataException(string.Format(
+                            "Can't parse value from cell with coords ({0},{1}) with the provided parser.",
+                            this.currentRowNumber,
+                            this.currentRowNumber));
+                    }
+
+                    this.currentRow.Add(parsed);
+                    this.dataAdder.Add(this.currentTable, this.currentRow);
                 }
 
-                var parsed = default(ElementsType);
-                if (!dataParser.TryParse(this.currentSymbolValues.ToArray(), out parsed))
-                {
-                    throw new UtilitiesDataException(string.Format(
-                        "Can't parse value from cell with coords ({0},{1}) with the provided parser.",
-                        this.currentRowNumber,
-                        this.currentRowNumber));
-                }
-
-                this.currentRow.Add(parsed);
-                this.dataAdder.Add(this.currentTable, this.currentRow);
                 return this.states[1];
             }
             else
@@ -309,7 +385,7 @@
                         throw new UtilitiesDataException(string.Format(
                             "Can't parse value from cell with coords ({0},{1}) with the provided parser.",
                             this.currentRowNumber,
-                            this.currentRowNumber));
+                            this.currentColumnNumber));
                     }
 
                     this.currentRow.Add(parsed);
@@ -331,7 +407,7 @@
                         throw new UtilitiesDataException(string.Format(
                             "No data reader was provided for cell with coords ({0},{1}).",
                             this.currentRowNumber,
-                            this.currentRowNumber));
+                            this.currentColumnNumber));
                     }
 
                     var parsed = default(ElementsType);
@@ -340,7 +416,7 @@
                         throw new UtilitiesDataException(string.Format(
                             "Can't parse value from cell with coords ({0},{1}) with the provided parser.",
                             this.currentRowNumber,
-                            this.currentRowNumber));
+                            this.currentColumnNumber));
                     }
 
                     this.currentRow.Add(parsed);
@@ -355,7 +431,11 @@
                 }
                 else
                 {
-                    this.currentSymbolValues.Add(symbol);
+                    if (!this.ignoreSymbolTypes.Contains(symbol.SymbolType))
+                    {
+                        this.currentSymbolValues.Add(symbol);
+                    }
+
                     return this.states[2];
                 }
             }
@@ -381,7 +461,7 @@
                         throw new UtilitiesDataException(string.Format(
                             "No data reader was provided for cell with coords ({0},{1}).",
                             this.currentRowNumber,
-                            this.currentRowNumber));
+                            this.currentColumnNumber));
                     }
 
                     var parsed = default(ElementsType);
@@ -390,7 +470,7 @@
                         throw new UtilitiesDataException(string.Format(
                             "Can't parse value from cell with coords ({0},{1}) with the provided parser.",
                             this.currentRowNumber,
-                            this.currentRowNumber));
+                            this.currentColumnNumber));
                     }
 
                     this.currentRow.Add(parsed);
@@ -401,9 +481,17 @@
                 {
                     symbol = reader.Get();
                     var close = this.delimiters[topValue];
-                    this.currentSymbolValues.Add(symbol);
-                    if (!close.Contains(symbol.SymbolType))
+                    if (close.Contains(symbol.SymbolType))
                     {
+                        this.currentSymbolValues.Add(symbol);
+                    }
+                    else
+                    {
+                        if (!this.ignoreSymbolTypes.Contains(symbol.SymbolType))
+                        {
+                            this.currentSymbolValues.Add(symbol);
+                        }
+
                         symbolsStack.Push(topValue);
                         if (this.delimiters.ContainsKey(symbol.SymbolType))
                         {

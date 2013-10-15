@@ -13,7 +13,7 @@
     /// </summary>
     /// <typeparam name="CostType">O tipo de dados associado ao custo.</typeparam>
     public class IntegerMinWeightTdecomposition<CostType>
-        : IAlgorithm<int, IList<IList<CostType>>, IntMinWeightTdecompResult<CostType>>,
+        : IAlgorithm<int, List<List<CostType>>, IntMinWeightTdecompResult<CostType>>,
         IAlgorithm<int, ITabularItem, IntMinWeightTdecompResult<CostType>>
     {
         /// <summary>
@@ -74,7 +74,7 @@
         /// <returns>A decomposição caso exista e nulo caso contrário.</returns>
         public IntMinWeightTdecompResult<CostType> Run(
             int n,
-            IList<IList<CostType>> matrix)
+            List<List<CostType>> matrix)
         {
             if (matrix == null)
             {
@@ -186,7 +186,7 @@
                         };
 
                         --vertex;
-                        for (int i = diff + 1; i < currentCosts.Count; ++i)
+                        for (int i = diff + 1; i < currentCosts.Count && vertex >=0; ++i)
                         {
                             var currentValue = this.ring.Add(verticesInfoLine[vertex].Cost, currentCosts[i]);
                             if (this.comparer.Compare(currentValue, lastValue.Cost) < 0)
@@ -404,7 +404,7 @@
         /// </summary>
         /// <param name="matrix">A matriz.</param>
         /// <returns>O número de elementos na matriz e -1 caso exista alguma linha vazia.</returns>
-        private int CountVertices(IList<IList<CostType>> matrix)
+        private int CountVertices(List<List<CostType>> matrix)
         {
             var result = 0;
             foreach (var line in matrix)

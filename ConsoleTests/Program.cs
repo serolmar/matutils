@@ -21,6 +21,7 @@
 
         static void Main(string[] args)
         {
+            Test17();
             //using (var streamWriter = new StreamWriter("temp.txt"))
             //{
             //    streamWriter.Write(2);
@@ -107,7 +108,6 @@
 
             stopWatch.Stop();
             Console.WriteLine(stopWatch.Elapsed);
-            //Test13();
             Console.ReadLine();
         }
 
@@ -141,7 +141,7 @@
         /// </summary>
         public static void Test17()
         {
-            var costs = new List<IList<int>>();
+            var costs = new List<List<int>>();
             costs.Add(new List<int>() { 12, 9, 7, 6, 4 });
             costs.Add(new List<int>() { 12, 11, 8, 7, 5 });
             costs.Add(new List<int>() { 13, 10, 9, 6, 3 });
@@ -156,7 +156,7 @@
             Console.WriteLine("Cost: {0}", result.Cost);
             Console.WriteLine(PrintVector(result.Medians));;
 
-            var upperCosts = new List<IList<int>>();
+            var upperCosts = new List<List<int>>();
             upperCosts.Add(new List<int>() { 12, 9, 7, 6, 4 });
             upperCosts.Add(new List<int>() { 12, 11, 8, 7, 5 });
             upperCosts.Add(new List<int>() { 13, 10, 9, 6, 3 });

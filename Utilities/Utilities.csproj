@@ -63,6 +63,7 @@
     <Compile Include="Data\Implementations\Files\CSV\CsvFileParser.cs" />
     <Compile Include="Data\Implementations\Files\CSV\CsvFileReaderWriter.cs" />
     <Compile Include="Data\Implementations\Files\CSV\ListTypeAdder.cs" />
+    <Compile Include="Data\Implementations\Files\CSV\ListTypeTransposedAdder.cs" />
     <Compile Include="Data\Implementations\Files\CSV\StringDataReader.cs" />
     <Compile Include="Data\Implementations\Files\CSV\IntegerDataReader.cs" />
     <Compile Include="Data\Implementations\Files\CSV\TabularItemAdder.cs" />
