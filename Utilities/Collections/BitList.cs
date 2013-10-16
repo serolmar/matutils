@@ -317,7 +317,7 @@ namespace Utilities.Collections
 
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
-            throw new NotImplementedException();
+            return this.GetEnumerator();
         }
 
         #endregion
@@ -619,6 +619,7 @@ namespace Utilities.Collections
             {
                 variableIndex--;
             }
+
             if (set)
             {
                 for (int i = 0; i < variableIndex + 1 && i < this.elements.Count; ++i)

@@ -49,6 +49,9 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Obtém a unidade multiplicativa.
+        /// </summary>
         public ObjectType MultiplicativeUnity
         {
             get
@@ -57,6 +60,9 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Obtém a unidade aditiva.
+        /// </summary>
         public ObjectType AdditiveUnity
         {
             get

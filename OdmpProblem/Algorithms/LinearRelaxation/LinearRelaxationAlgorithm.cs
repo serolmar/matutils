@@ -16,10 +16,23 @@
         /// <summary>
         /// Aplica o algoritmo sobre a matriz dos custos.
         /// </summary>
-        /// <param name="data">A matriz dos custos.</param>
+        /// <param name="costs">A matriz dos custos.</param>
         /// <returns>O resultado da relaxação.</returns>
-        public SimplexOutput<CoeffType> Run(SparseDictionaryMatrix<CoeffType> data)
+        public SimplexOutput<CoeffType> Run(SparseDictionaryMatrix<CoeffType> costs)
         {
+            var objectiveFunction = new List<CoeffType>();
+            var numberOfVertices = costs.GetLength(1);
+            foreach (var line in costs.GetLines())
+            {
+                foreach (var column in line.Value.GetColumns())
+                {
+                    if (column.Key != line.Key)
+                    {
+                        objectiveFunction.Add(column.Value);
+                    }
+                }
+            }
+
             throw new NotImplementedException();
         }
     }

@@ -250,6 +250,9 @@
         /// <summary>
         /// Adiciona uma matriz à matriz actual de modo que a a soma dos compoentes seja realizada módulo dois.
         /// </summary>
+        /// <remarks>
+        /// O resultado terá como valor por defeito o valor associado ao objecto corrente.
+        /// </remarks>
         /// <param name="right">A matriz a ser adicionada.</param>
         /// <returns>O resultado da soma de ambas as matrizes.</returns>
         public ArrayBitMatrix AddModuloTwo(ArrayBitMatrix right)
@@ -273,10 +276,13 @@
                 {
                     var currentThisMatrixLine = this.elementsList[i];
                     var currentRightMatrixLine = right.elementsList[i];
+                    var minLine = Math.Min(currentThisMatrixLine.Count, currentRightMatrixLine.Count);
                     var j = 0;
-                    for (;j < currentThisMatrixLine.Count && j < currentRightMatrixLine.Count;++j)
+                    for (; j < minLine; ++j)
                     {
-                        var sum = (currentThisMatrixLine[j] + currentRightMatrixLine[j]) % 2;
+                        var leftValue = currentThisMatrixLine[j];
+                        var rightValue = currentRightMatrixLine[j];
+                        var sum = (leftValue & ~rightValue) | (~leftValue & rightValue);
                         if (sum != this.defaultValue)
                         {
                             result[i, j] = sum;
@@ -285,7 +291,9 @@
 
                     for (; j < currentThisMatrixLine.Count; ++j)
                     {
-                        var sum = (currentThisMatrixLine[j] + right.defaultValue) % 2;
+                        var leftValue = currentThisMatrixLine[j];
+                        var rightValue = right.defaultValue;
+                        var sum = (leftValue & ~rightValue) | (~leftValue & rightValue);
                         if (sum != this.defaultValue)
                         {
                             result[i, j] = sum;
@@ -294,7 +302,9 @@
 
                     for (; j < currentRightMatrixLine.Count; ++j)
                     {
-                        var sum = (this.defaultValue + currentRightMatrixLine[j]) % 2;
+                        var leftValue = this.defaultValue;
+                        var rightValue = currentRightMatrixLine[j];
+                        var sum = (leftValue & ~rightValue) | (~leftValue & rightValue);
                         if (sum != this.defaultValue)
                         {
                             result[i, j] = sum;
@@ -308,7 +318,7 @@
                             result.elementsList[i].Add(1);
                         }
                     }
-                    else if(this.defaultValue != right.defaultValue && this.defaultValue != 1)
+                    else if (this.defaultValue != right.defaultValue && this.defaultValue != 1)
                     {
                         for (; j < currentThisMatrixLine.Count; ++j)
                         {
@@ -322,8 +332,11 @@
         }
 
         /// <summary>
-        /// Multiplca uma matri pela matriz actual de modo que a a soma dos compoentes seja realizada módulo dois.
+        /// Multiplca uma matriz pela matriz actual de modo que a a soma dos compoentes seja realizada módulo dois.
         /// </summary>
+        /// <remarks>
+        /// O resultado terá como valor por defeito o valor associado ao objecto corrente.
+        /// </remarks>
         /// <param name="right">A matriz a ser adicionada.</param>
         /// <returns>O resultado da soma de ambas as matrizes.</returns>
         public ArrayBitMatrix MultiplyModuloTwo(ArrayBitMatrix right)
@@ -332,9 +345,64 @@
             {
                 throw new ArgumentNullException("right");
             }
+            else if (this.columnsNumber != right.columnsNumber)
+            {
+                throw new MathematicsException(
+                    "The number of columns in first matrix must match the number of lines in second matrix.");
+            }
             else
             {
-                throw new NotImplementedException();
+                var result = new ArrayBitMatrix(this.elementsList.Length, right.columnsNumber, 0);
+                for (int i = 0; i < this.elementsList.Length; ++i)
+                {
+                    var currentLeftLine = this.elementsList[i];
+                    for (int j = 0; j < currentLeftLine.Count; ++j)
+                    {
+                        var sum = 0;
+                        var k = 0;
+                        for (; k < currentLeftLine.Count; ++k)
+                        {
+                            var rightLine = right.elementsList[k];
+                            var value = right.defaultValue;
+                            if (j < rightLine.Count)
+                            {
+                                value = rightLine[j];
+                            }
+
+                            var prod = currentLeftLine[k] & value;
+                            sum = (sum & ~prod) | (~sum & prod);
+                        }
+
+                        if (this.defaultValue == 1)
+                        {
+                            for (; k < this.columnsNumber; ++k)
+                            {
+                                var rightLine = right.elementsList[k];
+                                var value = right.defaultValue;
+                                if (j < rightLine.Count)
+                                {
+                                    value = rightLine[j];
+                                }
+
+                                sum = (sum & ~value) | (~sum & value);
+                            }
+                        }
+
+                        if (sum != result.defaultValue)
+                        {
+                            var currentResultLine = result.elementsList[i];
+                            k = currentResultLine.Count;
+                            while (k < j)
+                            {
+                                currentResultLine.Add(result.defaultValue);
+                            }
+
+                            currentResultLine.Add(sum);
+                        }
+                    }
+                }
+
+                return result;
             }
         }
 

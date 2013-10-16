@@ -29,7 +29,7 @@ namespace Utilities.Collections
         }
 
         public InjectiveMapper(
-            IEqualityComparer<ObjectSetType> objectsEqualityComparer, 
+            IEqualityComparer<ObjectSetType> objectsEqualityComparer,
             IEqualityComparer<TargetSetType> targetsEqualityComparer)
         {
             this.mappObjectToTarget = new Dictionary<ObjectSetType, TargetSetType>(objectsEqualityComparer);
@@ -128,7 +128,7 @@ namespace Utilities.Collections
 
         public void Dispose()
         {
-            throw new NotImplementedException();
+            this.currentEnumerator.Dispose();
         }
 
         #endregion
@@ -137,17 +137,20 @@ namespace Utilities.Collections
 
         object System.Collections.IEnumerator.Current
         {
-            get { throw new NotImplementedException(); }
+            get
+            {
+                return this.Current;
+            }
         }
 
         public bool MoveNext()
         {
-            throw new NotImplementedException();
+            return this.currentEnumerator.MoveNext();
         }
 
         public void Reset()
         {
-            throw new NotImplementedException();
+            throw new CollectionsException("Operation is no supported.");
         }
 
         #endregion

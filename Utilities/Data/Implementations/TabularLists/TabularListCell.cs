@@ -100,7 +100,7 @@
 
         public void SetCellValue<T>(T value)
         {
-            throw new NotImplementedException();
+            this.parent.SetValue(this.rowNumber, this.columnNumber, value);
         }
 
         public T GetCellValue<T>()

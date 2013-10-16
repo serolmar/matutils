@@ -84,9 +84,9 @@ namespace Utilities.Collections
 
 
         /// <summary>
-        /// Insert an element into the collection.
+        /// Insere um elemento na colecção.
         /// </summary>
-        /// <param name="objectToInsert">The element to insert.</param>
+        /// <param name="objectToInsert">O elemento a ser inserido.</param>
         public void InsertSortElement(T objectToInsert)
         {
             int insertionIndex = this.FindPosition(objectToInsert);
@@ -103,21 +103,45 @@ namespace Utilities.Collections
             }
         }
 
+        /// <summary>
+        /// Insere um conjunto de elementos ordenados na colecção.
+        /// </summary>
+        /// <param name="elementsToInsert">Os elementos a serem inseridos.</param>
         public void InsertSortRange(InsertionSortedCollection<T> elementsToInsert)
         {
-            throw new NotImplementedException();
+            if (elementsToInsert == null)
+            {
+                throw new ArgumentNullException("elementsToInsert");
+            }
+            else
+            {
+                for (int i = 0; i < elementsToInsert.elements.Count; ++i)
+                {
+                    this.InsertSortElement(elementsToInsert.elements[i]);
+                }
+            }
         }
 
         public void InsertSortEnum(IEnumerable<T> elementsToInsert)
         {
-            throw new NotImplementedException();
+            if (elementsToInsert == null)
+            {
+                throw new ArgumentNullException("elementsToInsert");
+            }
+            else
+            {
+                foreach (var elementToInsert in elementsToInsert)
+                {
+                    this.InsertSortElement(elementToInsert);
+                }
+            }
         }
 
         /// <summary>
-        /// Checks if an element exists in the collection.
+        /// Verifica se um elemento está contido na colecção.
         /// </summary>
-        /// <param name="objectToFind">The element to check.</param>
-        /// <returns>True if element exists and false otherwise.</returns>
+        /// <param name="objectToFind">O elemento a ser verificado.</param>
+        /// <returns>Verdadeiro caso o elemento exista e falso caso contrário.</returns>
         public bool HasElement(T objectToFind)
         {
             int index = this.FindPosition(objectToFind);

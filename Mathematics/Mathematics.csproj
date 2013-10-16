@@ -145,6 +145,7 @@
     <Compile Include="Algorithms\NumberTheory\PrimeNumbersIterator.cs" />
     <Compile Include="Algorithms\NumberTheory\QuadraticFieldSieve.cs" />
     <Compile Include="Algorithms\NumberTheory\ResSolAlgorithm.cs" />
+    <Compile Include="Algorithms\Polynomials\FiniteFieldPolFactorizationAlgorithm.cs" />
     <Compile Include="Algorithms\Polynomials\UnivarSquareFreeDecomposition.cs" />
     <Compile Include="Algorithms\Simplex\SimplexAlgorithm.cs" />
     <Compile Include="Algorithms\Simplex\SimplexInput.cs" />

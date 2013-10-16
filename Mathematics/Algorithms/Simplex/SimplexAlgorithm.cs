@@ -549,7 +549,6 @@
             basicVariables[leavingVariable] = swap;
 
             return result;
-            throw new NotImplementedException();
         }
 
         /// <summary>
