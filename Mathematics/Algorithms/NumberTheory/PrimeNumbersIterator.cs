@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
-    using Mathematics.Properties;
 
     /// <summary>
     /// Implementa um iterador sobre o conjunto dos números primos.
@@ -72,8 +71,8 @@
         /// <returns>Os primeiros números primos.</returns>
         private static void InitClassFromResources()
         {
-            firstPrimes = GetIntegersFromString(Resources.StartPrimes);
-            differences = GetIntegersFromString(Resources.PrimeDifferences);
+            firstPrimes = new int[] { 2, 3, 5 }; // GetIntegersFromString(Resources.StartPrimes);
+            differences = new int[] { 2, 6, 4, 2 };// GetIntegersFromString(Resources.PrimeDifferences);
         }
 
         /// <summary>

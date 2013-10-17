@@ -166,7 +166,7 @@ namespace Mathematics
         /// <param name="right">A outra matriz.</param>
         /// <param name="semigroup">O semigrupo.</param>
         /// <returns>O resultado da soma.</returns>
-        public ArrayMatrix<ObjectType> Sum(ArrayMatrix<ObjectType> right, ISemigroup<ObjectType> semigroup)
+        public ArrayMatrix<ObjectType> Add(ArrayMatrix<ObjectType> right, ISemigroup<ObjectType> semigroup)
         {
             if (right == null)
             {
@@ -191,6 +191,49 @@ namespace Mathematics
                             result.elements[i][j] = semigroup.Add(
                                 this.elements[i][j],
                                 right.elements[i][j]);
+                        }
+                    }
+
+                    return result;
+                }
+                else
+                {
+                    throw new ArgumentException("Matrices don't have the same dimensions.");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Obtém a diferença entre a matriz corrente e outra matriz.
+        /// </summary>
+        /// <param name="right">A outra matriz.</param>
+        /// <param name="group">O grupo.</param>
+        /// <returns>O resultado da diferença.</returns>
+        public ArrayMatrix<ObjectType> Subtract(ArrayMatrix<ObjectType> right, IGroup<ObjectType> group)
+        {
+            if (right == null)
+            {
+                throw new ArgumentNullException("right");
+            }
+            else if (group == null)
+            {
+                throw new ArgumentNullException("semigroup");
+            }
+            else
+            {
+                if (this.numberOfLines == right.numberOfLines &&
+                    this.numberOfColumns == right.numberOfColumns)
+                {
+                    var result = new ArrayMatrix<ObjectType>(
+                        this.numberOfLines,
+                        this.numberOfColumns);
+                    for (int i = 0; i < this.numberOfLines; ++i)
+                    {
+                        for (int j = 0; j < this.numberOfColumns; ++j)
+                        {
+                            result.elements[i][j] = group.Add(
+                                this.elements[i][j],
+                                group.AdditiveInverse(right.elements[i][j]));
                         }
                     }
 
@@ -346,7 +389,7 @@ namespace Mathematics
             return resultBuilder.ToString();
         }
 
-        public static IMatrix<ObjectType> GetIdentity<RingType>(int order, RingType ring)
+        public static ArrayMatrix<ObjectType> GetIdentity<RingType>(int order, RingType ring)
             where RingType : IRing<ObjectType>
         {
             if (ring == null)

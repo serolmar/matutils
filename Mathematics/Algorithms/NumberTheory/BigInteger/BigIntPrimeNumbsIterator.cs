@@ -5,7 +5,6 @@
     using System.Linq;
     using System.Numerics;
     using System.Text;
-    using Properties;
 
     public class BigIntPrimeNumbsIterator : IEnumerable<BigInteger>
     {
@@ -70,8 +69,8 @@
         /// <returns>Os primeiros números primos.</returns>
         private static void InitClassFromResources()
         {
-            firstPrimes = GetIntegersFromString(Resources.StartPrimes);
-            differences = GetIntegersFromString(Resources.PrimeDifferences);
+            firstPrimes = new int[] { 2, 3, 5 }; // GetIntegersFromString(Resources.StartPrimes);
+            differences = new int[] { 2, 6, 4, 2, 4 };// GetIntegersFromString(Resources.PrimeDifferences);
         }
 
         /// <summary>

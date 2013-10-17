@@ -5,15 +5,15 @@ using System.Text;
 
 namespace Mathematics
 {
-    public class ModularBachetBezoutField<ObjectType, DomainType, AlgorithmType> : IField<ObjectType>
-        where DomainType : IEuclidenDomain<ObjectType>
-        where AlgorithmType : IBachetBezoutAlgorithm<ObjectType, DomainType>
+    public class ModularBachetBezoutField<ObjectType> : IField<ObjectType>
     {
         private ObjectType module;
 
-        private AlgorithmType bachetBezoutAlgorithm;
+        private IBachetBezoutAlgorithm<ObjectType, IEuclidenDomain<ObjectType>> bachetBezoutAlgorithm;
 
-        public ModularBachetBezoutField(ObjectType module, AlgorithmType bachetBezoutAlgorithm)
+        public ModularBachetBezoutField(
+            ObjectType module,
+            IBachetBezoutAlgorithm<ObjectType, IEuclidenDomain<ObjectType>> bachetBezoutAlgorithm)
         {
             if (bachetBezoutAlgorithm == null)
             {
