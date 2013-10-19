@@ -21,7 +21,7 @@
 
         static void Main(string[] args)
         {
-            Test17();
+            Test10();
             //using (var streamWriter = new StreamWriter("temp.txt"))
             //{
             //    streamWriter.Write(2);
@@ -490,6 +490,9 @@
             }
         }
 
+        /// <summary>
+        /// Testes os vários métodos de cálculo do polinómio característico.
+        /// </summary>
         public static void Test11()
         {
             var input = "[[1,-1,2], [3,4,5], [2,1,1]]";
@@ -517,35 +520,69 @@
 
         public static void Test10()
         {
-            var integerSequence = new IntegerSequence();
-            integerSequence.Add(0, 10);
-            integerSequence.Remove(5, 8);
-            integerSequence.Remove(1, 6);
+            var input = "x^8 + x^7 + x^4 + x^3 + x + 1";
+            var integerModularField = new ModularIntegerField(3);
+            var integerParser = new IntegerParser<string>();
 
-            foreach (var value in integerSequence)
+            var reader = new StringReader(input);
+            var stringSymbolReader = new StringSymbolReader(reader, false);
+
+            var polynomialParser = new UnivariatePolynomialReader<int, ModularIntegerField, CharSymbolReader<string>>(
+                "x",
+                integerParser,
+                integerModularField);
+
+            var parsedPol = default(UnivariatePolynomialNormalForm<int, ModularIntegerField>);
+            if (polynomialParser.TryParsePolynomial(
+                stringSymbolReader,
+                new ElementToElementConversion<int>(), 
+                out parsedPol))
             {
-                Console.Write(" {0}", value);
+                var finiteFieldFactorization = new FiniteFieldPolFactorizationAlgorithm(
+                    new UnivarSquareFreeDecomposition<Fraction<int, IntegerDomain>, FractionField<int, IntegerDomain>>(),
+                    new DenseCondensationLinSysAlgorithm<int>(integerModularField));
+
+                var factored = finiteFieldFactorization.Run(parsedPol);
+
+                foreach (var factorKvp in factored)
+                {
+                    Console.WriteLine("{0} => {1}", factorKvp.Key, factorKvp.Value);
+                }
             }
         }
 
         public static void Test9()
         {
             var sparseDictionaryMatrix = new SparseDictionaryMatrix<int>(0);
-            Console.WriteLine("Linhas: {0}; Colunas: {1}", sparseDictionaryMatrix.GetLength(0), sparseDictionaryMatrix.GetLength(1));
+            Console.WriteLine(
+                "Linhas: {0}; Colunas: {1}", 
+                sparseDictionaryMatrix.GetLength(0), 
+                sparseDictionaryMatrix.GetLength(1));
+
             Console.WriteLine("[0,0] = {0}", sparseDictionaryMatrix[0, 0]);
 
             sparseDictionaryMatrix[2, 3] = 0;
             sparseDictionaryMatrix[4, 1] = 5;
 
-            Console.WriteLine("Linhas: {0}; Colunas: {1}", sparseDictionaryMatrix.GetLength(0), sparseDictionaryMatrix.GetLength(1));
+            Console.WriteLine(
+                "Linhas: {0}; Colunas: {1}", 
+                sparseDictionaryMatrix.GetLength(0), 
+                sparseDictionaryMatrix.GetLength(1));
             Console.WriteLine("[4,1] = {0}", sparseDictionaryMatrix[4, 1]);
 
             sparseDictionaryMatrix.SwapLines(4, 1);
-            Console.WriteLine("Linhas: {0}; Colunas: {1}", sparseDictionaryMatrix.GetLength(0), sparseDictionaryMatrix.GetLength(1));
+            Console.WriteLine(
+                "Linhas: {0}; Colunas: {1}", 
+                sparseDictionaryMatrix.GetLength(0), 
+                sparseDictionaryMatrix.GetLength(1));
+
             Console.WriteLine("[1,1] = {0}", sparseDictionaryMatrix[1, 1]);
 
             sparseDictionaryMatrix.SwapColumns(3, 5);
-            Console.WriteLine("Linhas: {0}; Colunas: {1}", sparseDictionaryMatrix.GetLength(0), sparseDictionaryMatrix.GetLength(1));
+            Console.WriteLine(
+                "Linhas: {0}; Colunas: {1}", 
+                sparseDictionaryMatrix.GetLength(0), 
+                sparseDictionaryMatrix.GetLength(1));
         }
 
         static void Test8()
@@ -616,7 +653,7 @@
             {
                 foreach (var message in errors)
                 {
-                    Console.WriteLine("Errors parsing range:");
+                    Console.WriteLine("Errors parsing polynomial:");
                     Console.WriteLine(message);
                 }
             }

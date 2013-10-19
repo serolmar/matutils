@@ -343,7 +343,11 @@ namespace Mathematics
             {
                 if (termKvp.Key > 0)
                 {
-                    result.terms.Add(termKvp.Key - 1, this.ring.AddRepeated(termKvp.Value, termKvp.Key));
+                    var elementsToAdd = this.ring.AddRepeated(termKvp.Value, termKvp.Key);
+                    if (!this.ring.IsAdditiveUnity(elementsToAdd))
+                    {
+                        result.terms.Add(termKvp.Key - 1, elementsToAdd);
+                    }
                 }
             }
 
@@ -1014,6 +1018,31 @@ namespace Mathematics
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Obtém uma cópia do polinómio actual, alterando-lhe o anel responsável pelas operações.
+        /// </summary>
+        /// <typeparam name="R">O tipo do novo anel.</typeparam>
+        /// <param name="ring">O anel.</param>
+        /// <returns>Á cópia.</returns>
+        public UnivariatePolynomialNormalForm<CoeffType, R> CloneForRing<R>(R ring)
+            where R : IRing<CoeffType>
+        {
+            if (ring == null)
+            {
+                throw new ArgumentNullException("ring");
+            }
+            else
+            {
+                var result = new UnivariatePolynomialNormalForm<CoeffType, R>(ring);
+                foreach (var term in this.terms)
+                {
+                    result.terms.Add(term.Key, term.Value);
+                }
+
+                return result;
+            }
         }
 
         /// <summary>

@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
+    using PolType = UnivariatePolynomialNormalForm<int, IntegerDomain>;
 
     /// <summary>
     /// Implementa o algoritmo rho de Pollard para factorizar um número.
@@ -14,7 +15,7 @@
         /// <summary>
         /// Mantém uma lista de polinómios a serem considerados no algoritmo.
         /// </summary>
-        private List<UnivariatePolynomialNormalForm<int, IntegerDomain>> polynomialsList;
+        private List<PolType> polynomialsList;
 
         /// <summary>
         /// O domínio responsável pelas operações sobre os números inteiros.
@@ -31,7 +32,7 @@
             this.SetupPolynomialList();
         }
 
-        public PollardRhoAlgorithm(List<UnivariatePolynomialNormalForm<int, IntegerDomain>> testPolynomials)
+        public PollardRhoAlgorithm(List<PolType> testPolynomials)
         {
             if (testPolynomials == null || testPolynomials.Count == 0)
             {
@@ -39,7 +40,7 @@
             }
             else
             {
-                this.polynomialsList = new List<UnivariatePolynomialNormalForm<int, IntegerDomain>>();
+                this.polynomialsList = new List<PolType>();
                 this.polynomialsList.AddRange(testPolynomials);
             }
         }
@@ -223,9 +224,9 @@
         /// </summary>
         private void SetupPolynomialList()
         {
-            this.polynomialsList = new List<UnivariatePolynomialNormalForm<int, IntegerDomain>>();
-            var polynomial = new UnivariatePolynomialNormalForm<int, IntegerDomain>(1, 0, "x", this.integerDomain);
-            polynomial = polynomial.Add(new UnivariatePolynomialNormalForm<int, IntegerDomain>(1, 2, "x", this.integerDomain));
+            this.polynomialsList = new List<PolType>();
+            var polynomial = new PolType(1, 0, "x", this.integerDomain);
+            polynomial = polynomial.Add(new PolType(1, 2, "x", this.integerDomain));
             this.polynomialsList.Add(polynomial);
         }
     }
