@@ -51,6 +51,7 @@ namespace Mathematics
                 var currentSecondCoeff = this.domain.AdditiveInverse(this.domain.MultiplicativeUnity);
                 var prevValue = first;
                 var currentValue = second;
+                var sign = -1;
                 var domainResult = this.domain.GetQuotientAndRemainder(prevValue, currentValue);
                 while (!this.domain.IsAdditiveUnity(domainResult.Remainder))
                 {
@@ -64,6 +65,7 @@ namespace Mathematics
                     prevSecondCoeff = secondTempVar;
                     prevValue = currentValue;
                     currentValue = domainResult.Remainder;
+                    sign = -sign;
                     domainResult = this.domain.GetQuotientAndRemainder(prevValue, currentValue);
                 }
 
@@ -75,6 +77,12 @@ namespace Mathematics
                 currentSecondCoeff = this.domain.Add(currentSecondCoeff, prevSecondCoeff);
                 prevFirstCoeff = firstTempValue;
                 prevSecondCoeff = secondTempValue;
+                if (sign < 0)
+                {
+                    prevSecondCoeff = this.domain.Multiply(prevSecondCoeff, this.domain.AdditiveInverse(
+                        this.domain.MultiplicativeUnity));
+                }
+
                 return new BacheBezoutResult<T>(
                     first,
                     second,

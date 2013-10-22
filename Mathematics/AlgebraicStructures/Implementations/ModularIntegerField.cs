@@ -105,7 +105,13 @@
                 var bezoutResult = this.inverseAlgorithm.Run(this.module, innerNumber);
                 if (bezoutResult.GreatestCommonDivisor == 1)
                 {
-                    return this.module + bezoutResult.SecondFactor;
+                    var result = bezoutResult.SecondFactor;
+                    if (result < 0)
+                    {
+                        result -= this.module;
+                    }
+
+                    return result;
                 }
                 else
                 {

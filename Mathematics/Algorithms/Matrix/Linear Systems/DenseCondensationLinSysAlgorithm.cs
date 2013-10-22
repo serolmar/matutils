@@ -51,24 +51,44 @@
             var matrixColumns = coefficientsMatrix.GetLength(1);
             var currentPivotLine = 0;
             var currentPivotColumn = 0;
+            var lastNonZeroColumn = -1;
             var independentSolutionVector = new ArrayMatrix<ElementType>(matrixColumns, 1, this.field.AdditiveUnity);
             while (currentPivotLine < matrixLines && currentPivotColumn < matrixColumns)
             {
                 var pivotValue = coefficientsMatrix[currentPivotLine, currentPivotColumn];
                 if (this.field.IsAdditiveUnity(pivotValue))
                 {
-                    var basisVector = new ArrayMatrix<ElementType>(matrixColumns, 1, this.field.AdditiveUnity);
-                    basisVector[currentPivotColumn, 0] = this.field.AdditiveInverse(
-                        this.field.MultiplicativeUnity);
-                    for (int i = currentPivotLine - 1; i >= 0; --i)
+                    if (this.field.IsAdditiveUnity(independentSolutionVector[currentPivotLine, 0]))
                     {
-                        basisVector[i, 0] = coefficientsMatrix[i, currentPivotColumn];
-                    }
+                        var basisVector = new ArrayMatrix<ElementType>(matrixColumns, 1, this.field.AdditiveUnity);
+                        basisVector[currentPivotColumn, 0] = this.field.AdditiveInverse(
+                            this.field.MultiplicativeUnity);
+                        var i = currentPivotLine - 1;
+                        var j = lastNonZeroColumn;
+                        while (i >= 0 && j >= 0)
+                        {
+                            var linePivotValue = coefficientsMatrix[i, j];
+                            if (this.field.IsMultiplicativeUnity(linePivotValue))
+                            {
+                                basisVector[j, 0] = coefficientsMatrix[i, currentPivotColumn];
+                                --i;
+                            }
 
-                    result.VectorSpaceBasis.Add(basisVector);
+                            --j;
+                        }
+
+                        result.VectorSpaceBasis.Add(basisVector);
+                    }
+                    else
+                    {
+                        result.Vector = null;
+                        result.VectorSpaceBasis.Clear();
+                        return result;
+                    }
                 }
                 else
                 {
+                    lastNonZeroColumn = currentPivotColumn;
                     independentSolutionVector[currentPivotColumn, 0] = independentVector[currentPivotLine, 0];
                     ++currentPivotLine;
                 }

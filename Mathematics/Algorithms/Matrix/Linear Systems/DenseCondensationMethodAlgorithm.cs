@@ -152,6 +152,31 @@
 
                 i = Math.Min(initialMatrixLines - 1, initialMatrixColumns - 1);
                 currentPivotColumn = i;
+                var state = true;
+                while (state)
+                {
+                    var currenPivotValue = initialMatrix[i, currentPivotColumn];
+                    if (this.field.IsMultiplicativeUnity(currenPivotValue))
+                    {
+                        state = false;
+                    }
+                    else if (this.field.IsAdditiveUnity(currenPivotValue))
+                    {
+                        ++currentPivotColumn;
+                        if (currentPivotColumn >= initialMatrixColumns)
+                        {
+                            --i;
+                            if (i < 0)
+                            {
+                                state = false;
+                            }
+                            else
+                            {
+                                currentPivotColumn = i;
+                            }
+                        }
+                    }
+                }
 
                 while (i > 0 && currentPivotColumn > 0)
                 {
@@ -165,7 +190,7 @@
                             {
                                 result = true;
                                 initialMatrix[j, currentPivotColumn] = this.field.AdditiveUnity;
-                                for (int k = i + 1; k < matrixDimension; ++k)
+                                for (int k = currentPivotColumn + 1; k < matrixDimension; ++k)
                                 {
                                     var temp = this.field.Multiply(value, initialMatrix[i, k]);
                                     initialMatrix[j, k] = this.field.Add(

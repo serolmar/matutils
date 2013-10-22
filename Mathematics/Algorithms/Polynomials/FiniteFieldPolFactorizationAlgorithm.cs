@@ -123,6 +123,18 @@
                 }
             }
 
+            var factorsProduct = result[0].GetLeadingCoefficient();
+            for (int i = 1; i < result.Count; ++i)
+            {
+                var leadingMon = result[i].GetLeadingCoefficient();
+                factorsProduct = integerModule.Multiply(factorsProduct, leadingMon);
+            }
+
+            if (!integerModule.IsMultiplicativeUnity(factorsProduct))
+            {
+                result.Insert(0, new PolType(factorsProduct, 0, polynom.VariableName, integerModule));
+            }
+
             return result;
         }
 
@@ -162,16 +174,16 @@
 
                 var degree = polynom.Degree;
                 var arrayMatrix = new ArrayMatrix<int>(degree, degree, polynom.Ring.AdditiveUnity);
-                arrayMatrix[0, 0] = polynom.Ring.MultiplicativeUnity;
+                arrayMatrix[0, 0] = polynom.Ring.AdditiveUnity;
                 var pol = new PolType(
                     polynom.Ring.MultiplicativeUnity,
                     1,
-                    "x",
+                    polynom.VariableName,
                     polynom.Ring);
                 pol = MathFunctions.Power(pol, integerModule.Module, module);
                 foreach (var term in pol)
                 {
-                    arrayMatrix[1, term.Key] = term.Value;
+                    arrayMatrix[term.Key, 1] = term.Value;
                 }
 
                 var auxPol = pol;
@@ -180,13 +192,19 @@
                     auxPol = module.Multiply(auxPol, pol);
                     foreach (var term in auxPol)
                     {
-                        arrayMatrix[i, term.Key] = term.Value;
+                        arrayMatrix[term.Key, i] = term.Value;
                     }
                 }
 
-                arrayMatrix = arrayMatrix.Subtract(ArrayMatrix<int>.GetIdentity<ModularIntegerField>(
-                    degree,
-                    integerModule), integerModule);
+                for (int i = 1; i < degree; ++i)
+                {
+                    var value = arrayMatrix[i, i];
+                    value = integerModule.Add(
+                        value,
+                        integerModule.AdditiveInverse(integerModule.MultiplicativeUnity));
+                    arrayMatrix[i, i] = value;
+                }
+
                 var emtpyMatrix = new ZeroMatrix<int, ModularIntegerField>(degree, 1, integerModule);
                 var linearSystemSolution = this.linearSystemSolver.Run(arrayMatrix, emtpyMatrix);
 
@@ -207,7 +225,7 @@
                         {
                             if (!integerModule.IsAdditiveUnity(currentBaseSolution[j, 0]))
                             {
-                                hPol = this.GetPolynomial(currentBaseSolution, integerModule);
+                                hPol = this.GetPolynomial(currentBaseSolution, integerModule, polynom.VariableName);
                                 j = rowsLength;
                             }
 
@@ -247,10 +265,12 @@
         /// </summary>
         /// <param name="matrix">A matriz.</param>
         /// <param name="module">O corpo responsável pelas operações sobre os ceoficientes do polinómio.</param>
+        /// <param name="variableName">O nome da variável.</param>
         /// <returns>O polinómio.</returns>
         private PolType GetPolynomial(
             IMatrix<int> matrix,
-            ModularIntegerField module)
+            ModularIntegerField module,
+            string variableName)
         {
             var matrixDimension = matrix.GetLength(0);
             var temporaryDic = new Dictionary<int, int>();
@@ -261,7 +281,7 @@
 
             return new PolType(
                 temporaryDic,
-                "x",
+                variableName,
                 module);
         }
 
@@ -274,11 +294,11 @@
         private MainPolType ClonePol(PolType polynom, FractionField<int, IntegerDomain> fractionField)
         {
             var result = new MainPolType(
-                "x",
+                polynom.VariableName,
                 fractionField);
             foreach (var termKvp in polynom)
             {
-                result.Add(new Fraction<int, IntegerDomain>(
+                result = result.Add(new Fraction<int, IntegerDomain>(
                     termKvp.Value,
                     fractionField.EuclideanDomain.MultiplicativeUnity,
                     fractionField.EuclideanDomain),
@@ -299,11 +319,11 @@
             ModularIntegerField modularIntegerField)
         {
             var result = new PolType(
-                "x",
+                polynom.VariableName,
                 modularIntegerField);
             foreach (var termKvp in polynom)
             {
-                result.Add(
+                result = result.Add(
                     modularIntegerField.Multiply(termKvp.Value.Numerator,
                     modularIntegerField.MultiplicativeInverse(termKvp.Value.Denominator)),
                     termKvp.Key);
