@@ -55,7 +55,7 @@
     <Compile Include="AlgebraicStructures\Implementations\IntegerDomain.cs" />
     <Compile Include="AlgebraicStructures\Implementations\MatrixAdditionOperation.cs" />
     <Compile Include="AlgebraicStructures\Implementations\MatrixMultiplicationOperation.cs" />
-    <Compile Include="AlgebraicStructures\Implementations\ModularBigIntegerDomain.cs" />
+    <Compile Include="AlgebraicStructures\Implementations\ModularBigIntegerField.cs" />
     <Compile Include="AlgebraicStructures\Implementations\ModularIntegerField.cs" />
     <Compile Include="AlgebraicStructures\Implementations\ModularBachetBezoutField.cs" />
     <Compile Include="AlgebraicStructures\Implementations\UnivarPolynomEuclideanDomain.cs" />
@@ -66,6 +66,7 @@
     <Compile Include="AlgebraicStructures\LogicInterfaces\IField.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\IGroup.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\IMatrix.cs" />
+    <Compile Include="AlgebraicStructures\LogicInterfaces\IModularField.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\IMonoid.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\IMultiDimensionalRange.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\IMultipliable.cs" />

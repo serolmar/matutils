@@ -8,7 +8,7 @@
     /// <summary>
     /// Implementa as operações sobre inteiros no que concerne a aritmética modular.
     /// </summary>
-    public class ModularIntegerField : IField<int>
+    public class ModularIntegerField : IModularField<int>
     {
         /// <summary>
         /// O módulo.

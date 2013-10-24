@@ -6,7 +6,7 @@
     using System.Text;
     using System.Numerics;
 
-    public class ModularBigIntegerDomain : IField<BigInteger>
+    public class ModularBigIntegerDomain : IModularField<BigInteger>
     {
         /// <summary>
         /// O módulo.
