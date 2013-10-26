@@ -517,22 +517,63 @@
 
         public static void Test10()
         {
-            var input = "x^8 + x^7 + x^4 + x^3 + x + 1";
-            var integerModularField = new ModularIntegerField(3);
-            var integerParser = new IntegerParser<string>();
+            var firstInput = "x^3-2*x";
+            var secondInput = "x";
+            var thirdInput = "x^2-2";
 
-            var reader = new StringReader(input);
-            var stringSymbolReader = new StringSymbolReader(reader, false);
+            var integerModularField = new ModularIntegerField(5);
+            var integerParser = new IntegerParser<string>();
 
             var polynomialParser = new UnivariatePolynomialReader<int, CharSymbolReader<string>>(
                 "x",
                 integerParser,
                 integerModularField);
+            var conversion = new ElementToElementConversion<int>();
+
+            var reader = new StringReader(firstInput);
+            var stringSymbolReader = new StringSymbolReader(reader, false);
+            var firstPol = default(UnivariatePolynomialNormalForm<int>);
+            if (polynomialParser.TryParsePolynomial(
+                stringSymbolReader,
+                conversion,
+                out firstPol))
+            {
+                reader = new StringReader(secondInput);
+                stringSymbolReader = new StringSymbolReader(reader, false);
+                var secondPol = default(UnivariatePolynomialNormalForm<int>);
+                if (polynomialParser.TryParsePolynomial(
+                    stringSymbolReader,
+                    conversion,
+                    out secondPol))
+                {
+                    reader = new StringReader(thirdInput);
+                    stringSymbolReader = new StringSymbolReader(reader, false);
+                    var thirdPol = default(UnivariatePolynomialNormalForm<int>);
+                    if (polynomialParser.TryParsePolynomial(
+                        stringSymbolReader,
+                        conversion,
+                        out thirdPol))
+                    {
+                        var lifting = new LinearLiftAlgorithm();
+                        var result = lifting.Run(
+                            firstPol,
+                            Tuple.Create(secondPol, thirdPol),
+                            5,
+                            2);
+                    }
+                }
+            }
+
+
+            var input = "x^8 + x^7 + x^4 + x^3 + x + 1";
+            integerModularField.Module = 3;
+            reader = new StringReader(input);
+            stringSymbolReader = new StringSymbolReader(reader, false);
 
             var parsedPol = default(UnivariatePolynomialNormalForm<int>);
             if (polynomialParser.TryParsePolynomial(
                 stringSymbolReader,
-                new ElementToElementConversion<int>(), 
+                conversion, 
                 out parsedPol))
             {
                 var finiteFieldFactorization = new FiniteFieldPolFactorizationAlgorithm(
@@ -630,6 +671,9 @@
             }
         }
 
+        /// <summary>
+        /// Testes aos polinómios.
+        /// </summary>
         static void Test7()
         {
             var input = "x+y^2*(z-1)^3-x";

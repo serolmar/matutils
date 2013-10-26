@@ -18,6 +18,26 @@
             this.field = field;
         }
 
+        public IField<CoeffType> Field
+        {
+            get
+            {
+                return this.field;
+            }
+            set
+            {
+                if (value == null)
+                {
+                    throw new MathematicsException("A polynomial coefficients field must be provided.");
+                }
+                else
+                {
+                    this.field = value;
+                    this.ring = value;
+                }
+            }
+        }
+
         public UnivariatePolynomialNormalForm<CoeffType> Quo(
             UnivariatePolynomialNormalForm<CoeffType> dividend,
             UnivariatePolynomialNormalForm<CoeffType> divisor)

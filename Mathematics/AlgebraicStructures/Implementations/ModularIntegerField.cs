@@ -108,7 +108,7 @@
                     var result = bezoutResult.SecondFactor;
                     if (result < 0)
                     {
-                        result -= this.module;
+                        result += this.module;
                     }
 
                     return result;

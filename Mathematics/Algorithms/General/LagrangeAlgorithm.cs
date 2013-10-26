@@ -50,10 +50,10 @@ namespace Mathematics
                 var currentSecondCoeff = this.domain.AdditiveInverse(this.domain.MultiplicativeUnity);
                 var prevValue = first;
                 var currentValue = second;
-                var sign = -1;
-                var domainResult = this.domain.GetQuotientAndRemainder(prevValue, currentValue);
-                while (!this.domain.IsAdditiveUnity(domainResult.Remainder))
+                var sign = 1;
+                while (!this.domain.IsAdditiveUnity(currentValue))
                 {
+                    var domainResult = this.domain.GetQuotientAndRemainder(prevValue, currentValue);
                     var firstTempVar = currentFirstCoeff;
                     var secondTempVar = currentSecondCoeff;
                     currentFirstCoeff = this.domain.Multiply(currentFirstCoeff, domainResult.Quotient);
@@ -65,30 +65,22 @@ namespace Mathematics
                     prevValue = currentValue;
                     currentValue = domainResult.Remainder;
                     sign = -sign;
-                    domainResult = this.domain.GetQuotientAndRemainder(prevValue, currentValue);
                 }
 
-                var firstTempValue = currentFirstCoeff;
-                var secondTempValue = currentSecondCoeff;
-                currentFirstCoeff = this.domain.Multiply(currentFirstCoeff, domainResult.Quotient);
-                currentFirstCoeff = this.domain.Add(currentFirstCoeff, prevFirstCoeff);
-                currentSecondCoeff = this.domain.Multiply(currentSecondCoeff, domainResult.Quotient);
-                currentSecondCoeff = this.domain.Add(currentSecondCoeff, prevSecondCoeff);
-                prevFirstCoeff = firstTempValue;
-                prevSecondCoeff = secondTempValue;
                 if (sign < 0)
                 {
-                    prevSecondCoeff = this.domain.Multiply(prevSecondCoeff, this.domain.AdditiveInverse(
-                        this.domain.MultiplicativeUnity));
+                    prevFirstCoeff = this.domain.AdditiveInverse(prevFirstCoeff);
+                    prevSecondCoeff = this.domain.AdditiveInverse(prevSecondCoeff);
                 }
 
+                currentSecondCoeff = this.domain.AdditiveInverse(currentSecondCoeff);
                 return new BacheBezoutResult<T>(
                     first,
                     second,
                     prevFirstCoeff,
                     prevSecondCoeff,
-                    currentValue,
-                    this.domain.AdditiveInverse(currentSecondCoeff),
+                    prevValue,
+                    currentSecondCoeff,
                     currentFirstCoeff);
             }
         }

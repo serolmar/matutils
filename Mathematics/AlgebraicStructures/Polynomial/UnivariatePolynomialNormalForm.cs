@@ -41,9 +41,9 @@ namespace Mathematics
         }
 
         public UnivariatePolynomialNormalForm(
-            CoeffType coeff, 
-            int degree, 
-            string variable, 
+            CoeffType coeff,
+            int degree,
+            string variable,
             IMonoid<CoeffType> monoid) :
             this(variable)
         {
@@ -67,8 +67,8 @@ namespace Mathematics
 
 
         public UnivariatePolynomialNormalForm(
-            IDictionary<int, CoeffType> terms, 
-            string variable, 
+            IDictionary<int, CoeffType> terms,
+            string variable,
             IRing<CoeffType> ring)
             : this(variable)
         {
@@ -447,8 +447,8 @@ namespace Mathematics
         /// <param name="monoid">O monóide responsável pelas operações.</param>
         /// <returns>A soma.</returns>
         public UnivariatePolynomialNormalForm<CoeffType> Add(
-            CoeffType coeff, 
-            int degree, 
+            CoeffType coeff,
+            int degree,
             IMonoid<CoeffType> monoid)
         {
             if (coeff == null)
@@ -780,7 +780,7 @@ namespace Mathematics
                 if (termsEnumerator.MoveNext())
                 {
                     var result = algebra.MultiplyScalar(
-                        termsEnumerator.Current.Value, 
+                        termsEnumerator.Current.Value,
                         algebra.MultiplicativeUnity);
                     var previousDegree = termsEnumerator.Current.Key;
                     while (termsEnumerator.MoveNext())
@@ -789,7 +789,7 @@ namespace Mathematics
                         var power = MathFunctions.Power(value, previousDegree - currentDegree, algebra);
                         result = algebra.Multiply(result, power);
                         result = algebra.Add(
-                            result, 
+                            result,
                             algebra.MultiplyScalar(termsEnumerator.Current.Value, algebra.MultiplicativeUnity));
                         previousDegree = currentDegree;
                     }
@@ -855,8 +855,8 @@ namespace Mathematics
                 {
                     var result = new UnivariatePolynomialNormalForm<CoeffType>(
                         termsEnumerator.Current.Value,
-                        0, 
-                        this.variableName, 
+                        0,
+                        this.variableName,
                         ring);
                     var previousDegree = termsEnumerator.Current.Key;
                     while (termsEnumerator.MoveNext())
@@ -997,6 +997,92 @@ namespace Mathematics
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Determina o polinómio que resulta da aplicação da função quociente a todos
+        /// os coeficientes do polinómio.
+        /// </summary>
+        /// <param name="coeff">O coeficiente que serve de quociente.</param>
+        /// <param name="domain">O domínio responsável pelas operações.</param>
+        /// <returns>O polinómio cujos coeficientes são o resultado do quociente respectivo.</returns>
+        public UnivariatePolynomialNormalForm<CoeffType> ApplyQuo(CoeffType coeff, IEuclidenDomain<CoeffType> domain)
+        {
+            if (coeff == null)
+            {
+                throw new ArgumentNullException("coeff");
+            }
+            else if (domain == null)
+            {
+                throw new ArgumentNullException("domain");
+            }
+            else
+            {
+                var result = new UnivariatePolynomialNormalForm<CoeffType>(this.variableName);
+                foreach (var kvp in this.terms)
+                {
+                    result.terms.Add(kvp.Key, domain.Quo(kvp.Value, coeff));
+                }
+
+                return result;
+            }
+        }
+
+        /// <summary>
+        /// Determina o polinómio que resulta da aplicação da função resto a todos
+        /// os coeficientes do polinómio.
+        /// </summary>
+        /// <param name="coeff">O coeficiente que serve de quociente.</param>
+        /// <param name="domain">O domínio responsável pelas operações.</param>
+        /// <returns>O polinómio cujos coeficientes são o resultado do resto respectivo.</returns>
+        public UnivariatePolynomialNormalForm<CoeffType> ApplyRem(CoeffType coeff, IEuclidenDomain<CoeffType> domain)
+        {
+            if (coeff == null)
+            {
+                throw new ArgumentNullException("coeff");
+            }
+            else if (domain == null)
+            {
+                throw new ArgumentNullException("domain");
+            }
+            else
+            {
+                var result = new UnivariatePolynomialNormalForm<CoeffType>(this.variableName);
+                foreach (var kvp in this.terms)
+                {
+                    result.terms.Add(kvp.Key, domain.Rem(kvp.Value, coeff));
+                }
+
+                return result;
+            }
+        }
+
+        /// <summary>
+        ///Determina o conteúdo do polinómio, isto é, o máximo divisor comum entre todos os seus coeficientes.
+        /// </summary>
+        /// <param name="domain">O domínio responsável pelas operações.</param>
+        /// <returns>O conteúdo do polinómio.</returns>
+        public CoeffType GetContent(IEuclidenDomain<CoeffType> domain)
+        {
+            if (domain == null)
+            {
+                throw new ArgumentNullException("domain");
+            }
+            else
+            {
+                var result = domain.MultiplicativeUnity;
+                var enumerator = this.terms.GetEnumerator();
+                if (enumerator.MoveNext())
+                {
+                    result = enumerator.Current.Value;
+                    while (enumerator.MoveNext())
+                    {
+                        result = MathFunctions.GreatCommonDivisor(result, enumerator.Current.Value, domain);
+                    }
+                }
+
+                return result;
+            }
         }
 
         /// <summary>

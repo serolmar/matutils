@@ -33,7 +33,8 @@
             this.coeffsMap = new Dictionary<List<int>, T>(this.degreeComparer);
         }
 
-        public Polynomial(T coeff,IRing<T> coefficientRing)
+        public Polynomial(T coeff, IRing<T> coefficientRing)
+            : this()
         {
             var list = new List<int>();
             if (!coefficientRing.IsAdditiveUnity(coeff))
@@ -43,6 +44,7 @@
         }
 
         public Polynomial(T coeff, int degree, string var, IRing<T> coefficientRing)
+            : this()
         {
             if (degree < 0)
             {
@@ -71,6 +73,7 @@
             IEnumerable<int> degree,
             IEnumerable<string> vars,
             IRing<T> coefficientRing)
+            : this()
         {
             if (coeff == null)
             {
@@ -1246,13 +1249,13 @@
                 return false;
             }
 
-            // A polynomial can be a coefficient
+            // Um polinómio pode ser um coeficiente
             if (obj is T)
             {
                 return false;
             }
 
-            // A polynomial can be a variable
+            // Um polinómio pode ser uma variável
             if (obj is string)
             {
                 return false;
@@ -1260,6 +1263,11 @@
 
             var innerObj = obj as Polynomial<T>;
             if (innerObj == null)
+            {
+                return false;
+            }
+
+            if (this.coeffsMap.Count != innerObj.coeffsMap.Count)
             {
                 return false;
             }
@@ -1274,11 +1282,14 @@
 
                 if (innerObj.coeffsMap.ContainsKey(rightDegree))
                 {
-                    return item.Value.Equals(innerObj.coeffsMap[rightDegree]);
+                    if (!item.Value.Equals(innerObj.coeffsMap[rightDegree]))
+                    {
+                        return false;
+                    }
                 }
             }
 
-            return false;
+            return true;
         }
 
         public override int GetHashCode()
