@@ -77,7 +77,7 @@
                         var modularField = new ModularIntegerField(innerData);
                         var terms = new Dictionary<int, int>();
 
-                        var modularPolynomialRing = new AuxAksModArithmRing<int, ModularIntegerField>(
+                        var modularPolynomialRing = new AuxAksModArithmRing<int>(
                             r, 
                             "x",
                             modularField);
@@ -86,7 +86,7 @@
                             terms.Clear();
                             terms.Add(0, i);
                             terms.Add(1, 1);
-                            var polynomial = new UnivariatePolynomialNormalForm<int, ModularIntegerField>(
+                            var polynomial = new UnivariatePolynomialNormalForm<int>(
                             terms,
                             "x",
                             modularField);
@@ -94,7 +94,7 @@
                             terms.Clear();
                             terms.Add(0, i);
                             terms.Add(innerData, 1);
-                            var comparisionPol = new UnivariatePolynomialNormalForm<int, ModularIntegerField>(
+                            var comparisionPol = new UnivariatePolynomialNormalForm<int>(
                             terms,
                             "x",
                             modularField);

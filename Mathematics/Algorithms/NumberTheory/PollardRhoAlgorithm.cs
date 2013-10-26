@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
-    using PolType = UnivariatePolynomialNormalForm<int, IntegerDomain>;
+    using PolType = UnivariatePolynomialNormalForm<int>;
 
     /// <summary>
     /// Implementa o algoritmo rho de Pollard para factorizar um número.
@@ -226,7 +226,7 @@
         {
             this.polynomialsList = new List<PolType>();
             var polynomial = new PolType(1, 0, "x", this.integerDomain);
-            polynomial = polynomial.Add(new PolType(1, 2, "x", this.integerDomain));
+            polynomial = polynomial.Add(new PolType(1, 2, "x", this.integerDomain),this.integerDomain);
             this.polynomialsList.Add(polynomial);
         }
     }

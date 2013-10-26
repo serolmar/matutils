@@ -6,8 +6,7 @@ using Utilities.Collections;
 
 namespace Mathematics
 {
-    public class ExpansionDeterminantCalculator<ElementsType, RingType> : ADeterminant<ElementsType, RingType>
-        where RingType : IRing<ElementsType>
+    public class ExpansionDeterminantCalculator<ElementsType> : ADeterminant<ElementsType>
     {
         private int expansionNumber = 1;
 
@@ -15,7 +14,7 @@ namespace Mathematics
         /// Instancia uma classe que permite calcular o determinante aplicando a expansão por uma linha ou coluna.
         /// </summary>
         /// <param name="ring">O tipo do anel responsável pelas operações.</param>
-        public ExpansionDeterminantCalculator(RingType ring)
+        public ExpansionDeterminantCalculator(IRing<ElementsType> ring)
             : base(ring)
         {
         }
@@ -29,7 +28,7 @@ namespace Mathematics
         /// </remarks>
         /// <param name="expansionNumber">O número de linhas ou colunas a aplicar.</param>
         /// <param name="ring">O anel reponsável pelas operações.</param>
-        public ExpansionDeterminantCalculator(int expansionNumber, RingType ring)
+        public ExpansionDeterminantCalculator(int expansionNumber, IRing<ElementsType> ring)
             : base(ring)
         {
             if (expansionNumber <= 0)

@@ -12,15 +12,14 @@ namespace Mathematics
     /// <remarks>
     /// Este método é extremamente ineficaz e serve apenas para efeitos académicos.
     /// </remarks>
-    public class PermutationDeterminantCalculator<ElementsType, RingType> : ADeterminant<ElementsType, RingType>
-        where RingType : IRing<ElementsType>
+    public class PermutationDeterminantCalculator<ElementsType> : ADeterminant<ElementsType>
     {
         /// <summary>
         /// Mantém um valor que indica se é para manter as linhas fixas e permuta as colunas ou vice-versa.
         /// </summary>
         private bool fixLines;
 
-        public PermutationDeterminantCalculator(RingType ring, bool fixLines = true)
+        public PermutationDeterminantCalculator(IRing<ElementsType> ring, bool fixLines = true)
             : base(ring)
         {
             this.fixLines = fixLines;

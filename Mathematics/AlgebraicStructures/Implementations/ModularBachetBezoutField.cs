@@ -9,11 +9,11 @@ namespace Mathematics
     {
         private ObjectType module;
 
-        private IBachetBezoutAlgorithm<ObjectType, IEuclidenDomain<ObjectType>> bachetBezoutAlgorithm;
+        private IBachetBezoutAlgorithm<ObjectType> bachetBezoutAlgorithm;
 
         public ModularBachetBezoutField(
             ObjectType module,
-            IBachetBezoutAlgorithm<ObjectType, IEuclidenDomain<ObjectType>> bachetBezoutAlgorithm)
+            IBachetBezoutAlgorithm<ObjectType> bachetBezoutAlgorithm)
         {
             if (bachetBezoutAlgorithm == null)
             {

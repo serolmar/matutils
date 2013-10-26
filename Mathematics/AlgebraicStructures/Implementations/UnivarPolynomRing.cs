@@ -5,15 +5,14 @@ using System.Text;
 
 namespace Mathematics
 {
-    public class UnivarPolynomRing<CoeffType, RingType> :
-        IRing<UnivariatePolynomialNormalForm<CoeffType, RingType>>
-        where RingType : IRing<CoeffType>
+    public class UnivarPolynomRing<CoeffType> :
+        IRing<UnivariatePolynomialNormalForm<CoeffType>>
     {
-        protected RingType ring;
+        protected IRing<CoeffType> ring;
 
         protected string variableName;
 
-        public UnivarPolynomRing(string variableName, RingType ring)
+        public UnivarPolynomRing(string variableName, IRing<CoeffType> ring)
         {
             if (ring == null)
             {
@@ -30,19 +29,19 @@ namespace Mathematics
             }
         }
 
-        public virtual UnivariatePolynomialNormalForm<CoeffType, RingType> AdditiveUnity
+        public virtual UnivariatePolynomialNormalForm<CoeffType> AdditiveUnity
         {
             get
             {
-                return new UnivariatePolynomialNormalForm<CoeffType, RingType>(this.variableName, this.ring);
+                return new UnivariatePolynomialNormalForm<CoeffType>(this.variableName);
             }
         }
 
-        public virtual UnivariatePolynomialNormalForm<CoeffType, RingType> MultiplicativeUnity
+        public virtual UnivariatePolynomialNormalForm<CoeffType> MultiplicativeUnity
         {
             get
             {
-                return new UnivariatePolynomialNormalForm<CoeffType, RingType>(
+                return new UnivariatePolynomialNormalForm<CoeffType>(
                     this.ring.MultiplicativeUnity, 
                     0, 
                     this.variableName, 
@@ -50,8 +49,8 @@ namespace Mathematics
             }
         }
 
-        public virtual UnivariatePolynomialNormalForm<CoeffType, RingType> AdditiveInverse(
-            UnivariatePolynomialNormalForm<CoeffType, RingType> number)
+        public virtual UnivariatePolynomialNormalForm<CoeffType> AdditiveInverse(
+            UnivariatePolynomialNormalForm<CoeffType> number)
         {
             if (number == null)
             {
@@ -59,11 +58,11 @@ namespace Mathematics
             }
             else
             {
-                return number.GetSymmetric();
+                return number.GetSymmetric(this.ring);
             }
         }
 
-        public virtual bool IsAdditiveUnity(UnivariatePolynomialNormalForm<CoeffType, RingType> value)
+        public virtual bool IsAdditiveUnity(UnivariatePolynomialNormalForm<CoeffType> value)
         {
             if (value == null)
             {
@@ -75,9 +74,9 @@ namespace Mathematics
             }
         }
 
-        public virtual UnivariatePolynomialNormalForm<CoeffType, RingType> Add(
-            UnivariatePolynomialNormalForm<CoeffType, RingType> left, 
-            UnivariatePolynomialNormalForm<CoeffType, RingType> right)
+        public virtual UnivariatePolynomialNormalForm<CoeffType> Add(
+            UnivariatePolynomialNormalForm<CoeffType> left, 
+            UnivariatePolynomialNormalForm<CoeffType> right)
         {
             if (left == null)
             {
@@ -89,13 +88,13 @@ namespace Mathematics
             }
             else
             {
-                return left.Add(right);
+                return left.Add(right, this.ring);
             }
         }
 
         public virtual bool Equals(
-            UnivariatePolynomialNormalForm<CoeffType, RingType> x, 
-            UnivariatePolynomialNormalForm<CoeffType, RingType> y)
+            UnivariatePolynomialNormalForm<CoeffType> x, 
+            UnivariatePolynomialNormalForm<CoeffType> y)
         {
             if (x == null && y == null)
             {
@@ -115,7 +114,7 @@ namespace Mathematics
             }
         }
 
-        public virtual int GetHashCode(UnivariatePolynomialNormalForm<CoeffType, RingType> obj)
+        public virtual int GetHashCode(UnivariatePolynomialNormalForm<CoeffType> obj)
         {
             if (obj == null)
             {
@@ -127,9 +126,9 @@ namespace Mathematics
             }
         }
 
-        public virtual UnivariatePolynomialNormalForm<CoeffType, RingType> Multiply(
-            UnivariatePolynomialNormalForm<CoeffType, RingType> left, 
-            UnivariatePolynomialNormalForm<CoeffType, RingType> right)
+        public virtual UnivariatePolynomialNormalForm<CoeffType> Multiply(
+            UnivariatePolynomialNormalForm<CoeffType> left, 
+            UnivariatePolynomialNormalForm<CoeffType> right)
         {
             if (left == null)
             {
@@ -141,11 +140,11 @@ namespace Mathematics
             }
             else
             {
-                return left.Multiply(right);
+                return left.Multiply(right, this.ring);
             }
         }
 
-        public virtual bool IsMultiplicativeUnity(UnivariatePolynomialNormalForm<CoeffType, RingType> value)
+        public virtual bool IsMultiplicativeUnity(UnivariatePolynomialNormalForm<CoeffType> value)
         {
             if (value == null)
             {
@@ -153,12 +152,12 @@ namespace Mathematics
             }
             else
             {
-                return value.IsUnity;
+                return value.IsUnity(this.ring);
             }
         }
 
-        public virtual UnivariatePolynomialNormalForm<CoeffType, RingType> AddRepeated(
-            UnivariatePolynomialNormalForm<CoeffType, RingType> element, 
+        public virtual UnivariatePolynomialNormalForm<CoeffType> AddRepeated(
+            UnivariatePolynomialNormalForm<CoeffType> element, 
             int times)
         {
             if (element == null)
@@ -167,12 +166,12 @@ namespace Mathematics
             }
             else
             {
-                var result = new UnivariatePolynomialNormalForm<CoeffType, RingType>(this.variableName, this.ring);
+                var result = new UnivariatePolynomialNormalForm<CoeffType>(this.variableName);
                 foreach (var termsKvp in element)
                 {
                     result = result.Add(
                         this.ring.AddRepeated(termsKvp.Value, times),
-                        termsKvp.Key);
+                        termsKvp.Key, this.ring);
                 }
 
                 return result;

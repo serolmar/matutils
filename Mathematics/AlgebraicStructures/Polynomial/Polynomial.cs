@@ -15,9 +15,7 @@
     /// num algoritmo que possa recorrer ao polinómio.
     /// </remarks>
     /// <typeparam name="T">O tipo dos coeficientes no polinómio.</typeparam>
-    /// <typeparam name="R">O tipo do avaliador.</typeparam>
-    public class Polynomial<T, R>
-        where R : IRing<T>
+    public class Polynomial<T>
     {
         private const int primeMultiplier = 53;
 
@@ -25,36 +23,26 @@
 
         private List<int> emptyDegree = new List<int>();
 
-        private R polynomialCoeffRing;
-
         private Dictionary<List<int>, T> coeffsMap;
 
-        private List<PolynomialGeneralVariable<T, R>> variables = new List<PolynomialGeneralVariable<T, R>>();
+        private List<PolynomialGeneralVariable<T>> variables = new List<PolynomialGeneralVariable<T>>();
 
         #region Constructors
-        public Polynomial(R coefficientRing)
+        public Polynomial()
         {
-            if (coefficientRing == null)
-            {
-                throw new MathematicsException("Parameter coefficientRing can't be null.");
-            }
-
-            this.polynomialCoeffRing = coefficientRing;
             this.coeffsMap = new Dictionary<List<int>, T>(this.degreeComparer);
         }
 
-        public Polynomial(T coeff, R coefficientRing)
-            : this(coefficientRing)
+        public Polynomial(T coeff,IRing<T> coefficientRing)
         {
             var list = new List<int>();
-            if (!this.polynomialCoeffRing.IsAdditiveUnity(coeff))
+            if (!coefficientRing.IsAdditiveUnity(coeff))
             {
                 this.coeffsMap.Add(list, coeff);
             }
         }
 
-        public Polynomial(T coeff, int degree, string var, R coefficientRing)
-            : this(coefficientRing)
+        public Polynomial(T coeff, int degree, string var, IRing<T> coefficientRing)
         {
             if (degree < 0)
             {
@@ -67,12 +55,12 @@
             }
 
             var list = new List<int>();
-            if (!this.polynomialCoeffRing.IsAdditiveUnity(coeff))
+            if (!coefficientRing.IsAdditiveUnity(coeff))
             {
                 if (degree != 0)
                 {
                     list.Add(degree);
-                    this.variables.Add(new PolynomialGeneralVariable<T, R>(var));
+                    this.variables.Add(new PolynomialGeneralVariable<T>(var));
                 }
 
                 this.coeffsMap.Add(list, coeff);
@@ -82,8 +70,7 @@
         public Polynomial(T coeff,
             IEnumerable<int> degree,
             IEnumerable<string> vars,
-            R coefficientRing)
-            : this(coefficientRing)
+            IRing<T> coefficientRing)
         {
             if (coeff == null)
             {
@@ -91,7 +78,7 @@
             }
 
             var list = new List<int>();
-            if (!this.polynomialCoeffRing.IsAdditiveUnity(coeff))
+            if (!coefficientRing.IsAdditiveUnity(coeff))
             {
                 if (degree != null)
                 {
@@ -112,7 +99,7 @@
                             if (degreeEnumerator.Current != 0)
                             {
                                 list.Add(degreeEnumerator.Current);
-                                this.variables.Add(new PolynomialGeneralVariable<T, R>(varsEnumerator.Current));
+                                this.variables.Add(new PolynomialGeneralVariable<T>(varsEnumerator.Current));
                             }
                         }
 
@@ -124,7 +111,8 @@
                     {
                         if (degreeEnumerator.Current != 0)
                         {
-                            throw new MathematicsException("Number of non-zero degrees must be lesser than the number of non empty variables.");
+                            throw new MathematicsException(
+                                "Number of non-zero degrees must be lesser than the number of non empty variables.");
                         }
 
                         degreeState = degreeEnumerator.MoveNext();
@@ -135,7 +123,7 @@
             }
         }
 
-        public Polynomial(T coeff, string var, R coefficientRing)
+        public Polynomial(T coeff, string var, IRing<T> coefficientRing)
             : this(coeff, 1, var, coefficientRing)
         {
         }
@@ -163,38 +151,6 @@
             }
         }
 
-        public bool IsVariable
-        {
-            get
-            {
-                if (this.coeffsMap.Count == 1)
-                {
-                    var sum = 0;
-                    var keyDegree = this.coeffsMap.First().Key;
-                    var keyValue = this.coeffsMap.First().Value;
-                    for (int i = 0; i < keyDegree.Count; ++i)
-                    {
-                        if (keyDegree[i] != 0)
-                        {
-                            if (variables[i].IsPolynomial)
-                            {
-                                return false;
-                            }
-
-                            sum += keyDegree[i];
-                        }
-                    }
-
-                    if (sum == 1 && this.polynomialCoeffRing.IsMultiplicativeUnity(keyValue))
-                    {
-                        return true;
-                    }
-                }
-
-                return false;
-            }
-        }
-
         public bool IsMonomial
         {
             get
@@ -203,9 +159,9 @@
             }
         }
 
-        public Polynomial<T, R> Clone()
+        public Polynomial<T> Clone()
         {
-            var res = new Polynomial<T, R>(this.polynomialCoeffRing);
+            var res = new Polynomial<T>();
             var degreeList = new List<int>();
             foreach (var kvp in this.coeffsMap)
             {
@@ -222,16 +178,19 @@
             return res;
         }
 
-        public T GetAsValue()
+        public T GetAsValue(IRing<T> coefficientRing)
         {
-            if (!this.IsValue)
+            if (coefficientRing == null)
+            {
+                throw new ArgumentNullException("coefficientRing");
+            }
+            else if (!this.IsValue)
             {
                 throw new MathematicsException("Can't convert polynomial to a value.");
             }
-
-            if (this.coeffsMap.Count == 0)
+            else if (this.coeffsMap.Count == 0)
             {
-                return this.polynomialCoeffRing.AdditiveUnity;
+                return coefficientRing.AdditiveUnity;
             }
             else
             {
@@ -239,9 +198,9 @@
             }
         }
 
-        public string GetAsVariable()
+        public string GetAsVariable(IRing<T> coefficientRing)
         {
-            if (this.IsVariable)
+            if (this.IsVariable(coefficientRing))
             {
                 var degree = this.coeffsMap.First().Key;
                 for (int i = 0; i < degree.Count; ++i)
@@ -254,6 +213,39 @@
             }
 
             throw new MathematicsException("Can't convert polynomial to a name.");
+        }
+
+        public bool IsVariable(IRing<T> coefficientRing)
+        {
+            if (coefficientRing == null)
+            {
+                throw new ArgumentNullException("coefficientRing");
+            }
+            else if (this.coeffsMap.Count == 1)
+            {
+                var sum = 0;
+                var keyDegree = this.coeffsMap.First().Key;
+                var keyValue = this.coeffsMap.First().Value;
+                for (int i = 0; i < keyDegree.Count; ++i)
+                {
+                    if (keyDegree[i] != 0)
+                    {
+                        if (variables[i].IsPolynomial)
+                        {
+                            return false;
+                        }
+
+                        sum += keyDegree[i];
+                    }
+                }
+
+                if (sum == 1 && coefficientRing.IsMultiplicativeUnity(keyValue))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         /// <summary>
@@ -270,7 +262,7 @@
         /// </summary>
         /// <param name="degreeComparable">O comparador de graus.</param>
         /// <returns>O maior monómio correspondente.</returns>
-        public Polynomial<T, R> GetLeadingMonomial(IComparable<List<int>> degreeComparable)
+        public Polynomial<T> GetLeadingMonomial(IComparable<List<int>> degreeComparable)
         {
             throw new NotImplementedException();
         }
@@ -280,7 +272,7 @@
         /// </summary>
         /// <param name="degreeComparable">O comparador de graus.</param>
         /// <returns>O monómio correspondente.</returns>
-        public Polynomial<T, R> GetTailMonomial(IComparable<List<int>> degreeComparable)
+        public Polynomial<T> GetTailMonomial(IComparable<List<int>> degreeComparable)
         {
             throw new NotImplementedException();
         }
@@ -290,12 +282,13 @@
         /// Obtém a soma do polinómio corrente com outro polinómio.
         /// </summary>
         /// <param name="right">O outro polinómio.</param>
+        /// <param name="monoid">O monóide responsável pelas operações.</param>
         /// <returns>O resultado da soma.</returns>
-        public Polynomial<T, R> Add(Polynomial<T, R> right)
+        public Polynomial<T> Add(Polynomial<T> right, IMonoid<T> monoid)
         {
-            var result = new Polynomial<T, R>(this.polynomialCoeffRing);
-            var variableDic = new Dictionary<PolynomialGeneralVariable<T, R>, Tuple<int, int, int>>();
-            var appendResultVars = new List<PolynomialGeneralVariable<T, R>>();
+            var result = new Polynomial<T>();
+            var variableDic = new Dictionary<PolynomialGeneralVariable<T>, Tuple<int, int, int>>();
+            var appendResultVars = new List<PolynomialGeneralVariable<T>>();
             foreach (var term in this.coeffsMap)
             {
                 appendResultVars.Clear();
@@ -303,7 +296,7 @@
                 var resultDegree = new List<int>();
                 var leftDegree = new List<int>();
                 var rightDegree = new List<int>();
-                var innerVariableDic = new Dictionary<PolynomialGeneralVariable<T, R>, Tuple<int, int, int>>();
+                var innerVariableDic = new Dictionary<PolynomialGeneralVariable<T>, Tuple<int, int, int>>();
                 for (int i = 0; i < term.Key.Count; ++i)
                 {
                     var currentDegree = term.Key[i];
@@ -332,8 +325,8 @@
                     var rightCoeff = default(T);
                     if (right.coeffsMap.TryGetValue(rightDegree, out rightCoeff))
                     {
-                        var resultCoeff = this.polynomialCoeffRing.Add(term.Value, rightCoeff);
-                        if (!this.polynomialCoeffRing.IsAdditiveUnity(resultCoeff))
+                        var resultCoeff = monoid.Add(term.Value, rightCoeff);
+                        if (!monoid.IsAdditiveUnity(resultCoeff))
                         {
                             result.coeffsMap.Add(leftDegree, resultCoeff);
                         }
@@ -346,8 +339,8 @@
                         var rightCoeff = default(T);
                         if (right.coeffsMap.TryGetValue(rightDegree, out rightCoeff))
                         {
-                            var resultCoeff = this.polynomialCoeffRing.Add(term.Value, rightCoeff);
-                            if (!this.polynomialCoeffRing.IsAdditiveUnity(resultCoeff))
+                            var resultCoeff = monoid.Add(term.Value, rightCoeff);
+                            if (!monoid.IsAdditiveUnity(resultCoeff))
                             {
                                 result.coeffsMap.Add(resultDegree, resultCoeff);
                                 foreach (var variable in appendResultVars)
@@ -356,7 +349,7 @@
                                 }
                             }
                         }
-                        else if(!this.polynomialCoeffRing.IsAdditiveUnity(term.Value))
+                        else if (!monoid.IsAdditiveUnity(term.Value))
                         {
                             result.coeffsMap.Add(resultDegree, term.Value);
                             foreach (var variable in appendResultVars)
@@ -389,7 +382,7 @@
                 var resultDegree = new List<int>();
                 var leftDegree = new List<int>();
                 var rightDegree = new List<int>();
-                var innerVariableDic = new Dictionary<PolynomialGeneralVariable<T, R>, Tuple<int, int, int>>();
+                var innerVariableDic = new Dictionary<PolynomialGeneralVariable<T>, Tuple<int, int, int>>();
                 for (int i = 0; i < rightTerm.Key.Count; ++i)
                 {
                     var currentDegree = rightTerm.Key[i];
@@ -435,46 +428,32 @@
         }
 
         /// <summary>
-        /// Atribui o valor do grau a uma determinada posição.
-        /// </summary>
-        /// <param name="degrees">A lista dos graus.</param>
-        /// <param name="position">A posição a ser atribuída.</param>
-        /// <param name="value">O valor a ser atribuído.</param>
-        private void SetDegree(List<int> degrees, int position, int value)
-        {
-            if (position >= 0)
-            {
-                while (degrees.Count <= position)
-                {
-                    degrees.Add(0);
-                }
-
-                degrees[position] = value;
-            }
-        }
-
-        /// <summary>
         /// Adiciona um coeficiente ao polinómio.
         /// </summary>
         /// <param name="coeff">O coefieciente a ser adicionado.</param>
+        /// <param name="monoid">O monóide responsável pelas operações.</param>
         /// <returns>O resultado da adição.</returns>
-        public Polynomial<T, R> Add(T coeff)
+        public Polynomial<T> Add(T coeff, IMonoid<T> monoid)
         {
-            if (coeff == null)
+            if (monoid == null)
+            {
+                throw new ArgumentNullException("monoid");
+            }
+            else if (coeff == null)
             {
                 throw new ArgumentNullException("coeff");
             }
             else
             {
                 var result = this.Clone();
-                if (!this.polynomialCoeffRing.IsAdditiveUnity(coeff))
+                if (!monoid.IsAdditiveUnity(coeff))
                 {
                     var degree = new List<int>();
                     var resultCoeff = default(T);
                     if (result.coeffsMap.TryGetValue(degree, out resultCoeff))
                     {
-                        resultCoeff = this.polynomialCoeffRing.Add(resultCoeff, coeff);
-                        if (this.polynomialCoeffRing.IsAdditiveUnity(resultCoeff))
+                        resultCoeff = monoid.Add(resultCoeff, coeff);
+                        if (monoid.IsAdditiveUnity(resultCoeff))
                         {
                             result.coeffsMap.Remove(degree);
                         }
@@ -497,166 +476,179 @@
         /// Obtém a diferença entre polinómio corrente e outro polinómio.
         /// </summary>
         /// <param name="right">O outro polinómio.</param>
+        /// <param name="group">O grupo responsável pelas operações.</param>
         /// <returns>O resultado da diferença.</returns>
-        public Polynomial<T, R> Subtract(Polynomial<T, R> right)
+        public Polynomial<T> Subtract(Polynomial<T> right, IGroup<T> group)
         {
-            var result = new Polynomial<T, R>(this.polynomialCoeffRing);
-            var variableDic = new Dictionary<PolynomialGeneralVariable<T, R>, Tuple<int, int, int>>();
-            var appendResultVars = new List<PolynomialGeneralVariable<T, R>>();
-            foreach (var term in this.coeffsMap)
+            if (group == null)
             {
-                appendResultVars.Clear();
-                var resultVarsCount = result.variables.Count;
-                var resultDegree = new List<int>();
-                var leftDegree = new List<int>();
-                var rightDegree = new List<int>();
-                var innerVariableDic = new Dictionary<PolynomialGeneralVariable<T, R>, Tuple<int, int, int>>();
-                for (int i = 0; i < term.Key.Count; ++i)
+                throw new ArgumentNullException("group");
+            }
+            else
+            {
+                var result = new Polynomial<T>();
+                var variableDic = new Dictionary<PolynomialGeneralVariable<T>, Tuple<int, int, int>>();
+                var appendResultVars = new List<PolynomialGeneralVariable<T>>();
+                foreach (var term in this.coeffsMap)
                 {
-                    var currentDegree = term.Key[i];
-                    if (currentDegree != 0)
+                    appendResultVars.Clear();
+                    var resultVarsCount = result.variables.Count;
+                    var resultDegree = new List<int>();
+                    var leftDegree = new List<int>();
+                    var rightDegree = new List<int>();
+                    var innerVariableDic = new Dictionary<PolynomialGeneralVariable<T>, Tuple<int, int, int>>();
+                    for (int i = 0; i < term.Key.Count; ++i)
                     {
-                        Tuple<int, int, int> description = null;
-                        if (!variableDic.TryGetValue(this.variables[i], out description))
+                        var currentDegree = term.Key[i];
+                        if (currentDegree != 0)
                         {
-                            if (!innerVariableDic.TryGetValue(this.variables[i], out description))
+                            Tuple<int, int, int> description = null;
+                            if (!variableDic.TryGetValue(this.variables[i], out description))
                             {
-                                var rightPosition = right.variables.IndexOf(this.variables[i]);
-                                description = Tuple.Create(i, rightPosition, resultVarsCount + appendResultVars.Count);
-                                innerVariableDic.Add(this.variables[i], description);
-                                appendResultVars.Add(this.variables[i]);
+                                if (!innerVariableDic.TryGetValue(this.variables[i], out description))
+                                {
+                                    var rightPosition = right.variables.IndexOf(this.variables[i]);
+                                    description = Tuple.Create(i, rightPosition, resultVarsCount + appendResultVars.Count);
+                                    innerVariableDic.Add(this.variables[i], description);
+                                    appendResultVars.Add(this.variables[i]);
+                                }
                             }
-                        }
 
-                        this.SetDegree(leftDegree, description.Item1, currentDegree);
-                        this.SetDegree(rightDegree, description.Item2, currentDegree);
-                        this.SetDegree(resultDegree, description.Item3, currentDegree);
-                    }
-                }
-
-                if (leftDegree.Count == 0 && rightDegree.Count == 0)
-                {
-                    var rightCoeff = default(T);
-                    if (right.coeffsMap.TryGetValue(rightDegree, out rightCoeff))
-                    {
-                        var resultCoeff = this.polynomialCoeffRing.Add(term.Value, rightCoeff);
-                        if (!this.polynomialCoeffRing.IsAdditiveUnity(resultCoeff))
-                        {
-                            result.coeffsMap.Add(leftDegree, resultCoeff);
+                            this.SetDegree(leftDegree, description.Item1, currentDegree);
+                            this.SetDegree(rightDegree, description.Item2, currentDegree);
+                            this.SetDegree(resultDegree, description.Item3, currentDegree);
                         }
                     }
-                }
-                else if (leftDegree.Count != 0)
-                {
-                    if (rightDegree.Count != 0)
+
+                    if (leftDegree.Count == 0 && rightDegree.Count == 0)
                     {
                         var rightCoeff = default(T);
                         if (right.coeffsMap.TryGetValue(rightDegree, out rightCoeff))
                         {
-                            var resultCoeff = this.polynomialCoeffRing.Add(term.Value, this.polynomialCoeffRing.AdditiveInverse(rightCoeff));
-                            if (!this.polynomialCoeffRing.IsAdditiveUnity(resultCoeff))
+                            var resultCoeff = group.Add(term.Value, rightCoeff);
+                            if (!group.IsAdditiveUnity(resultCoeff))
                             {
-                                result.coeffsMap.Add(resultDegree, resultCoeff);
-                                foreach (var variable in appendResultVars)
+                                result.coeffsMap.Add(leftDegree, resultCoeff);
+                            }
+                        }
+                    }
+                    else if (leftDegree.Count != 0)
+                    {
+                        if (rightDegree.Count != 0)
+                        {
+                            var rightCoeff = default(T);
+                            if (right.coeffsMap.TryGetValue(rightDegree, out rightCoeff))
+                            {
+                                var resultCoeff = group.Add(term.Value, group.AdditiveInverse(rightCoeff));
+                                if (!group.IsAdditiveUnity(resultCoeff))
                                 {
-                                    result.variables.Add(variable.Clone());
+                                    result.coeffsMap.Add(resultDegree, resultCoeff);
+                                    foreach (var variable in appendResultVars)
+                                    {
+                                        result.variables.Add(variable.Clone());
+                                    }
+
+                                    result.coeffsMap.Add(resultDegree, resultCoeff);
                                 }
-
-                                result.coeffsMap.Add(resultDegree, resultCoeff);
                             }
                         }
-                    }
-                    else
-                    {
-                        foreach (var variable in appendResultVars)
+                        else
                         {
-                            result.variables.Add(variable.Clone());
-                        }
-
-                        result.coeffsMap.Add(resultDegree, term.Value);
-                    }
-                }
-
-                foreach (var kvp in innerVariableDic)
-                {
-                    variableDic.Add(kvp.Key, kvp.Value);
-                }
-            }
-
-            foreach (var rightTerm in right.coeffsMap)
-            {
-                appendResultVars.Clear();
-                var resultVarsCount = result.variables.Count;
-                var resultDegree = new List<int>();
-                var leftDegree = new List<int>();
-                var rightDegree = new List<int>();
-                var innerVariableDic = new Dictionary<PolynomialGeneralVariable<T, R>, Tuple<int, int, int>>();
-                for (int i = 0; i < rightTerm.Key.Count; ++i)
-                {
-                    var currentDegree = rightTerm.Key[i];
-                    if (currentDegree != 0)
-                    {
-                        Tuple<int, int, int> description = null;
-                        if (!variableDic.TryGetValue(right.variables[i], out description))
-                        {
-                            if (!innerVariableDic.TryGetValue(right.variables[i], out description))
+                            foreach (var variable in appendResultVars)
                             {
-                                var leftPosition = this.variables.IndexOf(right.variables[i]);
-                                description = Tuple.Create(leftPosition, i, resultVarsCount + appendResultVars.Count);
-                                innerVariableDic.Add(right.variables[i], description);
-                                appendResultVars.Add(right.variables[i]);
+                                result.variables.Add(variable.Clone());
+                            }
+
+                            result.coeffsMap.Add(resultDegree, term.Value);
+                        }
+                    }
+
+                    foreach (var kvp in innerVariableDic)
+                    {
+                        variableDic.Add(kvp.Key, kvp.Value);
+                    }
+                }
+
+                foreach (var rightTerm in right.coeffsMap)
+                {
+                    appendResultVars.Clear();
+                    var resultVarsCount = result.variables.Count;
+                    var resultDegree = new List<int>();
+                    var leftDegree = new List<int>();
+                    var rightDegree = new List<int>();
+                    var innerVariableDic = new Dictionary<PolynomialGeneralVariable<T>, Tuple<int, int, int>>();
+                    for (int i = 0; i < rightTerm.Key.Count; ++i)
+                    {
+                        var currentDegree = rightTerm.Key[i];
+                        if (currentDegree != 0)
+                        {
+                            Tuple<int, int, int> description = null;
+                            if (!variableDic.TryGetValue(right.variables[i], out description))
+                            {
+                                if (!innerVariableDic.TryGetValue(right.variables[i], out description))
+                                {
+                                    var leftPosition = this.variables.IndexOf(right.variables[i]);
+                                    description = Tuple.Create(leftPosition, i, resultVarsCount + appendResultVars.Count);
+                                    innerVariableDic.Add(right.variables[i], description);
+                                    appendResultVars.Add(right.variables[i]);
+                                }
+                            }
+
+                            this.SetDegree(leftDegree, description.Item1, currentDegree);
+                            this.SetDegree(rightDegree, description.Item2, currentDegree);
+                            this.SetDegree(resultDegree, description.Item3, currentDegree);
+                        }
+                    }
+
+                    if (rightDegree.Count != 0)
+                    {
+                        if (leftDegree.Count == 0 || !this.coeffsMap.ContainsKey(leftDegree))
+                        {
+                            result.coeffsMap.Add(resultDegree, group.AdditiveInverse(rightTerm.Value));
+                            foreach (var variable in appendResultVars)
+                            {
+                                result.variables.Add(variable.Clone());
                             }
                         }
-
-                        this.SetDegree(leftDegree, description.Item1, currentDegree);
-                        this.SetDegree(rightDegree, description.Item2, currentDegree);
-                        this.SetDegree(resultDegree, description.Item3, currentDegree);
                     }
-                }
 
-                if (rightDegree.Count != 0)
-                {
-                    if (leftDegree.Count == 0 || !this.coeffsMap.ContainsKey(leftDegree))
+                    foreach (var kvp in innerVariableDic)
                     {
-                        result.coeffsMap.Add(resultDegree, this.polynomialCoeffRing.AdditiveInverse(rightTerm.Value));
-                        foreach (var variable in appendResultVars)
-                        {
-                            result.variables.Add(variable.Clone());
-                        }
+                        variableDic.Add(kvp.Key, kvp.Value);
                     }
                 }
 
-                foreach (var kvp in innerVariableDic)
-                {
-                    variableDic.Add(kvp.Key, kvp.Value);
-                }
+                return result;
             }
-
-            return result;
         }
 
         /// <summary>
         /// Subtrai um coeficiente ao polinómio.
         /// </summary>
         /// <param name="coeff">O coefieciente a ser subtraído.</param>
+        /// <param name="group">O grupo responsável pelas operações.</param>
         /// <returns>O resultado da subtracção.</returns>
-        public Polynomial<T, R> Subtract(T coeff)
+        public Polynomial<T> Subtract(T coeff, IGroup<T> group)
         {
-            if (coeff == null)
+            if (group == null)
+            {
+                throw new ArgumentNullException("group");
+            }
+            else if (coeff == null)
             {
                 throw new ArgumentNullException("coeff");
             }
             else
             {
                 var result = this.Clone();
-                if (!this.polynomialCoeffRing.IsAdditiveUnity(coeff))
+                if (!group.IsAdditiveUnity(coeff))
                 {
                     var degree = new List<int>();
                     var resultCoeff = default(T);
                     if (result.coeffsMap.TryGetValue(degree, out resultCoeff))
                     {
-                        resultCoeff = this.polynomialCoeffRing.Add(resultCoeff, this.polynomialCoeffRing.AdditiveInverse(coeff));
-                        if (this.polynomialCoeffRing.IsAdditiveUnity(resultCoeff))
+                        resultCoeff = group.Add(resultCoeff, group.AdditiveInverse(coeff));
+                        if (group.IsAdditiveUnity(resultCoeff))
                         {
                             result.coeffsMap.Remove(degree);
                         }
@@ -667,7 +659,7 @@
                     }
                     else
                     {
-                        result.coeffsMap.Add(degree, this.polynomialCoeffRing.AdditiveInverse(coeff));
+                        result.coeffsMap.Add(degree, group.AdditiveInverse(coeff));
                     }
                 }
 
@@ -679,149 +671,162 @@
         /// Obtém o produto do polinómio corrente com outro polinómio.
         /// </summary>
         /// <param name="right">O outro polinómio.</param>
+        /// <param name="ring">O anel responsável pelas operações.</param>
         /// <returns>O resultado do produto.</returns>
-        public Polynomial<T, R> Multiply(Polynomial<T, R> right)
+        public Polynomial<T> Multiply(Polynomial<T> right, IRing<T> ring)
         {
-            var result = new Polynomial<T, R>(this.polynomialCoeffRing);
-            if (this.coeffsMap.Count == 0 || right.coeffsMap.Count == 0)
+            if (ring == null)
             {
-                return result;
-            }
-
-            var emptyDegree = new List<int>();
-            if (this.IsValue)
-            {
-                var coeff = this.coeffsMap[emptyDegree];
-                foreach (var kvp in right.coeffsMap)
-                {
-                    result.coeffsMap.Add(
-                        kvp.Key,
-                        this.polynomialCoeffRing.Multiply(kvp.Value, coeff));
-                }
-
-                foreach (var vars in right.variables)
-                {
-                    result.variables.Add(vars.Clone());
-                }
-            }
-            else if (right.IsValue)
-            {
-                var coeff = right.coeffsMap[emptyDegree];
-                foreach (var kvp in this.coeffsMap)
-                {
-                    result.coeffsMap.Add(
-                        kvp.Key,
-                        this.polynomialCoeffRing.Multiply(kvp.Value, coeff));
-                }
-
-                foreach (var vars in this.variables)
-                {
-                    result.variables.Add(vars.Clone());
-                }
-            }
-            else if (this.coeffsMap.Count == 1 && right.coeffsMap.Count == 1)
-            {
-                var firstDegree = new List<int>();
-                var secondDegree = new List<int>();
-                firstDegree.AddRange(this.coeffsMap.First().Key);
-                var firstCoeff = this.coeffsMap.First().Value;
-                secondDegree.AddRange(right.coeffsMap.First().Key);
-                var secondCoeff = right.coeffsMap.First().Value;
-
-                for (int i = 0; i < firstDegree.Count; ++i)
-                {
-                    result.variables.Add(this.variables[i].Clone());
-                }
-
-                var appendVariables = new List<PolynomialGeneralVariable<T, R>>();
-                for (int i = 0; i < secondDegree.Count; ++i)
-                {
-                    var index = -1;
-                    for (int j = 0; j < result.variables.Count; ++j)
-                    {
-                        if (result.variables[j].Equals(right.variables[i]))
-                        {
-                            index = j;
-                            j = secondDegree.Count;
-                        }
-                    }
-
-                    if (index != -1)
-                    {
-                        firstDegree[index] += secondDegree[i];
-                    }
-                    else
-                    {
-                        if (secondDegree[i] != 0)
-                        {
-                            appendVariables.Add(right.variables[i]);
-                            firstDegree.Add(secondDegree[i]);
-                        }
-                    }
-                }
-
-                result.variables.AddRange(appendVariables);
-                result.coeffsMap.Add(
-                    firstDegree,
-                    this.polynomialCoeffRing.Multiply(firstCoeff, secondCoeff));
-            }
-            else if (this.coeffsMap.Count == 1)
-            {
-                var firstDegree = new List<int>();
-                firstDegree.AddRange(this.coeffsMap.First().Key);
-                var firstCoeff = this.coeffsMap.First().Value;
-
-                for (int i = 0; i < this.variables.Count; ++i)
-                {
-                    result.variables.Add(this.variables[i].Clone());
-                }
-
-                firstDegree.Add(1);
-                result.variables.Add(new PolynomialGeneralVariable<T, R>(
-                    right.Clone()));
-                result.coeffsMap.Add(firstDegree, firstCoeff);
-            }
-            else if (right.coeffsMap.Count == 1)
-            {
-                var secondDegree = right.coeffsMap.First().Key;
-                var secondCoeff = right.coeffsMap.First().Value;
-
-                for (int i = 0; i < right.variables.Count; ++i)
-                {
-                    result.variables.Add(right.variables[i].Clone());
-                }
-
-                secondDegree.Add(1);
-                result.variables.Add(new PolynomialGeneralVariable<T, R>(
-                    this.Clone()));
-                result.coeffsMap.Add(secondDegree, secondCoeff);
+                throw new ArgumentNullException("ring");
             }
             else
             {
-                result.variables.Add(new PolynomialGeneralVariable<T, R>(this.Clone()));
-                result.variables.Add(new PolynomialGeneralVariable<T, R>(right.Clone()));
-                result.coeffsMap.Add(
-                    new List<int>() { 1, 1 },
-                    this.polynomialCoeffRing.MultiplicativeUnity);
-            }
+                var result = new Polynomial<T>();
+                if (this.coeffsMap.Count == 0 || right.coeffsMap.Count == 0)
+                {
+                    return result;
+                }
 
-            return result;
+                var emptyDegree = new List<int>();
+                if (this.IsValue)
+                {
+                    var coeff = this.coeffsMap[emptyDegree];
+                    foreach (var kvp in right.coeffsMap)
+                    {
+                        result.coeffsMap.Add(
+                            kvp.Key,
+                            ring.Multiply(kvp.Value, coeff));
+                    }
+
+                    foreach (var vars in right.variables)
+                    {
+                        result.variables.Add(vars.Clone());
+                    }
+                }
+                else if (right.IsValue)
+                {
+                    var coeff = right.coeffsMap[emptyDegree];
+                    foreach (var kvp in this.coeffsMap)
+                    {
+                        result.coeffsMap.Add(
+                            kvp.Key,
+                            ring.Multiply(kvp.Value, coeff));
+                    }
+
+                    foreach (var vars in this.variables)
+                    {
+                        result.variables.Add(vars.Clone());
+                    }
+                }
+                else if (this.coeffsMap.Count == 1 && right.coeffsMap.Count == 1)
+                {
+                    var firstDegree = new List<int>();
+                    var secondDegree = new List<int>();
+                    firstDegree.AddRange(this.coeffsMap.First().Key);
+                    var firstCoeff = this.coeffsMap.First().Value;
+                    secondDegree.AddRange(right.coeffsMap.First().Key);
+                    var secondCoeff = right.coeffsMap.First().Value;
+
+                    for (int i = 0; i < firstDegree.Count; ++i)
+                    {
+                        result.variables.Add(this.variables[i].Clone());
+                    }
+
+                    var appendVariables = new List<PolynomialGeneralVariable<T>>();
+                    for (int i = 0; i < secondDegree.Count; ++i)
+                    {
+                        var index = -1;
+                        for (int j = 0; j < result.variables.Count; ++j)
+                        {
+                            if (result.variables[j].Equals(right.variables[i]))
+                            {
+                                index = j;
+                                j = secondDegree.Count;
+                            }
+                        }
+
+                        if (index != -1)
+                        {
+                            firstDegree[index] += secondDegree[i];
+                        }
+                        else
+                        {
+                            if (secondDegree[i] != 0)
+                            {
+                                appendVariables.Add(right.variables[i]);
+                                firstDegree.Add(secondDegree[i]);
+                            }
+                        }
+                    }
+
+                    result.variables.AddRange(appendVariables);
+                    result.coeffsMap.Add(
+                        firstDegree,
+                        ring.Multiply(firstCoeff, secondCoeff));
+                }
+                else if (this.coeffsMap.Count == 1)
+                {
+                    var firstDegree = new List<int>();
+                    firstDegree.AddRange(this.coeffsMap.First().Key);
+                    var firstCoeff = this.coeffsMap.First().Value;
+
+                    for (int i = 0; i < this.variables.Count; ++i)
+                    {
+                        result.variables.Add(this.variables[i].Clone());
+                    }
+
+                    firstDegree.Add(1);
+                    result.variables.Add(new PolynomialGeneralVariable<T>(
+                        right.Clone()));
+                    result.coeffsMap.Add(firstDegree, firstCoeff);
+                }
+                else if (right.coeffsMap.Count == 1)
+                {
+                    var secondDegree = right.coeffsMap.First().Key;
+                    var secondCoeff = right.coeffsMap.First().Value;
+
+                    for (int i = 0; i < right.variables.Count; ++i)
+                    {
+                        result.variables.Add(right.variables[i].Clone());
+                    }
+
+                    secondDegree.Add(1);
+                    result.variables.Add(new PolynomialGeneralVariable<T>(
+                        this.Clone()));
+                    result.coeffsMap.Add(secondDegree, secondCoeff);
+                }
+                else
+                {
+                    result.variables.Add(new PolynomialGeneralVariable<T>(this.Clone()));
+                    result.variables.Add(new PolynomialGeneralVariable<T>(right.Clone()));
+                    result.coeffsMap.Add(
+                        new List<int>() { 1, 1 },
+                        ring.MultiplicativeUnity);
+                }
+
+                return result;
+            }
         }
 
         /// <summary>
         /// Obtém o produto do polinómio por uma constante.
         /// </summary>
         /// <param name="coeff">A constante.</param>
+        /// <param name="ring">O anel responsável pelas operações.</param>
         /// <returns>O produto.</returns>
-        public Polynomial<T, R> Multiply(T coeff)
+        public Polynomial<T> Multiply(T coeff, IRing<T> ring)
         {
-            if (coeff == null)
+            if (ring == null)
+            {
+                throw new ArgumentNullException("ring");
+            }
+            else if (coeff == null)
             {
                 throw new ArgumentNullException("coeff");
             }
             else
             {
-                var result = new Polynomial<T, R>(this.polynomialCoeffRing);
+                var result = new Polynomial<T>();
                 foreach (var variable in this.variables)
                 {
                     result.variables.Add(variable.Clone());
@@ -829,7 +834,7 @@
 
                 foreach (var kvp in this.coeffsMap)
                 {
-                    var product = this.polynomialCoeffRing.Multiply(kvp.Value, coeff);
+                    var product = ring.Multiply(kvp.Value, coeff);
                     result.coeffsMap.Add(kvp.Key, product);
                 }
 
@@ -840,32 +845,44 @@
         /// <summary>
         /// Obtém o polinómio simétrico.
         /// </summary>
+        /// <param name="ring">O grupo responsável pelas operações.</param>
         /// <returns>O polinómio simétrico.</returns>
-        public Polynomial<T, R> GetSymmetric()
+        public Polynomial<T> GetSymmetric(IGroup<T> group)
         {
-            var result = new Polynomial<T, R>(this.polynomialCoeffRing);
-            foreach (var variable in this.variables)
+            if (group == null)
             {
-                result.variables.Add(variable.Clone());
+                throw new ArgumentNullException("group");
             }
-
-            foreach (var kvp in this.coeffsMap)
+            else
             {
-                var product = this.polynomialCoeffRing.Multiply(kvp.Value, this.polynomialCoeffRing.AdditiveInverse(kvp.Value));
-                result.coeffsMap.Add(kvp.Key, product);
-            }
+                var result = new Polynomial<T>();
+                foreach (var variable in this.variables)
+                {
+                    result.variables.Add(variable.Clone());
+                }
 
-            return result;
+                foreach (var kvp in this.coeffsMap)
+                {
+                    result.coeffsMap.Add(kvp.Key, group.AdditiveInverse(kvp.Value));
+                }
+
+                return result;
+            }
         }
 
         /// <summary>
         /// Obtém a potência do polinómio actual.
         /// </summary>
         /// <param name="exponent">O expoente.</param>
+        /// <param name="ring">O anel responsável pelas operações.</param>
         /// <returns>O resultado da potência.</returns>
-        public Polynomial<T, R> Power(int exponent)
+        public Polynomial<T> Power(int exponent, IRing<T> ring)
         {
-            if (exponent < 0)
+            if (ring == null)
+            {
+                throw new ArgumentNullException("ring");
+            }
+            else if (exponent < 0)
             {
                 throw new ArgumentOutOfRangeException("Exponent can't be a negative number.");
             }
@@ -875,13 +892,13 @@
             }
             else
             {
-                var result = new Polynomial<T, R>(this.polynomialCoeffRing);
+                var result = new Polynomial<T>();
                 var termsCount = this.coeffsMap.Count;
                 if (termsCount > 1)
                 {
-                    var variable = new PolynomialGeneralVariable<T, R>(this.Clone());
+                    var variable = new PolynomialGeneralVariable<T>(this.Clone());
                     result.variables.Add(variable);
-                    result.coeffsMap.Add(new List<int>() { exponent }, this.polynomialCoeffRing.MultiplicativeUnity);
+                    result.coeffsMap.Add(new List<int>() { exponent }, ring.MultiplicativeUnity);
                 }
                 else if (termsCount == 1)
                 {
@@ -891,9 +908,9 @@
                     var coeff = termsEnum.Current.Value;
                     if (degree.Count == 0)
                     {
-                        if (!this.polynomialCoeffRing.IsAdditiveUnity(coeff))
+                        if (!ring.IsAdditiveUnity(coeff))
                         {
-                            result.coeffsMap.Add(degree, MathFunctions.Power(coeff, exponent, this.polynomialCoeffRing));
+                            result.coeffsMap.Add(degree, MathFunctions.Power(coeff, exponent, ring));
                             foreach (var variable in this.variables)
                             {
                                 result.variables.Add(variable.Clone());
@@ -908,7 +925,7 @@
                             newDegree.Add(exponent * deg);
                         }
 
-                        result.coeffsMap.Add(newDegree, MathFunctions.Power(coeff, exponent, this.polynomialCoeffRing));
+                        result.coeffsMap.Add(newDegree, MathFunctions.Power(coeff, exponent, ring));
                         foreach (var variable in this.variables)
                         {
                             result.variables.Add(variable.Clone());
@@ -920,11 +937,11 @@
             }
         }
 
-        public Polynomial<T, R> Replace(Dictionary<string, T> replace)
+        public Polynomial<T> Replace(Dictionary<string, T> replace, IRing<T> ring)
         {
-            var result = new Polynomial<T, R>(this.polynomialCoeffRing);
+            var result = new Polynomial<T>();
             var mapPositionToVariableCoefficient = new Dictionary<int, T>();
-            var mapPositionToMonomial = new Dictionary<int, Polynomial<T, R>>();
+            var mapPositionToMonomial = new Dictionary<int, Polynomial<T>>();
             for (int i = 0; i < this.variables.Count; ++i)
             {
                 var variable = this.variables[i];
@@ -942,10 +959,10 @@
                 }
                 else if (variable.IsPolynomial)
                 {
-                    var replacedPol = variable.GetPolynomial().Replace(replace);
+                    var replacedPol = variable.GetPolynomial().Replace(replace, ring);
                     if (replacedPol.IsValue)
                     {
-                        mapPositionToVariableCoefficient.Add(i, replacedPol.GetAsValue());
+                        mapPositionToVariableCoefficient.Add(i, replacedPol.GetAsValue(ring));
                     }
                     else if (replacedPol.coeffsMap.Count == 1)
                     {
@@ -953,7 +970,7 @@
                     }
                     else
                     {
-                        result.variables.Add(new PolynomialGeneralVariable<T, R>(replacedPol));
+                        result.variables.Add(new PolynomialGeneralVariable<T>(replacedPol));
                     }
                 }
             }
@@ -970,8 +987,8 @@
                         var replaceCoeff = MathFunctions.Power(
                             mapPositionToVariableCoefficient[i],
                             degree,
-                            this.polynomialCoeffRing);
-                        coeff = this.polynomialCoeffRing.Multiply(coeff, replaceCoeff);
+                            ring);
+                        coeff = ring.Multiply(coeff, replaceCoeff);
 
                     }
                     else if (mapPositionToMonomial.ContainsKey(i) && degree != 0)
@@ -980,8 +997,8 @@
                         var monomialCoeff = monomial.coeffsMap.First().Value;
                         var monomialDegree = monomial.coeffsMap.First().Key;
 
-                        monomialCoeff = MathFunctions.Power(monomialCoeff, degree, this.polynomialCoeffRing);
-                        coeff = this.polynomialCoeffRing.Multiply(coeff, monomialCoeff);
+                        monomialCoeff = MathFunctions.Power(monomialCoeff, degree, ring);
+                        coeff = ring.Multiply(coeff, monomialCoeff);
                         var multipliedDegree = new List<int>();
                         for (int j = 0; j < monomialDegree.Count; ++j)
                         {
@@ -1017,8 +1034,8 @@
                 if (result.coeffsMap.ContainsKey(updateDegree))
                 {
                     var existingCoeff = result.coeffsMap[updateDegree];
-                    existingCoeff = this.polynomialCoeffRing.Add(existingCoeff, coeff);
-                    if (this.polynomialCoeffRing.IsAdditiveUnity(existingCoeff))
+                    existingCoeff = ring.Add(existingCoeff, coeff);
+                    if (ring.IsAdditiveUnity(existingCoeff))
                     {
                         result.coeffsMap.Remove(updateDegree);
                     }
@@ -1029,7 +1046,7 @@
                 }
                 else
                 {
-                    if (!this.polynomialCoeffRing.IsAdditiveUnity(coeff))
+                    if (!ring.IsAdditiveUnity(coeff))
                     {
                         result.coeffsMap.Add(updateDegree, coeff);
                     }
@@ -1039,172 +1056,186 @@
             return result;
         }
 
-        public Polynomial<T, R> Replace(Dictionary<string, Polynomial<T, R>> replace)
+        public Polynomial<T> Replace(Dictionary<string, Polynomial<T>> replace, IRing<T> ring)
         {
-            var result = new Polynomial<T, R>(this.polynomialCoeffRing);
-            var mapPositionToVariableCoefficient = new Dictionary<int, T>();
-            var mapPositionToMonomial = new Dictionary<int, Polynomial<T, R>>();
-            for (int i = 0; i < this.variables.Count; ++i)
+            if (ring == null)
             {
-                var variable = this.variables[i];
-                if (variable.IsVariable)
+                throw new ArgumentNullException("ring");
+            }
+            else
+            {
+                var result = new Polynomial<T>();
+                var mapPositionToVariableCoefficient = new Dictionary<int, T>();
+                var mapPositionToMonomial = new Dictionary<int, Polynomial<T>>();
+                for (int i = 0; i < this.variables.Count; ++i)
                 {
-                    var variableName = variable.GetVariable();
-                    if (replace.ContainsKey(variableName))
+                    var variable = this.variables[i];
+                    if (variable.IsVariable)
                     {
-                        var replacementPolynomial = replace[variableName];
-                        if (replacementPolynomial.IsValue)
+                        var variableName = variable.GetVariable();
+                        if (replace.ContainsKey(variableName))
                         {
-                            mapPositionToVariableCoefficient.Add(i, replacementPolynomial.GetAsValue());
-                        }
-                        else if (replacementPolynomial.coeffsMap.Count == 1)
-                        {
-                            mapPositionToMonomial.Add(i, replacementPolynomial);
+                            var replacementPolynomial = replace[variableName];
+                            if (replacementPolynomial.IsValue)
+                            {
+                                mapPositionToVariableCoefficient.Add(i, replacementPolynomial.GetAsValue(ring));
+                            }
+                            else if (replacementPolynomial.coeffsMap.Count == 1)
+                            {
+                                mapPositionToMonomial.Add(i, replacementPolynomial);
+                            }
+                            else
+                            {
+                                result.variables.Add(new PolynomialGeneralVariable<T>(replacementPolynomial));
+                            }
                         }
                         else
                         {
-                            result.variables.Add(new PolynomialGeneralVariable<T, R>(replacementPolynomial));
+                            result.variables.Add(variable.Clone());
                         }
                     }
-                    else
+                    else if (variable.IsPolynomial)
                     {
-                        result.variables.Add(variable.Clone());
+                        var replacedPol = variable.GetPolynomial().Replace(replace, ring);
+                        if (replacedPol.IsValue)
+                        {
+                            mapPositionToVariableCoefficient.Add(i, replacedPol.GetAsValue(ring));
+                        }
+                        else if (replacedPol.coeffsMap.Count == 1)
+                        {
+                            mapPositionToMonomial.Add(i, replacedPol);
+                        }
+                        else
+                        {
+                            result.variables.Add(new PolynomialGeneralVariable<T>(replacedPol));
+                        }
                     }
                 }
-                else if (variable.IsPolynomial)
+
+                //O código restante deverá ser semelhante ao anterior - talvez seja digno de uma função
+                foreach (var kvp in this.coeffsMap)
                 {
-                    var replacedPol = variable.GetPolynomial().Replace(replace);
-                    if (replacedPol.IsValue)
+                    var updateDegree = new List<int>();
+                    var coeff = kvp.Value;
+                    for (int i = 0; i < kvp.Key.Count; ++i)
                     {
-                        mapPositionToVariableCoefficient.Add(i, replacedPol.GetAsValue());
-                    }
-                    else if (replacedPol.coeffsMap.Count == 1)
-                    {
-                        mapPositionToMonomial.Add(i, replacedPol);
-                    }
-                    else
-                    {
-                        result.variables.Add(new PolynomialGeneralVariable<T, R>(replacedPol));
-                    }
-                }
-            }
-
-            //O código restante deverá ser semelhante ao anterior - talvez seja digno de uma função
-            foreach (var kvp in this.coeffsMap)
-            {
-                var updateDegree = new List<int>();
-                var coeff = kvp.Value;
-                for (int i = 0; i < kvp.Key.Count; ++i)
-                {
-                    var degree = kvp.Key[i];
-                    if (mapPositionToVariableCoefficient.ContainsKey(i) && degree != 0)
-                    {
-                        var replaceCoeff = MathFunctions.Power(
-                            mapPositionToVariableCoefficient[i],
-                            degree,
-                            this.polynomialCoeffRing);
-                        coeff = this.polynomialCoeffRing.Multiply(coeff, replaceCoeff);
-
-                    }
-                    else if (mapPositionToMonomial.ContainsKey(i) && degree != 0)
-                    {
-                        var monomial = mapPositionToMonomial[i];
-                        var monomialCoeff = monomial.coeffsMap.First().Value;
-                        var monomialDegree = monomial.coeffsMap.First().Key;
-
-                        monomialCoeff = MathFunctions.Power(monomialCoeff, degree, this.polynomialCoeffRing);
-                        coeff = this.polynomialCoeffRing.Multiply(coeff, monomialCoeff);
-                        var multipliedDegree = new List<int>();
-                        for (int j = 0; j < monomialDegree.Count; ++j)
+                        var degree = kvp.Key[i];
+                        if (mapPositionToVariableCoefficient.ContainsKey(i) && degree != 0)
                         {
-                            multipliedDegree.Add(monomialDegree[j] * degree);
+                            var replaceCoeff = MathFunctions.Power(
+                                mapPositionToVariableCoefficient[i],
+                                degree,
+                                ring);
+                            coeff = ring.Multiply(coeff, replaceCoeff);
+
                         }
-
-                        foreach (var item in monomial.variables)
+                        else if (mapPositionToMonomial.ContainsKey(i) && degree != 0)
                         {
-                            if (!result.variables.Contains(item))
-                            {
-                                result.variables.Add(item.Clone());
-                            }
-                        }
+                            var monomial = mapPositionToMonomial[i];
+                            var monomialCoeff = monomial.coeffsMap.First().Value;
+                            var monomialDegree = monomial.coeffsMap.First().Key;
 
-                        monomialDegree = result.GetDegreeFromRightPol(multipliedDegree, monomial);
-                        updateDegree = this.GetDegreeSum(updateDegree, monomialDegree);
-                    }
-                    else
-                    {
-                        var index = result.variables.IndexOf(this.variables[i]);
-                        if (index != -1 && degree != 0)
-                        {
-                            while (updateDegree.Count <= index)
+                            monomialCoeff = MathFunctions.Power(monomialCoeff, degree, ring);
+                            coeff = ring.Multiply(coeff, monomialCoeff);
+                            var multipliedDegree = new List<int>();
+                            for (int j = 0; j < monomialDegree.Count; ++j)
                             {
-                                updateDegree.Add(0);
+                                multipliedDegree.Add(monomialDegree[j] * degree);
                             }
 
-                            updateDegree[index] += degree;
+                            foreach (var item in monomial.variables)
+                            {
+                                if (!result.variables.Contains(item))
+                                {
+                                    result.variables.Add(item.Clone());
+                                }
+                            }
+
+                            monomialDegree = result.GetDegreeFromRightPol(multipliedDegree, monomial);
+                            updateDegree = this.GetDegreeSum(updateDegree, monomialDegree);
+                        }
+                        else
+                        {
+                            var index = result.variables.IndexOf(this.variables[i]);
+                            if (index != -1 && degree != 0)
+                            {
+                                while (updateDegree.Count <= index)
+                                {
+                                    updateDegree.Add(0);
+                                }
+
+                                updateDegree[index] += degree;
+                            }
+                        }
+                    }
+
+                    if (result.coeffsMap.ContainsKey(updateDegree))
+                    {
+                        var existingCoeff = result.coeffsMap[updateDegree];
+                        existingCoeff = ring.Add(existingCoeff, coeff);
+                        if (ring.IsAdditiveUnity(existingCoeff))
+                        {
+                            result.coeffsMap.Remove(updateDegree);
+                        }
+                        else
+                        {
+                            result.coeffsMap[updateDegree] = existingCoeff;
+                        }
+                    }
+                    else
+                    {
+                        if (!ring.IsAdditiveUnity(coeff))
+                        {
+                            result.coeffsMap.Add(updateDegree, coeff);
                         }
                     }
                 }
 
-                if (result.coeffsMap.ContainsKey(updateDegree))
-                {
-                    var existingCoeff = result.coeffsMap[updateDegree];
-                    existingCoeff = this.polynomialCoeffRing.Add(existingCoeff, coeff);
-                    if (this.polynomialCoeffRing.IsAdditiveUnity(existingCoeff))
-                    {
-                        result.coeffsMap.Remove(updateDegree);
-                    }
-                    else
-                    {
-                        result.coeffsMap[updateDegree] = existingCoeff;
-                    }
-                }
-                else
-                {
-                    if (!this.polynomialCoeffRing.IsAdditiveUnity(coeff))
-                    {
-                        result.coeffsMap.Add(updateDegree, coeff);
-                    }
-                }
+                return result;
             }
-
-            return result;
         }
 
-        public Polynomial<T, R> GetExpanded()
+        public Polynomial<T> GetExpanded(IRing<T> ring)
         {
-            var res = new Polynomial<T, R>(this.polynomialCoeffRing);
-            foreach (var kvp in this.coeffsMap)
+            if (ring == null)
             {
-                var degree = kvp.Key;
-                var term = new Polynomial<T, R>(kvp.Value, this.polynomialCoeffRing);
-                for (int i = 0; i < degree.Count; ++i)
+                throw new ArgumentNullException("ring");
+            }
+            else
+            {
+                var res = new Polynomial<T>();
+                foreach (var kvp in this.coeffsMap)
                 {
-                    if (degree[i] != 0)
+                    var degree = kvp.Key;
+                    var term = new Polynomial<T>(kvp.Value, ring);
+                    for (int i = 0; i < degree.Count; ++i)
                     {
-                        Polynomial<T, R> temporary = null;
-                        if (this.variables[i].IsVariable)
+                        if (degree[i] != 0)
                         {
-                            temporary = new Polynomial<T, R>(
-                                this.polynomialCoeffRing.MultiplicativeUnity,
-                                degree[i],
-                                this.variables[i].GetVariable(),
-                                this.polynomialCoeffRing);
-                        }
-                        else if (this.variables[i].IsPolynomial)
-                        {
-                            temporary = this.variables[i].GetPolynomial().Clone();
-                            temporary = this.Power(temporary.GetExpanded(), degree[i]);
-                        }
+                            Polynomial<T> temporary = null;
+                            if (this.variables[i].IsVariable)
+                            {
+                                temporary = new Polynomial<T>(
+                                    ring.MultiplicativeUnity,
+                                    degree[i],
+                                    this.variables[i].GetVariable(),
+                                    ring);
+                            }
+                            else if (this.variables[i].IsPolynomial)
+                            {
+                                temporary = this.variables[i].GetPolynomial().Clone();
+                                temporary = this.Power(temporary.GetExpanded(ring), degree[i], ring);
+                            }
 
-                        term.MultiplyExpanded(temporary);
+                            term.MultiplyExpanded(temporary, ring);
+                        }
                     }
+
+                    res = res.Add(term, ring);
                 }
 
-                res = res.Add(term);
+                return res;
             }
-
-            return res;
         }
         #endregion
 
@@ -1218,31 +1249,16 @@
             // A polynomial can be a coefficient
             if (obj is T)
             {
-                if (this.coeffsMap.Count == 0)
-                {
-                    return this.polynomialCoeffRing.IsAdditiveUnity((T)obj);
-
-                }
-
                 return false;
             }
 
             // A polynomial can be a variable
             if (obj is string)
             {
-                if (this.coeffsMap.Count == 1)
-                {
-                    var coeffKvp = this.coeffsMap.First();
-                    if (coeffKvp.Key.Sum() == 1)
-                    {
-                        return this.polynomialCoeffRing.IsMultiplicativeUnity(coeffKvp.Value);
-                    }
-                }
-
                 return false;
             }
 
-            var innerObj = obj as Polynomial<T, R>;
+            var innerObj = obj as Polynomial<T>;
             if (innerObj == null)
             {
                 return false;
@@ -1250,22 +1266,15 @@
 
             foreach (var item in this.coeffsMap)
             {
-                if (!this.polynomialCoeffRing.Equals(
-                    this.polynomialCoeffRing.AdditiveUnity,
-                    item.Value))
+                var rightDegree = this.GetDegreeFromRightPol(item.Key, innerObj);
+                if (rightDegree == null)
                 {
-                    var rightDegree = this.GetDegreeFromRightPol(item.Key, innerObj);
-                    if (rightDegree == null)
-                    {
-                        return false;
-                    }
+                    return false;
+                }
 
-                    if (innerObj.coeffsMap.ContainsKey(rightDegree))
-                    {
-                        return this.polynomialCoeffRing.Equals(
-                            item.Value,
-                            innerObj.coeffsMap[rightDegree]);
-                    }
+                if (innerObj.coeffsMap.ContainsKey(rightDegree))
+                {
+                    return item.Value.Equals(innerObj.coeffsMap[rightDegree]);
                 }
             }
 
@@ -1277,18 +1286,8 @@
             var emptyHash = 0;
             foreach (var kvp in this.coeffsMap)
             {
-                if (!this.polynomialCoeffRing.Equals(
-                    this.polynomialCoeffRing.AdditiveUnity,
-                    kvp.Value))
-                {
-                    emptyHash ^= this.GetCurrentHash(kvp.Key);
-                    if (!this.polynomialCoeffRing.Equals(
-                        this.polynomialCoeffRing.MultiplicativeUnity,
-                        kvp.Value) && kvp.Value != null)
-                    {
-                        emptyHash ^= kvp.Value.GetHashCode();
-                    }
-                }
+                emptyHash ^= this.GetCurrentHash(kvp.Key);
+                emptyHash ^= kvp.Value.GetHashCode();
             }
 
             return emptyHash;
@@ -1308,13 +1307,8 @@
             {
                 resultBuilder.Append(plusSignal);
                 var timesSignal = string.Empty;
-                if (!this.polynomialCoeffRing.Equals(
-                    this.polynomialCoeffRing.MultiplicativeUnity,
-                    kvp.Value) || this.degreeComparer.Equals(kvp.Key, emptyDegree))
-                {
-                    resultBuilder.Append(kvp.Value.ToString());
-                    timesSignal = "*";
-                }
+                resultBuilder.Append(kvp.Value.ToString());
+                timesSignal = "*";
 
                 for (int i = 0; i < this.variables.Count; ++i)
                 {
@@ -1341,6 +1335,25 @@
         #region Private Methods
 
         /// <summary>
+        /// Atribui o valor do grau a uma determinada posição.
+        /// </summary>
+        /// <param name="degrees">A lista dos graus.</param>
+        /// <param name="position">A posição a ser atribuída.</param>
+        /// <param name="value">O valor a ser atribuído.</param>
+        private void SetDegree(List<int> degrees, int position, int value)
+        {
+            if (position >= 0)
+            {
+                while (degrees.Count <= position)
+                {
+                    degrees.Add(0);
+                }
+
+                degrees[position] = value;
+            }
+        }
+
+        /// <summary>
         /// Gets the degree from right polynomial giving the current degree.
         /// </summary>
         /// <remarks>
@@ -1350,7 +1363,7 @@
         /// <param name="leftDegree">The left degree.</param>
         /// <param name="right">The right polynomial.</param>
         /// <returns>The macthed right degree or null if match can't be attained.</returns>
-        private List<int> GetDegreeFromRightPol(List<int> leftDegree, Polynomial<T, R> right)
+        private List<int> GetDegreeFromRightPol(List<int> leftDegree, Polynomial<T> right)
         {
             var res = new int[this.variables.Count];
             var numberOfZeroes = 0;
@@ -1426,7 +1439,7 @@
             return res;
         }
 
-        private void MultiplyExpanded(Polynomial<T, R> right)
+        private void MultiplyExpanded(Polynomial<T> right, IRing<T> ring)
         {
             foreach (var variable in right.variables)
             {
@@ -1445,12 +1458,12 @@
                 {
                     var innerDegree = this.GetDegreeFromRightPol(rightKvp.Key, right);
                     var sum = this.GetDegreeSum(innerDegree, degree);
-                    var newCoeff = this.polynomialCoeffRing.Multiply(coeff, rightKvp.Value);
+                    var newCoeff = ring.Multiply(coeff, rightKvp.Value);
                     if (coeffMaps.ContainsKey(sum))
                     {
                         var current = coeffMaps[sum];
-                        current = this.polynomialCoeffRing.Add(current, newCoeff);
-                        if (this.polynomialCoeffRing.IsAdditiveUnity(current))
+                        current = ring.Add(current, newCoeff);
+                        if (ring.IsAdditiveUnity(current))
                         {
                             coeffMaps.Remove(sum);
                         }
@@ -1473,7 +1486,8 @@
         /// For expanded multiplication.
         /// </summary>
         /// <param name="mappedCoeffs">The mapped coefficients.</param>
-        private void MultiplyExpanded(Dictionary<List<int>, T> mappedCoeffs)
+        /// <param name="ring">O anel responsável pelas operações.</param>
+        private void MultiplyExpanded(Dictionary<List<int>, T> mappedCoeffs, IRing<T> ring)
         {
             var newMappedCoeffs = new Dictionary<List<int>, T>();
             foreach (var leftgKvp in this.coeffsMap)
@@ -1506,7 +1520,7 @@
 
                     newMappedCoeffs.Add(
                         temporaryDegree,
-                        this.polynomialCoeffRing.Multiply(leftgKvp.Value, rightKvp.Value)
+                        ring.Multiply(leftgKvp.Value, rightKvp.Value)
                         );
                 }
             }
@@ -1514,13 +1528,13 @@
             this.coeffsMap = newMappedCoeffs;
         }
 
-        private Polynomial<T, R> Power(Polynomial<T, R> pol, int exponent)
+        private Polynomial<T> Power(Polynomial<T> pol, int exponent, IRing<T> ring)
         {
             if (exponent == 0)
             {
-                return new Polynomial<T, R>(
-                    this.polynomialCoeffRing.MultiplicativeUnity,
-                    this.polynomialCoeffRing);
+                return new Polynomial<T>(
+                    ring.MultiplicativeUnity,
+                    ring);
             }
             else
             {
@@ -1530,10 +1544,10 @@
                 innerExponent = innerExponent / 2;
                 while (innerExponent > 0)
                 {
-                    result.MultiplyExpanded(result.coeffsMap);
+                    result.MultiplyExpanded(result.coeffsMap, ring);
                     if (rem == 1)
                     {
-                        result.MultiplyExpanded(pol.coeffsMap);
+                        result.MultiplyExpanded(pol.coeffsMap, ring);
                     }
 
                     rem = innerExponent % 2;

@@ -7,18 +7,17 @@
     using Utilities;
     using Utilities.Parsers;
 
-    class PolynomialParser<CoeffType, RingType> : IParse<Polynomial<CoeffType, RingType>, string, string>
-        where RingType : IRing<CoeffType>
+    class PolynomialParser<CoeffType> : IParse<Polynomial<CoeffType>, string, string>
     {
         /// <summary>
         /// O anel que contém as operações a serem efectuadas sobre o polinómio.
         /// </summary>
-        private RingType coefficientsRing;
+        private IRing<CoeffType> coefficientsRing;
 
         /// <summary>
         /// O leitor de matrizes multidimensionais.
         /// </summary>
-        private PolynomialReader<CoeffType, RingType, ISymbol<string, string>[]> polynomialReader;
+        private PolynomialReader<CoeffType, ISymbol<string, string>[]> polynomialReader;
 
         /// <summary>
         /// O leitor dos elmentos contidos na matriz multidimensional.
@@ -33,7 +32,7 @@
         public PolynomialParser(
             IParse<CoeffType, string, string> elementsParser, 
             IConversion<int, CoeffType> conversion,
-            RingType ring)
+            IRing<CoeffType> ring)
         {
             if (ring == null)
             {
@@ -52,13 +51,13 @@
                 this.coefficientsRing = ring;
                 this.conversion = conversion;
                 this.elementsParser = elementsParser;
-                this.polynomialReader = new PolynomialReader<CoeffType, RingType, ISymbol<string, string>[]>(
+                this.polynomialReader = new PolynomialReader<CoeffType, ISymbol<string, string>[]>(
                     this.elementsParser,
                     this.coefficientsRing);
             }
         }
 
-        public bool TryParse(ISymbol<string, string>[] symbolListToParse, out Polynomial<CoeffType, RingType> value)
+        public bool TryParse(ISymbol<string, string>[] symbolListToParse, out Polynomial<CoeffType> value)
         {
             var arrayReader = new ArraySymbolReader<string, string>(symbolListToParse, "eof");
             return this.polynomialReader.TryParsePolynomial(arrayReader, this.conversion, out value);

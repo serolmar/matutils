@@ -18,18 +18,13 @@ namespace Mathematics.AlgebraicStructures.Polynomial
     /// </remarks>
     /// <typeparam name="T">O tipo de coeficiente no polinómio.</typeparam>
     /// <typeparam name="R">O anel que permite adicionar e multiplicar os respectivos coeficientes</typeparam>
-    public class SymmetricPolynomial<T, R>
-        where R : IRing<T>
+    public class SymmetricPolynomial<T>
     {
-        /// <summary>
-        /// O anel correspondente ao polinómio simétrico.
-        /// </summary>
-        R ring;
-
         /// <summary>
         /// O comparador de graus para o polinómio simétrico.
         /// </summary>
-        private SymmetricPolynomialDegreeEqualityComparer degreeComparer = new SymmetricPolynomialDegreeEqualityComparer();
+        private SymmetricPolynomialDegreeEqualityComparer degreeComparer = 
+            new SymmetricPolynomialDegreeEqualityComparer();
 
         /// <summary>
         /// Mantém a lista das variáveis.
@@ -46,16 +41,11 @@ namespace Mathematics.AlgebraicStructures.Polynomial
             this.polynomialTerms = new Dictionary<Dictionary<int, int>, T>(this.degreeComparer);
         }
 
-        public SymmetricPolynomial(List<string> variables, R ring)
+        public SymmetricPolynomial(List<string> variables)
         {
             if (variables == null || variables.Count == 0)
             {
                 throw new ArgumentException("No variable was provided for symmetric polynomial.");
-            }
-
-            if (ring == null)
-            {
-                throw new MathematicsException("A ring must be provided for symmetric polynomial.");
             }
 
             var containsVariable = new Dictionary<string, bool>();
@@ -71,13 +61,12 @@ namespace Mathematics.AlgebraicStructures.Polynomial
                 }
             }
 
-            this.ring = ring;
             this.polynomialTerms = new Dictionary<Dictionary<int, int>, T>(this.degreeComparer);
             this.variables.AddRange(variables);
         }
 
-        public SymmetricPolynomial(List<string> variables, int elementarySymmIndex, R ring)
-            : this(variables, ring)
+        public SymmetricPolynomial(List<string> variables, int elementarySymmIndex)
+            : this(variables)
         {
             if (elementarySymmIndex < 0 || elementarySymmIndex > variables.Count)
             {
@@ -89,8 +78,8 @@ namespace Mathematics.AlgebraicStructures.Polynomial
             }
         }
 
-        public SymmetricPolynomial(List<string> variables, List<int> degree, T coeff, R ring)
-            : this(variables, ring)
+        public SymmetricPolynomial(List<string> variables, List<int> degree, T coeff, IRing<T> ring)
+            : this(variables)
         {
             if (coeff == null)
             {
@@ -103,14 +92,14 @@ namespace Mathematics.AlgebraicStructures.Polynomial
                 throw new ArgumentException("The number elements on degree must not surpass the number of defined variables.");
             }
 
-            if (!this.ring.IsAdditiveUnity(coeff))
+            if (!ring.IsAdditiveUnity(coeff))
             {
                 this.polynomialTerms.Add(innerDegree, coeff);
             }
         }
 
-        public SymmetricPolynomial(List<string> variables, Dictionary<int, int> degree, T coeff, R ring)
-            : this(variables, ring)
+        public SymmetricPolynomial(List<string> variables, Dictionary<int, int> degree, T coeff, IRing<T> ring)
+            : this(variables)
         {
             if (coeff == null)
             {
@@ -164,9 +153,15 @@ namespace Mathematics.AlgebraicStructures.Polynomial
         /// Retorna o resultado da adição do polinómio corrente com o polinómio proporcionado.
         /// </summary>
         /// <param name="right">O polinómio proporcionado.</param>
+        /// <param name="monoid">O monóide responsável pelas operações.</param>
         /// <returns>A soma de ambos os polinómios.</returns>
-        public SymmetricPolynomial<T, R> Add(SymmetricPolynomial<T, R> right)
+        public SymmetricPolynomial<T> Add(SymmetricPolynomial<T> right, IMonoid<T> monoid)
         {
+            if (monoid == null)
+            {
+                throw new ArgumentNullException("monoid");
+            }
+
             if (right == null)
             {
                 throw new ArgumentNullException("right");
@@ -180,9 +175,8 @@ namespace Mathematics.AlgebraicStructures.Polynomial
                 }
             }
 
-            var result = new SymmetricPolynomial<T, R>();
+            var result = new SymmetricPolynomial<T>();
             result.variables.AddRange(this.variables);
-            result.ring = this.ring;
             foreach (var term in this.polynomialTerms)
             {
                 result.polynomialTerms.Add(term.Key, term.Value);
@@ -193,8 +187,8 @@ namespace Mathematics.AlgebraicStructures.Polynomial
                 var coeff = default(T);
                 if (result.polynomialTerms.TryGetValue(term.Key, out coeff))
                 {
-                    coeff = result.ring.Add(coeff, term.Value);
-                    if (this.ring.IsAdditiveUnity(coeff))
+                    coeff = monoid.Add(coeff, term.Value);
+                    if (monoid.IsAdditiveUnity(coeff))
                     {
                         result.polynomialTerms.Remove(term.Key);
                     }
@@ -216,9 +210,15 @@ namespace Mathematics.AlgebraicStructures.Polynomial
         /// Retorna o resultado da subtracção do polinómio corrente com o polinómio proporcionado.
         /// </summary>
         /// <param name="right">O polinómio proporcionado.</param>
+        /// <param name="group">O grupo responsável pelas operações.</param>
         /// <returns>A diferença entre ambos os polinómios.</returns>
-        public SymmetricPolynomial<T, R> Subtract(SymmetricPolynomial<T, R> right)
+        public SymmetricPolynomial<T> Subtract(SymmetricPolynomial<T> right, IGroup<T> group)
         {
+            if (group == null)
+            {
+                throw new ArgumentNullException("monoid");
+            }
+
             if (right == null)
             {
                 throw new ArgumentNullException("right");
@@ -232,9 +232,8 @@ namespace Mathematics.AlgebraicStructures.Polynomial
                 }
             }
 
-            var result = new SymmetricPolynomial<T, R>();
+            var result = new SymmetricPolynomial<T>();
             result.variables.AddRange(this.variables);
-            result.ring = this.ring;
             foreach (var term in this.polynomialTerms)
             {
                 result.polynomialTerms.Add(term.Key, term.Value);
@@ -245,9 +244,9 @@ namespace Mathematics.AlgebraicStructures.Polynomial
                 var coeff = default(T);
                 if (result.polynomialTerms.TryGetValue(term.Key, out coeff))
                 {
-                    var subtractCoeff = this.ring.AdditiveInverse(term.Value);
-                    coeff = result.ring.Add(coeff, subtractCoeff);
-                    if (this.ring.IsAdditiveUnity(coeff))
+                    var subtractCoeff = group.AdditiveInverse(term.Value);
+                    coeff = group.Add(coeff, subtractCoeff);
+                    if (group.IsAdditiveUnity(coeff))
                     {
                         result.polynomialTerms.Remove(term.Key);
                     }
@@ -269,9 +268,15 @@ namespace Mathematics.AlgebraicStructures.Polynomial
         /// Retorna o resultado da multiplicação do polinómio corrente com o polinómio proporcionado.
         /// </summary>
         /// <param name="right">O polinómio proporcionado.</param>
+        /// <param name="ring">O anel responsável pelas operações.</param>
         /// <returns>O produto de ambos os polinómios.</returns>
-        public SymmetricPolynomial<T, R> Multiply(SymmetricPolynomial<T, R> right)
+        public SymmetricPolynomial<T> Multiply(SymmetricPolynomial<T> right, IRing<T> ring)
         {
+            if (ring == null)
+            {
+                throw new ArgumentNullException("ring");
+            }
+
             if (right == null)
             {
                 throw new ArgumentNullException("right");
@@ -285,9 +290,8 @@ namespace Mathematics.AlgebraicStructures.Polynomial
                 }
             }
 
-            var result = new SymmetricPolynomial<T, R>();
+            var result = new SymmetricPolynomial<T>();
             result.variables.AddRange(this.variables);
-            result.ring = this.ring;
 
             foreach (var thisTerm in this.polynomialTerms)
             {
@@ -297,14 +301,15 @@ namespace Mathematics.AlgebraicStructures.Polynomial
                         thisTerm.Value,
                         thisTerm.Key,
                         rightTerm.Value,
-                        rightTerm.Key);
+                        rightTerm.Key,
+                        ring);
                     foreach (var factorKvp in factors)
                     {
                         var coeff = default(T);
                         if (result.polynomialTerms.TryGetValue(factorKvp.Key, out coeff))
                         {
-                            coeff = result.ring.Add(coeff, factorKvp.Value);
-                            if (this.ring.IsAdditiveUnity(coeff))
+                            coeff = ring.Add(coeff, factorKvp.Value);
+                            if (ring.IsAdditiveUnity(coeff))
                             {
                                 result.polynomialTerms.Remove(factorKvp.Key);
                             }
@@ -331,15 +336,23 @@ namespace Mathematics.AlgebraicStructures.Polynomial
         /// Um dicionário que permite mapear entre o n-ésimo polinómios simétrico e o seu nome, caso a primeira entrada do tuplo
         /// se encontre a falso e o seu valor caso esta se encontre a verdadeiro.
         /// </param>
+        /// <param name="ring">O anel responsável pelas operações.</param>
         /// <returns>A respresentação polinomial do polinómio simétrico como combinação dos polinómios simétricos elementares.</returns>
-        public Polynomial<T, R> GetElementarySymmetricRepresentation(Dictionary<int, Tuple<bool, string, T>> elementarySymmetricVarDefs)
+        public Polynomial<T> GetElementarySymmetricRepresentation(
+            Dictionary<int, Tuple<bool, string, T>> elementarySymmetricVarDefs,
+            IRing<T> ring)
         {
+            if (ring == null)
+            {
+                throw new ArgumentNullException("ring");
+            }
+
             var symmetricTermsStack = new Stack<Dictionary<Dictionary<int, int>, T>>();
-            var resultStack = new Stack<Polynomial<T, R>>();
+            var resultStack = new Stack<Polynomial<T>>();
             symmetricTermsStack.Push(this.polynomialTerms);
-            resultStack.Push(new Polynomial<T, R>(this.ring.AdditiveUnity, this.ring));
-            resultStack.Push(new Polynomial<T, R>(this.ring.MultiplicativeUnity, this.ring));
-            resultStack.Push(new Polynomial<T, R>(this.ring.AdditiveUnity, this.ring));
+            resultStack.Push(new Polynomial<T>(ring.AdditiveUnity, ring));
+            resultStack.Push(new Polynomial<T>(ring.MultiplicativeUnity, ring));
+            resultStack.Push(new Polynomial<T>(ring.AdditiveUnity, ring));
             while (symmetricTermsStack.Count > 0)
             {
                 var topMonomials = symmetricTermsStack.Pop();
@@ -353,10 +366,11 @@ namespace Mathematics.AlgebraicStructures.Polynomial
                         var degreeDivisor = this.GetDivisor(topMonomial.Key);
                         var maximumSymmetric = this.GetMaximumSymmetric(topMonomial.Key);
                         var multTerms = this.MultiplyMonomials(
-                            this.ring.MultiplicativeUnity,
+                            ring.MultiplicativeUnity,
                             degreeDivisor,
-                            this.ring.AdditiveInverse(topMonomial.Value),
-                            maximumSymmetric);
+                            ring.AdditiveInverse(topMonomial.Value),
+                            maximumSymmetric,
+                            ring);
 
                         var newTopMonomial = new Dictionary<Dictionary<int, int>, T>();
                         multTerms.Remove(topMonomial.Key);
@@ -365,7 +379,7 @@ namespace Mathematics.AlgebraicStructures.Polynomial
                             T value = default(T);
                             if (multTerms.TryGetValue(topEnumerator.Current.Key, out value))
                             {
-                                value = this.ring.Add(value, topEnumerator.Current.Value);
+                                value = ring.Add(value, topEnumerator.Current.Value);
                                 multTerms.Remove(topEnumerator.Current.Key);
                             }
                             else
@@ -390,38 +404,38 @@ namespace Mathematics.AlgebraicStructures.Polynomial
                             if (varDefs.Item1)
                             {
                                 var variableCoeff = varDefs.Item3;
-                                if (!this.ring.IsAdditiveUnity(variableCoeff))
+                                if (!ring.IsAdditiveUnity(variableCoeff))
                                 {
                                     var newSymmetricPol = new Dictionary<Dictionary<int, int>, T>();
-                                    newSymmetricPol.Add(degreeDivisor, this.ring.MultiplicativeUnity);
+                                    newSymmetricPol.Add(degreeDivisor, ring.MultiplicativeUnity);
                                     symmetricTermsStack.Push(newSymmetricPol);
 
-                                    resultStack.Push(new Polynomial<T, R>(variableCoeff, this.ring));
-                                    resultStack.Push(new Polynomial<T, R>(this.ring.AdditiveUnity, this.ring));
+                                    resultStack.Push(new Polynomial<T>(variableCoeff, ring));
+                                    resultStack.Push(new Polynomial<T>(ring.AdditiveUnity, ring));
 
                                 }
                             }
                             else
                             {
                                 var newSymmetricPol = new Dictionary<Dictionary<int, int>, T>();
-                                newSymmetricPol.Add(degreeDivisor, this.ring.MultiplicativeUnity);
+                                newSymmetricPol.Add(degreeDivisor, ring.MultiplicativeUnity);
                                 symmetricTermsStack.Push(newSymmetricPol);
 
-                                resultStack.Push(new Polynomial<T, R>(topMonomial.Value, varDefs.Item2, this.ring));
-                                resultStack.Push(new Polynomial<T, R>(this.ring.AdditiveUnity, this.ring));
+                                resultStack.Push(new Polynomial<T>(topMonomial.Value, varDefs.Item2, ring));
+                                resultStack.Push(new Polynomial<T>(ring.AdditiveUnity, ring));
 
                             }
                         }
                         else
                         {
                             var newSymmetricPol = new Dictionary<Dictionary<int, int>, T>();
-                            newSymmetricPol.Add(degreeDivisor, this.ring.MultiplicativeUnity);
+                            newSymmetricPol.Add(degreeDivisor, ring.MultiplicativeUnity);
                             symmetricTermsStack.Push(newSymmetricPol);
 
                             var defaultSymmetricName = this.GetElementarySymmDefaultName(index);
 
-                            resultStack.Push(new Polynomial<T, R>(topMonomial.Value, defaultSymmetricName, this.ring));
-                            resultStack.Push(new Polynomial<T, R>(this.ring.AdditiveUnity, this.ring));
+                            resultStack.Push(new Polynomial<T>(topMonomial.Value, defaultSymmetricName, ring));
+                            resultStack.Push(new Polynomial<T>(ring.AdditiveUnity, ring));
 
                         }
                     }
@@ -433,16 +447,20 @@ namespace Mathematics.AlgebraicStructures.Polynomial
                             if (varDefs.Item1)
                             {
                                 var variableCoeff = varDefs.Item3;
-                                if (!this.ring.IsAdditiveUnity(variableCoeff))
+                                if (!ring.IsAdditiveUnity(variableCoeff))
                                 {
                                     var resultTop = resultStack.Pop();
-                                    resultStack.Push(resultTop.Add(new Polynomial<T, R>(variableCoeff, this.ring)));
+                                    resultStack.Push(resultTop.Add(new Polynomial<T>(variableCoeff, ring), ring));
                                 }
                             }
                             else
                             {
                                 var resultTop = resultStack.Pop();
-                                resultStack.Push(resultTop.Add(new Polynomial<T, R>(topMonomial.Value, varDefs.Item2, this.ring)));
+                                resultStack.Push(resultTop.Add(new Polynomial<T>(
+                                    topMonomial.Value, 
+                                    varDefs.Item2, 
+                                    ring), 
+                                    ring));
                             }
                         }
                         else
@@ -450,7 +468,11 @@ namespace Mathematics.AlgebraicStructures.Polynomial
                             var defaultSymmetricName = this.GetElementarySymmDefaultName(index);
 
                             var resultTop = resultStack.Pop();
-                            resultStack.Push(resultTop.Add(new Polynomial<T, R>(topMonomial.Value, defaultSymmetricName, this.ring)));
+                            resultStack.Push(resultTop.Add(new Polynomial<T>(
+                                topMonomial.Value, 
+                                defaultSymmetricName, 
+                                ring),
+                                ring));
                         }
 
                         topMonomials.Remove(topMonomial.Key);
@@ -462,8 +484,8 @@ namespace Mathematics.AlgebraicStructures.Polynomial
                     var resultTop = resultStack.Pop();
                     var toMultiply = resultStack.Pop();
                     var toAdd = resultStack.Pop();
-                    resultTop = resultTop.Multiply(toMultiply);
-                    resultTop = resultTop.Add(toAdd);
+                    resultTop = resultTop.Multiply(toMultiply, ring);
+                    resultTop = resultTop.Add(toAdd, ring);
                     resultStack.Push(resultTop);
                 }
             }
@@ -489,15 +511,16 @@ namespace Mathematics.AlgebraicStructures.Polynomial
         /// se encontre a falso e o seu valor caso esta se encontre a verdadeiro.
         /// </param>
         /// <returns>A representação polinomial.</returns>
-        private Polynomial<T, R> GetElementarySymmetricMonomialRepresentation(
+        private Polynomial<T> GetElementarySymmetricMonomialRepresentation(
             Dictionary<int, int> monomialDegree,
             T coeff,
-            Dictionary<int, Tuple<bool, string, T>> elementarySymmetricVarDefs)
+            Dictionary<int, Tuple<bool, string, T>> elementarySymmetricVarDefs,
+            IRing<T> ring)
         {
             var monomialStack = new Stack<KeyValuePair<Dictionary<int, int>, T>>();
-            var resultStack = new Stack<Polynomial<T, R>>();
+            var resultStack = new Stack<Polynomial<T>>();
             monomialStack.Push(new KeyValuePair<Dictionary<int, int>, T>(monomialDegree, coeff));
-            resultStack.Push(new Polynomial<T, R>(this.ring.MultiplicativeUnity, this.ring));
+            resultStack.Push(new Polynomial<T>(ring.MultiplicativeUnity, ring));
             while (monomialStack.Count != 0)
             {
                 var topMonomial = monomialStack.Pop();
@@ -508,16 +531,17 @@ namespace Mathematics.AlgebraicStructures.Polynomial
                     var degreeDivisor = this.GetDivisor(topMonomial.Key);
                     var maximumSymmetric = this.GetMaximumSymmetric(topMonomial.Key);
                     var multTerms = this.MultiplyMonomials(
-                        this.ring.MultiplicativeUnity,
+                        ring.MultiplicativeUnity,
                         degreeDivisor,
-                        this.ring.AdditiveInverse(topMonomial.Value),
-                        maximumSymmetric);
+                        ring.AdditiveInverse(topMonomial.Value),
+                        maximumSymmetric,
+                        ring);
 
                     multTerms.Remove(topMonomial.Key);
                     foreach (var kvp in multTerms)
                     {
                         monomialStack.Push(kvp);
-                        resultStack.Push(new Polynomial<T, R>(this.ring.MultiplicativeUnity, this.ring));
+                        resultStack.Push(new Polynomial<T>(ring.MultiplicativeUnity, ring));
                     }
 
                     Tuple<bool, string, T> varDefs = null;
@@ -527,23 +551,29 @@ namespace Mathematics.AlgebraicStructures.Polynomial
                         if (varDefs.Item1)
                         {
                             var variableCoeff = varDefs.Item3;
-                            if (!this.ring.IsAdditiveUnity(variableCoeff))
+                            if (!ring.IsAdditiveUnity(variableCoeff))
                             {
-                                resultTop = resultTop.Multiply(new Polynomial<T, R>(variableCoeff, this.ring));
-                                monomialStack.Push(new KeyValuePair<Dictionary<int, int>, T>(degreeDivisor, this.ring.MultiplicativeUnity));
+                                resultTop = resultTop.Multiply(new Polynomial<T>(variableCoeff, ring), ring);
+                                monomialStack.Push(new KeyValuePair<Dictionary<int, int>, T>(
+                                    degreeDivisor, 
+                                    ring.MultiplicativeUnity));
                                 resultStack.Push(resultTop);
                             }
                         }
                         else
                         {
-                            resultTop = resultTop.Multiply(new Polynomial<T, R>(topMonomial.Value, varDefs.Item2, this.ring));
+                            resultTop = resultTop.Multiply(new Polynomial<T>(
+                                topMonomial.Value, 
+                                varDefs.Item2, 
+                                ring),
+                                ring);
                         }
                     }
                     else
                     {
                         var defaultSymmetricName = this.GetElementarySymmDefaultName(index);
-                        var symPolRes = new Polynomial<T, R>(topMonomial.Value, defaultSymmetricName, this.ring);
-                        symPolRes = symPolRes.Multiply(resultTop);
+                        var symPolRes = new Polynomial<T>(topMonomial.Value, defaultSymmetricName, ring);
+                        symPolRes = symPolRes.Multiply(resultTop, ring);
                         if (resultStack.Count == 0)
                         {
                             return symPolRes;
@@ -551,7 +581,7 @@ namespace Mathematics.AlgebraicStructures.Polynomial
                         else
                         {
                             var otherTop = resultStack.Pop();
-                            resultStack.Push(symPolRes.Add(otherTop));
+                            resultStack.Push(symPolRes.Add(otherTop, ring));
                         }
                     }
                 }
@@ -563,11 +593,11 @@ namespace Mathematics.AlgebraicStructures.Polynomial
                         if (varDefs.Item1)
                         {
                             var variableCoeff = varDefs.Item3;
-                            if (!this.ring.IsAdditiveUnity(variableCoeff))
+                            if (!ring.IsAdditiveUnity(variableCoeff))
                             {
-                                variableCoeff = this.ring.Multiply(variableCoeff, topMonomial.Value);
-                                var symPolRes = new Polynomial<T, R>(variableCoeff, this.ring);
-                                symPolRes = symPolRes.Multiply(resultTop);
+                                variableCoeff = ring.Multiply(variableCoeff, topMonomial.Value);
+                                var symPolRes = new Polynomial<T>(variableCoeff, ring);
+                                symPolRes = symPolRes.Multiply(resultTop,ring);
                                 if (resultStack.Count == 0)
                                 {
                                     return symPolRes;
@@ -575,14 +605,14 @@ namespace Mathematics.AlgebraicStructures.Polynomial
                                 else
                                 {
                                     var otherTop = resultStack.Pop();
-                                    resultStack.Push(symPolRes.Add(otherTop));
+                                    resultStack.Push(symPolRes.Add(otherTop,ring));
                                 }
                             }
                         }
                         else
                         {
-                            var symPolRes = new Polynomial<T, R>(topMonomial.Value, varDefs.Item2, this.ring);
-                            symPolRes = symPolRes.Multiply(resultTop);
+                            var symPolRes = new Polynomial<T>(topMonomial.Value, varDefs.Item2, ring);
+                            symPolRes = symPolRes.Multiply(resultTop,ring);
                             if (resultStack.Count == 0)
                             {
                                 return symPolRes;
@@ -590,15 +620,15 @@ namespace Mathematics.AlgebraicStructures.Polynomial
                             else
                             {
                                 var otherTop = resultStack.Pop();
-                                resultStack.Push(symPolRes.Add(otherTop));
+                                resultStack.Push(symPolRes.Add(otherTop,ring));
                             }
                         }
                     }
                     else
                     {
                         var defaultSymmetricName = this.GetElementarySymmDefaultName(index);
-                        var symPolRes = new Polynomial<T, R>(topMonomial.Value, defaultSymmetricName, this.ring);
-                        symPolRes = symPolRes.Multiply(resultTop);
+                        var symPolRes = new Polynomial<T>(topMonomial.Value, defaultSymmetricName, ring);
+                        symPolRes = symPolRes.Multiply(resultTop,ring);
                         if (resultStack.Count == 0)
                         {
                             return symPolRes;
@@ -606,13 +636,13 @@ namespace Mathematics.AlgebraicStructures.Polynomial
                         else
                         {
                             var otherTop = resultStack.Pop();
-                            resultStack.Push(symPolRes.Add(otherTop));
+                            resultStack.Push(symPolRes.Add(otherTop,ring));
                         }
                     }
                 }
             }
 
-            return new Polynomial<T, R>(this.ring.AdditiveUnity, this.ring);
+            return new Polynomial<T>(ring.AdditiveUnity, ring);
         }
 
         /// <summary>
@@ -777,12 +807,14 @@ namespace Mathematics.AlgebraicStructures.Polynomial
         /// <param name="firstMonomialDegree">O grau do primeiro monómio a multiplicar.</param>
         /// <param name="secondMonomialCoeff">O coeficiente do segundo monómio a multiplicar.</param>
         /// <param name="secondMonomialDegree">O grau do segundo monómio a multiplicar.</param>
-        /// <returns></returns>
+        /// <param name="ring">O anel responsável pelas as operações.</param>
+        /// <returns>O produto dos monómios.</returns>
         private Dictionary<Dictionary<int, int>, T> MultiplyMonomials(
             T firstMonomialCoeff,
             Dictionary<int, int> firstMonomialDegree,
             T secondMonomialCoeff,
-            Dictionary<int, int> secondMonomialDegree)
+            Dictionary<int, int> secondMonomialDegree,
+            IRing<T> ring)
         {
             var firstDegreeNumber = this.GetDegreeTermsNumber(firstMonomialDegree);
             var secondDegreeNumber = this.GetDegreeTermsNumber(secondMonomialDegree);
@@ -840,12 +872,12 @@ namespace Mathematics.AlgebraicStructures.Polynomial
                 }
             }
 
-            var coeffProd = this.ring.Multiply(firstMonomialCoeff, secondMonomialCoeff);
+            var coeffProd = ring.Multiply(firstMonomialCoeff, secondMonomialCoeff);
             foreach (var degreeCountKvp in degreesCount)
             {
                 var scaleFactor = this.GetFactorScale(degreeCountKvp.Key, fixedCompactDegree);
                 scaleFactor.NumeratorNumberMultiply(degreeCountKvp.Value);
-                var auxCoeffProd = this.ring.AddRepeated(coeffProd, scaleFactor.Numerator);
+                var auxCoeffProd = ring.AddRepeated(coeffProd, scaleFactor.Numerator);
                 result.Add(degreeCountKvp.Key, auxCoeffProd);
             }
 

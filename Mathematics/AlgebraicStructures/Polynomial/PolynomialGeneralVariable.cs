@@ -5,10 +5,9 @@ using System.Text;
 
 namespace Mathematics
 {
-    class PolynomialGeneralVariable<T,R>
-        where R : IRing<T>
+    class PolynomialGeneralVariable<T>
     {
-        private Polynomial<T,R> internalPolynomial = null;
+        private Polynomial<T> internalPolynomial = null;
 
         private string variable = null;
 
@@ -26,7 +25,7 @@ namespace Mathematics
             this.variable = variable;
         }
 
-        public PolynomialGeneralVariable(Polynomial<T, R> polynomial)
+        public PolynomialGeneralVariable(Polynomial<T> polynomial)
         {
             if (polynomial == null)
             {
@@ -62,7 +61,7 @@ namespace Mathematics
             return this.variable;
         }
 
-        public Polynomial<T, R> GetPolynomial()
+        public Polynomial<T> GetPolynomial()
         {
             if (this.internalPolynomial == null)
             {
@@ -72,9 +71,9 @@ namespace Mathematics
             return this.internalPolynomial;
         }
 
-        public PolynomialGeneralVariable<T, R> Clone()
+        public PolynomialGeneralVariable<T> Clone()
         {
-            var result = new PolynomialGeneralVariable<T, R>();
+            var result = new PolynomialGeneralVariable<T>();
             if (this.internalPolynomial != null)
             {
                 result.internalPolynomial = this.internalPolynomial.Clone();
@@ -89,7 +88,7 @@ namespace Mathematics
 
         public override bool Equals(object obj)
         {
-            var innerObject = obj as PolynomialGeneralVariable<T, R>;
+            var innerObject = obj as PolynomialGeneralVariable<T>;
             if (innerObject == null)
             {
                 return false;
@@ -132,7 +131,7 @@ namespace Mathematics
             }
             else if (this.internalPolynomial != null)
             {
-                if (!this.internalPolynomial.IsVariable && !this.internalPolynomial.IsValue)
+                if (!this.internalPolynomial.IsValue)
                 {
                     resultBuilder.Append("(");
                     resultBuilder.Append(this.internalPolynomial.ToString());

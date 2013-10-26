@@ -5,13 +5,12 @@ using System.Text;
 
 namespace Mathematics
 {
-    public class ParseUnivarPolynomNormalFormItem<CoeffType, RingType>
-        where RingType : IRing<CoeffType>
+    public class ParseUnivarPolynomNormalFormItem<CoeffType>
     {
         /// <summary>
         /// O valor polinomial.
         /// </summary>
-        private UnivariatePolynomialNormalForm<CoeffType, RingType> polynomial;
+        private UnivariatePolynomialNormalForm<CoeffType> polynomial;
         
         /// <summary>
         /// O coeficiente.
@@ -35,7 +34,7 @@ namespace Mathematics
         /// <summary>
         /// Obtém o valor polinomial caso seja aplicável.
         /// </summary>
-        public UnivariatePolynomialNormalForm<CoeffType, RingType> Polynomial
+        public UnivariatePolynomialNormalForm<CoeffType> Polynomial
         {
             get
             {

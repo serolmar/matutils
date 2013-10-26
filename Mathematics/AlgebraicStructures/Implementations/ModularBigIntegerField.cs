@@ -16,7 +16,7 @@
         /// <summary>
         /// O algoritmo que permite obter o inverso de um número.
         /// </summary>
-        private LagrangeAlgorithm<BigInteger, BigIntegerDomain> inverseAlgorithm;
+        private LagrangeAlgorithm<BigInteger> inverseAlgorithm;
 
         public ModularBigIntegerDomain(BigInteger module)
         {
@@ -27,7 +27,7 @@
             else
             {
                 this.module = module;
-                this.inverseAlgorithm = new LagrangeAlgorithm<BigInteger, BigIntegerDomain>(
+                this.inverseAlgorithm = new LagrangeAlgorithm<BigInteger>(
                     new BigIntegerDomain());
             }
         }

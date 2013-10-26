@@ -11,10 +11,9 @@ namespace Mathematics
     /// </summary>
     /// <typeparam name="InputType">O tipo de variável sobre o qual é executado o algoritmo.</typeparam>
     /// <typeparam name="DomainType">O domínio que define as operações sobre o tipo de entrada.</typeparam>
-    public interface IBachetBezoutAlgorithm<InputType, out DomainType> 
+    public interface IBachetBezoutAlgorithm<InputType> 
         : IAlgorithm<InputType, InputType, BacheBezoutResult<InputType>>
-        where DomainType : IEuclidenDomain<InputType>
     {
-        DomainType Domain { get; }
+        IEuclidenDomain<InputType> Domain { get; }
     }
 }

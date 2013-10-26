@@ -18,7 +18,7 @@
         /// <summary>
         /// Permite efectuar um passo intermédio para a obtenção da inversa.
         /// </summary>
-        private LagrangeAlgorithm<int, IntegerDomain> inverseAlgorithm;
+        private LagrangeAlgorithm<int> inverseAlgorithm;
 
         public ModularIntegerField(int module)
         {
@@ -29,7 +29,7 @@
             else
             {
                 this.module = module;
-                this.inverseAlgorithm = new LagrangeAlgorithm<int, IntegerDomain>(
+                this.inverseAlgorithm = new LagrangeAlgorithm<int>(
                     new IntegerDomain());
             }
         }

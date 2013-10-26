@@ -5,12 +5,11 @@ using System.Text;
 
 namespace Mathematics
 {
-    public abstract class ADeterminant<ElementsType, RingType> : IAlgorithm<IMatrix<ElementsType>, ElementsType>
-        where RingType : IRing<ElementsType>
+    public abstract class ADeterminant<ElementsType> : IAlgorithm<IMatrix<ElementsType>, ElementsType>
     {
-        protected RingType ring;
+        protected IRing<ElementsType> ring;
 
-        public ADeterminant(RingType ring)
+        public ADeterminant(IRing<ElementsType> ring)
         {
             if (ring == null)
             {

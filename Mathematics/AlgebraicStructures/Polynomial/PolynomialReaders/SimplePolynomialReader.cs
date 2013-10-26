@@ -6,9 +6,8 @@
     using System.Text;
     using Utilities.Parsers;
 
-    class SimplePolynomialReader<CoeffType, RingType> :
-        IParse<ParsePolynomialItem<CoeffType, RingType>, string, string>
-        where RingType : IRing<CoeffType>
+    class SimplePolynomialReader<CoeffType> :
+        IParse<ParsePolynomialItem<CoeffType>, string, string>
     {
         /// <summary>
         /// O leitor de coeficientes.
@@ -23,9 +22,9 @@
         /// <summary>
         /// O anel responsável pela aplicação das operações sobre os coeficientes.
         /// </summary>
-        private RingType coeffRing;
+        private IRing<CoeffType> coeffRing;
 
-        public SimplePolynomialReader(IParse<CoeffType, string, string> coeffParser, RingType coeffRing)
+        public SimplePolynomialReader(IParse<CoeffType, string, string> coeffParser, IRing<CoeffType> coeffRing)
         {
             if (coeffParser == null)
             {
@@ -46,13 +45,13 @@
         /// </summary>
         /// <param name="symbolListToParse">A lista de símbolos para leitura.</param>
         /// <returns>O polinómio requerido.</returns>
-        public bool TryParse(ISymbol<string, string>[] symbolListToParse, out ParsePolynomialItem<CoeffType, RingType> pol)
+        public bool TryParse(ISymbol<string, string>[] symbolListToParse, out ParsePolynomialItem<CoeffType> pol)
         {
             pol = null;
             var parsedCoeff = default(CoeffType);
             if (this.coeffParser.TryParse(symbolListToParse, out parsedCoeff))
             {
-                pol = new ParsePolynomialItem<CoeffType, RingType>();
+                pol = new ParsePolynomialItem<CoeffType>();
                 pol.Coeff = parsedCoeff;
                 return true;
             }
@@ -65,8 +64,8 @@
                 }
                 else if (char.IsLetter(stringValue[0]))
                 {
-                    pol = new ParsePolynomialItem<CoeffType, RingType>();
-                    pol.Polynomial = new Polynomial<CoeffType, RingType>(this.coeffRing.MultiplicativeUnity, stringValue, this.coeffRing);
+                    pol = new ParsePolynomialItem<CoeffType>();
+                    pol.Polynomial = new Polynomial<CoeffType>(this.coeffRing.MultiplicativeUnity, stringValue, this.coeffRing);
                     return true;
                 }
                 else
@@ -74,7 +73,7 @@
                     var integerValue = 0;
                     if (this.integerParser.TryParse(symbolListToParse, out integerValue))
                     {
-                        pol = new ParsePolynomialItem<CoeffType, RingType>();
+                        pol = new ParsePolynomialItem<CoeffType>();
                         pol.Degree = integerValue;
                         return true;
                     }
@@ -89,7 +88,7 @@
                 var integerValue = 0;
                 if (this.integerParser.TryParse(symbolListToParse, out integerValue))
                 {
-                    pol = new ParsePolynomialItem<CoeffType, RingType>();
+                    pol = new ParsePolynomialItem<CoeffType>();
                     pol.Degree = integerValue;
                     return true;
                 }

@@ -8,15 +8,14 @@
     /// <summary>
     /// Representa o corpo responsável pelas operações sobre polinómios módulo x^r-1 de uma forma rápida e eficaz.
     /// </summary>
-    class AuxAksModArithmRing<CoeffType, RingType> : UnivarPolynomRing<CoeffType, RingType>
-        where RingType : IRing<CoeffType>
+    class AuxAksModArithmRing<CoeffType> : UnivarPolynomRing<CoeffType>
     {
         /// <summary>
         /// O módulo segundo o qual são feitas as simplificações de potenciação.
         /// </summary>
         private int powerModule;
 
-        public AuxAksModArithmRing(int powerModule, string variableName, RingType ring)
+        public AuxAksModArithmRing(int powerModule, string variableName, IRing<CoeffType> ring)
             : base(variableName, ring)
         {
             if (powerModule < 1)
@@ -51,9 +50,9 @@
             }
         }
 
-        public override UnivariatePolynomialNormalForm<CoeffType, RingType> Multiply(
-            UnivariatePolynomialNormalForm<CoeffType, RingType> left,
-            UnivariatePolynomialNormalForm<CoeffType, RingType> right)
+        public override UnivariatePolynomialNormalForm<CoeffType> Multiply(
+            UnivariatePolynomialNormalForm<CoeffType> left,
+            UnivariatePolynomialNormalForm<CoeffType> right)
         {
             if (left == null)
             {
@@ -65,9 +64,8 @@
             }
             else
             {
-                var result = new UnivariatePolynomialNormalForm<CoeffType, RingType>(
-                    this.variableName,
-                    this.ring);
+                var result = new UnivariatePolynomialNormalForm<CoeffType>(
+                    this.variableName);
                 var innerLeft = this.GetReduced(left);
                 var innerRight = this.GetReduced(right);
                 foreach (var leftTermsKvp in innerLeft)
@@ -76,7 +74,7 @@
                     {
                         var coeff = this.ring.Multiply(leftTermsKvp.Value, rightTermsKvp.Value);
                         var degree = (leftTermsKvp.Key + rightTermsKvp.Key) % this.powerModule;
-                        result = result.Add(coeff, degree);
+                        result = result.Add(coeff, degree, this.ring);
                     }
                 }
 
@@ -89,8 +87,8 @@
         /// </summary>
         /// <param name="element">O polinómio a ser reduzido.</param>
         /// <returns>O polinómio reduzido correspondente.</returns>
-        public UnivariatePolynomialNormalForm<CoeffType, RingType> GetReduced(
-            UnivariatePolynomialNormalForm<CoeffType, RingType> element)
+        public UnivariatePolynomialNormalForm<CoeffType> GetReduced(
+            UnivariatePolynomialNormalForm<CoeffType> element)
         {
             if (element == null)
             {
@@ -98,13 +96,12 @@
             }
             else
             {
-                var result = new UnivariatePolynomialNormalForm<CoeffType, RingType>(
-                    this.variableName,
-                    this.ring);
+                var result = new UnivariatePolynomialNormalForm<CoeffType>(
+                    this.variableName);
                 foreach (var termKvp in element)
                 {
                     var modularDegree = termKvp.Key % this.powerModule;
-                    result = result.Add(termKvp.Value, modularDegree);
+                    result = result.Add(termKvp.Value, modularDegree, this.ring);
                 }
 
                 return result;

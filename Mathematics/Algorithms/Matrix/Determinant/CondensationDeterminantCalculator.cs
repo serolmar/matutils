@@ -16,12 +16,14 @@ namespace Mathematics
     /// </remarks>
     /// <typeparam name="ObjectType">O tipo de objeto a ser processado.</typeparam>
     /// <typeparam name="FieldType">O tipo do corpo que permite efectuar as operações sobre os elementos.</typeparam>
-    public class CondensationDeterminantCalculator<ObjectType, EuclideanDomainType> : ADeterminant<ObjectType, EuclideanDomainType>
-        where EuclideanDomainType : IEuclidenDomain<ObjectType>
+    public class CondensationDeterminantCalculator<ObjectType> : ADeterminant<ObjectType>
     {
-        public CondensationDeterminantCalculator(EuclideanDomainType domain)
+        private IEuclidenDomain<ObjectType> domain;
+
+        public CondensationDeterminantCalculator(IEuclidenDomain<ObjectType> domain)
             : base(domain)
         {
+            this.domain = domain;
         }
 
         protected override ObjectType ComputeDeterminant(IMatrix<ObjectType> data)
@@ -86,11 +88,11 @@ namespace Mathematics
                             var value = temporaryArray[j, i];
                             if (!this.ring.IsAdditiveUnity(value))
                             {
-                                var gcd = MathFunctions.GreatCommonDivisor(pivotValue, value, this.ring);
+                                var gcd = MathFunctions.GreatCommonDivisor(pivotValue, value, this.domain);
                                 var lcm = this.ring.Multiply(pivotValue, value);
-                                lcm = this.ring.Quo(lcm, gcd);
-                                var pivotCoffactor = this.ring.Quo(pivotValue, gcd);
-                                var valueCoffactor = this.ring.Quo(value, gcd);
+                                lcm = this.domain.Quo(lcm, gcd);
+                                var pivotCoffactor = this.domain.Quo(pivotValue, gcd);
+                                var valueCoffactor = this.domain.Quo(value, gcd);
                                 determinantFactors.Add(pivotCoffactor);
                                 temporaryArray[j, i] = this.ring.AdditiveUnity;
                                 for (int k = i + 1; k < matrixDimension; ++k)
@@ -148,7 +150,7 @@ namespace Mathematics
 
             for (int i = 0; i < divisors.Count; ++i)
             {
-                result = this.ring.Quo(result, divisors[i]);
+                result = this.domain.Quo(result, divisors[i]);
             }
 
             if (!sign)

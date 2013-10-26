@@ -5,25 +5,30 @@
     using System.Linq;
     using System.Text;
 
-    public class UnivarSquareFreeDecomposition<CoeffType, FieldType> :
-        IAlgorithm<UnivariatePolynomialNormalForm<CoeffType, FieldType>,
-        Dictionary<int, UnivariatePolynomialNormalForm<CoeffType, FieldType>>>
-        where FieldType : IField<CoeffType>
+    public class UnivarSquareFreeDecomposition<CoeffType> :
+        IAlgorithm<UnivariatePolynomialNormalForm<CoeffType>,
+        IField<CoeffType>,
+        Dictionary<int, UnivariatePolynomialNormalForm<CoeffType>>>
     {
-        public Dictionary<int, UnivariatePolynomialNormalForm<CoeffType, FieldType>> Run(
-            UnivariatePolynomialNormalForm<CoeffType, FieldType> data)
+        public Dictionary<int, UnivariatePolynomialNormalForm<CoeffType>> Run(
+            UnivariatePolynomialNormalForm<CoeffType> data,
+            IField<CoeffType> field)
         {
-            if (data == null)
+            if (field == null)
+            {
+                throw new ArgumentException("field");
+            }
+            else if (data == null)
             {
                 throw new ArgumentNullException("data");
             }
             else
             {
-                var result = new Dictionary<int, UnivariatePolynomialNormalForm<CoeffType, FieldType>>();
+                var result = new Dictionary<int, UnivariatePolynomialNormalForm<CoeffType>>();
                 var currentDegree = 1;
-                var polynomDomain = new UnivarPolynomEuclideanDomain<CoeffType, FieldType>(data.VariableName, data.Ring);
-                var dataDerivative = data.GetPolynomialDerivative();
-                var gcd = this.GreatCommonDivisor(data, dataDerivative, polynomDomain);
+                var polynomDomain = new UnivarPolynomEuclideanDomain<CoeffType>(data.VariableName, field);
+                var dataDerivative = data.GetPolynomialDerivative(field);
+                var gcd = this.GreatCommonDivisor(data, dataDerivative, polynomDomain, field);
                 if (polynomDomain.IsMultiplicativeUnity(gcd))
                 {
                     result.Add(currentDegree, data.Clone());
@@ -31,7 +36,7 @@
                 else
                 {
                     var polyCoffactor = polynomDomain.Quo(data, gcd);
-                    var nextGcd = this.GreatCommonDivisor(gcd, polyCoffactor, polynomDomain);
+                    var nextGcd = this.GreatCommonDivisor(gcd, polyCoffactor, polynomDomain, field);
                     var squareFreeFactor = polynomDomain.Quo(polyCoffactor, nextGcd);
                     polyCoffactor = gcd;
                     gcd = nextGcd;
@@ -44,7 +49,7 @@
                     while (gcd.Degree > 0)
                     {
                         polyCoffactor = polynomDomain.Quo(polyCoffactor, gcd);
-                        nextGcd = this.GreatCommonDivisor(gcd, polyCoffactor, polynomDomain);
+                        nextGcd = this.GreatCommonDivisor(gcd, polyCoffactor, polynomDomain, field);
                         squareFreeFactor = polynomDomain.Quo(gcd, nextGcd);
                         gcd = nextGcd;
                         if (squareFreeFactor.Degree > 0)
@@ -60,15 +65,16 @@
             }
         }
 
-        private UnivariatePolynomialNormalForm<CoeffType, FieldType> GreatCommonDivisor(
-            UnivariatePolynomialNormalForm<CoeffType, FieldType> first,
-            UnivariatePolynomialNormalForm<CoeffType, FieldType> second,
-            UnivarPolynomEuclideanDomain<CoeffType, FieldType> polynomDomain
+        private UnivariatePolynomialNormalForm<CoeffType> GreatCommonDivisor(
+            UnivariatePolynomialNormalForm<CoeffType> first,
+            UnivariatePolynomialNormalForm<CoeffType> second,
+            UnivarPolynomEuclideanDomain<CoeffType> polynomDomain,
+            IField<CoeffType> field
             )
         {
             var result = MathFunctions.GreatCommonDivisor(first, second, polynomDomain);
-            var leadingCoeff = result.GetLeadingCoefficient();
-            result = result.Multiply(result.Ring.MultiplicativeInverse(leadingCoeff));
+            var leadingCoeff = result.GetLeadingCoefficient(field);
+            result = result.Multiply(field.MultiplicativeInverse(leadingCoeff), field);
             return result;
         }
     }

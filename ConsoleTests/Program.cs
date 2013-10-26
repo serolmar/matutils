@@ -388,7 +388,7 @@
             }
 
             var integerDomain = new IntegerDomain();
-            var lagrangeAlg = new LagrangeAlgorithm<int, IntegerDomain>(integerDomain);
+            var lagrangeAlg = new LagrangeAlgorithm<int>(integerDomain);
             var firstValue = 51;
             var secondValue = 192;
             var result = lagrangeAlg.Run(firstValue, secondValue);
@@ -422,26 +422,22 @@
             var fractionField = new FractionField<int, IntegerDomain>(integerDomain);
             var integerParser = new IntegerParser<string>();
             var fractionParser = new ElementFractionParser<int, IntegerDomain>(integerParser, integerDomain);
-            var polynomialParser = new UnivariatePolynomialReader<
-                Fraction<int, IntegerDomain>,
-                FractionField<int, IntegerDomain>,
+            var polynomialParser = new UnivariatePolynomialReader<Fraction<int, IntegerDomain>,
                 CharSymbolReader<string>>(
                 "x",
                 fractionParser,
                 fractionField);
 
             var fractionConversion = new ElementFractionConversion<int, IntegerDomain>(integerDomain);
-            var firstPol = default(UnivariatePolynomialNormalForm<Fraction<int, IntegerDomain>, FractionField<int, IntegerDomain>>);
+            var firstPol = default(UnivariatePolynomialNormalForm<Fraction<int, IntegerDomain>>);
             if (polynomialParser.TryParsePolynomial(stringSymbolReader, fractionConversion, out firstPol))
             {
                 reader = new StringReader(secondInput);
                 stringSymbolReader = new StringSymbolReader(reader, false);
-                var secondPol = default(UnivariatePolynomialNormalForm<Fraction<int, IntegerDomain>, FractionField<int, IntegerDomain>>);
+                var secondPol = default(UnivariatePolynomialNormalForm<Fraction<int, IntegerDomain>>);
                 if (polynomialParser.TryParsePolynomial(stringSymbolReader, fractionConversion, out secondPol))
                 {
-                    var polynomialEuclideanDomain = new UnivarPolynomEuclideanDomain<
-                        Fraction<int, IntegerDomain>,
-                        FractionField<int, IntegerDomain>>(
+                    var polynomialEuclideanDomain = new UnivarPolynomEuclideanDomain<Fraction<int, IntegerDomain>>(
                         "x",
                         fractionField);
 
@@ -467,17 +463,16 @@
             var otherFractionField = new FractionField<BigInteger, BigIntegerDomain>(bigIntegerDomain);
             var otherPolParser = new UnivariatePolynomialReader<
                 Fraction<BigInteger, BigIntegerDomain>,
-                FractionField<BigInteger, BigIntegerDomain>,
                 CharSymbolReader<string>>(
                 "x",
                 otherFractionParser,
                 otherFractionField);
             var otherFractionConversion = new BigIntegerFractionToIntConversion();
-            var thirdPol = default(UnivariatePolynomialNormalForm<Fraction<BigInteger, BigIntegerDomain>, FractionField<BigInteger, BigIntegerDomain>>);
+            var thirdPol = default(UnivariatePolynomialNormalForm<Fraction<BigInteger, BigIntegerDomain>>);
             if (otherPolParser.TryParsePolynomial(stringSymbolReader, otherFractionConversion, out thirdPol))
             {
-                var univarSquareFreeAlg = new UnivarSquareFreeDecomposition<Fraction<BigInteger, BigIntegerDomain>, FractionField<BigInteger, BigIntegerDomain>>();
-                var result = univarSquareFreeAlg.Run(thirdPol);
+                var univarSquareFreeAlg = new UnivarSquareFreeDecomposition<Fraction<BigInteger, BigIntegerDomain>>();
+                var result = univarSquareFreeAlg.Run(thirdPol, otherFractionField);
                 Console.WriteLine("The squarefree factors are:");
                 foreach (var factor in result)
                 {
@@ -512,7 +507,9 @@
             if (arrayMatrixReader.TryParseMatrix(stringsymbolReader, integerParser, errors, out matrix))
             {
                 var integerDomain = new IntegerDomain();
-                var divFreeCharPol = new FastDivisionFreeCharPolynomCalculator<int, IntegerDomain>("lambda", integerDomain);
+                var divFreeCharPol = new FastDivisionFreeCharPolynomCalculator<int>(
+                    "lambda", 
+                    integerDomain);
                 var computedCharPol = divFreeCharPol.Run(matrix);
                 Console.WriteLine("O determinante usando permutações vale: {0}.", computedCharPol);
             }
@@ -527,22 +524,22 @@
             var reader = new StringReader(input);
             var stringSymbolReader = new StringSymbolReader(reader, false);
 
-            var polynomialParser = new UnivariatePolynomialReader<int, ModularIntegerField, CharSymbolReader<string>>(
+            var polynomialParser = new UnivariatePolynomialReader<int, CharSymbolReader<string>>(
                 "x",
                 integerParser,
                 integerModularField);
 
-            var parsedPol = default(UnivariatePolynomialNormalForm<int, ModularIntegerField>);
+            var parsedPol = default(UnivariatePolynomialNormalForm<int>);
             if (polynomialParser.TryParsePolynomial(
                 stringSymbolReader,
                 new ElementToElementConversion<int>(), 
                 out parsedPol))
             {
                 var finiteFieldFactorization = new FiniteFieldPolFactorizationAlgorithm(
-                    new UnivarSquareFreeDecomposition<Fraction<int, IntegerDomain>, FractionField<int, IntegerDomain>>(),
+                    new UnivarSquareFreeDecomposition<Fraction<int, IntegerDomain>>(),
                     new DenseCondensationLinSysAlgorithm<int>(integerModularField));
 
-                var factored = finiteFieldFactorization.Run(parsedPol);
+                var factored = finiteFieldFactorization.Run(parsedPol, integerModularField);
 
                 foreach (var factorKvp in factored)
                 {
@@ -592,14 +589,14 @@
             var integerParser = new IntegerParser<string>();
             var integerDomain = new IntegerDomain();
             var conversion = new ElementToElementConversion<int>();
-            var univariatePolParser = new UnivarPolNormalFormParser<int, IntegerDomain>(
+            var univariatePolParser = new UnivarPolNormalFormParser<int>(
                 "x",
                 conversion,
                 integerParser,
                 integerDomain);
 
-            var arrayMatrixFactory = new ArrayMatrixFactory<UnivariatePolynomialNormalForm<int, IntegerDomain>>();
-            var arrayReader = new ConfigMatrixReader<UnivariatePolynomialNormalForm<int, IntegerDomain>, string, string, CharSymbolReader<string>>(
+            var arrayMatrixFactory = new ArrayMatrixFactory<UnivariatePolynomialNormalForm<int>>();
+            var arrayReader = new ConfigMatrixReader<UnivariatePolynomialNormalForm<int>, string, string, CharSymbolReader<string>>(
                 2,
                 2,
                 arrayMatrixFactory);
@@ -607,21 +604,19 @@
             arrayReader.AddBlanckSymbolType("blancks");
             arrayReader.SeparatorSymbType = "comma";
 
-            var readed = default(IMatrix<UnivariatePolynomialNormalForm<int, IntegerDomain>>);
+            var readed = default(IMatrix<UnivariatePolynomialNormalForm<int>>);
             if (arrayReader.TryParseMatrix(inputReader, univariatePolParser, out readed))
             {
-                var polynomialRing = new UnivarPolynomRing<int, IntegerDomain>("x", integerDomain);
-                var permutationDeterminant = new PermutationDeterminantCalculator<
-                    UnivariatePolynomialNormalForm<int, IntegerDomain>,
-                    UnivarPolynomRing<int, IntegerDomain>>(polynomialRing);
+                var polynomialRing = new UnivarPolynomRing<int>("x", integerDomain);
+                var permutationDeterminant = new PermutationDeterminantCalculator<UnivariatePolynomialNormalForm<int>>(
+                    polynomialRing);
 
                 var computedDeterminant = permutationDeterminant.Run(readed);
 
                 Console.WriteLine("O determinante usando permutações vale: {0}.", computedDeterminant);
 
-                var expansionDeterminant = new ExpansionDeterminantCalculator<
-                    UnivariatePolynomialNormalForm<int, IntegerDomain>,
-                    UnivarPolynomRing<int, IntegerDomain>>(polynomialRing);
+                var expansionDeterminant = new ExpansionDeterminantCalculator<UnivariatePolynomialNormalForm<int>>(
+                    polynomialRing);
 
                 computedDeterminant = expansionDeterminant.Run(readed);
 
@@ -641,8 +636,10 @@
             var integerParser = new IntegerParser<string>();
 
             var inputReader = new StringSymbolReader(new StringReader(input), false);
-            var polynomialParser = new PolynomialReader<int, IntegerDomain, CharSymbolReader<string>>(integerParser, new IntegerDomain());
-            var readed = default(Polynomial<int, IntegerDomain>);
+            var polynomialParser = new PolynomialReader<int, CharSymbolReader<string>>(
+                integerParser, 
+                new IntegerDomain());
+            var readed = default(Polynomial<int>);
             var errors = new List<string>();
             var elementConversion = new ElementToElementConversion<int>();
             if (polynomialParser.TryParsePolynomial(inputReader, elementConversion, errors, out readed))
@@ -672,7 +669,10 @@
             var integerParser = new IntegerParser<string>();
 
             var arrayMatrixFactory = new ArrayMatrixFactory<int>();
-            var arrayMatrixReader = new ConfigMatrixReader<int, string, string, CharSymbolReader<string>>(3, 3, arrayMatrixFactory);
+            var arrayMatrixReader = new ConfigMatrixReader<int, string, string, CharSymbolReader<string>>(
+                3, 
+                3, 
+                arrayMatrixFactory);
             arrayMatrixReader.MapInternalDelimiters("left_bracket", "right_bracket");
             arrayMatrixReader.AddBlanckSymbolType("blancks");
             arrayMatrixReader.SeparatorSymbType = "comma";
@@ -684,15 +684,15 @@
                 Console.WriteLine(matrix);
 
                 var integerDomain = new IntegerDomain();
-                var permutationDeterminant = new PermutationDeterminantCalculator<int, IntegerDomain>(integerDomain);
+                var permutationDeterminant = new PermutationDeterminantCalculator<int>(integerDomain);
                 var computedDeterminant = permutationDeterminant.Run(matrix);
                 Console.WriteLine("O determinante usando permutações vale: {0}.", computedDeterminant);
 
-                var expansionDeterminant = new ExpansionDeterminantCalculator<int, IntegerDomain>(integerDomain);
+                var expansionDeterminant = new ExpansionDeterminantCalculator<int>(integerDomain);
                 computedDeterminant = expansionDeterminant.Run(matrix);
                 Console.WriteLine("O determinante usando expansão vale: {0}.", computedDeterminant);
 
-                var condensationDeterminant = new CondensationDeterminantCalculator<int, IntegerDomain>(integerDomain);
+                var condensationDeterminant = new CondensationDeterminantCalculator<int>(integerDomain);
                 computedDeterminant = condensationDeterminant.Run(matrix);
                 Console.WriteLine("O determinante usando a condensação vale: {0}.", computedDeterminant);
             }
@@ -754,14 +754,14 @@
             var varDictionary = new Dictionary<int, Tuple<bool, string, int>>();
             varDictionary.Add(1, Tuple.Create(true, "s[1]", 0));
 
-            var symmetric = new SymmetricPolynomial<int, IntegerDomain>(
+            var symmetric = new SymmetricPolynomial<int>(
                 new List<string>() { "x", "y", "z", "w" },
                 dictionary,
                 1,
                 new IntegerDomain());
 
-            var rep = symmetric.GetElementarySymmetricRepresentation(varDictionary);
-            var expanded = rep.GetExpanded();
+            var rep = symmetric.GetElementarySymmetricRepresentation(varDictionary, new IntegerDomain());
+            var expanded = rep.GetExpanded(new IntegerDomain());
             Console.WriteLine(expanded);
         }
 

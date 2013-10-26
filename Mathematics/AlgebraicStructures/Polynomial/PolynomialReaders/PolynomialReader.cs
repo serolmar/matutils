@@ -9,8 +9,7 @@
     using Utilities;
     using Utilities.Parsers;
 
-    public class PolynomialReader<T, RingType, InputReader>
-        where RingType : IRing<T>
+    public class PolynomialReader<T, InputReader>
     {
         /// <summary>
         /// O leitor de coeficientes.
@@ -20,7 +19,7 @@
         /// <summary>
         /// O anel responsável pelas operações.
         /// </summary>
-        private RingType ring;
+        private IRing<T> ring;
 
         /// <summary>
         /// Maps the external delimiters. External delimiters bounds entire elementary subexpressions.
@@ -37,7 +36,7 @@
         /// </summary>
         private IConversion<int, T> conversion;
 
-        public PolynomialReader(IParse<T, string, string> coeffParser, RingType ring)
+        public PolynomialReader(IParse<T, string, string> coeffParser, IRing<T> ring)
         {
             if (coeffParser == null)
             {
@@ -63,7 +62,7 @@
         public bool TryParsePolynomial(
             MementoSymbolReader<InputReader, string, string> polynomialReader,
             IConversion<int, T> conversion,
-            out Polynomial<T, RingType> resultPolynomial)
+            out Polynomial<T> resultPolynomial)
         {
             return this.TryParsePolynomial(polynomialReader, null, out resultPolynomial);
         }
@@ -80,7 +79,7 @@
             MementoSymbolReader<InputReader, string, string> polynomialReader,
             IConversion<int, T> conversion,
             List<string> errors,
-            out Polynomial<T, RingType> resultPolynomial)
+            out Polynomial<T> resultPolynomial)
         {
             if (polynomialReader == null)
             {
@@ -93,8 +92,9 @@
             }
 
             this.conversion = conversion;
-            resultPolynomial = default(Polynomial<T, RingType>);
-            var expressionReader = new ExpressionReader<ParsePolynomialItem<T, RingType>, string, string, InputReader>(new SimplePolynomialReader<T, RingType>(this.coeffParser, this.ring));
+            resultPolynomial = default(Polynomial<T>);
+            var expressionReader = new ExpressionReader<ParsePolynomialItem<T>, string, string, InputReader>(
+                new SimplePolynomialReader<T>(this.coeffParser, this.ring));
             expressionReader.RegisterBinaryOperator("plus", Add, 0);
             expressionReader.RegisterBinaryOperator("times", Multiply, 1);
             expressionReader.RegisterBinaryOperator("minus", Subtract, 0);
@@ -115,19 +115,19 @@
             expressionReader.AddVoid("carriage_return");
             expressionReader.AddVoid("new_line");
 
-            var expressionResult = default(ParsePolynomialItem<T, RingType>);
+            var expressionResult = default(ParsePolynomialItem<T>);
             if (expressionReader.TryParse(polynomialReader, errors, out expressionResult))
             {
                 if (expressionResult.ValueType == EParsePolynomialValueType.COEFFICIENT)
                 {
-                    resultPolynomial = new Polynomial<T, RingType>(expressionResult.Coeff, this.ring);
+                    resultPolynomial = new Polynomial<T>(expressionResult.Coeff, this.ring);
                     return true;
                 }
                 else if (expressionResult.ValueType == EParsePolynomialValueType.INTEGER)
                 {
                     if (typeof(T).IsAssignableFrom(typeof(int)))
                     {
-                        resultPolynomial = new Polynomial<T, RingType>((T)(object)expressionResult.Degree, this.ring);
+                        resultPolynomial = new Polynomial<T>((T)(object)expressionResult.Degree, this.ring);
                         return true;
                     }
                     else
@@ -184,9 +184,9 @@
         /// <param name="left">O primeiro polinómio a adicionar.</param>
         /// <param name="right">O segundo polinómio a adicionar.</param>
         /// <returns>O polinómio resultante.</returns>
-        protected virtual ParsePolynomialItem<T, RingType> Add(ParsePolynomialItem<T, RingType> left, ParsePolynomialItem<T, RingType> right)
+        protected virtual ParsePolynomialItem<T> Add(ParsePolynomialItem<T> left, ParsePolynomialItem<T> right)
         {
-            var result = new ParsePolynomialItem<T, RingType>();
+            var result = new ParsePolynomialItem<T>();
             if (left.ValueType == EParsePolynomialValueType.COEFFICIENT)
             {
                 if (right.ValueType == EParsePolynomialValueType.COEFFICIENT)
@@ -200,7 +200,7 @@
                 }
                 else if (right.ValueType == EParsePolynomialValueType.POLYNOMIAL)
                 {
-                    result.Polynomial = right.Polynomial.Add(left.Coeff);
+                    result.Polynomial = right.Polynomial.Add(left.Coeff, this.ring);
                 }
             }
             else if (left.ValueType == EParsePolynomialValueType.INTEGER)
@@ -217,23 +217,23 @@
                 else if (right.ValueType == EParsePolynomialValueType.POLYNOMIAL)
                 {
                     var leftConverted = this.conversion.InverseConversion(left.Degree);
-                    result.Polynomial.Add(leftConverted);
+                    result.Polynomial.Add(leftConverted, this.ring);
                 }
             }
             else if (left.ValueType == EParsePolynomialValueType.POLYNOMIAL)
             {
                 if (right.ValueType == EParsePolynomialValueType.COEFFICIENT)
                 {
-                    result.Polynomial = left.Polynomial.Add(right.Coeff);
+                    result.Polynomial = left.Polynomial.Add(right.Coeff, this.ring);
                 }
                 else if (right.ValueType == EParsePolynomialValueType.INTEGER)
                 {
                     var rightConverted = this.conversion.InverseConversion(right.Degree);
-                    result.Polynomial.Add(rightConverted);
+                    result.Polynomial.Add(rightConverted, this.ring);
                 }
                 else if (right.ValueType == EParsePolynomialValueType.POLYNOMIAL)
                 {
-                    result.Polynomial = left.Polynomial.Add(right.Polynomial);
+                    result.Polynomial = left.Polynomial.Add(right.Polynomial, this.ring);
                 }
             }
 
@@ -246,9 +246,9 @@
         /// <param name="left">O primeiro polinómio.</param>
         /// <param name="right">O segundo polinómio.</param>
         /// <returns>O polinómio resultante.</returns>
-        protected virtual ParsePolynomialItem<T, RingType> Multiply(ParsePolynomialItem<T, RingType> left, ParsePolynomialItem<T, RingType> right)
+        protected virtual ParsePolynomialItem<T> Multiply(ParsePolynomialItem<T> left, ParsePolynomialItem<T> right)
         {
-            var result = new ParsePolynomialItem<T, RingType>();
+            var result = new ParsePolynomialItem<T>();
             if (left.ValueType == EParsePolynomialValueType.COEFFICIENT)
             {
                 if (right.ValueType == EParsePolynomialValueType.COEFFICIENT)
@@ -262,7 +262,7 @@
                 }
                 else if (right.ValueType == EParsePolynomialValueType.POLYNOMIAL)
                 {
-                    result.Polynomial = right.Polynomial.Multiply(left.Coeff);
+                    result.Polynomial = right.Polynomial.Multiply(left.Coeff, this.ring);
                 }
             }
             else if (left.ValueType == EParsePolynomialValueType.INTEGER)
@@ -279,23 +279,23 @@
                 else if (right.ValueType == EParsePolynomialValueType.POLYNOMIAL)
                 {
                     var leftConverted = this.conversion.InverseConversion(left.Degree);
-                    result.Polynomial.Multiply(leftConverted);
+                    result.Polynomial.Multiply(leftConverted, this.ring);
                 }
             }
             else if (left.ValueType == EParsePolynomialValueType.POLYNOMIAL)
             {
                 if (right.ValueType == EParsePolynomialValueType.COEFFICIENT)
                 {
-                    result.Polynomial = left.Polynomial.Multiply(right.Coeff);
+                    result.Polynomial = left.Polynomial.Multiply(right.Coeff, this.ring);
                 }
                 else if (right.ValueType == EParsePolynomialValueType.INTEGER)
                 {
                     var rightConverted = this.conversion.InverseConversion(right.Degree);
-                    result.Polynomial.Multiply(rightConverted);
+                    result.Polynomial.Multiply(rightConverted, this.ring);
                 }
                 else if (right.ValueType == EParsePolynomialValueType.POLYNOMIAL)
                 {
-                    result.Polynomial = left.Polynomial.Multiply(right.Polynomial);
+                    result.Polynomial = left.Polynomial.Multiply(right.Polynomial, this.ring);
                 }
             }
 
@@ -308,9 +308,9 @@
         /// <param name="left">O primeiro polinómio.</param>
         /// <param name="right">O segundo polinómio.</param>
         /// <returns>O polinómio resultante.</returns>
-        protected virtual ParsePolynomialItem<T, RingType> Subtract(ParsePolynomialItem<T, RingType> left, ParsePolynomialItem<T, RingType> right)
+        protected virtual ParsePolynomialItem<T> Subtract(ParsePolynomialItem<T> left, ParsePolynomialItem<T> right)
         {
-            var result = new ParsePolynomialItem<T, RingType>();
+            var result = new ParsePolynomialItem<T>();
             if (left.ValueType == EParsePolynomialValueType.COEFFICIENT)
             {
                 if (right.ValueType == EParsePolynomialValueType.COEFFICIENT)
@@ -324,7 +324,7 @@
                 }
                 else if (right.ValueType == EParsePolynomialValueType.POLYNOMIAL)
                 {
-                    result.Polynomial = right.Polynomial.Subtract(left.Coeff);
+                    result.Polynomial = right.Polynomial.Subtract(left.Coeff, this.ring);
                 }
             }
             else if (left.ValueType == EParsePolynomialValueType.INTEGER)
@@ -341,23 +341,23 @@
                 else if (right.ValueType == EParsePolynomialValueType.POLYNOMIAL)
                 {
                     var leftConverted = this.conversion.InverseConversion(left.Degree);
-                    result.Polynomial.Subtract(leftConverted);
+                    result.Polynomial.Subtract(leftConverted, this.ring);
                 }
             }
             else if (left.ValueType == EParsePolynomialValueType.POLYNOMIAL)
             {
                 if (right.ValueType == EParsePolynomialValueType.COEFFICIENT)
                 {
-                    result.Polynomial = left.Polynomial.Subtract(right.Coeff);
+                    result.Polynomial = left.Polynomial.Subtract(right.Coeff, this.ring);
                 }
                 else if (right.ValueType == EParsePolynomialValueType.INTEGER)
                 {
                     var rightConverted = this.conversion.InverseConversion(right.Degree);
-                    result.Polynomial.Subtract(rightConverted);
+                    result.Polynomial.Subtract(rightConverted, this.ring);
                 }
                 else if (right.ValueType == EParsePolynomialValueType.POLYNOMIAL)
                 {
-                    result.Polynomial = left.Polynomial.Subtract(right.Polynomial);
+                    result.Polynomial = left.Polynomial.Subtract(right.Polynomial, this.ring);
                 }
             }
 
@@ -370,9 +370,9 @@
         /// <param name="left">O primeiro polinómio.</param>
         /// <param name="right">O segundo polinómio.</param>
         /// <returns>O polinómio resultante.</returns>
-        protected virtual ParsePolynomialItem<T, RingType> Divide(ParsePolynomialItem<T, RingType> left, ParsePolynomialItem<T, RingType> right)
+        protected virtual ParsePolynomialItem<T> Divide(ParsePolynomialItem<T> left, ParsePolynomialItem<T> right)
         {
-            var result = new ParsePolynomialItem<T, RingType>();
+            var result = new ParsePolynomialItem<T>();
             if (left.ValueType == EParsePolynomialValueType.COEFFICIENT)
             {
                 if (right.ValueType == EParsePolynomialValueType.COEFFICIENT)
@@ -404,7 +404,7 @@
                 {
                     if (right.Polynomial.IsValue)
                     {
-                        var rightCoeff = right.Polynomial.GetAsValue();
+                        var rightCoeff = right.Polynomial.GetAsValue(this.ring);
                         if (this.ring.IsAdditiveUnity(rightCoeff))
                         {
                             throw new MathematicsException("Division by an additive unity.");
@@ -418,7 +418,7 @@
                             }
                             else
                             {
-                                result.Polynomial.Multiply(field.MultiplicativeInverse(left.Coeff));
+                                result.Polynomial.Multiply(field.MultiplicativeInverse(left.Coeff), this.ring);
                             }
                         }
                     }
@@ -465,7 +465,7 @@
                         }
                         else
                         {
-                            var rightValue = right.Polynomial.GetAsValue();
+                            var rightValue = right.Polynomial.GetAsValue(this.ring);
                             var leftConverted = this.conversion.InverseConversion(left.Degree);
                             result.Coeff = this.ring.Multiply(leftConverted, field.MultiplicativeInverse(rightValue));
                         }
@@ -487,7 +487,9 @@
                     }
                     else
                     {
-                        result.Polynomial = left.Polynomial.Multiply(field.MultiplicativeInverse(right.Coeff));
+                        result.Polynomial = left.Polynomial.Multiply(
+                            field.MultiplicativeInverse(right.Coeff), 
+                            this.ring);
                     }
                 }
                 else if (right.ValueType == EParsePolynomialValueType.INTEGER)
@@ -500,14 +502,14 @@
                     else
                     {
                         var rightConverted = this.conversion.InverseConversion(right.Degree);
-                        result.Polynomial.Multiply(field.MultiplicativeInverse(rightConverted));
+                        result.Polynomial.Multiply(field.MultiplicativeInverse(rightConverted), this.ring);
                     }
                 }
                 else if (right.ValueType == EParsePolynomialValueType.POLYNOMIAL)
                 {
                     if (right.Polynomial.IsValue)
                     {
-                        var rightValue = right.Polynomial.GetAsValue();
+                        var rightValue = right.Polynomial.GetAsValue(this.ring);
                         var field = this.ring as IField<T>;
                         if (field == null)
                         {
@@ -515,7 +517,9 @@
                         }
                         else
                         {
-                            result.Polynomial = left.Polynomial.Multiply(field.MultiplicativeInverse(rightValue));
+                            result.Polynomial = left.Polynomial.Multiply(
+                                field.MultiplicativeInverse(rightValue), 
+                                this.ring);
                         }
                     }
                     else
@@ -533,9 +537,9 @@
         /// </summary>
         /// <param name="pol">O polinómio.</param>
         /// <returns>O polinómio resultante.</returns>
-        protected virtual ParsePolynomialItem<T, RingType> Symmetric(ParsePolynomialItem<T, RingType> pol)
+        protected virtual ParsePolynomialItem<T> Symmetric(ParsePolynomialItem<T> pol)
         {
-            var result = new ParsePolynomialItem<T, RingType>();
+            var result = new ParsePolynomialItem<T>();
             if (pol.ValueType == EParsePolynomialValueType.COEFFICIENT)
             {
                 result.Coeff = this.ring.AdditiveInverse(pol.Coeff);
@@ -546,7 +550,7 @@
             }
             else if (pol.ValueType == EParsePolynomialValueType.POLYNOMIAL)
             {
-                result.Polynomial = pol.Polynomial.GetSymmetric();
+                result.Polynomial = pol.Polynomial.GetSymmetric(this.ring);
             }
 
             return result;
@@ -558,9 +562,9 @@
         /// <param name="left">O polinómio.</param>
         /// <param name="right">O expoente.</param>
         /// <returns>O resultado da potência.</returns>
-        protected virtual ParsePolynomialItem<T, RingType> Power(ParsePolynomialItem<T, RingType> left, ParsePolynomialItem<T, RingType> right)
+        protected virtual ParsePolynomialItem<T> Power(ParsePolynomialItem<T> left, ParsePolynomialItem<T> right)
         {
-            var result = new ParsePolynomialItem<T, RingType>();
+            var result = new ParsePolynomialItem<T>();
             if (left.ValueType == EParsePolynomialValueType.COEFFICIENT)
             {
                 if (right.ValueType == EParsePolynomialValueType.COEFFICIENT)
@@ -576,7 +580,7 @@
                 {
                     if (right.Polynomial.IsValue)
                     {
-                        var exponent = this.conversion.DirectConversion(right.Polynomial.GetAsValue());
+                        var exponent = this.conversion.DirectConversion(right.Polynomial.GetAsValue(this.ring));
                         result.Coeff = MathFunctions.Power(left.Coeff, exponent, this.ring);
                     }
                     else
@@ -600,7 +604,7 @@
                 {
                     if (right.Polynomial.IsValue)
                     {
-                        var exponent = this.conversion.DirectConversion(right.Polynomial.GetAsValue());
+                        var exponent = this.conversion.DirectConversion(right.Polynomial.GetAsValue(this.ring));
                         result.Degree = MathFunctions.Power(left.Degree, exponent, this.integerRing);
                     }
                     else
@@ -614,18 +618,18 @@
                 if (right.ValueType == EParsePolynomialValueType.COEFFICIENT)
                 {
                     var exponent = this.conversion.DirectConversion(right.Coeff);
-                    result.Polynomial = left.Polynomial.Power(exponent);
+                    result.Polynomial = left.Polynomial.Power(exponent, this.ring);
                 }
                 else if (right.ValueType == EParsePolynomialValueType.INTEGER)
                 {
-                    result.Polynomial = left.Polynomial.Power(right.Degree);
+                    result.Polynomial = left.Polynomial.Power(right.Degree, this.ring);
                 }
                 else if (right.ValueType == EParsePolynomialValueType.POLYNOMIAL)
                 {
                     if (right.Polynomial.IsValue)
                     {
-                        var exponent = this.conversion.DirectConversion(right.Polynomial.GetAsValue());
-                        result.Polynomial = left.Polynomial.Power(exponent);
+                        var exponent = this.conversion.DirectConversion(right.Polynomial.GetAsValue(this.ring));
+                        result.Polynomial = left.Polynomial.Power(exponent, this.ring);
                     }
                     else
                     {

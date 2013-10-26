@@ -6,22 +6,21 @@
     using System.Text;
     using Utilities.Collections;
 
-    public class UnivarPolynomEuclideanDomain<CoeffType, FieldType> :
-        UnivarPolynomRing<CoeffType, FieldType>,
-        IEuclidenDomain<UnivariatePolynomialNormalForm<CoeffType, FieldType>>
-        where FieldType : IField<CoeffType>
+    public class UnivarPolynomEuclideanDomain<CoeffType> :
+        UnivarPolynomRing<CoeffType>,
+        IEuclidenDomain<UnivariatePolynomialNormalForm<CoeffType>>
     {
-        private FieldType field;
+        private IField<CoeffType> field;
 
-        public UnivarPolynomEuclideanDomain(string variableName, FieldType field)
+        public UnivarPolynomEuclideanDomain(string variableName, IField<CoeffType> field)
             : base(variableName, field)
         {
             this.field = field;
         }
 
-        public UnivariatePolynomialNormalForm<CoeffType, FieldType> Quo(
-            UnivariatePolynomialNormalForm<CoeffType, FieldType> dividend,
-            UnivariatePolynomialNormalForm<CoeffType, FieldType> divisor)
+        public UnivariatePolynomialNormalForm<CoeffType> Quo(
+            UnivariatePolynomialNormalForm<CoeffType> dividend,
+            UnivariatePolynomialNormalForm<CoeffType> divisor)
         {
             if (dividend == null)
             {
@@ -39,15 +38,14 @@
             {
                 if (divisor.Degree > dividend.Degree)
                 {
-                    return new UnivariatePolynomialNormalForm<CoeffType, FieldType>(
-                        this.variableName,
-                        this.field);
+                    return new UnivariatePolynomialNormalForm<CoeffType>(
+                        this.variableName);
                 }
                 else
                 {
                     var remainderSortedCoeffs = dividend.GetOrderedCoefficients(Comparer<int>.Default);
                     var divisorSorteCoeffs = divisor.GetOrderedCoefficients(Comparer<int>.Default);
-                    var quotientCoeffs = new UnivariatePolynomialNormalForm<CoeffType, FieldType>(this.variableName, this.field);
+                    var quotientCoeffs = new UnivariatePolynomialNormalForm<CoeffType>(this.variableName);
                     var remainderLeadingDegree = remainderSortedCoeffs.Keys[remainderSortedCoeffs.Keys.Count - 1];
                     var divisorLeadingDegree = divisorSorteCoeffs.Keys[divisorSorteCoeffs.Keys.Count - 1];
                     var inverseDivisorLeadingCoeff = this.field.MultiplicativeInverse(divisorSorteCoeffs[divisorLeadingDegree]);
@@ -58,7 +56,7 @@
                         var factor = this.field.Multiply(
                             remainderLeadingCoeff,
                             inverseDivisorLeadingCoeff);
-                        quotientCoeffs = quotientCoeffs.Add(factor, differenceDegree);
+                        quotientCoeffs = quotientCoeffs.Add(factor, differenceDegree, this.field);
                         remainderSortedCoeffs.Remove(remainderLeadingDegree);
                         for (int i = 0; i < divisorSorteCoeffs.Keys.Count - 1; ++i)
                         {
@@ -105,9 +103,9 @@
             }
         }
 
-        public UnivariatePolynomialNormalForm<CoeffType, FieldType> Rem(
-            UnivariatePolynomialNormalForm<CoeffType, FieldType> dividend,
-            UnivariatePolynomialNormalForm<CoeffType, FieldType> divisor)
+        public UnivariatePolynomialNormalForm<CoeffType> Rem(
+            UnivariatePolynomialNormalForm<CoeffType> dividend,
+            UnivariatePolynomialNormalForm<CoeffType> divisor)
         {
             if (dividend == null)
             {
@@ -182,15 +180,17 @@
                         }
                     }
 
-                    var remainder = new UnivariatePolynomialNormalForm<CoeffType, FieldType>(remainderSortedCoeffs, this.variableName, this.field);
+                    var remainder = new UnivariatePolynomialNormalForm<CoeffType>(
+                        remainderSortedCoeffs, 
+                        this.variableName, this.field);
                     return remainder;
                 }
             }
         }
 
-        public DomainResult<UnivariatePolynomialNormalForm<CoeffType, FieldType>> GetQuotientAndRemainder(
-            UnivariatePolynomialNormalForm<CoeffType, FieldType> dividend,
-            UnivariatePolynomialNormalForm<CoeffType, FieldType> divisor)
+        public DomainResult<UnivariatePolynomialNormalForm<CoeffType>> GetQuotientAndRemainder(
+            UnivariatePolynomialNormalForm<CoeffType> dividend,
+            UnivariatePolynomialNormalForm<CoeffType> divisor)
         {
             if (dividend == null)
             {
@@ -208,15 +208,15 @@
             {
                 if (divisor.Degree > dividend.Degree)
                 {
-                    return new DomainResult<UnivariatePolynomialNormalForm<CoeffType, FieldType>>(
-                        new UnivariatePolynomialNormalForm<CoeffType, FieldType>(this.variableName, this.field),
+                    return new DomainResult<UnivariatePolynomialNormalForm<CoeffType>>(
+                        new UnivariatePolynomialNormalForm<CoeffType>(this.variableName),
                         dividend);
                 }
                 else
                 {
                     var remainderSortedCoeffs = dividend.GetOrderedCoefficients(Comparer<int>.Default);
                     var divisorSorteCoeffs = divisor.GetOrderedCoefficients(Comparer<int>.Default);
-                    var quotientCoeffs = new UnivariatePolynomialNormalForm<CoeffType, FieldType>(this.variableName, this.field);
+                    var quotientCoeffs = new UnivariatePolynomialNormalForm<CoeffType>(this.variableName);
                     var remainderLeadingDegree = remainderSortedCoeffs.Keys[remainderSortedCoeffs.Keys.Count - 1];
                     var divisorLeadingDegree = divisorSorteCoeffs.Keys[divisorSorteCoeffs.Keys.Count - 1];
                     var inverseDivisorLeadingCoeff = this.field.MultiplicativeInverse(divisorSorteCoeffs[divisorLeadingDegree]);
@@ -227,7 +227,7 @@
                         var factor = this.field.Multiply(
                             remainderLeadingCoeff,
                             inverseDivisorLeadingCoeff);
-                        quotientCoeffs = quotientCoeffs.Add(factor, differenceDegree);
+                        quotientCoeffs = quotientCoeffs.Add(factor, differenceDegree, this.field);
                         remainderSortedCoeffs.Remove(remainderLeadingDegree);
                         for (int i = 0; i < divisorSorteCoeffs.Keys.Count - 1; ++i)
                         {
@@ -269,15 +269,18 @@
                         }
                     }
 
-                    var remainder = new UnivariatePolynomialNormalForm<CoeffType, FieldType>(remainderSortedCoeffs, this.variableName, this.field);
-                    return new DomainResult<UnivariatePolynomialNormalForm<CoeffType,FieldType>>(
+                    var remainder = new UnivariatePolynomialNormalForm<CoeffType>(
+                        remainderSortedCoeffs, 
+                        this.variableName, 
+                        this.field);
+                    return new DomainResult<UnivariatePolynomialNormalForm<CoeffType>>(
                         quotientCoeffs,
                         remainder);
                 }
             }
         }
 
-        public uint Degree(UnivariatePolynomialNormalForm<CoeffType, FieldType> value)
+        public uint Degree(UnivariatePolynomialNormalForm<CoeffType> value)
         {
             if (value == null)
             {

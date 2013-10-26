@@ -5,13 +5,12 @@ using System.Text;
 
 namespace Mathematics
 {
-    public class ParsePolynomialItem<CoeffType, RingType>
-        where RingType : IRing<CoeffType>
+    public class ParsePolynomialItem<CoeffType>
     {
         /// <summary>
         /// O valor polinomial.
         /// </summary>
-        private Polynomial<CoeffType, RingType> polynomial;
+        private Polynomial<CoeffType> polynomial;
 
         /// <summary>
         /// O coeficiente.
@@ -35,7 +34,7 @@ namespace Mathematics
         /// <summary>
         /// Obtém o valor polinomial caso seja aplicável.
         /// </summary>
-        public Polynomial<CoeffType, RingType> Polynomial
+        public Polynomial<CoeffType> Polynomial
         {
             get
             {

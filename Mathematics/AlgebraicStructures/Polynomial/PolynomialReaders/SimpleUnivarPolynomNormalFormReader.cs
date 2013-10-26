@@ -6,9 +6,8 @@ using Utilities.Parsers;
 
 namespace Mathematics
 {
-    class SimpleUnivarPolynomNormalFormReader<CoeffType, RingType> :
-        IParse<ParseUnivarPolynomNormalFormItem<CoeffType, RingType>, string, string>
-        where RingType : IRing<CoeffType>
+    class SimpleUnivarPolynomNormalFormReader<CoeffType> :
+        IParse<ParseUnivarPolynomNormalFormItem<CoeffType>, string, string>
     {
         /// <summary>
         /// O leitor de coeficientes.
@@ -23,9 +22,11 @@ namespace Mathematics
         /// <summary>
         /// O anel responsável pela aplicação das operações sobre os coeficientes.
         /// </summary>
-        private RingType coeffRing;
+        private IRing<CoeffType> coeffRing;
 
-        public SimpleUnivarPolynomNormalFormReader(IParse<CoeffType, string, string> coeffParser, RingType coeffRing)
+        public SimpleUnivarPolynomNormalFormReader(
+            IParse<CoeffType, string, string> coeffParser, 
+            IRing<CoeffType> coeffRing)
         {
             if (coeffParser == null)
             {
@@ -46,13 +47,15 @@ namespace Mathematics
         /// </summary>
         /// <param name="symbolListToParse">A lista de símbolos para leitura.</param>
         /// <returns>O polinómio requerido.</returns>
-        public bool TryParse(ISymbol<string, string>[] symbolListToParse, out ParseUnivarPolynomNormalFormItem<CoeffType, RingType> pol)
+        public bool TryParse(
+            ISymbol<string, string>[] symbolListToParse, 
+            out ParseUnivarPolynomNormalFormItem<CoeffType> pol)
         {
             pol = null;
             var parsedCoeff = default(CoeffType);
             if (this.coeffParser.TryParse(symbolListToParse, out parsedCoeff))
             {
-                pol = new ParseUnivarPolynomNormalFormItem<CoeffType, RingType>();
+                pol = new ParseUnivarPolynomNormalFormItem<CoeffType>();
                 pol.Coeff = parsedCoeff;
                 return true;
             }
@@ -65,8 +68,8 @@ namespace Mathematics
                 }
                 else if (char.IsLetter(stringValue[0]))
                 {
-                    pol = new ParseUnivarPolynomNormalFormItem<CoeffType, RingType>();
-                    pol.Polynomial = new UnivariatePolynomialNormalForm<CoeffType, RingType>(
+                    pol = new ParseUnivarPolynomNormalFormItem<CoeffType>();
+                    pol.Polynomial = new UnivariatePolynomialNormalForm<CoeffType>(
                         this.coeffRing.MultiplicativeUnity,
                         1,
                         stringValue,
@@ -78,7 +81,7 @@ namespace Mathematics
                     var integerValue = 0;
                     if (this.integerParser.TryParse(symbolListToParse, out integerValue))
                     {
-                        pol = new ParseUnivarPolynomNormalFormItem<CoeffType, RingType>();
+                        pol = new ParseUnivarPolynomNormalFormItem<CoeffType>();
                         pol.Degree = integerValue;
                         return true;
                     }
@@ -93,7 +96,7 @@ namespace Mathematics
                 var integerValue = 0;
                 if (this.integerParser.TryParse(symbolListToParse, out integerValue))
                 {
-                    pol = new ParseUnivarPolynomNormalFormItem<CoeffType, RingType>();
+                    pol = new ParseUnivarPolynomNormalFormItem<CoeffType>();
                     pol.Degree = integerValue;
                     return true;
                 }

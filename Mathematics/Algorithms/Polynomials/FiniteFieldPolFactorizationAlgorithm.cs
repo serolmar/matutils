@@ -4,21 +4,20 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
-    using PolType = UnivariatePolynomialNormalForm<int, ModularIntegerField>;
-    using PolFieldType = UnivarPolynomEuclideanDomain<int, ModularIntegerField>;
-    using MainPolType = UnivariatePolynomialNormalForm<Fraction<int, IntegerDomain>, FractionField<int, IntegerDomain>>;
+    using PolType = UnivariatePolynomialNormalForm<int>;
+    using MainPolType = UnivariatePolynomialNormalForm<Fraction<int, IntegerDomain>>;
 
     /// <summary>
     /// Implementa o algoritmo que permite factorizar polinómios cujos coeficientes são elementos
     /// de um corpo finito.
     /// </summary>
     public class FiniteFieldPolFactorizationAlgorithm
-        : IAlgorithm<PolType,Dictionary<PolType, int>>
+        : IAlgorithm<PolType, IModularField<int>, Dictionary<PolType, int>>
     {
         /// <summary>
         /// O algoritmo que permite obter a factorização em polinómios livres de quadrados.
         /// </summary>
-        IAlgorithm<MainPolType, Dictionary<int, MainPolType>> 
+        IAlgorithm<MainPolType, IField<Fraction<int, IntegerDomain>>, Dictionary<int, MainPolType>> 
         squareFreeFactorizationAlg;
 
         /// <summary>
@@ -27,7 +26,7 @@
         private IAlgorithm<IMatrix<int>, IMatrix<int>, LinearSystemSolution<int>> linearSystemSolver;
 
         public FiniteFieldPolFactorizationAlgorithm(
-            IAlgorithm<MainPolType, Dictionary<int, MainPolType>> squareFreeFactorizationAlg,
+            IAlgorithm<MainPolType, IField<Fraction<int, IntegerDomain>>, Dictionary<int, MainPolType>> squareFreeFactorizationAlg,
             IAlgorithm<IMatrix<int>, IMatrix<int>, LinearSystemSolution<int>> linearSystemSolver)
         {
             if (squareFreeFactorizationAlg == null)
@@ -49,25 +48,30 @@
         /// Executa o algoritmo sobre polinómios com coeficientes em corpos finitos.
         /// </summary>
         /// <param name="polynom">O polinómio a ser factorizado.</param>
+        /// <param name="modularField">O corpo responsável pelas operações modulares.</param>
         /// <returns>
         /// O dicionário que contém cada um dos factores e o respectivo grau.
         /// </returns>
-        public Dictionary<PolType, int> Run(PolType polynom)
+        public Dictionary<PolType, int> Run(PolType polynom, IModularField<int> modularField)
         {
             var result = new Dictionary<PolType, int>();
 
             var fractionField = new FractionField<int, IntegerDomain>(new IntegerDomain());
+            var polynomDomain = new UnivarPolynomEuclideanDomain<int>(
+                polynom.VariableName,
+                modularField);
+            var bachetBezourAlg = new LagrangeAlgorithm<PolType>(polynomDomain);
 
-            var integerModule = new ModularIntegerField(polynom.Ring.Module);
-            var polynomField = new PolFieldType("x", integerModule);
-            var bachetBezourAlg = new LagrangeAlgorithm<PolType, PolFieldType>(polynomField);
+            var polynomialField = new UnivarPolynomEuclideanDomain<int>(
+                polynom.VariableName,
+                modularField);
 
             var forSquareFreeFact = this.ClonePol(polynom, fractionField);
-            var squareFreeFactors = this.squareFreeFactorizationAlg.Run(forSquareFreeFact);
+            var squareFreeFactors = this.squareFreeFactorizationAlg.Run(forSquareFreeFact, fractionField);
             foreach (var factorsKvp in squareFreeFactors)
             {
-                var clonedFactor = this.CloneInvPol(factorsKvp.Value, integerModule);
-                var factored = this.Factorize(clonedFactor, integerModule, polynomField, bachetBezourAlg);
+                var clonedFactor = this.CloneInvPol(factorsKvp.Value, modularField);
+                var factored = this.Factorize(clonedFactor, modularField, polynomialField, bachetBezourAlg);
                 foreach (var factor in factored)
                 {
                     result.Add(factor, factorsKvp.Key);
@@ -88,9 +92,9 @@
         /// <returns>A lista dos factores.</returns>
         private List<PolType> Factorize(
             PolType polynom,
-            ModularIntegerField integerModule,
-            PolFieldType polynomField,
-            LagrangeAlgorithm<PolType, PolFieldType> bachetBezoutAlgorithm)
+            IModularField<int> integerModule,
+            UnivarPolynomEuclideanDomain<int> polynomField,
+            LagrangeAlgorithm<PolType> bachetBezoutAlgorithm)
         {
             var result = new List<PolType>();
 
@@ -123,10 +127,10 @@
                 }
             }
 
-            var factorsProduct = result[0].GetLeadingCoefficient();
+            var factorsProduct = result[0].GetLeadingCoefficient(integerModule);
             for (int i = 1; i < result.Count; ++i)
             {
-                var leadingMon = result[i].GetLeadingCoefficient();
+                var leadingMon = result[i].GetLeadingCoefficient(integerModule);
                 factorsProduct = integerModule.Multiply(factorsProduct, leadingMon);
             }
 
@@ -148,7 +152,7 @@
         /// </remarks>
         /// <param name="polynom">O polinómio a ser processado.</param>
         /// <param name="result">O contentor dos factores sucessivamente processados.</param>
-        /// <param name="integerModule">O obojecto responsável pelas operações sobre inteiros.</param>
+        /// <param name="integerModule">O objecto responsável pelas operações sobre inteiros.</param>
         /// <param name="polynomField">O objecto responsável pelas operações sobre os polinómios.</param>
         /// <param name="module">O objecto responsável pelas operações sobre os polinómios módulo outro polinómio.</param>
         /// <param name="inverseAlgorithm">O algoritmo inverso.</param>
@@ -156,9 +160,9 @@
         List<PolType> Process(
             PolType polynom,
             List<PolType> result,
-            ModularIntegerField integerModule,
-            PolFieldType polynomField,
-            LagrangeAlgorithm<PolType, PolFieldType> inverseAlgorithm)
+            IModularField<int> integerModule,
+            UnivarPolynomEuclideanDomain<int> polynomField,
+            LagrangeAlgorithm<PolType> inverseAlgorithm)
         {
             var resultPol = new List<PolType>();
             if (polynom.Degree < 2)
@@ -173,13 +177,13 @@
                     inverseAlgorithm);
 
                 var degree = polynom.Degree;
-                var arrayMatrix = new ArrayMatrix<int>(degree, degree, polynom.Ring.AdditiveUnity);
-                arrayMatrix[0, 0] = polynom.Ring.AdditiveUnity;
+                var arrayMatrix = new ArrayMatrix<int>(degree, degree, integerModule.AdditiveUnity);
+                arrayMatrix[0, 0] = integerModule.AdditiveUnity;
                 var pol = new PolType(
-                    polynom.Ring.MultiplicativeUnity,
+                    integerModule.MultiplicativeUnity,
                     1,
                     polynom.VariableName,
-                    polynom.Ring);
+                    integerModule);
                 pol = MathFunctions.Power(pol, integerModule.Module, module);
                 foreach (var term in pol)
                 {
@@ -205,7 +209,7 @@
                     arrayMatrix[i, i] = value;
                 }
 
-                var emtpyMatrix = new ZeroMatrix<int, ModularIntegerField>(degree, 1, integerModule);
+                var emtpyMatrix = new ZeroMatrix<int, IModularField<int>>(degree, 1, integerModule);
                 var linearSystemSolution = this.linearSystemSolver.Run(arrayMatrix, emtpyMatrix);
 
                 var numberOfFactors = linearSystemSolution.VectorSpaceBasis.Count;
@@ -243,7 +247,10 @@
 
                     for (int i = 0; i < numberOfFactors; ++i)
                     {
-                        var currentPol = MathFunctions.GreatCommonDivisor(polynom, hPol.Subtract(i), polynomField);
+                        var currentPol = MathFunctions.GreatCommonDivisor(
+                            polynom, 
+                            hPol.Subtract(i, integerModule), 
+                            polynomField);
                         var currentDegree = currentPol.Degree;
                         if (currentDegree == 1)
                         {
@@ -269,7 +276,7 @@
         /// <returns>O polinómio.</returns>
         private PolType GetPolynomial(
             IMatrix<int> matrix,
-            ModularIntegerField module,
+            IModularField<int> module,
             string variableName)
         {
             var matrixDimension = matrix.GetLength(0);
@@ -294,15 +301,14 @@
         private MainPolType ClonePol(PolType polynom, FractionField<int, IntegerDomain> fractionField)
         {
             var result = new MainPolType(
-                polynom.VariableName,
-                fractionField);
+                polynom.VariableName);
             foreach (var termKvp in polynom)
             {
                 result = result.Add(new Fraction<int, IntegerDomain>(
                     termKvp.Value,
                     fractionField.EuclideanDomain.MultiplicativeUnity,
                     fractionField.EuclideanDomain),
-                    termKvp.Key);
+                    termKvp.Key, fractionField);
             }
 
             return result;
@@ -316,17 +322,17 @@
         /// <returns>A cópia.</returns>
         private PolType CloneInvPol(
             MainPolType polynom,
-            ModularIntegerField modularIntegerField)
+            IModularField<int> modularIntegerField)
         {
             var result = new PolType(
-                polynom.VariableName,
-                modularIntegerField);
+                polynom.VariableName);
             foreach (var termKvp in polynom)
             {
                 result = result.Add(
                     modularIntegerField.Multiply(termKvp.Value.Numerator,
                     modularIntegerField.MultiplicativeInverse(termKvp.Value.Denominator)),
-                    termKvp.Key);
+                    termKvp.Key,
+                    modularIntegerField);
             }
 
             return result;
