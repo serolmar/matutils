@@ -517,17 +517,18 @@
 
         public static void Test10()
         {
-            var firstInput = "x^3-2*x";
+            var firstInput = "x^3+10*x^2-432*x+5040";
             var secondInput = "x";
             var thirdInput = "x^2-2";
 
+            var integerDomain = new IntegerDomain();
             var integerModularField = new ModularIntegerField(5);
             var integerParser = new IntegerParser<string>();
 
             var polynomialParser = new UnivariatePolynomialReader<int, CharSymbolReader<string>>(
                 "x",
                 integerParser,
-                integerModularField);
+                integerDomain);
             var conversion = new ElementToElementConversion<int>();
 
             var reader = new StringReader(firstInput);
@@ -555,15 +556,14 @@
                         out thirdPol))
                     {
                         var lifting = new LinearLiftAlgorithm();
-                        var result = lifting.Run(
-                            firstPol,
-                            Tuple.Create(secondPol, thirdPol),
-                            5,
-                            2);
+                        //var result = lifting.Run(
+                        //    firstPol,
+                        //    Tuple.Create(secondPol, thirdPol),
+                        //    5,
+                        //    2);
                     }
                 }
             }
-
 
             var input = "x^8 + x^7 + x^4 + x^3 + x + 1";
             integerModularField.Module = 3;

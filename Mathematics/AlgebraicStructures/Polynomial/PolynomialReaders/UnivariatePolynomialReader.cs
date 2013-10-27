@@ -65,6 +65,30 @@
                 this.univarPolRing = new UnivarPolynomRing<T>(variable, ring);
             }
         }
+
+        /// <summary>
+        /// Obtém e atribui o anel responsável pelas operações sobre o polinómio aquando
+        /// da sua leitura.
+        /// </summary>
+        public IRing<T> Ring
+        {
+            get
+            {
+                return this.ring;
+            }
+            set
+            {
+                if (value == null)
+                {
+                    throw new MathematicsException("A ring must be provided.");
+                }
+                else
+                {
+                    this.ring = value;
+                }
+            }
+        }
+
         /// <summary>
         /// Efectua a leitura de um polinómio.
         /// </summary>

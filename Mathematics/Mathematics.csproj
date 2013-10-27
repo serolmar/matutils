@@ -51,6 +51,8 @@
     <Compile Include="AlgebraicStructures\Implementations\ElementFractionConversion.cs" />
     <Compile Include="AlgebraicStructures\Implementations\ElementToElementConversion.cs" />
     <Compile Include="AlgebraicStructures\Implementations\FractionField.cs" />
+    <Compile Include="AlgebraicStructures\Implementations\UnivarPolEuclideanDomainFactory.cs" />
+    <Compile Include="AlgebraicStructures\Implementations\UnivarPolynomRingFactory.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\IConversion.cs" />
     <Compile Include="AlgebraicStructures\Implementations\IntegerDomain.cs" />
     <Compile Include="AlgebraicStructures\Implementations\MatrixAdditionOperation.cs" />
@@ -75,6 +77,8 @@
     <Compile Include="AlgebraicStructures\LogicInterfaces\ISemigroup.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\ISparseMatrix.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\ISparseMatrixLine.cs" />
+    <Compile Include="AlgebraicStructures\LogicInterfaces\IUnivarPolDomainFactory.cs" />
+    <Compile Include="AlgebraicStructures\LogicInterfaces\IUnivarPolRingFactory.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\IVectorSpace.cs" />
     <Compile Include="AlgebraicStructures\Matrix\ArrayBitMatrix.cs" />
     <Compile Include="AlgebraicStructures\Matrix\ArrayBitMatrixFactory.cs" />
@@ -148,6 +152,7 @@
     <Compile Include="Algorithms\NumberTheory\ResSolAlgorithm.cs" />
     <Compile Include="Algorithms\Polynomials\FiniteFieldPolFactorizationAlgorithm.cs" />
     <Compile Include="Algorithms\Polynomials\LinearLiftAlgorithm.cs" />
+    <Compile Include="Algorithms\Polynomials\LinearLiftingStatus.cs" />
     <Compile Include="Algorithms\Polynomials\UnivarSquareFreeDecomposition.cs" />
     <Compile Include="Algorithms\Simplex\SimplexAlgorithm.cs" />
     <Compile Include="Algorithms\Simplex\SimplexInput.cs" />
