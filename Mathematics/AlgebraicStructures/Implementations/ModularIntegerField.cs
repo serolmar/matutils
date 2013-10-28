@@ -99,7 +99,7 @@
             {
                 if (innerNumber < 0)
                 {
-                    innerNumber = this.module - innerNumber;
+                    innerNumber = this.module + innerNumber;
                 }
 
                 var bezoutResult = this.inverseAlgorithm.Run(this.module, innerNumber);

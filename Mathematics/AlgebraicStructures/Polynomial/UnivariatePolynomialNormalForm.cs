@@ -1086,6 +1086,50 @@ namespace Mathematics
         }
 
         /// <summary>
+        /// Obtém uma cópia do polinóimio corrente onde o coeficiente correspondente ao termo de maior grau
+        /// é substituído por um outro.
+        /// </summary>
+        /// <param name="coeff">O coeficiente a substituir.</param>
+        /// <param name="monoid">O monóide responsável por determinar se se está na presença de uma unidade
+        /// aditiva.
+        /// </param>
+        /// <returns>O polinómio resultante da substituição.</returns>
+        public UnivariatePolynomialNormalForm<CoeffType> ReplaceLeadingCoeff(CoeffType coeff, IMonoid<CoeffType> monoid)
+        {
+            if (coeff == null)
+            {
+                throw new ArgumentNullException("coeff");
+            }
+            else if (monoid == null)
+            {
+                throw new ArgumentNullException("monoid");
+            }
+            else
+            {
+                var result = new UnivariatePolynomialNormalForm<CoeffType>(this.variableName);
+                var termsEnumerator = this.terms.GetEnumerator();
+                if (termsEnumerator.MoveNext())
+                {
+                    if (!monoid.IsAdditiveUnity(coeff))
+                    {
+                        result.terms.Add(termsEnumerator.Current.Key, coeff);
+                    }
+
+                    while (termsEnumerator.MoveNext())
+                    {
+                        result.terms.Add(termsEnumerator.Current.Key, termsEnumerator.Current.Value);
+                    }
+                }
+                else if (!monoid.IsAdditiveUnity(coeff))
+                {
+                    result.terms.Add(0, coeff);
+                }
+
+                return result;
+            }
+        }
+
+        /// <summary>
         /// Obtém um enumerador para os termos do polinómio como par chave/valor na qual a chave
         /// contém o grau e o valor contém o respectivo coeficiente.
         /// </summary>

@@ -14,5 +14,12 @@
         /// Obtém o módulo.
         /// </summary>
         ModuleType Module { get; }
+
+        /// <summary>
+        /// Obtém a forma reduzida do elemento especificado.
+        /// </summary>
+        /// <param name="element">O elemento.</param>
+        /// <returns>A forma reduzida.</returns>
+        ModuleType GetReduced(ModuleType element);
     }
 }

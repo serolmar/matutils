@@ -556,11 +556,13 @@
                         out thirdPol))
                     {
                         var lifting = new LinearLiftAlgorithm();
-                        //var result = lifting.Run(
-                        //    firstPol,
-                        //    Tuple.Create(secondPol, thirdPol),
-                        //    5,
-                        //    2);
+                        var status = new LinearLiftingStatus<int>(
+                            firstPol,
+                            secondPol,
+                            thirdPol,
+                            integerModularField,
+                            integerDomain);
+                        lifting.Run(status, 4);
                     }
                 }
             }
