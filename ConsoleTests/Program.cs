@@ -562,7 +562,9 @@
                             thirdPol,
                             integerModularField,
                             integerDomain);
-                        lifting.Run(status, 4);
+                        var liftingResult = lifting.Run(status, 10);
+                        var solution = status.GetSolution();
+                        //status.ep
                     }
                 }
             }

@@ -1021,7 +1021,11 @@ namespace Mathematics
                 var result = new UnivariatePolynomialNormalForm<CoeffType>(this.variableName);
                 foreach (var kvp in this.terms)
                 {
-                    result.terms.Add(kvp.Key, domain.Quo(kvp.Value, coeff));
+                    var quo = domain.Quo(kvp.Value, coeff);
+                    if (!domain.IsAdditiveUnity(quo))
+                    {
+                        result.terms.Add(kvp.Key, quo);
+                    }
                 }
 
                 return result;
@@ -1050,7 +1054,39 @@ namespace Mathematics
                 var result = new UnivariatePolynomialNormalForm<CoeffType>(this.variableName);
                 foreach (var kvp in this.terms)
                 {
-                    result.terms.Add(kvp.Key, domain.Rem(kvp.Value, coeff));
+                    var rem = domain.Rem(kvp.Value, coeff);
+                    if (!domain.IsAdditiveUnity(rem))
+                    {
+                        result.terms.Add(kvp.Key, rem);
+                    }
+                }
+
+                return result;
+            }
+        }
+
+        public UnivariatePolynomialNormalForm<CoeffType> ApplyFunction(
+            Func<CoeffType, CoeffType> func,
+            IMonoid<CoeffType> monoid)
+        {
+            if (monoid == null)
+            {
+                throw new ArgumentNullException("monoid");
+            }
+            if (func == null)
+            {
+                throw new ArgumentNullException("func");
+            }
+            else
+            {
+                var result = new UnivariatePolynomialNormalForm<CoeffType>(this.variableName);
+                foreach (var kvp in this.terms)
+                {
+                    var funcRes = func.Invoke(kvp.Value);
+                    if (!monoid.IsAdditiveUnity(funcRes))
+                    {
+                        result.terms.Add(kvp.Key, funcRes);
+                    }
                 }
 
                 return result;

@@ -29,11 +29,9 @@
             LinearLiftingStatus<int> status,
             int iterationsNumber)
         {
-            var polynomialDomain = new UnivarPolynomEuclideanDomain<int>(
-                status.Polynom.VariableName,
-                status.ModularField);
-            var polynomialRing = new UnivarPolynomRing<int>(status.Polynom.VariableName, status.MainDomain);
-            var result = this.Initialize(status, polynomialDomain, polynomialRing);
+            var polynomialDomain = status.ModularPolynomialDomain;
+            var polynomialRing = status.MainPolynomialRing;
+            var result = this.Initialize(status);
 
             var k = 0;
             if (!polynomialRing.IsAdditiveUnity(status.EPol) &&
@@ -42,24 +40,34 @@
                 do
                 {
                     var c = status.EPol.ApplyQuo(status.LiftedFactorizationModule, status.MainDomain);
-                    var sigmaTild = polynomialDomain.Multiply(status.SPol, c);
-                    var tauTild = polynomialDomain.Multiply(status.TPol, c);
+                    var sigmaTild = polynomialDomain.Multiply(status.SPol, c).ApplyFunction(
+                        coeff=>this.ApplyModularHomomorphism(coeff, status.ModularField.Module), status.ModularField);
+                    var tauTild = polynomialDomain.Multiply(status.TPol, c).ApplyFunction(
+                        coeff=>this.ApplyModularHomomorphism(coeff, status.ModularField.Module), status.ModularField);
                     var sigmaQuoRemResult = polynomialDomain.GetQuotientAndRemainder(sigmaTild, status.InnerW1Factor);
 
                     var sigma = sigmaQuoRemResult.Remainder;
+                    sigma = sigma.ApplyFunction(
+                        coeff => this.ApplyModularHomomorphism(coeff, status.ModularField.Module),
+                        status.ModularField);
                     var tau = polynomialDomain.Add(
                         tauTild,
                         polynomialDomain.Multiply(sigmaQuoRemResult.Quotient, status.InnerU1Factor));
+                    tau = tau.ApplyFunction(
+                        coeff => this.ApplyModularHomomorphism(coeff, status.ModularField.Module),
+                        status.ModularField);
 
                     status.UFactor = polynomialRing.Add(
                         status.UFactor,
-                        tau.Multiply(status.ModularField.Module, status.MainDomain));
+                        tau.Multiply(status.LiftedFactorizationModule, status.MainDomain));
                     status.WFactor = polynomialRing.Add(
                         status.WFactor,
-                        sigma.Multiply(status.ModularField.Module, status.MainDomain));
+                        sigma.Multiply(status.LiftedFactorizationModule, status.MainDomain));
                     status.EPol = polynomialRing.Add(
                         status.InnerPolynom,
-                        polynomialRing.Multiply(status.UFactor, status.WFactor));
+                        polynomialRing.AdditiveInverse(polynomialRing.Multiply(status.UFactor, status.WFactor)));
+
+                    status.LiftedFactorizationModule *= status.ModularField.Module;
                     ++k;
                 } while (!polynomialRing.IsAdditiveUnity(status.EPol) &&
                 k < iterationsNumber);
@@ -72,13 +80,8 @@
         /// Inicialia o estado do algoritmo caso seja aplicável.
         /// </summary>
         /// <param name="status">O estado a ser tratado.</param>
-        /// <param name="polynomialDomain">O domínio polinomial relativamente ao módulo.</param>
-        /// <param name="polynomialRing">O anel polinomial habitual.</param>
         /// <returns>Verdadeiro caso se verifique alguma inicialização e falso caso contrário.</returns>
-        private bool Initialize(
-            LinearLiftingStatus<int> status,
-            UnivarPolynomEuclideanDomain<int> polynomialDomain,
-            UnivarPolynomRing<int> polynomialRing)
+        private bool Initialize(LinearLiftingStatus<int> status)
         {
             var result = false;
             if (status == null)
@@ -97,18 +100,22 @@
                     alpha,
                     status.ModularField.MultiplicativeInverse(leadingCoeff));
                 status.InnerU1Factor = status.U1Factor.Multiply(normalized, status.ModularField);
+                status.InnerU1Factor = status.InnerU1Factor.ApplyFunction(
+                    coeff => this.ApplyModularHomomorphism(coeff, status.ModularField.Module), status.ModularField);
 
                 leadingCoeff = status.W1Factor.GetLeadingCoefficient(status.MainDomain);
                 normalized = status.ModularField.Multiply(
                     alpha,
                     status.ModularField.MultiplicativeInverse(leadingCoeff));
                 status.InnerW1Factor = status.W1Factor.Multiply(normalized, status.ModularField);
+                status.InnerW1Factor = status.InnerW1Factor.ApplyFunction(
+                    coeff => this.ApplyModularHomomorphism(coeff, status.ModularField.Module), status.ModularField);
 
-                var domainAlg = new LagrangeAlgorithm<UnivariatePolynomialNormalForm<int>>(polynomialDomain);
+                var domainAlg = new LagrangeAlgorithm<UnivariatePolynomialNormalForm<int>>(status.ModularPolynomialDomain);
                 var domainResult = domainAlg.Run(status.U1Factor, status.W1Factor);
 
                 var invGcd = status.ModularField.MultiplicativeInverse(
-                    domainResult.GreatestCommonDivisor.GetAsValue(polynomialDomain.Field));
+                    domainResult.GreatestCommonDivisor.GetAsValue(status.ModularField));
                 status.SPol = domainResult.FirstFactor.Multiply(
                     invGcd,
                     status.ModularField);
@@ -119,13 +126,43 @@
                 status.UFactor = status.InnerU1Factor.ReplaceLeadingCoeff(status.Gamma, status.MainDomain);
                 status.WFactor = status.InnerW1Factor.ReplaceLeadingCoeff(status.Gamma, status.MainDomain);
 
-                var ePol = polynomialRing.Multiply(status.UFactor, status.WFactor);
-                ePol = polynomialRing.Add(
+                var ePol = status.MainPolynomialRing.Multiply(status.UFactor, status.WFactor);
+                ePol = status.MainPolynomialRing.Add(
                     status.InnerPolynom,
-                    polynomialRing.AdditiveInverse(ePol));
+                    status.MainPolynomialRing.AdditiveInverse(ePol));
                 status.EPol = ePol;
 
                 status.NotInitialized = false;
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Determina a imagem do valor especificado relativamente ao homomorfismo modular associado
+        /// a um módulo.
+        /// </summary>
+        /// <param name="value">O valor.</param>
+        /// <param name="modulus">O módulo.</param>
+        /// <returns>O valor da imagem do homomorfismo.</returns>
+        private int ApplyModularHomomorphism(int value, int modulus)
+        {
+            var result = value % modulus;
+            if (result < 0)
+            {
+                var positiveResult = result + modulus;
+                if (positiveResult < -result)
+                {
+                    result = positiveResult;
+                }
+            }
+            else if(result > 0)
+            {
+                var difference = modulus - result;
+                if (result > modulus - result)
+                {
+                    result = -difference;
+                }
             }
 
             return result;

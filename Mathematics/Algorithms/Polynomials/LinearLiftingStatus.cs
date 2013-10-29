@@ -80,6 +80,16 @@
         private IEuclidenDomain<CoeffType> mainDomain;
 
         /// <summary>
+        /// O domínio polinomial baseado no corpo modular.
+        /// </summary>
+        private UnivarPolynomEuclideanDomain<CoeffType> modularPolynomialDomain;
+
+        /// <summary>
+        /// O anel polinomial baseado no anel principal.
+        /// </summary>
+        private UnivarPolynomRing<CoeffType> mainPolynomialRing;
+
+        /// <summary>
         /// Coném o módulo associado à solução actual.
         /// </summary>
         private CoeffType liftFactorizationModule;
@@ -129,6 +139,12 @@
                 this.modularField = modularField;
                 this.mainDomain = mainDomain;
                 this.liftFactorizationModule = modularField.Module;
+                this.modularPolynomialDomain = new UnivarPolynomEuclideanDomain<CoeffType>(
+                    polynom.VariableName,
+                    modularField);
+                this.mainPolynomialRing = new UnivarPolynomRing<CoeffType>(
+                    polynom.VariableName,
+                    mainDomain);
                 this.notInitialized = true;
             }
         }
@@ -145,36 +161,6 @@
             internal set
             {
                 this.polynom = value;
-            }
-        }
-
-        /// <summary>
-        /// Obtém o valor de u(x).
-        /// </summary>
-        public UnivariatePolynomialNormalForm<CoeffType> UFactor
-        {
-            get
-            {
-                return this.uFactor;
-            }
-            internal set
-            {
-                this.uFactor = value;
-            }
-        }
-
-        /// <summary>
-        /// Obtém o valor de w(x).
-        /// </summary>
-        public UnivariatePolynomialNormalForm<CoeffType> WFactor
-        {
-            get
-            {
-                return this.wFactor;
-            }
-            internal set
-            {
-                this.wFactor = value;
             }
         }
 
@@ -209,36 +195,6 @@
         }
 
         /// <summary>
-        /// Obtém o valor de s(x).
-        /// </summary>
-        public UnivariatePolynomialNormalForm<CoeffType> SPol
-        {
-            get
-            {
-                return this.sPol;
-            }
-            internal set
-            {
-                this.sPol = value;
-            }
-        }
-
-        /// <summary>
-        /// Obtém o valor de t(x).
-        /// </summary>
-        public UnivariatePolynomialNormalForm<CoeffType> TPol
-        {
-            get
-            {
-                return this.tPol;
-            }
-            internal set
-            {
-                this.tPol = value;
-            }
-        }
-
-        /// <summary>
         /// Obtém o corpo modular no qual é conhecida a factorização a levantar.
         /// </summary>
         public IModularField<CoeffType> ModularField
@@ -261,6 +217,28 @@
         }
 
         /// <summary>
+        /// Obtém o domínio polinomial baseado no corpo modular.
+        /// </summary>
+        public UnivarPolynomEuclideanDomain<CoeffType> ModularPolynomialDomain
+        {
+            get
+            {
+                return this.modularPolynomialDomain;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o anel polinomial baseado no anel principal.
+        /// </summary>
+        public UnivarPolynomRing<CoeffType> MainPolynomialRing
+        {
+            get
+            {
+                return this.mainPolynomialRing;
+            }
+        }
+
+        /// <summary>
         /// Obtém e atribui o módulo associado à solução actual.
         /// </summary>
         public CoeffType LiftedFactorizationModule
@@ -272,6 +250,17 @@
             internal set
             {
                 this.liftFactorizationModule = value;
+            }
+        }
+
+        /// <summary>
+        /// Obtém um valor que determina se a solução encontrada é válida para o polinómio em questão.
+        /// </summary>
+        public bool ProveSolution
+        {
+            get
+            {
+                return this.mainPolynomialRing.IsAdditiveUnity(this.ePol);
             }
         }
 
@@ -302,6 +291,66 @@
             set
             {
                 this.ePol = value;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o valor de s(x).
+        /// </summary>
+        internal UnivariatePolynomialNormalForm<CoeffType> SPol
+        {
+            get
+            {
+                return this.sPol;
+            }
+            set
+            {
+                this.sPol = value;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o valor de t(x).
+        /// </summary>
+        internal UnivariatePolynomialNormalForm<CoeffType> TPol
+        {
+            get
+            {
+                return this.tPol;
+            }
+            set
+            {
+                this.tPol = value;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o valor de u(x).
+        /// </summary>
+        internal UnivariatePolynomialNormalForm<CoeffType> UFactor
+        {
+            get
+            {
+                return this.uFactor;
+            }
+            set
+            {
+                this.uFactor = value;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o valor de w(x).
+        /// </summary>
+        internal UnivariatePolynomialNormalForm<CoeffType> WFactor
+        {
+            get
+            {
+                return this.wFactor;
+            }
+            set
+            {
+                this.wFactor = value;
             }
         }
 
