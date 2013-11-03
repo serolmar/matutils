@@ -9,14 +9,8 @@
     /// Representa um número complexo sobre um corpo.
     /// </summary>
     /// <typeparam name="ObjectType">O tipo de objecto.</typeparam>
-    /// <typeparam name="RingType">O anel que actua sobre o objecto.</typeparam>
-    public class ComplexNumber<ObjectType, RingType>
-        where RingType : IRing<ObjectType>
+    public class ComplexNumber<ObjectType>
     {
-        /// <summary>
-        /// O anel.
-        /// </summary>
-        protected RingType ring;
 
         /// <summary>
         /// A parte real.
@@ -28,20 +22,11 @@
         /// </summary>
         protected ObjectType imaginaryPart;
 
-        public ComplexNumber(RingType ring)
+        public ComplexNumber()
         {
-            if (ring == null)
-            {
-                throw new ArgumentNullException("A ring must be provided.");
-            }
-            else
-            {
-                this.ring = ring;
-            }
         }
 
-        public ComplexNumber(ObjectType realPart, ObjectType imaginaryPart, RingType ring)
-            : this(ring)
+        public ComplexNumber(ObjectType realPart, ObjectType imaginaryPart)
         {
             if (realPart == null)
             {
@@ -84,18 +69,23 @@
         /// Obtém a soma do número complexo actual com outro número complexo.
         /// </summary>
         /// <param name="right">O outro número complexo.</param>
+        /// <param name="ring">O anel responsável pelas operações.</param>
         /// <returns>O resultado da soma.</returns>
-        public ComplexNumber<ObjectType, RingType> Add(ComplexNumber<ObjectType, RingType> right)
+        public ComplexNumber<ObjectType> Add(ComplexNumber<ObjectType> right, IRing<ObjectType> ring)
         {
-            if (right == null)
+            if (ring == null)
+            {
+                throw new ArgumentNullException("ring");
+            }
+            else if (right == null)
             {
                 throw new ArgumentNullException("right");
             }
             else
             {
-                var result = new ComplexNumber<ObjectType, RingType>(this.ring);
-                result.realPart = this.ring.Add(this.realPart, right.realPart);
-                result.imaginaryPart = this.ring.Add(this.imaginaryPart, right.imaginaryPart);
+                var result = new ComplexNumber<ObjectType>();
+                result.realPart = ring.Add(this.realPart, right.realPart);
+                result.imaginaryPart = ring.Add(this.imaginaryPart, right.imaginaryPart);
                 return result;
             }
         }
@@ -104,18 +94,23 @@
         /// Obtém a diferença entre o número complexo actual e outro número complexo.
         /// </summary>
         /// <param name="right">O outro número complexo.</param>
+        /// <param name="ring">O anel responsável pelas operações.</param>
         /// <returns>O resultado da diferença.</returns>
-        public ComplexNumber<ObjectType, RingType> Subtract(ComplexNumber<ObjectType, RingType> right)
+        public ComplexNumber<ObjectType> Subtract(ComplexNumber<ObjectType> right, IRing<ObjectType> ring)
         {
-            if (right == null)
+            if (ring == null)
+            {
+                throw new ArgumentNullException("ring");
+            }
+            else if (right == null)
             {
                 throw new ArgumentNullException("right");
             }
             else
             {
-                var result = new ComplexNumber<ObjectType, RingType>(this.ring);
-                result.realPart = this.ring.Add(this.realPart, this.ring.AdditiveInverse(right.realPart));
-                result.imaginaryPart = this.ring.Add(this.imaginaryPart, this.ring.AdditiveInverse(right.imaginaryPart));
+                var result = new ComplexNumber<ObjectType>();
+                result.realPart = ring.Add(this.realPart, ring.AdditiveInverse(right.realPart));
+                result.imaginaryPart = ring.Add(this.imaginaryPart, ring.AdditiveInverse(right.imaginaryPart));
                 return result;
             }
         }
@@ -124,22 +119,27 @@
         /// Obtém o produto do número complexo actual com outro número complexo.
         /// </summary>
         /// <param name="right">O outro número complexo.</param>
+        /// <param name="ring">O anel responsável pelas operações.</param>
         /// <returns>O resultado do produto.</returns>
-        public ComplexNumber<ObjectType, RingType> Multiply(ComplexNumber<ObjectType, RingType> right)
+        public ComplexNumber<ObjectType> Multiply(ComplexNumber<ObjectType> right, IRing<ObjectType> ring)
         {
-            if (right == null)
+            if (ring == null)
+            {
+                throw new ArgumentNullException("ring");
+            }
+            else if (right == null)
             {
                 throw new ArgumentNullException("right");
             }
             else
             {
-                var result = new ComplexNumber<ObjectType, RingType>(this.ring);
-                result.realPart = this.ring.Add(
-                    this.ring.Multiply(this.realPart, right.realPart), 
-                    this.ring.AdditiveInverse(this.ring.Multiply(this.imaginaryPart, right.imaginaryPart)));
-                result.imaginaryPart = this.ring.Add(this.ring.Multiply(
+                var result = new ComplexNumber<ObjectType>();
+                result.realPart = ring.Add(
+                    ring.Multiply(this.realPart, right.realPart), 
+                    ring.AdditiveInverse(ring.Multiply(this.imaginaryPart, right.imaginaryPart)));
+                result.imaginaryPart = ring.Add(ring.Multiply(
                     this.realPart, right.imaginaryPart),
-                    this.ring.Multiply(this.imaginaryPart, right.realPart));
+                    ring.Multiply(this.imaginaryPart, right.realPart));
                 return result;
             }
         }
