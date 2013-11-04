@@ -200,6 +200,7 @@
     <Compile Include="MathematicsInterpreter\MathematicsObjects\StringMathematicsObject.cs" />
     <Compile Include="MathematicsInterpreter\ScopeDefinition.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SquareRoot.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Utilities\Utilities.csproj">

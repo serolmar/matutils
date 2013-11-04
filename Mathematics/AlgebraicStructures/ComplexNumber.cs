@@ -22,7 +22,10 @@
         /// </summary>
         protected ObjectType imaginaryPart;
 
-        public ComplexNumber()
+        /// <summary>
+        /// Construtor responsável pelas instâncias internas à livraria.
+        /// </summary>
+        internal ComplexNumber()
         {
         }
 
@@ -52,6 +55,10 @@
             {
                 return this.realPart;
             }
+            internal set
+            {
+                this.realPart = value;
+            }
         }
 
         /// <summary>
@@ -62,6 +69,46 @@
             get
             {
                 return this.imaginaryPart;
+            }
+            internal set
+            {
+                this.imaginaryPart = value;
+            }
+        }
+
+        /// <summary>
+        /// Verifica se o número complexo actual é o número complexo nulo.
+        /// </summary>
+        /// <param name="monoid">O monóide responsável pelas operações.</param>
+        /// <returns>Verdadeiro caso o número seja zero e falso caso contrário.</returns>
+        public bool IsZero(IMonoid<ObjectType> monoid)
+        {
+            if (monoid == null)
+            {
+                throw new ArgumentNullException("monoid");
+            }
+            else
+            {
+                return monoid.IsAdditiveUnity(this.realPart) && 
+                    monoid.IsAdditiveUnity(this.imaginaryPart);
+            }
+        }
+
+        /// <summary>
+        /// Verifica se o número complexo actual corresponde à unidade.
+        /// </summary>
+        /// <param name="ring">O anel responsável pelas operações sobre os coeficientes.</param>
+        /// <returns>Verdadeiro caso o número complexo seja unitário e falso caso contrário.</returns>
+        public bool IsOne(IRing<ObjectType> ring)
+        {
+            if (ring == null)
+            {
+                throw new ArgumentNullException("ring");
+            }
+            else
+            {
+                return ring.IsMultiplicativeUnity(this.realPart) &&
+                    ring.IsAdditiveUnity(this.imaginaryPart);
             }
         }
 
@@ -140,6 +187,75 @@
                 result.imaginaryPart = ring.Add(ring.Multiply(
                     this.realPart, right.imaginaryPart),
                     ring.Multiply(this.imaginaryPart, right.realPart));
+                return result;
+            }
+        }
+
+        /// <summary>
+        /// Divide um número complexo corrente por outro.
+        /// </summary>
+        /// <param name="right">O número a ser dividido.</param>
+        /// <param name="field">O corpo responsável pelas operações.</param>
+        /// <returns>O resultado da divisão.</returns>
+        public ComplexNumber<ObjectType> Divide(ComplexNumber<ObjectType> right, IField<ObjectType> field)
+        {
+            if (field == null)
+            {
+                throw new ArgumentNullException("field");
+            }
+            else if (right == null)
+            {
+                throw new ArgumentNullException("right");
+            }
+            else if (right.IsZero(field))
+            {
+                throw new DivideByZeroException("Can't divide by the zero complex number.");
+            }
+            else
+            {
+                var quadReal = field.Multiply(right.realPart, right.realPart);
+                var quadImaginary = field.Multiply(right.imaginaryPart, right.imaginaryPart);
+                var denom = field.Add(quadReal, quadImaginary);
+
+                var resReal = field.Multiply(this.realPart, right.realPart);
+                resReal = field.Add(
+                    resReal,
+                    field.Multiply(this.imaginaryPart, right.imaginaryPart));
+                resReal = field.Multiply(
+                    resReal,
+                    field.MultiplicativeInverse(denom));
+                var resImg = field.Multiply(this.realPart, right.imaginaryPart);
+                resImg = field.AdditiveInverse(resImg);
+                resImg = field.Add(
+                    resImg,
+                    field.Multiply(this.imaginaryPart, right.realPart));
+                resImg = field.Multiply(
+                    resImg,
+                    field.MultiplicativeInverse(denom));
+
+                var result = new ComplexNumber<ObjectType>();
+                result.realPart = resReal;
+                result.imaginaryPart = resImg;
+                return result;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o complexo conjugado do número actual.
+        /// </summary>
+        /// <param name="group">O grupo responsável pelas operações.</param>
+        /// <returns>O complexo conjugado do número actual.</returns>
+        public ComplexNumber<ObjectType> Conjugate(IGroup<ObjectType> group)
+        {
+            if (group == null)
+            {
+                throw new ArgumentNullException("group");
+            }
+            else
+            {
+                var result = new ComplexNumber<ObjectType>();
+                result.realPart = this.realPart;
+                result.imaginaryPart = group.AdditiveInverse(this.imaginaryPart);
                 return result;
             }
         }
