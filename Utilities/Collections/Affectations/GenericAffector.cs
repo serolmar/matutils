@@ -69,6 +69,8 @@ namespace Utilities.Collections
 
         public abstract class GenericAffectorEnumerator : FastAffectorEnumerator
         {
+            private GenericAffector currentAffector;
+
             protected int[] affectedIndices;
 
             public GenericAffectorEnumerator(GenericAffector affector)
@@ -76,17 +78,18 @@ namespace Utilities.Collections
             {
                 this.currentAffectationIndices = new int[affector.NumberOfPlaces];
                 this.affectedIndices = new int[this.thisFastAffector.Count];
+                this.currentAffector = affector;
                 Array.Clear(this.affectedIndices, 0, this.thisFastAffector.NumberOfPlaces);
             }
 
             protected override bool VerifyRepetitions()
             {
-                GenericAffector affector = this.thisFastAffector as GenericAffector;
                 int indexBeingAffected = this.currentAffectationIndices[this.currentPointer];
 
-                if (affector.numberOfPossibleAffectationsByIndice != null)
+                if (this.currentAffector.numberOfPossibleAffectationsByIndice != null)
                 {
-                    if (this.affectedIndices[indexBeingAffected] == affector.numberOfPossibleAffectationsByIndice[indexBeingAffected])
+                    if (this.affectedIndices[indexBeingAffected] == 
+                        this.currentAffector.numberOfPossibleAffectationsByIndice[indexBeingAffected])
                     {
                         return false;
                     }

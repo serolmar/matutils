@@ -13,9 +13,14 @@ namespace Mathematics
         private NodeType node;
 
         /// <summary>
-        /// O próximo nó.
+        /// Mantém a lista de areastas ligadas ao nó inicial.
         /// </summary>
-        private LinkNode<NodeType> link;
+        private List<Edge<NodeType>> connectedEdges = new List<Edge<NodeType>>();
+
+        /// <summary>
+        /// O próximo nó e a aresta que lhe deu origem.
+        /// </summary>
+        private LinkNodeTie<NodeType> link;
 
         /// <summary>
         /// Obtém o nó.
@@ -33,9 +38,20 @@ namespace Mathematics
         }
 
         /// <summary>
-        /// Obtém o próximo elemento.
+        /// Obtém a lista de arestas conectadas ao vértice inicial.
         /// </summary>
-        public LinkNode<NodeType> Link
+        public List<Edge<NodeType>> ConnectedEdges
+        {
+            get
+            {
+                return this.connectedEdges;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o próximo elemento e a aresta que lhe deu origem.
+        /// </summary>
+        public LinkNodeTie<NodeType> Link
         {
             get
             {
@@ -45,6 +61,24 @@ namespace Mathematics
             {
                 this.link = value;
             }
+        }
+
+        /// <summary>
+        /// Obtém a representação textual da ligação.
+        /// </summary>
+        /// <returns>A representação textual da ligação.</returns>
+        public override string ToString()
+        {
+            var result = new StringBuilder();
+            result.Append(this.node);
+            var next = this.link;
+            while (next != null) {
+                result.Append("-->");
+                result.Append(next.OtherNode.node);
+                next = next.OtherNode.link;
+            }
+
+            return result.ToString();
         }
     }
 }

@@ -21,7 +21,7 @@
 
         static void Main(string[] args)
         {
-            Test10();
+            Test1();
             //using (var streamWriter = new StreamWriter("temp.txt"))
             //{
             //    streamWriter.Write(2);
@@ -410,6 +410,9 @@
             }
         }
 
+        /// <summary>
+        /// Factorização livre de quadrados e domínios polinomiais.
+        /// </summary>
         public static void Test12()
         {
             var firstInput = "    x^3-1/3*x^2+ - -x/5-1/2";
@@ -515,6 +518,9 @@
             }
         }
 
+        /// <summary>
+        /// Testes à factorização de polinómios.
+        /// </summary>
         public static void Test10()
         {
             var firstInput = "x^3+10*x^2-432*x+5040";
@@ -593,6 +599,9 @@
             }
         }
 
+        /// <summary>
+        /// Teste às matrizes.
+        /// </summary>
         public static void Test9()
         {
             var sparseDictionaryMatrix = new SparseDictionaryMatrix<int>(0);
@@ -627,6 +636,9 @@
                 sparseDictionaryMatrix.GetLength(1));
         }
 
+        /// <summary>
+        /// Cálculo de determinantes e leitura de matrizes.
+        /// </summary>
         static void Test8()
         {
             var input = "[[1-x,2],[4, 3-x]]";
@@ -881,73 +893,21 @@
         /// </summary>
         static void Test1()
         {
-            Console.WriteLine("Please insert expression to be evaluated:");
-            //var input = Console.ReadLine();
-            //var reader = new StringReader(input);
-            //var result = new IntegerExpressionParser<TextReader>().Parse(reader);
-            // var result = new DoubleExpressionParser().Parse(reader);
-            //var result = new BoolExpressionParser().Parse(reader);
-            //Console.WriteLine("The result is {0}.", result);
+            var graph = new EdgeListGraph<int>();
+            graph.AddEdge(0, 1);
+            graph.AddEdge(0, 3);
+            graph.AddEdge(0, 2);
+            graph.AddEdge(1, 3);
+            graph.AddEdge(1, 2);
+            graph.AddEdge(2, 3);
+            graph.AddEdge(2, 4);
+            graph.AddEdge(3, 4);
 
-            //var ring = new IntegerRing();
-            //var polList = new List<Polynomial<int, IntegerRing>>();
+            graph.AddVertex(10);
+            graph.AddVertex(11);
 
-            //var p1 = new Polynomial<int, IntegerRing>(3, new[] { 1, 2 }, new[] { "x", "y" }, ring);
-            //var p2 = new Polynomial<int, IntegerRing>(2, new[] { 2, 3 }, new[] { "x", "z" }, ring);
-
-            //var p3 = p1.Add(p2);
-            //var p4 = p2.Multiply(p3);
-            //var p5 = p4.Multiply(p4);
-
-            //polList.Add(p1);
-            //polList.Add(p1.Add(p2));
-            //polList.Add(p1.Multiply(p2));
-            //polList.Add(p4);
-            //polList.Add(p5);
-            //polList.Add(p5.GetExpanded());
-            //var dic = new Dictionary<string, int>();
-            //dic.Add("x", 2);
-            //polList.Add(p5.Replace(dic));
-            //var dic2 = new Dictionary<string, Polynomial<int, IntegerRing>>();
-            //dic2.Add("x", p1);
-            //polList.Add(p3.Replace(dic2));
-
-            //foreach (var pol in polList)
-            //{
-            //    Console.WriteLine(pol);
-            //}
-
-            //var input = "[[[1,2],[3,4]],[[5,6],[7,8]],[[9,10],[11,       12]]  ]";
-            //var input1 = "[[1,2],[[3],4]]";
-            //var reader = new StringReader(input);
-            //var reader1 = new StringReader(input1);
-
-            //var mr = new MultiDimensionalRange<int>(new[] { 2, 2, 3 });
-            //var mrParser = new MultiDimensionalRangeConfigParser<int, string, string, CharSymbolReader>(mr);
-            //mrParser.MapInternalDelimiters("left_bracket", "right_bracket");
-            //mrParser.MapExternalDelimiters("left_bracket", "right_bracket");
-            //mrParser.AddBlanckSymbolType("blancks");
-            //mrParser.SeparatorSymbType = "comma";
-            //mrParser.ParseRange(new StringSymbolReader(reader, true), new IntegerParser());
-            //Console.WriteLine(mr);
-
-            //var mrParser = new MultiDimensionalRangeNoConfigParser<int, string, string, CharSymbolReader>();
-            //mrParser.MapInternalDelimiters("left_bracket", "right_bracket");
-            //mrParser.MapExternalDelimiters("left_bracket", "right_bracket");
-            //mrParser.AddBlanckSymbolType("blancks");
-            //mrParser.SeparatorSymbType = "comma";
-            //var mr = mrParser.ParseRange(new StringSymbolReader(reader, true), new IntegerParser());
-            //Console.WriteLine(mr);
-
-
-            //var permGen = new SwapPermutationsGenerator(5);
-            //var count = 0;
-            //foreach (var perm in permGen)
-            //{
-            //    ++count;
-            //}
-
-            //Console.WriteLine(count);
+            var graphAlgs = graph.GetAlgorithmsProcessor();
+            var cycles = graphAlgs.GetCycles();
         }
 
         static string PrintVector(IEnumerable<int> vectorToPrint)

@@ -37,7 +37,6 @@ namespace Utilities.Collections
             protected override bool IncrementCurrent()
             {
                 ++this.currentAffectationIndices[this.currentPointer];
-                var innerAffector = this.thisFastAffector as PermutationBoxAffector;
                 if (this.currentAffectationIndices[this.currentPointer] == this.numberOfAffectationIndices)
                 {
                     return false;

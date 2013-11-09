@@ -30,10 +30,12 @@ namespace Mathematics
         /// Obtém uma árvore de cobertura mínima que se inicia num vértice.
         /// </summary>
         /// <param name="startVertex">O vértice inicial.</param>
-        /// <param name="weight">Um dicionário que permite mapear o peso das arestas.</param>
+        /// <param name="edgeValueFunction">A função que permite obter o valor do peso da aresta.</param>
+        /// <param name="valueComparer">O comparador de valores.</param>
         /// <returns>A árvore.</returns>
-        IGraph<VertexType> GetMinimumSpanningTree(
+        ITree<VertexType> GetMinimumSpanningTree<EdgeValueType>(
             VertexType startVertex, 
-            Dictionary<IEdge<VertexType>, double> weight);
+            Func<IEdge<VertexType>,EdgeValueType> edgeValueFunction,
+            IComparer<EdgeValueType> valueComparer);
     }
 }

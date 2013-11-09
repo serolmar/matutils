@@ -136,6 +136,7 @@
                 result.rootNumberFactorization.Add(kvp.Key, kvp.Value);
             }
 
+            this.ComputeRootNumber(multipliable);
             return result;
         }
 

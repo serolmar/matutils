@@ -10,7 +10,7 @@ namespace Mathematics
     /// Grafo representado por uma lista de arestas.
     /// </summary>
     /// <typeparam name="VertexType">O tipo que representa o vértice.</typeparam>
-    class EdgeListGraph<VertexType> : IGraph<VertexType>
+    public class EdgeListGraph<VertexType> : IGraph<VertexType>
     {
         /// <summary>
         /// Indica se o grafo é direccionado.
@@ -22,21 +22,21 @@ namespace Mathematics
         /// </summary>
         private IEqualityComparer<VertexType> vertexEqualityComparer;
 
-        private Dictionary<VertexType, List<IEdge<VertexType>>> vertices;
+        private Dictionary<VertexType, List<Edge<VertexType>>> vertices;
 
-        private List<IEdge<VertexType>> edges;
+        private List<Edge<VertexType>> edges;
 
         public EdgeListGraph(bool directed = false)
         {
-            this.edges = new List<IEdge<VertexType>>();
-            this.vertices = new Dictionary<VertexType, List<IEdge<VertexType>>>();
+            this.edges = new List<Edge<VertexType>>();
+            this.vertices = new Dictionary<VertexType, List<Edge<VertexType>>>();
             this.directed = directed;
         }
 
         public EdgeListGraph(IEqualityComparer<VertexType> vertexEqualityComparer, bool directed = false)
         {
-            this.edges = new List<IEdge<VertexType>>();
-            this.vertices = new Dictionary<VertexType, List<IEdge<VertexType>>>(vertexEqualityComparer);
+            this.edges = new List<Edge<VertexType>>();
+            this.vertices = new Dictionary<VertexType, List<Edge<VertexType>>>(vertexEqualityComparer);
             this.vertexEqualityComparer = vertexEqualityComparer;
             this.directed = directed;
         }
@@ -91,7 +91,7 @@ namespace Mathematics
         /// <summary>
         /// Obtém o dicionário que contém os vértices e as arestas que daí saem.
         /// </summary>
-        internal Dictionary<VertexType, List<IEdge<VertexType>>> VerticesDictionary
+        internal Dictionary<VertexType, List<Edge<VertexType>>> VerticesDictionary
         {
             get
             {
@@ -102,12 +102,21 @@ namespace Mathematics
         /// <summary>
         /// Obtém a lista de arestas.
         /// </summary>
-        internal List<IEdge<VertexType>> EdgesList
+        internal List<Edge<VertexType>> EdgesList
         {
             get
             {
                 return this.edges;
             }
+        }
+
+        /// <summary>
+        /// Obtém o objecto responsável pelos algoritmos sobre o grafo actual.
+        /// </summary>
+        /// <returns>O objecto responsável pelos alroritmos.</returns>
+        public IGraphAlgorithms<VertexType> GetAlgorithmsProcessor()
+        {
+            return new EdgeListGraphAlgorithms<VertexType>(this);
         }
 
         /// <summary>
@@ -121,10 +130,10 @@ namespace Mathematics
         /// <returns>O conjunto dos vértices vizinhos.</returns>
         public IEnumerable<VertexType> GetNeighbours(VertexType vertex)
         {
-            List<IEdge<VertexType>> result = null;
+            var result = default(List<Edge<VertexType>>);
             if (!this.vertices.TryGetValue(vertex, out result))
             {
-                result = new List<IEdge<VertexType>>();
+                result = new List<Edge<VertexType>>();
             }
 
             foreach (var edge in result)
@@ -154,6 +163,10 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Adiciona um vértice ao grafo.
+        /// </summary>
+        /// <param name="vertex">O vértice.</param>
         public void AddVertex(VertexType vertex)
         {
             if (vertex == null)
@@ -166,7 +179,7 @@ namespace Mathematics
             }
             else
             {
-                this.vertices.Add(vertex, new List<IEdge<VertexType>>());
+                this.vertices.Add(vertex, new List<Edge<VertexType>>());
             }
         }
 
@@ -187,27 +200,7 @@ namespace Mathematics
             }
 
             var edge = new Edge<VertexType>(initialVertex, finalVertex);
-            this.edges.Add(edge);
-            List<IEdge<VertexType>> edgesWithVertex = null;
-            if (this.vertices.TryGetValue(initialVertex, out edgesWithVertex))
-            {
-                edgesWithVertex.Add(edge);
-            }
-            else
-            {
-                this.vertices.Add(initialVertex, new List<IEdge<VertexType>>() { edge });
-            }
-
-            edgesWithVertex = null;
-            if (this.vertices.TryGetValue(finalVertex, out edgesWithVertex))
-            {
-                edgesWithVertex.Add(edge);
-            }
-            else
-            {
-                this.vertices.Add(initialVertex, new List<IEdge<VertexType>>() { edge });
-            }
-
+            this.AddEdge(edge);
         }
 
         /// <summary>
@@ -216,7 +209,7 @@ namespace Mathematics
         /// <param name="vertex">O vértice a ser removido.</param>
         public void RemoveVertex(VertexType vertex)
         {
-            List<IEdge<VertexType>> vertexEdge = null;
+            var vertexEdge = default(List<Edge<VertexType>>);
             if (this.vertices.TryGetValue(vertex, out vertexEdge))
             {
                 while (vertexEdge.Count > 0)
@@ -236,10 +229,10 @@ namespace Mathematics
         /// <param name="finalVertex">O vértice final.</param>
         public void RemoveEdges(VertexType initialVertex, VertexType finalVertex)
         {
-            List<IEdge<VertexType>> initialVertexEdges = null;
+            var initialVertexEdges = default(List<Edge<VertexType>>);
             if (this.vertices.TryGetValue(initialVertex, out initialVertexEdges))
             {
-                List<IEdge<VertexType>> finalVertexEdges = null;
+                var finalVertexEdges = default(List<Edge<VertexType>>);
                 if (this.vertices.TryGetValue(finalVertex, out finalVertexEdges))
                 {
                     var count = 0;
@@ -274,6 +267,34 @@ namespace Mathematics
                         this.edges.Remove(currentEdge);
                     }
                 }
+            }
+        }
+
+        /// <summary>
+        /// Adiciona uma aresta ao grafo actual.
+        /// </summary>
+        /// <param name="edge">A aresta a ser adicionada.</param>
+        internal void AddEdge(Edge<VertexType> edge)
+        {
+            this.edges.Add(edge);
+            var edgesWithVertex = default(List<Edge<VertexType>>);
+            if (this.vertices.TryGetValue(edge.InitialVertex, out edgesWithVertex))
+            {
+                edgesWithVertex.Add(edge);
+            }
+            else
+            {
+                this.vertices.Add(edge.InitialVertex, new List<Edge<VertexType>>() { edge });
+            }
+
+            edgesWithVertex = null;
+            if (this.vertices.TryGetValue(edge.FinalVertex, out edgesWithVertex))
+            {
+                edgesWithVertex.Add(edge);
+            }
+            else
+            {
+                this.vertices.Add(edge.FinalVertex, new List<Edge<VertexType>>() { edge });
             }
         }
     }
