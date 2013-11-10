@@ -11,8 +11,23 @@ namespace Mathematics
 
         private NodeObjectType nodeObject;
 
+        private TreeNode<NodeObjectType> parent;
+
         private List<TreeNode<NodeObjectType>> childs = new List<TreeNode<NodeObjectType>>();
+
+        internal TreeNode(
+            NodeObjectType nodeObject, 
+            Tree<NodeObjectType> owner, 
+            TreeNode<NodeObjectType> parent)
+        {
+            this.nodeObject = nodeObject;
+            this.owner = owner;
+            this.parent = parent;
+        }
         
+        /// <summary>
+        /// Obtém o valor do nó.
+        /// </summary>
         public NodeObjectType NodeObject
         {
             get
@@ -25,11 +40,25 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Obtém os nós filho.
+        /// </summary>
         public IEnumerable<ITreeNode<NodeObjectType>> Childs
         {
             get
             {
                 return this.childs;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o nó precedente e nulo caso o nó actual seja a raiz.
+        /// </summary>
+        public TreeNode<NodeObjectType> Parent
+        {
+            get
+            {
+                return this.parent;
             }
         }
 
@@ -53,31 +82,40 @@ namespace Mathematics
             }
         }
 
-        public void Add(TreeNode<NodeObjectType> child)
+        /// <summary>
+        /// Adiciona um novo valor filho ao nó corrente.
+        /// </summary>
+        /// <param name="child">O valor a ser adicionado.</param>
+        /// <returns>O nó que contém o valor.</returns>
+        public TreeNode<NodeObjectType> Add(NodeObjectType child)
         {
             if (child == null)
             {
                 throw new ArgumentNullException("child");
             }
-            else if (child.owner != null)
-            {
-                throw new ArgumentException("Root node was already added to some tree.");
-            }
-            else if (this.owner == null)
-            {
-                throw new MathematicsException("Node must belong to a tree in order to have child nodes.");
-            }
             else
             {
-                this.childs.Add(child);
-                child.owner = this.owner;
+                var node = new TreeNode<NodeObjectType>(
+                    child,
+                    this.owner,
+                    this);
+                this.childs.Add(node);
+                return node;
             }
         }
 
+        /// <summary>
+        /// Remove o nó filho do nó actual.
+        /// </summary>
+        /// <param name="child">O nó a ser removido.</param>
         public void Remove(TreeNode<NodeObjectType> child)
         {
             this.childs.Remove(child);
-            child.owner = null;
+        }
+
+        internal void Add(TreeNode<NodeObjectType> node)
+        {
+            this.childs.Add(node);
         }
     }
 }

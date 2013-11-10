@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Mathematics
 {
-    public interface IGraph<VertexType>
+    public interface IGraph<VertexType, EdgeValueType>
     {
         /// <summary>
         /// Obtém um enumerador para todos os vértices.
@@ -15,7 +15,7 @@ namespace Mathematics
         /// <summary>
         /// Obtém um enumerador para todas as arestas.
         /// </summary>
-        IEnumerable<IEdge<VertexType>> Edges { get; }
+        IEnumerable<IEdge<VertexType, EdgeValueType>> Edges { get; }
 
         /// <summary>
         /// Obtém os vizinhos de um determinado vértice.
@@ -35,7 +35,8 @@ namespace Mathematics
         /// </summary>
         /// <param name="initialVertex">O vértice inicial da aresta.</param>
         /// <param name="finalVertex">O vértice final da aresta.</param>
-        void AddEdge(VertexType initialVertex, VertexType finalVertex);
+        /// <param name="edgeValue">O objecto associado à aresta.</param>
+        void AddEdge(VertexType initialVertex, VertexType finalVertex, EdgeValueType edgeValue);
 
         /// <summary>
         /// Remove um vértice.

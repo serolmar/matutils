@@ -9,20 +9,18 @@ namespace Mathematics
     {
         private TreeNode<NodeObjectType> rootNode;
 
-        public Tree(TreeNode<NodeObjectType> rootNode)
+        public Tree(NodeObjectType rootNode)
         {
             if (rootNode == null)
             {
                 throw new ArgumentNullException("rootNode");
             }
-            else if (rootNode.Owner != null)
-            {
-                throw new ArgumentException("Root node was already added to some tree.");
-            }
             else
             {
-                this.rootNode = rootNode;
-                this.rootNode.Owner = this;
+                this.rootNode = new TreeNode<NodeObjectType>(
+                    rootNode,
+                    this,
+                    null);
             }
         }
 
@@ -30,6 +28,17 @@ namespace Mathematics
         /// Obtém a raíz da árvore.
         /// </summary>
         public ITreeNode<NodeObjectType> RootNode
+        {
+            get
+            {
+                return this.rootNode;
+            }
+        }
+
+        /// <summary>
+        /// Obtém a raiz da árvore de acordo com o respectivo tipo.
+        /// </summary>
+        internal TreeNode<NodeObjectType> InternalRootNode
         {
             get
             {

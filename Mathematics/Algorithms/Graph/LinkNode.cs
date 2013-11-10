@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Mathematics
 {
-    internal class LinkNode<NodeType>
+    internal class LinkNode<NodeType, EdgeValueType>
     {
         /// <summary>
         /// O nó inicial.
@@ -15,12 +15,12 @@ namespace Mathematics
         /// <summary>
         /// Mantém a lista de areastas ligadas ao nó inicial.
         /// </summary>
-        private List<Edge<NodeType>> connectedEdges = new List<Edge<NodeType>>();
+        private List<Edge<NodeType, EdgeValueType>> connectedEdges = new List<Edge<NodeType, EdgeValueType>>();
 
         /// <summary>
         /// O próximo nó e a aresta que lhe deu origem.
         /// </summary>
-        private LinkNodeTie<NodeType> link;
+        private LinkNodeTie<NodeType, EdgeValueType> link;
 
         /// <summary>
         /// Obtém o nó.
@@ -40,7 +40,7 @@ namespace Mathematics
         /// <summary>
         /// Obtém a lista de arestas conectadas ao vértice inicial.
         /// </summary>
-        public List<Edge<NodeType>> ConnectedEdges
+        public List<Edge<NodeType, EdgeValueType>> ConnectedEdges
         {
             get
             {
@@ -51,7 +51,7 @@ namespace Mathematics
         /// <summary>
         /// Obtém o próximo elemento e a aresta que lhe deu origem.
         /// </summary>
-        public LinkNodeTie<NodeType> Link
+        public LinkNodeTie<NodeType, EdgeValueType> Link
         {
             get
             {

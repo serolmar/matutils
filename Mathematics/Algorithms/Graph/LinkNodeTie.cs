@@ -5,22 +5,22 @@
     using System.Linq;
     using System.Text;
 
-    internal class LinkNodeTie<NodeType>
+    internal class LinkNodeTie<NodeType, EdgeValueType>
     {
         /// <summary>
         /// A aresta que liga ao vértice final.
         /// </summary>
-        private Edge<NodeType> tieEdge;
+        private Edge<NodeType, EdgeValueType> tieEdge;
 
         /// <summary>
         /// O vértice final.
         /// </summary>
-        private LinkNode<NodeType> otherNode;
+        private LinkNode<NodeType, EdgeValueType> otherNode;
 
         /// <summary>
         /// Otbém a areasta que liga ao vértice final.
         /// </summary>
-        public Edge<NodeType> TieEdge
+        public Edge<NodeType, EdgeValueType> TieEdge
         {
             get
             {
@@ -35,7 +35,7 @@
         /// <summary>
         /// Obtém o vértice final.
         /// </summary>
-        public LinkNode<NodeType> OtherNode
+        public LinkNode<NodeType, EdgeValueType> OtherNode
         {
             get
             {

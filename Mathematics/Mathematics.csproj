@@ -128,6 +128,7 @@
     <Compile Include="Algorithms\General\LagrangeAlgorithm.cs" />
     <Compile Include="Algorithms\Graph\GraphCyclesComponentsPair.cs" />
     <Compile Include="Algorithms\Graph\LinkNodeTie.cs" />
+    <Compile Include="Algorithms\Graph\VertexValuePair.cs" />
     <Compile Include="Algorithms\IAlgorithm.cs" />
     <Compile Include="Algorithms\Matrix\Determinant\ADeterminant.cs" />
     <Compile Include="Algorithms\Matrix\Determinant\CondensationDeterminantCalculator.cs" />

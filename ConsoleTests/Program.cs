@@ -893,21 +893,25 @@
         /// </summary>
         static void Test1()
         {
-            var graph = new EdgeListGraph<int>();
-            graph.AddEdge(0, 1);
-            graph.AddEdge(0, 3);
-            graph.AddEdge(0, 2);
-            graph.AddEdge(1, 3);
-            graph.AddEdge(1, 2);
-            graph.AddEdge(2, 3);
-            graph.AddEdge(2, 4);
-            graph.AddEdge(3, 4);
+            var graph = new EdgeListGraph<int, int>();
+            graph.AddEdge(0, 1, 1);
+            graph.AddEdge(0, 2, 3);
+            graph.AddEdge(0, 3, 5);
+            graph.AddEdge(1, 2, 1);
+            graph.AddEdge(1, 3, 3);
+            graph.AddEdge(2, 3, 7);
+            graph.AddEdge(2, 4, 6);
+            graph.AddEdge(3, 4, 7);
 
             graph.AddVertex(10);
             graph.AddVertex(11);
 
             var graphAlgs = graph.GetAlgorithmsProcessor();
-            var cycles = graphAlgs.GetCycles();
+            var result = graphAlgs.GetMinimumSpanningTree<double>(
+                0, 
+                e=>e.Value, 
+                Comparer<double>.Default,
+                new DoubleField());
         }
 
         static string PrintVector(IEnumerable<int> vectorToPrint)

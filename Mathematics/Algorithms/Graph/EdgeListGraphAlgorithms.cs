@@ -5,14 +5,14 @@ using System.Text;
 
 namespace Mathematics
 {
-    internal class EdgeListGraphAlgorithms<VertexType> : IGraphAlgorithms<VertexType>
+    internal class EdgeListGraphAlgorithms<VertexType, EdgeValueType> : IGraphAlgorithms<VertexType, EdgeValueType>
     {
         /// <summary>
         /// Mantém o grafo sobre o qual actuam os algoritmos.
         /// </summary>
-        private EdgeListGraph<VertexType> graph;
+        private EdgeListGraph<VertexType, EdgeValueType> graph;
 
-        public EdgeListGraphAlgorithms(EdgeListGraph<VertexType> graph)
+        public EdgeListGraphAlgorithms(EdgeListGraph<VertexType, EdgeValueType> graph)
         {
             this.graph = graph;
         }
@@ -21,20 +21,20 @@ namespace Mathematics
         /// Obtém os ciclos simples do grafo.
         /// </summary>
         /// <returns>Uma lista com os ciclos por componente conexa.</returns>
-        public List<List<IGraph<VertexType>>> GetCycles()
+        public List<List<IGraph<VertexType, EdgeValueType>>> GetCycles()
         {
-            var result = new List<List<IGraph<VertexType>>>();
+            var result = new List<List<IGraph<VertexType, EdgeValueType>>>();
             var verticesEnumerator = this.graph.VerticesDictionary.GetEnumerator();
-            var linkNodesQueue = new Queue<LinkNode<VertexType>>();
-            var processedEdges = new Dictionary<IEdge<VertexType>, bool>();
-            var visitedNodes = default(Dictionary<VertexType, LinkNode<VertexType>>);
+            var linkNodesQueue = new Queue<LinkNode<VertexType, EdgeValueType>>();
+            var processedEdges = new Dictionary<IEdge<VertexType, EdgeValueType>, bool>();
+            var visitedNodes = default(Dictionary<VertexType, LinkNode<VertexType, EdgeValueType>>);
             if (graph.VertexEqualityComparer == null)
             {
-                visitedNodes = new Dictionary<VertexType, LinkNode<VertexType>>();
+                visitedNodes = new Dictionary<VertexType, LinkNode<VertexType, EdgeValueType>>();
             }
             else
             {
-                visitedNodes = new Dictionary<VertexType, LinkNode<VertexType>>(graph.VertexEqualityComparer);
+                visitedNodes = new Dictionary<VertexType, LinkNode<VertexType, EdgeValueType>>(graph.VertexEqualityComparer);
             }
 
             while (verticesEnumerator.MoveNext())
@@ -42,17 +42,17 @@ namespace Mathematics
                 if (!visitedNodes.ContainsKey(verticesEnumerator.Current.Key))
                 {
                     linkNodesQueue.Clear();
-                    var nodeToEnqueue = new LinkNode<VertexType>()
+                    var nodeToEnqueue = new LinkNode<VertexType, EdgeValueType>()
                     {
                         Node = verticesEnumerator.Current.Key
                     };
 
                     nodeToEnqueue.ConnectedEdges.AddRange(verticesEnumerator.Current.Value);
                     linkNodesQueue.Enqueue(nodeToEnqueue);
-                    var cyclesList = new List<IGraph<VertexType>>();
+                    var cyclesList = new List<IGraph<VertexType, EdgeValueType>>();
                     visitedNodes.Add(
                         verticesEnumerator.Current.Key,
-                        new LinkNode<VertexType> { Node = verticesEnumerator.Current.Key });
+                        new LinkNode<VertexType, EdgeValueType> { Node = verticesEnumerator.Current.Key });
 
                     while (linkNodesQueue.Count > 0)
                     {
@@ -85,21 +85,21 @@ namespace Mathematics
 
                                 if (!inverseEdge || !this.graph.Directed)
                                 {
-                                    var newLinkedNode = new LinkNode<VertexType>()
+                                    var newLinkedNode = new LinkNode<VertexType, EdgeValueType>()
                                     {
                                         Node = otherNode,
-                                        Link = new LinkNodeTie<VertexType>()
+                                        Link = new LinkNodeTie<VertexType, EdgeValueType>()
                                         {
                                             OtherNode = currentLinkNode,
                                             TieEdge = edge
                                         }
                                     };
 
-                                    var visitedLinkNode = default(LinkNode<VertexType>);
+                                    var visitedLinkNode = default(LinkNode<VertexType, EdgeValueType>);
                                     if (visitedNodes.TryGetValue(otherNode, out visitedLinkNode))
                                     {
                                         var cycle = this.GetCycleFromLink(
-                                            newLinkedNode, 
+                                            newLinkedNode,
                                             visitedLinkNode,
                                             this.graph.Directed);
                                         cyclesList.Add(cycle);
@@ -113,7 +113,7 @@ namespace Mathematics
                                 }
                                 else
                                 {
-                                    var newLinkedNode = new LinkNode<VertexType>()
+                                    var newLinkedNode = new LinkNode<VertexType, EdgeValueType>()
                                     {
                                         Node = otherNode
                                     };
@@ -136,11 +136,11 @@ namespace Mathematics
         /// Obtém todos os sub-grafos que são componentes conexas.
         /// </summary>
         /// <returns>As componentes conexas.</returns>
-        public List<IGraph<VertexType>> GetConnectedComponents()
+        public List<IGraph<VertexType, EdgeValueType>> GetConnectedComponents()
         {
-            var result = new List<IGraph<VertexType>>();
+            var result = new List<IGraph<VertexType, EdgeValueType>>();
             var nodesQueue = new Queue<VertexType>();
-            var processedEdges = new Dictionary<IEdge<VertexType>, bool>();
+            var processedEdges = new Dictionary<IEdge<VertexType, EdgeValueType>, bool>();
             Dictionary<VertexType, bool> visitedNodes = null;
             if (graph.VertexEqualityComparer == null)
             {
@@ -154,12 +154,12 @@ namespace Mathematics
             var vertexEnumerator = graph.Vertices.GetEnumerator();
             while (vertexEnumerator.MoveNext())
             {
-                var currentGraph = new EdgeListGraph<VertexType>(graph.Directed);
+                var currentGraph = new EdgeListGraph<VertexType, EdgeValueType>(graph.Directed);
                 var currentVertex = vertexEnumerator.Current;
                 currentGraph.AddVertex(currentVertex);
                 if (!visitedNodes.ContainsKey(currentVertex))
                 {
-                    var component = new EdgeListGraph<VertexType>(this.graph.Directed);
+                    var component = new EdgeListGraph<VertexType, EdgeValueType>(this.graph.Directed);
                     nodesQueue.Clear();
                     nodesQueue.Enqueue(currentVertex);
                     while (nodesQueue.Count > 0)
@@ -174,10 +174,10 @@ namespace Mathematics
                                 if (this.graph.VertexEqualityComparer != null)
                                 {
                                     if (this.graph.VertexEqualityComparer.Equals(
-                                        currentVertex, 
+                                        currentVertex,
                                         edgeWithVertex.InitialVertex))
                                     {
-                                        currentGraph.AddEdge(currentVertex, edgeWithVertex.FinalVertex);
+                                        currentGraph.AddEdge(edgeWithVertex);
                                         if (!visitedNodes.ContainsKey(edgeWithVertex.FinalVertex))
                                         {
                                             nodesQueue.Enqueue(edgeWithVertex.FinalVertex);
@@ -186,7 +186,7 @@ namespace Mathematics
                                     }
                                     else
                                     {
-                                        currentGraph.AddEdge(edgeWithVertex.InitialVertex, currentVertex);
+                                        currentGraph.AddEdge(edgeWithVertex);
                                         if (!visitedNodes.ContainsKey(edgeWithVertex.InitialVertex))
                                         {
                                             nodesQueue.Enqueue(edgeWithVertex.InitialVertex);
@@ -231,21 +231,21 @@ namespace Mathematics
         /// como as respectivas componentes.
         /// </summary>
         /// <returns>A lista de ciclos simples e as componentes conexas.</returns>
-        public GraphCyclesComponentsPair<VertexType> GetCyclesAndConnectedComponents()
+        public GraphCyclesComponentsPair<VertexType, EdgeValueType> GetCyclesAndConnectedComponents()
         {
-            var resultCycles = new List<List<IGraph<VertexType>>>();
-            var resultComponents = new List<IGraph<VertexType>>();
+            var resultCycles = new List<List<IGraph<VertexType, EdgeValueType>>>();
+            var resultComponents = new List<IGraph<VertexType, EdgeValueType>>();
             var verticesEnumerator = this.graph.VerticesDictionary.GetEnumerator();
-            var linkNodesQueue = new Queue<LinkNode<VertexType>>();
-            var processedEdges = new Dictionary<IEdge<VertexType>, bool>();
-            var visitedNodes = default(Dictionary<VertexType, LinkNode<VertexType>>);
+            var linkNodesQueue = new Queue<LinkNode<VertexType, EdgeValueType>>();
+            var processedEdges = new Dictionary<IEdge<VertexType, EdgeValueType>, bool>();
+            var visitedNodes = default(Dictionary<VertexType, LinkNode<VertexType, EdgeValueType>>);
             if (graph.VertexEqualityComparer == null)
             {
-                visitedNodes = new Dictionary<VertexType, LinkNode<VertexType>>();
+                visitedNodes = new Dictionary<VertexType, LinkNode<VertexType, EdgeValueType>>();
             }
             else
             {
-                visitedNodes = new Dictionary<VertexType, LinkNode<VertexType>>(graph.VertexEqualityComparer);
+                visitedNodes = new Dictionary<VertexType, LinkNode<VertexType, EdgeValueType>>(graph.VertexEqualityComparer);
             }
 
             var innerVisitedNodes = default(Dictionary<VertexType, bool>);
@@ -263,21 +263,21 @@ namespace Mathematics
                 if (!visitedNodes.ContainsKey(verticesEnumerator.Current.Key))
                 {
                     linkNodesQueue.Clear();
-                    var nodeToEnqueue = new LinkNode<VertexType>()
+                    var nodeToEnqueue = new LinkNode<VertexType, EdgeValueType>()
                     {
                         Node = verticesEnumerator.Current.Key
                     };
 
                     nodeToEnqueue.ConnectedEdges.AddRange(verticesEnumerator.Current.Value);
                     linkNodesQueue.Enqueue(nodeToEnqueue);
-                    var cyclesList = new List<IGraph<VertexType>>();
+                    var cyclesList = new List<IGraph<VertexType, EdgeValueType>>();
 
                     // A componente conexa actual
-                    var currentGraph = new EdgeListGraph<VertexType>(graph.Directed);
+                    var currentGraph = new EdgeListGraph<VertexType, EdgeValueType>(graph.Directed);
 
                     visitedNodes.Add(
                         verticesEnumerator.Current.Key,
-                        new LinkNode<VertexType> { Node = verticesEnumerator.Current.Key });
+                        new LinkNode<VertexType, EdgeValueType> { Node = verticesEnumerator.Current.Key });
                     while (linkNodesQueue.Count > 0)
                     {
                         var currentLinkNode = linkNodesQueue.Dequeue();
@@ -293,13 +293,13 @@ namespace Mathematics
                                 {
                                     if (currentLinkNode.Node.Equals(edge.InitialVertex))
                                     {
-                                        currentGraph.AddEdge(edge.InitialVertex, edge.FinalVertex);
+                                        currentGraph.AddEdge(edge);
                                         otherNode = edge.FinalVertex;
                                         inverseEdge = false;
                                     }
                                     else
                                     {
-                                        currentGraph.AddEdge(edge.InitialVertex, currentLinkNode.Node);
+                                        currentGraph.AddEdge(edge);
                                     }
                                 }
                                 else
@@ -318,17 +318,17 @@ namespace Mathematics
 
                                 if (!inverseEdge || !this.graph.Directed)
                                 {
-                                    var newLinkedNode = new LinkNode<VertexType>()
+                                    var newLinkedNode = new LinkNode<VertexType, EdgeValueType>()
                                     {
                                         Node = otherNode,
-                                        Link = new LinkNodeTie<VertexType>()
+                                        Link = new LinkNodeTie<VertexType, EdgeValueType>()
                                         {
                                             OtherNode = currentLinkNode,
                                             TieEdge = edge
                                         }
                                     };
 
-                                    var visitedLinkNode = default(LinkNode<VertexType>);
+                                    var visitedLinkNode = default(LinkNode<VertexType, EdgeValueType>);
                                     if (visitedNodes.TryGetValue(otherNode, out visitedLinkNode))
                                     {
                                         var cycle = this.GetCycleFromLink(
@@ -346,7 +346,7 @@ namespace Mathematics
                                 }
                                 else
                                 {
-                                    var newLinkedNode = new LinkNode<VertexType>()
+                                    var newLinkedNode = new LinkNode<VertexType, EdgeValueType>()
                                     {
                                         Node = otherNode
                                     };
@@ -363,7 +363,7 @@ namespace Mathematics
                 }
             }
 
-            return new GraphCyclesComponentsPair<VertexType>(resultComponents, resultCycles);
+            return new GraphCyclesComponentsPair<VertexType, EdgeValueType>(resultComponents, resultCycles);
         }
 
         /// <summary>
@@ -372,19 +372,115 @@ namespace Mathematics
         /// <param name="startVertex">O vértice inicial.</param>
         /// <param name="edgeValueFunction">A função que permite obter o valor do peso da aresta.</param>
         /// <param name="valueComparer">O comparador de valores.</param>
+        /// <param name="monoid">O monóide responsável pelas operações.</param>
         /// <returns>A árvore.</returns>
-        public ITree<VertexType> GetMinimumSpanningTree<EdgeValueType>(
+        public ITree<VertexValuePair<VertexType, OuterType>> GetMinimumSpanningTree<OuterType>(
             VertexType startVertex,
-            Func<IEdge<VertexType>, EdgeValueType> edgeValueFunction,
-            IComparer<EdgeValueType> valueComparer)
+            Func<IEdge<VertexType, EdgeValueType>, OuterType> edgeValueFunction,
+            IComparer<OuterType> valueComparer,
+            IMonoid<OuterType> monoid)
         {
-            IComparer<EdgeValueType> innerValueComparer = Comparer<EdgeValueType>.Default;
-            if (valueComparer != null)
+            if (monoid == null)
             {
-                innerValueComparer = valueComparer;
+                throw new ArgumentNullException("monoid");
             }
+            else if (edgeValueFunction == null)
+            {
+                throw new ArgumentNullException("edgeValueFunction");
+            }
+            else if (startVertex == null)
+            {
+                throw new ArgumentNullException("startVertex");
+            }
+            else
+            {
+                IComparer<OuterType> innerValueComparer = Comparer<OuterType>.Default;
+                if (valueComparer != null)
+                {
+                    innerValueComparer = valueComparer;
+                }
 
-            throw new NotImplementedException();
+                var result = new Tree<VertexValuePair<VertexType, OuterType>>(
+                    new VertexValuePair<VertexType, OuterType>(startVertex, monoid.AdditiveUnity));
+                var verticesQueue = new Queue<TreeNode<VertexValuePair<VertexType, OuterType>>>();
+                var visitedVertices = default(
+                    Dictionary<VertexType, TreeNode<VertexValuePair<VertexType, OuterType>>>);
+                if (this.graph.VertexEqualityComparer == null)
+                {
+                    visitedVertices = new Dictionary<VertexType, TreeNode<VertexValuePair<VertexType, OuterType>>>();
+                }
+                else
+                {
+                    visitedVertices = new Dictionary<VertexType, TreeNode<VertexValuePair<VertexType, OuterType>>>(
+                        graph.VertexEqualityComparer);
+                }
+
+                verticesQueue.Enqueue(result.InternalRootNode);
+                var processedEdges = new Dictionary<Edge<VertexType, EdgeValueType>, bool>();
+                while (verticesQueue.Count > 0)
+                {
+                    var topTreeNode = verticesQueue.Dequeue();
+                    var edges = graph.VerticesDictionary[topTreeNode.NodeObject.Vertex];
+                    foreach (var edge in edges)
+                    {
+                        if (!processedEdges.ContainsKey(edge))
+                        {
+                            processedEdges.Add(edge, true);
+                            var otherNode = edge.InitialVertex;
+                            var inverseEdge = true;
+                            if (this.graph.VertexEqualityComparer == null)
+                            {
+                                if (topTreeNode.NodeObject.Vertex.Equals(edge.InitialVertex))
+                                {
+                                    otherNode = edge.FinalVertex;
+                                    inverseEdge = false;
+                                }
+                            }
+                            else
+                            {
+                                if (this.graph.VertexEqualityComparer.Equals(
+                                    topTreeNode.NodeObject.Vertex,
+                                    edge.InitialVertex))
+                                {
+                                    otherNode = edge.FinalVertex;
+                                    inverseEdge = false;
+                                }
+                            }
+
+                            if (!inverseEdge || this.graph.Directed)
+                            {
+                                var visitedNodeValue = default(TreeNode<VertexValuePair<VertexType, OuterType>>);
+                                var sum = monoid.Add(topTreeNode.NodeObject.Value, edgeValueFunction.Invoke(edge));
+                                if (visitedVertices.TryGetValue(otherNode, out visitedNodeValue))
+                                {
+                                    var comparisionValue = innerValueComparer.Compare(
+                                        sum,
+                                        visitedNodeValue.NodeObject.Value);
+                                    if (comparisionValue < 0)
+                                    {
+                                        var parent = visitedNodeValue.Parent;
+                                        parent.Remove(visitedNodeValue);
+                                        visitedNodeValue.NodeObject.Value = sum;
+                                        topTreeNode.Add(visitedNodeValue);
+                                    }
+                                }
+                                else
+                                {
+                                    var newNode = new TreeNode<VertexValuePair<VertexType, OuterType>>(
+                                        new VertexValuePair<VertexType, OuterType>(otherNode, sum),
+                                        result,
+                                        topTreeNode);
+                                    topTreeNode.Add(newNode);
+                                    verticesQueue.Enqueue(newNode);
+                                    visitedVertices.Add(newNode.NodeObject.Vertex, newNode);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                return result;
+            }
         }
 
         /// <summary>
@@ -393,12 +489,12 @@ namespace Mathematics
         /// <param name="newLinkNode">Um nó da lista.</param>
         /// <param name="directed">Indica se o grafo em questão é dirigido.</param>
         /// <returns>O ciclo.</returns>
-        private EdgeListGraph<VertexType> GetCycleFromLink(
-            LinkNode<VertexType> newLinkNode, 
-            LinkNode<VertexType> currentLinkNode,
+        private EdgeListGraph<VertexType, EdgeValueType> GetCycleFromLink(
+            LinkNode<VertexType, EdgeValueType> newLinkNode,
+            LinkNode<VertexType, EdgeValueType> currentLinkNode,
             bool directed)
         {
-            var result = new EdgeListGraph<VertexType>(directed);
+            var result = new EdgeListGraph<VertexType, EdgeValueType>(directed);
             var startLinkNode = newLinkNode;
             var nextLinkNode = newLinkNode.Link;
 
