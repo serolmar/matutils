@@ -375,6 +375,96 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Obtém um vector com a soma das potências, desde 1 até ao grau do polinómio, das raízes.
+        /// </summary>
+        /// <param name="field">O corpo responsável pelas operações.</param>
+        /// <returns>O vector com o valor da soma das potências.</returns>
+        public IMatrix<CoeffType> GetRootPowerSums(IField<CoeffType> field)
+        {
+            if (field == null)
+            {
+                throw new ArgumentNullException("field");
+            }
+            else
+            {
+                var result = new ArrayMatrix<CoeffType>(this.Degree, 1, field.AdditiveUnity);
+                var termsEnumerator = this.terms.GetEnumerator();
+                if (termsEnumerator.MoveNext())
+                {
+                    var topTerm = termsEnumerator.Current.Value;
+                    var topDegree = termsEnumerator.Current.Key;
+                    if (topDegree == 0)
+                    {
+                        return new ArrayMatrix<CoeffType>(0, 0, field.AdditiveUnity);
+                    }
+                    else if (termsEnumerator.MoveNext())
+                    {
+                        var difference = topDegree - termsEnumerator.Current.Key - 1;
+
+                        var value = field.AdditiveInverse(termsEnumerator.Current.Value);
+                        value = field.AddRepeated(value, difference + 1);
+                        result[difference, 0] = field.Multiply(value, field.MultiplicativeInverse(topTerm));
+                        var control = difference - 1;
+                        for (var i = difference + 1; i < topDegree; ++i)
+                        {
+                            termsEnumerator = this.terms.GetEnumerator();
+                            termsEnumerator.MoveNext();
+                            var state = termsEnumerator.MoveNext();
+                            var currentIteration = i - 1;
+                            var compareDegree = topDegree - 1;
+                            while (state && currentIteration > control)
+                            {
+                                var currentDegree = termsEnumerator.Current.Key;
+                                if (compareDegree == currentDegree)
+                                {
+                                    value = field.AdditiveInverse(termsEnumerator.Current.Value);
+                                    value = field.Multiply(value, result[currentIteration, 0]);
+                                    result[i, 0] = field.Add(result[i, 0], value);
+                                    state = termsEnumerator.MoveNext();
+                                }
+
+                                --compareDegree;
+                                --currentIteration;
+                            }
+
+                            while (state && control >= 0)
+                            {
+                                --control;
+                                var currentDegree = termsEnumerator.Current.Key;
+                                if (compareDegree == currentDegree)
+                                {
+                                    state = termsEnumerator.MoveNext();
+                                    --compareDegree;
+                                }
+                            }
+
+                            if (state)
+                            {
+                                var currentDegree = termsEnumerator.Current.Key;
+                                if (compareDegree == currentDegree)
+                                {
+                                    value = field.AdditiveInverse(termsEnumerator.Current.Value);
+                                    value = field.AddRepeated(value, i + 1);
+                                    result[i, 0] = field.Add(result[i, 0], value);
+                                }
+                            }
+
+                            result[i, 0] = field.Multiply(result[i, 0], field.MultiplicativeInverse(topTerm));
+                        }
+
+                        return result;
+                    }
+                }
+                else
+                {
+                    return new ArrayMatrix<CoeffType>(0, 0, field.AdditiveUnity);
+                }
+
+                return result;
+            }
+        }
+
         #region Operações
         /// <summary>
         /// Obtém a soma do polinómio corrente com o polinómio providenciado.

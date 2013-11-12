@@ -21,7 +21,7 @@
 
         static void Main(string[] args)
         {
-            Test1();
+            Test10();
             //using (var streamWriter = new StreamWriter("temp.txt"))
             //{
             //    streamWriter.Write(2);
@@ -523,13 +523,44 @@
         /// </summary>
         public static void Test10()
         {
-            var firstInput = "x^3+10*x^2-432*x+5040";
-            var secondInput = "x";
-            var thirdInput = "x^2-2";
 
             var integerDomain = new IntegerDomain();
             var integerModularField = new ModularIntegerField(5);
             var integerParser = new IntegerParser<string>();
+            var fractionParser = new ElementFractionParser<int, IntegerDomain>(integerParser, integerDomain);
+            var fractionField = new FractionField<int, IntegerDomain>(integerDomain);
+
+            // Soma nas n-potências das raízes de um polinómio
+            var polInput = "x^6+4*x^4-3*x^3-x";
+            var polInputReader = new StringReader(polInput);
+            var polSymbolReader = new StringSymbolReader(polInputReader, false);
+            var polParser = new UnivariatePolynomialReader<Fraction<int, IntegerDomain>, CharSymbolReader<string>>(
+                "x",
+                fractionParser,
+                fractionField);
+
+            var pol = default(UnivariatePolynomialNormalForm<Fraction<int, IntegerDomain>>);
+            if (polParser.TryParsePolynomial(
+                polSymbolReader,
+                new ElementFractionConversion<int, IntegerDomain>(integerDomain),
+                out pol))
+            {
+                var powerRootsSums = pol.GetRootPowerSums(fractionField);
+                for (int i = 0; i < powerRootsSums.GetLength(0); ++i)
+                {
+                    Console.Write("{0} ", powerRootsSums[i,0]);
+                }
+
+                Console.WriteLine();
+            }
+            else
+            {
+                Console.WriteLine("Invalid polynomial: {0}.", polInput);
+            }
+
+            var firstInput = "x^3+10*x^2-432*x+5040";
+            var secondInput = "x";
+            var thirdInput = "x^2-2";
 
             var polynomialParser = new UnivariatePolynomialReader<int, CharSymbolReader<string>>(
                 "x",
