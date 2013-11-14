@@ -263,11 +263,7 @@
         {
             if (lineNumber >= 0)
             {
-                var currentLine = default(SparseDictionaryMatrixLine<ObjectType>);
-                if (this.matrixLines.TryGetValue(lineNumber, out currentLine))
-                {
-                    this.matrixLines.Remove(lineNumber);
-                }
+                this.matrixLines.Remove(lineNumber);
             }
         }
 

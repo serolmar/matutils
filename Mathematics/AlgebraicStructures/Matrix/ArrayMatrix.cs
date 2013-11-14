@@ -50,12 +50,22 @@ namespace Mathematics
             else
             {
                 this.elements = new ObjectType[line][];
-                for (int i = 0; i < line; ++i)
+                if (EqualityComparer<object>.Default.Equals(defaultValue, default(ObjectType)))
                 {
-                    this.elements[i] = new ObjectType[column];
-                    for (int j = 0; j < column; ++j)
+                    for (int i = 0; i < line; ++i)
                     {
-                        this.elements[i][j] = defaultValue;
+                        this.elements[i] = new ObjectType[column];
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i < line; ++i)
+                    {
+                        this.elements[i] = new ObjectType[column];
+                        for (int j = 0; j < column; ++j)
+                        {
+                            this.elements[i][j] = defaultValue;
+                        }
                     }
                 }
 

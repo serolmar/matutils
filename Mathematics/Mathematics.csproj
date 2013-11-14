@@ -51,6 +51,9 @@
     <Compile Include="AlgebraicStructures\Implementations\ElementFractionConversion.cs" />
     <Compile Include="AlgebraicStructures\Implementations\ElementToElementConversion.cs" />
     <Compile Include="AlgebraicStructures\Implementations\FractionField.cs" />
+    <Compile Include="AlgebraicStructures\Matrix\ArrayVector.cs" />
+    <Compile Include="AlgebraicStructures\Matrix\IntegerSequenceSubVector.cs" />
+    <Compile Include="AlgebraicStructures\Implementations\OrthoMatrixScalarProduct.cs" />
     <Compile Include="AlgebraicStructures\Implementations\UnivarPolEuclideanDomainFactory.cs" />
     <Compile Include="AlgebraicStructures\Implementations\UnivarPolynomRingFactory.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\IConversion.cs" />
@@ -74,11 +77,13 @@
     <Compile Include="AlgebraicStructures\LogicInterfaces\IMultipliable.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\IMultiplicationOperation.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\IRing.cs" />
+    <Compile Include="AlgebraicStructures\LogicInterfaces\IScalarProductSpace.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\ISemigroup.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\ISparseMatrix.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\ISparseMatrixLine.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\IUnivarPolDomainFactory.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\IUnivarPolRingFactory.cs" />
+    <Compile Include="AlgebraicStructures\LogicInterfaces\IVector.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\IVectorSpace.cs" />
     <Compile Include="AlgebraicStructures\Matrix\ArrayBitMatrix.cs" />
     <Compile Include="AlgebraicStructures\Matrix\ArrayBitMatrixFactory.cs" />
@@ -92,9 +97,12 @@
     <Compile Include="AlgebraicStructures\Matrix\SparseDictionaryMatrix.cs" />
     <Compile Include="AlgebraicStructures\Matrix\SparseDictionaryMatrixFactory.cs" />
     <Compile Include="AlgebraicStructures\Matrix\SparseDictionaryMatrixLine.cs" />
+    <Compile Include="AlgebraicStructures\Matrix\SparseDictionaryVector.cs" />
     <Compile Include="AlgebraicStructures\Matrix\SubMatrix.cs" />
+    <Compile Include="AlgebraicStructures\Matrix\SubVector.cs" />
     <Compile Include="AlgebraicStructures\Matrix\TransposeMatrix.cs" />
     <Compile Include="AlgebraicStructures\Matrix\ZeroMatrix.cs" />
+    <Compile Include="AlgebraicStructures\Matrix\ZeroVector.cs" />
     <Compile Include="AlgebraicStructures\MultiDimensionalRange\MultiDimensionalRange.cs" />
     <Compile Include="AlgebraicStructures\MultiDimensionalRange\MultiDimensionalRangeParser.cs" />
     <Compile Include="AlgebraicStructures\MultiDimensionalRange\MultiDimensionalRangeReader.cs" />
