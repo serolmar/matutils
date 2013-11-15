@@ -1,6 +1,7 @@
 ﻿namespace Mathematics
 {
     using System;
+    using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
@@ -60,7 +61,7 @@
         /// Obtém o enumerador não genérico.
         /// </summary>
         /// <returns>O enumerador não genérico.</returns>
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+        IEnumerator IEnumerable.GetEnumerator()
         {
             return this.GetEnumerator();
         }
@@ -185,7 +186,7 @@
                 }
             }
 
-            object System.Collections.IEnumerator.Current
+            object IEnumerator.Current
             {
                 get
                 {
@@ -310,6 +311,22 @@
             /// <returns>Veradeiro caso o número passe o teste e falso caso contrário.</returns>
             private bool NaivePrimalityCheck(int number)
             {
+                for (int i = 0; i < this.firstPrimes.Length; ++i)
+                {
+                    var currentPrime = this.firstPrimes[i];
+                    if (currentPrime <= this.squareRoot)
+                    {
+                        if (number % currentPrime == 0)
+                        {
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        i = this.firstPrimes.Length;
+                    }
+                }
+
                 var pointer = 1;
                 var direction = true;
                 var sequence = 1;

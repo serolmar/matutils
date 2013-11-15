@@ -60,8 +60,8 @@
                 {
                     if (this.field.IsAdditiveUnity(independentSolutionVector[currentPivotLine, 0]))
                     {
-                        var basisVector = new ArrayMatrix<ElementType>(matrixColumns, 1, this.field.AdditiveUnity);
-                        basisVector[currentPivotColumn, 0] = this.field.AdditiveInverse(
+                        var basisVector = new ArrayVector<ElementType>(matrixColumns,this.field.AdditiveUnity);
+                        basisVector[currentPivotColumn] = this.field.AdditiveInverse(
                             this.field.MultiplicativeUnity);
                         var i = currentPivotLine - 1;
                         var j = lastNonZeroColumn;
@@ -70,7 +70,7 @@
                             var linePivotValue = coefficientsMatrix[i, j];
                             if (this.field.IsMultiplicativeUnity(linePivotValue))
                             {
-                                basisVector[j, 0] = coefficientsMatrix[i, currentPivotColumn];
+                                basisVector[j] = coefficientsMatrix[i, currentPivotColumn];
                                 --i;
                             }
 

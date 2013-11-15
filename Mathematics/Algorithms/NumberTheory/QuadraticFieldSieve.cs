@@ -110,7 +110,7 @@
                 for (int i = 0; i < matrixList.Count; ++i)
                 {
                     var currentMatrixLine = matrixList[i];
-                    if (solutionBase[i, 0] == 1)
+                    if (solutionBase[i] == 1)
                     {
                         firstValue = innerDataModularField.Multiply(
                             firstValue,

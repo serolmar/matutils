@@ -21,7 +21,7 @@
 
         static void Main(string[] args)
         {
-            Test10();
+            Test13();
             //using (var streamWriter = new StreamWriter("temp.txt"))
             //{
             //    streamWriter.Write(2);
@@ -340,10 +340,10 @@
         public static void Test13()
         {
             var quadraticSieve = new QuadraticFieldSieve();
-            var temp = quadraticSieve.Run(13459, 100, 50);
+            var temp = quadraticSieve.Run(13459, 200, 100);
 
             var aksPrimalityTest = new AksPrimalityTest();
-            var n = 99991;
+            var n = 13459;
             if (aksPrimalityTest.Run(n))
             {
                 Console.WriteLine("{0} is prime", n);

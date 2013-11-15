@@ -224,10 +224,10 @@
                     for (int i = 0; i < linearSystemCount; ++i)
                     {
                         var currentBaseSolution = linearSystemSolution.VectorSpaceBasis[i];
-                        var rowsLength = currentBaseSolution.GetLength(0);
+                        var rowsLength = currentBaseSolution.Length;
                         for (int j = 1; j < rowsLength; ++j)
                         {
-                            if (!integerModule.IsAdditiveUnity(currentBaseSolution[j, 0]))
+                            if (!integerModule.IsAdditiveUnity(currentBaseSolution[j]))
                             {
                                 hPol = this.GetPolynomial(currentBaseSolution, integerModule, polynom.VariableName);
                                 j = rowsLength;
@@ -270,20 +270,20 @@
         /// <summary>
         /// Obtém a representação polinomial a partir de um vector da base do espaço nulo.
         /// </summary>
-        /// <param name="matrix">A matriz.</param>
+        /// <param name="vector">O vector.</param>
         /// <param name="module">O corpo responsável pelas operações sobre os ceoficientes do polinómio.</param>
         /// <param name="variableName">O nome da variável.</param>
         /// <returns>O polinómio.</returns>
         private PolType GetPolynomial(
-            IMatrix<int> matrix,
+            IVector<int> vector,
             IModularField<int> module,
             string variableName)
         {
-            var matrixDimension = matrix.GetLength(0);
+            var matrixDimension = vector.Length;
             var temporaryDic = new Dictionary<int, int>();
             for (int i = 0; i < matrixDimension; ++i)
             {
-                temporaryDic.Add(i, matrix[i, 0]);
+                temporaryDic.Add(i, vector[i]);
             }
 
             return new PolType(

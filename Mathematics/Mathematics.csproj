@@ -51,9 +51,10 @@
     <Compile Include="AlgebraicStructures\Implementations\ElementFractionConversion.cs" />
     <Compile Include="AlgebraicStructures\Implementations\ElementToElementConversion.cs" />
     <Compile Include="AlgebraicStructures\Implementations\FractionField.cs" />
+    <Compile Include="AlgebraicStructures\Implementations\MetricMatrixVectorScalarProduct.cs" />
     <Compile Include="AlgebraicStructures\Matrix\ArrayVector.cs" />
     <Compile Include="AlgebraicStructures\Matrix\IntegerSequenceSubVector.cs" />
-    <Compile Include="AlgebraicStructures\Implementations\OrthoMatrixScalarProduct.cs" />
+    <Compile Include="AlgebraicStructures\Implementations\OrthoVectorScalarProduct.cs" />
     <Compile Include="AlgebraicStructures\Implementations\UnivarPolEuclideanDomainFactory.cs" />
     <Compile Include="AlgebraicStructures\Implementations\UnivarPolynomRingFactory.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\IConversion.cs" />
@@ -94,6 +95,8 @@
     <Compile Include="AlgebraicStructures\Matrix\IdentityMatrix.cs" />
     <Compile Include="AlgebraicStructures\Matrix\IMatrixFactory.cs" />
     <Compile Include="AlgebraicStructures\Matrix\IntegerSequenceSubMatrix.cs" />
+    <Compile Include="AlgebraicStructures\Matrix\MatrixColumnVector.cs" />
+    <Compile Include="AlgebraicStructures\Matrix\MatrixRowVector.cs" />
     <Compile Include="AlgebraicStructures\Matrix\SparseDictionaryMatrix.cs" />
     <Compile Include="AlgebraicStructures\Matrix\SparseDictionaryMatrixFactory.cs" />
     <Compile Include="AlgebraicStructures\Matrix\SparseDictionaryMatrixLine.cs" />

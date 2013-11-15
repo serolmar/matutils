@@ -23,7 +23,7 @@
         /// <summary>
         /// A base associada ao sistema homogéneo correspondente.
         /// </summary>
-        private List<IMatrix<ElementType>> vectorSpaceBasis = new List<IMatrix<ElementType>>();
+        private List<IVector<ElementType>> vectorSpaceBasis = new List<IVector<ElementType>>();
 
         /// <summary>
         /// Obtém e atribui o vector que contém a solução particular.
@@ -44,7 +44,7 @@
         /// Obtém uma base para o espaço vectorial definido pelas soluções do sistema homogéneo
         /// correspondente.
         /// </summary>
-        public List<IMatrix<ElementType>> VectorSpaceBasis
+        public List<IVector<ElementType>> VectorSpaceBasis
         {
             get
             {

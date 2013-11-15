@@ -6,7 +6,7 @@
     using System.Text;
 
     public class BlockLanczosAlgorithm<ElementType, FieldType> :
-        IAlgorithm<IMatrix<ElementType>, IMatrix<ElementType>, IMatrix<ElementType>>
+        IAlgorithm<IMatrix<ElementType>, IVector<ElementType>, IMatrix<ElementType>>
         where FieldType : IField<ElementType>
     {
         /// <summary>
@@ -78,7 +78,7 @@
         /// <param name="linearSystemMatrix">A matriz de entrada.</param>
         /// <param name="independentVector">O vector independente.</param>
         /// <returns>A solução do sistema.</returns>
-        public IMatrix<ElementType> Run(IMatrix<ElementType> first, IMatrix<ElementType> second)
+        public IMatrix<ElementType> Run(IMatrix<ElementType> linearSystemMatrix, IVector<ElementType> independentVector)
         {
             throw new NotImplementedException();
         }

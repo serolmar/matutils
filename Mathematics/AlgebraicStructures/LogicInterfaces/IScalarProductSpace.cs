@@ -8,7 +8,7 @@
     /// <summary>
     /// Representa um espaço onde está definido um produto escalar.
     /// </summary>
-    public interface IScalarProductSpace<CoeffType, VectorType>
+    public interface IScalarProductSpace<in VectorType, out CoeffType>
     {
         /// <summary>
         /// Multiplica escalarmente dois vectores.

@@ -26,7 +26,7 @@
             }
         }
 
-        private ArrayVector(int length, CoeffType defaultValue)
+        public ArrayVector(int length, CoeffType defaultValue)
         {
             if (length < 0)
             {
