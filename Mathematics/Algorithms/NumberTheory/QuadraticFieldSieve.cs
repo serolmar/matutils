@@ -73,16 +73,26 @@
                     primesList.Insert(0, 2);
                 }
 
-                var sieveMatrix = this.ComputeSieveStep(innerData, sieveInterval, primesList);
+                var aproxSqrt = Math.Sqrt(innerData);
+                var sqrt = Math.Floor(Math.Sqrt(innerData));
+                if (sqrt == aproxSqrt)
+                {
+                    // Neste caso já encontrámos um factor
+                    return Tuple.Create((int)sqrt, (int)sqrt);
+                }
+                else
+                {
+                    var sieveMatrix = this.ComputeSieveStep(innerData, (int)sqrt, sieveInterval, primesList);
 
-                var modularMatrix = this.GetBitMatrixFromList(sieveMatrix, primesList);
+                    var modularMatrix = this.GetBitMatrixFromList(sieveMatrix, primesList);
 
-                // Implementação do algoritmo associado à combinação linear para a obtenção do resultado
-                var solution = this.linearSystemAlgorithm.Run(
-                    modularMatrix,
-                    new ZeroMatrix<int, ModularIntegerField>(modularMatrix.GetLength(0), 1, this.field));
+                    // Implementação do algoritmo associado à combinação linear para a obtenção do resultado
+                    var solution = this.linearSystemAlgorithm.Run(
+                        modularMatrix,
+                        new ZeroMatrix<int, ModularIntegerField>(modularMatrix.GetLength(0), 1, this.field));
 
-                return this.GetSolution(solution, sieveMatrix, primesList, innerData);
+                    return this.GetSolution(solution, sieveMatrix, primesList, innerData);
+                }
             }
         }
 
@@ -139,8 +149,8 @@
                 foreach (var factorCountKvp in factorsCount)
                 {
                     var primePower = MathFunctions.Power(
-                        factorCountKvp.Key, 
-                        factorCountKvp.Value / 2, 
+                        factorCountKvp.Key,
+                        factorCountKvp.Value / 2,
                         innerDataModularField);
 
                     secondValue = innerDataModularField.Multiply(
@@ -170,15 +180,16 @@
         /// Determina a matriz que resulta da aplicação do crivo quadrático.
         /// </summary>
         /// <param name="innerData">O valor a ser factorizado.</param>
+        /// <param name="sqrt">O valor da raiz quadrada.</param>
         /// <param name="sieveInterval">O intervalo de crivo.</param>
         /// <param name="primesList">A base de primos.</param>
         /// <returns>A matriz com o vector.</returns>
         private List<int[]> ComputeSieveStep(
-            int innerData, 
-            int sieveInterval, 
+            int innerData,
+            int sqrt,
+            int sieveInterval,
             List<int> primesList)
         {
-            var sqrt = (int)Math.Floor(Math.Sqrt(innerData));
             var innerSieveInterval = sieveInterval;
             if (innerSieveInterval > innerData - sqrt - 1)
             {

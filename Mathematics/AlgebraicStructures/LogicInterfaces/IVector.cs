@@ -40,5 +40,18 @@
         /// <param name="first">O primeiro elemento a ser trocado.</param>
         /// <param name="second">O segundo elemento a ser trocado.</param>
         void SwapElements(int first, int second);
+
+        /// <summary>
+        /// Averigua se se trata de um vector nulo.
+        /// </summary>
+        /// <param name="monoid">O monóide responsável pela identificação do zero.</param>
+        /// <returns>Veradeiro caso o vector seja nulo e falso caso contrário.</returns>
+        bool IsNull(IMonoid<CoeffType> monoid);
+
+        /// <summary>
+        /// Obtém uma cópia do vector corrente.
+        /// </summary>
+        /// <returns>A cópia.</returns>
+        IVector<CoeffType> Clone();
     }
 }

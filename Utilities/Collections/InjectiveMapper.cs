@@ -36,16 +36,27 @@ namespace Utilities.Collections
             this.mappTargetToObject = new Dictionary<TargetSetType, ObjectSetType>(targetsEqualityComparer);
         }
 
+        /// <summary>
+        /// Obtém a colecção dos objectos.
+        /// </summary>
         public ICollection<ObjectSetType> Objects
         {
             get { return this.mappObjectToTarget.Keys; }
         }
 
+        /// <summary>
+        /// Obtém a colecção das imagens.
+        /// </summary>
         public ICollection<TargetSetType> Targets
         {
             get { return this.mappTargetToObject.Keys; }
         }
 
+        /// <summary>
+        /// Adiciona um mapeamento.
+        /// </summary>
+        /// <param name="obj">O objecto do mapeamento.</param>
+        /// <param name="target">A imagem do mapeamento.</param>
         public void Add(ObjectSetType obj, TargetSetType target)
         {
             if (this.mappObjectToTarget.ContainsKey(obj))
@@ -60,6 +71,11 @@ namespace Utilities.Collections
             this.mappTargetToObject.Add(target, obj);
         }
 
+        /// <summary>
+        /// Obtém a imagem do objecto especificado.
+        /// </summary>
+        /// <param name="obj">O objecto.</param>
+        /// <returns>A imagem.</returns>
         public TargetSetType TargetFor(ObjectSetType obj)
         {
             if (!this.mappObjectToTarget.ContainsKey(obj))
@@ -69,6 +85,11 @@ namespace Utilities.Collections
             return this.mappObjectToTarget[obj];
         }
 
+        /// <summary>
+        /// Obtém o objecto que está associado à imagem especificada.
+        /// </summary>
+        /// <param name="target">A imagem.</param>
+        /// <returns>O objecto.</returns>
         public ObjectSetType ObjectFor(TargetSetType target)
         {
             if (!this.mappTargetToObject.ContainsKey(target))
@@ -78,11 +99,21 @@ namespace Utilities.Collections
             return this.mappTargetToObject[target];
         }
 
+        /// <summary>
+        /// Verifica se o objecto está contido no mapeamento.
+        /// </summary>
+        /// <param name="obj">O obejcto a ser verificado.</param>
+        /// <returns>Verdadeiro caso o objecto esteja contido no mapeamento e falso caso contrário.</returns>
         public bool ContainsObject(ObjectSetType obj)
         {
             return this.mappObjectToTarget.ContainsKey(obj);
         }
 
+        /// <summary>
+        /// Verifica se a imagem está contida no mapeamento.
+        /// </summary>
+        /// <param name="tar">A imagem-</param>
+        /// <returns>Verdadeiro caso a imagem esteja no mapeamento e falso caso contrário.</returns>
         public bool ContainsTarget(TargetSetType tar)
         {
             return this.mappTargetToObject.ContainsKey(tar);

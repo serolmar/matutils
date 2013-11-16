@@ -25,7 +25,12 @@
             else
             {
                 this.lineNumber = lineNumber;
+                this.matrix = matrix;
             }
+        }
+
+        private MatrixRowVector()
+        {
         }
 
         public CoeffType this[int index]
@@ -79,6 +84,34 @@
             {
                 throw new MathematicsException("Can't swap matrix row vector entries.");
             }
+        }
+
+        public bool IsNull(IMonoid<CoeffType> monoid)
+        {
+            if (monoid == null)
+            {
+                throw new ArgumentNullException("monoid");
+            }
+            else
+            {
+                for (int i = 0; i < this.matrix.GetLength(1); ++i)
+                {
+                    if (!monoid.IsAdditiveUnity(this.matrix[this.lineNumber, i]))
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+        }
+
+        public IVector<CoeffType> Clone()
+        {
+            var result = new MatrixRowVector<CoeffType>();
+            result.matrix = matrix;
+            result.lineNumber = this.lineNumber;
+            return result;
         }
 
         public IEnumerator<CoeffType> GetEnumerator()

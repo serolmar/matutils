@@ -75,6 +75,31 @@
             throw new MathematicsException("Can't swap integer sequence sub-vector entries.");
         }
 
+        public bool IsNull(IMonoid<CoeffType> monoid)
+        {
+            if (monoid == null)
+            {
+                throw new ArgumentNullException("monoid");
+            }
+            else
+            {
+                for (int i = 0; i < this.indicesSequence.Count; ++i)
+                {
+                    if (!monoid.IsAdditiveUnity(this.vector[this.indicesSequence[i]]))
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+        }
+
+        public IVector<CoeffType> Clone()
+        {
+            return new IntegerSequenceSubVector<CoeffType>(this.vector, this.indicesSequence.Clone());
+        }
+
         public IEnumerator<CoeffType> GetEnumerator()
         {
             foreach (var index in this.indicesSequence)

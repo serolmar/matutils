@@ -51,6 +51,7 @@
     <Compile Include="AlgebraicStructures\Implementations\ElementFractionConversion.cs" />
     <Compile Include="AlgebraicStructures\Implementations\ElementToElementConversion.cs" />
     <Compile Include="AlgebraicStructures\Implementations\FractionField.cs" />
+    <Compile Include="AlgebraicStructures\Implementations\VectorSpace.cs" />
     <Compile Include="AlgebraicStructures\Implementations\MetricMatrixVectorScalarProduct.cs" />
     <Compile Include="AlgebraicStructures\Matrix\ArrayVector.cs" />
     <Compile Include="AlgebraicStructures\Matrix\IntegerSequenceSubVector.cs" />
@@ -95,6 +96,7 @@
     <Compile Include="AlgebraicStructures\Matrix\IdentityMatrix.cs" />
     <Compile Include="AlgebraicStructures\Matrix\IMatrixFactory.cs" />
     <Compile Include="AlgebraicStructures\Matrix\IntegerSequenceSubMatrix.cs" />
+    <Compile Include="AlgebraicStructures\Matrix\IVectorFactory.cs" />
     <Compile Include="AlgebraicStructures\Matrix\MatrixColumnVector.cs" />
     <Compile Include="AlgebraicStructures\Matrix\MatrixRowVector.cs" />
     <Compile Include="AlgebraicStructures\Matrix\SparseDictionaryMatrix.cs" />
@@ -104,6 +106,7 @@
     <Compile Include="AlgebraicStructures\Matrix\SubMatrix.cs" />
     <Compile Include="AlgebraicStructures\Matrix\SubVector.cs" />
     <Compile Include="AlgebraicStructures\Matrix\TransposeMatrix.cs" />
+    <Compile Include="AlgebraicStructures\Matrix\VectorSpaceGenerator.cs" />
     <Compile Include="AlgebraicStructures\Matrix\ZeroMatrix.cs" />
     <Compile Include="AlgebraicStructures\Matrix\ZeroVector.cs" />
     <Compile Include="AlgebraicStructures\MultiDimensionalRange\MultiDimensionalRange.cs" />

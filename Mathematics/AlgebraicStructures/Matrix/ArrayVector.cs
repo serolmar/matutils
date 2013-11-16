@@ -45,6 +45,10 @@
             }
         }
 
+        private ArrayVector()
+        {
+        }
+
         /// <summary>
         /// Obtém e atribui o valor da entrada especificada pelo índice respectivo.
         /// </summary>
@@ -137,6 +141,34 @@
             {
                 yield return this.vectorEntries[i];
             }
+        }
+
+        public bool IsNull(IMonoid<CoeffType> monoid)
+        {
+            if (monoid == null)
+            {
+                throw new ArgumentNullException("monoid");
+            }
+            else
+            {
+                for (int i = 0; i < this.vectorEntries.Length; ++i)
+                {
+                    if (!monoid.IsAdditiveUnity(this.vectorEntries[i]))
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+        }
+
+        public IVector<CoeffType> Clone()
+        {
+            var result = new ArrayVector<CoeffType>();
+            result.vectorEntries = new CoeffType[this.vectorEntries.Length];
+            Array.Copy(this.vectorEntries, result.vectorEntries, this.vectorEntries.Length);
+            return result;
         }
 
         IEnumerator System.Collections.IEnumerable.GetEnumerator()

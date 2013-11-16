@@ -33,6 +33,7 @@
             else if (metricMatrix.GetLength(0) == metricMatrix.GetLength(1))
             {
                 this.metricMatrix = metricMatrix;
+                this.ring = ring;
             }
             else
             {

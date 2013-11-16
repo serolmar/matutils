@@ -203,6 +203,56 @@
             return this.vectorEntries.ContainsKey(index);
         }
 
+        public bool IsNull(IMonoid<CoeffType> monoid)
+        {
+            if (monoid == null)
+            {
+                throw new ArgumentNullException("monoid");
+            }
+            else
+            {
+                if (monoid.IsAdditiveUnity(this.defaultValue))
+                {
+                    if (this.vectorEntries.Count > 0)
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    if (this.vectorEntries.Count < this.length)
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        foreach (var itemKvp in this.vectorEntries)
+                        {
+                            if (!monoid.IsAdditiveUnity(itemKvp.Value))
+                            {
+                                return false;
+                            }
+                        }
+                    }
+                }
+
+                return true;
+            }
+        }
+
+        public IVector<CoeffType> Clone()
+        {
+            var result = new SparseDictionaryVector<CoeffType>(this.length);
+            result.defaultValue = this.defaultValue;
+            result.vectorEntries = new Dictionary<int, CoeffType>();
+            foreach (var kvp in this.vectorEntries)
+            {
+                result.vectorEntries.Add(kvp.Key, kvp.Value);
+            }
+
+            return result;
+        }
+
         /// <summary>
         /// Remove a entrada especificada pelo índice, passando esta a adquirir o valor especificado por defeito.
         /// </summary>

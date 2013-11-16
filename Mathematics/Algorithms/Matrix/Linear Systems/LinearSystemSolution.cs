@@ -18,7 +18,7 @@
         /// <summary>
         /// O vector que corresponde à solução particular.
         /// </summary>
-        private IMatrix<ElementType> vector;
+        private IVector<ElementType> vector;
 
         /// <summary>
         /// A base associada ao sistema homogéneo correspondente.
@@ -28,7 +28,7 @@
         /// <summary>
         /// Obtém e atribui o vector que contém a solução particular.
         /// </summary>
-        public IMatrix<ElementType> Vector
+        public IVector<ElementType> Vector
         {
             get
             {

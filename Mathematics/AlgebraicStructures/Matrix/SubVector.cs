@@ -30,6 +30,10 @@
             }
         }
 
+        private SubVector()
+        {
+        }
+
         /// <summary>
         /// Obtém e atribui a entrada do vector especificada pelo respectivo índice.
         /// </summary>
@@ -116,6 +120,35 @@
                     this.subVectorIndices[second] = swapValue;
                 }
             }
+        }
+
+        public bool IsNull(IMonoid<CoeffType> monoid)
+        {
+            if (monoid == null)
+            {
+                throw new ArgumentNullException("monoid");
+            }
+            else
+            {
+                for (int i = 0; i < this.subVectorIndices.Length; ++i)
+                {
+                    if (!monoid.IsAdditiveUnity(this.vector[this.subVectorIndices[i]]))
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+        }
+
+        public IVector<CoeffType> Clone()
+        {
+            var result = new SubVector<CoeffType>();
+            result.vector = this.vector;
+            result.subVectorIndices = new int[this.subVectorIndices.Length];
+            Array.Copy(this.subVectorIndices, result.subVectorIndices, this.subVectorIndices.Length);
+            return result;
         }
 
         public IEnumerator<CoeffType> GetEnumerator()

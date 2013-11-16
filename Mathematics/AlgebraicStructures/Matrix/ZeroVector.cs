@@ -99,6 +99,16 @@
         {
         }
 
+        public bool IsNull(IMonoid<CoeffType> monoid)
+        {
+            return true;
+        }
+
+        public IVector<CoeffType> Clone()
+        {
+            return this;
+        }
+
         /// <summary>
         /// Obtém um enumerador para o vector.
         /// </summary>
@@ -119,5 +129,6 @@
         {
             return this.GetEnumerator();
         }
+
     }
 }
