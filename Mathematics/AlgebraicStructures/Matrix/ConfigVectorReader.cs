@@ -1,29 +1,36 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using Utilities.Parsers;
-
-namespace Mathematics
+﻿namespace Mathematics
 {
-    public class ConfigMatrixReader<T, SymbValue, SymbType, InputReader>
+    using System;
+    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+    using System.Linq;
+    using System.Text;
+    using Utilities.Parsers;
+
+    /// <summary>
+    /// Permite realizar a leitura de um vector.
+    /// </summary>
+    /// <typeparam name="T">O tipo de elementos do vector.</typeparam>
+    /// <typeparam name="SymbValue">O tipo dos valores dos símbolos.</typeparam>
+    /// <typeparam name="SymbType">O tipo dos identificadores dos símbolos.</typeparam>
+    /// <typeparam name="InputReader">O leitor para os dados de entrada.</typeparam>
+    public class ConfigVectorReader<T, SymbValue, SymbType, InputReader>
     {
         private ARangeReader<T, SymbValue, SymbType, InputReader> rangeReader;
 
-        private IMatrixFactory<T> matrixFactory;
+        private IVectorFactory<T> vectorFactory;
 
-        public ConfigMatrixReader(int lines, int columns, IMatrixFactory<T> matrixFactory)
+        public ConfigVectorReader(int lines, IVectorFactory<T> vectorFactory)
         {
-            if (matrixFactory == null)
+            if (vectorFactory == null)
             {
-                throw new ArgumentNullException("matrixFactory");
+                throw new ArgumentNullException("vectorFactory");
             }
             else
             {
-                this.matrixFactory = matrixFactory;
+                this.vectorFactory = vectorFactory;
                 this.rangeReader = new RangeConfigReader<T, SymbValue, SymbType, InputReader>(
-                    new int[] { lines, columns });
+                    new int[] { lines});
             }
         }
 
@@ -39,21 +46,21 @@ namespace Mathematics
             }
         }
 
-        public bool TryParseMatrix(
+        public bool TryParseVector(
             MementoSymbolReader<InputReader, SymbValue, SymbType> reader,
             IParse<T, SymbValue, SymbType> parser,
-            out IMatrix<T> matrix)
+            out IVector<T> vector)
         {
-            return this.TryParseMatrix(reader, parser, null, out matrix);
+            return this.TryParseVector(reader, parser, null, out vector);
         }
 
-        public bool TryParseMatrix(
+        public bool TryParseVector(
             MementoSymbolReader<InputReader, SymbValue, SymbType> reader,
             IParse<T, SymbValue, SymbType> parser,
             List<string> errors,
-            out IMatrix<T> matrix)
+            out IVector<T> vector)
         {
-            matrix = default(ArrayMatrix<T>);
+            vector = default(IVector<T>);
             this.rangeReader.ReadRangeValues(reader, parser);
             if (this.rangeReader.HasErrors)
             {
@@ -70,19 +77,18 @@ namespace Mathematics
             else
             {
                 var lines = -1;
-                var columns = -1;
                 var configurationEnumerator = this.rangeReader.Configuration.GetEnumerator();
                 if (configurationEnumerator.MoveNext())
                 {
                     lines = configurationEnumerator.Current;
                     if (configurationEnumerator.MoveNext())
                     {
-                        columns = configurationEnumerator.Current;
+                        lines = configurationEnumerator.Current;
                     }
                 }
 
-                matrix = this.matrixFactory.CreateMatrix(lines, columns);
-                this.SetupResultMatrix(matrix, new int[] { lines, columns }, this.rangeReader.Elements);
+                vector = this.vectorFactory.CreateVector(lines);
+                this.SetupResultVector(vector, lines, this.rangeReader.Elements);
                 return true;
             }
         }
@@ -112,26 +118,13 @@ namespace Mathematics
             this.rangeReader.ClearBlanckSymbols();
         }
 
-        /// <summary>
-        /// Atribui os dados lidos à matriz.
-        /// </summary>
-        /// <param name="matrix">A matriz.</param>
-        /// <param name="configuration">A configuração dos elementos.</param>
-        /// <param name="elements">Os elementos lidos.</param>
-        private void SetupResultMatrix(IMatrix<T> matrix, int[] configuration, ReadOnlyCollection<T> elements)
+        private void SetupResultVector(IVector<T> vector, int lines, ReadOnlyCollection<T> elements)
         {
             var currentLine = -1;
-            var currentColumn = 0;
-            for (int i = 0; i < elements.Count; ++i)
+            for (int i = 0; i < lines; ++i)
             {
                 ++currentLine;
-                if (currentLine >= configuration[0])
-                {
-                    currentLine = 0;
-                    ++currentColumn;
-                }
-
-                matrix[currentLine, currentColumn] = elements[i];
+                vector[currentLine] = elements[i];
             }
         }
     }

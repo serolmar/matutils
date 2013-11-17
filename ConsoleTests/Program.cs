@@ -21,7 +21,7 @@
 
         static void Main(string[] args)
         {
-            Test13();
+            Test9();
             //using (var streamWriter = new StreamWriter("temp.txt"))
             //{
             //    streamWriter.Write(2);
@@ -154,7 +154,7 @@
 
             var result = numberTdecomposition.Run(18, costs);
             Console.WriteLine("Cost: {0}", result.Cost);
-            Console.WriteLine(PrintVector(result.Medians));;
+            Console.WriteLine(PrintVector(result.Medians)); ;
 
             var upperCosts = new List<List<int>>();
             upperCosts.Add(new List<int>() { 12, 9, 7, 6, 4 });
@@ -341,6 +341,7 @@
         {
             var quadraticSieve = new QuadraticFieldSieve();
             var temp = quadraticSieve.Run(13459, 200, 100);
+            Console.WriteLine("[{0},{1}]", temp.Item1, temp.Item2);
 
             var aksPrimalityTest = new AksPrimalityTest();
             var n = 13459;
@@ -500,7 +501,10 @@
             var integerParser = new IntegerParser<string>();
 
             var arrayMatrixFactory = new ArrayMatrixFactory<int>();
-            var arrayMatrixReader = new ConfigMatrixReader<int, string, string, CharSymbolReader<string>>(3, 3, arrayMatrixFactory);
+            var arrayMatrixReader = new ConfigMatrixReader<int, string, string, CharSymbolReader<string>>(
+                3,
+                3,
+                arrayMatrixFactory);
             arrayMatrixReader.MapInternalDelimiters("left_bracket", "right_bracket");
             arrayMatrixReader.AddBlanckSymbolType("blancks");
             arrayMatrixReader.SeparatorSymbType = "comma";
@@ -511,7 +515,7 @@
             {
                 var integerDomain = new IntegerDomain();
                 var divFreeCharPol = new FastDivisionFreeCharPolynomCalculator<int>(
-                    "lambda", 
+                    "lambda",
                     integerDomain);
                 var computedCharPol = divFreeCharPol.Run(matrix);
                 Console.WriteLine("O determinante usando permutações vale: {0}.", computedCharPol);
@@ -548,7 +552,7 @@
                 var powerRootsSums = pol.GetRootPowerSums(fractionField);
                 for (int i = 0; i < powerRootsSums.GetLength(0); ++i)
                 {
-                    Console.Write("{0} ", powerRootsSums[i,0]);
+                    Console.Write("{0} ", powerRootsSums[i, 0]);
                 }
 
                 Console.WriteLine();
@@ -614,7 +618,7 @@
             var parsedPol = default(UnivariatePolynomialNormalForm<int>);
             if (polynomialParser.TryParsePolynomial(
                 stringSymbolReader,
-                conversion, 
+                conversion,
                 out parsedPol))
             {
                 var finiteFieldFactorization = new FiniteFieldPolFactorizationAlgorithm(
@@ -635,10 +639,76 @@
         /// </summary>
         public static void Test9()
         {
-            var sparseDictionaryMatrix = new SparseDictionaryMatrix<int>(0);
+            var firstInput = "[1,2]";
+            var secondInput = "[2,1]";
+            var reader = new StringReader(firstInput);
+            var stringsymbolReader = new StringSymbolReader(reader, false);
+            var integerDomain = new IntegerDomain();
+            var integerParser = new IntegerParser<string>();
+            var fractionField = new FractionField<int, IntegerDomain>(integerDomain);
+            var fractionParser = new FractionExpressionParser<int, IntegerDomain>(integerParser, fractionField);
+            var firstVector = default(IVector<Fraction<int, IntegerDomain>>);
+            var secondVector = default(IVector<Fraction<int, IntegerDomain>>);
+            var vectorFactory = new ArrayVectorFactory<Fraction<int, IntegerDomain>>();
+
+            var vectorReader = new ConfigVectorReader<Fraction<int, IntegerDomain>, string, string, CharSymbolReader<string>>(
+                2,
+                vectorFactory);
+            vectorReader.MapInternalDelimiters("left_bracket", "right_bracket");
+            vectorReader.AddBlanckSymbolType("blancks");
+            vectorReader.SeparatorSymbType = "comma";
+
+            var errors = new List<string>();
+            if (vectorReader.TryParseVector(stringsymbolReader, fractionParser, errors, out firstVector))
+            {
+                reader = new StringReader(secondInput);
+                stringsymbolReader = new StringSymbolReader(reader, false);
+                if (vectorReader.TryParseVector(stringsymbolReader, fractionParser, errors, out secondVector))
+                {
+                    var vectorSpace = new VectorSpace<Fraction<int, IntegerDomain>>(
+                        2,
+                        vectorFactory,
+                        fractionField);
+                    var scalarProd = new OrthoVectorScalarProduct<Fraction<int, IntegerDomain>>(fractionField);
+
+                    var thirdVector = new ArrayVector<Fraction<int, IntegerDomain>>(2);
+                    thirdVector[0] = new Fraction<int, IntegerDomain>(1, 1, integerDomain);
+                    thirdVector[1] = new Fraction<int, IntegerDomain>(1, 1, integerDomain);
+                    var generator = new VectorSpaceGenerator<Fraction<int, IntegerDomain>>(2);
+                    generator.Add(firstVector);
+                    generator.Add(secondVector);
+                    generator.Add(thirdVector);
+
+                    var orthogonalized = generator.GetOrthogonalizedBase(
+                        fractionField,
+                        vectorSpace,
+                        scalarProd);
+
+                    foreach (var basisVector in orthogonalized)
+                    {
+                        Console.WriteLine(PrintVector(basisVector));
+                    }
+                }
+                else
+                {
+                    foreach (var error in errors)
+                    {
+                        Console.WriteLine(error);
+                    }
+                }
+            }
+            else
+            {
+                foreach (var error in errors)
+                {
+                    Console.WriteLine(error);
+                }
+            }
+
+            var sparseDictionaryMatrix = new SparseDictionaryMatrix<int>(10,10);
             Console.WriteLine(
-                "Linhas: {0}; Colunas: {1}", 
-                sparseDictionaryMatrix.GetLength(0), 
+                "Linhas: {0}; Colunas: {1}",
+                sparseDictionaryMatrix.GetLength(0),
                 sparseDictionaryMatrix.GetLength(1));
 
             Console.WriteLine("[0,0] = {0}", sparseDictionaryMatrix[0, 0]);
@@ -647,23 +717,23 @@
             sparseDictionaryMatrix[4, 1] = 5;
 
             Console.WriteLine(
-                "Linhas: {0}; Colunas: {1}", 
-                sparseDictionaryMatrix.GetLength(0), 
+                "Linhas: {0}; Colunas: {1}",
+                sparseDictionaryMatrix.GetLength(0),
                 sparseDictionaryMatrix.GetLength(1));
             Console.WriteLine("[4,1] = {0}", sparseDictionaryMatrix[4, 1]);
 
             sparseDictionaryMatrix.SwapLines(4, 1);
             Console.WriteLine(
-                "Linhas: {0}; Colunas: {1}", 
-                sparseDictionaryMatrix.GetLength(0), 
+                "Linhas: {0}; Colunas: {1}",
+                sparseDictionaryMatrix.GetLength(0),
                 sparseDictionaryMatrix.GetLength(1));
 
             Console.WriteLine("[1,1] = {0}", sparseDictionaryMatrix[1, 1]);
 
             sparseDictionaryMatrix.SwapColumns(3, 5);
             Console.WriteLine(
-                "Linhas: {0}; Colunas: {1}", 
-                sparseDictionaryMatrix.GetLength(0), 
+                "Linhas: {0}; Colunas: {1}",
+                sparseDictionaryMatrix.GetLength(0),
                 sparseDictionaryMatrix.GetLength(1));
         }
 
@@ -728,7 +798,7 @@
 
             var inputReader = new StringSymbolReader(new StringReader(input), false);
             var polynomialParser = new PolynomialReader<int, CharSymbolReader<string>>(
-                integerParser, 
+                integerParser,
                 new IntegerDomain());
             var readed = default(Polynomial<int>);
             var errors = new List<string>();
@@ -761,8 +831,8 @@
 
             var arrayMatrixFactory = new ArrayMatrixFactory<int>();
             var arrayMatrixReader = new ConfigMatrixReader<int, string, string, CharSymbolReader<string>>(
-                3, 
-                3, 
+                3,
+                3,
                 arrayMatrixFactory);
             arrayMatrixReader.MapInternalDelimiters("left_bracket", "right_bracket");
             arrayMatrixReader.AddBlanckSymbolType("blancks");
@@ -884,7 +954,10 @@
             }
 
             var count = 0;
-            var structureAffectations = new int[][] { new int[] { 1, 2, 3 }, new int[] { 1, 2, 3 }, new int[] { 1, 2, 3 } };
+            var structureAffectations = new int[][] { 
+                new int[] { 1, 2, 3 }, 
+                new int[] { 1, 2, 3 }, 
+                new int[] { 1, 2, 3 } };
             var affector = new StructureAffector(structureAffectations);
             foreach (var aff in affector)
             {
@@ -939,13 +1012,13 @@
 
             var graphAlgs = graph.GetAlgorithmsProcessor();
             var result = graphAlgs.GetMinimumSpanningTree<double>(
-                0, 
-                e=>e.Value, 
+                0,
+                e => e.Value,
                 Comparer<double>.Default,
                 new DoubleField());
         }
 
-        static string PrintVector(IEnumerable<int> vectorToPrint)
+        static string PrintVector<T>(IEnumerable<T> vectorToPrint)
         {
             var resultBuilder = new StringBuilder();
             resultBuilder.Append("[");

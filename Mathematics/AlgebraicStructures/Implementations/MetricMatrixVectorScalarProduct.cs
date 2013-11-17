@@ -13,7 +13,7 @@
     /// Nenhuma validação é realizada sobre a matriz.
     /// </remarks>
     /// <typeparam name="CoeffType">O tipo de dados que consituem as entradas dos vectores.</typeparam>
-    class MetricMatrixVectorScalarProduct<CoeffType> 
+    public class MetricMatrixVectorScalarProduct<CoeffType> 
         : IScalarProductSpace<IVector<CoeffType>, CoeffType>
     {
         private IRing<CoeffType> ring;

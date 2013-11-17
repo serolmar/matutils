@@ -19,7 +19,10 @@
         /// </summary>
         private IParse<T, string, string> elementsParser;
 
-        public ConfigMatrixParser(IParse<T, string, string> elementsParser, int numberOfLines, int numberOfColumns, IMatrixFactory<T> matrixFactory)
+        public ConfigMatrixParser(
+            IParse<T, string, string> elementsParser, 
+            int numberOfLines, int numberOfColumns, 
+            IMatrixFactory<T> matrixFactory)
         {
             if (matrixFactory == null)
             {

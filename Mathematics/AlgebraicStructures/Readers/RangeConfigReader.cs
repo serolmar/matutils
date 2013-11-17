@@ -61,6 +61,7 @@ namespace Mathematics
             {
                 this.parser = parser;
                 this.readedElements = new List<T>();
+                this.currentReadedConfiguration.Clear();
                 this.RunStateMchine(reader);
             }
         }

@@ -54,6 +54,8 @@
     <Compile Include="AlgebraicStructures\Implementations\VectorSpace.cs" />
     <Compile Include="AlgebraicStructures\Implementations\MetricMatrixVectorScalarProduct.cs" />
     <Compile Include="AlgebraicStructures\Matrix\ArrayVector.cs" />
+    <Compile Include="AlgebraicStructures\Matrix\ArrayVectorFactory.cs" />
+    <Compile Include="AlgebraicStructures\Matrix\ConfigVectorReader.cs" />
     <Compile Include="AlgebraicStructures\Matrix\IntegerSequenceSubVector.cs" />
     <Compile Include="AlgebraicStructures\Implementations\OrthoVectorScalarProduct.cs" />
     <Compile Include="AlgebraicStructures\Implementations\UnivarPolEuclideanDomainFactory.cs" />
@@ -103,6 +105,7 @@
     <Compile Include="AlgebraicStructures\Matrix\SparseDictionaryMatrixFactory.cs" />
     <Compile Include="AlgebraicStructures\Matrix\SparseDictionaryMatrixLine.cs" />
     <Compile Include="AlgebraicStructures\Matrix\SparseDictionaryVector.cs" />
+    <Compile Include="AlgebraicStructures\Matrix\SparseDictionaryVectorFactory.cs" />
     <Compile Include="AlgebraicStructures\Matrix\SubMatrix.cs" />
     <Compile Include="AlgebraicStructures\Matrix\SubVector.cs" />
     <Compile Include="AlgebraicStructures\Matrix\TransposeMatrix.cs" />

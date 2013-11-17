@@ -1,4 +1,4 @@
-﻿namespace Mathematics.AlgebraicStructures.Matrix
+﻿namespace Mathematics
 {
     using System;
     using System.Collections;
@@ -233,10 +233,11 @@
             }
             else if (item == null)
             {
+                throw new ArgumentNullException("item");
             }
             else if (item.Length == this.vectorSpaceDimension)
             {
-                this.Add(item);
+                this.basisVectors.Add(item);
             }
             else
             {
@@ -548,6 +549,32 @@
         #region Funções da Base
 
         /// <summary>
+        /// Troca dois vectores do gerador.
+        /// </summary>
+        /// <param name="first">O índice da posição do primeiro vector.</param>
+        /// <param name="second">O índice da posição do segundo vector.</param>
+        public void SwapVectors(int first, int second)
+        {
+            if (first != second)
+            {
+                if (first < 0 || first >= this.basisVectors.Count)
+                {
+                    throw new ArgumentOutOfRangeException("first");
+                }
+                else if (second < 0 || second >= this.basisVectors.Count)
+                {
+                    throw new ArgumentOutOfRangeException("second");
+                }
+                else
+                {
+                    var swap = this.basisVectors[first];
+                    this.basisVectors[first] = this.basisVectors[second];
+                    this.basisVectors[second] = swap;
+                }
+            }
+        }
+
+        /// <summary>
         /// Obtém uma base ortogonalizada a partir da base actual.
         /// </summary>
         /// <param name="coefficientsField">O corpo responsável pelas operações sobre os coeficientes.</param>
@@ -621,6 +648,7 @@
                                             var scalar = coefficientsField.Multiply(
                                                 num,
                                                 coefficientsField.MultiplicativeInverse(denom));
+                                            scalar = coefficientsField.AdditiveInverse(scalar);
                                             if (!coefficientsField.IsMultiplicativeUnity(scalar))
                                             {
                                                 orthoVector = vectorSpace.MultiplyScalar(scalar, orthoVector);
@@ -661,6 +689,7 @@
                                         var scalar = coefficientsField.Multiply(
                                             num,
                                             coefficientsField.MultiplicativeInverse(denom));
+                                        scalar = coefficientsField.AdditiveInverse(scalar);
                                         if (!coefficientsField.IsMultiplicativeUnity(scalar))
                                         {
                                             orthoVector = vectorSpace.MultiplyScalar(scalar, orthoVector);
