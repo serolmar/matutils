@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Mathematics
 {
-    public interface IMultipliable<T> : IMultiplicationOperation<T>
+    public interface IMultipliable<T> : IMultiplicationOperation<T, T, T>
     {
         T MultiplicativeUnity { get; }
         bool IsMultiplicativeUnity(T value);

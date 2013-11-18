@@ -50,6 +50,7 @@
     <Compile Include="Collections\Affectations\PermutationBoxAffector.cs" />
     <Compile Include="Collections\Affectations\StructureAffector.cs" />
     <Compile Include="Collections\Affectations\SwapPermutationsGenerator.cs" />
+    <Compile Include="Collections\BcdCodeGenerator.cs" />
     <Compile Include="Collections\BitList.cs" />
     <Compile Include="Collections\CollectionsException.cs" />
     <Compile Include="Collections\GeneralMapper.cs" />

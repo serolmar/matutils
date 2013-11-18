@@ -270,60 +270,67 @@
                 innerRight = innerRight / leftQuo;
                 while (true)
                 {
-                    leftQuo = this.module / innerLeft;
-                    if (leftQuo >= innerRight)
+                    if (innerLeft == 0)
                     {
-                        var product = innerLeft * innerRight * sign;
-                        if (product < 0)
-                        {
-                            result += product;
-                            if (result < 0)
-                            {
-                                result += this.module;
-                            }
-                        }
-                        else
-                        {
-                            var productComplement = this.module - product;
-                            result -= productComplement;
-                            if (result < 0)
-                            {
-                                result = this.module + result;
-                            }
-                        }
-
                         return result;
                     }
                     else
                     {
-                        rightRem = innerRight % leftQuo;
-                        var product = innerLeft * rightRem * sign;
-                        if (product < 0)
+                        leftQuo = this.module / innerLeft;
+                        if (leftQuo >= innerRight)
                         {
-                            result += product;
-                            if (result < 0)
+                            var product = innerLeft * innerRight * sign;
+                            if (product < 0)
                             {
-                                result += this.module;
+                                result += product;
+                                if (result < 0)
+                                {
+                                    result += this.module;
+                                }
                             }
+                            else
+                            {
+                                var productComplement = this.module - product;
+                                result -= productComplement;
+                                if (result < 0)
+                                {
+                                    result = this.module + result;
+                                }
+                            }
+
+                            return result;
                         }
                         else
                         {
-                            var productComplement = this.module - product;
-                            result -= productComplement;
-                            if (result < 0)
+                            rightRem = innerRight % leftQuo;
+                            var product = innerLeft * rightRem * sign;
+                            if (product < 0)
                             {
-                                result = this.module + result;
+                                result += product;
+                                if (result < 0)
+                                {
+                                    result += this.module;
+                                }
                             }
-                        }
+                            else
+                            {
+                                var productComplement = this.module - product;
+                                result -= productComplement;
+                                if (result < 0)
+                                {
+                                    result = this.module + result;
+                                }
+                            }
 
-                        sign = -sign;
-                        var tempInnerLeft = this.module % innerLeft;
-                        if (tempInnerLeft != 0)
-                        {
-                            innerLeft = tempInnerLeft;
-                        }
+                            sign = -sign;
+                            var tempInnerLeft = this.module % innerLeft;
+                            if (tempInnerLeft != 0)
+                            {
+                                innerLeft = tempInnerLeft;
+                            }
 
-                        innerRight = innerRight / leftQuo;
+                            innerRight = innerRight / leftQuo;
+                        }
                     }
                 }
             }

@@ -48,11 +48,15 @@
     <Compile Include="AlgebraicStructures\Implementations\BigIntegerDomain.cs" />
     <Compile Include="AlgebraicStructures\Implementations\DomainResult.cs" />
     <Compile Include="AlgebraicStructures\Implementations\DoubleField.cs" />
+    <Compile Include="AlgebraicStructures\Implementations\DoubleNearestInteger.cs" />
     <Compile Include="AlgebraicStructures\Implementations\ElementFractionConversion.cs" />
     <Compile Include="AlgebraicStructures\Implementations\ElementToElementConversion.cs" />
     <Compile Include="AlgebraicStructures\Implementations\FractionField.cs" />
+    <Compile Include="AlgebraicStructures\Implementations\FractionNearestBigInt.cs" />
+    <Compile Include="AlgebraicStructures\Implementations\FractionNearestInteger.cs" />
     <Compile Include="AlgebraicStructures\Implementations\VectorSpace.cs" />
     <Compile Include="AlgebraicStructures\Implementations\MetricMatrixVectorScalarProduct.cs" />
+    <Compile Include="AlgebraicStructures\LogicInterfaces\INearest.cs" />
     <Compile Include="AlgebraicStructures\Matrix\ArrayVector.cs" />
     <Compile Include="AlgebraicStructures\Matrix\ArrayVectorFactory.cs" />
     <Compile Include="AlgebraicStructures\Matrix\ConfigVectorReader.cs" />
@@ -157,6 +161,8 @@
     <Compile Include="Algorithms\Matrix\Linear Systems\DenseCondensationLinSysAlgorithm.cs" />
     <Compile Include="Algorithms\Matrix\Linear Systems\LinearSystemSolution.cs" />
     <Compile Include="Algorithms\Matrix\Linear Systems\SequentialLanczosAlgorithm.cs" />
+    <Compile Include="Algorithms\Matrix\Reductions\LLLBasisReductionAlgorithm.cs" />
+    <Compile Include="Algorithms\Matrix\Reductions\ReductionSolution.cs" />
     <Compile Include="Algorithms\NumberTheory\AksPrimalityTest.cs" />
     <Compile Include="Algorithms\NumberTheory\Auxiliary\AuxAksModArithmRing.cs" />
     <Compile Include="Algorithms\NumberTheory\BigInteger\BigIntPrimeNumbsIterator.cs" />

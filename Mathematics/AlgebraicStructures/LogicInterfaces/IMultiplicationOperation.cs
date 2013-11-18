@@ -5,8 +5,8 @@ using System.Text;
 
 namespace Mathematics
 {
-    public interface IMultiplicationOperation<T>
+    public interface IMultiplicationOperation<in P, in Q, out T>
     {
-        T Multiply(T left, T right);
+        T Multiply(P left, Q right);
     }
 }

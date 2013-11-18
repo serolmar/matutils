@@ -21,7 +21,7 @@
 
         static void Main(string[] args)
         {
-            Test9();
+            Test13();
             //using (var streamWriter = new StreamWriter("temp.txt"))
             //{
             //    streamWriter.Write(2);
@@ -339,19 +339,22 @@
         /// </summary>
         public static void Test13()
         {
-            var quadraticSieve = new QuadraticFieldSieve();
-            var temp = quadraticSieve.Run(13459, 200, 100);
-            Console.WriteLine("[{0},{1}]", temp.Item1, temp.Item2);
+            //var quadraticSieve = new QuadraticFieldSieve();
+            //var temp = quadraticSieve.Run(13459, 200, 100);
+            //Console.WriteLine("[{0},{1}]", temp.Item1, temp.Item2);
 
             var aksPrimalityTest = new AksPrimalityTest();
             var n = 13459;
-            if (aksPrimalityTest.Run(n))
+            for (int i=1; i < 100; ++i)
             {
-                Console.WriteLine("{0} is prime", n);
-            }
-            else
-            {
-                Console.WriteLine("{0} isn't prime", n);
+                if (aksPrimalityTest.Run(i))
+                {
+                    Console.WriteLine("{0} is prime", i);
+                }
+                else
+                {
+                    Console.WriteLine("{0} isn't prime", i);
+                }
             }
 
             var eulerFunction = new EulerTotFuncAlg();

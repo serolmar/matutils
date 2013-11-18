@@ -5,9 +5,10 @@ using System.Text;
 
 namespace Mathematics
 {
-    public class MatrixMultiplicationOperation<ObjectType, AdditionOperationType, MultiplicationOperationType> : IMultiplicationOperation<IMatrix<ObjectType>>
+    public class MatrixMultiplicationOperation<ObjectType, AdditionOperationType, MultiplicationOperationType>
+        : IMultiplicationOperation<IMatrix<ObjectType>, IMatrix<ObjectType>, IMatrix<ObjectType>>
         where AdditionOperationType : IAdditionOperation<ObjectType>
-        where MultiplicationOperationType : IMultiplicationOperation<ObjectType>
+        where MultiplicationOperationType : IMultiplicationOperation<ObjectType, ObjectType, ObjectType>
     {
         /// <summary>
         /// A classe responsável pela multiplicação das entradas da matriz.

@@ -136,10 +136,10 @@ namespace Utilities.Collections
         }
 
         /// <summary>
-        /// Returns the bit in the list position specified by index.
+        /// Obtém o bit da lista na posição especificada pelo índice.
         /// </summary>
-        /// <param name="index">The position index in the list.</param>
-        /// <returns>A reference for that value in the list</returns>
+        /// <param name="index">O índice da posição na lista.</param>
+        /// <returns>O bit que se encontra na posição.</returns>
         public int this[int index]
         {
             get
@@ -261,7 +261,7 @@ namespace Utilities.Collections
 
         public bool Remove(int item)
         {
-            if(countBits <= 0)
+            if (countBits <= 0)
             {
                 return false;
             }
@@ -427,6 +427,66 @@ namespace Utilities.Collections
                 throw new ArgumentOutOfRangeException("Start index must be inside the size of bit list and number of bits must be non negative.");
             }
             return GetUnckeckedSubBitList(startIndex, numberOfBits);
+        }
+
+        /// <summary>
+        /// Verifica se todos os bits da lista estão a zero.
+        /// </summary>
+        /// <returns>Verdadeiro caso os bits da lista estejam a zero e falso caso contrário.</returns>
+        public bool IsAllZero()
+        {
+            var lastIndex = this.elements.Count - 1;
+            var count = this.countBits;
+            for (int i = 0; i < lastIndex; ++i)
+            {
+                if (this.elements[i] != 0)
+                {
+                    return false;
+                }
+
+                count -= bitNumber;
+            }
+
+            var last = this.elements[lastIndex];
+            if (count < bitNumber)
+            {
+                var mask = this.maskPositionBits[count];
+                return (last & mask) == 0;
+            }
+            else
+            {
+                return last == 0;
+            }
+        }
+
+        /// <summary>
+        /// Verifica se todos os bits da lista estão a um.
+        /// </summary>
+        /// <returns>Verdadeiro caso os bits da lista estejam a um e falso caso contrário.</returns>
+        public bool IsAllOne()
+        {
+            var lastIndex = this.elements.Count - 1;
+            var count = this.countBits;
+            for (int i = 0; i < lastIndex; ++i)
+            {
+                if (this.elements[i] != ulong.MaxValue)
+                {
+                    return false;
+                }
+
+                count -= bitNumber;
+            }
+
+            var last = this.elements[lastIndex];
+            if (count < bitNumber)
+            {
+                var mask = this.maskPositionBits[count];
+                return (last & mask) == mask;
+            }
+            else
+            {
+                return last == ulong.MaxValue;
+            }
         }
 
         /// <summary>
@@ -645,14 +705,14 @@ namespace Utilities.Collections
         }
 
         private void Reserve(int capacity)
-         {
-             int listCapacity = capacity / bitNumber;
-             if (capacity % bitNumber != 0)
-             {
-                 ++listCapacity;
-             }
-             elements = new List<ulong>(listCapacity);
-         }
+        {
+            int listCapacity = capacity / bitNumber;
+            if (capacity % bitNumber != 0)
+            {
+                ++listCapacity;
+            }
+            elements = new List<ulong>(listCapacity);
+        }
 
         /// <summary>
         /// Descarrega todos os bits do vector.
