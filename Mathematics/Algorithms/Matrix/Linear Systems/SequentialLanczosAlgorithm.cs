@@ -8,8 +8,8 @@
     /// <summary>
     /// Obtém a solução do sistema Ax = b onde A corresponde a uma matriz simétrica.
     /// </summary>
-    public class SequentialLanczosAlgorithm<ElementType, FieldType> : 
-        IAlgorithm<IMatrix<ElementType>, IMatrix<ElementType>, IMatrix<ElementType>>
+    public class SequentialLanczosAlgorithm<ElementType, FieldType> :
+        IAlgorithm<ISquareMatrix<ElementType>, IMatrix<ElementType>, IMatrix<ElementType>>
         where FieldType : IField<ElementType>
     {
         /// <summary>
@@ -82,7 +82,7 @@
         /// <param name="independentVector">O vector independente.</param>
         /// <returns>A solução do sistema.</returns>
         public IMatrix<ElementType> Run(
-            IMatrix<ElementType> linearSystemMatrix, 
+            ISquareMatrix<ElementType> linearSystemMatrix, 
             IMatrix<ElementType> independentVector)
         {
             if (linearSystemMatrix == null)
@@ -108,9 +108,11 @@
                     if (!linearSystemMatrix.IsSymmetric(this.field))
                     {
                         var transposed = new TransposeMatrix<ElementType>(innerLinearSystemMatrix);
+
+                        // TODO: Concluir um objecto responsável pelo produto de matrizes quadradas.
                         innerLinearSystemMatrix = this.multiplicationOperation.Multiply(
                             transposed,
-                            innerLinearSystemMatrix);
+                            innerLinearSystemMatrix) as ISquareMatrix<ElementType>;
                         innerIndependentVector = this.multiplicationOperation.Multiply(
                             transposed,
                             independentVector);

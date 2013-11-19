@@ -21,7 +21,7 @@
 
         static void Main(string[] args)
         {
-            Test13();
+            Test15();
             //using (var streamWriter = new StreamWriter("temp.txt"))
             //{
             //    streamWriter.Write(2);
@@ -108,6 +108,7 @@
 
             stopWatch.Stop();
             Console.WriteLine(stopWatch.Elapsed);
+
             Console.ReadLine();
         }
 
@@ -305,7 +306,8 @@
                     var systemSolver = new SequentialLanczosAlgorithm<Fraction<BigInteger, BigIntegerDomain>, FractionField<BigInteger, BigIntegerDomain>>(
                         arrayMatrixFactory,
                         fractionField);
-                    var result = systemSolver.Run(matrix, independentVector);
+                    var squareMatrix = (matrix as ArrayMatrix<Fraction<BigInteger, BigIntegerDomain>>).AsSquare();
+                    var result = systemSolver.Run(squareMatrix, independentVector);
                 }
             }
         }

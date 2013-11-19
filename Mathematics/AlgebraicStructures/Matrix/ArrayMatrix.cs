@@ -8,11 +8,18 @@ namespace Mathematics
 {
     public class ArrayMatrix<ObjectType> : IMatrix<ObjectType>
     {
-        private int numberOfLines;
+        protected int numberOfLines;
 
-        private int numberOfColumns;
+        protected int numberOfColumns;
 
-        private ObjectType[][] elements;
+        protected ObjectType[][] elements;
+
+        internal ArrayMatrix(ObjectType[][] elements, int numberOfLines, int numberOfColumns)
+        {
+            this.elements = elements;
+            this.numberOfLines = numberOfLines;
+            this.numberOfColumns = numberOfColumns;
+        }
 
         public ArrayMatrix(int line, int column)
         {
@@ -26,14 +33,7 @@ namespace Mathematics
             }
             else
             {
-                this.elements = new ObjectType[line][];
-                for (int i = 0; i < line; ++i)
-                {
-                    this.elements[i] = new ObjectType[column];
-                }
-
-                this.numberOfLines = line;
-                this.numberOfColumns = column;
+                this.InitializeMatrix(line, column);
             }
         }
 
@@ -49,42 +49,23 @@ namespace Mathematics
             }
             else
             {
-                this.elements = new ObjectType[line][];
-                if (EqualityComparer<object>.Default.Equals(defaultValue, default(ObjectType)))
-                {
-                    for (int i = 0; i < line; ++i)
-                    {
-                        this.elements[i] = new ObjectType[column];
-                    }
-                }
-                else
-                {
-                    for (int i = 0; i < line; ++i)
-                    {
-                        this.elements[i] = new ObjectType[column];
-                        for (int j = 0; j < column; ++j)
-                        {
-                            this.elements[i][j] = defaultValue;
-                        }
-                    }
-                }
-
-                this.numberOfLines = line;
-                this.numberOfColumns = column;
+                this.InitializeMatrix(line, column, defaultValue);
             }
         }
 
-        public ObjectType this[int line, int column]
+        public virtual ObjectType this[int line, int column]
         {
             get
             {
                 if (line < 0 || line >= this.numberOfLines)
                 {
-                    throw new IndexOutOfRangeException("Index line must be non-negative and lesser than the number of lines in matrix.");
+                    throw new IndexOutOfRangeException(
+                        "Index line must be non-negative and lesser than the number of lines in matrix.");
                 }
                 else if (column < 0 || column >= this.numberOfColumns)
                 {
-                    throw new IndexOutOfRangeException("Index column must be non-negative and lesser than the number of columns in matrix.");
+                    throw new IndexOutOfRangeException(
+                        "Index column must be non-negative and lesser than the number of columns in matrix.");
                 }
                 else
                 {
@@ -95,52 +76,18 @@ namespace Mathematics
             {
                 if (line < 0 || line >= this.numberOfLines)
                 {
-                    throw new IndexOutOfRangeException("Index line must be non-negative and lesser than the number of lines in matrix.");
+                    throw new IndexOutOfRangeException(
+                        "Index line must be non-negative and lesser than the number of lines in matrix.");
                 }
                 else if (column < 0 || column >= this.numberOfColumns)
                 {
-                    throw new IndexOutOfRangeException("Index column must be non-negative and lesser than the number of columns in matrix.");
+                    throw new IndexOutOfRangeException(
+                        "Index column must be non-negative and lesser than the number of columns in matrix.");
                 }
                 else
                 {
                     this.elements[line][column] = value;
                 }
-            }
-        }
-
-        /// <summary>
-        /// Verifica se se trata de uma matriz simétrica.
-        /// </summary>
-        /// <param name="equalityComparer">O comparador das entradas.</param>
-        /// <returns>Verdadeiro caso se trate de uma matriz simétrica e falso no caso contrário.</returns>
-        public bool IsSymmetric(IEqualityComparer<ObjectType> equalityComparer)
-        {
-            var innerEqualityComparer = equalityComparer;
-            if (innerEqualityComparer == null)
-            {
-                innerEqualityComparer = EqualityComparer<ObjectType>.Default;
-            }
-
-            if (this.numberOfLines != this.numberOfColumns)
-            {
-                return false;
-            }
-            else
-            {
-                for (int i = 0; i < this.numberOfLines; ++i)
-                {
-                    for (int j = i + 1; j < this.numberOfColumns; ++j)
-                    {
-                        var currentEntry = this.elements[i][j];
-                        var symmetricEntry = this.elements[j][i];
-                        if (!innerEqualityComparer.Equals(currentEntry, symmetricEntry))
-                        {
-                            return false;
-                        }
-                    }
-                }
-
-                return true;
             }
         }
 
@@ -168,6 +115,20 @@ namespace Mathematics
         public IMatrix<ObjectType> GetSubMatrix(IntegerSequence lines, IntegerSequence columns)
         {
             return new IntegerSequenceSubMatrix<ObjectType>(this, lines, columns);
+        }
+
+        public ISquareMatrix<ObjectType> AsSquare()
+        {
+            if (this.numberOfLines != this.numberOfColumns)
+            {
+                throw new MathematicsException("Current matrix isn't square.");
+            }
+            else
+            {
+                return new ArraySquareMatrix<ObjectType>(
+                    this.elements,
+                    this.numberOfLines);
+            }
         }
 
         /// <summary>
@@ -430,6 +391,44 @@ namespace Mathematics
 
                 return result;
             }
+        }
+
+        protected virtual void InitializeMatrix(int line, int column)
+        {
+            this.elements = new ObjectType[line][];
+            for (int i = 0; i < line; ++i)
+            {
+                this.elements[i] = new ObjectType[column];
+            }
+
+            this.numberOfLines = line;
+            this.numberOfColumns = column;
+        }
+
+        protected virtual void InitializeMatrix(int line, int column, ObjectType defaultValue)
+        {
+            this.elements = new ObjectType[line][];
+            if (EqualityComparer<object>.Default.Equals(defaultValue, default(ObjectType)))
+            {
+                for (int i = 0; i < line; ++i)
+                {
+                    this.elements[i] = new ObjectType[column];
+                }
+            }
+            else
+            {
+                for (int i = 0; i < line; ++i)
+                {
+                    this.elements[i] = new ObjectType[column];
+                    for (int j = 0; j < column; ++j)
+                    {
+                        this.elements[i][j] = defaultValue;
+                    }
+                }
+            }
+
+            this.numberOfLines = line;
+            this.numberOfColumns = column;
         }
 
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()

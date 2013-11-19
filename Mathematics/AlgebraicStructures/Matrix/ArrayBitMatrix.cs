@@ -108,37 +108,6 @@
             }
         }
 
-        public bool IsSymmetric(IEqualityComparer<int> equalityComparer)
-        {
-            var innerEqualityComparer = equalityComparer;
-            if (innerEqualityComparer == null)
-            {
-                innerEqualityComparer = EqualityComparer<int>.Default;
-            }
-
-            if (this.elementsList.Length != this.columnsNumber)
-            {
-                return false;
-            }
-            else
-            {
-                for (int i = 0; i < this.elementsList.Length; ++i)
-                {
-                    for (int j = i + 1; j < this.columnsNumber; ++j)
-                    {
-                        var currentEntry = this.elementsList[i][j];
-                        var symmetricEntry = this.elementsList[j][i];
-                        if (!innerEqualityComparer.Equals(currentEntry, symmetricEntry))
-                        {
-                            return false;
-                        }
-                    }
-                }
-
-                return true;
-            }
-        }
-
         public int GetLength(int dimension)
         {
             if (dimension == 0)

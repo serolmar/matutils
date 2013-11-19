@@ -67,16 +67,6 @@
             }
         }
 
-        /// <summary>
-        /// Verifica se a matriz transposta é simétrica.
-        /// </summary>
-        /// <param name="equalityComparer">O comparador de elementos.</param>
-        /// <returns>Verdadeiro caso a matriz seja simétrica e falso caso contrário.</returns>
-        public bool IsSymmetric(IEqualityComparer<ObjectType> equalityComparer)
-        {
-            return this.matrix.IsSymmetric(equalityComparer);
-        }
-
         public int GetLength(int dimension)
         {
             if (dimension == 0)

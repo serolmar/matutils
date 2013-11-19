@@ -57,6 +57,8 @@
     <Compile Include="AlgebraicStructures\Implementations\VectorSpace.cs" />
     <Compile Include="AlgebraicStructures\Implementations\MetricMatrixVectorScalarProduct.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\INearest.cs" />
+    <Compile Include="AlgebraicStructures\LogicInterfaces\ISquareMatrix.cs" />
+    <Compile Include="AlgebraicStructures\Matrix\ArraySquareMatrix.cs" />
     <Compile Include="AlgebraicStructures\Matrix\ArrayVector.cs" />
     <Compile Include="AlgebraicStructures\Matrix\ArrayVectorFactory.cs" />
     <Compile Include="AlgebraicStructures\Matrix\ConfigVectorReader.cs" />

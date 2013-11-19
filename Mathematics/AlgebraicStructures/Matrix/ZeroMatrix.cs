@@ -77,11 +77,6 @@
             }
         }
 
-        public bool IsSymmetric(IEqualityComparer<ElementType> equalityComparer)
-        {
-            return this.linesNumber == this.columnsNumber;
-        }
-
         public int GetLength(int dimension)
         {
             if (dimension == 0)
