@@ -10,7 +10,7 @@
     {
         private int dimension;
 
-        private IRing<CoeffType> ring;
+        private IField<CoeffType> field;
 
         private IVectorFactory<CoeffType> vectorFactory;
 
@@ -19,11 +19,11 @@
         public VectorSpace(
             int dimension,
             IVectorFactory<CoeffType> vectorFactory,
-            IRing<CoeffType> ring)
+            IField<CoeffType> field)
         {
-            if (ring == null)
+            if (field == null)
             {
-                throw new ArgumentNullException("ring");
+                throw new ArgumentNullException("field");
             }
             else if (vectorFactory == null)
             {
@@ -36,9 +36,20 @@
             else
             {
                 this.dimension = dimension;
-                this.ring = ring;
+                this.field = field;
                 this.vectorFactory = vectorFactory;
-                this.orderedColComparer = new OrderedColEqualityComparer<CoeffType>(ring);
+                this.orderedColComparer = new OrderedColEqualityComparer<CoeffType>(field);
+            }
+        }
+
+        /// <summary>
+        /// Obtém o corpo associado ao espaço vectorial.
+        /// </summary>
+        public IField<CoeffType> Field
+        {
+            get
+            {
+                return this.field;
             }
         }
 
@@ -64,10 +75,10 @@
             }
             else
             {
-                var result = this.vectorFactory.CreateVector(vectorSpaceElement.Length, this.ring.AdditiveUnity);
+                var result = this.vectorFactory.CreateVector(vectorSpaceElement.Length, this.field.AdditiveUnity);
                 for (int i = 0; i < vectorSpaceElement.Length; ++i)
                 {
-                    result[i] = this.ring.Multiply(coefficientElement, vectorSpaceElement[i]);
+                    result[i] = this.field.Multiply(coefficientElement, vectorSpaceElement[i]);
                 }
 
                 return result;
@@ -86,10 +97,10 @@
             }
             else
             {
-                var result = this.vectorFactory.CreateVector(number.Length, this.ring.AdditiveUnity);
+                var result = this.vectorFactory.CreateVector(number.Length, this.field.AdditiveUnity);
                 for (int i = 0; i < number.Length; ++i)
                 {
-                    result[i] = this.ring.AdditiveInverse(number[i]);
+                    result[i] = this.field.AdditiveInverse(number[i]);
                 }
 
                 return result;
@@ -100,7 +111,7 @@
         {
             get
             {
-                return new ZeroVector<CoeffType>(this.dimension, this.ring);
+                return new ZeroVector<CoeffType>(this.dimension, this.field);
             }
         }
 
@@ -116,7 +127,7 @@
             }
             else
             {
-                return value.IsNull(this.ring);
+                return value.IsNull(this.field);
             }
         }
 
@@ -150,10 +161,10 @@
             }
             else
             {
-                var result = this.vectorFactory.CreateVector(this.dimension, this.ring.AdditiveUnity);
+                var result = this.vectorFactory.CreateVector(this.dimension, this.field.AdditiveUnity);
                 for (int i = 0; i < this.dimension; ++i)
                 {
-                    result[i] = this.ring.Add(left[i], right[i]);
+                    result[i] = this.field.Add(left[i], right[i]);
                 }
 
                 return result;

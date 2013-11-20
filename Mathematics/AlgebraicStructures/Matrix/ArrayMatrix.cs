@@ -272,7 +272,7 @@ namespace Mathematics
             }
         }
 
-        public void SwapLines(int i, int j)
+        public virtual void SwapLines(int i, int j)
         {
             if (i < 0 || i > this.numberOfLines)
             {
@@ -290,7 +290,7 @@ namespace Mathematics
             }
         }
 
-        public void SwapColumns(int i, int j)
+        public virtual void SwapColumns(int i, int j)
         {
             if (i < 0 || i > this.numberOfColumns)
             {

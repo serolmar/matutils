@@ -58,9 +58,13 @@
     <Compile Include="AlgebraicStructures\Implementations\MetricMatrixVectorScalarProduct.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\INearest.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\ISquareMatrix.cs" />
+    <Compile Include="AlgebraicStructures\Matrix\AArrayTriangularMatrix.cs" />
     <Compile Include="AlgebraicStructures\Matrix\ArraySquareMatrix.cs" />
+    <Compile Include="AlgebraicStructures\Matrix\ArrayTriangLowerMatrix.cs" />
+    <Compile Include="AlgebraicStructures\Matrix\ArrayTriangUpperMatrix.cs" />
     <Compile Include="AlgebraicStructures\Matrix\ArrayVector.cs" />
     <Compile Include="AlgebraicStructures\Matrix\ArrayVectorFactory.cs" />
+    <Compile Include="AlgebraicStructures\Matrix\BitMatrix.cs" />
     <Compile Include="AlgebraicStructures\Matrix\ConfigVectorReader.cs" />
     <Compile Include="AlgebraicStructures\Matrix\IntegerSequenceSubVector.cs" />
     <Compile Include="AlgebraicStructures\Implementations\OrthoVectorScalarProduct.cs" />
@@ -164,7 +168,6 @@
     <Compile Include="Algorithms\Matrix\Linear Systems\LinearSystemSolution.cs" />
     <Compile Include="Algorithms\Matrix\Linear Systems\SequentialLanczosAlgorithm.cs" />
     <Compile Include="Algorithms\Matrix\Reductions\LLLBasisReductionAlgorithm.cs" />
-    <Compile Include="Algorithms\Matrix\Reductions\ReductionSolution.cs" />
     <Compile Include="Algorithms\NumberTheory\AksPrimalityTest.cs" />
     <Compile Include="Algorithms\NumberTheory\Auxiliary\AuxAksModArithmRing.cs" />
     <Compile Include="Algorithms\NumberTheory\BigInteger\BigIntPrimeNumbsIterator.cs" />

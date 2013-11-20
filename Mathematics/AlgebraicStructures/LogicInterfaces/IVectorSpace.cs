@@ -14,6 +14,11 @@ namespace Mathematics
     public interface IVectorSpace<CoefficientType, VectorSpaceType> : IGroup<VectorSpaceType>
     {
         /// <summary>
+        /// Obtém o corpo sobre o qual funciona o espaço vectorial.
+        /// </summary>
+        IField<CoefficientType> Field { get; }
+
+        /// <summary>
         /// Define a multiplicação do anel ou campo com o elemento do espaço vectorial.
         /// </summary>
         /// <param name="coefficientElement">O coeficiente.</param>
