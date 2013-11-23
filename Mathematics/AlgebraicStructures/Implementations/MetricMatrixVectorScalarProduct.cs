@@ -20,7 +20,15 @@
 
         private IMatrix<CoeffType> metricMatrix;
 
-        public MetricMatrixVectorScalarProduct(IMatrix<CoeffType> metricMatrix, IRing<CoeffType> ring)
+        /// <summary>
+        /// O comparador de coeficientes.
+        /// </summary>
+        private IComparer<CoeffType> comparer;
+
+        public MetricMatrixVectorScalarProduct(
+            IMatrix<CoeffType> metricMatrix,
+            IComparer<CoeffType> comparer, 
+            IRing<CoeffType> ring)
         {
             if (ring == null)
             {
@@ -32,6 +40,15 @@
             }
             else if (metricMatrix.GetLength(0) == metricMatrix.GetLength(1))
             {
+                if (comparer == null)
+                {
+                    this.comparer = Comparer<CoeffType>.Default;
+                }
+                else
+                {
+                    this.comparer = comparer;
+                }
+
                 this.metricMatrix = metricMatrix;
                 this.ring = ring;
             }
@@ -118,6 +135,20 @@
                     return result;
                 }
             }
+        }
+
+        /// <summary>
+        /// Compara dois valores para averiguar se são iguais ou se um é maior do que o outro.
+        /// </summary>
+        /// <param name="x">O primeiro valor a ser comparado.</param>
+        /// <param name="y">O segundo valor a ser comparado.</param>
+        /// <returns>
+        /// O valor 1 caso o primeiro seja maior do que o segundo, 0 caso sejam iguais e -1 caso o segundo
+        /// seja menor que o primeiro.
+        /// </returns>
+        public int Compare(CoeffType x, CoeffType y)
+        {
+            return this.comparer.Compare(x, y);
         }
     }
 }

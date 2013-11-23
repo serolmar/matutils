@@ -21,7 +21,7 @@
 
         static void Main(string[] args)
         {
-            Test15();
+            Test9();
             //using (var streamWriter = new StreamWriter("temp.txt"))
             //{
             //    streamWriter.Write(2);
@@ -674,7 +674,10 @@
                         2,
                         vectorFactory,
                         fractionField);
-                    var scalarProd = new OrthoVectorScalarProduct<Fraction<int, IntegerDomain>>(fractionField);
+
+                    var scalarProd = new OrthoVectorScalarProduct<Fraction<int, IntegerDomain>>(
+                        new FractionComparer<int, IntegerDomain>(Comparer<int>.Default, integerDomain),
+                        fractionField);
 
                     var thirdVector = new ArrayVector<Fraction<int, IntegerDomain>>(2);
                     thirdVector[0] = new Fraction<int, IntegerDomain>(1, 1, integerDomain);
@@ -692,6 +695,35 @@
                     foreach (var basisVector in orthogonalized)
                     {
                         Console.WriteLine(PrintVector(basisVector));
+                    }
+
+                    var integerNorm = new IntegerNormSpace();
+                    var intFractionMult = new CoeffFractionMultiplicationOperation<int, IntegerDomain>();
+                    var fractionComparer = new FractionComparer<int, IntegerDomain>(
+                        Comparer<int>.Default,
+                        integerDomain);
+                    var fractionNorm = new FractionNormSpace<int, IntegerDomain>(
+                        integerNorm,
+                        fractionComparer);
+                    var nearest = new FractionNearestInteger();
+                    var lllReductionAlg = new LLLBasisReductionAlgorithm<IVector<Fraction<int, IntegerDomain>>,
+                                                                         Fraction<int, IntegerDomain>,
+                                                                         int>(
+                           vectorSpace,
+                           new IntegerFractionVectorMultOper(),
+                           intFractionMult,
+                           scalarProd,
+                           fractionNorm,
+                           nearest);
+
+                    var lllReduced = lllReductionAlg.Run(
+                        new IVector<Fraction<int, IntegerDomain>>[] { firstVector, secondVector },
+                        new Fraction<int, IntegerDomain>(4, 3, integerDomain),
+                        new Fraction<int, IntegerDomain>(1, 2, integerDomain));
+
+                    for (int i = 0; i < lllReduced.Length; ++i)
+                    {
+                        Console.WriteLine(PrintVector(lllReduced[i]));
                     }
                 }
                 else

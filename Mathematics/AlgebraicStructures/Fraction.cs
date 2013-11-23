@@ -132,6 +132,17 @@ namespace Mathematics
         }
 
         /// <summary>
+        /// Obtém o domínio associado à fracção.
+        /// </summary>
+        public D Domain
+        {
+            get
+            {
+                return this.euclideanDomain;
+            }
+        }
+
+        /// <summary>
         /// Obtém o resultado da adição da fracção corrente com a fracção especificada.
         /// </summary>
         /// <param name="right">A fracção especificada.</param>

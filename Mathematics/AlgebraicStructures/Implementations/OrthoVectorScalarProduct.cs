@@ -15,14 +15,29 @@
         /// </summary>
         private IRing<CoeffType> ring;
 
-        public OrthoVectorScalarProduct(IRing<CoeffType> ring)
+        /// <summary>
+        /// O comparador de coeficientes.
+        /// </summary>
+        private IComparer<CoeffType> comparer;
+
+        public OrthoVectorScalarProduct(IComparer<CoeffType> comparer, IRing<CoeffType> ring)
         {
             if (ring == null)
             {
                 throw new ArgumentNullException("ring");
             }
-
-            this.ring = ring;
+            else
+            {
+                this.ring = ring;
+                if (comparer == null)
+                {
+                    this.comparer = Comparer<CoeffType>.Default;
+                }
+                else
+                {
+                    this.comparer = comparer;
+                }
+            }
         }
 
         /// <summary>
@@ -75,6 +90,20 @@
                     throw new MathematicsException("Can only apply scalar product to vectors of the same dimension.");
                 }
             }
+        }
+
+        /// <summary>
+        /// Compara dois valores para averiguar se são iguais ou se um é maior do que o outro.
+        /// </summary>
+        /// <param name="x">O primeiro valor a ser comparado.</param>
+        /// <param name="y">O segundo valor a ser comparado.</param>
+        /// <returns>
+        /// O valor 1 caso o primeiro seja maior do que o segundo, 0 caso sejam iguais e -1 caso o segundo
+        /// seja menor que o primeiro.
+        /// </returns>
+        public int Compare(CoeffType x, CoeffType y)
+        {
+            return this.comparer.Compare(x, y);
         }
     }
 }
