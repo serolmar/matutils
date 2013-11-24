@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Utilities.Collections
+﻿namespace Utilities.Collections
 {
+    using System;
+    using System.Collections;
+    using System.Collections.Generic;
+    using System.Text;
+
     public class BitList : IList<int>
     {
         #region fields
@@ -222,29 +222,75 @@ namespace Utilities.Collections
             return false;
         }
 
+        /// <summary>
+        /// Copia o conteúdo da lista para um vector de inteiros.
+        /// </summary>
+        /// <param name="array">O vector de inteiros.</param>
+        /// <param name="arrayIndex">O índice do vector de destino a partir do qual é iniciada a cópia.</param>
         public void CopyTo(int[] array, int arrayIndex)
         {
             if (array == null)
             {
                 throw new ArgumentNullException("Value cannot be null." + Environment.NewLine + "Parameter name: dest");
             }
+
             int numberOfOperations = countBits + arrayIndex;
             if (numberOfOperations > array.Length)
             {
                 throw new ArgumentException("Destination array was not long enough. Check destIndex and length, and the array's lower bounds.");
             }
+
             int bitPointer = 0;
             int variablePointer = 0;
             int arrayPointer = arrayIndex;
             while (variablePointer < elements.Count && arrayPointer < countBits)
             {
-                array[arrayPointer] = (elements[variablePointer] & maskPositionBits[bitPointer]) == 0UL ? 0 : 1;
+                array[arrayPointer] = (this.elements[variablePointer] & maskPositionBits[bitPointer]) == 0UL ? 0 : 1;
                 ++arrayPointer;
                 ++bitPointer;
                 if (bitPointer >= bitNumber)
                 {
                     bitPointer = 0;
                     ++variablePointer;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Copia o conteúdo da lista para um vector de bits.
+        /// </summary>
+        /// <param name="array">O vector de bits.</param>
+        /// <param name="arrayIndex">O índice do vector de destino a partir do qual é iniciada a cópia.</param>
+        public void CopyTo(BitArray array, int arrayIndex)
+        {
+            if (array == null)
+            {
+                throw new ArgumentNullException("array");
+            }
+            else
+            {
+                var count = this.countBits + arrayIndex;
+                if (count > array.Count)
+                {
+                    throw new ArgumentException("The length of array is no long enough.");
+                }
+                else
+                {
+
+                } int bitPointer = 0;
+                int variablePointer = 0;
+                int arrayPointer = arrayIndex;
+                while (variablePointer < this.elements.Count && arrayPointer < countBits)
+                {
+                    array[arrayPointer] = (this.elements[variablePointer] & maskPositionBits[bitPointer]) == 0UL ? 
+                        false : true;
+                    ++arrayPointer;
+                    ++bitPointer;
+                    if (bitPointer >= bitNumber)
+                    {
+                        bitPointer = 0;
+                        ++variablePointer;
+                    }
                 }
             }
         }

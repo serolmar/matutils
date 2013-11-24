@@ -156,6 +156,10 @@
     <Compile Include="AlgebraicStructures\Readers\RangeConfigReader.cs" />
     <Compile Include="AlgebraicStructures\Readers\RangeNoConfigReader.cs" />
     <Compile Include="AlgebraicStructures\Readers\RangeReaderMementoManager.cs" />
+    <Compile Include="Algorithms\Logic\BooleanCombination.cs" />
+    <Compile Include="Algorithms\Logic\BooleanMinimalFormAlgorithm.cs" />
+    <Compile Include="Algorithms\Logic\BooleanMinimalFormInOut.cs" />
+    <Compile Include="Algorithms\Logic\EBooleanMinimalFormOutStatus.cs" />
     <Compile Include="Algorithms\General\IBachetBezoutAlgorithm.cs" />
     <Compile Include="Algorithms\General\IntegerMinWeightTdecomposition.cs" />
     <Compile Include="Algorithms\General\IntMinWeightTdecompResult.cs" />

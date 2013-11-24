@@ -1,6 +1,7 @@
 ﻿namespace Mathematics
 {
     using System;
+    using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
     using System.Numerics;
@@ -158,6 +159,44 @@
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Permite obter o número de bits ligados num vector de bits.
+        /// </summary>
+        /// <remarks>
+        /// O algoritmo é descrito em http://graphics.stanford.edu/~seander/bithacks.html#CountBitsSetParallel.
+        /// Adaptado de http://stackoverflow.com/questions/5063178/counting-bits-set-in-a-net-bitarray-class.
+        /// </remarks>
+        /// <param name="bitArray">O vector de bits.</param>
+        /// <returns>O número de bits ligados.</returns>
+        public static int CountSettedBits(BitArray bitArray)
+        {
+            if (bitArray == null)
+            {
+                throw new ArgumentNullException("bitArray");
+            }
+            else
+            {
+                var integerValues = new int[(bitArray.Count >> 5) + 1];
+                bitArray.CopyTo(integerValues, 0);
+                var count = 0;
+                integerValues[integerValues.Length - 1] &= ~(-1 << (bitArray.Count % 32));
+                for (int i = 0; i < integerValues.Length; i++)
+                {
+                    var current = integerValues[i];
+                    unchecked
+                    {
+                        current = current - ((current >> 1) & 0x55555555);
+                        current = (current & 0x33333333) + ((current >> 2) & 0x33333333);
+                        current = ((current + (current >> 4) & 0xF0F0F0F) * 0x1010101) >> 24;
+                    }
+
+                    count += current;
+                }
+
+                return count;
+            }
         }
     }
 }
