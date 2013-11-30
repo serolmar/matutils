@@ -10,19 +10,25 @@
     /// </summary>
     public enum EBooleanMinimalFormOutStatus
     {
+
+        /// <summary>
+        /// Estado que não é utilizado.
+        /// </summary>
+        ERROR = 0,
+
         /// <summary>
         /// Estado ligado.
         /// </summary>
-        ON,
+        ON = 1,
 
         /// <summary>
         /// Estado desligado.
         /// </summary>
-        OFF,
+        OFF = 2,
 
         /// <summary>
         /// Estado indiferente.
         /// </summary>
-        DONT_CARE
+        DONT_CARE = 3
     }
 }

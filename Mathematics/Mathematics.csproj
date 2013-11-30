@@ -168,6 +168,7 @@
     <Compile Include="Algorithms\Graph\LinkNodeTie.cs" />
     <Compile Include="Algorithms\Graph\VertexValuePair.cs" />
     <Compile Include="Algorithms\IAlgorithm.cs" />
+    <Compile Include="Algorithms\Logic\LogicCombinationBitArray.cs" />
     <Compile Include="Algorithms\Matrix\Determinant\ADeterminant.cs" />
     <Compile Include="Algorithms\Matrix\Determinant\CondensationDeterminantCalculator.cs" />
     <Compile Include="Algorithms\Matrix\Determinant\ExpansionDeterminantCalculator.cs" />
@@ -201,6 +202,7 @@
     <Compile Include="Algorithms\Simplex\SimplexOutput.cs" />
     <Compile Include="BacheBezoutResult.cs" />
     <Compile Include="AlgebraicStructures\FractionExpressionParser.cs" />
+    <Compile Include="Diagnostics.cs" />
     <Compile Include="MathFunctions.cs" />
     <Compile Include="Algorithms\Simplex\RevisedSimplexWithDoubles.cs" />
     <Compile Include="Algorithms\Transportation\TransportationMaxDoubleNumberField.cs" />

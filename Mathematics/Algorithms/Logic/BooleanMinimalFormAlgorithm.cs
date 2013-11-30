@@ -1,6 +1,7 @@
 ﻿namespace Mathematics
 {
     using System;
+    using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
@@ -29,7 +30,7 @@
         }
 
         /// <summary>
-        /// Organiza as combainações de acordo com o número de bits ligados.
+        /// Organiza as combinações de acordo com o número de bits ligados.
         /// </summary>
         /// <param name="data">O conjunto das combinações.</param>
         /// <returns>A lista de combinações organizadas de acordo com o número de bits ligados.</returns>
@@ -44,11 +45,63 @@
 
             foreach (var combination in data)
             {
-                var onBitsNumer = MathFunctions.CountSettedBits(combination.LogicInput);
-                result[onBitsNumer].Add(combination);
+                if (combination.LogicOutput == EBooleanMinimalFormOutStatus.ON)
+                {
+                    var onBitsNumer = MathFunctions.CountSettedBits(combination.LogicInput);
+                    result[onBitsNumer].Add(combination);
+                }
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Representa uma linha da tabela que auxilia a obtenção de implicantes primos.
+        /// </summary>
+        private class ProcessTableLine
+        {
+            private List<int> tableTuples;
+
+            private BitArray tableCombinations;
+
+            private bool isPrimeImplicant;
+
+            public ProcessTableLine()
+            {
+                this.tableTuples = new List<int>();
+            }
+
+            public List<int> TableTuples
+            {
+                get
+                {
+                    return this.tableTuples;
+                }
+            }
+
+            public BitArray TableCombinations
+            {
+                get
+                {
+                    return this.tableCombinations;
+                }
+                set
+                {
+                    this.tableCombinations = value;
+                }
+            }
+
+            public bool IsPrimeImplicant
+            {
+                get
+                {
+                    return this.isPrimeImplicant;
+                }
+                set
+                {
+                    this.isPrimeImplicant = value;
+                }
+            }
         }
     }
 }

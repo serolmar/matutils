@@ -198,5 +198,23 @@
                 return count;
             }
         }
+
+        /// <summary>
+        /// Conta o número de bits ligados associados ao inteiro.
+        /// </summary>
+        /// <param name="bitSet">O inteiro.</param>
+        /// <returns>O número de bits ligados.</returns>
+        public static int PopCount(uint bitSet)
+        {
+            var current = bitSet;
+            unchecked
+            {
+                current = current - ((current >> 1) & 0x55555555);
+                current = (current & 0x33333333) + ((current >> 2) & 0x33333333);
+                current = ((current + (current >> 4) & 0xF0F0F0F) * 0x1010101) >> 24;
+            }
+
+            return (int)current;
+        }
     }
 }
