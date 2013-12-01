@@ -11,14 +11,14 @@
         /// <summary>
         /// O valor da entrada lógica.
         /// </summary>
-        private BitArray logicInput;
+        private LogicCombinationBitArray logicInput;
 
         /// <summary>
         /// O valor da saída lógica.
         /// </summary>
         private EBooleanMinimalFormOutStatus logicOutput;
 
-        internal BooleanCombination(BitArray logicInput, EBooleanMinimalFormOutStatus logicOutput)
+        internal BooleanCombination(LogicCombinationBitArray logicInput, EBooleanMinimalFormOutStatus logicOutput)
         {
             if (logicInput == null)
             {
@@ -34,7 +34,7 @@
         /// <summary>
         /// O valor da entrada lógica.
         /// </summary>
-        public BitArray LogicInput
+        public LogicCombinationBitArray LogicInput
         {
             get
             {

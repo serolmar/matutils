@@ -15,13 +15,22 @@
         /// </summary>
         public const int ByteSize = 8;
 
-        private int semiIntegerSize;
+        private static uint[] masks;
 
-        private uint[] masks;
+        private static int integerSize;
+
+        private static int semiIntegerSize;
 
         private int length;
 
         private uint[] values;
+
+        static LogicCombinationBitArray()
+        {
+            var integerSize = sizeof(int) << 3;
+            semiIntegerSize = integerSize >> 1;
+            InitializeMasks(integerSize);
+        }
 
         public LogicCombinationBitArray(int length)
         {
@@ -32,8 +41,6 @@
             else
             {
                 this.length = length;
-                var integerSize = sizeof(int) << 3;
-                this.semiIntegerSize = integerSize >> 1;
                 var requiredLength = length << 1;
                 var requiredSpace = requiredLength / integerSize;
                 if (this.length % integerSize != 0)
@@ -42,7 +49,6 @@
                 }
 
                 this.values = new uint[requiredSpace];
-                this.InitializeMasks(integerSize);
             }
         }
 
@@ -56,7 +62,7 @@
             {
                 this.length = length;
                 var integerSize = sizeof(int) << 3;
-                this.semiIntegerSize = integerSize >> 1;
+                semiIntegerSize = integerSize >> 1;
                 var requiredLength = length << 1;
                 var requiredSpace = requiredLength / integerSize;
                 if (this.length % integerSize != 0)
@@ -65,13 +71,21 @@
                 }
 
                 this.values = new uint[requiredSpace];
-                this.InitializeMasks(integerSize);
+                InitializeMasks(integerSize);
                 if (defaultValue != EBooleanMinimalFormOutStatus.ERROR)
                 {
                     this.SetAll(defaultValue);
                 }
             }
         }
+
+        /// <summary>
+        /// Construtor que permite realizar cópias internamente.
+        /// </summary>
+        private LogicCombinationBitArray()
+        {
+        }
+
 
         /// <summary>
         /// Obtém o valor lógico na entrada especificada pelo índice.
@@ -88,10 +102,10 @@
                 }
                 else
                 {
-                    var elementIndex = index / this.semiIntegerSize;
-                    var innerIndex = index % this.semiIntegerSize;
+                    var elementIndex = index / semiIntegerSize;
+                    var innerIndex = index % semiIntegerSize;
                     var element = this.values[elementIndex];
-                    var mask = this.masks[innerIndex];
+                    var mask = masks[innerIndex];
                     return (EBooleanMinimalFormOutStatus)((element & mask) >> (innerIndex << 1));
                 }
             }
@@ -103,12 +117,23 @@
                 }
                 else
                 {
-                    var elementIndex = index / this.semiIntegerSize;
-                    var innerIndex = index % this.semiIntegerSize;
+                    var elementIndex = index / semiIntegerSize;
+                    var innerIndex = index % semiIntegerSize;
                     var element = this.values[elementIndex];
-                    var mask = this.masks[innerIndex];
+                    var mask = masks[innerIndex];
                     this.values[elementIndex] = (~mask & element) | ((uint)value << (innerIndex << 1));
                 }
+            }
+        }
+
+        /// <summary>
+        /// Obtém o tamanho da combinação lógica.
+        /// </summary>
+        public int Length
+        {
+            get
+            {
+                return this.length;
             }
         }
 
@@ -162,6 +187,70 @@
         /// <returns>Verdadeiro caso a simplificação seja possível e falso caso contrário.</returns>
         public bool TryToGetReduced(LogicCombinationBitArray combination, out LogicCombinationBitArray cover)
         {
+            cover = default(LogicCombinationBitArray);
+            if (cover == null)
+            {
+                // Não retorna neste caso.
+                return false;
+            }
+            else if (this.length != cover.length)
+            {
+                return false;
+            }
+            else
+            {
+                var xoredValues = this.XorValues(this.values, cover.values);
+
+                // Se não existirem valores de indiferentes que se sobreponham a valores ligado / desligado...
+                if (this.HasNoBitValues(xoredValues))
+                {
+                    bool foundIndex = false;
+                    var currentGeneralPointer = 0;
+                    var currentValuesPointer = 0;
+                    while (currentGeneralPointer < this.length)
+                    {
+                        var currentInnerIndex = 0;
+                        while (currentInnerIndex < semiIntegerSize &&
+                            currentGeneralPointer < this.length)
+                        {
+                            var valuesElement = this.values[currentValuesPointer];
+                            var xoredElement = xoredValues[currentValuesPointer];
+                            var mask = masks[currentInnerIndex];
+
+                            var statusValue = (valuesElement & mask) >> (currentInnerIndex << 1);
+                            if (statusValue == 3U)
+                            {
+                                xoredElement = (~mask & xoredElement) | 
+                                    (3U << (currentInnerIndex << 1));
+                                xoredValues[currentValuesPointer] = xoredElement;
+                            }
+                            else
+                            {
+                                statusValue = (xoredElement & mask) >> (currentInnerIndex << 1);
+                                if (statusValue == 3)
+                                {
+                                    if (foundIndex)
+                                    {
+                                        return false;
+                                    }
+                                    else
+                                    {
+                                        xoredElement = (~mask & xoredElement) |
+                                            (3U << (currentInnerIndex << 1));
+                                        xoredValues[currentValuesPointer] = xoredElement;
+                                        foundIndex = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    var result = new LogicCombinationBitArray();
+                    result.length = this.length;
+                    result.values = xoredValues;
+                }
+            }
+
             throw new NotImplementedException();
         }
 
@@ -174,18 +263,7 @@
         {
             if (status == EBooleanMinimalFormOutStatus.DONT_CARE)
             {
-                var count = 0;
-                var last = this.values.Length - 1;
-                for (int i = 0; i < this.values.Length - 1; ++i)
-                {
-                    count += this.CountDontCares(this.values[i]);
-                    
-                }
-
-                var lastCount = (this.length % 16);
-                var lastValue = this.values[last] & ((1U << (lastCount << 1)) - 1);
-                count += this.CountDontCares(lastValue);
-                return count;
+                return this.CountDontCares(this.values);
             }
             else if (status == EBooleanMinimalFormOutStatus.ERROR)
             {
@@ -245,6 +323,10 @@
             }
         }
 
+        /// <summary>
+        /// Permite enumerar a lista de valores.
+        /// </summary>
+        /// <returns>O enumerador para a lista de valores.</returns>
         public IEnumerator<EBooleanMinimalFormOutStatus> GetEnumerator()
         {
             var currentGeneralPointer = 0;
@@ -252,16 +334,33 @@
             while (currentGeneralPointer < this.length)
             {
                 var currentInnerIndex = 0;
-                while (currentInnerIndex < this.semiIntegerSize &&
+                while (currentInnerIndex < semiIntegerSize &&
                     currentGeneralPointer < this.length)
                 {
                     var element = this.values[currentValuesPointer];
-                    var mask = this.masks[currentInnerIndex];
+                    var mask = masks[currentInnerIndex];
                     yield return (EBooleanMinimalFormOutStatus)((element & mask) >> (currentInnerIndex << 1));
                 }
 
                 ++currentValuesPointer;
             }
+        }
+
+        /// <summary>
+        /// Determina o ou exclusivo entre dois valores.
+        /// </summary>
+        /// <param name="first">O primeiro valor.</param>
+        /// <param name="second">O segundo valor.</param>
+        /// <returns>O resultado do ou exclusivo.</returns>
+        private uint[] XorValues(uint[] first, uint[] second)
+        {
+            var result = new uint[first.Length];
+            for (int i = 0; i < first.Length; ++i)
+            {
+                result[i] = first[i] ^ second[i];
+            }
+
+            return result;
         }
 
         /// <summary>
@@ -276,18 +375,72 @@
             return MathFunctions.PopCount(first & second);
         }
 
-        private void InitializeMasks(int integerSize)
+        /// <summary>
+        /// Conta o número de indiferentes num conjunto de valores.
+        /// </summary>
+        /// <param name="valueSet">O conjunto de valores.</param>
+        /// <returns>O número de indiferentes.</returns>
+        private int CountDontCares(uint[] valueSet)
         {
-            this.masks = new uint[integerSize >> 1];
-            this.masks[0] = 3;
-            var previousMask = this.masks[0];
-            for (int i = 1; i < this.masks.Length; ++i)
+            var count = 0;
+            var last = this.values.Length - 1;
+            for (int i = 0; i < this.values.Length - 1; ++i)
             {
-                this.masks[i] = previousMask << 2;
-                previousMask = this.masks[i];
+                count += this.CountDontCares(this.values[i]);
+            }
+
+            var lastCount = (this.length % 16);
+            var lastValue = this.values[last] & ((1U << (lastCount << 1)) - 1);
+            count += this.CountDontCares(lastValue);
+            return count;
+        }
+
+        /// <summary>
+        /// Verifica se existem valores nos estados ligado / desligado.
+        /// </summary>
+        /// <param name="valueSet">Os valores a serem analisados.</param>
+        /// <returns>Verdadeiro se não existirem valores nos estado ligad / desligado e falso caso contrário.</returns>
+        private bool HasNoBitValues(uint[] valueSet)
+        {
+            var last = valueSet.Length - 1;
+            for (int i = 0; i < this.values.Length - 1; ++i)
+            {
+                var currentValue = valueSet[i];
+                var first = (currentValue >> 1) & 0x55555555;
+                var second = ((currentValue << 1) & 0xAAAAAAAA) >> 1;
+                if ((first ^ second) == 0)
+                {
+                    return false;
+                }
+            }
+
+            var lastCount = (this.length % 16);
+            var lastValue = valueSet[last] & ((1U << (lastCount << 1)) - 1);
+            var firstTemp = (lastValue >> 1) & 0x55555555;
+            var secondTemp = ((lastValue << 1) & 0xAAAAAAAA) >> 1;
+            return (firstTemp ^ secondTemp) == 0;
+        }
+
+        /// <summary>
+        /// Inicializa as máscaras de extracção.
+        /// </summary>
+        /// <param name="integerSize">O valor do tamanho de um inteiro.</param>
+        private static void InitializeMasks(int integerSize)
+        {
+            masks = new uint[integerSize >> 1];
+            masks[0] = 3;
+            var previousMask = masks[0];
+            for (int i = 1; i < masks.Length; ++i)
+            {
+                masks[i] = previousMask << 2;
+                previousMask = masks[i];
             }
         }
 
+        /// <summary>
+        /// Obtém a representação textual da combinação lógica.
+        /// </summary>
+        /// <returns>A representação textual.</returns>
         public override string ToString()
         {
             var resultBuilder = new StringBuilder("[");
@@ -297,11 +450,11 @@
             while (currentGeneralPointer < this.length)
             {
                 var currentInnerIndex = 0;
-                while (currentInnerIndex < this.semiIntegerSize &&
+                while (currentInnerIndex < semiIntegerSize &&
                     currentGeneralPointer < this.length)
                 {
                     var element = this.values[currentValuesPointer];
-                    var mask = this.masks[currentInnerIndex];
+                    var mask = masks[currentInnerIndex];
                     resultBuilder.AppendFormat(
                         "{1}{0}",
                         (EBooleanMinimalFormOutStatus)((element & mask) >> (currentInnerIndex << 1)),

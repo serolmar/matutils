@@ -13,9 +13,26 @@
         /// </summary>
         private List<BooleanCombination> combinationElements;
 
+        /// <summary>
+        /// O máximo dos vários números de combinações por elemento.
+        /// </summary>
+        private int maxCombinationsLength;
+
         public BooleanMinimalFormInOut()
         {
             this.combinationElements = new List<BooleanCombination>();
+            this.maxCombinationsLength = 0;
+        }
+
+        /// <summary>
+        /// Obtém o número máximo de combinações por elemento.
+        /// </summary>
+        public int MaxCombinationsLength
+        {
+            get
+            {
+                return this.maxCombinationsLength;
+            }
         }
 
         /// <summary>
@@ -25,7 +42,7 @@
         /// <param name="outputStatus">O estado de saída associado à entrada.</param>
         /// <returns>A representação interna.</returns>
         public BooleanCombination Add(
-            BitArray array, 
+            LogicCombinationBitArray array,
             EBooleanMinimalFormOutStatus outputStatus)
         {
             if (array == null)
@@ -38,6 +55,10 @@
                     array,
                     outputStatus);
                 this.combinationElements.Add(result);
+                this.maxCombinationsLength = Math.Max(
+                    this.maxCombinationsLength,
+                    array.Length);
+
                 return result;
             }
         }
@@ -50,7 +71,13 @@
         {
             if (combination != null)
             {
-                this.combinationElements.Remove(combination);
+                if (this.combinationElements.Remove(combination))
+                {
+                    if (combination.LogicInput.Length == this.maxCombinationsLength)
+                    {
+                        this.maxCombinationsLength = this.combinationElements.Max(ce => ce.LogicInput.Length);
+                    }
+                }
             }
         }
 
