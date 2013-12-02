@@ -25,6 +25,37 @@
         }
 
         /// <summary>
+        /// Obtém a combinação que se encontra na posição especificada pelo índice.
+        /// </summary>
+        /// <param name="index">O índice.</param>
+        /// <returns>O valor que se encontra na posição especificada.</returns>
+        public BooleanCombination this[int index]
+        {
+            get
+            {
+                if (index < 0 || index >= this.combinationElements.Count)
+                {
+                    throw new IndexOutOfRangeException("The index is out of range.");
+                }
+                else
+                {
+                    return this.combinationElements[index];
+                }
+            }
+        }
+
+        /// <summary>
+        /// Obtém o número de combinações.
+        /// </summary>
+        public int Count
+        {
+            get
+            {
+                return this.combinationElements.Count;
+            }
+        }
+
+        /// <summary>
         /// Obtém o número máximo de combinações por elemento.
         /// </summary>
         public int MaxCombinationsLength
