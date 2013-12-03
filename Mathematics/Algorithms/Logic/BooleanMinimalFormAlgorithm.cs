@@ -30,7 +30,14 @@
                 var sortedCombinations = this.GetSortedCombinations(usedDataImplicants);
                 var implicantTableInfo = this.ProcessPrimeImplicantsList(sortedCombinations);
                 var implicantMatrix = this.GetBitMatrixForResult(implicantTableInfo, usedDataImplicants);
-                throw new NotImplementedException();
+                var essentialImplicants = this.Simplify(implicantTableInfo, usedDataImplicants, implicantMatrix);
+                var result = new BooleanMinimalFormInOut();
+                foreach (var essentialImplicant in essentialImplicants)
+                {
+                    result.Add(essentialImplicant, EBooleanMinimalFormOutStatus.ON);
+                }
+
+                return result;
             }
         }
 
@@ -213,11 +220,19 @@
                 state = false; // Termina o ciclo caso não seja possível encontrar uma coluna única
                 for (int i = 0; i < usedDataImplicants.Length; ++i)
                 {
+                    var implicantMatrixLine = implicantMatrix[i];
                     if (!markUsedDataImplicants[i] &&
-                        MathFunctions.CountSettedBits(implicantMatrix[i]) == 1)
+                        MathFunctions.CountSettedBits(implicantMatrixLine) == 1)
                     {
                         // Procura pelo índice do item não nulo
+                        var index = this.FindBitSettedIndex(implicantMatrixLine);
 
+                        markUsedDataImplicants[i] = true;
+                        markImplicantLines[index] = true;
+                        for (int j = 0; j < usedDataImplicants.Length; ++j)
+                        {
+                            implicantMatrix[i][index] = false;
+                        }
 
                         state = true;
                     }
@@ -225,7 +240,94 @@
 
             } while (state);
 
+            var coverMatrix = this.MountMatrix(
+                result,
+                implicantLines,
+                implicantMatrix,
+                markImplicantLines,
+                markUsedDataImplicants);
+
+            this.ProcessCoverMatrix(coverMatrix);
+            for (int i = 0; i < coverMatrix.Count; ++i)
+            {
+                result.Add(coverMatrix.Keys[i].PrimeImplicant);
+            }
+
             return result;
+        }
+
+        /// <summary>
+        /// Constrói a matriz de cobertura numa lista ordenada.
+        /// </summary>
+        /// <param name="essentialPrimeImplicants">A lista dos implicantes primos resultantes.</param>
+        /// <param name="primeImplicants">Os implicantes primos.</param>
+        /// <param name="implicantMatrix">A matriz actual dos implicantes.</param>
+        /// <param name="markImplicantLines">O vector que marca os implicantes que não vão ser considerados.</param>
+        /// <param name="markUsedDataImplicants">
+        /// O vector que marca os implicantes iniciais que não vão ser considerados.
+        /// </param>
+        /// <returns>A matriz requerida.</returns>
+        private SortedList<CoverLine, bool> MountMatrix(
+            List<LogicCombinationBitArray> essentialPrimeImplicants,
+            List<ImplicantLine> primeImplicants,
+            BitArray[] implicantMatrix,
+            BitArray markImplicantLines,
+            BitArray markUsedDataImplicants)
+        {
+            var result = new SortedList<CoverLine, bool>(new CoverLinesComparer());
+            var remainingDataImplicantsNumber = markUsedDataImplicants.Length - MathFunctions.CountSettedBits(
+                markUsedDataImplicants);
+
+            for (int i = 0; i < markImplicantLines.Length; ++i)
+            {
+                if (markImplicantLines[i])
+                {
+                    essentialPrimeImplicants.Add(primeImplicants[i].LineCombination);
+                }
+                else
+                {
+                    var arrayLine = new BitArray(remainingDataImplicantsNumber);
+                    var dataImplicantIndex = 0;
+                    for (int j = 0; j < markUsedDataImplicants.Length; ++j)
+                    {
+                        if (!markUsedDataImplicants[j])
+                        {
+                            arrayLine[dataImplicantIndex] = implicantMatrix[j][i];
+                            ++dataImplicantIndex;
+                        }
+                    }
+
+                    result.Add(
+                        new CoverLine() { Line = arrayLine, PrimeImplicant = primeImplicants[i].LineCombination },
+                        false);
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Processa a lista ordenada.
+        /// </summary>
+        /// <param name="sortedList"></param>
+        private void ProcessCoverMatrix(SortedList<CoverLine, bool> sortedList)
+        {
+            var count = sortedList.Count;
+            var lastIndex = count - 1;
+            for (int i = 0; i < lastIndex; ++i)
+            {
+                for (int j = i + 1; j < count; ++j)
+                {
+                    var coverKey = sortedList.Keys[i];
+                    var coveredKey = sortedList.Keys[j];
+                    if (this.CheckCover(coverKey.Line, coveredKey.Line))
+                    {
+                        sortedList.RemoveAt(j);
+                        --count;
+                        --lastIndex;
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -245,26 +347,21 @@
                 if (currentValue != 0)
                 {
                     // A obteção do índice segue-se aqui
-                    var innerIndex = 16;
+                    var innerIndex = 0;
                     var rank = 16;
-                    var mask = 1 << innerIndex;
-                    var coverMask = mask - 1;
-                    while ((currentValue & mask) == 0)
+                    while (currentValue != 1)
                     {
-                        if ((currentValue & coverMask) == 0)
+                        var tempValue = currentValue >> rank;
+                        if (tempValue != 0)
                         {
-                            innerIndex += rank;
-                            currentValue >>= rank;
-                        }
-                        else
-                        {
-                            innerIndex -= rank;
+                            currentValue = tempValue;
+                            index += rank;
                         }
 
                         rank >>= 1;
-                        mask >>= rank;
-                        coverMask >>= rank;
                     }
+
+                    index += innerIndex;
 
                     // Termina o ciclo
                     i = integerValues.Length;
@@ -279,12 +376,49 @@
         }
 
         /// <summary>
+        /// Verifica se uma linha cobre a outra.
+        /// </summary>
+        /// <param name="cover">A linha de cobertura.</param>
+        /// <param name="covered">A linha a cobrir.</param>
+        /// <returns>Verdadeiro se a linha de cobertura cobrir a outra linha e falso caso contrário.</returns>
+        private bool CheckCover(BitArray cover, BitArray covered)
+        {
+            var coverIntegerValues = new int[(cover.Count >> 5) + 1];
+            cover.CopyTo(coverIntegerValues, 0);
+            coverIntegerValues[coverIntegerValues.Length - 1] &= ~(-1 << (cover.Count % 32));
+
+            var coveredIntegerValues = new int[(cover.Count >> 5) + 1];
+            cover.CopyTo(coveredIntegerValues, 0);
+            coveredIntegerValues[coveredIntegerValues.Length - 1] &= ~(-1 << (cover.Count % 32));
+
+            for (int i = 0; i < coverIntegerValues.Length; ++i)
+            {
+                var coverValue = coverIntegerValues[i];
+                var coveredValue = coveredIntegerValues[i];
+                if ((coverValue & coveredValue) != coveredValue)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        #region Classes Auxiliares
+
+        /// <summary>
         /// Representa uma linha da tabela que auxilia a obtenção de implicantes primos.
         /// </summary>
         private class ImplicantLine
         {
+            /// <summary>
+            /// As colunas da tabela que foram combinadas.
+            /// </summary>
             private List<int> tableTuples;
 
+            /// <summary>
+            /// A combinação final.
+            /// </summary>
             private LogicCombinationBitArray lineCombination;
 
             public ImplicantLine()
@@ -312,5 +446,94 @@
                 }
             }
         }
+
+        /// <summary>
+        /// Reprsenta uma linha na matriz de cobertura utilizada no último passo do algoritmo.
+        /// </summary>
+        private class CoverLine
+        {
+            /// <summary>
+            /// O implicante primo que se encontra em estudo.
+            /// </summary>
+            private LogicCombinationBitArray primeImplicant;
+
+            /// <summary>
+            /// A linha da matriz que corresopnde ao implicante primo.
+            /// </summary>
+            private BitArray line;
+
+            public CoverLine()
+            {
+            }
+
+            public LogicCombinationBitArray PrimeImplicant
+            {
+                get
+                {
+                    return this.primeImplicant;
+                }
+                set
+                {
+                    this.primeImplicant = value;
+                }
+            }
+
+            public BitArray Line
+            {
+                get
+                {
+                    return this.line;
+                }
+                set
+                {
+                    this.line = value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Permite comparar duas linhas de cobertura de modo a ser possível ordená-las
+        /// da maior para a menor.
+        /// </summary>
+        private class CoverLinesComparer : Comparer<CoverLine>
+        {
+            /// <summary>
+            /// Compara duas linhas de cobertura mediante o vector de bits.
+            /// </summary>
+            /// <param name="x">A primeira linha de cobertura a ser comparada.</param>
+            /// <param name="y">A segunda linha de cobertura a ser comparada.</param>
+            /// <returns>
+            /// O valor 1 caso o primeiro seja posterior ao segundo, o valor zero caso sejam iguais
+            /// e o valor -1 caso o primeiro seja anterior ao segundo.
+            /// </returns>
+            public override int Compare(CoverLine x, CoverLine y)
+            {
+                var length = x.Line.Length;
+                var firstArray = new int[(length >> 5) + 1];
+                var secondArray = new int[(length >> 5) + 1];
+                x.Line.CopyTo(firstArray, 0);
+                y.Line.CopyTo(secondArray, 0);
+                firstArray[firstArray.Length - 1] &= ~(-1 << (length % 32));
+                firstArray[secondArray.Length - 1] &= ~(-1 << (length % 32));
+
+                for (int i = 0; i < length; ++i)
+                {
+                    var firstValue = firstArray[i];
+                    var secondValue = secondArray[i];
+                    if (firstValue < secondValue)
+                    {
+                        return 1;
+                    }
+                    else if (secondValue < firstValue)
+                    {
+                        return -1;
+                    }
+                }
+
+                return 0;
+            }
+        }
+
+        #endregion Classes Auxiliares
     }
 }
