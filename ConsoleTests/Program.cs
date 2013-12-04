@@ -22,30 +22,7 @@
 
         static void Main(string[] args)
         {
-            var combination = new LogicCombinationBitArray(100, EBooleanMinimalFormOutStatus.ON);
-            combination[0] = EBooleanMinimalFormOutStatus.DONT_CARE;
-            combination[1] = EBooleanMinimalFormOutStatus.OFF;
-            combination[2] = EBooleanMinimalFormOutStatus.ON;
-            combination[3] = EBooleanMinimalFormOutStatus.DONT_CARE;
-            combination[4] = EBooleanMinimalFormOutStatus.ON;
-            combination[5] = EBooleanMinimalFormOutStatus.ON;
-            combination[64] = EBooleanMinimalFormOutStatus.OFF;
-            combination[32] = EBooleanMinimalFormOutStatus.DONT_CARE;
-            combination[31] = EBooleanMinimalFormOutStatus.DONT_CARE;
-            Console.WriteLine(combination);
-
-            var names = Enum.GetNames(typeof(EBooleanMinimalFormOutStatus));
-            for (int i = 0; i < names.Length; ++i)
-            {
-                var enumValue = (EBooleanMinimalFormOutStatus)Enum.Parse(
-                    typeof(EBooleanMinimalFormOutStatus), 
-                    names[i]);
-
-                Console.WriteLine("{0}: {1}",
-                enumValue,
-                combination.CountElementsWithValue(enumValue));
-            }
-
+            Test19();
             Console.ReadLine();
         }
 
@@ -58,6 +35,65 @@
         {
             var tester = new ObjectTester();
             tester.Run(Console.In, Console.Out);
+        }
+
+        /// <summary>
+        /// Testa a simplificação de expressões lógicas.
+        /// </summary>
+        public static void Test19()
+        {
+            var booleanInput = new BooleanMinimalFormInOut();
+
+            var combination = new LogicCombinationBitArray(5, EBooleanMinimalFormOutStatus.OFF);
+            booleanInput.Add(combination, EBooleanMinimalFormOutStatus.ON);
+
+            combination = new LogicCombinationBitArray(5, EBooleanMinimalFormOutStatus.OFF);
+            combination[0] = EBooleanMinimalFormOutStatus.ON;
+            booleanInput.Add(combination, EBooleanMinimalFormOutStatus.ON);
+
+            combination = new LogicCombinationBitArray(5, EBooleanMinimalFormOutStatus.OFF);
+            combination[2] = EBooleanMinimalFormOutStatus.ON;
+            booleanInput.Add(combination, EBooleanMinimalFormOutStatus.ON);
+
+            combination = new LogicCombinationBitArray(5, EBooleanMinimalFormOutStatus.OFF);
+            combination[0] = EBooleanMinimalFormOutStatus.ON;
+            combination[2] = EBooleanMinimalFormOutStatus.ON;
+            booleanInput.Add(combination, EBooleanMinimalFormOutStatus.ON);
+
+            combination = new LogicCombinationBitArray(5, EBooleanMinimalFormOutStatus.OFF);
+            combination[0] = EBooleanMinimalFormOutStatus.ON;
+            combination[3] = EBooleanMinimalFormOutStatus.ON;
+            booleanInput.Add(combination, EBooleanMinimalFormOutStatus.ON);
+
+            combination = new LogicCombinationBitArray(5, EBooleanMinimalFormOutStatus.OFF);
+            combination[2] = EBooleanMinimalFormOutStatus.ON;
+            combination[3] = EBooleanMinimalFormOutStatus.ON;
+            booleanInput.Add(combination, EBooleanMinimalFormOutStatus.ON);
+
+            combination = new LogicCombinationBitArray(5, EBooleanMinimalFormOutStatus.OFF);
+            combination[1] = EBooleanMinimalFormOutStatus.ON;
+            combination[2] = EBooleanMinimalFormOutStatus.ON;
+            combination[3] = EBooleanMinimalFormOutStatus.ON;
+            booleanInput.Add(combination, EBooleanMinimalFormOutStatus.ON);
+
+            combination = new LogicCombinationBitArray(5, EBooleanMinimalFormOutStatus.OFF);
+            combination[2] = EBooleanMinimalFormOutStatus.ON;
+            combination[4] = EBooleanMinimalFormOutStatus.ON;
+            booleanInput.Add(combination, EBooleanMinimalFormOutStatus.ON);
+
+            combination = new LogicCombinationBitArray(5, EBooleanMinimalFormOutStatus.OFF);
+            combination[0] = EBooleanMinimalFormOutStatus.ON;
+            combination[2] = EBooleanMinimalFormOutStatus.ON;
+            combination[3] = EBooleanMinimalFormOutStatus.ON;
+            combination[4] = EBooleanMinimalFormOutStatus.ON;
+            booleanInput.Add(combination, EBooleanMinimalFormOutStatus.ON);
+
+            var algorithm = new BooleanMinimalFormAlgorithm();
+            var result = algorithm.Run(booleanInput);
+            foreach (var logicComb in result)
+            {
+                Console.WriteLine(logicComb.LogicInput);
+            }
         }
 
         /// <summary>

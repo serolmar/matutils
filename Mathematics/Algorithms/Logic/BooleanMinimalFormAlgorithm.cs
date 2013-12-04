@@ -27,7 +27,7 @@
             else
             {
                 var usedDataImplicants = this.GetUsedDataImplicants(data);
-                var sortedCombinations = this.GetSortedCombinations(usedDataImplicants);
+                var sortedCombinations = this.GetSortedCombinations(usedDataImplicants, data.MaxCombinationsLength);
                 var implicantTableInfo = this.ProcessPrimeImplicantsList(sortedCombinations);
                 var implicantMatrix = this.GetBitMatrixForResult(implicantTableInfo, usedDataImplicants);
                 var essentialImplicants = this.Simplify(implicantTableInfo, usedDataImplicants, implicantMatrix);
@@ -71,13 +71,16 @@
         /// Organiza as combinações de acordo com o número de bits ligados.
         /// </summary>
         /// <param name="implicants">O conjunto das combinações.</param>
+        /// <param name="combinationsLength">O número máximo de bits na combinação.</param>
         /// <returns>A lista de combinações organizadas de acordo com o número de bits ligados.</returns>
-        private List<List<ImplicantLine>> GetSortedCombinations(ImplicantLine[] implicants)
+        private List<List<ImplicantLine>> GetSortedCombinations(
+            ImplicantLine[] implicants,
+            int combinationsLength)
         {
             var result = new List<List<ImplicantLine>>();
-            for (int i = 0; i < result.Count; ++i)
+            for (int i = 0; i < combinationsLength; ++i)
             {
-                result[i] = new List<ImplicantLine>();
+                result.Add(new List<ImplicantLine>());
             }
 
             for (int i = 0; i < implicants.Length; ++i)
@@ -99,6 +102,7 @@
         /// <returns>O resultado do processamento.</returns>
         private List<ImplicantLine> ProcessPrimeImplicantsList(List<List<ImplicantLine>> implicantsList)
         {
+            var combinationEqualityComparer = new ImplicantLineEqualityComparer();
             var result = new List<ImplicantLine>();
             if (implicantsList.Count > 0)
             {
@@ -115,7 +119,7 @@
                         {
                             var upperPrimeImplicantCandidate = currentCombination[j];
                             var haveNotFoundReduction = true;
-                            for (int k = j; k < nextCombination.Count; ++k)
+                            for (int k = 0; k < nextCombination.Count; ++k)
                             {
                                 var lowerPrimeImplicantCandidate = nextCombination[k];
                                 var processedCombination = default(LogicCombinationBitArray);
@@ -141,17 +145,20 @@
                                     tempImplicantsList.Add(implicantLineToAdd);
                                     haveNotFoundReduction = false;
                                 }
+                            }
 
-                                if (haveNotFoundReduction)
+                            if (haveNotFoundReduction)
+                            {
+                                if (!result.Contains(upperPrimeImplicantCandidate, combinationEqualityComparer))
                                 {
                                     result.Add(upperPrimeImplicantCandidate);
                                 }
                             }
+                        }
 
-                            if (tempImplicantsList.Count > 0)
-                            {
-                                groupedImplicantsList.Add(tempImplicantsList);
-                            }
+                        if (tempImplicantsList.Count > 0)
+                        {
+                            groupedImplicantsList.Add(tempImplicantsList);
                         }
 
                         currentCombination = nextCombination;
@@ -161,10 +168,23 @@
                     var last = innerImplicantList[innerImplicantList.Count - 1];
                     for (int i = 0; i < last.Count; ++i)
                     {
-                        result.Add(last[i]);
+                        var lastValue = last[i];
+                        if (!result.Contains(lastValue, combinationEqualityComparer))
+                        {
+                            result.Add(lastValue);
+                        }
                     }
 
                     innerImplicantList = groupedImplicantsList;
+                }
+
+                var lastGroup = innerImplicantList[0];
+                foreach (var combination in lastGroup)
+                {
+                    if (!result.Contains(combination, combinationEqualityComparer))
+                    {
+                        result.Add(combination);
+                    }
                 }
             }
 
@@ -448,6 +468,33 @@
         }
 
         /// <summary>
+        /// Permite verificar a igualdade de duas linhas.
+        /// </summary>
+        private class ImplicantLineEqualityComparer : EqualityComparer<ImplicantLine>
+        {
+            /// <summary>
+            /// Verifica se duas linhas são iguais.
+            /// </summary>
+            /// <param name="x">A primeira linha.</param>
+            /// <param name="y">A segunda linha.</param>
+            /// <returns>Verdadeiro caso ambas as linhas sejam iguais e falso caso contrário.</returns>
+            public override bool Equals(ImplicantLine x, ImplicantLine y)
+            {
+                return x.LineCombination.Equals(y.LineCombination);
+            }
+
+            /// <summary>
+            /// Obtém o código confuso da linha.
+            /// </summary>
+            /// <param name="obj">A linha.</param>
+            /// <returns>O código confuso.</returns>
+            public override int GetHashCode(ImplicantLine obj)
+            {
+                return obj.LineCombination.GetHashCode();
+            }
+        }
+
+        /// <summary>
         /// Reprsenta uma linha na matriz de cobertura utilizada no último passo do algoritmo.
         /// </summary>
         private class CoverLine
@@ -509,14 +556,15 @@
             public override int Compare(CoverLine x, CoverLine y)
             {
                 var length = x.Line.Length;
-                var firstArray = new int[(length >> 5) + 1];
-                var secondArray = new int[(length >> 5) + 1];
+                var arrayLength = (length >> 5) + 1;
+                var firstArray = new int[arrayLength];
+                var secondArray = new int[arrayLength];
                 x.Line.CopyTo(firstArray, 0);
                 y.Line.CopyTo(secondArray, 0);
-                firstArray[firstArray.Length - 1] &= ~(-1 << (length % 32));
-                firstArray[secondArray.Length - 1] &= ~(-1 << (length % 32));
+                firstArray[arrayLength - 1] &= ~(-1 << (length % 32));
+                firstArray[arrayLength - 1] &= ~(-1 << (length % 32));
 
-                for (int i = 0; i < length; ++i)
+                for (int i = 0; i < arrayLength; ++i)
                 {
                     var firstValue = firstArray[i];
                     var secondValue = secondArray[i];

@@ -27,7 +27,7 @@
 
         static LogicCombinationBitArray()
         {
-            var integerSize = sizeof(int) << 3;
+            integerSize = sizeof(int) << 3;
             semiIntegerSize = integerSize >> 1;
             InitializeMasks(integerSize);
         }
@@ -188,18 +188,17 @@
         public bool TryToGetReduced(LogicCombinationBitArray combination, out LogicCombinationBitArray cover)
         {
             cover = default(LogicCombinationBitArray);
-            if (cover == null)
+            if (combination == null)
             {
-                // Não retorna neste caso.
                 return false;
             }
-            else if (this.length != cover.length)
+            if (this.length != combination.length)
             {
                 return false;
             }
             else
             {
-                var xoredValues = this.XorValues(this.values, cover.values);
+                var xoredValues = this.XorValues(this.values, combination.values);
 
                 // Se não existirem valores de indiferentes que se sobreponham a valores ligado / desligado...
                 if (this.HasNoBitValues(xoredValues))
@@ -220,7 +219,7 @@
                             var statusValue = (valuesElement & mask) >> (currentInnerIndex << 1);
                             if (statusValue == 3U)
                             {
-                                xoredElement = (~mask & xoredElement) | 
+                                xoredElement = (~mask & xoredElement) |
                                     (3U << (currentInnerIndex << 1));
                                 xoredValues[currentValuesPointer] = xoredElement;
                             }
@@ -242,16 +241,25 @@
                                     }
                                 }
                             }
+
+                            ++currentInnerIndex;
+                            ++currentGeneralPointer;
                         }
+
+                        ++currentValuesPointer;
                     }
 
-                    var result = new LogicCombinationBitArray();
-                    result.length = this.length;
-                    result.values = xoredValues;
+                    xoredValues = this.OrValues(this.values, xoredValues);
+                    cover = new LogicCombinationBitArray();
+                    cover.length = this.length;
+                    cover.values = xoredValues;
+                    return true;
+                }
+                else
+                {
+                    return false;
                 }
             }
-
-            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -347,6 +355,104 @@
         }
 
         /// <summary>
+        /// Obtém a representação textual da combinação lógica.
+        /// </summary>
+        /// <returns>A representação textual.</returns>
+        public override string ToString()
+        {
+            var resultBuilder = new StringBuilder("[");
+            var separator = string.Empty;
+            var currentGeneralPointer = 0;
+            var currentValuesPointer = 0;
+            while (currentGeneralPointer < this.length)
+            {
+                var currentInnerIndex = 0;
+                while (currentInnerIndex < semiIntegerSize &&
+                    currentGeneralPointer < this.length)
+                {
+                    var element = this.values[currentValuesPointer];
+                    var mask = masks[currentInnerIndex];
+                    resultBuilder.AppendFormat(
+                        "{1}{0}",
+                        (EBooleanMinimalFormOutStatus)((element & mask) >> (currentInnerIndex << 1)),
+                        separator);
+                    separator = ", ";
+
+                    ++currentInnerIndex;
+                    ++currentGeneralPointer;
+                }
+
+                ++currentValuesPointer;
+            }
+
+            resultBuilder.Append("]");
+            return resultBuilder.ToString();
+        }
+
+        /// <summary>
+        /// Verifica se a combinação lógica corrente é igual a outra.
+        /// </summary>
+        /// <param name="obj">A combinação lógica a ser verificada.</param>
+        /// <returns>Verdadeiro caso ambas as combinações sejam iguais e falso caso contrário.</returns>
+        public override bool Equals(object obj)
+        {
+            if (object.ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+            else
+            {
+                var innerObj = obj as LogicCombinationBitArray;
+                if (innerObj == null)
+                {
+                    return false;
+                }
+                else if (this.length != innerObj.length)
+                {
+                    return false;
+                }
+                else
+                {
+                    var lastIndex = this.values.Length - 1;
+                    for (int i = 0; i < lastIndex; ++i)
+                    {
+                        if (this.values[i] != innerObj.values[i])
+                        {
+                            return false;
+                        }
+                    }
+
+                    var innerIndex = (this.length << 1) % integerSize;
+                    var mask = uint.MaxValue >> (integerSize - innerIndex);
+                    var currentValue = this.values[lastIndex] & mask;
+                    var otherValue = innerObj.values[lastIndex] & mask;
+                    return currentValue == otherValue;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Obtém o código confuso da combinações lógica.
+        /// </summary>
+        /// <returns>O valor do código confuso.</returns>
+        public override int GetHashCode()
+        {
+            var result = 17;
+            var lastIndex = this.values.Length - 1;
+            for (int i = 0; i < lastIndex; ++i)
+            {
+                result ^= this.values[i].GetHashCode();
+            }
+
+            var innerIndex = (this.length << 1) % integerSize;
+            var mask = uint.MaxValue >> (integerSize - innerIndex);
+            var value = this.values[lastIndex] & mask;
+            result ^= value.GetHashCode();
+
+            return result;
+        }
+
+        /// <summary>
         /// Determina o ou exclusivo entre dois valores.
         /// </summary>
         /// <param name="first">O primeiro valor.</param>
@@ -358,6 +464,23 @@
             for (int i = 0; i < first.Length; ++i)
             {
                 result[i] = first[i] ^ second[i];
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Determina o ou entre dois valores.
+        /// </summary>
+        /// <param name="first">O primeiro valor.</param>
+        /// <param name="second">O segundo valor.</param>
+        /// <returns>O resultado do ou.</returns>
+        private uint[] OrValues(uint[] first, uint[] second)
+        {
+            var result = new uint[first.Length];
+            for (int i = 0; i < first.Length; ++i)
+            {
+                result[i] = first[i] | second[i];
             }
 
             return result;
@@ -435,41 +558,6 @@
                 masks[i] = previousMask << 2;
                 previousMask = masks[i];
             }
-        }
-
-        /// <summary>
-        /// Obtém a representação textual da combinação lógica.
-        /// </summary>
-        /// <returns>A representação textual.</returns>
-        public override string ToString()
-        {
-            var resultBuilder = new StringBuilder("[");
-            var separator = string.Empty;
-            var currentGeneralPointer = 0;
-            var currentValuesPointer = 0;
-            while (currentGeneralPointer < this.length)
-            {
-                var currentInnerIndex = 0;
-                while (currentInnerIndex < semiIntegerSize &&
-                    currentGeneralPointer < this.length)
-                {
-                    var element = this.values[currentValuesPointer];
-                    var mask = masks[currentInnerIndex];
-                    resultBuilder.AppendFormat(
-                        "{1}{0}",
-                        (EBooleanMinimalFormOutStatus)((element & mask) >> (currentInnerIndex << 1)),
-                        separator);
-                    separator = ", ";
-
-                    ++currentInnerIndex;
-                    ++currentGeneralPointer;
-                }
-
-                ++currentValuesPointer;
-            }
-
-            resultBuilder.Append("]");
-            return resultBuilder.ToString();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
