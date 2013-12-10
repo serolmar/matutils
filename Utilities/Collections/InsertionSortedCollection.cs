@@ -213,6 +213,77 @@ namespace Utilities.Collections
         }
 
         /// <summary>
+        /// Tenta encontrar um valor que se encontre na lista actual mas não se encontre
+        /// na lista especificada.
+        /// </summary>
+        /// <param name="collection">A lista.</param>
+        /// <param name="item">O valor.</param>
+        /// <returns>
+        /// Verdadeiro caso a lista contenha um valor que não se encontre na outra lista 
+        /// e falso caso contrário.
+        /// </returns>
+        public bool TryFindValueNotIn(
+            InsertionSortedCollection<T> collection, 
+            out T item)
+        {
+            item = default(T);
+            var elementsEnumerator = this.elements.GetEnumerator();
+            var collectionElementsEnumerator = collection.elements.GetEnumerator();
+            if (elementsEnumerator.MoveNext())
+            {
+                if (collectionElementsEnumerator.MoveNext())
+                {
+                    var current = elementsEnumerator.Current;
+                    var collectionCurrent = collectionElementsEnumerator.Current;
+                    while (true)
+                    {
+                        if (this.comparer.Compare(collectionCurrent, current) < 0)
+                        {
+                            if (collectionElementsEnumerator.MoveNext())
+                            {
+                                collectionCurrent = collectionElementsEnumerator.Current;
+                            }
+                            else
+                            {
+                                item = current;
+                                return true;
+                            }
+                        }
+                        else if (this.comparer.Compare(current, collectionCurrent) < 0)
+                        {
+                            item = current;
+                            return true;
+                        }
+                        else if (elementsEnumerator.MoveNext())
+                        {
+                            current = elementsEnumerator.Current;
+                            if (collectionElementsEnumerator.MoveNext())
+                            {
+                                collectionCurrent = collectionElementsEnumerator.Current;
+                            }
+                            else
+                            {
+                                item = current;
+                                return true;
+                            }
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }
+                }
+                else
+                {
+                    item = elementsEnumerator.Current;
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
         /// Obtém um enumerador para a colecção.
         /// </summary>
         /// <returns>O enumerador.</returns>

@@ -27,20 +27,13 @@
             int left,
             IntFractionVector right)
         {
-            if (left == null)
+            var result = new ArrayVector<Fraction<int, IntegerDomain>>(right.Length);
+            for (int i = 0; i < right.Length; ++i)
             {
-                throw new ArgumentNullException("left");
+                result[i] = this.coeffFracMult.Multiply(left, right[i]);
             }
-            else
-            {
-                var result = new ArrayVector<Fraction<int, IntegerDomain>>(right.Length);
-                for (int i = 0; i < right.Length; ++i)
-                {
-                    result[i] = this.coeffFracMult.Multiply(left, right[i]);
-                }
 
-                return result;
-            }
+            return result;
         }
     }
 }
