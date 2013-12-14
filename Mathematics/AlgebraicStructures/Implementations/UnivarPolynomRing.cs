@@ -5,6 +5,10 @@ using System.Text;
 
 namespace Mathematics
 {
+    /// <summary>
+    /// Implementa as operações que são efectuadas sobre um polinómio a uma variável apenas.
+    /// </summary>
+    /// <typeparam name="CoeffType">O tipo dos coeficientes do polinómio.</typeparam>
     public class UnivarPolynomRing<CoeffType> :
         IRing<UnivariatePolynomialNormalForm<CoeffType>>
     {

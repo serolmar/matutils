@@ -22,7 +22,7 @@
 
         static void Main(string[] args)
         {
-            Test19();
+            Test13();
             Console.ReadLine();
         }
 
@@ -310,17 +310,29 @@
         }
 
         /// <summary>
-        /// Teste aos algoritmos relacionados com números primos.
+        /// Teste aos algoritmos relacionados com números primos e teoria dos números.
         /// </summary>
         public static void Test13()
         {
-            //var quadraticSieve = new QuadraticFieldSieve();
-            //var temp = quadraticSieve.Run(13459, 200, 100);
-            //Console.WriteLine("[{0},{1}]", temp.Item1, temp.Item2);
+            var integerDomain = new IntegerDomain();
+            var congruences = new List<Congruence<int>>()
+            {
+                new Congruence<int>(2, 1),
+                new Congruence<int>(3,2),
+                new Congruence<int>(4, 3)
+            };
+
+            var chineseAlg = new ChineseRemainderAlgorithm<int>(1);
+            var congruence = chineseAlg.Run(congruences, integerDomain);
+            Console.WriteLine(congruence);
+
+            var quadraticSieve = new QuadraticFieldSieve();
+            var temp = quadraticSieve.Run(13459, 200, 100);
+            Console.WriteLine("[{0},{1}]", temp.Item1, temp.Item2);
 
             var aksPrimalityTest = new AksPrimalityTest();
             var n = 13459;
-            for (int i=1; i < 100; ++i)
+            for (int i = 1; i < 100; ++i)
             {
                 if (aksPrimalityTest.Run(i))
                 {
@@ -366,7 +378,6 @@
                 Console.WriteLine(primeNumber);
             }
 
-            var integerDomain = new IntegerDomain();
             var lagrangeAlg = new LagrangeAlgorithm<int>(integerDomain);
             var firstValue = 51;
             var secondValue = 192;
@@ -715,7 +726,7 @@
                 }
             }
 
-            var sparseDictionaryMatrix = new SparseDictionaryMatrix<int>(10,10);
+            var sparseDictionaryMatrix = new SparseDictionaryMatrix<int>(10, 10);
             Console.WriteLine(
                 "Linhas: {0}; Colunas: {1}",
                 sparseDictionaryMatrix.GetLength(0),

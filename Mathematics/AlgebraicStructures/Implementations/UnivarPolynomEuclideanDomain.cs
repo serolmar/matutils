@@ -6,6 +6,10 @@
     using System.Text;
     using Utilities.Collections;
 
+    /// <summary>
+    /// Permite implementar as operações de divisão de polinómios.
+    /// </summary>
+    /// <typeparam name="CoeffType">O tipo dos coeficientes do polinómio.</typeparam>
     public class UnivarPolynomEuclideanDomain<CoeffType> :
         UnivarPolynomRing<CoeffType>,
         IEuclidenDomain<UnivariatePolynomialNormalForm<CoeffType>>
@@ -38,6 +42,12 @@
             }
         }
 
+        /// <summary>
+        /// Calcula o quociente entre dois polinómios.
+        /// </summary>
+        /// <param name="dividend">O dividendo.</param>
+        /// <param name="divisor">O divisor.</param>
+        /// <returns>O quociente.</returns>
         public UnivariatePolynomialNormalForm<CoeffType> Quo(
             UnivariatePolynomialNormalForm<CoeffType> dividend,
             UnivariatePolynomialNormalForm<CoeffType> divisor)
@@ -123,6 +133,12 @@
             }
         }
 
+        /// <summary>
+        /// Calcula o resto da divisão entre dois polinómios.
+        /// </summary>
+        /// <param name="dividend">O dividendo.</param>
+        /// <param name="divisor">O divisor.</param>
+        /// <returns>O resto.</returns>
         public UnivariatePolynomialNormalForm<CoeffType> Rem(
             UnivariatePolynomialNormalForm<CoeffType> dividend,
             UnivariatePolynomialNormalForm<CoeffType> divisor)
@@ -208,6 +224,12 @@
             }
         }
 
+        /// <summary>
+        /// Obtém o quociente e o resto da divisão entre dois polinómios.
+        /// </summary>
+        /// <param name="dividend">O dividendo.</param>
+        /// <param name="divisor">O divisor.</param>
+        /// <returns>O quociente e o resto.</returns>
         public DomainResult<UnivariatePolynomialNormalForm<CoeffType>> GetQuotientAndRemainder(
             UnivariatePolynomialNormalForm<CoeffType> dividend,
             UnivariatePolynomialNormalForm<CoeffType> divisor)
@@ -310,6 +332,45 @@
             {
                 return (uint)value.Degree;
             }
+        }
+
+        /// <summary>
+        /// Calcula o quociente da pseudo-divisão entre dois polinómios.
+        /// </summary>
+        /// <param name="dividend">O dividendo.</param>
+        /// <param name="divisor">O divisor.</param>
+        /// <returns>O quociente.</returns>
+        public UnivariatePolynomialNormalForm<CoeffType> PseudoQuo(
+            UnivariatePolynomialNormalForm<CoeffType> dividend,
+            UnivariatePolynomialNormalForm<CoeffType> divisor)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Calcula o resto da pseudo-divisão entre dois polinómios.
+        /// </summary>
+        /// <param name="dividend">O dividendo.</param>
+        /// <param name="divisor">O divisor.</param>
+        /// <returns>O resto.</returns>
+        public UnivariatePolynomialNormalForm<CoeffType> PseudoRem(
+            UnivariatePolynomialNormalForm<CoeffType> dividend,
+            UnivariatePolynomialNormalForm<CoeffType> divisor)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Obtém o quociente e o resto da pseudo-divisão entre dois polinómios.
+        /// </summary>
+        /// <param name="dividend">O dividendo.</param>
+        /// <param name="divisor">O divisor.</param>
+        /// <returns>O quociente e o resto.</returns>
+        public UnivariatePolynomialNormalForm<CoeffType> GetPseudoQuotientAndRemainder(
+            UnivariatePolynomialNormalForm<CoeffType> dividend,
+            UnivariatePolynomialNormalForm<CoeffType> divisor)
+        {
+            throw new NotImplementedException();
         }
     }
 }

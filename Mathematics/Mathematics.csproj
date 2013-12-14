@@ -185,6 +185,8 @@
     <Compile Include="Algorithms\NumberTheory\AksPrimalityTest.cs" />
     <Compile Include="Algorithms\NumberTheory\Auxiliary\AuxAksModArithmRing.cs" />
     <Compile Include="Algorithms\NumberTheory\BigInteger\BigIntPrimeNumbsIterator.cs" />
+    <Compile Include="Algorithms\NumberTheory\ChineseRemainderAlgorithm.cs" />
+    <Compile Include="Algorithms\NumberTheory\Congruence.cs" />
     <Compile Include="Algorithms\NumberTheory\DecompositionFactorizationAlgorithm.cs" />
     <Compile Include="Algorithms\NumberTheory\EulerTotFuncAlg.cs" />
     <Compile Include="Algorithms\NumberTheory\LegendreJacobiSymbolAlgorithm.cs" />
