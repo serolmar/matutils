@@ -4,46 +4,30 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
-    using Utilities.Collections;
 
     /// <summary>
-    /// Permite implementar as operações de divisão de polinómios.
+    /// Corresponde ao domínio relativo à pseudo-divisão de polinómios.
     /// </summary>
-    /// <typeparam name="CoeffType">O tipo dos coeficientes do polinómio.</typeparam>
-    public class UnivarPolynomEuclideanDomain<CoeffType> :
-        UnivarPolynomRing<CoeffType>,
+    /// <remarks>
+    /// Mostra-se que é possível encontrar dois polinómios q e r tais que
+    /// b^d*f=gq  + r onde f é o dividendo, g é o divisor, b corresponde ao coeficiente do termo de
+    /// maior grau de f e d = grau(f) - grau(g) + 1 com a particularidade do grau de r ser inferior ao
+    /// grau de g. Trata-se de uma espécie de divisão sem ter a necessidade de serem efecutadas operações
+    /// que não estejam contempladas no anel.
+    /// </remarks>
+    public class UnivarPolynomPseudoDomain<CoeffType>
+        : UnivarPolynomRing<CoeffType>,
         IEuclidenDomain<UnivariatePolynomialNormalForm<CoeffType>>
     {
-        private IField<CoeffType> field;
-
-        public UnivarPolynomEuclideanDomain(string variableName, IField<CoeffType> field)
-            : base(variableName, field)
+        public UnivarPolynomPseudoDomain(
+            string variableName,
+            IEuclidenDomain<CoeffType> coeffsDomain)
+            : base(variableName, coeffsDomain)
         {
-            this.field = field;
-        }
-
-        public IField<CoeffType> Field
-        {
-            get
-            {
-                return this.field;
-            }
-            set
-            {
-                if (value == null)
-                {
-                    throw new MathematicsException("A polynomial coefficients field must be provided.");
-                }
-                else
-                {
-                    this.field = value;
-                    this.ring = value;
-                }
-            }
         }
 
         /// <summary>
-        /// Calcula o quociente entre dois polinómios.
+        /// Calcula o quociente da pseudo-divisão entre dois polinómios.
         /// </summary>
         /// <param name="dividend">O dividendo.</param>
         /// <param name="divisor">O divisor.</param>
@@ -78,30 +62,29 @@
                     var quotientCoeffs = new UnivariatePolynomialNormalForm<CoeffType>(this.variableName);
                     var remainderLeadingDegree = remainderSortedCoeffs.Keys[remainderSortedCoeffs.Keys.Count - 1];
                     var divisorLeadingDegree = divisorSorteCoeffs.Keys[divisorSorteCoeffs.Keys.Count - 1];
-                    var inverseDivisorLeadingCoeff = this.field.MultiplicativeInverse(divisorSorteCoeffs[divisorLeadingDegree]);
+                    var divisorLeadingCoeff = divisorSorteCoeffs[divisorSorteCoeffs.Count - 1];
                     while (remainderLeadingDegree >= divisorLeadingDegree && remainderSortedCoeffs.Count > 0)
                     {
                         var remainderLeadingCoeff = remainderSortedCoeffs[remainderLeadingDegree];
                         var differenceDegree = remainderLeadingDegree - divisorLeadingDegree;
-                        var factor = this.field.Multiply(
-                            remainderLeadingCoeff,
-                            inverseDivisorLeadingCoeff);
-                        quotientCoeffs = quotientCoeffs.Add(factor, differenceDegree, this.field);
+
+                        quotientCoeffs = quotientCoeffs.Add(remainderLeadingCoeff, differenceDegree, this.ring);
                         remainderSortedCoeffs.Remove(remainderLeadingDegree);
                         for (int i = 0; i < divisorSorteCoeffs.Keys.Count - 1; ++i)
                         {
                             var currentDivisorDegree = divisorSorteCoeffs.Keys[i];
-                            var currentCoeff = this.field.Multiply(
+                            var currentCoeff = this.ring.Multiply(
                                 divisorSorteCoeffs[currentDivisorDegree],
-                                factor);
+                                remainderLeadingCoeff);
                             currentDivisorDegree += differenceDegree;
                             var addCoeff = default(CoeffType);
                             if (remainderSortedCoeffs.TryGetValue(currentDivisorDegree, out addCoeff))
                             {
-                                addCoeff = this.field.Add(
+                                addCoeff = this.ring.Multiply(addCoeff, divisorLeadingCoeff);
+                                addCoeff = this.ring.Add(
                                     addCoeff,
-                                    this.field.AdditiveInverse(currentCoeff));
-                                if (this.field.IsAdditiveUnity(addCoeff))
+                                    this.ring.AdditiveInverse(currentCoeff));
+                                if (this.ring.IsAdditiveUnity(addCoeff))
                                 {
                                     remainderSortedCoeffs.Remove(currentDivisorDegree);
                                 }
@@ -114,7 +97,7 @@
                             {
                                 remainderSortedCoeffs.Add(
                                     currentDivisorDegree,
-                                    this.field.AdditiveInverse(currentCoeff));
+                                    this.ring.AdditiveInverse(currentCoeff));
                             }
                         }
 
@@ -134,7 +117,7 @@
         }
 
         /// <summary>
-        /// Calcula o resto da divisão entre dois polinómios.
+        /// Calcula o resto da pseudo-divisão entre dois polinómios.
         /// </summary>
         /// <param name="dividend">O dividendo.</param>
         /// <param name="divisor">O divisor.</param>
@@ -167,29 +150,27 @@
                     var divisorSorteCoeffs = divisor.GetOrderedCoefficients(Comparer<int>.Default);
                     var remainderLeadingDegree = remainderSortedCoeffs.Keys[remainderSortedCoeffs.Keys.Count - 1];
                     var divisorLeadingDegree = divisorSorteCoeffs.Keys[divisorSorteCoeffs.Keys.Count - 1];
-                    var inverseDivisorLeadingCoeff = this.field.MultiplicativeInverse(divisorSorteCoeffs[divisorLeadingDegree]);
+                    var divisorLeadingCoeff = divisorSorteCoeffs[divisorSorteCoeffs.Count - 1];
                     while (remainderLeadingDegree >= divisorLeadingDegree && remainderSortedCoeffs.Count > 0)
                     {
                         var remainderLeadingCoeff = remainderSortedCoeffs[remainderLeadingDegree];
                         var differenceDegree = remainderLeadingDegree - divisorLeadingDegree;
-                        var factor = this.field.Multiply(
-                            remainderLeadingCoeff,
-                            inverseDivisorLeadingCoeff);
                         remainderSortedCoeffs.Remove(remainderLeadingDegree);
                         for (int i = 0; i < divisorSorteCoeffs.Keys.Count - 1; ++i)
                         {
                             var currentDivisorDegree = divisorSorteCoeffs.Keys[i];
-                            var currentCoeff = this.field.Multiply(
+                            var currentCoeff = this.ring.Multiply(
                                 divisorSorteCoeffs[currentDivisorDegree],
-                                factor);
+                                remainderLeadingCoeff);
                             currentDivisorDegree += differenceDegree;
                             var addCoeff = default(CoeffType);
                             if (remainderSortedCoeffs.TryGetValue(currentDivisorDegree, out addCoeff))
                             {
-                                addCoeff = this.field.Add(
+                                addCoeff = this.ring.Multiply(addCoeff, divisorLeadingCoeff);
+                                addCoeff = this.ring.Add(
                                     addCoeff,
-                                    this.field.AdditiveInverse(currentCoeff));
-                                if (this.field.IsAdditiveUnity(addCoeff))
+                                    this.ring.AdditiveInverse(currentCoeff));
+                                if (this.ring.IsAdditiveUnity(addCoeff))
                                 {
                                     remainderSortedCoeffs.Remove(currentDivisorDegree);
                                 }
@@ -202,7 +183,7 @@
                             {
                                 remainderSortedCoeffs.Add(
                                     currentDivisorDegree,
-                                    this.field.AdditiveInverse(currentCoeff));
+                                    this.ring.AdditiveInverse(currentCoeff));
                             }
                         }
 
@@ -217,16 +198,16 @@
                     }
 
                     var remainder = new UnivariatePolynomialNormalForm<CoeffType>(
-                        remainderSortedCoeffs, 
-                        this.variableName, 
-                        this.field);
+                        remainderSortedCoeffs,
+                        this.variableName,
+                        this.ring);
                     return remainder;
                 }
             }
         }
 
         /// <summary>
-        /// Obtém o quociente e o resto da divisão entre dois polinómios.
+        /// Obtém o quociente e o resto da pseudo-divisão entre dois polinómios.
         /// </summary>
         /// <param name="dividend">O dividendo.</param>
         /// <param name="divisor">O divisor.</param>
@@ -262,30 +243,28 @@
                     var quotientCoeffs = new UnivariatePolynomialNormalForm<CoeffType>(this.variableName);
                     var remainderLeadingDegree = remainderSortedCoeffs.Keys[remainderSortedCoeffs.Keys.Count - 1];
                     var divisorLeadingDegree = divisorSorteCoeffs.Keys[divisorSorteCoeffs.Keys.Count - 1];
-                    var inverseDivisorLeadingCoeff = this.field.MultiplicativeInverse(divisorSorteCoeffs[divisorLeadingDegree]);
+                    var divisorLeadingCoeff = divisorSorteCoeffs[divisorSorteCoeffs.Count - 1];
                     while (remainderLeadingDegree >= divisorLeadingDegree && remainderSortedCoeffs.Count > 0)
                     {
                         var remainderLeadingCoeff = remainderSortedCoeffs[remainderLeadingDegree];
                         var differenceDegree = remainderLeadingDegree - divisorLeadingDegree;
-                        var factor = this.field.Multiply(
-                            remainderLeadingCoeff,
-                            inverseDivisorLeadingCoeff);
-                        quotientCoeffs = quotientCoeffs.Add(factor, differenceDegree, this.field);
+                        quotientCoeffs = quotientCoeffs.Add(remainderLeadingCoeff, differenceDegree, this.ring);
                         remainderSortedCoeffs.Remove(remainderLeadingDegree);
                         for (int i = 0; i < divisorSorteCoeffs.Keys.Count - 1; ++i)
                         {
                             var currentDivisorDegree = divisorSorteCoeffs.Keys[i];
-                            var currentCoeff = this.field.Multiply(
+                            var currentCoeff = this.ring.Multiply(
                                 divisorSorteCoeffs[currentDivisorDegree],
-                                factor);
+                                remainderLeadingCoeff);
                             currentDivisorDegree += differenceDegree;
                             var addCoeff = default(CoeffType);
                             if (remainderSortedCoeffs.TryGetValue(currentDivisorDegree, out addCoeff))
                             {
-                                addCoeff = this.field.Add(
+                                addCoeff = this.ring.Multiply(addCoeff, divisorLeadingCoeff);
+                                addCoeff = this.ring.Add(
                                     addCoeff,
-                                    this.field.AdditiveInverse(currentCoeff));
-                                if (this.field.IsAdditiveUnity(addCoeff))
+                                    this.ring.AdditiveInverse(currentCoeff));
+                                if (this.ring.IsAdditiveUnity(addCoeff))
                                 {
                                     remainderSortedCoeffs.Remove(currentDivisorDegree);
                                 }
@@ -298,7 +277,7 @@
                             {
                                 remainderSortedCoeffs.Add(
                                     currentDivisorDegree,
-                                    this.field.AdditiveInverse(currentCoeff));
+                                    this.ring.AdditiveInverse(currentCoeff));
                             }
                         }
 
@@ -313,9 +292,9 @@
                     }
 
                     var remainder = new UnivariatePolynomialNormalForm<CoeffType>(
-                        remainderSortedCoeffs, 
-                        this.variableName, 
-                        this.field);
+                        remainderSortedCoeffs,
+                        this.variableName,
+                        this.ring);
                     return new DomainResult<UnivariatePolynomialNormalForm<CoeffType>>(
                         quotientCoeffs,
                         remainder);
@@ -330,14 +309,7 @@
         /// <returns>O valor do grau.</returns>
         public uint Degree(UnivariatePolynomialNormalForm<CoeffType> value)
         {
-            if (value == null)
-            {
-                throw new ArgumentNullException("value");
-            }
-            else
-            {
-                return (uint)value.Degree;
-            }
+            throw new NotImplementedException();
         }
     }
 }

@@ -60,6 +60,7 @@
     <Compile Include="AlgebraicStructures\Implementations\FractionNearestInteger.cs" />
     <Compile Include="AlgebraicStructures\Implementations\FractionNormSpace.cs" />
     <Compile Include="AlgebraicStructures\Implementations\IntegerNormSpace.cs" />
+    <Compile Include="AlgebraicStructures\Implementations\UnivarPolynomPseudoDomain.cs" />
     <Compile Include="AlgebraicStructures\Implementations\VectorSpace.cs" />
     <Compile Include="AlgebraicStructures\Implementations\MetricMatrixVectorScalarProduct.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\INearest.cs" />
