@@ -22,7 +22,7 @@
 
         static void Main(string[] args)
         {
-            Test13();
+            Test12();
             Console.ReadLine();
         }
 
@@ -408,13 +408,55 @@
             var firstInput = "    x^3-1/3*x^2+ - -x/5-1/2";
             var secondInput = "x^2-x/2+1";
             var thirdInput = "(x^2+3*x+2)*(x^2-4*x+3)^3";
+            var fourthInput = "x^8+x^6-3*x^4-3*x^3+8*x^2+2*x-5";
+            var fifthInput = "3*x^6+5*x^4-4*x^2-9*x+21";
 
-            var reader = new StringReader(firstInput);
-            var stringSymbolReader = new StringSymbolReader(reader, false);
             var integerDomain = new IntegerDomain();
             var fractionField = new FractionField<int, IntegerDomain>(integerDomain);
             var integerParser = new IntegerParser<string>();
             var fractionParser = new ElementFractionParser<int, IntegerDomain>(integerParser, integerDomain);
+            
+            // Leitura dos polinómios como sendo constituídos por inteiros
+            var integerReader = new StringReader(fourthInput);
+            var integerSymbolReader = new StringSymbolReader(integerReader, false);
+            var integerPolynomialParser = new UnivariatePolynomialReader<int, CharSymbolReader<string>>(
+                "x",
+                integerParser,
+                integerDomain);
+
+            var integerConversion = new ElementToElementConversion<int>();
+            var fourthIntegerPol = default(UnivariatePolynomialNormalForm<int>);
+            if (integerPolynomialParser.TryParsePolynomial(
+                integerSymbolReader,
+                integerConversion,
+                out fourthIntegerPol))
+            {
+                integerReader = new StringReader(fifthInput);
+                integerSymbolReader = new StringSymbolReader(integerReader, false);
+                var fifthIntegerPol = default(UnivariatePolynomialNormalForm<int>);
+                if (integerPolynomialParser.TryParsePolynomial(
+                integerSymbolReader,
+                integerConversion,
+                out fifthIntegerPol))
+                {
+                    var pseudoDomain = new UnivarPolynomPseudoDomain<int>("x", integerDomain);
+                    var quoAndRem = pseudoDomain.GetQuotientAndRemainder(fourthIntegerPol, fifthIntegerPol);
+                    Console.WriteLine("Quociente: {0}", quoAndRem.Quotient);
+                    Console.WriteLine("Resto: {0}", quoAndRem.Remainder);
+                }
+                else
+                {
+                    Console.WriteLine("Ocorreu um erro durante a leitura do segundo polinomio.");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Ocorreu um erro durante a leitura do primeiro polinomio.");
+            }
+
+            // Leitura dos polinómios como sendo consituídos por fracções
+            var reader = new StringReader(firstInput);
+            var stringSymbolReader = new StringSymbolReader(reader, false);
             var polynomialParser = new UnivariatePolynomialReader<Fraction<int, IntegerDomain>,
                 CharSymbolReader<string>>(
                 "x",

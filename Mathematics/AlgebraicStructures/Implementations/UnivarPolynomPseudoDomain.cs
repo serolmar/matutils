@@ -19,11 +19,14 @@
         : UnivarPolynomRing<CoeffType>,
         IEuclidenDomain<UnivariatePolynomialNormalForm<CoeffType>>
     {
+        private IEuclidenDomain<CoeffType> coeffsDomain;
+
         public UnivarPolynomPseudoDomain(
             string variableName,
             IEuclidenDomain<CoeffType> coeffsDomain)
             : base(variableName, coeffsDomain)
         {
+            this.coeffsDomain = coeffsDomain;
         }
 
         /// <summary>
@@ -62,25 +65,37 @@
                     var quotientCoeffs = new UnivariatePolynomialNormalForm<CoeffType>(this.variableName);
                     var remainderLeadingDegree = remainderSortedCoeffs.Keys[remainderSortedCoeffs.Keys.Count - 1];
                     var divisorLeadingDegree = divisorSorteCoeffs.Keys[divisorSorteCoeffs.Keys.Count - 1];
-                    var divisorLeadingCoeff = divisorSorteCoeffs[divisorSorteCoeffs.Count - 1];
+                    var divisorLeadingCoeff = divisorSorteCoeffs.Values[divisorSorteCoeffs.Values.Count - 1];
+                    var multiplyNumber = MathFunctions.Power(
+                        divisorLeadingCoeff,
+                        remainderLeadingDegree - divisorLeadingDegree + 1,
+                        this.ring);
+                    var temporaryRemainderCoeffs = new SortedList<int, CoeffType>(Comparer<int>.Default);
+                    foreach (var kvp in remainderSortedCoeffs)
+                    {
+                        temporaryRemainderCoeffs.Add(
+                            kvp.Key,
+                            this.ring.Multiply(kvp.Value, multiplyNumber));
+                    }
+
+                    remainderSortedCoeffs = temporaryRemainderCoeffs;
                     while (remainderLeadingDegree >= divisorLeadingDegree && remainderSortedCoeffs.Count > 0)
                     {
                         var remainderLeadingCoeff = remainderSortedCoeffs[remainderLeadingDegree];
                         var differenceDegree = remainderLeadingDegree - divisorLeadingDegree;
-
-                        quotientCoeffs = quotientCoeffs.Add(remainderLeadingCoeff, differenceDegree, this.ring);
+                        var factor = this.coeffsDomain.Quo(remainderLeadingCoeff, divisorLeadingCoeff);
+                        quotientCoeffs = quotientCoeffs.Add(factor, differenceDegree, this.ring);
                         remainderSortedCoeffs.Remove(remainderLeadingDegree);
                         for (int i = 0; i < divisorSorteCoeffs.Keys.Count - 1; ++i)
                         {
                             var currentDivisorDegree = divisorSorteCoeffs.Keys[i];
                             var currentCoeff = this.ring.Multiply(
                                 divisorSorteCoeffs[currentDivisorDegree],
-                                remainderLeadingCoeff);
+                                factor);
                             currentDivisorDegree += differenceDegree;
                             var addCoeff = default(CoeffType);
                             if (remainderSortedCoeffs.TryGetValue(currentDivisorDegree, out addCoeff))
                             {
-                                addCoeff = this.ring.Multiply(addCoeff, divisorLeadingCoeff);
                                 addCoeff = this.ring.Add(
                                     addCoeff,
                                     this.ring.AdditiveInverse(currentCoeff));
@@ -150,23 +165,36 @@
                     var divisorSorteCoeffs = divisor.GetOrderedCoefficients(Comparer<int>.Default);
                     var remainderLeadingDegree = remainderSortedCoeffs.Keys[remainderSortedCoeffs.Keys.Count - 1];
                     var divisorLeadingDegree = divisorSorteCoeffs.Keys[divisorSorteCoeffs.Keys.Count - 1];
-                    var divisorLeadingCoeff = divisorSorteCoeffs[divisorSorteCoeffs.Count - 1];
+                    var divisorLeadingCoeff = divisorSorteCoeffs.Values[divisorSorteCoeffs.Values.Count - 1];
+                    var multiplyNumber = MathFunctions.Power(
+                        divisorLeadingCoeff,
+                        remainderLeadingDegree - divisorLeadingDegree + 1,
+                        this.ring);
+                    var temporaryRemainderCoeffs = new SortedList<int, CoeffType>(Comparer<int>.Default);
+                    foreach (var kvp in remainderSortedCoeffs)
+                    {
+                        temporaryRemainderCoeffs.Add(
+                            kvp.Key,
+                            this.ring.Multiply(kvp.Value, multiplyNumber));
+                    }
+
+                    remainderSortedCoeffs = temporaryRemainderCoeffs;
                     while (remainderLeadingDegree >= divisorLeadingDegree && remainderSortedCoeffs.Count > 0)
                     {
                         var remainderLeadingCoeff = remainderSortedCoeffs[remainderLeadingDegree];
                         var differenceDegree = remainderLeadingDegree - divisorLeadingDegree;
+                        var factor = this.coeffsDomain.Quo(remainderLeadingCoeff, divisorLeadingCoeff);
                         remainderSortedCoeffs.Remove(remainderLeadingDegree);
                         for (int i = 0; i < divisorSorteCoeffs.Keys.Count - 1; ++i)
                         {
                             var currentDivisorDegree = divisorSorteCoeffs.Keys[i];
                             var currentCoeff = this.ring.Multiply(
                                 divisorSorteCoeffs[currentDivisorDegree],
-                                remainderLeadingCoeff);
+                                factor);
                             currentDivisorDegree += differenceDegree;
                             var addCoeff = default(CoeffType);
                             if (remainderSortedCoeffs.TryGetValue(currentDivisorDegree, out addCoeff))
                             {
-                                addCoeff = this.ring.Multiply(addCoeff, divisorLeadingCoeff);
                                 addCoeff = this.ring.Add(
                                     addCoeff,
                                     this.ring.AdditiveInverse(currentCoeff));
@@ -243,24 +271,37 @@
                     var quotientCoeffs = new UnivariatePolynomialNormalForm<CoeffType>(this.variableName);
                     var remainderLeadingDegree = remainderSortedCoeffs.Keys[remainderSortedCoeffs.Keys.Count - 1];
                     var divisorLeadingDegree = divisorSorteCoeffs.Keys[divisorSorteCoeffs.Keys.Count - 1];
-                    var divisorLeadingCoeff = divisorSorteCoeffs[divisorSorteCoeffs.Count - 1];
+                    var divisorLeadingCoeff = divisorSorteCoeffs.Values[divisorSorteCoeffs.Values.Count - 1];
+                    var multiplyNumber = MathFunctions.Power(
+                        divisorLeadingCoeff,
+                        remainderLeadingDegree - divisorLeadingDegree + 1,
+                        this.ring);
+                    var temporaryRemainderCoeffs = new SortedList<int, CoeffType>(Comparer<int>.Default);
+                    foreach (var kvp in remainderSortedCoeffs)
+                    {
+                        temporaryRemainderCoeffs.Add(
+                            kvp.Key,
+                            this.ring.Multiply(kvp.Value, multiplyNumber));
+                    }
+
+                    remainderSortedCoeffs = temporaryRemainderCoeffs;
                     while (remainderLeadingDegree >= divisorLeadingDegree && remainderSortedCoeffs.Count > 0)
                     {
                         var remainderLeadingCoeff = remainderSortedCoeffs[remainderLeadingDegree];
                         var differenceDegree = remainderLeadingDegree - divisorLeadingDegree;
-                        quotientCoeffs = quotientCoeffs.Add(remainderLeadingCoeff, differenceDegree, this.ring);
+                        var factor = this.coeffsDomain.Quo(remainderLeadingCoeff, divisorLeadingCoeff);
+                        quotientCoeffs = quotientCoeffs.Add(factor, differenceDegree, this.ring);
                         remainderSortedCoeffs.Remove(remainderLeadingDegree);
                         for (int i = 0; i < divisorSorteCoeffs.Keys.Count - 1; ++i)
                         {
                             var currentDivisorDegree = divisorSorteCoeffs.Keys[i];
                             var currentCoeff = this.ring.Multiply(
                                 divisorSorteCoeffs[currentDivisorDegree],
-                                remainderLeadingCoeff);
+                                factor);
                             currentDivisorDegree += differenceDegree;
                             var addCoeff = default(CoeffType);
                             if (remainderSortedCoeffs.TryGetValue(currentDivisorDegree, out addCoeff))
                             {
-                                addCoeff = this.ring.Multiply(addCoeff, divisorLeadingCoeff);
                                 addCoeff = this.ring.Add(
                                     addCoeff,
                                     this.ring.AdditiveInverse(currentCoeff));
