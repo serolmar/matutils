@@ -66,7 +66,15 @@
             }
             else
             {
-                if (divisor.Degree > dividend.Degree)
+                if (this.IsAdditiveUnity(divisor))
+                {
+                    throw new DivideByZeroException("Can't divide by the null polynomial.");
+                }
+                else if (this.IsAdditiveUnity(dividend))
+                {
+                    return this.AdditiveUnity;
+                }
+                else if (divisor.Degree > dividend.Degree)
                 {
                     return new UnivariatePolynomialNormalForm<CoeffType>(
                         this.variableName);
@@ -157,7 +165,15 @@
             }
             else
             {
-                if (divisor.Degree > dividend.Degree)
+                if (this.IsAdditiveUnity(divisor))
+                {
+                    throw new DivideByZeroException("Can't divide by the null polynomial.");
+                }
+                else if (this.IsAdditiveUnity(dividend))
+                {
+                    return this.AdditiveUnity;
+                }
+                else if (divisor.Degree > dividend.Degree)
                 {
                     return dividend.Clone();
                 }
@@ -249,7 +265,17 @@
             }
             else
             {
-                if (divisor.Degree > dividend.Degree)
+                if (this.IsAdditiveUnity(divisor))
+                {
+                    throw new DivideByZeroException("Can't divide by the null polynomial.");
+                }
+                else if (this.IsAdditiveUnity(dividend))
+                {
+                    return new DomainResult<UnivariatePolynomialNormalForm<CoeffType>>(
+                        this.AdditiveUnity,
+                        this.AdditiveUnity);
+                }
+                else if (divisor.Degree > dividend.Degree)
                 {
                     return new DomainResult<UnivariatePolynomialNormalForm<CoeffType>>(
                         new UnivariatePolynomialNormalForm<CoeffType>(this.variableName),

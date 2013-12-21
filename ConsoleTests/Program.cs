@@ -22,7 +22,7 @@
 
         static void Main(string[] args)
         {
-            Test12();
+            Test10();
             Console.ReadLine();
         }
 
@@ -412,20 +412,22 @@
             var fifthInput = "3*x^6+5*x^4-4*x^2-9*x+21";
 
             var integerDomain = new IntegerDomain();
+            var bigIntegerDomain = new BigIntegerDomain();
             var fractionField = new FractionField<int, IntegerDomain>(integerDomain);
             var integerParser = new IntegerParser<string>();
+            var bigIntegerParser = new BigIntegerParser<string>();
             var fractionParser = new ElementFractionParser<int, IntegerDomain>(integerParser, integerDomain);
             
-            // Leitura dos polinómios como sendo constituídos por inteiros
+            // Leitura dos polinómios como sendo constituídos por inteiros grandes
             var integerReader = new StringReader(fourthInput);
             var integerSymbolReader = new StringSymbolReader(integerReader, false);
-            var integerPolynomialParser = new UnivariatePolynomialReader<int, CharSymbolReader<string>>(
+            var integerPolynomialParser = new UnivariatePolynomialReader<BigInteger, CharSymbolReader<string>>(
                 "x",
-                integerParser,
-                integerDomain);
+                bigIntegerParser,
+                bigIntegerDomain);
 
-            var integerConversion = new ElementToElementConversion<int>();
-            var fourthIntegerPol = default(UnivariatePolynomialNormalForm<int>);
+            var integerConversion = new BigIntegerToIntegerConversion();
+            var fourthIntegerPol = default(UnivariatePolynomialNormalForm<BigInteger>);
             if (integerPolynomialParser.TryParsePolynomial(
                 integerSymbolReader,
                 integerConversion,
@@ -433,16 +435,20 @@
             {
                 integerReader = new StringReader(fifthInput);
                 integerSymbolReader = new StringSymbolReader(integerReader, false);
-                var fifthIntegerPol = default(UnivariatePolynomialNormalForm<int>);
+                var fifthIntegerPol = default(UnivariatePolynomialNormalForm<BigInteger>);
                 if (integerPolynomialParser.TryParsePolynomial(
                 integerSymbolReader,
                 integerConversion,
                 out fifthIntegerPol))
                 {
-                    var pseudoDomain = new UnivarPolynomPseudoDomain<int>("x", integerDomain);
+                    var pseudoDomain = new UnivarPolynomPseudoDomain<BigInteger>("x", bigIntegerDomain);
                     var quoAndRem = pseudoDomain.GetQuotientAndRemainder(fourthIntegerPol, fifthIntegerPol);
                     Console.WriteLine("Quociente: {0}", quoAndRem.Quotient);
                     Console.WriteLine("Resto: {0}", quoAndRem.Remainder);
+
+                    var resultantAlg = new UnivarPolResultantAlg<BigInteger>();
+                    var resultantResult = resultantAlg.Run(fourthIntegerPol, fifthIntegerPol, bigIntegerDomain);
+                    Console.WriteLine(resultantResult);
                 }
                 else
                 {
@@ -492,8 +498,6 @@
 
             reader = new StringReader(thirdInput);
             stringSymbolReader = new StringSymbolReader(reader, false);
-            var bigIntegerDomain = new BigIntegerDomain();
-            var bigIntegerParser = new BigIntegerParser<string>();
             var otherFractionParser = new ElementFractionParser<BigInteger, BigIntegerDomain>(bigIntegerParser, bigIntegerDomain);
             var otherFractionField = new FractionField<BigInteger, BigIntegerDomain>(bigIntegerDomain);
             var otherPolParser = new UnivariatePolynomialReader<
@@ -558,7 +562,6 @@
         /// </summary>
         public static void Test10()
         {
-
             var integerDomain = new IntegerDomain();
             var integerModularField = new ModularIntegerField(5);
             var integerParser = new IntegerParser<string>();
@@ -641,8 +644,8 @@
                 }
             }
 
-            var input = "x^8 + x^7 + x^4 + x^3 + x + 1";
-            integerModularField.Module = 3;
+            var input = "x^3+2";
+            integerModularField.Module = 5;
             reader = new StringReader(input);
             stringSymbolReader = new StringSymbolReader(reader, false);
 

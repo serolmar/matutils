@@ -136,6 +136,7 @@
 
             if (!integerModule.IsMultiplicativeUnity(factorsProduct))
             {
+                factorsProduct = integerModule.MultiplicativeInverse(factorsProduct);
                 result.Insert(0, new PolType(factorsProduct, 0, polynom.VariableName, integerModule));
             }
 
@@ -245,7 +246,7 @@
                         }
                     }
 
-                    for (int i = 0; i < numberOfFactors; ++i)
+                    for (int i = 0, k = 0; k < numberOfFactors && i < integerModule.Module; ++i)
                     {
                         var currentPol = MathFunctions.GreatCommonDivisor(
                             polynom, 
@@ -255,10 +256,12 @@
                         if (currentDegree == 1)
                         {
                             result.Add(currentPol);
+                            ++k;
                         }
                         else if (currentDegree > 1)
                         {
                             resultPol.Add(currentPol);
+                            ++k;
                         }
                     }
                 }

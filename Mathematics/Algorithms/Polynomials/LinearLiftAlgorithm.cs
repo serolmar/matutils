@@ -44,6 +44,7 @@
                         coeff=>this.ApplyModularHomomorphism(coeff, status.ModularField.Module), status.ModularField);
                     var tauTild = polynomialDomain.Multiply(status.TPol, c).ApplyFunction(
                         coeff=>this.ApplyModularHomomorphism(coeff, status.ModularField.Module), status.ModularField);
+
                     var sigmaQuoRemResult = polynomialDomain.GetQuotientAndRemainder(sigmaTild, status.InnerW1Factor);
 
                     var sigma = sigmaQuoRemResult.Remainder;

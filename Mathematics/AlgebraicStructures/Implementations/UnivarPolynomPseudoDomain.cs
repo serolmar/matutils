@@ -30,6 +30,18 @@
         }
 
         /// <summary>
+        /// Obtém o domínios dos coeficientes que implementa as operações necessárias à execução das
+        /// funções do pseudo-domínio polinomial corrente.
+        /// </summary>
+        public IEuclidenDomain<CoeffType> CoeffsDomain
+        {
+            get
+            {
+                return this.coeffsDomain;
+            }
+        }
+
+        /// <summary>
         /// Calcula o quociente da pseudo-divisão entre dois polinómios.
         /// </summary>
         /// <param name="dividend">O dividendo.</param>

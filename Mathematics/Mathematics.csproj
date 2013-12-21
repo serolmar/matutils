@@ -47,6 +47,7 @@
     <Compile Include="AlgebraicStructures\FractionParser.cs" />
     <Compile Include="AlgebraicStructures\Implementations\BigIntegerDomain.cs" />
     <Compile Include="AlgebraicStructures\Implementations\BigIntegerNormSpace.cs" />
+    <Compile Include="AlgebraicStructures\Implementations\BigIntegerToIntegerConversion.cs" />
     <Compile Include="AlgebraicStructures\Implementations\CoeffFractionMultiplicationOperation.cs" />
     <Compile Include="AlgebraicStructures\Implementations\DomainResult.cs" />
     <Compile Include="AlgebraicStructures\Implementations\DoubleField.cs" />
@@ -200,6 +201,7 @@
     <Compile Include="Algorithms\Polynomials\FiniteFieldPolFactorizationAlgorithm.cs" />
     <Compile Include="Algorithms\Polynomials\LinearLiftAlgorithm.cs" />
     <Compile Include="Algorithms\Polynomials\LinearLiftingStatus.cs" />
+    <Compile Include="Algorithms\Polynomials\UnivarPolResultantAlg.cs" />
     <Compile Include="Algorithms\Polynomials\UnivarSquareFreeDecomposition.cs" />
     <Compile Include="Algorithms\Simplex\SimplexAlgorithm.cs" />
     <Compile Include="Algorithms\Simplex\SimplexInput.cs" />
