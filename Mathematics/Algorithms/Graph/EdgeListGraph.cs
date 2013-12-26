@@ -1,11 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Utilities.Collections;
+﻿
 
 namespace Mathematics
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using Utilities.Collections;
+
     /// <summary>
     /// Grafo representado por uma lista de arestas.
     /// </summary>

@@ -9,6 +9,10 @@ namespace Mathematics
     {
         private TreeNode<NodeObjectType> rootNode;
 
+        /// <summary>
+        /// Instancia uma árvore proporcionando a raiz.
+        /// </summary>
+        /// <param name="rootNode">O nó raiz.</param>
         public Tree(NodeObjectType rootNode)
         {
             if (rootNode == null)
@@ -25,6 +29,13 @@ namespace Mathematics
         }
 
         /// <summary>
+        /// Permite instanciar uma árvore sem raiz para que possa ser usada rapidamente pelas livrarias internas.
+        /// </summary>
+        internal Tree()
+        {
+        }
+
+        /// <summary>
         /// Obtém a raíz da árvore.
         /// </summary>
         public ITreeNode<NodeObjectType> RootNode
@@ -36,13 +47,17 @@ namespace Mathematics
         }
 
         /// <summary>
-        /// Obtém a raiz da árvore de acordo com o respectivo tipo.
+        /// Obtém e atribui a raiz da árvore de acordo com o respectivo tipo.
         /// </summary>
         internal TreeNode<NodeObjectType> InternalRootNode
         {
             get
             {
                 return this.rootNode;
+            }
+            set
+            {
+                this.rootNode = value;
             }
         }
 

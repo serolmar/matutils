@@ -129,7 +129,7 @@
             }
             else if (mainDomain == null)
             {
-                throw new ArgumentNullException("domain");
+                throw new ArgumentNullException("mainDomain");
             }
             else
             {
@@ -147,6 +147,24 @@
                     mainDomain);
                 this.notInitialized = true;
             }
+        }
+
+        internal LinearLiftingStatus(
+            UnivariatePolynomialNormalForm<CoeffType> polynom,
+            IModularField<CoeffType> modularField,
+            IEuclidenDomain<CoeffType> mainDomain)
+        {
+            this.polynom = polynom;
+            this.modularField = modularField;
+            this.mainDomain = mainDomain;
+            this.liftFactorizationModule = modularField.Module;
+            this.modularPolynomialDomain = new UnivarPolynomEuclideanDomain<CoeffType>(
+                polynom.VariableName,
+                modularField);
+            this.mainPolynomialRing = new UnivarPolynomRing<CoeffType>(
+                polynom.VariableName,
+                mainDomain);
+            this.notInitialized = true;
         }
 
         /// <summary>
