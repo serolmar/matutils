@@ -38,6 +38,63 @@
         }
 
         /// <summary>
+        /// Testes adicionais sobre a factorização de polinómios e elevação de factores.
+        /// </summary>
+        public static void Test20()
+        {
+            // Leitura do polinómio
+            var polynomialReader = new IntegerPolynomialReader();
+            var polynom = polynomialReader.Read("x^4-1");
+
+            // Instanciação dos algoritmos
+            var resultantAlg = new UnivarPolResultantAlg<int>();
+            var primesGenerator = new PrimeNumbersIterator(int.MaxValue);
+
+            // Obtém o valor do coeficiente principal e do discriminante.
+            var integerDomain = new IntegerDomain();
+            var leadingCoeff = polynom.GetLeadingCoefficient(integerDomain);
+            var discriminant = resultantAlg.Run(
+                polynom, 
+                polynom.GetPolynomialDerivative(integerDomain), integerDomain).Replace(
+                integerDomain.AdditiveUnity, integerDomain);
+            var primesEnumerator = primesGenerator.GetEnumerator();
+            var prime = 1;
+            var state = true;
+            while (state)
+            {
+                if (primesEnumerator.MoveNext())
+                {
+                    var innerPrime = primesEnumerator.Current;
+                    if (!integerDomain.IsAdditiveUnity(integerDomain.Rem(leadingCoeff, innerPrime)) &&
+                        integerDomain.IsAdditiveUnity(integerDomain.Rem(discriminant, innerPrime)))
+                    {
+                        prime = innerPrime;
+                        state = false;
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Foram esgotados todos os primos disponísveis sem encontrar um que não divida o coeficiente principal e o discriminante.");
+                    state = false;
+                }
+            }
+
+            // Neste ponto estamos em condições de tentar factorizar o polinómio.
+            if (prime > 1)
+            {
+                // Realiza a factorização.
+                var integerModularField = new ModularIntegerField(prime);
+                var finiteFieldFactorization = new FiniteFieldPolFactorizationAlgorithm(
+                    new UnivarSquareFreeDecomposition<Fraction<int, IntegerDomain>>(),
+                    new DenseCondensationLinSysAlgorithm<int>(integerModularField));
+                var factored = finiteFieldFactorization.Run(polynom, integerModularField);
+                // A forma como os factores são apresentados neta fase não é das melhores
+                // Convém retornar um dicionário que, ao grau da decomposição livre de quadrados
+                // associa a lista de factores.
+            }
+        }
+
+        /// <summary>
         /// Testa a simplificação de expressões lógicas.
         /// </summary>
         public static void Test19()
