@@ -203,7 +203,7 @@
     <Compile Include="Algorithms\Polynomials\LinearLiftingStatus.cs" />
     <Compile Include="Algorithms\Polynomials\MultiFactorLiftAlgorithm.cs" />
     <Compile Include="Algorithms\Polynomials\MultiFactorLiftingStatus.cs" />
-    <Compile Include="Algorithms\Polynomials\UnivarPolResultantAlg.cs" />
+    <Compile Include="Algorithms\Polynomials\UnivarPolSubResultantAlg.cs" />
     <Compile Include="Algorithms\Polynomials\UnivarSquareFreeDecomposition.cs" />
     <Compile Include="Algorithms\Simplex\SimplexAlgorithm.cs" />
     <Compile Include="Algorithms\Simplex\SimplexInput.cs" />

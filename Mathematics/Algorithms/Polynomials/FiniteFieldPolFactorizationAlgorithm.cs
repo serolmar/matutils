@@ -12,7 +12,7 @@
     /// de um corpo finito.
     /// </summary>
     public class FiniteFieldPolFactorizationAlgorithm
-        : IAlgorithm<PolType, IModularField<int>, Dictionary<PolType, int>>
+        : IAlgorithm<PolType, IModularField<int>, Dictionary<int, List<PolType>>>
     {
         /// <summary>
         /// O algoritmo que permite obter a factorização em polinómios livres de quadrados.
@@ -52,9 +52,9 @@
         /// <returns>
         /// O dicionário que contém cada um dos factores e o respectivo grau.
         /// </returns>
-        public Dictionary<PolType, int> Run(PolType polynom, IModularField<int> modularField)
+        public Dictionary<int, List<PolType>> Run(PolType polynom, IModularField<int> modularField)
         {
-            var result = new Dictionary<PolType, int>();
+            var result = new Dictionary<int, List<PolType>>();
 
             var fractionField = new FractionField<int, IntegerDomain>(new IntegerDomain());
             var polynomDomain = new UnivarPolynomEuclideanDomain<int>(
@@ -72,10 +72,9 @@
             {
                 var clonedFactor = this.CloneInvPol(factorsKvp.Value, modularField);
                 var factored = this.Factorize(clonedFactor, modularField, polynomialField, bachetBezourAlg);
-                foreach (var factor in factored)
-                {
-                    result.Add(factor, factorsKvp.Key);
-                }
+                var squareFreeFactorsList = new List<PolType>();
+                squareFreeFactorsList.AddRange(factored);
+                result.Add(factorsKvp.Key, squareFreeFactorsList);
             }
 
             return result;

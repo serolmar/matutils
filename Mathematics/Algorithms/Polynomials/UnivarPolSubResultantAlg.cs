@@ -6,9 +6,14 @@
     using System.Text;
 
     /// <summary>
-    /// Permite determinar o resultante entre dois polinómios.
+    /// Permite determinar o resultante entre dois polinómios recorrendo ao algoritmo do sub-resultante.
     /// </summary>
-    public class UnivarPolResultantAlg<CoeffType> :
+    /// <remarks>
+    /// Convém notar que o algoritmo ainda não se encontra numa fase em que é possível obter o resultante
+    /// entre dois quaisquer polinómios, apesar do consegui-lo na maior parte dos casos. Porém, premite
+    /// calcular um múltiplo do máximo divisor comum entre dois polinómios operando directamente sobre os anéis.
+    /// </remarks>
+    public class UnivarPolSubResultantAlg<CoeffType> :
         IAlgorithm<
         UnivariatePolynomialNormalForm<CoeffType>,
         UnivariatePolynomialNormalForm<CoeffType>,
@@ -68,7 +73,7 @@
 
                     innerFirstPol = temp;
 
-                    // Ciclo relativo à determinação do primeiro calor de c
+                    // Ciclo relativo à determinação do primeiro valor de c
                     if (!pseudoDomain.IsAdditiveUnity(innerSecondPol))
                     {
                         firstLeadingCoeff = innerFirstPol.GetLeadingCoefficient(pseudoDomain.CoeffsDomain);

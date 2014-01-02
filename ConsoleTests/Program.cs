@@ -22,7 +22,7 @@
 
         static void Main(string[] args)
         {
-            Test10();
+            Test20();
             Console.ReadLine();
         }
 
@@ -44,10 +44,10 @@
         {
             // Leitura do polinómio
             var polynomialReader = new IntegerPolynomialReader();
-            var polynom = polynomialReader.Read("x^4-1");
+            var polynom = polynomialReader.Read("x^3-3*x+1");
 
             // Instanciação dos algoritmos
-            var resultantAlg = new UnivarPolResultantAlg<int>();
+            var resultantAlg = new UnivarPolSubResultantAlg<int>();
             var primesGenerator = new PrimeNumbersIterator(int.MaxValue);
 
             // Obtém o valor do coeficiente principal e do discriminante.
@@ -66,13 +66,13 @@
                 {
                     var innerPrime = primesEnumerator.Current;
                     if (!integerDomain.IsAdditiveUnity(integerDomain.Rem(leadingCoeff, innerPrime)) &&
-                        integerDomain.IsAdditiveUnity(integerDomain.Rem(discriminant, innerPrime)))
+                        !integerDomain.IsAdditiveUnity(integerDomain.Rem(discriminant, innerPrime)))
                     {
                         prime = innerPrime;
                         state = false;
                     }
                 }
-                else
+                else // Todos os primos gerados dividem pelo menos o coeficiente principal e o discriminante
                 {
                     Console.WriteLine("Foram esgotados todos os primos disponísveis sem encontrar um que não divida o coeficiente principal e o discriminante.");
                     state = false;
@@ -84,13 +84,38 @@
             {
                 // Realiza a factorização.
                 var integerModularField = new ModularIntegerField(prime);
-                var finiteFieldFactorization = new FiniteFieldPolFactorizationAlgorithm(
+
+                // Instancia o algoritmo responsável pela factorização sobre corpos finitos.
+                var finiteFieldFactorizationAlg = new FiniteFieldPolFactorizationAlgorithm(
                     new UnivarSquareFreeDecomposition<Fraction<int, IntegerDomain>>(),
                     new DenseCondensationLinSysAlgorithm<int>(integerModularField));
-                var factored = finiteFieldFactorization.Run(polynom, integerModularField);
-                // A forma como os factores são apresentados neta fase não é das melhores
-                // Convém retornar um dicionário que, ao grau da decomposição livre de quadrados
-                // associa a lista de factores.
+
+                // Instancia o algoritmo responsável pela elevação multi-factor.
+                var multiFactorLiftAlg = new MultiFactorLiftAlgorithm(new LinearLiftAlgorithm());
+                var factored = finiteFieldFactorizationAlg.Run(polynom, integerModularField);
+                var liftedFactors = new Dictionary<int, List<UnivariatePolynomialNormalForm<int>>>();
+                foreach (var factorKvp in factored)
+                {
+                    var multiLiftStatus = new MultiFactorLiftingStatus<int>(
+                        polynom,
+                        factorKvp.Value,
+                        integerModularField,
+                        integerDomain);
+                    var liftResult = multiFactorLiftAlg.Run(multiLiftStatus, 1);
+                    liftedFactors.Add(factorKvp.Key, liftResult);
+                }
+
+                // Imprime os resultados para a consola.
+                foreach (var liftFactor in liftedFactors)
+                {
+                    Console.WriteLine("Grau {0}", liftFactor.Key);
+                    foreach (var factor in liftFactor.Value)
+                    {
+                        Console.WriteLine(factor);
+                    }
+
+                    Console.WriteLine();
+                }
             }
         }
 
@@ -503,7 +528,7 @@
                     Console.WriteLine("Quociente: {0}", quoAndRem.Quotient);
                     Console.WriteLine("Resto: {0}", quoAndRem.Remainder);
 
-                    var resultantAlg = new UnivarPolResultantAlg<BigInteger>();
+                    var resultantAlg = new UnivarPolSubResultantAlg<BigInteger>();
                     var resultantResult = resultantAlg.Run(fourthIntegerPol, fifthIntegerPol, bigIntegerDomain);
                     Console.WriteLine(resultantResult);
                 }
