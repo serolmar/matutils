@@ -44,10 +44,10 @@
         {
             // Leitura do polinómio
             var polynomialReader = new IntegerPolynomialReader();
-            var polynom = polynomialReader.Read("x^3-3*x+1");
+            var polynom = polynomialReader.Read("x^10-1");
 
             // Instanciação dos algoritmos
-            var resultantAlg = new UnivarPolSubResultantAlg<int>();
+            var resultantAlg = new UnivarPolDeterminantResultantAlg<int>(new IntegerDomain());
             var primesGenerator = new PrimeNumbersIterator(int.MaxValue);
 
             // Obtém o valor do coeficiente principal e do discriminante.
@@ -55,8 +55,7 @@
             var leadingCoeff = polynom.GetLeadingCoefficient(integerDomain);
             var discriminant = resultantAlg.Run(
                 polynom, 
-                polynom.GetPolynomialDerivative(integerDomain), integerDomain).Replace(
-                integerDomain.AdditiveUnity, integerDomain);
+                polynom.GetPolynomialDerivative(integerDomain));
             var primesEnumerator = primesGenerator.GetEnumerator();
             var prime = 1;
             var state = true;
@@ -74,7 +73,7 @@
                 }
                 else // Todos os primos gerados dividem pelo menos o coeficiente principal e o discriminante
                 {
-                    Console.WriteLine("Foram esgotados todos os primos disponísveis sem encontrar um que não divida o coeficiente principal e o discriminante.");
+                    Console.WriteLine("Foram esgotados todos os primos disponíveis sem encontrar um que não divida o coeficiente principal e o discriminante.");
                     state = false;
                 }
             }
@@ -617,7 +616,7 @@
             var stringsymbolReader = new StringSymbolReader(reader, true);
             var integerParser = new IntegerParser<string>();
 
-            var arrayMatrixFactory = new ArrayMatrixFactory<int>();
+            var arrayMatrixFactory = new ArraySquareMatrixFactory<int>();
             var arrayMatrixReader = new ConfigMatrixReader<int, string, string, CharSymbolReader<string>>(
                 3,
                 3,
@@ -634,7 +633,7 @@
                 var divFreeCharPol = new FastDivisionFreeCharPolynomCalculator<int>(
                     "lambda",
                     integerDomain);
-                var computedCharPol = divFreeCharPol.Run(matrix);
+                var computedCharPol = divFreeCharPol.Run(matrix as ISquareMatrix<int>);
                 Console.WriteLine("O determinante usando permutações vale: {0}.", computedCharPol);
             }
         }

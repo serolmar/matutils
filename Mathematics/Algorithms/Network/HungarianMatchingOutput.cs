@@ -27,6 +27,7 @@
             this.affectation = affectation;
             this.maximumDomainAffected = maximumDomainAffected;
             this.maximumTargetAffected = maximumTargetAffected;
+            this.hasSolution = hasSolution;
         }
 
         public int[] Affectation

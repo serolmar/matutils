@@ -69,6 +69,7 @@
     <Compile Include="AlgebraicStructures\LogicInterfaces\ISquareMatrix.cs" />
     <Compile Include="AlgebraicStructures\Matrix\AArrayTriangularMatrix.cs" />
     <Compile Include="AlgebraicStructures\Matrix\ArraySquareMatrix.cs" />
+    <Compile Include="AlgebraicStructures\Matrix\ArraySquareMatrixFactory.cs" />
     <Compile Include="AlgebraicStructures\Matrix\ArrayTriangLowerMatrix.cs" />
     <Compile Include="AlgebraicStructures\Matrix\ArrayTriangUpperMatrix.cs" />
     <Compile Include="AlgebraicStructures\Matrix\ArrayVector.cs" />
@@ -203,6 +204,7 @@
     <Compile Include="Algorithms\Polynomials\LinearLiftingStatus.cs" />
     <Compile Include="Algorithms\Polynomials\MultiFactorLiftAlgorithm.cs" />
     <Compile Include="Algorithms\Polynomials\MultiFactorLiftingStatus.cs" />
+    <Compile Include="Algorithms\Polynomials\UnivarPolDeterminantResultantAlg.cs" />
     <Compile Include="Algorithms\Polynomials\UnivarPolSubResultantAlg.cs" />
     <Compile Include="Algorithms\Polynomials\UnivarSquareFreeDecomposition.cs" />
     <Compile Include="Algorithms\Simplex\SimplexAlgorithm.cs" />

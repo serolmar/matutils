@@ -13,7 +13,7 @@
     /// <typeparam name="ElementType">O tipo das entradas da matriz.</typeparam>
     /// <typeparam name="RingType">O anel responsável pelas operações.</typeparam>
     public class FastDivisionFreeCharPolynomCalculator<ElementType>
-        : IAlgorithm<IMatrix<ElementType>, UnivariatePolynomialNormalForm<ElementType>>
+        : IAlgorithm<ISquareMatrix<ElementType>, UnivariatePolynomialNormalForm<ElementType>>
     {
         protected string variableName;
 
@@ -36,7 +36,7 @@
             }
         }
 
-        public UnivariatePolynomialNormalForm<ElementType> Run(IMatrix<ElementType> data)
+        public UnivariatePolynomialNormalForm<ElementType> Run(ISquareMatrix<ElementType> data)
         {
             if (data == null)
             {
@@ -45,107 +45,117 @@
             else
             {
                 var lines = data.GetLength(0);
-                var columns = data.GetLength(1);
-                if (lines != columns)
+                if (lines == 0)
                 {
-                    throw new MathematicsException("Determinants can only be applied to square matrices.");
+                    return new UnivariatePolynomialNormalForm<ElementType>(this.variableName);
+                }
+                else if (lines == 1)
+                {
+                    var entry = data[0, 0];
+                    var result = new UnivariatePolynomialNormalForm<ElementType>(
+                        this.ring.MultiplicativeUnity,
+                        1,
+                        this.variableName,
+                        this.ring);
+                    result = result.Add(this.ring.AdditiveInverse(entry), 0, this.ring);
+                    return result;
+                }
+                else if (lines == 2)
+                {
+                    var variablePol = new UnivariatePolynomialNormalForm<ElementType>(
+                        this.ring.MultiplicativeUnity,
+                        1,
+                        this.variableName,
+                        this.ring);
+                    var firstDiagonalElement = variablePol.Add(
+                        this.ring.AdditiveInverse(data[0, 0]),
+                        this.ring);
+                    var secondDiagonalElement = variablePol.Add(
+                        this.ring.AdditiveInverse(data[1, 1]),
+                        this.ring);
+                    var result = firstDiagonalElement.Multiply(secondDiagonalElement, this.ring);
+                    result = result.Add(
+                        this.ring.AdditiveInverse(this.ring.Multiply(data[0, 1], data[1, 0])),
+                        this.ring);
+                    return result;
                 }
                 else
                 {
-                    if (lines == 0)
-                    {
-                        return new UnivariatePolynomialNormalForm<ElementType>(this.variableName);
-                    }
-                    else if (lines == 1)
-                    {
-                        var entry = data[0, 0];
-                        var result = new UnivariatePolynomialNormalForm<ElementType>(
-                            this.ring.MultiplicativeUnity, 
-                            1, 
-                            this.variableName, 
-                            this.ring);
-                        result = result.Add(this.ring.AdditiveInverse(entry), 0, this.ring);
-                        return result;
-                    }
-                    else if (lines == 2)
-                    {
-                        var variablePol = new UnivariatePolynomialNormalForm<ElementType>(
-                            this.ring.MultiplicativeUnity, 
-                            1, 
-                            this.variableName, 
-                            this.ring);
-                        var firstDiagonalElement = variablePol.Add(
-                            this.ring.AdditiveInverse(data[0, 0]), 
-                            this.ring);
-                        var secondDiagonalElement = variablePol.Add(
-                            this.ring.AdditiveInverse(data[1, 1]), 
-                            this.ring);
-                        var result = firstDiagonalElement.Multiply(secondDiagonalElement, this.ring);
-                        result = result.Add(
-                            this.ring.AdditiveInverse(this.ring.Multiply(data[0, 1], data[1, 0])), 
-                            this.ring);
-                        return result;
-                    }
-                    else
-                    {
-                        var matrixFactory = new ArrayMatrixFactory<ElementType>();
-                        var matrixMultiplicator = new MatrixMultiplicationOperation
-                            <ElementType, IRing<ElementType>, IRing<ElementType>>(
-                            matrixFactory, this.ring, this.ring);
-                        var subMatrixSequence = new IntegerSequence();
-                        var singleValueSequence = new IntegerSequence();
+                    var matrixFactory = new ArrayMatrixFactory<ElementType>();
+                    var matrixMultiplicator = new MatrixMultiplicationOperation
+                        <ElementType, IRing<ElementType>, IRing<ElementType>>(
+                        matrixFactory, this.ring, this.ring);
+                    var subMatrixSequence = new IntegerSequence();
+                    var singleValueSequence = new IntegerSequence();
 
-                        IMatrix<ElementType> multiplicationMatrix = new ArrayMatrix<ElementType>(
-                            lines + 1, 
-                            lines, 
+                    IMatrix<ElementType> multiplicationMatrix = new ArrayMatrix<ElementType>(
+                        lines + 1,
+                        lines,
+                        this.ring.AdditiveUnity);
+                    subMatrixSequence.Add(1, lines - 1);
+                    singleValueSequence.Add(0);
+                    this.FillMultiplicationMatrix(
+                        data,
+                        data[0, 0],
+                        subMatrixSequence,
+                        singleValueSequence,
+                        matrixMultiplicator,
+                        multiplicationMatrix);
+
+                    var currentDimension = 1;
+                    while (currentDimension < lines - 1)
+                    {
+                        subMatrixSequence.Clear();
+                        singleValueSequence.Clear();
+                        subMatrixSequence.Add(currentDimension + 1, lines - 1);
+                        singleValueSequence.Add(currentDimension);
+                        var otherLines = lines - currentDimension;
+                        var otherMultiplicationMatrix = new ArrayMatrix<ElementType>(
+                            otherLines + 1, 
+                            otherLines, 
                             this.ring.AdditiveUnity);
-                        subMatrixSequence.Add(1, lines - 1);
-                        singleValueSequence.Add(0);
+
                         this.FillMultiplicationMatrix(
                             data,
-                            data[0, 0],
+                            data[currentDimension, currentDimension],
                             subMatrixSequence,
                             singleValueSequence,
                             matrixMultiplicator,
-                            multiplicationMatrix);
+                            otherMultiplicationMatrix);
 
-                        var currentDimension = 1;
-                        while (currentDimension < lines)
-                        {
-                            subMatrixSequence.Clear();
-                            singleValueSequence.Clear();
-                            subMatrixSequence.Add(currentDimension, lines - 1);
-                            singleValueSequence.Add(currentDimension);
-                            var otherLines = lines - currentDimension;
-                            var otherMultiplicationMatrix = new ArrayMatrix<ElementType>(otherLines + 1, otherLines, this.ring.AdditiveUnity);
-                            this.FillMultiplicationMatrix(data,
-                                data[currentDimension, currentDimension],
-                                subMatrixSequence,
-                                singleValueSequence,
-                                matrixMultiplicator,
-                                otherMultiplicationMatrix);
-
-                            multiplicationMatrix = matrixMultiplicator.Multiply(multiplicationMatrix, otherMultiplicationMatrix);
-                            ++currentDimension;
-                        }
-
-                        var result = new UnivariatePolynomialNormalForm<ElementType>(
-                            multiplicationMatrix[0, 0], 
-                            lines, 
-                            this.variableName, 
-                            this.ring);
-                        for (int i = 1; i <= lines; ++i)
-                        {
-                            result = result.Add(multiplicationMatrix[i, 0], lines - i, this.ring);
-                        }
-
-                        return result;
+                        multiplicationMatrix = matrixMultiplicator.Multiply(
+                            multiplicationMatrix, 
+                            otherMultiplicationMatrix);
+                        ++currentDimension;
                     }
+
+                    var lastOtherMultiplicationMatrix = new ArrayMatrix<ElementType>(
+                            2, 
+                            1, 
+                            this.ring.AdditiveUnity);
+                    lastOtherMultiplicationMatrix[0, 0] = this.ring.MultiplicativeUnity;
+                    lastOtherMultiplicationMatrix[1, 0] = this.ring.AdditiveInverse(data[currentDimension, currentDimension]);
+                    multiplicationMatrix = matrixMultiplicator.Multiply(
+                            multiplicationMatrix,
+                            lastOtherMultiplicationMatrix);
+
+                    var result = new UnivariatePolynomialNormalForm<ElementType>(
+                        multiplicationMatrix[0, 0],
+                        lines,
+                        this.variableName,
+                        this.ring);
+                    for (int i = 1; i <= lines; ++i)
+                    {
+                        result = result.Add(multiplicationMatrix[i, 0], lines - i, this.ring);
+                    }
+
+                    return result;
                 }
             }
         }
 
-        private void FillMultiplicationMatrix(IMatrix<ElementType> data,
+        private void FillMultiplicationMatrix(
+            IMatrix<ElementType> data,
             ElementType diagonalElement,
             IntegerSequence subMatrixSequence,
             IntegerSequence singleValueSequence,
@@ -169,7 +179,7 @@
             var vectorsMultiply = multiplicator.Multiply(rowSubMatrix, columnSubMatrix);
             for (int i = 0; i < dimension - 1; ++i)
             {
-                multiplicationMatrix[i + 2, i] = vectorsMultiply[0, 0];
+                multiplicationMatrix[i + 2, i] = this.ring.AdditiveInverse(vectorsMultiply[0, 0]);
             }
 
             vectorsMultiply = multiplicator.Multiply(rowSubMatrix, mainSubMatrix);
@@ -179,14 +189,15 @@
                 multiplicationMatrix[i + 3, i] = this.ring.AdditiveInverse(vectorsMultiply[0, 0]);
             }
 
+            var subMatrix = mainSubMatrix;
             for (int i = 3; i < dimension; ++i)
             {
-                mainSubMatrix = multiplicator.Multiply(mainSubMatrix, mainSubMatrix);
-                vectorsMultiply = multiplicator.Multiply(rowSubMatrix, mainSubMatrix);
-                vectorsMultiply = multiplicator.Multiply(mainSubMatrix, columnSubMatrix);
-                for (int j = 0; i < dimension - i; ++j)
+                subMatrix = multiplicator.Multiply(mainSubMatrix, subMatrix);
+                vectorsMultiply = multiplicator.Multiply(rowSubMatrix, subMatrix);
+                vectorsMultiply = multiplicator.Multiply(vectorsMultiply, columnSubMatrix);
+                for (int j = 0; j < dimension - i; ++j)
                 {
-                    multiplicationMatrix[i + 3, i] = this.ring.AdditiveInverse(vectorsMultiply[0, 0]);
+                    multiplicationMatrix[j + i + 1, j] = this.ring.AdditiveInverse(vectorsMultiply[0, 0]);
                 }
             }
         }

@@ -216,6 +216,17 @@ namespace Mathematics
         }
 
         /// <summary>
+        /// Obtém o conjunto de termos que constituem o polinómio.
+        /// </summary>
+        internal SortedList<int, CoeffType> Terms
+        {
+            get
+            {
+                return this.terms;
+            }
+        }
+
+        /// <summary>
         /// Obtém o polinómio como sendo um valor.
         /// </summary>
         /// <param name="monoid">O monóide responsável pelas operações.</param>
