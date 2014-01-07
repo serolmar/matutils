@@ -44,6 +44,7 @@
                 multiFactorLiftingStatus.ModularField,
                 multiFactorLiftingStatus.MainDomain,
                 constants);
+            factorTree.InternalRootNode.NodeObject.Polynom = multiFactorLiftingStatus.Polynom;
             if (factorTree == null)
             {
                 // Não existem factores suficientes para elevar
@@ -55,16 +56,24 @@
             {
                 // A árvore contém factores para elevar
                 var factorQueue = new Queue<TreeNode<LinearLiftingStatus<int>>>();
-                factorQueue.Enqueue(factorTree.InternalRootNode);
-                while (factorQueue.Count > 0)
+
+                for (int i = 0; i < numberOfIterations; ++i)
                 {
-                    var dequeued = factorQueue.Dequeue();
-                    if (dequeued.Count == 2)
+                    factorQueue.Enqueue(factorTree.InternalRootNode);
+                    while (factorQueue.Count > 0)
                     {
-                        this.linearLiftAlg.Run(dequeued.NodeObject, 1);
-                        var solution = dequeued.NodeObject.GetSolution();
-                        dequeued.ChildsList[0].NodeObject.Polynom = solution.Item1;
-                        dequeued.ChildsList[1].NodeObject.Polynom = solution.Item2;
+                        var dequeued = factorQueue.Dequeue();
+                        if (dequeued.Count == 2)
+                        {
+                            this.linearLiftAlg.Run(dequeued.NodeObject, 1);
+                            var solution = dequeued.NodeObject.GetSolution();
+                            var firstChild = dequeued.ChildsList[0];
+                            var secondChild = dequeued.ChildsList[1];
+                            firstChild.NodeObject.Polynom = solution.Item1;
+                            secondChild.NodeObject.Polynom = solution.Item2;
+                            factorQueue.Enqueue(firstChild);
+                            factorQueue.Enqueue(secondChild);
+                        }
                     }
                 }
 
@@ -200,7 +209,7 @@
             while (factorQueue.Count > 0)
             {
                 var dequeued = factorQueue.Dequeue();
-                if (dequeued.Count == 1)
+                if (dequeued.Count == 0)
                 {
                     var current = dequeued.NodeObject.Polynom;
                     if (current.IsValue)
@@ -211,6 +220,11 @@
                     {
                         result.Add(current);
                     }
+                }
+                else
+                {
+                    factorQueue.Enqueue(dequeued.ChildsList[0]);
+                    factorQueue.Enqueue(dequeued.ChildsList[1]);
                 }
             }
 

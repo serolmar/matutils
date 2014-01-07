@@ -6,6 +6,10 @@
     using System.Text;
     using System.Threading.Tasks;
 
+    /// <summary>
+    /// Implementa o algoritmo paralelo do simplex habitual.
+    /// </summary>
+    /// <typeparam name="CoeffType">O tipo de coeficiente a considerar no algoritmo.</typeparam>
     public class SimplexAlgorithm<CoeffType> :
         IAlgorithm<SimplexInput<CoeffType, CoeffType>, SimplexOutput<CoeffType>>,
         IAlgorithm<SimplexInput<CoeffType, SimplexMaximumNumberField<CoeffType>>, SimplexOutput<CoeffType>>

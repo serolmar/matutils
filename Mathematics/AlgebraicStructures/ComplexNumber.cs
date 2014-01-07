@@ -1,4 +1,4 @@
-﻿namespace Mathematics.AlgebraicStructures
+﻿namespace Mathematics
 {
     using System;
     using System.Collections.Generic;
@@ -11,7 +11,6 @@
     /// <typeparam name="ObjectType">O tipo de objecto.</typeparam>
     public class ComplexNumber<ObjectType>
     {
-
         /// <summary>
         /// A parte real.
         /// </summary>

@@ -44,7 +44,7 @@
         {
             // Leitura do polinómio
             var polynomialReader = new IntegerPolynomialReader();
-            var polynom = polynomialReader.Read("x^10-1");
+            var polynom = polynomialReader.Read("x^3-1");
 
             // Instanciação dos algoritmos
             var resultantAlg = new UnivarPolDeterminantResultantAlg<int>(new IntegerDomain());
@@ -100,7 +100,7 @@
                         factorKvp.Value,
                         integerModularField,
                         integerDomain);
-                    var liftResult = multiFactorLiftAlg.Run(multiLiftStatus, 1);
+                    var liftResult = multiFactorLiftAlg.Run(multiLiftStatus, 5);
                     liftedFactors.Add(factorKvp.Key, liftResult);
                 }
 
@@ -750,7 +750,7 @@
         }
 
         /// <summary>
-        /// Teste às matrizes.
+        /// Teste às matrizes, incluindo o algoritmo LLL.
         /// </summary>
         public static void Test9()
         {

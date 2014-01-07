@@ -49,6 +49,7 @@
     <Compile Include="AlgebraicStructures\Implementations\BigIntegerNormSpace.cs" />
     <Compile Include="AlgebraicStructures\Implementations\BigIntegerToIntegerConversion.cs" />
     <Compile Include="AlgebraicStructures\Implementations\CoeffFractionMultiplicationOperation.cs" />
+    <Compile Include="AlgebraicStructures\Implementations\ComplexNumberField.cs" />
     <Compile Include="AlgebraicStructures\Implementations\DomainResult.cs" />
     <Compile Include="AlgebraicStructures\Implementations\DoubleField.cs" />
     <Compile Include="AlgebraicStructures\Implementations\DoubleNearestInteger.cs" />
@@ -159,6 +160,7 @@
     <Compile Include="AlgebraicStructures\Readers\RangeConfigReader.cs" />
     <Compile Include="AlgebraicStructures\Readers\RangeNoConfigReader.cs" />
     <Compile Include="AlgebraicStructures\Readers\RangeReaderMementoManager.cs" />
+    <Compile Include="Algorithms\Decision\SubsetSumDynamicProgramming.cs" />
     <Compile Include="Algorithms\Logic\BooleanCombination.cs" />
     <Compile Include="Algorithms\Logic\BooleanMinimalFormAlgorithm.cs" />
     <Compile Include="Algorithms\Logic\BooleanMinimalFormInOut.cs" />
