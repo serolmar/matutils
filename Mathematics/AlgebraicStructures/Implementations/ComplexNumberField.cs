@@ -49,7 +49,22 @@ namespace Mathematics
 
         public ComplexNumber<CoeffType> MultiplicativeInverse(ComplexNumber<CoeffType> number)
         {
-            throw new NotImplementedException();
+            if (number == null)
+            {
+                throw new ArgumentNullException("number");
+            }
+            else
+            {
+                var den = this.coeffsField.Add(
+                    this.coeffsField.Multiply(number.RealPart, number.RealPart),
+                    this.coeffsField.Multiply(number.ImaginaryPart, number.ImaginaryPart));
+                den = this.coeffsField.MultiplicativeInverse(den);
+                var real = this.coeffsField.Multiply(number.RealPart, den);
+                var imaginary = this.coeffsField.Multiply(
+                    this.coeffsField.AdditiveInverse(number.ImaginaryPart),
+                    den);
+                return new ComplexNumber<CoeffType>(real, imaginary);
+            }
         }
 
         public ComplexNumber<CoeffType> AddRepeated(ComplexNumber<CoeffType> element, int times)
@@ -85,7 +100,16 @@ namespace Mathematics
 
         public ComplexNumber<CoeffType> AdditiveInverse(ComplexNumber<CoeffType> number)
         {
-            throw new NotImplementedException();
+            if (number == null)
+            {
+                throw new ArgumentNullException("number");
+            }
+            else
+            {
+                return new ComplexNumber<CoeffType>(
+                    this.coeffsField.AdditiveInverse(number.RealPart),
+                    this.coeffsField.AdditiveInverse(number.ImaginaryPart));
+            }
         }
 
         public bool IsAdditiveUnity(ComplexNumber<CoeffType> value)
@@ -102,12 +126,37 @@ namespace Mathematics
 
         public bool Equals(ComplexNumber<CoeffType> x, ComplexNumber<CoeffType> y)
         {
-            throw new NotImplementedException();
+            if (object.ReferenceEquals(x, y))
+            {
+                return true;
+            }
+            else if (x == null)
+            {
+                return false;
+            }
+            else if (y == null)
+            {
+                return false;
+            }
+            else
+            {
+                return this.coeffsField.Equals(x.RealPart, y.RealPart) &&
+                    this.coeffsField.Equals(x.ImaginaryPart, y.ImaginaryPart);
+            }
         }
 
         public int GetHashCode(ComplexNumber<CoeffType> obj)
         {
-            throw new NotImplementedException();
+            if (obj == null)
+            {
+                throw new ArgumentNullException("obj");
+            }
+            else
+            {
+                var result = this.coeffsField.GetHashCode(obj.RealPart);
+                result ^= 37 * this.coeffsField.GetHashCode(obj.ImaginaryPart);
+                return result;
+            }
         }
 
         public ComplexNumber<CoeffType> Add(ComplexNumber<CoeffType> left, ComplexNumber<CoeffType> right)
