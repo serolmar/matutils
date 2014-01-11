@@ -22,7 +22,7 @@
 
         static void Main(string[] args)
         {
-            Test20();
+            Test21();
             Console.ReadLine();
         }
 
@@ -35,6 +35,58 @@
         {
             var tester = new ObjectTester();
             tester.Run(Console.In, Console.Out);
+        }
+
+        /// <summary>
+        /// Testes a alguns algoritmos de decisão.
+        /// </summary>
+        public static void Test21()
+        {
+            var integerDomain = new IntegerDomain();
+            var doubleField = new DoubleField();
+            var vectorFactory = new ArrayVectorFactory<double>();
+            var integerNorm = new IntegerNormSpace();
+            var intDoubleMult = new IntegerDoubleMultiplicationOperation();
+            var doubleComparer = Comparer<double>.Default;
+            var doubleNorm = new DoubleNormSpace();
+            var nearest = new DoubleNearestInteger();
+
+            var scalarProd = new OrthoVectorScalarProduct<double>(
+                        doubleComparer,
+                        doubleField);
+
+            var integerDoubleConverter = new IntegerDoubleConverter();
+
+            var lllReductionAlg = new LLLBasisReductionAlgorithm<IVector<double>, double, int>(
+                new VectorSpace<double>(3, vectorFactory, doubleField),
+                new CoeffVectorMultiplicationOperation<int, double>(intDoubleMult, vectorFactory),
+                intDoubleMult,
+                scalarProd,
+                doubleNorm,
+                nearest);
+
+            var vectorSet = new IVector<double>[3];
+            vectorSet[0] = new ArrayVector<double>(new double[] { 1, 1, 1 });
+            vectorSet[1] = new ArrayVector<double>(new double[] { -1, 0, 2 });
+            vectorSet[2] = new ArrayVector<double>(new double[] { 3, 5, 6 });
+
+            var reduced = lllReductionAlg.Run(vectorSet, 4F / 3);
+            //var subsetSumAlg = new SubsetSumLLLReductionAlgorithm<int, double>(
+            //    vectorFactory,
+            //    new CoeffVectorMultiplicationOperation<int, double>(
+            //                   intDoubleMult,
+            //                   vectorFactory),
+            //    intDoubleMult,
+            //    scalarProd,
+            //    doubleNorm,
+            //    nearest,
+            //    integerDoubleConverter,
+            //    doubleField,
+            //    integerDomain);
+
+            //var vectorReader = new IntegerArrayVectorReader();
+            //var vector = new[] { 366, 385, 392, 401, 422, 437 };
+            //var result = subsetSumAlg.Run(vector, 1215, 4F / 3);
         }
 
         /// <summary>
@@ -54,7 +106,7 @@
             var integerDomain = new IntegerDomain();
             var leadingCoeff = polynom.GetLeadingCoefficient(integerDomain);
             var discriminant = resultantAlg.Run(
-                polynom, 
+                polynom,
                 polynom.GetPolynomialDerivative(integerDomain));
             var primesEnumerator = primesGenerator.GetEnumerator();
             var prime = 1;
@@ -498,7 +550,7 @@
             var integerParser = new IntegerParser<string>();
             var bigIntegerParser = new BigIntegerParser<string>();
             var fractionParser = new ElementFractionParser<int, IntegerDomain>(integerParser, integerDomain);
-            
+
             // Leitura dos polinómios como sendo constituídos por inteiros grandes
             var integerReader = new StringReader(fourthInput);
             var integerSymbolReader = new StringSymbolReader(integerReader, false);
@@ -820,7 +872,9 @@
                                                                          Fraction<int, IntegerDomain>,
                                                                          int>(
                            vectorSpace,
-                           new IntegerFractionVectorMultOper(),
+                           new CoeffVectorMultiplicationOperation<int, Fraction<int,IntegerDomain>>(
+                               intFractionMult,
+                               vectorFactory),
                            intFractionMult,
                            scalarProd,
                            fractionNorm,
@@ -828,8 +882,7 @@
 
                     var lllReduced = lllReductionAlg.Run(
                         new IVector<Fraction<int, IntegerDomain>>[] { firstVector, secondVector },
-                        new Fraction<int, IntegerDomain>(4, 3, integerDomain),
-                        new Fraction<int, IntegerDomain>(1, 2, integerDomain));
+                        new Fraction<int, IntegerDomain>(4, 3, integerDomain));
 
                     for (int i = 0; i < lllReduced.Length; ++i)
                     {

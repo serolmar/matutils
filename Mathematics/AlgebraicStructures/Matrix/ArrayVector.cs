@@ -45,6 +45,23 @@
             }
         }
 
+        /// <summary>
+        /// Permite criar um vector com base num conjunto de valores pré-definidos.
+        /// </summary>
+        /// <param name="elements">O conjunto de valores pré-definidos.</param>
+        public ArrayVector(CoeffType[] elements)
+        {
+            if (elements == null)
+            {
+                throw new ArgumentNullException("elements");
+            }
+            else
+            {
+                this.vectorEntries = new CoeffType[elements.Length];
+                Array.Copy(elements, this.vectorEntries, elements.Length);
+            }
+        }
+
         private ArrayVector()
         {
         }
@@ -85,8 +102,10 @@
         /// </summary>
         public int Length
         {
-            get { 
-                return this.vectorEntries.Length; }
+            get
+            {
+                return this.vectorEntries.Length;
+            }
         }
 
         /// <summary>
@@ -169,6 +188,24 @@
             result.vectorEntries = new CoeffType[this.vectorEntries.Length];
             Array.Copy(this.vectorEntries, result.vectorEntries, this.vectorEntries.Length);
             return result;
+        }
+
+        public override string ToString()
+        {
+            var resultBuilder = new StringBuilder();
+            resultBuilder.Append("[");
+            if (this.vectorEntries.Length > 0)
+            {
+                resultBuilder.Append(this.vectorEntries[0]);
+                for (int i = 1; i < this.vectorEntries.Length; ++i)
+                {
+                    resultBuilder.Append(",");
+                    resultBuilder.Append(this.vectorEntries[i]);
+                }
+            }
+
+            resultBuilder.Append("]");
+            return resultBuilder.ToString();
         }
 
         IEnumerator System.Collections.IEnumerable.GetEnumerator()

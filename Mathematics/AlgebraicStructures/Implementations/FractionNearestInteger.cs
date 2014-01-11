@@ -24,18 +24,25 @@
             else
             {
                 var integerPart = source.IntegralPart;
-                var fractionPart = source.FractionalPart;
-                var factor = fractionPart.Denominator / fractionPart.Numerator;
-                if (factor > 2)
+                if (source.IntegralPart == 0)
                 {
-                    ++integerPart;
+                    return 0;
                 }
-                else if (factor < -2)
+                else
                 {
-                    --integerPart;
-                }
+                    var fractionPart = source.FractionalPart;
+                    var factor = fractionPart.Denominator / fractionPart.Numerator;
+                    if (factor > 2)
+                    {
+                        ++integerPart;
+                    }
+                    else if (factor < -2)
+                    {
+                        --integerPart;
+                    }
 
-                return integerPart;
+                    return integerPart;
+                }
             }
         }
     }

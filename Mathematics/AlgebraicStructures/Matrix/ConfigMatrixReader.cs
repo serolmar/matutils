@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using Utilities.Parsers;
-
-namespace Mathematics
+﻿namespace Mathematics
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+    using System.Linq;
+    using System.Text;
+    using Utilities.Parsers;
+
     public class ConfigMatrixReader<T, SymbValue, SymbType, InputReader>
     {
         private ARangeReader<T, SymbValue, SymbType, InputReader> rangeReader;

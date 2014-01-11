@@ -12,7 +12,7 @@
     /// <typeparam name="FieldCoeffType">O tipo de coeficiente.</typeparam>
     /// <typeparam name="GroupCoeffType">O tipo de aproximante.</typeparam>
     public class LLLBasisReductionAlgorithm<VectorType, FieldCoeffType, GroupCoeffType>
-        : IAlgorithm<VectorType[], FieldCoeffType, FieldCoeffType, VectorType[]>
+        : ILLLBasisReductionAlgorithm<VectorType, FieldCoeffType, GroupCoeffType>
     {
         /// <summary>
         /// O espaço vectorial responsável pelas operações sobre o vector.
@@ -112,7 +112,7 @@
         /// <summary>
         /// Obtém objecto reponsável pela multiplicação entre elementos do grupo e do corpo.
         /// </summary>
-        IMultiplicationOperation<GroupCoeffType, FieldCoeffType, FieldCoeffType> GroupFieldMultOperation
+        public IMultiplicationOperation<GroupCoeffType, FieldCoeffType, FieldCoeffType> GroupFieldMultOperation
         {
             get
             {
@@ -135,13 +135,11 @@
         /// Obtém a redução LLL do conunto de vectores.
         /// </summary>
         /// <param name="data">O conjunto de vectores a serem reduzidos.</param>
-        /// <param name="reductionCoeff">O coeficiente associado à redução.</param>
-        /// <param name="halfValue">O valor correspondente a metade da unidade.</param>
+        /// <param name="reductionCoeff">O coeficiente associado à redução, normalmente 4/3.</param>
         /// <returns>O conjunto reduzido.</returns>
         public VectorType[] Run(
             VectorType[] data, 
-            FieldCoeffType reductionCoeff,
-            FieldCoeffType halfValue)
+            FieldCoeffType reductionCoeff)
         {
             if (data == null)
             {
@@ -151,10 +149,6 @@
             {
                 throw new ArgumentNullException("reductionCoeff");
             }
-            else if (halfValue == null)
-            {
-                throw new ArgumentNullException("halfValue");
-            }
             else if (data.Length == 0)
             {
                 // Nada há a fazer sem dados.
@@ -162,107 +156,45 @@
             }
             else
             {
+                // Determinação do semi-valor
+                var halfValue = this.fieldVectorSpace.Field.AddRepeated(
+                    this.fieldVectorSpace.Field.MultiplicativeUnity,
+                    2);
+                halfValue = this.fieldVectorSpace.Field.MultiplicativeInverse(halfValue);
+
                 var bVec = new VectorType[data.Length];
                 Array.Copy(data, bVec, data.Length);
                 var bStarVec = new VectorType[data.Length];
-                var uCoeffs = new ArraySquareMatrix<FieldCoeffType>(data.Length);
-                for (int i = 0; i < data.Length; ++i)
+                var uCoeffs = new FieldCoeffType[data.Length][];
+                var bNorm = new FieldCoeffType[data.Length];
+                bStarVec[0] = bVec[0];
+                bNorm[0] = this.scalarProd.Multiply(bStarVec[0], bStarVec[0]);
+                for (int i = 1; i < data.Length; ++i)
                 {
-                    for (int j = 0; j < data.Length; ++j)
+                    uCoeffs[i] = new FieldCoeffType[i];
+                    bStarVec[i] = bVec[i];
+                    for (int j = 0; j < i; ++j)
                     {
-                        if (i == j)
-                        {
-                            uCoeffs[i, j] = this.fieldVectorSpace.Field.MultiplicativeUnity;
-                        }
-                        else
-                        {
-                            uCoeffs[i, j] = this.fieldVectorSpace.Field.AdditiveUnity;
-                        }
-
-                        bStarVec[i] = bVec[i];
+                        uCoeffs[i][j] = this.scalarProd.Multiply(bVec[i], bStarVec[j]);
+                        uCoeffs[i][j] = this.fieldVectorSpace.Field.Multiply(
+                            uCoeffs[i][j],
+                            this.fieldVectorSpace.Field.MultiplicativeInverse(bNorm[j]));
+                        var symmetric = this.fieldVectorSpace.Field.AdditiveInverse(uCoeffs[i][j]);
+                        bStarVec[i] = this.fieldVectorSpace.Add(
+                            bStarVec[i],
+                            this.fieldVectorSpace.MultiplyScalar(symmetric, bStarVec[i]));
                     }
 
-                    for (int j = 0; j < i - 1; ++j)
-                    {
-                        var quo = this.scalarProd.Multiply(bStarVec[j], bStarVec[j]);
-                        quo = this.fieldVectorSpace.Field.MultiplicativeInverse(quo);
-                        uCoeffs[i, j] = this.scalarProd.Multiply(bVec[i], bStarVec[j]);
-                        uCoeffs[i, j] = this.fieldVectorSpace.Field.Multiply(uCoeffs[i, j], quo);
-
-                        var tempVec = this.fieldVectorSpace.MultiplyScalar(uCoeffs[i, j], bStarVec[j]);
-                        tempVec = this.fieldVectorSpace.AdditiveInverse(tempVec);
-                        bStarVec[i] = this.fieldVectorSpace.Add(bStarVec[i], tempVec);
-                    }
-
-                    this.Reduce(i, bVec, uCoeffs);
+                    bNorm[i] = this.scalarProd.Multiply(bStarVec[i], bStarVec[i]);
                 }
 
-                var index = 0;
-                var last = data.Length - 1;
-                while (index < last)
+                var k = 2;
+                while (k <= data.Length)
                 {
-                    var bStarSquaredNorm = this.scalarProd.Multiply(bStarVec[index], bStarVec[index]);
-                    var nextBSttarSquaredNorm = this.scalarProd.Multiply(
-                        bStarVec[index + 1],
-                        bStarVec[index + 1]);
-                    var comparisionValue = this.fieldVectorSpace.Field.Multiply(reductionCoeff, nextBSttarSquaredNorm);
-                    if (this.fieldNormSpace.Compare(bStarSquaredNorm, comparisionValue) <= 0)
-                    {
-                        bStarSquaredNorm = nextBSttarSquaredNorm;
-                        ++index;
-                    }
-                    else
-                    {
-                        var tempBStar = this.fieldVectorSpace.MultiplyScalar(uCoeffs[index, index], bStarVec[index]);
-                        bStarVec[index] = this.fieldVectorSpace.Add(bStarVec[index], tempBStar);
-                        var quo = this.scalarProd.Multiply(bStarVec[index + 1], bStarVec[index + 1]);
-                        quo = this.fieldVectorSpace.Field.MultiplicativeInverse(quo);
-                        uCoeffs[index, index] = this.scalarProd.Multiply(bVec[index], bStarVec[index + 1]);
-                        uCoeffs[index, index] = this.fieldVectorSpace.Field.Multiply(
-                            uCoeffs[index, index],
-                            quo);
-                        uCoeffs[index, index + 1] = this.fieldVectorSpace.Field.MultiplicativeUnity;
-                        uCoeffs[index + 1, index + 1] = this.fieldVectorSpace.Field.AdditiveUnity;
-                        tempBStar = this.fieldVectorSpace.MultiplyScalar(uCoeffs[index, index], bStarVec[index + 1]);
-                        tempBStar = this.fieldVectorSpace.AdditiveInverse(tempBStar);
-                        bStarVec[index] = this.fieldVectorSpace.Add(bStarVec[index], tempBStar);
-
-                        // Realiza a troca dos coeficientes.
-                        uCoeffs.SwapLines(index, index + 1);
-                        this.SwapVectors(index, index + 1, bVec);
-                        this.SwapVectors(index, index + 1, bStarVec);
-
-                        var firstQuo = this.scalarProd.Multiply(bStarVec[index], bStarVec[index]);
-                        firstQuo = this.fieldVectorSpace.Field.MultiplicativeInverse(firstQuo);
-                        var secondQuo = this.scalarProd.Multiply(
-                            bStarVec[index + 1],
-                            bStarVec[index + 1]);
-                        secondQuo = this.fieldVectorSpace.Field.MultiplicativeInverse(secondQuo);
-                        for (var k = index + 2; k < data.Length; ++k)
-                        {
-                            uCoeffs[k, index] = this.scalarProd.Multiply(bVec[k], bStarVec[index]);
-                            uCoeffs[k, index] = this.fieldVectorSpace.Field.Multiply(uCoeffs[k, index], firstQuo);
-                            uCoeffs[k, index + 1] = this.scalarProd.Multiply(bVec[k], bStarVec[index + 1]);
-                            uCoeffs[k, index + 1] = this.fieldVectorSpace.Field.Multiply(uCoeffs[k, index + 1], secondQuo);
-                        }
-
-                        // Teste de redução e actualização do ciclo
-                        var coeffNorm = this.fieldNormSpace.GetNorm(uCoeffs[index + 1, index]);
-                        if (this.fieldNormSpace.Compare(uCoeffs[index + 1, index], halfValue) > 0)
-                        {
-                            this.Reduce(index + 1, bVec, uCoeffs);
-                        }
-
-                        --index;
-                        if (index < 0)
-                        {
-                            index = 0;
-                        }
-                    }
                 }
-
-                return bVec;
             }
+
+            throw new NotImplementedException();
         }
 
         /// <summary>

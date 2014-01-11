@@ -19,6 +19,11 @@ namespace Mathematics
         IField<CoefficientType> Field { get; }
 
         /// <summary>
+        /// Obtém o objecto responsável pela ciração de vectores durante as operações.
+        /// </summary>
+        IVectorFactory<CoefficientType> VectorFactory { get; }
+
+        /// <summary>
         /// Define a multiplicação do anel ou campo com o elemento do espaço vectorial.
         /// </summary>
         /// <param name="coefficientElement">O coeficiente.</param>

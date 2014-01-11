@@ -49,9 +49,12 @@
     <Compile Include="AlgebraicStructures\Implementations\BigIntegerNormSpace.cs" />
     <Compile Include="AlgebraicStructures\Implementations\BigIntegerToIntegerConversion.cs" />
     <Compile Include="AlgebraicStructures\Implementations\CoeffFractionMultiplicationOperation.cs" />
+    <Compile Include="AlgebraicStructures\Implementations\CoeffVectorMultiplicationOperation.cs" />
     <Compile Include="AlgebraicStructures\Implementations\ComplexNumberField.cs" />
     <Compile Include="AlgebraicStructures\Implementations\DomainResult.cs" />
     <Compile Include="AlgebraicStructures\Implementations\DoubleField.cs" />
+    <Compile Include="AlgebraicStructures\Implementations\IntegerDoubleConverter.cs" />
+    <Compile Include="AlgebraicStructures\Implementations\IntegerDoubleMultiplicationOperation.cs" />
     <Compile Include="AlgebraicStructures\Implementations\DoubleNearestInteger.cs" />
     <Compile Include="AlgebraicStructures\Implementations\DoubleNormSpace.cs" />
     <Compile Include="AlgebraicStructures\Implementations\ElementFractionConversion.cs" />
@@ -184,6 +187,7 @@
     <Compile Include="Algorithms\Matrix\Linear Systems\DenseCondensationLinSysAlgorithm.cs" />
     <Compile Include="Algorithms\Matrix\Linear Systems\LinearSystemSolution.cs" />
     <Compile Include="Algorithms\Matrix\Linear Systems\SequentialLanczosAlgorithm.cs" />
+    <Compile Include="Algorithms\Matrix\Reductions\ILLLBasisReductionAlgorithm.cs" />
     <Compile Include="Algorithms\Matrix\Reductions\LLLBasisReductionAlgorithm.cs" />
     <Compile Include="Algorithms\Network\HungarianMatchingAlgorithm.cs" />
     <Compile Include="Algorithms\Network\HungarianMatchingOutput.cs" />

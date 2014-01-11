@@ -5,9 +5,93 @@
     using System.Linq;
     using System.Text;
 
-    public class SubsetSumLLLReductionAlgorithm<CoeffType> 
-        : IAlgorithm<CoeffType[], CoeffType, IMonoid<CoeffType>, CoeffType[]>
+    /// <summary>
+    /// Implementa o algoritmo da soma dos subconjuntos com o auxílio do algoritmo LLL.
+    /// </summary>
+    /// <typeparam name="CoeffType">O tipo do coeficiente.</typeparam>
+    /// <typeparam name="NearestCoeffFieldType">O tipo do corpo a ser utilizado em conjunção com o algoritmo.</typeparam>
+    public class SubsetSumLLLReductionAlgorithm<CoeffType, NearestCoeffFieldType>
+        : IAlgorithm<CoeffType[], CoeffType, NearestCoeffFieldType, CoeffType[]>
     {
+        IGroup<CoeffType> group;
+
+        IField<NearestCoeffFieldType> nearestField;
+
+        IConversion<CoeffType, NearestCoeffFieldType> converter;
+
+        IVectorFactory<NearestCoeffFieldType> vectorFactory;
+
+        IMultiplicationOperation<CoeffType, IVector<NearestCoeffFieldType>, IVector<NearestCoeffFieldType>> coeffFieldVectorMult;
+
+        IMultiplicationOperation<CoeffType, NearestCoeffFieldType, NearestCoeffFieldType> coeffFieldMult;
+
+        IScalarProductSpace<IVector<NearestCoeffFieldType>, NearestCoeffFieldType> scalarProd;
+
+        INormSpace<NearestCoeffFieldType, NearestCoeffFieldType> nearestNorm;
+
+        INearest<NearestCoeffFieldType, CoeffType> nearest;
+
+        public SubsetSumLLLReductionAlgorithm(
+            IVectorFactory<NearestCoeffFieldType> vectorFactory,
+            IMultiplicationOperation<CoeffType, IVector<NearestCoeffFieldType>, IVector<NearestCoeffFieldType>> coeffFieldVectorMult,
+            IMultiplicationOperation<CoeffType, NearestCoeffFieldType, NearestCoeffFieldType> coeffFieldMult,
+            IScalarProductSpace<IVector<NearestCoeffFieldType>, NearestCoeffFieldType> scalarProd,
+            INormSpace<NearestCoeffFieldType, NearestCoeffFieldType> nearestNorm,
+            INearest<NearestCoeffFieldType, CoeffType> nearest,
+            IConversion<CoeffType, NearestCoeffFieldType> converter,
+            IField<NearestCoeffFieldType> nearestField,
+            IGroup<CoeffType> group)
+        {
+            if (group == null)
+            {
+                throw new ArgumentNullException("group");
+            }
+            else if (nearestField == null)
+            {
+                throw new ArgumentNullException("nearestField");
+            }
+            else if (converter == null)
+            {
+                throw new ArgumentNullException("converter");
+            }
+            else if (nearest == null)
+            {
+                throw new ArgumentNullException("nearest");
+            }
+            else if (nearestNorm == null)
+            {
+                throw new ArgumentNullException("nearestNorm");
+            }
+            else if (scalarProd == null)
+            {
+                throw new ArgumentNullException("scalarProd");
+            }
+            else if (coeffFieldMult == null)
+            {
+                throw new ArgumentNullException("coeffFieldMult");
+            }
+            else if (coeffFieldVectorMult == null)
+            {
+                throw new ArgumentNullException("coeffFieldVectorMult");
+            }
+            else if (vectorFactory == null)
+            {
+                throw new ArgumentNullException("vectorFactory");
+            }
+            else
+            {
+                this.vectorFactory = vectorFactory;
+                this.coeffFieldVectorMult = coeffFieldVectorMult;
+                this.coeffFieldMult = coeffFieldMult;
+                this.scalarProd = scalarProd;
+                this.nearestNorm = nearestNorm;
+                this.nearest = nearest;
+                this.converter = converter;
+                this.nearestField = nearestField;
+                this.group = group;
+            }
+        }
+
         /// <summary>
         /// Permite encontrar uma solução do problema da soma dos subconjunto.
         /// </summary>
@@ -18,13 +102,70 @@
         /// </remarks>
         /// <param name="coefficientValues">O conjunto de valores.</param>
         /// <param name="sum">A soma a ser encontrada.</param>
-        /// <param name="monoid">O objecto responsável pelas adições.</param>
-        /// <returns>O subconjunto do conjunto inicial cuja soma iguala o valor fornecido.</returns>
+        /// <param name="reductionCoeff">O coeficiente de redução.</param>
+        /// <returns>O subconjunto do conjunto inicial cuja soma mais se aproxima do valor fornecido.</returns>
         public CoeffType[] Run(
-            CoeffType[] coefficientValues, 
-            CoeffType sum, 
-            IMonoid<CoeffType> monoid)
+            CoeffType[] coefficientValues,
+            CoeffType sum,
+            NearestCoeffFieldType reductionCoeff)
         {
+            if (coefficientValues == null)
+            {
+                throw new ArgumentNullException("coefficientValues");
+            }
+            else if (sum == null)
+            {
+                throw new ArgumentNullException("sum");
+            }
+            else
+            {
+                // Elabora o algoritmo
+                if (coefficientValues.Length > 0)
+                {
+                    var vectorSpace = new VectorSpace<NearestCoeffFieldType>(
+                        coefficientValues.Length + 1,
+                        this.vectorFactory,
+                        this.nearestField);
+
+                    var lllReductionAlg = new LLLBasisReductionAlgorithm<IVector<NearestCoeffFieldType>, NearestCoeffFieldType, CoeffType>(
+                        vectorSpace,
+                        this.coeffFieldVectorMult,
+                        this.coeffFieldMult,
+                        this.scalarProd,
+                        this.nearestNorm,
+                        this.nearest);
+
+                    // Constrói o conjunto de vectores a serem reduzidos.
+                    var vectorSet = new IVector<NearestCoeffFieldType>[coefficientValues.Length + 1];
+                    for (int i = 0; i < coefficientValues.Length; ++i)
+                    {
+                        var createdVector = this.vectorFactory.CreateVector(
+                            coefficientValues.Length + 1,
+                            this.nearestField.AdditiveUnity);
+                        createdVector[i] = this.nearestField.MultiplicativeUnity;
+                        createdVector[coefficientValues.Length] = this.converter.InverseConversion(
+                            this.group.AdditiveInverse(coefficientValues[i]));
+                        vectorSet[i] = createdVector;
+                    }
+
+                    var lastVectorValue = this.vectorFactory.CreateVector(
+                        coefficientValues.Length + 1,
+                        this.nearestField.AdditiveUnity);
+                    lastVectorValue[lastVectorValue.Length - 1] = this.converter.InverseConversion(sum);
+                    vectorSet[coefficientValues.Length] = lastVectorValue;
+
+                    var reduced = lllReductionAlg.Run(
+                        vectorSet,
+                        reductionCoeff);
+
+                }
+                else
+                {
+                    // O tamanho do vector de coeficientes é zero.
+                    return new CoeffType[0];
+                }
+            }
+
             throw new NotImplementedException();
         }
     }

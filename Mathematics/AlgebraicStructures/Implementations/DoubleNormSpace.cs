@@ -1,4 +1,4 @@
-﻿namespace Mathematics.AlgebraicStructures.Implementations
+﻿namespace Mathematics
 {
     using System;
     using System.Collections.Generic;

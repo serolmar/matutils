@@ -54,6 +54,17 @@
         }
 
         /// <summary>
+        /// Obtém o objecto responsável pela ciração de vectores durante as operações.
+        /// </summary>
+        public IVectorFactory<CoeffType> VectorFactory
+        {
+            get
+            {
+                return this.vectorFactory;
+            }
+        }
+
+        /// <summary>
         /// Multiplica o vector por um escalar.
         /// </summary>
         /// <param name="coefficientElement">O escalar.</param>
