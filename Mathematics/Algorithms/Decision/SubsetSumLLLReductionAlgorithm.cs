@@ -21,23 +21,17 @@
 
         IVectorFactory<NearestCoeffFieldType> vectorFactory;
 
-        IMultiplicationOperation<CoeffType, IVector<NearestCoeffFieldType>, IVector<NearestCoeffFieldType>> coeffFieldVectorMult;
-
-        IMultiplicationOperation<CoeffType, NearestCoeffFieldType, NearestCoeffFieldType> coeffFieldMult;
-
         IScalarProductSpace<IVector<NearestCoeffFieldType>, NearestCoeffFieldType> scalarProd;
 
-        INormSpace<NearestCoeffFieldType, NearestCoeffFieldType> nearestNorm;
+        IComparer<NearestCoeffFieldType> fieldComparer;
 
-        INearest<NearestCoeffFieldType, CoeffType> nearest;
+        INearest<NearestCoeffFieldType, NearestCoeffFieldType> nearest;
 
         public SubsetSumLLLReductionAlgorithm(
             IVectorFactory<NearestCoeffFieldType> vectorFactory,
-            IMultiplicationOperation<CoeffType, IVector<NearestCoeffFieldType>, IVector<NearestCoeffFieldType>> coeffFieldVectorMult,
-            IMultiplicationOperation<CoeffType, NearestCoeffFieldType, NearestCoeffFieldType> coeffFieldMult,
             IScalarProductSpace<IVector<NearestCoeffFieldType>, NearestCoeffFieldType> scalarProd,
-            INormSpace<NearestCoeffFieldType, NearestCoeffFieldType> nearestNorm,
-            INearest<NearestCoeffFieldType, CoeffType> nearest,
+            INearest<NearestCoeffFieldType, NearestCoeffFieldType> nearest,
+            IComparer<NearestCoeffFieldType> fieldComparer,
             IConversion<CoeffType, NearestCoeffFieldType> converter,
             IField<NearestCoeffFieldType> nearestField,
             IGroup<CoeffType> group)
@@ -54,25 +48,17 @@
             {
                 throw new ArgumentNullException("converter");
             }
+            else if (fieldComparer == null)
+            {
+                throw new ArgumentNullException("fieldComparer");
+            }
             else if (nearest == null)
             {
                 throw new ArgumentNullException("nearest");
             }
-            else if (nearestNorm == null)
-            {
-                throw new ArgumentNullException("nearestNorm");
-            }
             else if (scalarProd == null)
             {
                 throw new ArgumentNullException("scalarProd");
-            }
-            else if (coeffFieldMult == null)
-            {
-                throw new ArgumentNullException("coeffFieldMult");
-            }
-            else if (coeffFieldVectorMult == null)
-            {
-                throw new ArgumentNullException("coeffFieldVectorMult");
             }
             else if (vectorFactory == null)
             {
@@ -81,11 +67,9 @@
             else
             {
                 this.vectorFactory = vectorFactory;
-                this.coeffFieldVectorMult = coeffFieldVectorMult;
-                this.coeffFieldMult = coeffFieldMult;
                 this.scalarProd = scalarProd;
-                this.nearestNorm = nearestNorm;
                 this.nearest = nearest;
+                this.fieldComparer = fieldComparer;
                 this.converter = converter;
                 this.nearestField = nearestField;
                 this.group = group;
@@ -129,11 +113,10 @@
 
                     var lllReductionAlg = new LLLBasisReductionAlgorithm<IVector<NearestCoeffFieldType>, NearestCoeffFieldType, CoeffType>(
                         vectorSpace,
-                        this.coeffFieldVectorMult,
-                        this.coeffFieldMult,
                         this.scalarProd,
-                        this.nearestNorm,
-                        this.nearest);
+                        this.nearest,
+                        this.fieldComparer
+                        );
 
                     // Constrói o conjunto de vectores a serem reduzidos.
                     var vectorSet = new IVector<NearestCoeffFieldType>[coefficientValues.Length + 1];

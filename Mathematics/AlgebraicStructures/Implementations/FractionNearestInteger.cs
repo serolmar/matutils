@@ -8,14 +8,28 @@
     /// <summary>
     /// Permite determinar o valor inteiro mais próximo de uma fracção.
     /// </summary>
-    public class FractionNearestInteger : INearest<Fraction<int,IntegerDomain>, int>
+    public class FractionNearestInteger : INearest<Fraction<int, IntegerDomain>, Fraction<int, IntegerDomain>>
     {
+        private IntegerDomain fractionDomain;
+
+        public FractionNearestInteger(IntegerDomain domain)
+        {
+            if (domain == null)
+            {
+                throw new ArgumentNullException("domain");
+            }
+            else
+            {
+                this.fractionDomain = domain;
+            }
+        }
+
         /// <summary>
         /// Obtém o valor inteiro mais próximo de uma fracção.
         /// </summary>
         /// <param name="source">A facção.</param>
         /// <returns>O valor inteiro.</returns>
-        public int GetNearest(Fraction<int, IntegerDomain> source)
+        public Fraction<int, IntegerDomain> GetNearest(Fraction<int, IntegerDomain> source)
         {
             if (source == null)
             {
@@ -26,7 +40,7 @@
                 var integerPart = source.IntegralPart;
                 if (source.IntegralPart == 0)
                 {
-                    return 0;
+                    return new Fraction<int, IntegerDomain>(0, 1, this.fractionDomain);
                 }
                 else
                 {
@@ -41,7 +55,7 @@
                         --integerPart;
                     }
 
-                    return integerPart;
+                    return new Fraction<int,IntegerDomain>(integerPart, 1, this.fractionDomain);
                 }
             }
         }

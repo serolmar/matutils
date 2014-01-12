@@ -43,50 +43,57 @@
         public static void Test21()
         {
             var integerDomain = new IntegerDomain();
-            var doubleField = new DoubleField();
-            var vectorFactory = new ArrayVectorFactory<double>();
-            var integerNorm = new IntegerNormSpace();
-            var intDoubleMult = new IntegerDoubleMultiplicationOperation();
-            var doubleComparer = Comparer<double>.Default;
-            var doubleNorm = new DoubleNormSpace();
-            var nearest = new DoubleNearestInteger();
+            var decimalField = new DecimalField();
+            var vectorFactory = new ArrayVectorFactory<decimal>();
+            var decimalComparer = Comparer<decimal>.Default;
+            var nearest = new DecimalNearestInteger();
 
-            var scalarProd = new OrthoVectorScalarProduct<double>(
-                        doubleComparer,
-                        doubleField);
+            var scalarProd = new OrthoVectorScalarProduct<decimal>(
+                        decimalComparer,
+                        decimalField);
 
-            var integerDoubleConverter = new IntegerDoubleConverter();
+            var integerDecimalConverter = new IntegerDecimalConverter();
 
-            var lllReductionAlg = new LLLBasisReductionAlgorithm<IVector<double>, double, int>(
-                new VectorSpace<double>(3, vectorFactory, doubleField),
-                new CoeffVectorMultiplicationOperation<int, double>(intDoubleMult, vectorFactory),
-                intDoubleMult,
-                scalarProd,
-                doubleNorm,
-                nearest);
-
-            var vectorSet = new IVector<double>[3];
-            vectorSet[0] = new ArrayVector<double>(new double[] { 1, 1, 1 });
-            vectorSet[1] = new ArrayVector<double>(new double[] { -1, 0, 2 });
-            vectorSet[2] = new ArrayVector<double>(new double[] { 3, 5, 6 });
-
-            var reduced = lllReductionAlg.Run(vectorSet, 4F / 3);
-            //var subsetSumAlg = new SubsetSumLLLReductionAlgorithm<int, double>(
-            //    vectorFactory,
-            //    new CoeffVectorMultiplicationOperation<int, double>(
-            //                   intDoubleMult,
-            //                   vectorFactory),
-            //    intDoubleMult,
+            //var lllReductionAlg = new LLLBasisReductionAlgorithm<IVector<decimal>, decimal, int>(
+            //    new VectorSpace<decimal>(3, vectorFactory, decimalField),
             //    scalarProd,
-            //    doubleNorm,
             //    nearest,
-            //    integerDoubleConverter,
-            //    doubleField,
+            //    Comparer<decimal>.Default);
+
+            //var vectorSet = new IVector<decimal>[3];
+            //vectorSet[0] = new ArrayVector<decimal>(new decimal[] { 1, 1, 1 });
+            //vectorSet[1] = new ArrayVector<decimal>(new decimal[] { -1, 0, 2 });
+            //vectorSet[2] = new ArrayVector<decimal>(new decimal[] { 3, 5, 6 });
+
+            //var reduced = lllReductionAlg.Run(vectorSet, 3M / 4);
+
+            var dim = 4;
+            var vectorSet = new IVector<decimal>[dim];
+            var lllReductionAlg = new LLLBasisReductionAlgorithm<IVector<decimal>, decimal, int>(
+                new VectorSpace<decimal>(dim, vectorFactory, decimalField),
+                scalarProd,
+                nearest,
+                Comparer<decimal>.Default);
+
+            vectorSet[0] = new ArrayVector<decimal>(new decimal[] { 1, 1, 7, 2 });
+            vectorSet[1] = new ArrayVector<decimal>(new decimal[] { 9, 8, 4, 6 });
+            vectorSet[2] = new ArrayVector<decimal>(new decimal[] { 1, 8, 5, 7 });
+            vectorSet[3] = new ArrayVector<decimal>(new decimal[] { 2, 3, 1, 1 });
+
+            var reduced = lllReductionAlg.Run(vectorSet, 3M / 4);
+
+            //var subsetSumAlg = new SubsetSumLLLReductionAlgorithm<int, decimal>(
+            //    vectorFactory,
+            //    scalarProd,
+            //    nearest,
+            //    Comparer<decimal>.Default,
+            //    integerDecimalConverter,
+            //    decimalField,
             //    integerDomain);
 
             //var vectorReader = new IntegerArrayVectorReader();
             //var vector = new[] { 366, 385, 392, 401, 422, 437 };
-            //var result = subsetSumAlg.Run(vector, 1215, 4F / 3);
+            //var result = subsetSumAlg.Run(vector, 1215, 3M / 4);
         }
 
         /// <summary>
@@ -859,26 +866,17 @@
                         Console.WriteLine(PrintVector(basisVector));
                     }
 
-                    var integerNorm = new IntegerNormSpace();
-                    var intFractionMult = new CoeffFractionMultiplicationOperation<int, IntegerDomain>();
                     var fractionComparer = new FractionComparer<int, IntegerDomain>(
                         Comparer<int>.Default,
                         integerDomain);
-                    var fractionNorm = new FractionNormSpace<int, IntegerDomain>(
-                        integerNorm,
-                        fractionComparer);
-                    var nearest = new FractionNearestInteger();
+                    var nearest = new FractionNearestInteger(integerDomain);
                     var lllReductionAlg = new LLLBasisReductionAlgorithm<IVector<Fraction<int, IntegerDomain>>,
                                                                          Fraction<int, IntegerDomain>,
                                                                          int>(
                            vectorSpace,
-                           new CoeffVectorMultiplicationOperation<int, Fraction<int,IntegerDomain>>(
-                               intFractionMult,
-                               vectorFactory),
-                           intFractionMult,
                            scalarProd,
-                           fractionNorm,
-                           nearest);
+                           nearest,
+                           new FractionComparer<int, IntegerDomain>(Comparer<int>.Default, integerDomain));
 
                     var lllReduced = lllReductionAlg.Run(
                         new IVector<Fraction<int, IntegerDomain>>[] { firstVector, secondVector },

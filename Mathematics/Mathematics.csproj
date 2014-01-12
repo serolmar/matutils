@@ -51,8 +51,11 @@
     <Compile Include="AlgebraicStructures\Implementations\CoeffFractionMultiplicationOperation.cs" />
     <Compile Include="AlgebraicStructures\Implementations\CoeffVectorMultiplicationOperation.cs" />
     <Compile Include="AlgebraicStructures\Implementations\ComplexNumberField.cs" />
+    <Compile Include="AlgebraicStructures\Implementations\DecimalField.cs" />
+    <Compile Include="AlgebraicStructures\Implementations\DecimalNearestInteger.cs" />
     <Compile Include="AlgebraicStructures\Implementations\DomainResult.cs" />
     <Compile Include="AlgebraicStructures\Implementations\DoubleField.cs" />
+    <Compile Include="AlgebraicStructures\Implementations\IntegerDecimalConverter.cs" />
     <Compile Include="AlgebraicStructures\Implementations\IntegerDoubleConverter.cs" />
     <Compile Include="AlgebraicStructures\Implementations\IntegerDoubleMultiplicationOperation.cs" />
     <Compile Include="AlgebraicStructures\Implementations\DoubleNearestInteger.cs" />

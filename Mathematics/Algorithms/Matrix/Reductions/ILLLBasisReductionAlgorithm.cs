@@ -10,8 +10,7 @@
     /// </summary>
     /// <typeparam name="VectorType">O tipo de vectores.</typeparam>
     /// <typeparam name="FieldCoeffType">O tipo de valores do corpo.</typeparam>
-    /// <typeparam name="GroupCoeffType">O tipo de valores do grupo.</typeparam>
-    public interface ILLLBasisReductionAlgorithm<VectorType, FieldCoeffType, GroupCoeffType>
+    public interface ILLLBasisReductionAlgorithm<VectorType, FieldCoeffType>
         : IAlgorithm<VectorType[], FieldCoeffType, VectorType[]>
     {
         /// <summary>
@@ -20,18 +19,13 @@
         IVectorSpace<FieldCoeffType, VectorType> FieldVectorSpace { get; }
 
         /// <summary>
-        /// O objecto responsável pelas multiplicações dos valores aproximados pelo vector.
-        /// </summary>
-        IMultiplicationOperation<GroupCoeffType, VectorType, VectorType> GroupVectorMultOperation { get; }
-
-        /// <summary>
-        /// Obtém objecto reponsável pela multiplicação entre elementos do grupo e do corpo.
-        /// </summary>
-        IMultiplicationOperation<GroupCoeffType, FieldCoeffType, FieldCoeffType> GroupFieldMultOperation { get; }
-
-        /// <summary>
         /// Obtém a melhor aproximação.
         /// </summary>
-        INearest<FieldCoeffType, GroupCoeffType> Nearest { get; }
+        INearest<FieldCoeffType, FieldCoeffType> Nearest { get; }
+
+        /// <summary>
+        /// Obtém o objecto responsável pela determinação do produto escalar entre dois vectores.
+        /// </summary>
+        IScalarProductSpace<VectorType, FieldCoeffType> ScalarProduct { get; }
     }
 }

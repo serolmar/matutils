@@ -12,7 +12,7 @@
     /// <typeparam name="FieldCoeffType">O tipo de coeficiente.</typeparam>
     /// <typeparam name="GroupCoeffType">O tipo de aproximante.</typeparam>
     public class LLLBasisReductionAlgorithm<VectorType, FieldCoeffType, GroupCoeffType>
-        : ILLLBasisReductionAlgorithm<VectorType, FieldCoeffType, GroupCoeffType>
+        : ILLLBasisReductionAlgorithm<VectorType, FieldCoeffType>
     {
         /// <summary>
         /// O espaço vectorial responsável pelas operações sobre o vector.
@@ -20,70 +20,47 @@
         private IVectorSpace<FieldCoeffType, VectorType> fieldVectorSpace;
 
         /// <summary>
-        /// O objecto responsável pelas multiplicações dos valores aproximados pelo vector.
-        /// </summary>
-        private IMultiplicationOperation<GroupCoeffType, VectorType, VectorType> groupVectorMultOperation;
-
-        /// <summary>
-        /// O objecto reponsável pela multiplicação entre elementos do grupo e do corpo.
-        /// </summary>
-        private IMultiplicationOperation<GroupCoeffType, FieldCoeffType, FieldCoeffType> groupFieldMultOperation;
-
-        /// <summary>
         /// O objecto responsável pelos produtos escalares.
         /// </summary>
         private IScalarProductSpace<VectorType, FieldCoeffType> scalarProd;
+        /// <summary>
+        /// Permite obter a melhor aproximação.
+        /// </summary>
+        private INearest<FieldCoeffType, FieldCoeffType> nearest;
 
         /// <summary>
-        /// Permite comparar coeficientes bem como determinar o respectivo módulo.
+        /// Permite a comparação entre dois coeficientes.
         /// </summary>
-        private INormSpace<FieldCoeffType, FieldCoeffType> fieldNormSpace;
-
-        /// <summary>
-        /// Obtém a melhor aproximação.
-        /// </summary>
-        private INearest<FieldCoeffType, GroupCoeffType> nearest;
+        private IComparer<FieldCoeffType> fieldCoeffTypeComparer;
 
         public LLLBasisReductionAlgorithm(
             IVectorSpace<FieldCoeffType, VectorType> fieldVectorSpace,
-            IMultiplicationOperation<GroupCoeffType, VectorType, VectorType> groupVectorMultOperation,
-            IMultiplicationOperation<GroupCoeffType, FieldCoeffType, FieldCoeffType> groupFieldMultOperation,
             IScalarProductSpace<VectorType, FieldCoeffType> scalarProd,
-            INormSpace<FieldCoeffType, FieldCoeffType> fieldNormSpace,
-            INearest<FieldCoeffType, GroupCoeffType> nearest)
+            INearest<FieldCoeffType, FieldCoeffType> nearest,
+            IComparer<FieldCoeffType> fieldCoeffTypeComparer)
         {
             if (fieldVectorSpace == null)
             {
                 throw new ArgumentNullException("fieldVectorSpace");
             }
-            else if (groupVectorMultOperation == null)
-            {
-                throw new ArgumentNullException("groupVectorMultOperation");
-            }
-            else if (groupFieldMultOperation == null)
-            {
-                throw new ArgumentNullException("groupFieldMultOperation");
-            }
             else if (scalarProd == null)
             {
                 throw new ArgumentNullException("scalarProd");
-            }
-            else if (fieldNormSpace == null)
-            {
-                throw new ArgumentNullException("fieldNormSpace");
             }
             else if (nearest == null)
             {
                 throw new ArgumentNullException("nearest");
             }
+            else if (fieldCoeffTypeComparer == null)
+            {
+                throw new ArgumentNullException("fieldCoeffTypeComparer");
+            }
             else
             {
                 this.fieldVectorSpace = fieldVectorSpace;
-                this.groupVectorMultOperation = groupVectorMultOperation;
-                this.groupFieldMultOperation = groupFieldMultOperation;
                 this.scalarProd = scalarProd;
-                this.fieldNormSpace = fieldNormSpace;
                 this.nearest = nearest;
+                this.fieldCoeffTypeComparer = fieldCoeffTypeComparer;
             }
         }
 
@@ -99,31 +76,9 @@
         }
 
         /// <summary>
-        /// O objecto responsável pelas multiplicações dos valores aproximados pelo vector.
-        /// </summary>
-        public IMultiplicationOperation<GroupCoeffType, VectorType, VectorType> GroupVectorMultOperation
-        {
-            get
-            {
-                return this.groupVectorMultOperation;
-            }
-        }
-
-        /// <summary>
-        /// Obtém objecto reponsável pela multiplicação entre elementos do grupo e do corpo.
-        /// </summary>
-        public IMultiplicationOperation<GroupCoeffType, FieldCoeffType, FieldCoeffType> GroupFieldMultOperation
-        {
-            get
-            {
-                return this.groupFieldMultOperation;
-            }
-        }
-
-        /// <summary>
         /// Obtém a melhor aproximação.
         /// </summary>
-        public INearest<FieldCoeffType, GroupCoeffType> Nearest
+        public INearest<FieldCoeffType, FieldCoeffType> Nearest
         {
             get
             {
@@ -132,13 +87,28 @@
         }
 
         /// <summary>
+        /// Obtém o objecto responsável pela determinação do produto escalar entre dois vectores.
+        /// </summary>
+        public IScalarProductSpace<VectorType, FieldCoeffType> ScalarProduct
+        {
+            get
+            {
+                return this.scalarProd;
+            }
+        }
+
+        /// <summary>
         /// Obtém a redução LLL do conunto de vectores.
         /// </summary>
+        /// <remarks>
+        /// Se um valor for inferior a 1/2, então a respectiva aproximação inteira será o valor zero. Esta é uma
+        /// verificação possível para averiguar se um coeficiente se encontra dentro desses limites.
+        /// </remarks>
         /// <param name="data">O conjunto de vectores a serem reduzidos.</param>
-        /// <param name="reductionCoeff">O coeficiente associado à redução, normalmente 4/3.</param>
+        /// <param name="reductionCoeff">O coeficiente associado à redução entre 1/4 e 1, normalmente 3/4.</param>
         /// <returns>O conjunto reduzido.</returns>
         public VectorType[] Run(
-            VectorType[] data, 
+            VectorType[] data,
             FieldCoeffType reductionCoeff)
         {
             if (data == null)
@@ -156,12 +126,6 @@
             }
             else
             {
-                // Determinação do semi-valor
-                var halfValue = this.fieldVectorSpace.Field.AddRepeated(
-                    this.fieldVectorSpace.Field.MultiplicativeUnity,
-                    2);
-                halfValue = this.fieldVectorSpace.Field.MultiplicativeInverse(halfValue);
-
                 var bVec = new VectorType[data.Length];
                 Array.Copy(data, bVec, data.Length);
                 var bStarVec = new VectorType[data.Length];
@@ -182,66 +146,108 @@
                         var symmetric = this.fieldVectorSpace.Field.AdditiveInverse(uCoeffs[i][j]);
                         bStarVec[i] = this.fieldVectorSpace.Add(
                             bStarVec[i],
-                            this.fieldVectorSpace.MultiplyScalar(symmetric, bStarVec[i]));
+                            this.fieldVectorSpace.MultiplyScalar(symmetric, bStarVec[j]));
                     }
 
                     bNorm[i] = this.scalarProd.Multiply(bStarVec[i], bStarVec[i]);
                 }
 
-                var k = 2;
-                while (k <= data.Length)
+                var k = 1;
+                while (k < data.Length)
                 {
-                }
-            }
-
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Aplica a redução aos vectores da base resultante tendo em consideração os coeficientes da
-        /// ortogonalização.
-        /// </summary>
-        /// <param name="index">O indice a partir do qual a redução se aplica.</param>
-        /// <param name="bVec">O conjunto de vectores a serem reduzidos.</param>
-        /// <param name="uCoeffs">O conjunto de coeficientes.</param>
-        private void Reduce(
-            int index,
-            VectorType[] bVec,
-            ArraySquareMatrix<FieldCoeffType> uCoeffs)
-        {
-            for (int i = index - 2; i > 0; --i)
-            {
-                var nearest = this.nearest.GetNearest(uCoeffs[index, i]);
-                var tempRound = this.groupVectorMultOperation.Multiply(
-                    nearest,
-                    bVec[i]);
-                tempRound = this.fieldVectorSpace.AdditiveInverse(tempRound);
-                bVec[index] = this.fieldVectorSpace.Add(bVec[index], tempRound);
-
-                var length = uCoeffs.GetLength(0);
-                for (int j = 0; j < length; ++j)
-                {
-                    if (!this.fieldVectorSpace.Field.IsAdditiveUnity(uCoeffs[i, j]))
+                    // Redução do tamanho do vector
+                    for (int i = k - 1; i >= 0; --i)
                     {
-                        var temp = this.groupFieldMultOperation.Multiply(nearest, uCoeffs[i, j]);
-                        temp = this.fieldVectorSpace.Field.AdditiveInverse(temp);
-                        uCoeffs[i, j] = this.fieldVectorSpace.Field.Add(uCoeffs[i, j], temp);
+                        var nearestCoeff = this.nearest.GetNearest(uCoeffs[k][i]);
+                        if (!this.fieldVectorSpace.Field.IsAdditiveUnity(nearestCoeff))
+                        {
+                            var invNearestCoeff = this.fieldVectorSpace.Field.AdditiveInverse(nearestCoeff);
+                            var tempVec = this.fieldVectorSpace.MultiplyScalar(invNearestCoeff, bVec[i]);
+                            bVec[k] = this.fieldVectorSpace.Add(
+                                bVec[k],
+                                tempVec);
+                            
+                            // Actualiza todos os coeficientes
+                            for (int j = 0; j < i; ++j)
+                            {
+                                var tempProduct = this.fieldVectorSpace.Field.Multiply(
+                                    uCoeffs[i][j],
+                                    nearestCoeff);
+                                uCoeffs[k][i] = this.fieldVectorSpace.Field.Add(
+                                    uCoeffs[i][j],
+                                    tempProduct);
+                            }
+
+                            uCoeffs[k][i] = this.fieldVectorSpace.Field.Add(
+                                uCoeffs[k][i],
+                                this.fieldVectorSpace.Field.AdditiveInverse(nearestCoeff));
+                        }
+                    }
+
+                    // Verifica a condição
+                    var currentCoeff = uCoeffs[k][k-1];
+                    var compareValue = this.fieldVectorSpace.Field.AdditiveInverse(
+                        this.fieldVectorSpace.Field.Multiply(currentCoeff, currentCoeff));
+                    compareValue = this.fieldVectorSpace.Field.Add(
+                        reductionCoeff,
+                        compareValue);
+                    compareValue = this.fieldVectorSpace.Field.Multiply(
+                        compareValue,
+                        bNorm[k - 1]);
+                    if (this.fieldCoeffTypeComparer.Compare(bNorm[k], compareValue) >= 0)
+                    {
+                        ++k;
+                    }
+                    else
+                    {
+                        // Troca os dois vectores
+                        var swap = bVec[k];
+                        bVec[k] = bVec[k - 1];
+                        bVec[k - 1] = swap;
+
+                        // Actualiza os restantes coeficientes e vectores
+                        for (int i = k - 1; i <= k; ++i)
+                        {
+                            bStarVec[i] = bVec[i];
+                            for (int j = 0; j < i; ++j)
+                            {
+                                uCoeffs[i][j] = this.scalarProd.Multiply(bVec[i], bStarVec[j]);
+                                uCoeffs[i][j] = this.fieldVectorSpace.Field.Multiply(
+                                    uCoeffs[i][j],
+                                    this.fieldVectorSpace.Field.MultiplicativeInverse(bNorm[j]));
+                                var symmetric = this.fieldVectorSpace.Field.AdditiveInverse(uCoeffs[i][j]);
+                                bStarVec[i] = this.fieldVectorSpace.Add(
+                                    bStarVec[i],
+                                    this.fieldVectorSpace.MultiplyScalar(symmetric, bStarVec[j]));
+                            }
+
+                            bNorm[i] = this.scalarProd.Multiply(bStarVec[i], bStarVec[i]);
+                        }
+
+                        for (int i = k + 1; i < data.Length; ++i)
+                        {
+                            // Para k - 1
+                            uCoeffs[i][k-1] = this.scalarProd.Multiply(bVec[i], bStarVec[k-1]);
+                            uCoeffs[i][k-1] = this.fieldVectorSpace.Field.Multiply(
+                                uCoeffs[i][k-1],
+                                this.fieldVectorSpace.Field.MultiplicativeInverse(bNorm[k-1]));
+
+                            // Para k
+                            uCoeffs[i][k] = this.scalarProd.Multiply(bVec[i], bStarVec[k]);
+                            uCoeffs[i][k] = this.fieldVectorSpace.Field.Multiply(
+                                uCoeffs[i][k],
+                                this.fieldVectorSpace.Field.MultiplicativeInverse(bNorm[k]));
+                        }
+
+                        if (k > 1)
+                        {
+                            --k;
+                        }
                     }
                 }
-            }
-        }
 
-        /// <summary>
-        /// Permite trocar os vectores nas posições especificadas.
-        /// </summary>
-        /// <param name="firstIndex">A posição do primeiro vector a ser trocado.</param>
-        /// <param name="secondIndex">A segunda posição do vector a ser trocado.</param>
-        /// <param name="vectors">O conjunto de vectores.</param>
-        private void SwapVectors(int firstIndex, int secondIndex, VectorType[] vectors)
-        {
-            var swap = vectors[firstIndex];
-            vectors[firstIndex] = vectors[secondIndex];
-            vectors[secondIndex] = swap;
+                return bVec;
+            }
         }
     }
 }
