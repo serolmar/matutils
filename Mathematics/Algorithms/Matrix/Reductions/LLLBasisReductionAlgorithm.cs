@@ -98,7 +98,7 @@
         }
 
         /// <summary>
-        /// Obtém a redução LLL do conunto de vectores.
+        /// Obtém a redução LLL do conjunto de vectores.
         /// </summary>
         /// <remarks>
         /// Se um valor for inferior a 1/2, então a respectiva aproximação inteira será o valor zero. Esta é uma
@@ -172,15 +172,15 @@
                             {
                                 var tempProduct = this.fieldVectorSpace.Field.Multiply(
                                     uCoeffs[i][j],
-                                    nearestCoeff);
-                                uCoeffs[k][i] = this.fieldVectorSpace.Field.Add(
-                                    uCoeffs[i][j],
+                                    invNearestCoeff);
+                                uCoeffs[k][j] = this.fieldVectorSpace.Field.Add(
+                                    uCoeffs[k][j],
                                     tempProduct);
                             }
 
                             uCoeffs[k][i] = this.fieldVectorSpace.Field.Add(
                                 uCoeffs[k][i],
-                                this.fieldVectorSpace.Field.AdditiveInverse(nearestCoeff));
+                                invNearestCoeff);
                         }
                     }
 

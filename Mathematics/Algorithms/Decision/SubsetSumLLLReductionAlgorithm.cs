@@ -13,8 +13,6 @@
     public class SubsetSumLLLReductionAlgorithm<CoeffType, NearestCoeffFieldType>
         : IAlgorithm<CoeffType[], CoeffType, NearestCoeffFieldType, CoeffType[]>
     {
-        IGroup<CoeffType> group;
-
         IField<NearestCoeffFieldType> nearestField;
 
         IConversion<CoeffType, NearestCoeffFieldType> converter;
@@ -33,14 +31,9 @@
             INearest<NearestCoeffFieldType, NearestCoeffFieldType> nearest,
             IComparer<NearestCoeffFieldType> fieldComparer,
             IConversion<CoeffType, NearestCoeffFieldType> converter,
-            IField<NearestCoeffFieldType> nearestField,
-            IGroup<CoeffType> group)
+            IField<NearestCoeffFieldType> nearestField)
         {
-            if (group == null)
-            {
-                throw new ArgumentNullException("group");
-            }
-            else if (nearestField == null)
+            if (nearestField == null)
             {
                 throw new ArgumentNullException("nearestField");
             }
@@ -72,7 +65,6 @@
                 this.fieldComparer = fieldComparer;
                 this.converter = converter;
                 this.nearestField = nearestField;
-                this.group = group;
             }
         }
 
@@ -126,8 +118,8 @@
                             coefficientValues.Length + 1,
                             this.nearestField.AdditiveUnity);
                         createdVector[i] = this.nearestField.MultiplicativeUnity;
-                        createdVector[coefficientValues.Length] = this.converter.InverseConversion(
-                            this.group.AdditiveInverse(coefficientValues[i]));
+                        createdVector[coefficientValues.Length] = this.nearestField.AdditiveInverse(
+                            this.converter.InverseConversion(coefficientValues[i]));
                         vectorSet[i] = createdVector;
                     }
 
@@ -140,7 +132,8 @@
                     var reduced = lllReductionAlg.Run(
                         vectorSet,
                         reductionCoeff);
-
+                    var result = this.GetSolution(coefficientValues, reduced);
+                    return result;
                 }
                 else
                 {
@@ -148,8 +141,46 @@
                     return new CoeffType[0];
                 }
             }
+        }
 
-            throw new NotImplementedException();
+        private CoeffType[] GetSolution(
+            CoeffType[] coeffs,
+            IVector<NearestCoeffFieldType>[] possibleSolutions)
+        {
+            var result = default(CoeffType[]);
+            var lastPosition = coeffs.Length;
+            var solutionItems = new List<CoeffType>();
+            for (int i = 0; i < possibleSolutions.Length; ++i)
+            {
+                var currentCandidate = possibleSolutions[i];
+                var lastPositionValue = currentCandidate[lastPosition];
+                if (this.nearestField.IsAdditiveUnity(lastPositionValue))
+                {
+                    var foundSolution = true;
+                    for (int j = 0; j < lastPosition; ++j)
+                    {
+                        var currentValue = currentCandidate[j];
+                        if (this.nearestField.IsMultiplicativeUnity(currentValue))
+                        {
+                            solutionItems.Add(coeffs[j]);
+                        }
+                        else if (!this.nearestField.IsAdditiveUnity(currentValue))
+                        {
+                            solutionItems.Clear();
+                            foundSolution = false;
+                            j = lastPosition;
+                        }
+                    }
+
+                    if (foundSolution)
+                    {
+                        result = solutionItems.ToArray();
+                        i = possibleSolutions.Length;
+                    }
+                }
+            }
+
+            return result;
         }
     }
 }

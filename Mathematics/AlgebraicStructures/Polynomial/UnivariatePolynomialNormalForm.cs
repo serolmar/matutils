@@ -1166,6 +1166,13 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Permite construir o polinómio que resulta do polinómio actual, aplicando
+        /// uma função a cada um dos coeficientes.
+        /// </summary>
+        /// <param name="func">A função a ser aplicada.</param>
+        /// <param name="monoid">O monóide que irá permitir eliminar os elementos nulos.</param>
+        /// <returns>O polinómio.</returns>
         public UnivariatePolynomialNormalForm<CoeffType> ApplyFunction(
             Func<CoeffType, CoeffType> func,
             IMonoid<CoeffType> monoid)

@@ -67,33 +67,34 @@
 
             //var reduced = lllReductionAlg.Run(vectorSet, 3M / 4);
 
-            var dim = 4;
-            var vectorSet = new IVector<decimal>[dim];
-            var lllReductionAlg = new LLLBasisReductionAlgorithm<IVector<decimal>, decimal, int>(
-                new VectorSpace<decimal>(dim, vectorFactory, decimalField),
-                scalarProd,
-                nearest,
-                Comparer<decimal>.Default);
-
-            vectorSet[0] = new ArrayVector<decimal>(new decimal[] { 1, 1, 7, 2 });
-            vectorSet[1] = new ArrayVector<decimal>(new decimal[] { 9, 8, 4, 6 });
-            vectorSet[2] = new ArrayVector<decimal>(new decimal[] { 1, 8, 5, 7 });
-            vectorSet[3] = new ArrayVector<decimal>(new decimal[] { 2, 3, 1, 1 });
-
-            var reduced = lllReductionAlg.Run(vectorSet, 3M / 4);
-
-            //var subsetSumAlg = new SubsetSumLLLReductionAlgorithm<int, decimal>(
-            //    vectorFactory,
+            //var dim = 4;
+            //var vectorSet = new IVector<decimal>[dim];
+            //var lllReductionAlg = new LLLBasisReductionAlgorithm<IVector<decimal>, decimal, int>(
+            //    new VectorSpace<decimal>(dim, vectorFactory, decimalField),
             //    scalarProd,
             //    nearest,
-            //    Comparer<decimal>.Default,
-            //    integerDecimalConverter,
-            //    decimalField,
-            //    integerDomain);
+            //    Comparer<decimal>.Default);
 
-            //var vectorReader = new IntegerArrayVectorReader();
-            //var vector = new[] { 366, 385, 392, 401, 422, 437 };
-            //var result = subsetSumAlg.Run(vector, 1215, 3M / 4);
+            //vectorSet[0] = new ArrayVector<decimal>(new decimal[] { 1, 1, 7, 2 });
+            //vectorSet[1] = new ArrayVector<decimal>(new decimal[] { 9, 8, 4, 6 });
+            //vectorSet[2] = new ArrayVector<decimal>(new decimal[] { 1, 8, 5, 7 });
+            //vectorSet[3] = new ArrayVector<decimal>(new decimal[] { 2, 3, 1, 1 });
+
+            //var reduced = lllReductionAlg.Run(vectorSet, 3M / 4);
+
+            var subsetSumAlg = new SubsetSumLLLReductionAlgorithm<int, decimal>(
+                vectorFactory,
+                scalarProd,
+                nearest,
+                Comparer<decimal>.Default,
+                integerDecimalConverter,
+                decimalField);
+
+            var vectorReader = new IntegerArrayVectorReader();
+            var vector = new[] { 366, 385, 392, 401, 422, 437 };
+            var result = subsetSumAlg.Run(vector, 1215, 3M / 4);
+
+            Console.WriteLine(PrintVector(result));
         }
 
         /// <summary>
