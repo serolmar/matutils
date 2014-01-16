@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Utilities.Parsers;
-
-namespace Utilities.Parsers
+﻿namespace Utilities
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using Utilities;
+
     class StringSymbol<SymbType> : ISymbol<string, SymbType>
     {
         #region ISymbol Members

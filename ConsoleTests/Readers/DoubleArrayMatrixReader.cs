@@ -7,7 +7,6 @@
     using System.Text;
     using Mathematics;
     using Utilities;
-    using Utilities.Parsers;
 
     public class DoubleArrayMatrixReader
     {

@@ -3,27 +3,29 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Utilities.Parsers
+namespace Utilities
 {
-    public class StateMachine<InputReader, TSymbVal, TSymbType>
+    public class StateMachine<TSymbVal, TSymbType>
     {
-        private IState<InputReader, TSymbVal, TSymbType> start = null;
-        private IState<InputReader, TSymbVal, TSymbType> end = null;
-        private IState<InputReader, TSymbVal, TSymbType> currentState = null;
+        private IState<TSymbVal, TSymbType> start = null;
+        private IState<TSymbVal, TSymbType> end = null;
+        private IState<TSymbVal, TSymbType> currentState = null;
 
-        public StateMachine(IState<InputReader, TSymbVal, TSymbType> start, IState<InputReader, TSymbVal, TSymbType> end)
+        public StateMachine(IState<TSymbVal, TSymbType> start, IState<TSymbVal, TSymbType> end)
         {
             this.start = start;
             this.end = end;
             this.Reset();
         }
 
-        public void RunMachine(SymbolReader<InputReader, TSymbVal, TSymbType> reader)
+        public void RunMachine(ISymbolReader<TSymbVal, TSymbType> reader)
         {
             this.RunMachine(reader, null);
         }
 
-        public void RunMachine(SymbolReader<InputReader, TSymbVal, TSymbType> reader, IEqualityComparer<IState<InputReader, TSymbVal, TSymbType>> stateComparer)
+        public void RunMachine(
+            ISymbolReader<TSymbVal, TSymbType> reader, 
+            IEqualityComparer<IState<TSymbVal, TSymbType>> stateComparer)
         {
             // this.currentState = this.start;
             bool isEqual = stateComparer == null ? this.currentState.Equals(this.end) : stateComparer.Equals(this.currentState, this.end);
@@ -34,12 +36,14 @@ namespace Utilities.Parsers
             }
         }
 
-        public bool NextState(SymbolReader<InputReader, TSymbVal, TSymbType> reader)
+        public bool NextState(ISymbolReader<TSymbVal, TSymbType> reader)
         {
             return this.NextState(reader, null);
         }
 
-        public bool NextState(SymbolReader<InputReader, TSymbVal, TSymbType> reader, IEqualityComparer<IState<InputReader, TSymbVal, TSymbType>> stateComparer)
+        public bool NextState(
+            ISymbolReader<TSymbVal, TSymbType> reader, 
+            IEqualityComparer<IState<TSymbVal, TSymbType>> stateComparer)
         {
             bool isEqual = stateComparer == null ? this.currentState.Equals(this.end) : stateComparer.Equals(this.currentState, this.end);
             if (isEqual)
@@ -56,7 +60,7 @@ namespace Utilities.Parsers
             this.currentState = this.start;
         }
 
-        public void GotoState(IState<InputReader, TSymbVal, TSymbType> state)
+        public void GotoState(IState<TSymbVal, TSymbType> state)
         {
             this.currentState = state;
         }

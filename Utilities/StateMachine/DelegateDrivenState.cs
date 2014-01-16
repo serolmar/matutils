@@ -1,19 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Utilities.Parsers
+﻿namespace Utilities
 {
-    public delegate IState<InputReader, TSymbVal, TSymbType> NextStateDelegate<InputReader, TSymbVal, TSymbType>(SymbolReader<InputReader, TSymbVal, TSymbType> reader);
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
 
-    public class DelegateDrivenState<InputReader, TSymbVal, TSymbType> : IState<InputReader, TSymbVal, TSymbType>
+    public delegate IState<TSymbVal, TSymbType> NextStateDelegate<TSymbVal, TSymbType>(ISymbolReader<TSymbVal, TSymbType> reader);
+
+    public class DelegateDrivenState<TSymbVal, TSymbType> : IState<TSymbVal, TSymbType>
     {
         private int stateID;
         private string description = string.Empty;
-        private NextStateDelegate<InputReader, TSymbVal, TSymbType> nextStateDelegate;
+        private NextStateDelegate<TSymbVal, TSymbType> nextStateDelegate;
 
-        public DelegateDrivenState(int stateID, string description, NextStateDelegate<InputReader, TSymbVal, TSymbType> nextStateDelegate)
+        public DelegateDrivenState(
+            int stateID, 
+            string description, 
+            NextStateDelegate<TSymbVal, TSymbType> nextStateDelegate)
         {
             if (nextStateDelegate == null)
             {
@@ -25,14 +28,14 @@ namespace Utilities.Parsers
             this.nextStateDelegate = nextStateDelegate;
         }
 
-        public IState<InputReader, TSymbVal, TSymbType> NextState(SymbolReader<InputReader, TSymbVal, TSymbType> reader)
+        public IState<TSymbVal, TSymbType> NextState(ISymbolReader<TSymbVal, TSymbType> reader)
         {
             return this.nextStateDelegate.Invoke(reader);
         }
 
         public override bool Equals(object obj)
         {
-            var left = obj as DelegateDrivenState<InputReader, TSymbVal, TSymbType>;
+            var left = obj as DelegateDrivenState<TSymbVal, TSymbType>;
             if (left == null)
             {
                 return false;

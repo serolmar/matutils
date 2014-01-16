@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
-    using Utilities.Parsers;
+    using Utilities;
 
     public class MultiDimensionalRangeParser<T> : 
         IParse<MultiDimensionalRange<T>, string, string>

@@ -5,7 +5,7 @@
     using System.Collections.ObjectModel;
     using System.Linq;
     using System.Text;
-    using Utilities.Parsers;
+    using Utilities;
 
     public class ConfigMatrixReader<T, SymbValue, SymbType, InputReader>
     {

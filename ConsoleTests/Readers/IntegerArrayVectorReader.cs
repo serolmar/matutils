@@ -2,12 +2,11 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
     using System.Text;
     using Mathematics;
     using Utilities;
-    using Utilities.Parsers;
-    using System.IO;
 
     public class IntegerArrayVectorReader
     {

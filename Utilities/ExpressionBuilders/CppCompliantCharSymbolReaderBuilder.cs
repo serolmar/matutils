@@ -1,11 +1,11 @@
-﻿namespace Utilities.ExpressionBuilders
+﻿namespace Utilities
 {
     using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Text;
-    using Utilities.Parsers;
+    using Utilities;
 
     public interface ReaderBuilder
     {

@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Utilities.Parsers
+﻿namespace Utilities
 {
-    public abstract class SymbolReader<InputReader, TSymbVal, TSymbType>
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+
+    public abstract class SymbolReader<InputReader, TSymbVal, TSymbType> : ISymbolReader<TSymbVal, TSymbType>
     {
         protected InputReader inputStream;
         protected List<ISymbol<TSymbVal, TSymbType>> symbolBuffer = new List<ISymbol<TSymbVal, TSymbType>>();

@@ -1,11 +1,10 @@
-﻿
-namespace Utilities.Parsers
+﻿namespace Utilities
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
-    using Utilities.Parsers;
+    using Utilities;
 
     /// <summary>
     /// Binary operator delegate.
@@ -24,7 +23,7 @@ namespace Utilities.Parsers
     /// <returns>The result of operation.</returns>
     public delegate ObjType UnaryOperator<ObjType>(ObjType operand);
 
-    public class ExpressionReader<ObjType, SymbValue, SymbType, InputReader>
+    public class ExpressionReader<ObjType, SymbValue, SymbType>
     {
         /// <summary>
         /// Parse the objects from readed elements.
@@ -34,7 +33,7 @@ namespace Utilities.Parsers
         /// <summary>
         /// The list of available states.
         /// </summary>
-        private List<IState<InputReader, SymbValue, SymbType>> stateList = new List<IState<InputReader, SymbValue, SymbType>>();
+        private List<IState<SymbValue, SymbType>> stateList = new List<IState<SymbValue, SymbType>>();
 
         /// <summary>
         /// A list with the binary operators and precedences.
@@ -96,13 +95,13 @@ namespace Utilities.Parsers
             this.parser = parser;
             this.binaryOperators = new Dictionary<SymbType, SOperatorPrecedence<BinaryOperator<ObjType>>>();
             this.unaryOperators = new Dictionary<SymbType, SOperatorPrecedence<UnaryOperator<ObjType>>>();
-            this.stateList.Add(new DelegateDrivenState<InputReader, SymbValue, SymbType>(0, "start", this.StartTransition));
-            this.stateList.Add(new DelegateDrivenState<InputReader, SymbValue, SymbType>(1, "end", this.EndTransition));
-            this.stateList.Add(new DelegateDrivenState<InputReader, SymbValue, SymbType>(2, "element", this.ElementTransition));
-            this.stateList.Add(new DelegateDrivenState<InputReader, SymbValue, SymbType>(3, "operator", this.OperatorTransition));
-            this.stateList.Add(new DelegateDrivenState<InputReader, SymbValue, SymbType>(4, "external delimiters", this.InsideExternalDelimitersTransition));
-            this.stateList.Add(new DelegateDrivenState<InputReader, SymbValue, SymbType>(5, "sequence peek", this.SequencePeekDelimitersTransition));
-            this.stateList.Add(new DelegateDrivenState<InputReader, SymbValue, SymbType>(6, "end", this.InsideSequenceDelimitersTransition));
+            this.stateList.Add(new DelegateDrivenState<SymbValue, SymbType>(0, "start", this.StartTransition));
+            this.stateList.Add(new DelegateDrivenState<SymbValue, SymbType>(1, "end", this.EndTransition));
+            this.stateList.Add(new DelegateDrivenState<SymbValue, SymbType>(2, "element", this.ElementTransition));
+            this.stateList.Add(new DelegateDrivenState<SymbValue, SymbType>(3, "operator", this.OperatorTransition));
+            this.stateList.Add(new DelegateDrivenState<SymbValue, SymbType>(4, "external delimiters", this.InsideExternalDelimitersTransition));
+            this.stateList.Add(new DelegateDrivenState<SymbValue, SymbType>(5, "sequence peek", this.SequencePeekDelimitersTransition));
+            this.stateList.Add(new DelegateDrivenState<SymbValue, SymbType>(6, "end", this.InsideSequenceDelimitersTransition));
         }
 
         #region Public Methods
@@ -111,10 +110,10 @@ namespace Utilities.Parsers
         /// </summary>
         /// <param name="reader">The symbol reader.</param>
         /// <returns>The parsed object.</returns>
-        public ObjType Parse(SymbolReader<InputReader, SymbValue, SymbType> reader)
+        public ObjType Parse(ISymbolReader<SymbValue, SymbType> reader)
         {
             this.errorMessages.Clear();
-            StateMachine<InputReader, SymbValue, SymbType> stateMchine = new StateMachine<InputReader, SymbValue, SymbType>(
+            StateMachine<SymbValue, SymbType> stateMchine = new StateMachine<SymbValue, SymbType>(
                 this.stateList[0], 
                 this.stateList[1]);
             stateMchine.RunMachine(reader);
@@ -142,16 +141,16 @@ namespace Utilities.Parsers
             }
         }
 
-        public bool TryParse(SymbolReader<InputReader, SymbValue, SymbType> reader, out ObjType result)
+        public bool TryParse(ISymbolReader<SymbValue, SymbType> reader, out ObjType result)
         {
             return this.TryParse(reader, null, out result);
         }
 
-        public bool TryParse(SymbolReader<InputReader, SymbValue, SymbType> reader, List<string> errors, out ObjType result)
+        public bool TryParse(ISymbolReader<SymbValue, SymbType> reader, List<string> errors, out ObjType result)
         {
             result = default(ObjType);
             this.errorMessages.Clear();
-            StateMachine<InputReader, SymbValue, SymbType> stateMchine = new StateMachine<InputReader, SymbValue, SymbType>(this.stateList[0], this.stateList[1]);
+            StateMachine<SymbValue, SymbType> stateMchine = new StateMachine<SymbValue, SymbType>(this.stateList[0], this.stateList[1]);
             stateMchine.RunMachine(reader);
             if (this.errorMessages.Count > 0)
             {
@@ -477,7 +476,7 @@ namespace Utilities.Parsers
             }
         }
 
-        private void IgnoreVoids(SymbolReader<InputReader, SymbValue, SymbType> symbolReader)
+        private void IgnoreVoids(ISymbolReader<SymbValue, SymbType> symbolReader)
         {
             var symbol = symbolReader.Peek();
             while (this.expressionVoids.Contains(symbol.SymbolType))
@@ -567,7 +566,7 @@ namespace Utilities.Parsers
         /// </summary>
         /// <param name="reader">The symbol reader.</param>
         /// <returns>The next state.</returns>
-        private IState<InputReader, SymbValue, SymbType> StartTransition(SymbolReader<InputReader, SymbValue, SymbType> reader)
+        private IState< SymbValue, SymbType> StartTransition(ISymbolReader<SymbValue, SymbType> reader)
         {
             this.IgnoreVoids(reader);
             if (reader.IsAtEOF())
@@ -614,7 +613,7 @@ namespace Utilities.Parsers
         /// </summary>
         /// <param name="reader">The symbol reader.</param>
         /// <returns>The next state.</returns>
-        private IState<InputReader, SymbValue, SymbType> EndTransition(SymbolReader<InputReader, SymbValue, SymbType> reader)
+        private IState< SymbValue, SymbType> EndTransition(ISymbolReader<SymbValue, SymbType> reader)
         {
             return null;
         }
@@ -624,7 +623,7 @@ namespace Utilities.Parsers
         /// </summary>
         /// <param name="reader">The symbol reader.</param>
         /// <returns>The next state.</returns>
-        private IState<InputReader, SymbValue, SymbType> ElementTransition(SymbolReader<InputReader, SymbValue, SymbType> reader)
+        private IState< SymbValue, SymbType> ElementTransition(ISymbolReader<SymbValue, SymbType> reader)
         {
             this.IgnoreVoids(reader);
             if (reader.IsAtEOF())
@@ -672,7 +671,7 @@ namespace Utilities.Parsers
         /// </summary>
         /// <param name="reader">The symbol reader.</param>
         /// <returns>The next state.</returns>
-        private IState<InputReader, SymbValue, SymbType> OperatorTransition(SymbolReader<InputReader, SymbValue, SymbType> reader)
+        private IState< SymbValue, SymbType> OperatorTransition(ISymbolReader<SymbValue, SymbType> reader)
         {
             this.IgnoreVoids(reader);
             if (reader.IsAtEOF())
@@ -765,7 +764,7 @@ namespace Utilities.Parsers
         /// </summary>
         /// <param name="reader">The symbol reader.</param>
         /// <returns>The next state.</returns>
-        private IState<InputReader, SymbValue, SymbType> InsideExternalDelimitersTransition(SymbolReader<InputReader, SymbValue, SymbType> reader)
+        private IState< SymbValue, SymbType> InsideExternalDelimitersTransition(ISymbolReader<SymbValue, SymbType> reader)
         {
             var readedSymbol = reader.Peek();
             if (reader.IsAtEOFSymbol(readedSymbol))
@@ -863,7 +862,7 @@ namespace Utilities.Parsers
         /// </summary>
         /// <param name="reader">The symbol reader.</param>
         /// <returns>The next state.</returns>
-        private IState<InputReader, SymbValue, SymbType> SequencePeekDelimitersTransition(SymbolReader<InputReader, SymbValue, SymbType> reader)
+        private IState< SymbValue, SymbType> SequencePeekDelimitersTransition(ISymbolReader<SymbValue, SymbType> reader)
         {
             this.IgnoreVoids(reader);
             var readedSymbol = reader.Peek();
@@ -896,7 +895,7 @@ namespace Utilities.Parsers
         /// </summary>
         /// <param name="reader">The symbol reader.</param>
         /// <returns>The next state.</returns>
-        private IState<InputReader, SymbValue, SymbType> InsideSequenceDelimitersTransition(SymbolReader<InputReader, SymbValue, SymbType> reader)
+        private IState< SymbValue, SymbType> InsideSequenceDelimitersTransition(ISymbolReader<SymbValue, SymbType> reader)
         {
             var readedSymbol = reader.Peek();
             var delimiterType = this.operatorStack.Pop().Symbol;

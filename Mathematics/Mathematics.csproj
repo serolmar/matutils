@@ -71,6 +71,7 @@
     <Compile Include="AlgebraicStructures\Implementations\UnivarPolynomPseudoDomain.cs" />
     <Compile Include="AlgebraicStructures\Implementations\VectorSpace.cs" />
     <Compile Include="AlgebraicStructures\Implementations\MetricMatrixVectorScalarProduct.cs" />
+    <Compile Include="AlgebraicStructures\LogicInterfaces\IGeneralFactory.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\INearest.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\INormSpace.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\ISquareMatrix.cs" />

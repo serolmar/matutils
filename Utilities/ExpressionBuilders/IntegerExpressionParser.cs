@@ -5,15 +5,15 @@
     using System.IO;
     using System.Linq;
     using System.Text;
-    using Utilities.Parsers;
+    using Utilities;
 
     public class IntegerExpressionParser : IParse<int, string, string>, IParse<object, string, string>
     {
-        private ExpressionReader<int, string, string, ISymbol<string, string>[]> expressionReader;
+        private ExpressionReader<int, string, string> expressionReader;
 
         public IntegerExpressionParser()
         {
-            this.expressionReader = new ExpressionReader<int, string, string, ISymbol<string, string>[]>(
+            this.expressionReader = new ExpressionReader<int, string, string>(
                 new IntegerParser<string>());
             this.expressionReader.RegisterBinaryOperator("plus", Add, 0);
             this.expressionReader.RegisterBinaryOperator("times", Multiply, 1);

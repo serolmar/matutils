@@ -3,11 +3,11 @@
     using System;
     using System.Collections.Generic;
     using System.Text;
-    using Utilities.Parsers;
+    using Utilities;
 
     class SetParser<ObjectType> : IParse<HashSet<ObjectType>, string, ESymbolSetType>
     {
-        private ExpressionReader<HashSet<ObjectType>, string, ESymbolSetType, ISymbol<string, ESymbolSetType>[]> expressionReader;
+        private ExpressionReader<HashSet<ObjectType>, string, ESymbolSetType> expressionReader;
 
         public SetParser(IParse<ObjectType, string, ESymbolSetType> elementsParser)
         {
@@ -17,7 +17,7 @@
             }
             else
             {
-                this.expressionReader = new ExpressionReader<HashSet<ObjectType>, string, ESymbolSetType, ISymbol<string, ESymbolSetType>[]>(
+                this.expressionReader = new ExpressionReader<HashSet<ObjectType>, string, ESymbolSetType>(
                     new HashSetParser(elementsParser));
                 this.expressionReader.RegisterExternalDelimiterTypes(ESymbolSetType.OPAR, ESymbolSetType.CPAR);
                 this.expressionReader.RegisterExternalDelimiterTypes(ESymbolSetType.LBRACK, ESymbolSetType.RBRACK);

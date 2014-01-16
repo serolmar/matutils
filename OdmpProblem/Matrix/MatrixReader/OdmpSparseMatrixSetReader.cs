@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Utilities.Parsers;
+using Utilities;
 using System.Globalization;
 
 namespace OdmpProblem
@@ -14,7 +14,7 @@ namespace OdmpProblem
 
         private Dictionary<string, List<string>> elementsDelimiterTypes = new Dictionary<string, List<string>>();
 
-        private List<IState<CharSymbolReader<string>, string, string>> states = new List<IState<CharSymbolReader<string>, string, string>>();
+        private List<IState<string, string>> states = new List<IState<string, string>>();
 
         private ComponentType componentCoord;
 
@@ -95,7 +95,7 @@ namespace OdmpProblem
             var symbolReader = new StringSymbolReader(reader, true);
             this.matrixSet.Clear();
 
-            var stateMachine = new StateMachine<CharSymbolReader<string>, string, string>(
+            var stateMachine = new StateMachine<string, string>(
                 this.states[0],
                 this.states[1]);
 
@@ -148,11 +148,11 @@ namespace OdmpProblem
 
         private void SetStates()
         {
-            this.states.Add(new DelegateStateImplementation<CharSymbolReader<string>, string, string>(0, "Start", this.StartState));
-            this.states.Add(new DelegateStateImplementation<CharSymbolReader<string>, string, string>(1, "End", this.EndState));
-            this.states.Add(new DelegateStateImplementation<CharSymbolReader<string>, string, string>(2, "Inside Brackets", this.InsideBracketsState));
-            this.states.Add(new DelegateStateImplementation<CharSymbolReader<string>, string, string>(3, "Inside Parenthesis", this.InsideParenthesisState));
-            this.states.Add(new DelegateStateImplementation<CharSymbolReader<string>, string, string>(4, "Value", this.ValueState));
+            this.states.Add(new DelegateStateImplementation<string, string>(0, "Start", this.StartState));
+            this.states.Add(new DelegateStateImplementation<string, string>(1, "End", this.EndState));
+            this.states.Add(new DelegateStateImplementation<string, string>(2, "Inside Brackets", this.InsideBracketsState));
+            this.states.Add(new DelegateStateImplementation<string, string>(3, "Inside Parenthesis", this.InsideParenthesisState));
+            this.states.Add(new DelegateStateImplementation<string, string>(4, "Value", this.ValueState));
         }
 
         /// <summary>
@@ -160,7 +160,7 @@ namespace OdmpProblem
         /// </summary>
         /// <param name="reader">O leitor de símbolos.</param>
         /// <returns>O próximo estado.</returns>
-        private IState<CharSymbolReader<string>, string, string> StartState(SymbolReader<CharSymbolReader<string>, string, string> reader)
+        private IState<string, string> StartState(ISymbolReader<string, string> reader)
         {
             this.IgnoreVoids(reader);
             var readed = reader.Get();
@@ -182,7 +182,7 @@ namespace OdmpProblem
         /// </summary>
         /// <param name="reader">O leitor de símbolos.</param>
         /// <returns>O próximo estado.</returns>
-        private IState<CharSymbolReader<string>, string, string> EndState(SymbolReader<CharSymbolReader<string>, string, string> reader)
+        private IState<string, string> EndState(ISymbolReader<string, string> reader)
         {
             return null;
         }
@@ -192,7 +192,7 @@ namespace OdmpProblem
         /// </summary>
         /// <param name="reader">O leitor de símbolos.</param>
         /// <returns>O próximo estado.</returns>
-        private IState<CharSymbolReader<string>, string, string> InsideBracketsState(SymbolReader<CharSymbolReader<string>, string, string> reader)
+        private IState<string, string> InsideBracketsState(ISymbolReader<string, string> reader)
         {
             this.IgnoreVoids(reader);
             var readed = reader.Get();
@@ -220,7 +220,7 @@ namespace OdmpProblem
         /// </summary>
         /// <param name="reader">O leitor de símbolos.</param>
         /// <returns>O próximo estado.</returns>
-        private IState<CharSymbolReader<string>, string, string> InsideParenthesisState(SymbolReader<CharSymbolReader<string>, string, string> reader)
+        private IState<string, string> InsideParenthesisState(ISymbolReader<string, string> reader)
         {
             this.IgnoreVoids(reader);
             var readed = reader.Get();
@@ -291,7 +291,7 @@ namespace OdmpProblem
         /// </summary>
         /// <param name="reader">O leitor de símbolos.</param>
         /// <returns>O próximo estado.</returns>
-        private IState<CharSymbolReader<string>, string, string> ValueState(SymbolReader<CharSymbolReader<string>, string, string> reader)
+        private IState<string, string> ValueState(ISymbolReader<string, string> reader)
         {
             this.IgnoreVoids(reader);
             var readed = reader.Get();
@@ -326,7 +326,7 @@ namespace OdmpProblem
             return this.states[2];
         }
 
-        private void IgnoreVoids(SymbolReader<CharSymbolReader<string>, string, string> reader)
+        private void IgnoreVoids(ISymbolReader<string, string> reader)
         {
             var readed = reader.Peek();
             while (readed.SymbolType == "blancks" || readed.SymbolType == "carriage_return" || readed.SymbolType == "new_line")
@@ -352,7 +352,7 @@ namespace OdmpProblem
             }
         }
 
-        private void ProcessDelimiteres(ISymbol<string, string> readed, SymbolReader<CharSymbolReader<string>, string, string> reader)
+        private void ProcessDelimiteres(ISymbol<string, string> readed, ISymbolReader<string, string> reader)
         {
             var closeDelimiters = this.elementsDelimiterTypes[readed.SymbolType];
             this.currentReadingValues.Add(readed);
@@ -370,7 +370,7 @@ namespace OdmpProblem
             } while (!closeDelimiters.Contains(readed.SymbolType));
         }
 
-        private void ProcessInnerParenthesis(ISymbol<string, string> readed, SymbolReader<CharSymbolReader<string>, string, string> reader)
+        private void ProcessInnerParenthesis(ISymbol<string, string> readed, ISymbolReader<string, string> reader)
         {
             var parenthesisStatus = 1;
             this.currentReadingValues.Add(readed);

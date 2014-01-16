@@ -1,19 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using Utilities.Parsers;
-
-namespace Utilities.ExpressionBuilders
+﻿namespace Utilities
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+    using System.Text;
+    using Utilities;
+
     public class BoolExpressionParser : IParse<bool, string, string>
     {
-        private ExpressionReader<bool, string, string, ISymbol<string, string>[]> expressionReader;
+        private ExpressionReader<bool, string, string> expressionReader;
 
         public BoolExpressionParser()
         {
-            this.expressionReader = new ExpressionReader<bool, string, string, ISymbol<string, string>[]>(
+            this.expressionReader = new ExpressionReader<bool, string, string>(
                 new BoolParser<string>());
             this.expressionReader.RegisterBinaryOperator("double_or", Or, 0);
             this.expressionReader.RegisterBinaryOperator("double_and", And, 1);

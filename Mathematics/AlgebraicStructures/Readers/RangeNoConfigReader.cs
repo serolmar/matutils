@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Utilities.Parsers;
+using Utilities;
 using System.Collections.ObjectModel;
 
 namespace Mathematics
@@ -26,7 +26,7 @@ namespace Mathematics
 
         private Stack<RangeReaderMementoManager> mementoStack = new Stack<RangeReaderMementoManager>();
 
-        private List<IState<InputReader, SymbValue, SymbType>> stateList = new List<IState<InputReader, SymbValue, SymbType>>();
+        private List<IState<SymbValue, SymbType>> stateList = new List<IState<SymbValue, SymbType>>();
 
         public RangeNoConfigReader()
         {
@@ -73,7 +73,7 @@ namespace Mathematics
 
         private void RunStateMchine(MementoSymbolReader<InputReader, SymbValue, SymbType> reader)
         {
-            var stateMchine = new StateMachine<InputReader, SymbValue, SymbType>(stateList[0], stateList[1]);
+            var stateMchine = new StateMachine<SymbValue, SymbType>(stateList[0], stateList[1]);
             stateMchine.RunMachine(reader);
         }
 
@@ -85,17 +85,17 @@ namespace Mathematics
         private void InitStates()
         {
             this.stateList.Clear();
-            this.stateList.Add(new DelegateStateImplementation<InputReader, SymbValue, SymbType>(0, "start", this.StartTransition));
-            this.stateList.Add(new DelegateStateImplementation<InputReader, SymbValue, SymbType>(1, "end", this.EndTransition));
-            this.stateList.Add(new DelegateStateImplementation<InputReader, SymbValue, SymbType>(2, "sequence", this.SequenceTransition));
-            this.stateList.Add(new DelegateStateImplementation<InputReader, SymbValue, SymbType>(3, "element", this.ElementTransition));
-            this.stateList.Add(new DelegateStateImplementation<InputReader, SymbValue, SymbType>(4, "inside", this.InsideElementDelimitersTransition));
-            this.stateList.Add(new DelegateStateImplementation<InputReader, SymbValue, SymbType>(5, "operator", this.OperatorTransition));
-            this.stateList.Add(new DelegateStateImplementation<InputReader, SymbValue, SymbType>(6, "resume sequence", this.ResumeSequenceTransition));
-            this.stateList.Add(new DelegateStateImplementation<InputReader, SymbValue, SymbType>(7, "after start", this.AfterStartTransition));
+            this.stateList.Add(new DelegateStateImplementation<SymbValue, SymbType>(0, "start", this.StartTransition));
+            this.stateList.Add(new DelegateStateImplementation<SymbValue, SymbType>(1, "end", this.EndTransition));
+            this.stateList.Add(new DelegateStateImplementation<SymbValue, SymbType>(2, "sequence", this.SequenceTransition));
+            this.stateList.Add(new DelegateStateImplementation<SymbValue, SymbType>(3, "element", this.ElementTransition));
+            this.stateList.Add(new DelegateStateImplementation<SymbValue, SymbType>(4, "inside", this.InsideElementDelimitersTransition));
+            this.stateList.Add(new DelegateStateImplementation<SymbValue, SymbType>(5, "operator", this.OperatorTransition));
+            this.stateList.Add(new DelegateStateImplementation<SymbValue, SymbType>(6, "resume sequence", this.ResumeSequenceTransition));
+            this.stateList.Add(new DelegateStateImplementation<SymbValue, SymbType>(7, "after start", this.AfterStartTransition));
         }
 
-        private IState<InputReader, SymbValue, SymbType> StartTransition(SymbolReader<InputReader, SymbValue, SymbType> reader)
+        private IState<SymbValue, SymbType> StartTransition(ISymbolReader<SymbValue, SymbType> reader)
         {
             if (reader.IsAtEOF())
             {
@@ -125,12 +125,12 @@ namespace Mathematics
 
         }
 
-        private IState<InputReader, SymbValue, SymbType> EndTransition(SymbolReader<InputReader, SymbValue, SymbType> reader)
+        private IState<SymbValue, SymbType> EndTransition(ISymbolReader<SymbValue, SymbType> reader)
         {
             return null;
         }
 
-        private IState<InputReader, SymbValue, SymbType> SequenceTransition(SymbolReader<InputReader, SymbValue, SymbType> reader)
+        private IState<SymbValue, SymbType> SequenceTransition(ISymbolReader<SymbValue, SymbType> reader)
         {
             if (reader.IsAtEOF())
             {
@@ -179,7 +179,7 @@ namespace Mathematics
             }
         }
 
-        private IState<InputReader, SymbValue, SymbType> ElementTransition(SymbolReader<InputReader, SymbValue, SymbType> reader)
+        private IState<SymbValue, SymbType> ElementTransition(ISymbolReader<SymbValue, SymbType> reader)
         {
             if (reader.IsAtEOF())
             {
@@ -328,7 +328,7 @@ namespace Mathematics
             }
         }
 
-        private IState<InputReader, SymbValue, SymbType> InsideElementDelimitersTransition(SymbolReader<InputReader, SymbValue, SymbType> reader)
+        private IState<SymbValue, SymbType> InsideElementDelimitersTransition(ISymbolReader<SymbValue, SymbType> reader)
         {
             if (reader.IsAtEOF())
             {
@@ -375,7 +375,7 @@ namespace Mathematics
             }
         }
 
-        private IState<InputReader, SymbValue, SymbType> OperatorTransition(SymbolReader<InputReader, SymbValue, SymbType> reader)
+        private IState<SymbValue, SymbType> OperatorTransition(ISymbolReader<SymbValue, SymbType> reader)
         {
             if (reader.IsAtEOF())
             {
@@ -511,7 +511,7 @@ namespace Mathematics
             }
         }
 
-        private IState<InputReader, SymbValue, SymbType> ResumeSequenceTransition(SymbolReader<InputReader, SymbValue, SymbType> reader)
+        private IState<SymbValue, SymbType> ResumeSequenceTransition(ISymbolReader<SymbValue, SymbType> reader)
         {
             if (reader.IsAtEOF())
             {
@@ -577,7 +577,7 @@ namespace Mathematics
             }
         }
 
-        private IState<InputReader, SymbValue, SymbType> AfterStartTransition(SymbolReader<InputReader, SymbValue, SymbType> reader)
+        private IState<SymbValue, SymbType> AfterStartTransition(ISymbolReader<SymbValue, SymbType> reader)
         {
             if (reader.IsAtEOF())
             {
@@ -658,7 +658,7 @@ namespace Mathematics
             }
         }
 
-        private void IgnoreVoids(SymbolReader<InputReader, SymbValue, SymbType> reader)
+        private void IgnoreVoids(ISymbolReader<SymbValue, SymbType> reader)
         {
             var symbol = reader.Peek();
             while (this.blancks.Contains(symbol.SymbolType))

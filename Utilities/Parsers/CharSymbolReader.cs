@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using Utilities.Parsers;
-
-namespace Utilities.Parsers
+﻿namespace Utilities
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+    using System.Text;
+
     public class CharSymbolReader<SymbType> : MementoSymbolReader<TextReader, string, SymbType>
     {
         public delegate SymbType TypeOfReadedChar(char c);

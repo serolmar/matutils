@@ -7,7 +7,6 @@
     using System.Text;
     using Algorithms;
     using Utilities;
-    using Utilities.Parsers;
 
     public class PolynomialReader<T, InputReader>
     {
@@ -93,7 +92,7 @@
 
             this.conversion = conversion;
             resultPolynomial = default(Polynomial<T>);
-            var expressionReader = new ExpressionReader<ParsePolynomialItem<T>, string, string, InputReader>(
+            var expressionReader = new ExpressionReader<ParsePolynomialItem<T>, string, string>(
                 new SimplePolynomialReader<T>(this.coeffParser, this.ring));
             expressionReader.RegisterBinaryOperator("plus", Add, 0);
             expressionReader.RegisterBinaryOperator("times", Multiply, 1);

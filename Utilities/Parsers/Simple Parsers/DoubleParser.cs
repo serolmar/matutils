@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-
-namespace Utilities.Parsers
+﻿namespace Utilities
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Globalization;
+    using System.Linq;
+    using System.Text;
+
     public class DoubleParser<SymbType> : IParse<double, string, SymbType>, IParse<object, string, SymbType>
     {
         private NumberStyles numberStyles;

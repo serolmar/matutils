@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using Utilities.Parsers;
-
-namespace Utilities.Collections
+﻿namespace Utilities.Collections
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+    using System.Text;
+    using Utilities;
+
     /// <summary>
     /// Enumeration of delimiter types within the lisp parser.
     /// </summary>
@@ -330,7 +330,7 @@ namespace Utilities.Collections
 
         private class LispStyleParser<R> : ILispStyleListParser<R>
         {
-            private ExpressionReader<LispStyleList<R>.ElementList<R>, string, string, CharSymbolReader<string>> expressionReader;
+            private ExpressionReader<LispStyleList<R>.ElementList<R>, string, string> expressionReader;
 
             public LispStyleParser(IParse<R, string, string> parserForT)
                 : this(parserForT, LispDelimiterType.PARENTHESIS)
@@ -367,7 +367,7 @@ namespace Utilities.Collections
                         throw new CollectionsException("Delimiter types not yet implemented.");
                 }
 
-                this.expressionReader = new ExpressionReader<LispStyleList<R>.ElementList<R>, string, string, CharSymbolReader<string>>(
+                this.expressionReader = new ExpressionReader<LispStyleList<R>.ElementList<R>, string, string>(
                     new ElementParser<R>(parserForT));
                 this.expressionReader.RegisterExpressionDelimiterTypes(openType, closeType, this.Parenthesis);
                 this.expressionReader.RegisterBinaryOperator("comma", this.Concatenate, 0);

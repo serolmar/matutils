@@ -11,9 +11,8 @@
     using Mathematics.AlgebraicStructures.Polynomial;
     using Mathematics.MathematicsInterpreter;
     using Utilities.Collections;
-    using Utilities.Parsers;
-    using System.Linq.Expressions;
     using Utilities;
+    using System.Linq.Expressions;
     using OdmpProblem;
 
     class Program

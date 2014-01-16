@@ -116,8 +116,10 @@
     <Compile Include="StateMachine\DelegateStateImplementation.cs" />
     <Compile Include="StateMachine\IMemento.cs" />
     <Compile Include="StateMachine\IMementoOriginator.cs" />
+    <Compile Include="StateMachine\IObjectReader.cs" />
     <Compile Include="StateMachine\IState.cs" />
     <Compile Include="StateMachine\ISymbol.cs" />
+    <Compile Include="StateMachine\ISymbolReader.cs" />
     <Compile Include="StateMachine\MementoSymbolReader.cs" />
     <Compile Include="StateMachine\StateMachine.cs" />
     <Compile Include="StateMachine\SymbolReader.cs" />

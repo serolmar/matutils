@@ -5,11 +5,11 @@
     using System.IO;
     using System.Linq;
     using System.Text;
-    using Utilities.Parsers;
+    using Utilities;
 
     class SetExpressionParser<ObjectType>
     {
-        private ExpressionReader<HashSet<ObjectType>, string, ESymbolSetType, CharSymbolReader<ESymbolSetType>> expressionParser;
+        private ExpressionReader<HashSet<ObjectType>, string, ESymbolSetType> expressionParser;
 
         public SetExpressionParser(IParse<ObjectType, string, ESymbolSetType> elementParser)
         {
@@ -19,7 +19,7 @@
             }
             else
             {
-                this.expressionParser = new ExpressionReader<HashSet<ObjectType>, string, ESymbolSetType, CharSymbolReader<ESymbolSetType>>(
+                this.expressionParser = new ExpressionReader<HashSet<ObjectType>, string, ESymbolSetType>(
                     new SetParser<ObjectType>(elementParser));
                 this.expressionParser.RegisterExpressionDelimiterTypes(ESymbolSetType.OPAR, ESymbolSetType.CPAR);
                 this.expressionParser.RegisterExternalDelimiterTypes(ESymbolSetType.LBRACE, ESymbolSetType.RBRACE);

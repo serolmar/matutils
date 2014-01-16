@@ -5,7 +5,7 @@
     using System.Linq;
     using System.Text;
     using Mathematics;
-    using Utilities.Parsers;
+    using Utilities;
     using System.IO;
 
     public class IntegerPolynomialReader

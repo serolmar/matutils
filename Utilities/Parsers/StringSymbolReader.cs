@@ -1,19 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using Utilities.ExpressionBuilders;
-using Utilities.Parsers;
-
-namespace Utilities.Parsers
+﻿namespace Utilities
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+    using System.Text;
+    using Utilities;
+
     public class StringSymbolReader : MementoSymbolReader<CharSymbolReader<string>,string, string>
     {
         private static string endOfFile = "eof";
 
         private ISymbol<string,string> currentSymbol = new StringSymbol<string>();
-        private List<IState<TextReader, string, string>> stateList = new List<IState<TextReader, string, string>>();
+        private List<IState<string, string>> stateList = new List<IState<string, string>>();
         private Dictionary<string, string> keyWords = new Dictionary<string, string>();
         private bool readNegativeNumbers = true;
         private bool joinBlancks = true;
@@ -36,23 +35,23 @@ namespace Utilities.Parsers
             this.readNegativeNumbers = isToReadNegativeNumbers;
             this.joinBlancks = joinBlancks;
             this.currentSymbol.SymbolType = "any";
-            stateList.Add(new DelegateDrivenState<TextReader, string, string>(0, "start", this.StartTransition));
-            stateList.Add(new DelegateDrivenState<TextReader, string, string>(1, "string", this.StringTransition));
-            stateList.Add(new DelegateDrivenState<TextReader, string, string>(2, "number", this.NumberTransition));
-            stateList.Add(new DelegateDrivenState<TextReader, string, string>(3, "equal", this.EqualTransition));
-            stateList.Add(new DelegateDrivenState<TextReader, string, string>(4, "greater", this.GreaterTransition));
-            stateList.Add(new DelegateDrivenState<TextReader, string, string>(5, "lesser", this.LesserTransition));
-            stateList.Add(new DelegateDrivenState<TextReader, string, string>(6, "or", this.OrTransition));
-            stateList.Add(new DelegateDrivenState<TextReader, string, string>(7, "and", this.AndTransition));
-            stateList.Add(new DelegateDrivenState<TextReader, string, string>(8, "colon", this.ColonTransition));
-            stateList.Add(new DelegateDrivenState<TextReader, string, string>(9, "plus", this.PlusTransition));
-            stateList.Add(new DelegateDrivenState<TextReader, string, string>(10, "minus", this.MinusTransition));
-            stateList.Add(new DelegateDrivenState<TextReader, string, string>(11, "times", this.TimesTransition));
-            stateList.Add(new DelegateDrivenState<TextReader, string, string>(12, "over", this.OverTransition));
-            stateList.Add(new DelegateDrivenState<TextReader, string, string>(13, "point", this.PointTransition));
-            stateList.Add(new DelegateDrivenState<TextReader, string, string>(14, "blancks", this.BlanckTransition));
-            stateList.Add(new DelegateDrivenState<TextReader, string, string>(15, "exponential", this.ExponentialTransition));
-            stateList.Add(new DelegateDrivenState<TextReader, string, string>(16, "end", this.EndTransition));
+            stateList.Add(new DelegateDrivenState<string, string>(0, "start", this.StartTransition));
+            stateList.Add(new DelegateDrivenState<string, string>(1, "string", this.StringTransition));
+            stateList.Add(new DelegateDrivenState<string, string>(2, "number", this.NumberTransition));
+            stateList.Add(new DelegateDrivenState<string, string>(3, "equal", this.EqualTransition));
+            stateList.Add(new DelegateDrivenState<string, string>(4, "greater", this.GreaterTransition));
+            stateList.Add(new DelegateDrivenState<string, string>(5, "lesser", this.LesserTransition));
+            stateList.Add(new DelegateDrivenState<string, string>(6, "or", this.OrTransition));
+            stateList.Add(new DelegateDrivenState<string, string>(7, "and", this.AndTransition));
+            stateList.Add(new DelegateDrivenState<string, string>(8, "colon", this.ColonTransition));
+            stateList.Add(new DelegateDrivenState<string, string>(9, "plus", this.PlusTransition));
+            stateList.Add(new DelegateDrivenState<string, string>(10, "minus", this.MinusTransition));
+            stateList.Add(new DelegateDrivenState<string, string>(11, "times", this.TimesTransition));
+            stateList.Add(new DelegateDrivenState<string, string>(12, "over", this.OverTransition));
+            stateList.Add(new DelegateDrivenState<string, string>(13, "point", this.PointTransition));
+            stateList.Add(new DelegateDrivenState<string, string>(14, "blancks", this.BlanckTransition));
+            stateList.Add(new DelegateDrivenState<string, string>(15, "exponential", this.ExponentialTransition));
+            stateList.Add(new DelegateDrivenState<string, string>(16, "end", this.EndTransition));
         }
 
         public override ISymbol<string,string> Peek()
@@ -127,7 +126,7 @@ namespace Utilities.Parsers
         private void AddNextSymbolFromStream()
         {
             this.currentSymbol = new StringSymbol<string>() { SymbolType = string.Empty, SymbolValue = string.Empty };
-            StateMachine<TextReader, string, string> machine = new StateMachine<TextReader, string,string>(
+            StateMachine<string, string> machine = new StateMachine<string,string>(
                 this.stateList[0],
                 this.stateList[16]);
             machine.RunMachine(this.inputStream);
@@ -138,7 +137,7 @@ namespace Utilities.Parsers
         }
 
         #region transition functions
-        private IState<TextReader, string, string> StartTransition(SymbolReader<TextReader, string, string> reader)
+        private IState<string, string> StartTransition(IObjectReader<ISymbol<string, string>> reader)
         {
             ISymbol<string,string> peeked = reader.Peek();
             switch (peeked.SymbolType)
@@ -193,7 +192,7 @@ namespace Utilities.Parsers
             return this.stateList[16];
         }
 
-        private IState<TextReader, string, string> StringTransition(SymbolReader<TextReader, string, string> reader)
+        private IState<string, string> StringTransition(IObjectReader<ISymbol<string, string>> reader)
         {
             ISymbol<string, string> symbol = reader.Get();
             if (!this.currentSymbol.SymbolType.Equals("string"))
@@ -216,7 +215,7 @@ namespace Utilities.Parsers
             return this.stateList[16];
         }
 
-        private IState<TextReader, string, string> NumberTransition(SymbolReader<TextReader, string, string> reader)
+        private IState<string, string> NumberTransition(IObjectReader<ISymbol<string, string>> reader)
         {
             ISymbol<string, string> symbol = reader.Get();
             if (
@@ -250,7 +249,7 @@ namespace Utilities.Parsers
             return this.stateList[16];
         }
 
-        private IState<TextReader, string, string> EqualTransition(SymbolReader<TextReader, string, string> reader)
+        private IState<string, string> EqualTransition(IObjectReader<ISymbol<string, string>> reader)
         {
             ISymbol<string, string> symbol = reader.Get();
             switch (this.currentSymbol.SymbolType)
@@ -303,7 +302,7 @@ namespace Utilities.Parsers
             return this.stateList[16];
         }
 
-        private IState<TextReader, string, string> GreaterTransition(SymbolReader<TextReader, string, string> reader)
+        private IState<string, string> GreaterTransition(IObjectReader<ISymbol<string, string>> reader)
         {
             ISymbol<string, string> symbol = reader.Get();
             switch (this.currentSymbol.SymbolType)
@@ -333,7 +332,7 @@ namespace Utilities.Parsers
             return this.stateList[16];
         }
 
-        private IState<TextReader, string, string> LesserTransition(SymbolReader<TextReader, string, string> reader)
+        private IState<string, string> LesserTransition(IObjectReader<ISymbol<string, string>> reader)
         {
             ISymbol<string, string> symbol = reader.Get();
             switch (this.currentSymbol.SymbolType)
@@ -363,7 +362,7 @@ namespace Utilities.Parsers
             return this.stateList[16];
         }
 
-        private IState<TextReader, string, string> OrTransition(SymbolReader<TextReader, string, string> reader)
+        private IState<string, string> OrTransition(IObjectReader<ISymbol<string, string>> reader)
         {
             ISymbol<string, string> symbol = reader.Get();
             switch (this.currentSymbol.SymbolType)
@@ -388,7 +387,7 @@ namespace Utilities.Parsers
             return this.stateList[16];
         }
 
-        private IState<TextReader, string, string> AndTransition(SymbolReader<TextReader, string, string> reader)
+        private IState<string, string> AndTransition(IObjectReader<ISymbol<string, string>> reader)
         {
             ISymbol<string, string> symbol = reader.Get();
             switch (this.currentSymbol.SymbolType)
@@ -413,7 +412,7 @@ namespace Utilities.Parsers
             return this.stateList[16];
         }
 
-        private IState<TextReader, string,string> ColonTransition(SymbolReader<TextReader, string, string> reader)
+        private IState<string,string> ColonTransition(IObjectReader<ISymbol<string, string>> reader)
         {
             ISymbol<string, string> symbol = reader.Get();
             switch (this.currentSymbol.SymbolType)
@@ -434,7 +433,7 @@ namespace Utilities.Parsers
             return this.stateList[16];
         }
 
-        private IState<TextReader, string, string> PlusTransition(SymbolReader<TextReader, string, string> reader)
+        private IState<string, string> PlusTransition(IObjectReader<ISymbol<string, string>> reader)
         {
             ISymbol<string, string> symbol = reader.Get();
             switch (this.currentSymbol.SymbolType)
@@ -459,7 +458,7 @@ namespace Utilities.Parsers
             return this.stateList[16];
         }
 
-        private IState<TextReader, string, string> MinusTransition(SymbolReader<TextReader, string, string> reader)
+        private IState<string, string> MinusTransition(IObjectReader<ISymbol<string, string>> reader)
         {
             ISymbol<string, string> symbol = reader.Get();
             switch (this.currentSymbol.SymbolType)
@@ -519,7 +518,7 @@ namespace Utilities.Parsers
             return this.stateList[16];
         }
 
-        private IState<TextReader, string, string> TimesTransition(SymbolReader<TextReader, string, string> reader)
+        private IState<string, string> TimesTransition(IObjectReader<ISymbol<string, string>> reader)
         {
             ISymbol<string, string> symbol = reader.Get();
             switch (this.currentSymbol.SymbolType)
@@ -544,7 +543,7 @@ namespace Utilities.Parsers
             return this.stateList[16];
         }
 
-        private IState<TextReader, string, string> OverTransition(SymbolReader<TextReader, string, string> reader)
+        private IState<string, string> OverTransition(IObjectReader<ISymbol<string, string>> reader)
         {
             ISymbol<string, string> symbol = reader.Get();
             this.currentSymbol = symbol;
@@ -557,7 +556,7 @@ namespace Utilities.Parsers
             return this.stateList[16];
         }
 
-        private IState<TextReader, string, string> PointTransition(SymbolReader<TextReader, string, string> reader)
+        private IState<string, string> PointTransition(IObjectReader<ISymbol<string, string>> reader)
         {
             ISymbol<string, string> symbol = reader.Get();
             switch (this.currentSymbol.SymbolType)
@@ -598,7 +597,7 @@ namespace Utilities.Parsers
             return this.stateList[16];
         }
 
-        private IState<TextReader, string, string> BlanckTransition(SymbolReader<TextReader, string, string> reader)
+        private IState<string, string> BlanckTransition(IObjectReader<ISymbol<string, string>> reader)
         {
             ISymbol<string, string> symbol = reader.Get();
             if (!this.currentSymbol.SymbolType.Equals("blancks"))
@@ -620,7 +619,7 @@ namespace Utilities.Parsers
             return this.stateList[16];
         }
 
-        private IState<TextReader, string, string> ExponentialTransition(SymbolReader<TextReader, string, string> reader)
+        private IState<string, string> ExponentialTransition(IObjectReader<ISymbol<string, string>> reader)
         {
             ISymbol<string, string> symbol = reader.Get();
             if (!this.currentSymbol.SymbolType.Equals("double_exponential_minus"))
@@ -662,7 +661,7 @@ namespace Utilities.Parsers
             return this.stateList[16];
         }
 
-        private IState<TextReader, string, string> EndTransition(SymbolReader<TextReader, string, string> reader)
+        private IState<string, string> EndTransition(IObjectReader<ISymbol<string, string>> reader)
         {
             return null;
         }

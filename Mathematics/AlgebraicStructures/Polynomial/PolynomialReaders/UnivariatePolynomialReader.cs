@@ -7,7 +7,6 @@
     using System.Text;
     using Mathematics.Algorithms;
     using Utilities;
-    using Utilities.Parsers;
 
     public class UnivariatePolynomialReader<T, InputReader>
     {
@@ -130,7 +129,7 @@
 
             this.conversion = conversion;
             resultPolynomial = default(UnivariatePolynomialNormalForm<T>);
-            var expressionReader = new ExpressionReader<ParseUnivarPolynomNormalFormItem<T>, string, string, InputReader>(
+            var expressionReader = new ExpressionReader<ParseUnivarPolynomNormalFormItem<T>, string, string>(
                 new SimpleUnivarPolynomNormalFormReader<T>(this.coeffParser, this.ring));
             expressionReader.RegisterBinaryOperator("plus", Add, 0);
             expressionReader.RegisterBinaryOperator("times", Multiply, 1);

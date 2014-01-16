@@ -4,14 +4,14 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
-    using Utilities.Parsers;
+    using Utilities;
 
     public class FractionExpressionParser<ObjectType, DomainType> : IParse<Fraction<ObjectType, DomainType>, string, string>
         where DomainType : IEuclidenDomain<ObjectType>
     {
         protected FractionField<ObjectType, DomainType> fractionField;
 
-        protected ExpressionReader<Fraction<ObjectType, DomainType>, string, string, ISymbol<string, string>[]> expressionReader;
+        protected ExpressionReader<Fraction<ObjectType, DomainType>, string, string> expressionReader;
 
         public FractionExpressionParser(
             IParse<ObjectType, string, string> simpleObjectParser, 
@@ -28,7 +28,7 @@
             else
             {
                 this.fractionField = fractionField;
-                this.expressionReader = new ExpressionReader<Fraction<ObjectType, DomainType>, string, string, ISymbol<string, string>[]>(
+                this.expressionReader = new ExpressionReader<Fraction<ObjectType, DomainType>, string, string>(
                     new FractionParser<ObjectType, DomainType>(simpleObjectParser, fractionField.EuclideanDomain));
                 this.expressionReader.RegisterBinaryOperator("plus", Add, 0);
                 this.expressionReader.RegisterBinaryOperator("times", Multiply, 1);

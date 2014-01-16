@@ -5,7 +5,6 @@
     using System.Linq;
     using System.Text;
     using Utilities;
-    using Utilities.Parsers;
 
     public class UnivarPolNormalFormParser<CoeffType> 
         : IParse<UnivariatePolynomialNormalForm<CoeffType>, string, string>

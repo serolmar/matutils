@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Utilities.Parsers
+﻿namespace Utilities
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+
     public class IntegerParser<SymbType> : IParse<int, string, SymbType>, IParse<object, string, SymbType>
     {
         public bool TryParse(ISymbol<string, SymbType>[] symbolListToParse, out int value)

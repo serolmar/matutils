@@ -6,7 +6,7 @@
     using System.Linq;
     using System.Text;
     using Utilities.Collections;
-    using Utilities.Parsers;
+    using Utilities;
 
     /// <summary>
     /// Representa uma matriz multidimensional.

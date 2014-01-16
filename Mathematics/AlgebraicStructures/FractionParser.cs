@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
-    using Utilities.Parsers;
+    using Utilities;
 
     internal class FractionParser<ObjectType, DomainType> : IParse<Fraction<ObjectType, DomainType>, string, string>
         where DomainType : IEuclidenDomain<ObjectType>

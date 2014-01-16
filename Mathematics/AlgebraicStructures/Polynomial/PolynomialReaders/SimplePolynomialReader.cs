@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
-    using Utilities.Parsers;
+    using Utilities;
 
     class SimplePolynomialReader<CoeffType> :
         IParse<ParsePolynomialItem<CoeffType>, string, string>

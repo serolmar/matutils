@@ -5,7 +5,7 @@
     using System.IO;
     using System.Linq;
     using System.Text;
-    using Utilities.Parsers;
+    using Utilities;
 
     public class CsvFileParser<MatrixType, ElementsType, InputType, SymbValue, SymbType>
     {
@@ -48,7 +48,7 @@
         /// <summary>
         /// Lista com todos os estados necessários para processar o csv.
         /// </summary>
-        private List<IState<InputType, SymbValue, SymbType>> states;
+        private List<IState<SymbValue, SymbType>> states;
 
         /// <summary>
         /// Referência para a tabela a ser carregada.
@@ -245,7 +245,7 @@
                 this.dataAdder = adder;
                 this.currentTable = matrix;
 
-                var stateMachine = new StateMachine<InputType, SymbValue, SymbType>(
+                var stateMachine = new StateMachine<SymbValue, SymbType>(
                     this.states[0],
                     this.states[1]);
                 stateMachine.RunMachine(reader);
@@ -258,14 +258,14 @@
         /// </summary>
         private void InitStates()
         {
-            this.states = new List<IState<InputType, SymbValue, SymbType>>();
-            this.states.Add(new DelegateStateImplementation<InputType, SymbValue, SymbType>(0, "start", this.StartTransition));
-            this.states.Add(new DelegateStateImplementation<InputType, SymbValue, SymbType>(1, "end", this.EndTransition));
-            this.states.Add(new DelegateStateImplementation<InputType, SymbValue, SymbType>(2, "reading", this.ReadingTransition));
-            this.states.Add(new DelegateStateImplementation<InputType, SymbValue, SymbType>(3, "delimiters", this.InsideDelimitersTransition));
+            this.states = new List<IState<SymbValue, SymbType>>();
+            this.states.Add(new DelegateStateImplementation<SymbValue, SymbType>(0, "start", this.StartTransition));
+            this.states.Add(new DelegateStateImplementation<SymbValue, SymbType>(1, "end", this.EndTransition));
+            this.states.Add(new DelegateStateImplementation<SymbValue, SymbType>(2, "reading", this.ReadingTransition));
+            this.states.Add(new DelegateStateImplementation<SymbValue, SymbType>(3, "delimiters", this.InsideDelimitersTransition));
         }
 
-        private IState<InputType, SymbValue, SymbType> StartTransition(SymbolReader<InputType, SymbValue, SymbType> reader)
+        private IState<SymbValue, SymbType> StartTransition(IObjectReader<ISymbol<SymbValue, SymbType>> reader)
         {
             if (reader.IsAtEOF())
             {
@@ -324,12 +324,12 @@
             }
         }
 
-        private IState<InputType, SymbValue, SymbType> EndTransition(SymbolReader<InputType, SymbValue, SymbType> reader)
+        private IState<SymbValue, SymbType> EndTransition(IObjectReader<ISymbol<SymbValue, SymbType>> reader)
         {
             return null;
         }
 
-        private IState<InputType, SymbValue, SymbType> ReadingTransition(SymbolReader<InputType, SymbValue, SymbType> reader)
+        private IState<SymbValue, SymbType> ReadingTransition(IObjectReader<ISymbol<SymbValue, SymbType>> reader)
         {
             if (reader.IsAtEOF())
             {
@@ -441,7 +441,7 @@
             }
         }
 
-        private IState<InputType, SymbValue, SymbType> InsideDelimitersTransition(SymbolReader<InputType, SymbValue, SymbType> reader)
+        private IState<SymbValue, SymbType> InsideDelimitersTransition(IObjectReader<ISymbol<SymbValue, SymbType>> reader)
         {
             var symbolsStack = new Stack<SymbType>();
             var symbol = reader.Get();

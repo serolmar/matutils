@@ -5,7 +5,6 @@
     using System.Linq;
     using System.Text;
     using Utilities;
-    using Utilities.Parsers;
 
     class PolynomialParser<CoeffType> : IParse<Polynomial<CoeffType>, string, string>
     {

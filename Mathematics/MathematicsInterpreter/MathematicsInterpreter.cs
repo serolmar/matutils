@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Utilities.Parsers;
+using Utilities;
 
 namespace Mathematics.MathematicsInterpreter
 {
@@ -14,7 +14,7 @@ namespace Mathematics.MathematicsInterpreter
         /// <summary>
         /// The expression reader.
         /// </summary>
-        private ExpressionReader<AMathematicsObject, string, string, CharSymbolReader<string>> expressionReader;
+        private ExpressionReader<AMathematicsObject, string, string> expressionReader;
 
         /// <summary>
         /// The mathematis interpreter mediator.
@@ -24,12 +24,12 @@ namespace Mathematics.MathematicsInterpreter
         /// <summary>
         /// The list of available states.
         /// </summary>
-        private List<IState<CharSymbolReader<string>, string, string>> stateList = new List<IState<CharSymbolReader<string>, string, string>>();
+        private List<IState<string, string>> stateList = new List<IState<string, string>>();
 
         /// <summary>
         /// The current state.
         /// </summary>
-        private IState<CharSymbolReader<string>, string, string> currentState;
+        private IState<string, string> currentState;
 
         /// <summary>
         /// The stack with the scope definition.
@@ -68,7 +68,7 @@ namespace Mathematics.MathematicsInterpreter
         public MathematicsInterpreterResult Interpret(TextReader reader, TextWriter outputWriter)
         {
             var symbolReader = this.PrepareSymbolReader(reader);
-            var stateMachine = new StateMachine<CharSymbolReader<string>, string, string>(this.currentState, this.stateList[1]);
+            var stateMachine = new StateMachine<string, string>(this.currentState, this.stateList[1]);
             stateMachine.RunMachine(symbolReader);
             return this.currentResult;
         }
@@ -81,9 +81,9 @@ namespace Mathematics.MathematicsInterpreter
             this.scopeDefinitionStack.Push(new ScopeDefinition() { ScopeType = EScopeType.MAIN });
         }
 
-        private ExpressionReader<AMathematicsObject, string, string, CharSymbolReader<string>> PrepareExpressionReader()
+        private ExpressionReader<AMathematicsObject, string, string> PrepareExpressionReader()
         {
-            var result = new ExpressionReader<AMathematicsObject, string, string, CharSymbolReader<string>>(new MathematicsObjectParser(this.mediator));
+            var result = new ExpressionReader<AMathematicsObject, string, string>(new MathematicsObjectParser(this.mediator));
 
             result.RegisterBinaryOperator("equal", this.Assign, 0);
             result.RegisterBinaryOperator("plus", this.Add, 2);
@@ -128,21 +128,21 @@ namespace Mathematics.MathematicsInterpreter
 
         private void InitStates()
         {
-            this.stateList.Add(new DelegateDrivenState<CharSymbolReader<string>, string, string>(1, "Start", this.StartTransition));
-            this.stateList.Add(new DelegateDrivenState<CharSymbolReader<string>, string, string>(2, "End", this.EndTransition));
-            this.stateList.Add(new DelegateDrivenState<CharSymbolReader<string>, string, string>(3, "While", this.WhileTransition));
-            this.stateList.Add(new DelegateDrivenState<CharSymbolReader<string>, string, string>(4, "If", this.IfTransition));
-            this.stateList.Add(new DelegateDrivenState<CharSymbolReader<string>, string, string>(5, "Else", this.ElseTransition));
-            this.stateList.Add(new DelegateDrivenState<CharSymbolReader<string>, string, string>(6, "WhileIfCondition", this.WhileIfConditionTransition));
-            this.stateList.Add(new DelegateDrivenState<CharSymbolReader<string>, string, string>(7, "For", this.ForTransition));
-            this.stateList.Add(new DelegateDrivenState<CharSymbolReader<string>, string, string>(8, "FirstForCondition", this.FirstForConditionTransition));
-            this.stateList.Add(new DelegateDrivenState<CharSymbolReader<string>, string, string>(9, "SecondForCondition", this.SecondForConditionTransition));
-            this.stateList.Add(new DelegateDrivenState<CharSymbolReader<string>, string, string>(10, "ThirdForCondition", this.ThirdForConditionTransition));
-            this.stateList.Add(new DelegateDrivenState<CharSymbolReader<string>, string, string>(11, "InsideWhileCondition", this.InsideWhileIfConditionTransition));
-            this.stateList.Add(new DelegateDrivenState<CharSymbolReader<string>, string, string>(12, "InsideNonExecutingScope", this.InsideNonExecutingScope));
+            this.stateList.Add(new DelegateDrivenState<string, string>(1, "Start", this.StartTransition));
+            this.stateList.Add(new DelegateDrivenState<string, string>(2, "End", this.EndTransition));
+            this.stateList.Add(new DelegateDrivenState<string, string>(3, "While", this.WhileTransition));
+            this.stateList.Add(new DelegateDrivenState<string, string>(4, "If", this.IfTransition));
+            this.stateList.Add(new DelegateDrivenState<string, string>(5, "Else", this.ElseTransition));
+            this.stateList.Add(new DelegateDrivenState<string, string>(6, "WhileIfCondition", this.WhileIfConditionTransition));
+            this.stateList.Add(new DelegateDrivenState<string, string>(7, "For", this.ForTransition));
+            this.stateList.Add(new DelegateDrivenState<string, string>(8, "FirstForCondition", this.FirstForConditionTransition));
+            this.stateList.Add(new DelegateDrivenState<string, string>(9, "SecondForCondition", this.SecondForConditionTransition));
+            this.stateList.Add(new DelegateDrivenState<string, string>(10, "ThirdForCondition", this.ThirdForConditionTransition));
+            this.stateList.Add(new DelegateDrivenState<string, string>(11, "InsideWhileCondition", this.InsideWhileIfConditionTransition));
+            this.stateList.Add(new DelegateDrivenState<string, string>(12, "InsideNonExecutingScope", this.InsideNonExecutingScope));
         }
 
-        private void IgnoreVoids(SymbolReader<CharSymbolReader<string>, string, string> symbolReader)
+        private void IgnoreVoids(ISymbolReader<string, string> symbolReader)
         {
             ISymbol<string, string> symbol = symbolReader.Peek();
             while (voids.Contains(symbol.SymbolType))
@@ -152,7 +152,7 @@ namespace Mathematics.MathematicsInterpreter
             }
         }
 
-        private IState<CharSymbolReader<string>, string, string> SetupErrorAndQuit(string message)
+        private IState<string, string> SetupErrorAndQuit(string message)
         {
             this.currentResult.InterpreterMessageStatus = EMathematicsInterpreterStatus.ERROR;
             this.currentResult.InterpreterResultMessage = message;
@@ -241,11 +241,11 @@ namespace Mathematics.MathematicsInterpreter
 
         #region State Transition Functions
         /// <summary>
-        /// Start transition function - state 0.
+        /// Função de transição inicial - estado 0.
         /// </summary>
-        /// <param name="reader">The symbol reader.</param>
-        /// <returns>The next state.</returns>
-        private IState<CharSymbolReader<string>, string, string> StartTransition(SymbolReader<CharSymbolReader<string>, string, string> reader)
+        /// <param name="reader">O leitor de símbolos.</param>
+        /// <returns>O próximo estado.</returns>
+        private IState<string, string> StartTransition(ISymbolReader<string, string> reader)
         {
             var readed = reader.Get();
             var topScopeDefinition = this.scopeDefinitionStack.Pop();
@@ -401,7 +401,7 @@ namespace Mathematics.MathematicsInterpreter
         /// </summary>
         /// <param name="reader">The symbol reader.</param>
         /// <returns>The next state.</returns>
-        private IState<CharSymbolReader<string>, string, string> EndTransition(SymbolReader<CharSymbolReader<string>, string, string> reader)
+        private IState<string, string> EndTransition(ISymbolReader<string, string> reader)
         {
             return null;
         }
@@ -411,7 +411,7 @@ namespace Mathematics.MathematicsInterpreter
         /// </summary>
         /// <param name="reader">The symbol reader.</param>
         /// <returns>The next state.</returns>
-        private IState<CharSymbolReader<string>, string, string> WhileTransition(SymbolReader<CharSymbolReader<string>, string, string> reader)
+        private IState<string, string> WhileTransition(ISymbolReader<string, string> reader)
         {
             this.IgnoreVoids(reader);
             var readed = reader.Peek();
@@ -471,7 +471,7 @@ namespace Mathematics.MathematicsInterpreter
         /// </summary>
         /// <param name="reader">The symbol reader.</param>
         /// <returns>The next state.</returns>
-        private IState<CharSymbolReader<string>, string, string> IfTransition(SymbolReader<CharSymbolReader<string>, string, string> reader)
+        private IState<string, string> IfTransition(ISymbolReader<string, string> reader)
         {
             throw new NotImplementedException();
         }
@@ -481,7 +481,7 @@ namespace Mathematics.MathematicsInterpreter
         /// </summary>
         /// <param name="reader">The symbol reader.</param>
         /// <returns>The next state.</returns>
-        private IState<CharSymbolReader<string>, string, string> ElseTransition(SymbolReader<CharSymbolReader<string>, string, string> reader)
+        private IState<string, string> ElseTransition(ISymbolReader<string, string> reader)
         {
             throw new NotImplementedException();
         }
@@ -491,7 +491,7 @@ namespace Mathematics.MathematicsInterpreter
         /// </summary>
         /// <param name="reader">The symbol reader.</param>
         /// <returns>The next state.</returns>
-        private IState<CharSymbolReader<string>, string, string> WhileIfConditionTransition(SymbolReader<CharSymbolReader<string>, string, string> reader)
+        private IState<string, string> WhileIfConditionTransition(ISymbolReader<string, string> reader)
         {
             this.IgnoreVoids(reader);
             var readed = reader.Get();
@@ -516,7 +516,7 @@ namespace Mathematics.MathematicsInterpreter
         /// </summary>
         /// <param name="reader">The symbol reader.</param>
         /// <returns>The next state.</returns>
-        private IState<CharSymbolReader<string>, string, string> ForTransition(SymbolReader<CharSymbolReader<string>, string, string> reader)
+        private IState<string, string> ForTransition(ISymbolReader<string, string> reader)
         {
             throw new NotImplementedException();
         }
@@ -526,7 +526,7 @@ namespace Mathematics.MathematicsInterpreter
         /// </summary>
         /// <param name="reader">The symbol reader.</param>
         /// <returns>The next state.</returns>
-        private IState<CharSymbolReader<string>, string, string> FirstForConditionTransition(SymbolReader<CharSymbolReader<string>, string, string> reader)
+        private IState<string, string> FirstForConditionTransition(ISymbolReader<string, string> reader)
         {
             throw new NotImplementedException();
         }
@@ -536,7 +536,7 @@ namespace Mathematics.MathematicsInterpreter
         /// </summary>
         /// <param name="reader">The symbol reader.</param>
         /// <returns>The next state.</returns>
-        private IState<CharSymbolReader<string>, string, string> SecondForConditionTransition(SymbolReader<CharSymbolReader<string>, string, string> reader)
+        private IState<string, string> SecondForConditionTransition(ISymbolReader<string, string> reader)
         {
             throw new NotImplementedException();
         }
@@ -546,7 +546,7 @@ namespace Mathematics.MathematicsInterpreter
         /// </summary>
         /// <param name="reader">The symbol reader.</param>
         /// <returns>The next state.</returns>
-        private IState<CharSymbolReader<string>, string, string> ThirdForConditionTransition(SymbolReader<CharSymbolReader<string>, string, string> reader)
+        private IState<string, string> ThirdForConditionTransition(ISymbolReader<string, string> reader)
         {
             throw new NotImplementedException();
         }
@@ -555,7 +555,7 @@ namespace Mathematics.MathematicsInterpreter
         /// </summary>
         /// <param name="reader">The symbol reader.</param>
         /// <returns>The next state.</returns>
-        private IState<CharSymbolReader<string>, string, string> InsideWhileIfConditionTransition(SymbolReader<CharSymbolReader<string>, string, string> reader)
+        private IState<string, string> InsideWhileIfConditionTransition(ISymbolReader<string, string> reader)
         {
             var readed = reader.Get();
             if (readed.SymbolType == "eof")
@@ -649,7 +649,7 @@ namespace Mathematics.MathematicsInterpreter
         /// </summary>
         /// <param name="reader">The symbol reader.</param>
         /// <returns>The next state.</returns>
-        private IState<CharSymbolReader<string>, string, string> InsideNonExecutingScope(SymbolReader<CharSymbolReader<string>, string, string> reader)
+        private IState<string, string> InsideNonExecutingScope(ISymbolReader<string, string> reader)
         {
             throw new NotImplementedException();
         }

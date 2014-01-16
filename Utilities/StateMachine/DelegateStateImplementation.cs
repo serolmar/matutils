@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Utilities.Parsers
+﻿namespace Utilities
 {
-    public class DelegateStateImplementation<InputReader, SymbolValue, SymbolType> : IState<InputReader, SymbolValue, SymbolType>
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+
+    public class DelegateStateImplementation<SymbolValue, SymbolType> : IState<SymbolValue, SymbolType>
     {
         /// <summary>
         /// The state id.
@@ -20,12 +20,12 @@ namespace Utilities.Parsers
         /// <summary>
         /// The transition delegate.
         /// </summary>
-        protected NextStateDelegate<InputReader, SymbolValue, SymbolType> transitionDelegate;
+        protected NextStateDelegate<SymbolValue, SymbolType> transitionDelegate;
 
         public DelegateStateImplementation(
             int stateId,
             string description,
-            NextStateDelegate<InputReader, SymbolValue, SymbolType> nextStateDelegate)
+            NextStateDelegate<SymbolValue, SymbolType> nextStateDelegate)
         {
             if (nextStateDelegate == null)
             {
@@ -37,14 +37,14 @@ namespace Utilities.Parsers
             this.transitionDelegate = nextStateDelegate;
         }
 
-        public IState<InputReader, SymbolValue, SymbolType> NextState(SymbolReader<InputReader, SymbolValue, SymbolType> reader)
+        public IState<SymbolValue, SymbolType> NextState(ISymbolReader<SymbolValue, SymbolType> reader)
         {
             return this.transitionDelegate.Invoke(reader);
         }
 
         public override bool Equals(object obj)
         {
-            var innerObj = obj as DelegateStateImplementation<InputReader, SymbolValue, SymbolType>;
+            var innerObj = obj as DelegateStateImplementation<SymbolValue, SymbolType>;
             if (innerObj == null)
             {
                 return false;

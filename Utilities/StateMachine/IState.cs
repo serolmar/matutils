@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Utilities.Parsers
+namespace Utilities
 {
     public enum Status
     {
@@ -18,11 +18,11 @@ namespace Utilities.Parsers
     //Status status);
     //public delegate void CallLeaveState(Status status);
 
-    public interface IState<InputReader, TSymbVal, TSymbType>
+    public interface IState<TSymbVal, TSymbType>
     {
         //CallEnterState EnterState { get; set; }
         //CallTransitionState<InputReader> TransitionState { get; set; }
         //CallLeaveState LeaveState { get; set; }
-        IState<InputReader, TSymbVal, TSymbType> NextState(SymbolReader<InputReader, TSymbVal, TSymbType> reader);
+        IState<TSymbVal, TSymbType> NextState(ISymbolReader<TSymbVal, TSymbType> reader);
     }
 }

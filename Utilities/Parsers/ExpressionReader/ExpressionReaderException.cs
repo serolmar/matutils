@@ -1,4 +1,4 @@
-﻿namespace Utilities.Parsers
+﻿namespace Utilities
 {
     using System;
     using System.Collections.Generic;

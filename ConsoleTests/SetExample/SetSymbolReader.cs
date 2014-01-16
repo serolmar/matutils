@@ -5,7 +5,7 @@
     using System.IO;
     using System.Linq;
     using System.Text;
-    using Utilities.Parsers;
+    using Utilities;
 
     class SetSymbolReader : SymbolReader<CharSymbolReader<ESymbolSetType>, string, ESymbolSetType>
     {
