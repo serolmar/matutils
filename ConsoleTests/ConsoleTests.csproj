@@ -64,6 +64,8 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Readers\DoubleArrayMatrixReader.cs" />
+    <Compile Include="Readers\DoubleArrayVectorReader.cs" />
+    <Compile Include="Readers\DoubleSparseMatrixReader.cs" />
     <Compile Include="Readers\IntegerPolynomialReader.cs" />
     <Compile Include="Readers\IntegerArrayVectorReader.cs" />
     <Compile Include="SetExample\ESymbolSetType.cs" />

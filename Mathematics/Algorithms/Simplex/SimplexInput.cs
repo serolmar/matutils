@@ -27,7 +27,7 @@
         /// <summary>
         /// A função objectivo.
         /// </summary>
-        private IMatrix<ObjectiveCoeffType> objectiveFunction;
+        private IVector<ObjectiveCoeffType> objectiveFunction;
 
         /// <summary>
         /// O custo actual.
@@ -42,15 +42,25 @@
         /// <summary>
         /// O vector das restrições.
         /// </summary>
-        private IMatrix<ConstraintsType> constraintsVector;
+        private IVector<ConstraintsType> constraintsVector;
 
+        /// <summary>
+        /// Permite criar uma instância de entrada para o algoritmo do simplex na forma normal de minimização. 
+        /// Esta instância poderá corresponder a um estado intermédio deste algoritmo.
+        /// </summary>
+        /// <param name="basicVariables">O conjunto de variáveis básicas.</param>
+        /// <param name="nonBasicVariables">O conjunto de variáveis não-básicas.</param>
+        /// <param name="objectiveFunction">Os coeficientes da função objectivo.</param>
+        /// <param name="cost">O custo.</param>
+        /// <param name="constraintsMatrix">A matriz das restrições.</param>
+        /// <param name="constraintsVector">O vector das restrições.</param>
         public SimplexInput(
             int[] basicVariables,
             int[] nonBasicVariables,
-            IMatrix<ObjectiveCoeffType> objectiveFunction,
+            IVector<ObjectiveCoeffType> objectiveFunction,
             ObjectiveCoeffType cost,
             IMatrix<ConstraintsType> constraintsMatrix,
-            IMatrix<ConstraintsType> constraintsVector)
+            IVector<ConstraintsType> constraintsVector)
         {
             if (basicVariables == null)
             {
@@ -78,15 +88,7 @@
             }
             else
             {
-                if (objectiveFunction.GetLength(0) != 1)
-                {
-                    throw new ArgumentException("Objective function must be a column vector.");
-                }
-                else if (constraintsVector.GetLength(1) != 1)
-                {
-                    throw new ArgumentException("Constraints vector must be a column vector.");
-                }
-                else if (constraintsMatrix.GetLength(0) != constraintsVector.GetLength(0))
+                if (constraintsMatrix.GetLength(0) != constraintsVector.Length)
                 {
                     throw new ArgumentException("Constraints matrix must have the same number of lines as constraints vector.");
                 }
@@ -94,7 +96,7 @@
                 {
                     throw new ArgumentException("The number of variables must be equal to the number of columns in constraints matrix.");
                 }
-                else if (nonBasicVariables.Length != objectiveFunction.GetLength(1))
+                else if (nonBasicVariables.Length != objectiveFunction.Length)
                 {
                     throw new ArgumentException("The number of non basic variables must be equal to the number of coefficients in objective funcion.");
                 }
@@ -133,7 +135,7 @@
         /// <summary>
         /// Obtém a função objectivo.
         /// </summary>
-        public IMatrix<ObjectiveCoeffType> ObjectiveFunction
+        public IVector<ObjectiveCoeffType> ObjectiveFunction
         {
             get
             {
@@ -177,7 +179,7 @@
         /// <summary>
         /// Obtém o vector das restrições.
         /// </summary>
-        public IMatrix<ConstraintsType> ConstraintsVector
+        public IVector<ConstraintsType> ConstraintsVector
         {
             get
             {

@@ -51,13 +51,18 @@ namespace Mathematics
                 }
                 else
                 {
-                    if (this.matrixEntries.ContainsKey(index))
+                    if (!object.ReferenceEquals(this.owner.DefaultValue, value) &&
+                        this.owner.DefaultValue != null &&
+                        !this.owner.DefaultValue.Equals(value))
                     {
-                        this.matrixEntries[index] = value;
-                    }
-                    else
-                    {
-                        this.matrixEntries.Add(index, value);
+                        if (this.matrixEntries.ContainsKey(index))
+                        {
+                            this.matrixEntries[index] = value;
+                        }
+                        else
+                        {
+                            this.matrixEntries.Add(index, value);
+                        }
                     }
                 }
             }

@@ -39,12 +39,69 @@
             }
         }
 
+        /// <summary>
+        /// Tenta ler a matriz a partir de um leitor de símbolos.
+        /// </summary>
+        /// <param name="reader">O leitor de símbolos.</param>
+        /// <param name="parser">O interpretador da matriz.</param>
+        /// <param name="matrix">Estabelece a matriz lida.</param>
+        /// <returns>Verdadeiro caso a operação seja bem sucedida e falso caso contrário.</returns>
         public bool TryParseMatrix(
             MementoSymbolReader<InputReader, SymbValue, SymbType> reader,
             IParse<T, SymbValue, SymbType> parser,
             out IMatrix<T> matrix)
         {
             return this.TryParseMatrix(reader, parser, null, out matrix);
+        }
+
+        public bool TryParseMatrix(
+            MementoSymbolReader<InputReader, SymbValue, SymbType> reader,
+            IParse<T, SymbValue, SymbType> parser,
+            T defaultValue,
+            out IMatrix<T> matrix)
+        {
+            return this.TryParseMatrix(reader, parser, null, defaultValue, out matrix);
+        }
+
+        public bool TryParseMatrix(
+            MementoSymbolReader<InputReader, SymbValue, SymbType> reader,
+            IParse<T, SymbValue, SymbType> parser,
+            List<string> errors,
+            T defaultValue,
+            out IMatrix<T> matrix)
+        {
+            matrix = default(ArrayMatrix<T>);
+            this.rangeReader.ReadRangeValues(reader, parser);
+            if (this.rangeReader.HasErrors)
+            {
+                if (errors != null)
+                {
+                    foreach (var message in this.rangeReader.ErrorMessages)
+                    {
+                        errors.Add(message);
+                    }
+                }
+
+                return false;
+            }
+            else
+            {
+                var lines = -1;
+                var columns = -1;
+                var configurationEnumerator = this.rangeReader.Configuration.GetEnumerator();
+                if (configurationEnumerator.MoveNext())
+                {
+                    lines = configurationEnumerator.Current;
+                    if (configurationEnumerator.MoveNext())
+                    {
+                        columns = configurationEnumerator.Current;
+                    }
+                }
+
+                matrix = this.matrixFactory.CreateMatrix(lines, columns, defaultValue);
+                this.SetupResultMatrix(matrix, new int[] { lines, columns }, this.rangeReader.Elements);
+                return true;
+            }
         }
 
         public bool TryParseMatrix(

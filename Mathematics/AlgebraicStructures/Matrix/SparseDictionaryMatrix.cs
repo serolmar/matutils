@@ -115,15 +115,21 @@
                 }
                 else
                 {
-                    var currentLine = default(SparseDictionaryMatrixLine<ObjectType>);
-                    if (this.matrixLines.TryGetValue(line, out currentLine))
+                    if (!object.ReferenceEquals(this.defaultValue, value) &&
+                        this.defaultValue != null &&
+                        !this.defaultValue.Equals(value))
                     {
-                        currentLine[column] = value;
-                    }
-                    else
-                    {
-                        var newLine = new SparseDictionaryMatrixLine<ObjectType>(this);
-                        this.matrixLines.Add(line, newLine);
+                        var currentLine = default(SparseDictionaryMatrixLine<ObjectType>);
+                        if (this.matrixLines.TryGetValue(line, out currentLine))
+                        {
+                            currentLine[column] = value;
+                        }
+                        else
+                        {
+                            var newLine = new SparseDictionaryMatrixLine<ObjectType>(this);
+                            newLine[column] = value;
+                            this.matrixLines.Add(line, newLine);
+                        }
                     }
                 }
             }

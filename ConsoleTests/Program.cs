@@ -21,7 +21,7 @@
 
         static void Main(string[] args)
         {
-            Test21();
+            Test16();
             Console.ReadLine();
         }
 
@@ -288,87 +288,44 @@
         /// </summary>
         public static void Test16()
         {
+            // Estabelece os leitores e os campos
+            var arrayMatrixReader = new DoubleArrayMatrixReader();
+            var sparseMatrixReader = new DoubleSparseMatrixReader();
+            var arrayVectorReader = new DoubleArrayVectorReader();
+            var doubleField = new DoubleField();
+
+            var costsMatrixInput = "[[0,0,0,0,0],[3,0,0,0,0],[5,0,0,0,0],[2,1,0,0,0],[1,2,4,0,0]]";
+            var costsMatrix = sparseMatrixReader.ReadArray(5, 5, costsMatrixInput);
+            var linearRelaxation = new LinearRelaxationAlgorithm<double>(
+                new SimplexAlgorithm<double>(Comparer<double>.Default, doubleField),
+                doubleField);
+            var linearRelaxationResult = linearRelaxation.Run(costsMatrix, 3);
+
             var inputConstraintsMatrix = "[[1,0,3],[0,2,2]]";
-            var inputConstraintsVector = "[[4,12,18]]";
-            var inputObjectiveFunc = "[[-3],[-2]]";
+            var inputConstraintsVector = "[4,12,8]";
+            var inputObjectiveFunc = "[-3,-2]";
             var cost = 0.0;
             var nonBasicVariables = new[] { 0, 1 };
             var basicVariables = new[] { 2, 3, 4 };
 
-            // Responsável pela leitura de apenas um elemento, incluindo o sinal
-            var doubleSimpleParser = new DoubleParser<string>();
+            var constraintsMatrix = arrayMatrixReader.ReadArray(3, 2, inputConstraintsMatrix);
+            var constraintsVector = arrayVectorReader.ReadVector(3, inputConstraintsVector);
 
-            // O sinal negativo é lido automaticamente uma vez que não é necessária a leitura de uma expressão
-            var stringSymbolReader = new StringSymbolReader(new StringReader(inputConstraintsMatrix), true);
+            var objectiveFunction = arrayVectorReader.ReadVector(2, inputObjectiveFunc);
+            var simplexInput = new SimplexInput<double, double>(
+                basicVariables,
+                nonBasicVariables,
+                objectiveFunction,
+                cost,
+                constraintsMatrix,
+                constraintsVector);
 
-            var matrixFactory = new ArrayMatrixFactory<double>();
-            var arrayMatrixReader = new ConfigMatrixReader<double, string, string, CharSymbolReader<string>>(
-                3,
-                2,
-                matrixFactory);
-            arrayMatrixReader.MapInternalDelimiters("left_bracket", "right_bracket");
-            arrayMatrixReader.AddBlanckSymbolType("blancks");
-            arrayMatrixReader.SeparatorSymbType = "comma";
+            var simplexAlg = new SimplexAlgorithm<double>(
+                Comparer<double>.Default,
+                doubleField);
 
-            var constraintsMatrix = default(IMatrix<double>);
-            if (arrayMatrixReader.TryParseMatrix(stringSymbolReader, doubleSimpleParser, out constraintsMatrix))
-            {
-                stringSymbolReader = new StringSymbolReader(new StringReader(inputConstraintsVector), true);
-
-                arrayMatrixReader = new ConfigMatrixReader<double, string, string, CharSymbolReader<string>>(
-                3,
-                1,
-                matrixFactory);
-                arrayMatrixReader.MapInternalDelimiters("left_bracket", "right_bracket");
-                arrayMatrixReader.AddBlanckSymbolType("blancks");
-                arrayMatrixReader.SeparatorSymbType = "comma";
-
-                var constraintsVector = default(IMatrix<double>);
-                if (arrayMatrixReader.TryParseMatrix(stringSymbolReader, doubleSimpleParser, out constraintsVector))
-                {
-                    stringSymbolReader = new StringSymbolReader(new StringReader(inputObjectiveFunc), true);
-
-                    arrayMatrixReader = new ConfigMatrixReader<double, string, string, CharSymbolReader<string>>(
-                    1,
-                    2,
-                    matrixFactory);
-                    arrayMatrixReader.MapInternalDelimiters("left_bracket", "right_bracket");
-                    arrayMatrixReader.AddBlanckSymbolType("blancks");
-                    arrayMatrixReader.SeparatorSymbType = "comma";
-
-                    var objectiveFunction = default(IMatrix<double>);
-                    if (arrayMatrixReader.TryParseMatrix(stringSymbolReader, doubleSimpleParser, out objectiveFunction))
-                    {
-                        var doubleField = new DoubleField();
-                        var simplexInput = new SimplexInput<double, double>(
-                            basicVariables,
-                            nonBasicVariables,
-                            objectiveFunction,
-                            cost,
-                            constraintsMatrix,
-                            constraintsVector);
-
-                        var simplexAlg = new SimplexAlgorithm<double>(
-                            Comparer<double>.Default,
-                            doubleField);
-
-                        var simplexOut = simplexAlg.Run(simplexInput);
-                        Console.WriteLine("Cost: {0}", simplexOut.Cost);
-                    }
-                    else
-                    {
-                        Console.WriteLine("Can't parse objective function.");
-                    }
-                }
-                else
-                {
-                    Console.WriteLine("Can't parse constraints vector.");
-                }
-            }
-            else
-            {
-                Console.WriteLine("Can't parse constraints matrix.");
-            }
+            var simplexOut = simplexAlg.Run(simplexInput);
+            Console.WriteLine("Cost: {0}", simplexOut.Cost);
         }
 
         /// <summary>
