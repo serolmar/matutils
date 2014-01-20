@@ -90,6 +90,8 @@
     <Compile Include="Events\UpdateEventArgs.cs" />
     <Compile Include="ExpressionBuilders\BoolExpressionParser.cs" />
     <Compile Include="InverseIntegerComparer.cs" />
+    <Compile Include="Lambda\ELambdaExpressionWordType.cs" />
+    <Compile Include="Lambda\SmartFilterLambdaBuilder.cs" />
     <Compile Include="Parsers\ArraySymbolReader.cs" />
     <Compile Include="Parsers\EStringSymbolReader.cs" />
     <Compile Include="ExpressionBuilders\DoubleExpressionParser.cs" />
@@ -111,7 +113,6 @@
     <Compile Include="Parsers\StringSymbol.cs" />
     <Compile Include="Parsers\StringSymbolReader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Specifications\IActionSpecification.cs" />
     <Compile Include="StateMachine\DelegateDrivenState.cs" />
     <Compile Include="StateMachine\DelegateStateImplementation.cs" />
     <Compile Include="StateMachine\IMemento.cs" />

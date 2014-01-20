@@ -24,13 +24,20 @@
         private IAlgorithm<SimplexInput<CoeffType, SimplexMaximumNumberField<CoeffType>>, SimplexOutput<CoeffType>>
             simplexAlg;
 
+        private IConversion<int, CoeffType> conversion;
+
         public LinearRelaxationAlgorithm(
             IAlgorithm<SimplexInput<CoeffType, SimplexMaximumNumberField<CoeffType>>, SimplexOutput<CoeffType>> simplexAlg,
+            IConversion<int, CoeffType> conversion,
             IField<CoeffType> coeffsField)
         {
             if (simplexAlg == null)
             {
                 throw new ArgumentNullException("simplexAlg");
+            }
+            else if (conversion == null)
+            {
+                throw new ArgumentNullException("conversion");
             }
             else if (coeffsField == null)
             {
@@ -39,6 +46,7 @@
             else
             {
                 this.coeffsField = coeffsField;
+                this.conversion = conversion;
                 this.simplexAlg = simplexAlg;
             }
         }
@@ -84,7 +92,7 @@
                         {
                             ++numberXVars;
                             var valueToAdd = new SimplexMaximumNumberField<CoeffType>(
-                                this.coeffsField.AdditiveInverse(column.Value),
+                                column.Value,
                                 this.coeffsField.AdditiveInverse(this.coeffsField.MultiplicativeUnity));
                             objectiveFunction.Add(valueToAdd);
                         }
@@ -100,24 +108,14 @@
                 // Preence os vectores que permitem seleccionar as variáveis.
                 this.FillVariablesSelectors(nonBasicVariables, basicVariables, linesLength);
 
-                // Preenche o valor das variáveis básicas na função objectivo
-                for (int i = objectiveFunction.Count; i < linesLength; ++i)
-                {
-                    objectiveFunction.Add(
-                        new SimplexMaximumNumberField<CoeffType>(
-                            this.coeffsField.AdditiveUnity,
-                            this.coeffsField.AdditiveUnity));
-                }
-
                 // Preencimento da matriz das restrições
                 var constraintsMatrix = new ArrayMatrix<CoeffType>(
                     constraintsNumber,
-                    linesLength,
+                    constraintsNumber,
                     this.coeffsField.AdditiveUnity);
 
                 var constraintLineNumber = 0;
                 var constraintXYLineNumber = 0;
-                var constraintsBasicLineNumber = constraintsNumber;
                 var unity = this.coeffsField.MultiplicativeUnity;
                 var inverseAdditive = this.coeffsField.AdditiveInverse(unity);
                 foreach (var line in costs.GetLines())
@@ -126,9 +124,7 @@
                     {
                         constraintsMatrix[constraintXYLineNumber, constraintLineNumber] = inverseAdditive;
                         constraintsMatrix[constraintXYLineNumber, constraintXYLineNumber + numberOfVertices] = unity;
-                        constraintsMatrix[constraintXYLineNumber, constraintsBasicLineNumber] = unity;
                         ++constraintXYLineNumber;
-                        ++constraintsBasicLineNumber;
                     }
 
                     ++constraintLineNumber;
@@ -140,7 +136,6 @@
                 for (int i = 1; i < numberOfVertices; ++i)
                 {
                     constraintsMatrix[constraintLineNumber, i] = unity;
-                    constraintsMatrix[constraintLineNumber, constraintsBasicLineNumber] = unity;
                     constraintsMatrix[lastLine, i] = unity;
                     constraintXYLineNumber = numberOfVertices;
                     foreach (var lines in costs.GetLines())
@@ -157,23 +152,28 @@
                     }
 
                     ++constraintLineNumber;
-                    ++constraintsBasicLineNumber;
                 }
-
-                constraintsMatrix[lastLine, constraintsBasicLineNumber] = unity;
 
                 // Preenchimento do vector independete das restrições
                 var vector = new ArrayVector<CoeffType>(constraintsNumber, this.coeffsField.AdditiveUnity);
-                for (int i = numberXVars; i < constraintsNumber; ++i)
+                lastLine = constraintsNumber - 1;
+                for (int i = numberXVars; i < lastLine; ++i)
                 {
                     vector[i] = unity;
                 }
 
+                vector[lastLine] = this.conversion.InverseConversion(numberOfMedians);
+                var sumVector = this.coeffsField.AdditiveUnity;
+                for (int i = 0; i < vector.Length; ++i) {
+                    sumVector = this.coeffsField.Add(sumVector, vector[i]);
+                }
+
+                sumVector = this.coeffsField.AdditiveInverse(sumVector);
                 var simplexInput = new SimplexInput<CoeffType, SimplexMaximumNumberField<CoeffType>>(
                     basicVariables,
                     nonBasicVariables,
                     new ArrayVector<SimplexMaximumNumberField<CoeffType>>(objectiveFunction.ToArray()),
-                    new SimplexMaximumNumberField<CoeffType>(this.coeffsField.AdditiveUnity, this.coeffsField.AdditiveUnity),
+                    new SimplexMaximumNumberField<CoeffType>(this.coeffsField.AdditiveUnity, sumVector),
                     constraintsMatrix,
                     vector);
 
