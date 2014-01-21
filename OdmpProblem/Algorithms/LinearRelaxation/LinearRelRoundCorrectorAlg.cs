@@ -1,6 +1,7 @@
 ﻿namespace OdmpProblem
 {
     using System;
+    using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
@@ -13,7 +14,7 @@
     /// </summary>
     /// <typeparam name="CoeffType">O tipo de coeficientes que corresponde à saída da relaxação linear.</typeparam>
     public class LinearRelRoundCorrectorAlg<CoeffType>
-        : IAlgorithm<CoeffType[], IMatrix<CoeffType>, int, GreedyAlgSolution<CoeffType>>
+        : IAlgorithm<CoeffType[], ISparseMatrix<CoeffType>, int, GreedyAlgSolution<CoeffType>>
     {
         /// <summary>
         /// O corpo responsável pelas operações sobre os coeficientes.
@@ -57,7 +58,8 @@
             {
                 throw new ArgumentNullException("converter");
             }
-            else if(comparer == null){
+            else if (comparer == null)
+            {
             }
             else
             {
@@ -75,8 +77,8 @@
         /// <param name="nopt">O número máximo melhoramentos a serem aplicados à solução encontrada.</param>
         /// <returns>A solução construída a partir da aproximação.</returns>
         public GreedyAlgSolution<CoeffType> Run(
-            CoeffType[] approximateMedians, 
-            IMatrix<CoeffType> costs,
+            CoeffType[] approximateMedians,
+            ISparseMatrix<CoeffType> costs,
             int nopt)
         {
             if (approximateMedians == null)
@@ -126,6 +128,32 @@
 
                 if (this.converter.CanApplyDirectConversion(sum))
                 {
+                    var convertedSum = this.converter.DirectConversion(sum);
+                    if (convertedSum <= 0 || convertedSum > approximateMedians.Length)
+                    {
+                        throw new IndexOutOfRangeException(string.Format(
+                            "The medians sum {0} is out of bounds. It must be between 1 and the number of elements in medians array.",
+                            convertedSum));
+                    }
+
+                    var solutionBoard = new CoeffType[approximateMedians.Length];
+                    var marked = new BitArray(approximateMedians.Length, false);
+                    if (settedSolutions.Count == convertedSum)
+                    {
+                        var result = new GreedyAlgSolution<CoeffType>(settedSolutions);
+                        result.Cost = this.ComputeCost(settedSolutions, costs, solutionBoard, marked);
+                    }
+                    else
+                    {
+                        // Partição das mediana em dois conjuntos: as que vão falzer parte da solução e as restantes
+                        // entre as soluções aproximadas.
+                        var recoveredMedians = new List<int>();
+                        var unrecoveredMedians = new List<int>();
+                        var innerComparer = new InnerComparer(approximateMedians, this.comparer);
+                        approximateSolutions.Sort(innerComparer);
+
+                        var currentCost = this.ComputeCost(settedSolutions, costs, solutionBoard, marked);
+                    }
                 }
                 else
                 {
@@ -137,16 +165,237 @@
         }
 
         /// <summary>
+        /// Permite calcular o custo associado à escolha de um conjunto de medianas escolhidas.
+        /// </summary>
+        /// <param name="chosen">O conjunto de medianas escolhidas.</param>
+        /// <param name="costs">A matriz dos custos.</param>
+        /// <param name="solutionBoard">A linha que mantém os mínimos por mediana.</param>
+        /// <returns>O valor do custo associado à escolha.</returns>
+        private CoeffType ComputeCost(
+            IntegerSequence chosen, 
+            ISparseMatrix<CoeffType> costs,
+            CoeffType[] solutionBoard,
+            BitArray marked)
+        {
+            var resultCost = this.coeffsField.AdditiveUnity;
+            foreach (var item in chosen)
+            {
+                var currentCostLine = default(ISparseMatrixLine<CoeffType>);
+                if (costs.TryGetLine(item, out currentCostLine))
+                {
+                    foreach (var column in currentCostLine.GetColumns())
+                    {
+                        if (column.Key == item)
+                        {
+                            marked[item] = true;
+                            solutionBoard[item] = this.coeffsField.AdditiveUnity;
+                        }
+                        else
+                        {
+                            if (marked[item])
+                            {
+                                var boardCost = solutionBoard[item];
+                                if (this.comparer.Compare(column.Value, boardCost) < 0)
+                                {
+                                    solutionBoard[item] = column.Value;
+                                    var difference = this.coeffsField.Add(
+                                        column.Value,
+                                        this.coeffsField.AdditiveInverse(boardCost));
+                                    resultCost = this.coeffsField.Add(
+                                        resultCost,
+                                        difference);
+                                }
+                            }
+                            else
+                            {
+                                resultCost = this.coeffsField.Add(
+                                    resultCost,
+                                    column.Value);
+                                marked[item] = true;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    marked[item] = true;
+                    solutionBoard[item] = this.coeffsField.AdditiveUnity;
+                }
+            }
+
+            for (int i = 0; i < marked.Length; ++i)
+            {
+                if (!marked[i])
+                {
+                    throw new OdmpProblemException("Not all nodes are covered by some median.");
+                }
+            }
+
+            return resultCost;
+        }
+
+        /// <summary>
+        /// Calcula o custo da substituição de uma mediana por outra. 
+        /// </summary>
+        /// <param name="replacementMedian">A mediana que substitui.</param>
+        /// <param name="medianToBeReplaced">A mediana que é substituída.</param>
+        /// <param name="existingMedians">As medianas que forma escolhidas.</param>
+        /// <param name="costs">A matriz dos custos.</param>
+        /// <param name="currentSolutionBoard">O quadro de solução actual.</param>
+        /// <param name="cost">O custo actual.</param>
+        /// <param name="replacementSolutionBoard">O quadro da solução substituída.</param>
+        /// <returns>O valor do mínimo.</returns>
+        private CoeffType ComputeReplacementCost(
+            int replacementMedian,
+            int medianToBeReplaced,
+            IntegerSequence existingMedians,
+            ISparseMatrix<CoeffType> costs,
+            CoeffType[] currentSolutionBoard,
+            CoeffType cost,
+            CoeffType[] replacementSolutionBoard)
+        {
+            Array.Copy(currentSolutionBoard, replacementSolutionBoard, currentSolutionBoard.Length);
+            var result = cost;
+
+            var minimum = this.GetMinimumFromColumn(existingMedians, medianToBeReplaced, costs);
+            replacementSolutionBoard[medianToBeReplaced] = minimum;
+            result = this.coeffsField.Add(result, minimum);
+
+            var boardValue = currentSolutionBoard[replacementMedian];
+            replacementSolutionBoard[replacementMedian] = this.coeffsField.AdditiveUnity;
+            result = this.coeffsField.Add(
+                result,
+                this.coeffsField.AdditiveInverse(boardValue));
+
+            // Remove a linha a ser substituída.
+            var currentRow = default(ISparseMatrixLine<CoeffType>);
+            if (costs.TryGetLine(medianToBeReplaced, out currentRow))
+            {
+                foreach (var column in currentRow.GetColumns())
+                {
+                    if (column.Key != medianToBeReplaced)
+                    {
+                        if (this.coeffsField.Equals(column.Value, replacementSolutionBoard[medianToBeReplaced]))
+                        {
+                            var current = replacementSolutionBoard[medianToBeReplaced];
+                            minimum = this.GetMinimumFromColumn(
+                                existingMedians,
+                                medianToBeReplaced,
+                                costs);
+                            replacementSolutionBoard[medianToBeReplaced] = minimum;
+                            var temp = this.coeffsField.Add(
+                                minimum,
+                                this.coeffsField.AdditiveInverse(current));
+                            result = this.coeffsField.Add(result, temp);
+                        }
+                    }
+                }
+            }
+
+            // Insere a linha a substituir.
+            if (costs.TryGetLine(replacementMedian, out currentRow))
+            {
+                foreach (var column in currentRow.GetColumns())
+                {
+                    if (column.Key != replacementMedian)
+                    {
+                        var current = replacementSolutionBoard[replacementMedian];
+                        if (this.comparer.Compare(column.Value, current) < 0)
+                        {
+                            replacementSolutionBoard[replacementMedian] = column.Value;
+                            var temp = this.coeffsField.Add(
+                                column.Value,
+                                this.coeffsField.AdditiveInverse(current));
+                            result = this.coeffsField.Add(result, temp);
+                        }
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Permite obter o valor mínimo entre as colunas da matriz para as linhas escolhidas com excepção
+        /// de uma delas.
+        /// </summary>
+        /// <param name="chosen">As linhas escolhidas.</param>
+        /// <param name="except">
+        /// A linha que não vai ser considerada e que corresponde à coluna sobre a qual
+        /// é avaliado o mínimo..</param>
+        /// <param name="costs">A matriz dos custos.</param>
+        /// <returns>O valor do custo mínimo.</returns>
+        private CoeffType GetMinimumFromColumn(
+            IntegerSequence chosen,
+            int except,
+            ISparseMatrix<CoeffType> costs)
+        {
+            var result = default(CoeffType);
+            var lineCostsEnumerator = costs.GetLines().GetEnumerator();
+            var state = lineCostsEnumerator.MoveNext();
+            var keep = true;
+            while (state && keep)
+            {
+                var currentLine = lineCostsEnumerator.Current;
+                if (currentLine.Key != except)
+                {
+                    var columnValue = default(CoeffType);
+                    if (currentLine.Value.TryGetColumnValue(except, out columnValue))
+                    {
+                        if (this.coeffsField.IsAdditiveUnity(columnValue))
+                        {
+                            return columnValue;
+                        }
+                        else
+                        {
+                            result = columnValue;
+                            keep = false;
+                        }
+                    }
+                }
+
+                state = lineCostsEnumerator.MoveNext();
+            }
+
+            while (state)
+            {
+                var currentLine = lineCostsEnumerator.Current;
+                if (currentLine.Key != except)
+                {
+                    var columnValue = default(CoeffType);
+                    if (currentLine.Value.TryGetColumnValue(except, out columnValue))
+                    {
+                        if (this.coeffsField.IsAdditiveUnity(columnValue))
+                        {
+                            return columnValue;
+                        }
+                        else
+                        {
+                            if (this.comparer.Compare(columnValue, result) < 0)
+                            {
+                                result = columnValue;
+                            }
+                        }
+                    }
+                }
+
+                state = lineCostsEnumerator.MoveNext();
+            }
+
+            return result;
+        }
+
+        /// <summary>
         /// Utilizada para determinar uma ordenação da lista de posições que contêm valores aproximados
         /// de acordo com o valor correspondente.
         /// </summary>
-        private class InnerComparer : IComparer<int>
+        private class InnerComparer : Comparer<int>
         {
             private IComparer<CoeffType> coeffsComparer;
 
             private CoeffType[] coeffs;
 
-            public InnerComparer(CoeffType[] coeffs, Comparer<CoeffType> coeffsComparer)
+            public InnerComparer(CoeffType[] coeffs, IComparer<CoeffType> coeffsComparer)
             {
                 this.coeffsComparer = coeffsComparer;
                 this.coeffs = coeffs;
@@ -160,7 +409,7 @@
             /// <returns>
             /// O valor 1 caso o primeiro seja maior do que o segundo, -1 caso o segundo seja maior do que
             /// o primeiro e 0 caso contrário.</returns>
-            public int Compare(int x, int y)
+            public override int Compare(int x, int y)
             {
                 var firstValue = this.coeffs[x];
                 var secondValur = this.coeffs[y];

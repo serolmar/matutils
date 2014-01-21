@@ -118,6 +118,25 @@ namespace Mathematics
             return this.matrixEntries.ContainsKey(column);
         }
 
+        /// <summary>
+        /// Tenta obter o valor da coluna caso esta exista na linha da matriz esparsa.
+        /// </summary>
+        /// <param name="column">O índice da coluna.</param>
+        /// <param name="value">O valor na coluna.</param>
+        /// <returns>Verdadeiro caso a operação seja bem sucedida e falso caso contrário.</returns>
+        public bool TryGetColumnValue(int column, out ObjectType value)
+        {
+            value = default(ObjectType);
+            if (column < 0 || column >= this.owner.GetLength(1))
+            {
+                return false;
+            }
+            else
+            {
+                return this.matrixEntries.TryGetValue(column, out value);
+            }
+        }
+
         public IEnumerator<KeyValuePair<int,ObjectType>> GetEnumerator()
         {
             return this.matrixEntries.GetEnumerator();

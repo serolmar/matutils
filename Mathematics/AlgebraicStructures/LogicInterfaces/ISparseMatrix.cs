@@ -37,6 +37,14 @@
         bool ContainsLine(int line);
 
         /// <summary>
+        /// Tenta obter a linha especificada pelo índice.
+        /// </summary>
+        /// <param name="index">O índice da linha.</param>
+        /// <param name="line">A linha.</param>
+        /// <returns>Verdadeiro caso a operação seja bem sucedida e falso caso contrário.</returns>
+        bool TryGetLine(int index, out ISparseMatrixLine<ObjectType> line);
+
+        /// <summary>
         /// Obtém as colunas atribuídas à linha especificada.
         /// </summary>
         /// <param name="line">A linha.</param>

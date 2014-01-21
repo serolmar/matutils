@@ -37,5 +37,13 @@
         /// <param name="column">A coluna.</param>
         /// <returns>Verdadeiro caso a linha contenha a coluna e falso caso contrário.</returns>
         bool ContainsColumn(int column);
+
+        /// <summary>
+        /// Tenta obter o valor da coluna caso esta exista na linha da matriz esparsa.
+        /// </summary>
+        /// <param name="column">O índice da coluna.</param>
+        /// <param name="value">O valor na coluna.</param>
+        /// <returns>Verdadeiro caso a operação seja bem sucedida e falso caso contrário.</returns>
+        bool TryGetColumnValue(int column, out ObjectType value);
     }
 }

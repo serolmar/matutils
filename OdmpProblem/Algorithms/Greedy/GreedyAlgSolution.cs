@@ -17,6 +17,18 @@
             this.chosen = new IntegerSequence();
         }
 
+        internal GreedyAlgSolution(IntegerSequence chosen)
+        {
+            if (chosen == null)
+            {
+                throw new ArgumentNullException("chosen");
+            }
+            else
+            {
+                this.chosen = chosen;
+            }
+        }
+
         public IntegerSequence Chosen
         {
             get

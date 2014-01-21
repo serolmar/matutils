@@ -426,6 +426,35 @@
         }
 
         /// <summary>
+        /// Tenta obter a linha especificada pelo índice.
+        /// </summary>
+        /// <param name="index">O índice da linha.</param>
+        /// <param name="line">A linha.</param>
+        /// <returns>Verdadeiro caso a operação seja bem sucedida e falso caso contrário.</returns>
+        public bool TryGetLine(int index, out ISparseMatrixLine<ObjectType> line)
+        {
+            var setLine = default(SparseDictionaryMatrixLine<ObjectType>);
+            if (index < 0 || index >= this.afterLastLine)
+            {
+                line = setLine;
+                return false;
+            }
+            else
+            {
+                if (this.matrixLines.TryGetValue(index, out setLine))
+                {
+                    line = setLine;
+                    return true;
+                }
+                else
+                {
+                    line = setLine;
+                    return false;
+                }
+            }
+        }
+
+        /// <summary>
         /// Obtém as colunas atribuídas à linha especificada.
         /// </summary>
         /// <param name="line">A linha.</param>
