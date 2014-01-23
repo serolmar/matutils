@@ -7,7 +7,7 @@
     using System.Text;
     using Utilities;
 
-    public class CsvFileParser<MatrixType, ElementsType, InputType, SymbValue, SymbType>
+    public class CsvFileParser<MatrixType, ElementsType, SymbValue, SymbType>
     {
         /// <summary>
         /// O objecto responsável por fazer a sincronização dos processos.
@@ -207,7 +207,7 @@
         }
 
         public void Parse(
-            SymbolReader<InputType, SymbValue, SymbType> reader,
+            ISymbolReader<SymbValue, SymbType> reader,
             MatrixType matrix,
             IDataParseAdder<MatrixType, ElementsType> adder)
         {

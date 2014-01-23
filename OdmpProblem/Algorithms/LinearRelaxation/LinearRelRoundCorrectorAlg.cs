@@ -60,12 +60,14 @@
             }
             else if (comparer == null)
             {
+                throw new ArgumentNullException("comparer");
             }
             else
             {
                 this.coeffsField = coeffsField;
                 this.converter = converter;
                 this.nearest = nearest;
+                this.comparer = comparer;
             }
         }
 
@@ -74,12 +76,12 @@
         /// </summary>
         /// <param name="approximateMedians">As medianas.</param>
         /// <param name="costs">Os custos.</param>
-        /// <param name="nopt">O número máximo melhoramentos a serem aplicados à solução encontrada.</param>
+        /// <param name="niter">O número máximo melhoramentos a serem aplicados à solução encontrada.</param>
         /// <returns>A solução construída a partir da aproximação.</returns>
         public GreedyAlgSolution<CoeffType> Run(
             CoeffType[] approximateMedians,
             ISparseMatrix<CoeffType> costs,
-            int nopt)
+            int niter)
         {
             if (approximateMedians == null)
             {
@@ -151,8 +153,67 @@
                         var unrecoveredMedians = new List<int>();
                         var innerComparer = new InnerComparer(approximateMedians, this.comparer);
                         approximateSolutions.Sort(innerComparer);
+                        var i = 0;
+                        for (; i < convertedSum; ++i)
+                        {
+                            recoveredMedians.Add(approximateSolutions[i]);
+                            settedSolutions.Add(approximateSolutions[i]);
+                        }
+
+                        for (; i < approximateMedians.Length; ++i)
+                        {
+                            unrecoveredMedians.Add(approximateSolutions[i]);
+                        }
 
                         var currentCost = this.ComputeCost(settedSolutions, costs, solutionBoard, marked);
+
+                        // Processa as melhorias de uma forma simples caso seja possível
+                        if (unrecoveredMedians.Count > 0)
+                        {
+                            var exchangeSolutionBoard = new CoeffType[solutionBoard.Length];
+                            for (i = 0; i < niter; ++i)
+                            {
+                                var itemToExchange = -1;
+                                var itemToExchangeIndex = -1;
+                                var itemToExchangeWith = -1;
+                                var itemToExchangeWithIndex = -1;
+                                var minimumCost = this.coeffsField.AdditiveUnity;
+                                for (int j = 0; j < recoveredMedians.Count; ++j)
+                                {
+                                    for (int k = 0; k < unrecoveredMedians.Count; ++k)
+                                    {
+                                        var replacementCost = this.ComputeReplacementCost(
+                                            unrecoveredMedians[k],
+                                            recoveredMedians[j],
+                                            settedSolutions,
+                                            costs,
+                                            solutionBoard,
+                                            exchangeSolutionBoard);
+                                        if (this.comparer.Compare(replacementCost, minimumCost) < 0)
+                                        {
+                                            // Aceita a troca
+                                            itemToExchange = recoveredMedians[j];
+                                            itemToExchangeIndex = j;
+                                            itemToExchangeWith = unrecoveredMedians[k];
+                                            itemToExchangeWithIndex = k;
+                                            minimumCost = replacementCost;
+                                        }
+                                    }
+                                }
+
+                                // Efectua a troca
+                                var swapBoard = solutionBoard;
+                                solutionBoard = exchangeSolutionBoard;
+                                exchangeSolutionBoard = swapBoard;
+                                currentCost = this.coeffsField.Add(currentCost, minimumCost);
+                                settedSolutions.Remove(itemToExchange);
+                                settedSolutions.Add(itemToExchangeWith);
+
+                                var swap = recoveredMedians[itemToExchangeIndex];
+                                recoveredMedians[itemToExchangeIndex] = unrecoveredMedians[itemToExchangeWithIndex];
+                                unrecoveredMedians[itemToExchangeWithIndex] = swap;
+                            }
+                        }
                     }
                 }
                 else
@@ -172,7 +233,7 @@
         /// <param name="solutionBoard">A linha que mantém os mínimos por mediana.</param>
         /// <returns>O valor do custo associado à escolha.</returns>
         private CoeffType ComputeCost(
-            IntegerSequence chosen, 
+            IntegerSequence chosen,
             ISparseMatrix<CoeffType> costs,
             CoeffType[] solutionBoard,
             BitArray marked)
@@ -242,7 +303,6 @@
         /// <param name="existingMedians">As medianas que forma escolhidas.</param>
         /// <param name="costs">A matriz dos custos.</param>
         /// <param name="currentSolutionBoard">O quadro de solução actual.</param>
-        /// <param name="cost">O custo actual.</param>
         /// <param name="replacementSolutionBoard">O quadro da solução substituída.</param>
         /// <returns>O valor do mínimo.</returns>
         private CoeffType ComputeReplacementCost(
@@ -251,11 +311,10 @@
             IntegerSequence existingMedians,
             ISparseMatrix<CoeffType> costs,
             CoeffType[] currentSolutionBoard,
-            CoeffType cost,
             CoeffType[] replacementSolutionBoard)
         {
             Array.Copy(currentSolutionBoard, replacementSolutionBoard, currentSolutionBoard.Length);
-            var result = cost;
+            var result = this.coeffsField.AdditiveUnity;
 
             var minimum = this.GetMinimumFromColumn(existingMedians, medianToBeReplaced, costs);
             replacementSolutionBoard[medianToBeReplaced] = minimum;

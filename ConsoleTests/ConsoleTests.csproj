@@ -44,6 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Auxiliary\NullableDoubleField.cs" />
     <Compile Include="BigIntegerFractionToIntConversion.cs" />
     <Compile Include="ObjectTester\CallMethodInvoker.cs" />
     <Compile Include="ObjectTester\Command.cs" />
@@ -66,8 +67,11 @@
     <Compile Include="Readers\DoubleArrayMatrixReader.cs" />
     <Compile Include="Readers\DoubleArrayVectorReader.cs" />
     <Compile Include="Readers\DoubleSparseMatrixReader.cs" />
+    <Compile Include="Auxiliary\IntegerNullableDoubleConverter.cs" />
     <Compile Include="Readers\IntegerPolynomialReader.cs" />
     <Compile Include="Readers\IntegerArrayVectorReader.cs" />
+    <Compile Include="Readers\NullableDoubleParser.cs" />
+    <Compile Include="Auxiliary\NullableIntegerNearest.cs" />
     <Compile Include="SetExample\ESymbolSetType.cs" />
     <Compile Include="SetExample\SetExpressionParser.cs" />
     <Compile Include="SetExample\SetParser.cs" />

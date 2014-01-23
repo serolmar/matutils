@@ -288,6 +288,51 @@
         /// </summary>
         public static void Test16()
         {
+            // Faz a leitura da matriz dos custos a partir de um ficheiro de csv
+            var fileInfo = new FileInfo("..\\..\\Files\\Matrix.dat");
+            if (fileInfo.Exists)
+            {
+                var dataProvider = new DataReaderProvider<IParse<Nullable<double>, string, string>>(
+                        new NullableDoubleParser());
+                var csvParser = new CsvFileParser<SparseDictionaryMatrix<Nullable<double>>, Nullable<double>, string, string>(
+                    "new_line",
+                    "semi_colon",
+                    dataProvider);
+
+                using (var textReader = fileInfo.OpenText())
+                {
+                    var symbolReader = new StringSymbolReader(textReader, false, false);
+                    var costs = new SparseDictionaryMatrix<Nullable<double>>(null);
+                    //csvParser.Parse(symbolReader, costs,
+
+                    // p = 5
+                    var initialSolution = new Nullable<double>[100];
+                    for (int i = 0; i < initialSolution.Length; ++i)
+                    {
+                        initialSolution[i] = 0;
+                    }
+
+                    initialSolution[0] = 1;
+                    initialSolution[21] = 0.5;
+                    initialSolution[36] = 0.5;
+                    initialSolution[45] = 0.5;
+                    initialSolution[0] = 0.5;
+                    initialSolution[71] = 1;
+
+                    var correction = new LinearRelRoundCorrectorAlg<Nullable<double>>(
+                        Comparer<Nullable<double>>.Default,
+                        new IntegerNullableDoubleConverter(),
+                        new NullableIntegerNearest(),
+                        new NullableDoubleField());
+                    //var result = correction.Run(initialSolution, 
+                }
+            }
+            else
+            {
+                Console.WriteLine("O camminho fornecido não existe.");
+            }
+
+
             // Estabelece os leitores e os campos
             var arrayMatrixReader = new DoubleArrayMatrixReader();
             var sparseMatrixReader = new DoubleSparseMatrixReader();
