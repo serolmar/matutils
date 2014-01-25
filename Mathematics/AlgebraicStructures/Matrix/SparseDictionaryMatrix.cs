@@ -116,8 +116,9 @@
                 else
                 {
                     if (!object.ReferenceEquals(this.defaultValue, value) &&
-                        this.defaultValue != null &&
-                        !this.defaultValue.Equals(value))
+                        this.defaultValue == null ||
+                        (this.defaultValue != null &&
+                        !this.defaultValue.Equals(value)))
                     {
                         var currentLine = default(SparseDictionaryMatrixLine<ObjectType>);
                         if (this.matrixLines.TryGetValue(line, out currentLine))

@@ -144,6 +144,7 @@
                     {
                         var result = new GreedyAlgSolution<CoeffType>(settedSolutions);
                         result.Cost = this.ComputeCost(settedSolutions, costs, solutionBoard, marked);
+                        return result;
                     }
                     else
                     {
@@ -153,14 +154,16 @@
                         var unrecoveredMedians = new List<int>();
                         var innerComparer = new InnerComparer(approximateMedians, this.comparer);
                         approximateSolutions.Sort(innerComparer);
+
+                        var count = convertedSum - settedSolutions.Count;
                         var i = 0;
-                        for (; i < convertedSum; ++i)
+                        for (; i < count; ++i)
                         {
                             recoveredMedians.Add(approximateSolutions[i]);
                             settedSolutions.Add(approximateSolutions[i]);
                         }
 
-                        for (; i < approximateMedians.Length; ++i)
+                        for (; i < approximateSolutions.Count; ++i)
                         {
                             unrecoveredMedians.Add(approximateSolutions[i]);
                         }
@@ -168,7 +171,7 @@
                         var currentCost = this.ComputeCost(settedSolutions, costs, solutionBoard, marked);
 
                         // Processa as melhorias de uma forma simples caso seja possível
-                        if (unrecoveredMedians.Count > 0)
+                        if (unrecoveredMedians.Count > 0 && niter > 0)
                         {
                             var exchangeSolutionBoard = new CoeffType[solutionBoard.Length];
                             for (i = 0; i < niter; ++i)
@@ -201,27 +204,35 @@
                                     }
                                 }
 
-                                // Efectua a troca
-                                var swapBoard = solutionBoard;
-                                solutionBoard = exchangeSolutionBoard;
-                                exchangeSolutionBoard = swapBoard;
-                                currentCost = this.coeffsField.Add(currentCost, minimumCost);
-                                settedSolutions.Remove(itemToExchange);
-                                settedSolutions.Add(itemToExchangeWith);
+                                if (itemToExchange == -1 || itemToExchangeWith == -1)
+                                {
+                                    i = niter;
+                                }
+                                else
+                                {
 
-                                var swap = recoveredMedians[itemToExchangeIndex];
-                                recoveredMedians[itemToExchangeIndex] = unrecoveredMedians[itemToExchangeWithIndex];
-                                unrecoveredMedians[itemToExchangeWithIndex] = swap;
+                                    // Efectua a troca
+                                    var swapBoard = solutionBoard;
+                                    solutionBoard = exchangeSolutionBoard;
+                                    exchangeSolutionBoard = swapBoard;
+                                    currentCost = this.coeffsField.Add(currentCost, minimumCost);
+                                    settedSolutions.Remove(itemToExchange);
+                                    settedSolutions.Add(itemToExchangeWith);
+
+                                    var swap = recoveredMedians[itemToExchangeIndex];
+                                    recoveredMedians[itemToExchangeIndex] = unrecoveredMedians[itemToExchangeWithIndex];
+                                    unrecoveredMedians[itemToExchangeWithIndex] = swap;
+                                }
                             }
                         }
+
+                        return new GreedyAlgSolution<CoeffType>(settedSolutions) { Cost = currentCost };
                     }
                 }
                 else
                 {
                     throw new OdmpProblemException("The sum of medians can't be converted to an integer.");
                 }
-
-                throw new NotImplementedException();
             }
         }
 
@@ -248,17 +259,27 @@
                     {
                         if (column.Key == item)
                         {
-                            marked[item] = true;
+                            if (marked[item])
+                            {
+                                resultCost = this.coeffsField.Add(
+                                resultCost,
+                                this.coeffsField.AdditiveInverse(solutionBoard[item]));
+                            }
+                            else
+                            {
+                                marked[item] = true;
+                            }
+
                             solutionBoard[item] = this.coeffsField.AdditiveUnity;
                         }
                         else
                         {
-                            if (marked[item])
+                            if (marked[column.Key])
                             {
-                                var boardCost = solutionBoard[item];
+                                var boardCost = solutionBoard[column.Key];
                                 if (this.comparer.Compare(column.Value, boardCost) < 0)
                                 {
-                                    solutionBoard[item] = column.Value;
+                                    solutionBoard[column.Key] = column.Value;
                                     var difference = this.coeffsField.Add(
                                         column.Value,
                                         this.coeffsField.AdditiveInverse(boardCost));
@@ -272,7 +293,8 @@
                                 resultCost = this.coeffsField.Add(
                                     resultCost,
                                     column.Value);
-                                marked[item] = true;
+                                solutionBoard[column.Key] = column.Value;
+                                marked[column.Key] = true;
                             }
                         }
                     }
@@ -286,7 +308,7 @@
 
             for (int i = 0; i < marked.Length; ++i)
             {
-                if (!marked[i])
+                if (!marked[i] && !chosen.Contains(i))
                 {
                     throw new OdmpProblemException("Not all nodes are covered by some median.");
                 }

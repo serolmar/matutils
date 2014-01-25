@@ -14,11 +14,11 @@
         {
             if (objectToConvert.HasValue)
             {
-                return false;
+                return this.converter.CanApplyDirectConversion(objectToConvert.Value);
             }
             else
             {
-                return this.converter.CanApplyDirectConversion(objectToConvert.Value);
+                return false;
             }
         }
 

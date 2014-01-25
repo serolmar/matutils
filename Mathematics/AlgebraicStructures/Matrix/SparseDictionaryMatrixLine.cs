@@ -52,8 +52,9 @@ namespace Mathematics
                 else
                 {
                     if (!object.ReferenceEquals(this.owner.DefaultValue, value) &&
-                        this.owner.DefaultValue != null &&
-                        !this.owner.DefaultValue.Equals(value))
+                        this.owner.DefaultValue == null ||
+                        (this.owner.DefaultValue != null &&
+                        !this.owner.DefaultValue.Equals(value)))
                     {
                         if (this.matrixEntries.ContainsKey(index))
                         {

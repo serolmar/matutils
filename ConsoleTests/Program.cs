@@ -289,24 +289,36 @@
         public static void Test16()
         {
             // Faz a leitura da matriz dos custos a partir de um ficheiro de csv
-            var fileInfo = new FileInfo("..\\..\\Files\\Matrix.dat");
+            var fileInfo = new FileInfo("..\\..\\Files\\Matrix.csv");
             if (fileInfo.Exists)
             {
                 var dataProvider = new DataReaderProvider<IParse<Nullable<double>, string, string>>(
                         new NullableDoubleParser());
-                var csvParser = new CsvFileParser<SparseDictionaryMatrix<Nullable<double>>, Nullable<double>, string, string>(
+                var csvParser = new CsvFileParser<TabularListsItem, Nullable<double>, string, string>(
                     "new_line",
                     "semi_colon",
                     dataProvider);
+                csvParser.AddIgnoreType("carriage_return");
 
                 using (var textReader = fileInfo.OpenText())
                 {
                     var symbolReader = new StringSymbolReader(textReader, false, false);
-                    var costs = new SparseDictionaryMatrix<Nullable<double>>(null);
-                    //csvParser.Parse(symbolReader, costs,
+                    var table = new TabularListsItem();
+                    
+                    csvParser.Parse(symbolReader, table, new TabularItemAdder<Nullable<double>>());
+
+                    var costs = new SparseDictionaryMatrix<Nullable<double>>(table.Count, table.Count, null);
+                    for (int i = 0; i < table.Count; ++i)
+                    {
+                        var currentLine = table[i];
+                        for (int j = 0; j < currentLine.Count; ++j)
+                        {
+                            costs[i, j] = currentLine[j].GetCellValue<Nullable<double>>();
+                        }
+                    }
 
                     // p = 5
-                    var initialSolution = new Nullable<double>[100];
+                    var initialSolution = new Nullable<double>[table.Count];
                     for (int i = 0; i < initialSolution.Length; ++i)
                     {
                         initialSolution[i] = 0;
@@ -315,16 +327,24 @@
                     initialSolution[0] = 1;
                     initialSolution[21] = 0.5;
                     initialSolution[36] = 0.5;
+                    initialSolution[39] = 1;
                     initialSolution[45] = 0.5;
-                    initialSolution[0] = 0.5;
-                    initialSolution[71] = 1;
+                    initialSolution[71] = 0.5;
+                    initialSolution[98] = 1;
 
                     var correction = new LinearRelRoundCorrectorAlg<Nullable<double>>(
                         Comparer<Nullable<double>>.Default,
                         new IntegerNullableDoubleConverter(),
                         new NullableIntegerNearest(),
                         new NullableDoubleField());
-                    //var result = correction.Run(initialSolution, 
+                    var result = correction.Run(initialSolution, costs, 3);
+                    Console.WriteLine("Medianas:");
+                    foreach (var chose in result.Chosen)
+                    {
+                        Console.WriteLine(chose);
+                    }
+
+                    Console.WriteLine("Custo: {0}", result.Cost);
                 }
             }
             else

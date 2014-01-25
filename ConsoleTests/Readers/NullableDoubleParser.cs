@@ -17,7 +17,7 @@
         {
             value = default(Nullable<double>);
             var readed = default(double);
-            if (this.doubleParser.TryParse(symbolListToParse, out readed))
+            if (symbolListToParse.Length > 0 && this.doubleParser.TryParse(symbolListToParse, out readed))
             {
                 value = readed;
             }

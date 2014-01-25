@@ -67,7 +67,8 @@
 
         public bool NullOrEmpty
         {
-            get {
+            get
+            {
                 var value = this.parent.GetCellValue(this.rowNumber, this.columnNumber);
                 if (value == null)
                 {
@@ -86,9 +87,11 @@
 
         public Type ValueType
         {
-            get {
+            get
+            {
                 var value = this.parent.GetCellValue(this.rowNumber, this.columnNumber);
-                if (value == null){
+                if (value == null)
+                {
                     throw new UtilitiesDataException("Can't infer type from null value.");
                 }
                 else
@@ -108,7 +111,12 @@
             var value = this.parent.GetCellValue(this.rowNumber, this.columnNumber);
             if (value == null)
             {
+                var type = typeof(T);
                 if (typeof(T).IsClass)
+                {
+                    return (T)value;
+                }
+                else if (Nullable.GetUnderlyingType(typeof(T)) != null)
                 {
                     return (T)value;
                 }
