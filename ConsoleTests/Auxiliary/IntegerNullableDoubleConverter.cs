@@ -8,7 +8,12 @@
 
     public class IntegerNullableDoubleConverter : IConversion<int, Nullable<double>>
     {
-        private IntegerDoubleConverter converter = new IntegerDoubleConverter();
+        private IntegerDoubleConverter converter;
+
+        public IntegerNullableDoubleConverter(double precision = 0.00001)
+        {
+            this.converter = new IntegerDoubleConverter(precision);
+        }
 
         public bool CanApplyDirectConversion(Nullable<double> objectToConvert)
         {

@@ -174,6 +174,7 @@
                         if (unrecoveredMedians.Count > 0 && niter > 0)
                         {
                             var exchangeSolutionBoard = new CoeffType[solutionBoard.Length];
+                            var currentBestBoard = new CoeffType[solutionBoard.Length];
                             for (i = 0; i < niter; ++i)
                             {
                                 var itemToExchange = -1;
@@ -200,6 +201,10 @@
                                             itemToExchangeWith = unrecoveredMedians[k];
                                             itemToExchangeWithIndex = k;
                                             minimumCost = replacementCost;
+
+                                            var swapBestBoard = currentBestBoard;
+                                            currentBestBoard = exchangeSolutionBoard;
+                                            exchangeSolutionBoard = swapBestBoard;
                                         }
                                     }
                                 }
@@ -212,9 +217,10 @@
                                 {
 
                                     // Efectua a troca
-                                    var swapBoard = solutionBoard;
-                                    solutionBoard = exchangeSolutionBoard;
-                                    exchangeSolutionBoard = swapBoard;
+                                    var swapSolutionBoard = solutionBoard;
+                                    solutionBoard = currentBestBoard;
+                                    currentBestBoard = swapSolutionBoard;
+
                                     currentCost = this.coeffsField.Add(currentCost, minimumCost);
                                     settedSolutions.Remove(itemToExchange);
                                     settedSolutions.Add(itemToExchangeWith);
@@ -338,7 +344,11 @@
             Array.Copy(currentSolutionBoard, replacementSolutionBoard, currentSolutionBoard.Length);
             var result = this.coeffsField.AdditiveUnity;
 
-            var minimum = this.GetMinimumFromColumn(existingMedians, medianToBeReplaced, costs);
+            var minimum = this.GetMinimumFromColumn(
+                existingMedians,
+                medianToBeReplaced,
+                medianToBeReplaced,
+                costs);
             replacementSolutionBoard[medianToBeReplaced] = minimum;
             result = this.coeffsField.Add(result, minimum);
 
@@ -354,20 +364,25 @@
             {
                 foreach (var column in currentRow.GetColumns())
                 {
-                    if (column.Key != medianToBeReplaced)
+                    if (column.Key != medianToBeReplaced && column.Key != replacementMedian)
                     {
-                        if (this.coeffsField.Equals(column.Value, replacementSolutionBoard[medianToBeReplaced]))
+                        if (this.coeffsField.Equals(column.Value, replacementSolutionBoard[column.Key]))
                         {
-                            var current = replacementSolutionBoard[medianToBeReplaced];
+                            var current = replacementSolutionBoard[column.Key];
                             minimum = this.GetMinimumFromColumn(
                                 existingMedians,
                                 medianToBeReplaced,
+                                column.Key,
                                 costs);
-                            replacementSolutionBoard[medianToBeReplaced] = minimum;
+                            replacementSolutionBoard[column.Key] = minimum;
                             var temp = this.coeffsField.Add(
                                 minimum,
                                 this.coeffsField.AdditiveInverse(current));
                             result = this.coeffsField.Add(result, temp);
+                            if (((double)(object)temp) < 0)
+                            {
+                                var a = 0;
+                            }
                         }
                     }
                 }
@@ -380,10 +395,10 @@
                 {
                     if (column.Key != replacementMedian)
                     {
-                        var current = replacementSolutionBoard[replacementMedian];
+                        var current = replacementSolutionBoard[column.Key];
                         if (this.comparer.Compare(column.Value, current) < 0)
                         {
-                            replacementSolutionBoard[replacementMedian] = column.Value;
+                            replacementSolutionBoard[column.Key] = column.Value;
                             var temp = this.coeffsField.Add(
                                 column.Value,
                                 this.coeffsField.AdditiveInverse(current));
@@ -401,66 +416,83 @@
         /// de uma delas.
         /// </summary>
         /// <param name="chosen">As linhas escolhidas.</param>
-        /// <param name="except">
-        /// A linha que não vai ser considerada e que corresponde à coluna sobre a qual
-        /// é avaliado o mínimo..</param>
+        /// <param name="exceptLine">
+        /// A linha que não vai ser considerada.</param>
+        /// <param name="column">A coluna sobre a qual é calculado o mínimo.</param>
         /// <param name="costs">A matriz dos custos.</param>
         /// <returns>O valor do custo mínimo.</returns>
         private CoeffType GetMinimumFromColumn(
             IntegerSequence chosen,
-            int except,
+            int exceptLine,
+            int column,
             ISparseMatrix<CoeffType> costs)
         {
             var result = default(CoeffType);
-            var lineCostsEnumerator = costs.GetLines().GetEnumerator();
-            var state = lineCostsEnumerator.MoveNext();
+            var chosenEnumerator = chosen.GetEnumerator();
+            var state = chosenEnumerator.MoveNext();
             var keep = true;
             while (state && keep)
             {
-                var currentLine = lineCostsEnumerator.Current;
-                if (currentLine.Key != except)
+                // Pesquisa pelo primeiro elemento.
+                var currentChosen = chosenEnumerator.Current;
+                if (currentChosen != exceptLine)
                 {
-                    var columnValue = default(CoeffType);
-                    if (currentLine.Value.TryGetColumnValue(except, out columnValue))
+                    var currentLine = default(ISparseMatrixLine<CoeffType>);
+                    if (costs.TryGetLine(currentChosen, out currentLine))
                     {
-                        if (this.coeffsField.IsAdditiveUnity(columnValue))
+                        var columnValue = default(CoeffType);
+                        if (currentLine.TryGetColumnValue(column, out columnValue))
                         {
-                            return columnValue;
-                        }
-                        else
-                        {
-                            result = columnValue;
-                            keep = false;
-                        }
-                    }
-                }
-
-                state = lineCostsEnumerator.MoveNext();
-            }
-
-            while (state)
-            {
-                var currentLine = lineCostsEnumerator.Current;
-                if (currentLine.Key != except)
-                {
-                    var columnValue = default(CoeffType);
-                    if (currentLine.Value.TryGetColumnValue(except, out columnValue))
-                    {
-                        if (this.coeffsField.IsAdditiveUnity(columnValue))
-                        {
-                            return columnValue;
-                        }
-                        else
-                        {
-                            if (this.comparer.Compare(columnValue, result) < 0)
+                            if (this.coeffsField.IsAdditiveUnity(columnValue))
+                            {
+                                return columnValue;
+                            }
+                            else
                             {
                                 result = columnValue;
+                                keep = false;
                             }
                         }
                     }
                 }
 
-                state = lineCostsEnumerator.MoveNext();
+                state = chosenEnumerator.MoveNext();
+            }
+
+            if (keep)
+            {
+                throw new OdmpProblemException("Something went very wrong. Check if costs matrix is valid.");
+            }
+            else
+            {
+                while (state)
+                {
+                    var currentChosen = chosenEnumerator.Current;
+                    if (currentChosen != exceptLine)
+                    {
+                        var currentLine = default(ISparseMatrixLine<CoeffType>);
+                        if (costs.TryGetLine(currentChosen, out currentLine))
+                        {
+                            var columnValue = default(CoeffType);
+                            if (currentLine.TryGetColumnValue(column, out columnValue))
+                            {
+                                if (this.coeffsField.IsAdditiveUnity(columnValue))
+                                {
+                                    return columnValue;
+                                }
+                                else
+                                {
+                                    if (this.comparer.Compare(columnValue, result) < 0)
+                                    {
+                                        result = columnValue;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    state = chosenEnumerator.MoveNext();
+                }
             }
 
             return result;

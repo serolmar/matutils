@@ -578,7 +578,10 @@ namespace Utilities.Collections
             var result = new List<Tuple<int, int>>();
             if (breakValue == element.Item1)
             {
-                result.Add(Tuple.Create(breakValue + 1, element.Item2));
+                if (breakValue != element.Item2)
+                {
+                    result.Add(Tuple.Create(breakValue + 1, element.Item2));
+                }
             }
             else if (breakValue == element.Item2)
             {
@@ -587,7 +590,6 @@ namespace Utilities.Collections
             else
             {
                 result.Add(Tuple.Create(element.Item1, breakValue - 1));
-
                 result.Add(Tuple.Create(breakValue + 1, element.Item2));
             }
 
