@@ -9,14 +9,14 @@
     /// Permite realizar um levantamento multifactor.
     /// </summary>
     /// <typeparam name="CoeffType">O tipo de dados do polinómio.</typeparam>
-    public class MultiFactorLiftAlgorithm : IAlgorithm<
-        MultiFactorLiftingStatus<int>,
+    public class MultiFactorLiftAlgorithm<CoeffType> : IAlgorithm<
+        MultiFactorLiftingStatus<CoeffType>,
         int,
-        List<UnivariatePolynomialNormalForm<int>>>
+        List<UnivariatePolynomialNormalForm<CoeffType>>>
     {
-        private IAlgorithm<LinearLiftingStatus<int>, int, bool> linearLiftAlg;
+        private IAlgorithm<LinearLiftingStatus<CoeffType>, int, bool> linearLiftAlg;
 
-        public MultiFactorLiftAlgorithm(IAlgorithm<LinearLiftingStatus<int>, int, bool> linearLiftAlg)
+        public MultiFactorLiftAlgorithm(IAlgorithm<LinearLiftingStatus<CoeffType>, int, bool> linearLiftAlg)
         {
             if (linearLiftAlg == null)
             {
@@ -34,11 +34,11 @@
         /// <param name="multiFactorLiftingStatus">O estado do levantamento multifactor actual.</param>
         /// <param name="numberOfIterations">O número de iterações a ser efectuado.</param>
         /// <returns>A lista com os factores.</returns>
-        public List<UnivariatePolynomialNormalForm<int>> Run(
-            MultiFactorLiftingStatus<int> multiFactorLiftingStatus,
+        public List<UnivariatePolynomialNormalForm<CoeffType>> Run(
+            MultiFactorLiftingStatus<CoeffType> multiFactorLiftingStatus,
             int numberOfIterations)
         {
-            var constants = new List<UnivariatePolynomialNormalForm<int>>();
+            var constants = new List<UnivariatePolynomialNormalForm<CoeffType>>();
             var factorTree = this.MountFactorTree(
                 multiFactorLiftingStatus.Factors,
                 multiFactorLiftingStatus.ModularField,
@@ -48,14 +48,14 @@
             if (factorTree == null)
             {
                 // Não existem factores suficientes para elevar
-                var result = new List<UnivariatePolynomialNormalForm<int>>();
+                var result = new List<UnivariatePolynomialNormalForm<CoeffType>>();
                 result.AddRange(multiFactorLiftingStatus.Factors);
                 return result;
             }
             else
             {
                 // A árvore contém factores para elevar
-                var factorQueue = new Queue<TreeNode<LinearLiftingStatus<int>>>();
+                var factorQueue = new Queue<TreeNode<LinearLiftingStatus<CoeffType>>>();
 
                 for (int i = 0; i < numberOfIterations; ++i)
                 {
@@ -111,14 +111,14 @@
         /// <param name="factorsList">A lista de factores.</param>
         /// <param name="modularField">O corpo modular sobre o qual são efectuadas as operações.</param>
         /// <returns>A árvore.</returns>
-        private Tree<LinearLiftingStatus<int>> MountFactorTree(
-            List<UnivariatePolynomialNormalForm<int>> factorsList,
-            IModularField<int> modularField,
-            IEuclidenDomain<int> mainDomain,
-            List<UnivariatePolynomialNormalForm<int>> coefficientFactors)
+        private Tree<LinearLiftingStatus<CoeffType>> MountFactorTree(
+            List<UnivariatePolynomialNormalForm<CoeffType>> factorsList,
+            IModularField<CoeffType> modularField,
+            IEuclidenDomain<CoeffType> mainDomain,
+            List<UnivariatePolynomialNormalForm<CoeffType>> coefficientFactors)
         {
-            var tree = new Tree<LinearLiftingStatus<int>>();
-            var currentNodes = new List<TreeNode<LinearLiftingStatus<int>>>();
+            var tree = new Tree<LinearLiftingStatus<CoeffType>>();
+            var currentNodes = new List<TreeNode<LinearLiftingStatus<CoeffType>>>();
             foreach (var factor in factorsList)
             {
                 if (factor.Degree == 0)
@@ -127,8 +127,8 @@
                 }
                 else
                 {
-                    currentNodes.Add(new TreeNode<LinearLiftingStatus<int>>(
-                        new LinearLiftingStatus<int>(factor, modularField, mainDomain),
+                    currentNodes.Add(new TreeNode<LinearLiftingStatus<CoeffType>>(
+                        new LinearLiftingStatus<CoeffType>(factor, modularField, mainDomain),
                         tree,
                         null));
                 }
@@ -140,7 +140,7 @@
             }
             else
             {
-                var temporaryNodes = new List<TreeNode<LinearLiftingStatus<int>>>();
+                var temporaryNodes = new List<TreeNode<LinearLiftingStatus<CoeffType>>>();
                 var count = 0;
                 while (currentNodes.Count > 1)
                 {
@@ -148,20 +148,20 @@
                     var i = 0;
                     while (i < currentNodes.Count)
                     {
-                        var parentNode = default(TreeNode<LinearLiftingStatus<int>>);
+                        var parentNode = default(TreeNode<LinearLiftingStatus<CoeffType>>);
                         var first = currentNodes[i];
                         ++i;
                         if (i < currentNodes.Count)
                         {
                             var second = currentNodes[i];
                             var product = first.NodeObject.Polynom.Multiply(second.NodeObject.Polynom, modularField);
-                            var liftingStatus = new LinearLiftingStatus<int>(
+                            var liftingStatus = new LinearLiftingStatus<CoeffType>(
                                 product,
                                 first.NodeObject.Polynom,
                                 second.NodeObject.Polynom,
                                 modularField,
                                 mainDomain);
-                            parentNode = new TreeNode<LinearLiftingStatus<int>>(
+                            parentNode = new TreeNode<LinearLiftingStatus<CoeffType>>(
                                 liftingStatus,
                                 tree,
                                 null);
@@ -197,14 +197,14 @@
         /// </summary>
         /// <param name="tree">A árvore de factores.</param>
         /// <returns>A solução.</returns>
-        private List<UnivariatePolynomialNormalForm<int>> GetSolutionFromTree(
-            Tree<LinearLiftingStatus<int>> tree,
-            IEuclidenDomain<int> mainDomain)
+        private List<UnivariatePolynomialNormalForm<CoeffType>> GetSolutionFromTree(
+            Tree<LinearLiftingStatus<CoeffType>> tree,
+            IEuclidenDomain<CoeffType> mainDomain)
         {
-            var result = new List<UnivariatePolynomialNormalForm<int>>();
+            var result = new List<UnivariatePolynomialNormalForm<CoeffType>>();
 
             var factorConstant = mainDomain.MultiplicativeUnity;
-            var factorQueue = new Queue<TreeNode<LinearLiftingStatus<int>>>();
+            var factorQueue = new Queue<TreeNode<LinearLiftingStatus<CoeffType>>>();
             factorQueue.Enqueue(tree.InternalRootNode);
             while (factorQueue.Count > 0)
             {
@@ -230,7 +230,7 @@
 
             if (!mainDomain.IsMultiplicativeUnity(factorConstant))
             {
-                result.Insert(0, new UnivariatePolynomialNormalForm<int>(factorConstant, 0, "x", mainDomain));
+                result.Insert(0, new UnivariatePolynomialNormalForm<CoeffType>(factorConstant, 0, "x", mainDomain));
             }
 
             return result;

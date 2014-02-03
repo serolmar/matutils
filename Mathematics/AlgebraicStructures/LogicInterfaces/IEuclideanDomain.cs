@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Mathematics
 {
-    public interface IEuclidenDomain<T> : IRing<T>
+    public interface IEuclidenDomain<T> : IUniqueFactorizationDomain<T>
     {
         /// <summary>
         /// Obtém o quociente entre o dividendo e o divisor.

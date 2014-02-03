@@ -21,7 +21,7 @@
 
         static void Main(string[] args)
         {
-            Test16();
+            Test20();
             Console.ReadLine();
         }
 
@@ -144,13 +144,14 @@
                 var integerModularField = new ModularIntegerField(prime);
 
                 // Instancia o algoritmo responsável pela factorização sobre corpos finitos.
-                var finiteFieldFactorizationAlg = new FiniteFieldPolFactorizationAlgorithm(
-                    new UnivarSquareFreeDecomposition<Fraction<int, IntegerDomain>>(),
+                var finiteFieldFactorizationAlg = new FiniteFieldPolFactorizationAlgorithm<int>(
+                    new UnivarSquareFreeDecomposition<Fraction<int, IEuclidenDomain<int>>>(),
+                    new ElementToElementConversion<int>(),
                     new DenseCondensationLinSysAlgorithm<int>(integerModularField));
 
                 // Instancia o algoritmo responsável pela elevação multi-factor.
-                var multiFactorLiftAlg = new MultiFactorLiftAlgorithm(new LinearLiftAlgorithm());
-                var factored = finiteFieldFactorizationAlg.Run(polynom, integerModularField);
+                var multiFactorLiftAlg = new MultiFactorLiftAlgorithm<int>(new LinearLiftAlgorithm<int>());
+                var factored = finiteFieldFactorizationAlg.Run(polynom, integerModularField, new IntegerDomain());
                 var liftedFactors = new Dictionary<int, List<UnivariatePolynomialNormalForm<int>>>();
                 foreach (var factorKvp in factored)
                 {
@@ -900,7 +901,7 @@
                         conversion,
                         out thirdPol))
                     {
-                        var lifting = new LinearLiftAlgorithm();
+                        var lifting = new LinearLiftAlgorithm<int>();
                         var status = new LinearLiftingStatus<int>(
                             firstPol,
                             secondPol,
@@ -925,11 +926,12 @@
                 conversion,
                 out parsedPol))
             {
-                var finiteFieldFactorization = new FiniteFieldPolFactorizationAlgorithm(
-                    new UnivarSquareFreeDecomposition<Fraction<int, IntegerDomain>>(),
+                var finiteFieldFactorization = new FiniteFieldPolFactorizationAlgorithm<int>(
+                    new UnivarSquareFreeDecomposition<Fraction<int, IEuclidenDomain<int>>>(),
+                    new ElementToElementConversion<int>(),
                     new DenseCondensationLinSysAlgorithm<int>(integerModularField));
 
-                var factored = finiteFieldFactorization.Run(parsedPol, integerModularField);
+                var factored = finiteFieldFactorization.Run(parsedPol, integerModularField, new IntegerDomain());
 
                 foreach (var factorKvp in factored)
                 {

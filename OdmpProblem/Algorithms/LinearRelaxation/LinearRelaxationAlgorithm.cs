@@ -154,7 +154,7 @@
                     ++constraintLineNumber;
                 }
 
-                // Preenchimento do vector independete das restrições
+                // Preenchimento do vector independente das restrições
                 var vector = new ArrayVector<CoeffType>(constraintsNumber, this.coeffsField.AdditiveUnity);
                 lastLine = constraintsNumber - 1;
                 for (int i = numberXVars; i < lastLine; ++i)

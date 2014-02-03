@@ -72,8 +72,8 @@
         /// <returns>Os primeiros números primos.</returns>
         private static void InitClassFromResources()
         {
-            firstPrimes = new int[] { 2, 3, 5 }; // GetIntegersFromString(Resources.StartPrimes);
-            differences = new int[] { 2, 6, 4, 2 };// GetIntegersFromString(Resources.PrimeDifferences);
+            firstPrimes = new int[] { 2, 3, 5 };
+            differences = new int[] { 2, 6, 4, 2 };
         }
 
         /// <summary>

@@ -42,6 +42,17 @@
         }
 
         /// <summary>
+        /// Obtém o número de unidades quando encarado como um domínio de factorização única.
+        /// </summary>
+        public int UnitsCount
+        {
+            get
+            {
+                return this.coeffsDomain.UnitsCount;
+            }
+        }
+
+        /// <summary>
         /// Calcula o quociente da pseudo-divisão entre dois polinómios.
         /// </summary>
         /// <param name="dividend">O dividendo.</param>
@@ -363,6 +374,24 @@
         public uint Degree(UnivariatePolynomialNormalForm<CoeffType> value)
         {
             throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Obtém as unidades quando encarado como um domínio da factorização única.
+        /// </summary>
+        public IEnumerable<UnivariatePolynomialNormalForm<CoeffType>> Units
+        {
+            get
+            {
+                foreach (var unit in this.coeffsDomain.Units)
+                {
+                    yield return new UnivariatePolynomialNormalForm<CoeffType>(
+                        unit,
+                        1,
+                        this.variableName,
+                        this.coeffsDomain);
+                }
+            }
         }
     }
 }

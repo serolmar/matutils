@@ -5,11 +5,28 @@ using System.Text;
 
 namespace Mathematics
 {
-    public class IntegerDomain : IRing<int>, IEuclidenDomain<int>
+    /// <summary>
+    /// Permite representar as operações sobre o subconjunto dos números inteiros representáveis por uma
+    /// variável do tipo inteiro.
+    /// </summary>
+    public class IntegerDomain : IIntegerNumber<int>
     {
         public int MultiplicativeUnity
         {
             get { return 1; }
+        }
+
+        public int AdditiveUnity
+        {
+            get { return 0; }
+        }
+
+        public int UnitsCount
+        {
+            get
+            {
+                return 2;
+            }
         }
 
         public int Multiply(int left, int right)
@@ -20,11 +37,6 @@ namespace Mathematics
         public int AdditiveInverse(int number)
         {
             return -number;
-        }
-
-        public int AdditiveUnity
-        {
-            get { return 0; }
         }
 
         public int Add(int left, int right)
@@ -73,10 +85,71 @@ namespace Mathematics
             return (uint)Math.Abs(value);
         }
 
-
         public DomainResult<int> GetQuotientAndRemainder(int dividend, int divisor)
         {
             return new DomainResult<int>(dividend / divisor, dividend % divisor);
+        }
+
+        public IEnumerable<int> Units
+        {
+            get
+            {
+                yield return 1;
+                yield return -1;
+            }
+        }
+
+        public int Predecessor(int number)
+        {
+            if (number == int.MinValue)
+            {
+                throw new ArgumentException("The least number has no predecessor.");
+            }
+            else
+            {
+                return number - 1;
+            }
+        }
+
+        public int Successor(int number)
+        {
+            if (number == int.MaxValue)
+            {
+                throw new ArgumentException("The greatest number has no successor.");
+            }
+            else
+            {
+                return number + 1;
+            }
+        }
+
+        public int MapFrom(int number)
+        {
+            return number;
+        }
+
+        public int MapFrom(long number)
+        {
+            if (number < int.MinValue || number > int.MaxValue)
+            {
+                throw new ArgumentOutOfRangeException("number");
+            }
+            else
+            {
+                return (int)number;
+            }
+        }
+
+        public int MapFrom(System.Numerics.BigInteger number)
+        {
+            if (number < int.MinValue || number > int.MaxValue)
+            {
+                throw new ArgumentOutOfRangeException("number");
+            }
+            else
+            {
+                return (int)number;
+            }
         }
     }
 }

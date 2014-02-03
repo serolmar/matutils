@@ -211,7 +211,7 @@
 
                                 if (itemToExchange == -1 || itemToExchangeWith == -1)
                                 {
-                                    i = niter;
+                                    i = niter - 1;
                                 }
                                 else
                                 {

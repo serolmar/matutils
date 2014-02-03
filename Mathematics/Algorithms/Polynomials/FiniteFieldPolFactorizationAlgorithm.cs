@@ -4,30 +4,36 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
-    using PolType = UnivariatePolynomialNormalForm<int>;
-    using MainPolType = UnivariatePolynomialNormalForm<Fraction<int, IntegerDomain>>;
 
     /// <summary>
     /// Implementa o algoritmo que permite factorizar polinómios cujos coeficientes são elementos
     /// de um corpo finito.
     /// </summary>
-    public class FiniteFieldPolFactorizationAlgorithm
-        : IAlgorithm<PolType, IModularField<int>, Dictionary<int, List<PolType>>>
+    public class FiniteFieldPolFactorizationAlgorithm<CoeffType>
+        : IAlgorithm<UnivariatePolynomialNormalForm<CoeffType>, 
+        IModularField<CoeffType>, 
+        IEuclidenDomain<CoeffType>,
+        Dictionary<CoeffType, List<UnivariatePolynomialNormalForm<CoeffType>>>>
     {
         /// <summary>
         /// O algoritmo que permite obter a factorização em polinómios livres de quadrados.
         /// </summary>
-        IAlgorithm<MainPolType, IField<Fraction<int, IntegerDomain>>, Dictionary<int, MainPolType>> 
+        IAlgorithm<UnivariatePolynomialNormalForm<Fraction<CoeffType, IEuclidenDomain<CoeffType>>>, 
+            IField<Fraction<CoeffType, IEuclidenDomain<CoeffType>>>, Dictionary<CoeffType, UnivariatePolynomialNormalForm<Fraction<CoeffType, IEuclidenDomain<CoeffType>>>>> 
         squareFreeFactorizationAlg;
 
         /// <summary>
         /// O algoritmo responsável pela resolução de sistemas de equações lineares.
         /// </summary>
-        private IAlgorithm<IMatrix<int>, IMatrix<int>, LinearSystemSolution<int>> linearSystemSolver;
+        private IAlgorithm<IMatrix<CoeffType>, IMatrix<CoeffType>, LinearSystemSolution<CoeffType>> linearSystemSolver;
+
+        private IConversion<int, CoeffType> integerConversion;
 
         public FiniteFieldPolFactorizationAlgorithm(
-            IAlgorithm<MainPolType, IField<Fraction<int, IntegerDomain>>, Dictionary<int, MainPolType>> squareFreeFactorizationAlg,
-            IAlgorithm<IMatrix<int>, IMatrix<int>, LinearSystemSolution<int>> linearSystemSolver)
+            IAlgorithm<UnivariatePolynomialNormalForm<Fraction<CoeffType, IEuclidenDomain<CoeffType>>>, 
+            IField<Fraction<CoeffType, IEuclidenDomain<CoeffType>>>, Dictionary<CoeffType, UnivariatePolynomialNormalForm<Fraction<CoeffType, IEuclidenDomain<CoeffType>>>>> squareFreeFactorizationAlg,
+            IConversion<int, CoeffType> integerConversion,
+            IAlgorithm<IMatrix<CoeffType>, IMatrix<CoeffType>, LinearSystemSolution<CoeffType>> linearSystemSolver)
         {
             if (squareFreeFactorizationAlg == null)
             {
@@ -37,10 +43,15 @@
             {
                 throw new ArgumentNullException("linearSystemSolver");
             }
+            else if (integerConversion == null)
+            {
+                throw new ArgumentNullException("integerConversion");
+            }
             else
             {
                 this.squareFreeFactorizationAlg = squareFreeFactorizationAlg;
                 this.linearSystemSolver = linearSystemSolver;
+                this.integerConversion = integerConversion;
             }
         }
 
@@ -49,20 +60,24 @@
         /// </summary>
         /// <param name="polynom">O polinómio a ser factorizado.</param>
         /// <param name="modularField">O corpo responsável pelas operações modulares.</param>
+        /// <param name="coeffsDomain">O domínio associado aos coeficientes.</param>
         /// <returns>
         /// O dicionário que contém cada um dos factores e o respectivo grau.
         /// </returns>
-        public Dictionary<int, List<PolType>> Run(PolType polynom, IModularField<int> modularField)
+        public Dictionary<CoeffType, List<UnivariatePolynomialNormalForm<CoeffType>>> Run(
+            UnivariatePolynomialNormalForm<CoeffType> polynom, 
+            IModularField<CoeffType> modularField,
+            IEuclidenDomain<CoeffType> coeffsDomain)
         {
-            var result = new Dictionary<int, List<PolType>>();
+            var result = new Dictionary<CoeffType, List<UnivariatePolynomialNormalForm<CoeffType>>>();
 
-            var fractionField = new FractionField<int, IntegerDomain>(new IntegerDomain());
-            var polynomDomain = new UnivarPolynomEuclideanDomain<int>(
+            var fractionField = new FractionField<CoeffType, IEuclidenDomain<CoeffType>>(coeffsDomain);
+            var polynomDomain = new UnivarPolynomEuclideanDomain<CoeffType>(
                 polynom.VariableName,
                 modularField);
-            var bachetBezourAlg = new LagrangeAlgorithm<PolType>(polynomDomain);
+            var bachetBezourAlg = new LagrangeAlgorithm<UnivariatePolynomialNormalForm<CoeffType>>(polynomDomain);
 
-            var polynomialField = new UnivarPolynomEuclideanDomain<int>(
+            var polynomialField = new UnivarPolynomEuclideanDomain<CoeffType>(
                 polynom.VariableName,
                 modularField);
 
@@ -72,7 +87,7 @@
             {
                 var clonedFactor = this.CloneInvPol(factorsKvp.Value, modularField);
                 var factored = this.Factorize(clonedFactor, modularField, polynomialField, bachetBezourAlg);
-                var squareFreeFactorsList = new List<PolType>();
+                var squareFreeFactorsList = new List<UnivariatePolynomialNormalForm<CoeffType>>();
                 squareFreeFactorsList.AddRange(factored);
                 result.Add(factorsKvp.Key, squareFreeFactorsList);
             }
@@ -89,15 +104,15 @@
         /// <param name="polynomField">O corpo responsável pelo produto de polinómios.</param>
         /// <param name="bachetBezoutAlgorithm">O objecto responsável pelo algoritmo de máximo divisor comum.</param>
         /// <returns>A lista dos factores.</returns>
-        private List<PolType> Factorize(
-            PolType polynom,
-            IModularField<int> integerModule,
-            UnivarPolynomEuclideanDomain<int> polynomField,
-            LagrangeAlgorithm<PolType> bachetBezoutAlgorithm)
+        private List<UnivariatePolynomialNormalForm<CoeffType>> Factorize(
+            UnivariatePolynomialNormalForm<CoeffType> polynom,
+            IModularField<CoeffType> integerModule,
+            UnivarPolynomEuclideanDomain<CoeffType> polynomField,
+            LagrangeAlgorithm<UnivariatePolynomialNormalForm<CoeffType>> bachetBezoutAlgorithm)
         {
-            var result = new List<PolType>();
+            var result = new List<UnivariatePolynomialNormalForm<CoeffType>>();
 
-            var polynomialStack = new Stack<PolType>();
+            var polynomialStack = new Stack<UnivariatePolynomialNormalForm<CoeffType>>();
             var processedPols = this.Process(
                 polynom, 
                 result, 
@@ -136,7 +151,7 @@
             if (!integerModule.IsMultiplicativeUnity(factorsProduct))
             {
                 factorsProduct = integerModule.MultiplicativeInverse(factorsProduct);
-                result.Insert(0, new PolType(factorsProduct, 0, polynom.VariableName, integerModule));
+                result.Insert(0, new UnivariatePolynomialNormalForm<CoeffType>(factorsProduct, 0, polynom.VariableName, integerModule));
             }
 
             return result;
@@ -157,14 +172,14 @@
         /// <param name="module">O objecto responsável pelas operações sobre os polinómios módulo outro polinómio.</param>
         /// <param name="inverseAlgorithm">O algoritmo inverso.</param>
         /// <returns></returns>
-        List<PolType> Process(
-            PolType polynom,
-            List<PolType> result,
-            IModularField<int> integerModule,
-            UnivarPolynomEuclideanDomain<int> polynomField,
-            LagrangeAlgorithm<PolType> inverseAlgorithm)
+        List<UnivariatePolynomialNormalForm<CoeffType>> Process(
+            UnivariatePolynomialNormalForm<CoeffType> polynom,
+            List<UnivariatePolynomialNormalForm<CoeffType>> result,
+            IModularField<CoeffType> integerModule,
+            UnivarPolynomEuclideanDomain<CoeffType> polynomField,
+            LagrangeAlgorithm<UnivariatePolynomialNormalForm<CoeffType>> inverseAlgorithm)
         {
-            var resultPol = new List<PolType>();
+            var resultPol = new List<UnivariatePolynomialNormalForm<CoeffType>>();
             if (polynom.Degree < 2)
             {
                 result.Add(polynom);
@@ -172,19 +187,22 @@
             else
             {
 
-                var module = new ModularBachetBezoutField<PolType>(
+                var module = new ModularBachetBezoutField<UnivariatePolynomialNormalForm<CoeffType>>(
                     polynom,
                     inverseAlgorithm);
 
                 var degree = polynom.Degree;
-                var arrayMatrix = new ArrayMatrix<int>(degree, degree, integerModule.AdditiveUnity);
+                var arrayMatrix = new ArrayMatrix<CoeffType>(degree, degree, integerModule.AdditiveUnity);
                 arrayMatrix[0, 0] = integerModule.AdditiveUnity;
-                var pol = new PolType(
+                var pol = new UnivariatePolynomialNormalForm<CoeffType>(
                     integerModule.MultiplicativeUnity,
                     1,
                     polynom.VariableName,
                     integerModule);
-                pol = MathFunctions.Power(pol, integerModule.Module, module);
+
+                var integerModuleValue = this.integerConversion.DirectConversion(integerModule.Module);
+
+                pol = MathFunctions.Power(pol, integerModuleValue, module);
                 foreach (var term in pol)
                 {
                     arrayMatrix[term.Key, 1] = term.Value;
@@ -209,7 +227,7 @@
                     arrayMatrix[i, i] = value;
                 }
 
-                var emtpyMatrix = new ZeroMatrix<int, IModularField<int>>(degree, 1, integerModule);
+                var emtpyMatrix = new ZeroMatrix<CoeffType, IModularField<CoeffType>>(degree, 1, integerModule);
                 var linearSystemSolution = this.linearSystemSolver.Run(arrayMatrix, emtpyMatrix);
 
                 var numberOfFactors = linearSystemSolution.VectorSpaceBasis.Count;
@@ -219,7 +237,7 @@
                 }
                 else
                 {
-                    var hPol = default(PolType);
+                    var hPol = default(UnivariatePolynomialNormalForm<CoeffType>);
                     var linearSystemCount = linearSystemSolution.VectorSpaceBasis.Count;
                     for (int i = 0; i < linearSystemCount; ++i)
                     {
@@ -245,11 +263,12 @@
                         }
                     }
 
-                    for (int i = 0, k = 0; k < numberOfFactors && i < integerModule.Module; ++i)
+                    for (int i = 0, k = 0; k < numberOfFactors && i < integerModuleValue; ++i)
                     {
+                        var converted = this.integerConversion.InverseConversion(i);
                         var currentPol = MathFunctions.GreatCommonDivisor(
                             polynom, 
-                            hPol.Subtract(i, integerModule), 
+                            hPol.Subtract(converted, integerModule), 
                             polynomField);
                         var currentDegree = currentPol.Degree;
                         if (currentDegree == 1)
@@ -276,19 +295,19 @@
         /// <param name="module">O corpo responsável pelas operações sobre os ceoficientes do polinómio.</param>
         /// <param name="variableName">O nome da variável.</param>
         /// <returns>O polinómio.</returns>
-        private PolType GetPolynomial(
-            IVector<int> vector,
-            IModularField<int> module,
+        private UnivariatePolynomialNormalForm<CoeffType> GetPolynomial(
+            IVector<CoeffType> vector,
+            IModularField<CoeffType> module,
             string variableName)
         {
             var matrixDimension = vector.Length;
-            var temporaryDic = new Dictionary<int, int>();
+            var temporaryDic = new Dictionary<int, CoeffType>();
             for (int i = 0; i < matrixDimension; ++i)
             {
                 temporaryDic.Add(i, vector[i]);
             }
 
-            return new PolType(
+            return new UnivariatePolynomialNormalForm<CoeffType>(
                 temporaryDic,
                 variableName,
                 module);
@@ -300,13 +319,13 @@
         /// <param name="polynom">O polinómio.</param>
         /// <param name="fractionField">O corpo.</param>
         /// <returns>A cópia.</returns>
-        private MainPolType ClonePol(PolType polynom, FractionField<int, IntegerDomain> fractionField)
+        private UnivariatePolynomialNormalForm<Fraction<CoeffType, IEuclidenDomain<CoeffType>>> ClonePol(UnivariatePolynomialNormalForm<CoeffType> polynom, FractionField<CoeffType, IEuclidenDomain<CoeffType>> fractionField)
         {
-            var result = new MainPolType(
+            var result = new UnivariatePolynomialNormalForm<Fraction<CoeffType, IEuclidenDomain<CoeffType>>>(
                 polynom.VariableName);
             foreach (var termKvp in polynom)
             {
-                result = result.Add(new Fraction<int, IntegerDomain>(
+                result = result.Add(new Fraction<CoeffType, IEuclidenDomain<CoeffType>>(
                     termKvp.Value,
                     fractionField.EuclideanDomain.MultiplicativeUnity,
                     fractionField.EuclideanDomain),
@@ -322,11 +341,11 @@
         /// <param name="polynom">O polinómio.</param>
         /// <param name="modularIntegerField">O corpo.</param>
         /// <returns>A cópia.</returns>
-        private PolType CloneInvPol(
-            MainPolType polynom,
-            IModularField<int> modularIntegerField)
+        private UnivariatePolynomialNormalForm<CoeffType> CloneInvPol(
+            UnivariatePolynomialNormalForm<Fraction<CoeffType, IEuclidenDomain<CoeffType>>> polynom,
+            IModularField<CoeffType> modularIntegerField)
         {
-            var result = new PolType(
+            var result = new UnivariatePolynomialNormalForm<CoeffType>(
                 polynom.VariableName);
             foreach (var termKvp in polynom)
             {

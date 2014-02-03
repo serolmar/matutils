@@ -16,12 +16,22 @@
     {
         private IField<CoeffType> field;
 
+        private UnivariatePolynomialNormalForm<CoeffType> unit;
+
         public UnivarPolynomEuclideanDomain(string variableName, IField<CoeffType> field)
             : base(variableName, field)
         {
+            this.unit = new UnivariatePolynomialNormalForm<CoeffType>(
+                     this.field.MultiplicativeUnity,
+                     1,
+                     this.variableName,
+                     this.field);
             this.field = field;
         }
 
+        /// <summary>
+        /// Obtém o corpo sobre os coeficientes do polinómio.
+        /// </summary>
         public IField<CoeffType> Field
         {
             get
@@ -39,6 +49,14 @@
                     this.field = value;
                     this.ring = value;
                 }
+            }
+        }
+
+        public int UnitsCount
+        {
+            get
+            {
+                return 1;
             }
         }
 
@@ -233,8 +251,8 @@
                     }
 
                     var remainder = new UnivariatePolynomialNormalForm<CoeffType>(
-                        remainderSortedCoeffs, 
-                        this.variableName, 
+                        remainderSortedCoeffs,
+                        this.variableName,
                         this.field);
                     return remainder;
                 }
@@ -339,8 +357,8 @@
                     }
 
                     var remainder = new UnivariatePolynomialNormalForm<CoeffType>(
-                        remainderSortedCoeffs, 
-                        this.variableName, 
+                        remainderSortedCoeffs,
+                        this.variableName,
                         this.field);
                     return new DomainResult<UnivariatePolynomialNormalForm<CoeffType>>(
                         quotientCoeffs,
@@ -363,6 +381,14 @@
             else
             {
                 return (uint)value.Degree;
+            }
+        }
+
+        public IEnumerable<UnivariatePolynomialNormalForm<CoeffType>> Units
+        {
+            get
+            {
+                yield return this.unit;
             }
         }
     }

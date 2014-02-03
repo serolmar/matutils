@@ -6,7 +6,7 @@
     using System.Numerics;
     using System.Text;
 
-    public class BigIntegerDomain : IRing<BigInteger>, IEuclidenDomain<BigInteger>
+    public class BigIntegerDomain : IIntegerNumber<BigInteger>
     {
         public BigInteger AdditiveUnity
         {
@@ -21,6 +21,14 @@
             get
             {
                 return 1;
+            }
+        }
+
+        public int UnitsCount
+        {
+            get
+            {
+                return 2;
             }
         }
 
@@ -84,6 +92,40 @@
         public uint Degree(BigInteger value)
         {
             return (uint)value;
+        }
+
+        public IEnumerable<BigInteger> Units
+        {
+            get
+            {
+                yield return 1;
+                yield return -1;
+            }
+        }
+
+        public BigInteger Predecessor(BigInteger number)
+        {
+            return number - 1;
+        }
+
+        public BigInteger Successor(BigInteger number)
+        {
+            return number + 1;
+        }
+
+        public BigInteger MapFrom(int number)
+        {
+            return number;
+        }
+
+        public BigInteger MapFrom(long number)
+        {
+            return number;
+        }
+
+        public BigInteger MapFrom(BigInteger number)
+        {
+            return number;
         }
     }
 }

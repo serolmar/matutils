@@ -25,7 +25,8 @@
             {
                 throw new ArgumentException("Unity is a trivial factor.");
             }
-            else if (data == -1) {
+            else if (data == -1)
+            {
                 throw new ArgumentException("Negative unity is a trivial factor.");
             }
             else

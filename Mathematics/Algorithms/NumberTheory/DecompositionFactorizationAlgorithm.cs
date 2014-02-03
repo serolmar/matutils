@@ -9,19 +9,52 @@ namespace Mathematics
     /// Obtém a factorização de um número aplicando sucessivamente um outro algoritmo
     /// que permita obter os respectivos factores.
     /// </summary>
-    public class DecompositionFactorizationAlgorithm : IAlgorithm<int, Dictionary<int, int>>
+    public class DecompositionFactorizationAlgorithm<NumberType, DegreeType> : IAlgorithm<NumberType, Dictionary<NumberType, DegreeType>>
     {
-        private IAlgorithm<int, Tuple<int, int>> productDecompAlg;
+        private IAlgorithm<NumberType, Tuple<NumberType, NumberType>> productDecompAlg;
+
+        /// <summary>
+        /// O anel responsável pelas operações sobre os números.
+        /// </summary>
+        private IRing<NumberType> numberRing;
+
+        /// <summary>
+        /// O monóide responsável pelas operações sobre os graus.
+        /// </summary>
+        private IMonoid<DegreeType> degreeMonoid;
+
+        /// <summary>
+        /// Mantém o grau unitário.
+        /// </summary>
+        private DegreeType unitaryDegree;
 
         public DecompositionFactorizationAlgorithm(
-            IAlgorithm<int, Tuple<int, int>> productDecompAlg)
+            IAlgorithm<NumberType, Tuple<NumberType, NumberType>> productDecompAlg,
+            DegreeType unitaryDegree,
+            IMonoid<DegreeType> degreeMonoid,
+            IRing<NumberType> numberRing)
         {
-            if (productDecompAlg == null)
+            if (numberRing == null)
+            {
+                throw new ArgumentNullException("numberRing");
+            }
+            else if (degreeMonoid == null)
+            {
+                throw new ArgumentNullException("degreeMonoid");
+            }
+            else if (unitaryDegree == null)
+            {
+                throw new ArgumentNullException("uniartyDegree");
+            }
+            else if (productDecompAlg == null)
             {
                 throw new ArgumentNullException("productDecompAlg");
             }
             else
             {
+                this.numberRing = numberRing;
+                this.degreeMonoid = degreeMonoid;
+                this.unitaryDegree = unitaryDegree;
                 this.productDecompAlg = productDecompAlg;
             }
         }
@@ -31,59 +64,62 @@ namespace Mathematics
         /// </summary>
         /// <param name="data">O número a ser factorizado.</param>
         /// <returns>A factorização.</returns>
-        public Dictionary<int, int> Run(int data)
+        public Dictionary<NumberType, DegreeType> Run(NumberType data)
         {
-            if (data == 0)
+            if(data == null){
+                throw new ArgumentNullException("data");
+            }
+            else if (this.numberRing.IsAdditiveUnity(data))
             {
                 throw new ArgumentException("Zero has no factor.");
             }
-            else if (data == 1)
+            else if (this.numberRing.IsMultiplicativeUnity(data) || this.numberRing.IsMultiplicativeUnity(this.numberRing.AdditiveInverse(data)))
             {
-                throw new ArgumentException("Unity is a trivial factor.");
-            }
-            else if (data == -1)
-            {
-                throw new ArgumentException("Negative unity is a trivial factor.");
+                // Caso seja uma unidade
+                var result = new Dictionary<NumberType, DegreeType>(this.numberRing);
+                result.Add(data, this.unitaryDegree);
+                return result;
             }
             else
             {
-                var result = new Dictionary<int, int>();
-                var innerData = Math.Abs(data);
-                var alreadyComputed = new Dictionary<int, Tuple<int, int>>();
-                var factorsStack = new Stack<int>();
-                factorsStack.Push(innerData);
+                var result = new Dictionary<NumberType, DegreeType>(this.numberRing);
+                var alreadyComputed = new Dictionary<NumberType, Tuple<NumberType, NumberType>>();
+                var factorsStack = new Stack<NumberType>();
+                factorsStack.Push(data);
                 while (factorsStack.Count > 0)
                 {
                     var top = factorsStack.Pop();
-                    var topFactor = default(Tuple<int, int>);
+                    var topFactor = default(Tuple<NumberType, NumberType>);
                     if (!alreadyComputed.TryGetValue(top, out topFactor))
                     {
                         topFactor = this.productDecompAlg.Run(top);
                         alreadyComputed.Add(top, topFactor);
                     }
 
-                    if (topFactor.Item1 == 1)
+                    if (this.numberRing.IsAdditiveUnity(topFactor.Item1))
                     {
-                        var deg = 0;
+                        var deg = this.degreeMonoid.AdditiveUnity;
                         if (result.TryGetValue(topFactor.Item2, out deg))
                         {
-                            result[topFactor.Item2] = ++deg;
+                            deg = this.degreeMonoid.Add(deg, this.unitaryDegree);
+                            result[topFactor.Item2] = deg;
                         }
                         else
                         {
-                            result.Add(topFactor.Item2, 1);
+                            result.Add(topFactor.Item2, this.unitaryDegree);
                         }
                     }
-                    else if (topFactor.Item2 == 1)
+                    else if (this.numberRing.IsMultiplicativeUnity(topFactor.Item2))
                     {
-                        var deg = 0;
+                        var deg = this.degreeMonoid.AdditiveUnity;
                         if (result.TryGetValue(topFactor.Item1, out deg))
                         {
-                            result[topFactor.Item1] = ++deg;
+                            deg = this.degreeMonoid.Add(deg, this.unitaryDegree);
+                            result[topFactor.Item1] = deg;
                         }
                         else
                         {
-                            result.Add(topFactor.Item1, 1);
+                            result.Add(topFactor.Item1, this.unitaryDegree);
                         }
                     }
                     else
