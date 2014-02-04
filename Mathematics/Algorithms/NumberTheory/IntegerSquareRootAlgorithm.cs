@@ -1,4 +1,4 @@
-﻿namespace Mathematics.Algorithms.NumberTheory
+﻿namespace Mathematics
 {
     using System;
     using System.Collections.Generic;
@@ -8,7 +8,7 @@
     /// <summary>
     /// Permite calcular o valor inteiro da raiz quadrada de um número.
     /// </summary>
-    public class IntegerSquareNumberAlgorithm : IAlgorithm<int,int>
+    public class IntegerSquareRootAlgorithm : IAlgorithm<int, int>
     {
         /// <summary>
         /// Permite calcular o valor inteiro da raiz quadrada do número.

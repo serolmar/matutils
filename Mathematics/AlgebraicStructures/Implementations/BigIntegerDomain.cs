@@ -127,5 +127,15 @@
         {
             return number;
         }
+
+        public BigInteger GetNorm(BigInteger value)
+        {
+            return BigInteger.Abs(value);
+        }
+
+        public int Compare(BigInteger x, BigInteger y)
+        {
+            return Comparer<BigInteger>.Default.Compare(x, y);
+        }
     }
 }

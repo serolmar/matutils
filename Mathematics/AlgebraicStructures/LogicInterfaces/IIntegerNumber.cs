@@ -9,7 +9,7 @@
     /// Permite representar um número inteiro.
     /// </summary>
     /// <typeparam name="NumberType">O tipo do número.</typeparam>
-    public interface IIntegerNumber<NumberType> : INaturalNumber<NumberType>
+    public interface IIntegerNumber<NumberType> : INaturalNumber<NumberType>, INormSpace<NumberType, NumberType>
     {
         /// <summary>
         /// Obtém o antecessor de um número.

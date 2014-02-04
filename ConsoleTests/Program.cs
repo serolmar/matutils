@@ -21,7 +21,7 @@
 
         static void Main(string[] args)
         {
-            Test20();
+            Test13();
             Console.ReadLine();
         }
 
@@ -585,6 +585,10 @@
         /// </summary>
         public static void Test13()
         {
+            var bigIntegerSquareRootAlg = new BigIntSquareRootAlgorithm();
+            var bigIntSquareRoot = bigIntegerSquareRootAlg.Run(4294967296);
+            Console.WriteLine(bigIntSquareRoot);
+
             var integerDomain = new IntegerDomain();
             var congruences = new List<Congruence<int>>()
             {
@@ -615,7 +619,10 @@
                 }
             }
 
-            var eulerFunction = new EulerTotFuncAlg();
+            var eulerFunction = new EulerTotFuncAlg<int>(
+                new IntegerSquareRootAlgorithm(),
+                new PrimeNumbersIteratorFactory(),
+                integerDomain);
             Console.WriteLine(eulerFunction.Run(1937));
 
             var pollardRhoAlg = new PollardRhoAlgorithm();
@@ -661,7 +668,8 @@
             Console.WriteLine("First cofactor: {0}", result.FirstCofactor);
             Console.WriteLine("Second cofactor: {0}", result.SecondCofactor);
 
-            var naiveFactorizationAlgorithm = new NaiveIntegerFactorizationAlgorithm();
+            var naiveFactorizationAlgorithm = new NaiveIntegerFactorizationAlgorithm<int>(
+                new IntegerSquareRootAlgorithm(), new IntegerDomain());
             n = 35349384;
             Console.WriteLine("The factors of {0} are:", n);
             var factorsResult = naiveFactorizationAlgorithm.Run(n);

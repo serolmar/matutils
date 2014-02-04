@@ -379,10 +379,6 @@
                                 minimum,
                                 this.coeffsField.AdditiveInverse(current));
                             result = this.coeffsField.Add(result, temp);
-                            if (((double)(object)temp) < 0)
-                            {
-                                var a = 0;
-                            }
                         }
                     }
                 }

@@ -151,5 +151,15 @@ namespace Mathematics
                 return (int)number;
             }
         }
+
+        public int GetNorm(int value)
+        {
+            return (int)Math.Abs(value);
+        }
+
+        public int Compare(int x, int y)
+        {
+            return Comparer<int>.Default.Compare(x, y);
+        }
     }
 }
