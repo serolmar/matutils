@@ -15,8 +15,27 @@
         /// </summary>
         private IntegerDomain integerDomain = new IntegerDomain();
 
-        public PerfectPowerTestAlgorithm()
+        /// <summary>
+        /// Permite instanciar a classe responsável pela enumeração dos números primos.
+        /// </summary>
+        private IPrimeNumberIteratorFactory<int> primeNumbersIteratorFactory;
+
+        /// <summary>
+        /// Permite criar uma instância da classe responsável pela determinação de potência perfeita.
+        /// </summary>
+        /// <param name="primeNumbersIteratorFactory">A fábrica para instanciar o iterador sobre números primos.</param>
+        /// <param name="binaryIntegerPartLogAlg">O algoritmo que permite calcular a parte inteira do logaritmo.</param>
+        public PerfectPowerTestAlgorithm(
+            IPrimeNumberIteratorFactory<int> primeNumbersIteratorFactory)
         {
+            if (primeNumbersIteratorFactory == null)
+            {
+                throw new ArgumentNullException("primeNumbersIteratorFactory");
+            }
+            else
+            {
+                this.primeNumbersIteratorFactory = primeNumbersIteratorFactory;
+            }
         }
 
         /// <summary>
@@ -38,8 +57,9 @@
             }
             else
             {
-                var maximumTestValue = (int)Math.Floor(Math.Log(innerData)/Math.Log(2));
-                var primeNumbersIterator = new PrimeNumbersIterator(maximumTestValue + 1);
+                var maximumTestValue = (int)Math.Floor(Math.Log(innerData) / Math.Log(2));
+                var primeNumbersIterator = this.primeNumbersIteratorFactory.CreatePrimeNumberIterator(
+                    maximumTestValue + 1);
                 foreach (var prime in primeNumbersIterator)
                 {
                     var root = (int)Math.Floor(Math.Pow(innerData, 1.0 / prime));

@@ -585,8 +585,38 @@
         /// </summary>
         public static void Test13()
         {
+            var fastIntLogComputation = new FastBinaryLogIntegerPartAlg();
+            Console.WriteLine(fastIntLogComputation.Run(1));
+
+            var stopWatch = new Stopwatch();
+            var integerLogarithmComputation = new BaseLogIntegerPart<BigInteger>(
+                new BigIntegerDomain());
+            stopWatch.Start();
+            var computation = integerLogarithmComputation.Run(2, BigInteger.Pow(2, 100));
+            stopWatch.Stop();
+            Console.WriteLine("O valor do logaritmo foi {0} calculado em {1} ms.", computation, stopWatch.ElapsedMilliseconds);
+
+            stopWatch.Reset();
+            stopWatch.Start();
+            computation = integerLogarithmComputation.Run(BigInteger.Pow(2,50000), BigInteger.Pow(2, 100000));
+            stopWatch.Stop();
+            Console.WriteLine("O valor do logaritmo foi {0} calculado em {1} ms.", computation, stopWatch.ElapsedMilliseconds);
+
+            stopWatch.Reset();
+            var fastBigIntLogComputation = new FastBigIntBinaryLogIntPartAlg();
+            stopWatch.Start();
+            computation = fastBigIntLogComputation.Run(BigInteger.Pow(2, 1342567));
+            stopWatch.Stop();
+            Console.WriteLine("O valor do logaritmo foi {0} calculado em {1} ms.", computation, stopWatch.ElapsedMilliseconds);
+
+            stopWatch.Reset();
+            stopWatch.Start();
+            var log = BigInteger.Log10(BigInteger.Pow(2, 1342567));
+            stopWatch.Stop();
+            Console.WriteLine("O valor do logaritmo foi {0} calculado em {1} ms.", (int)Math.Floor(log), stopWatch.ElapsedMilliseconds);
+
             var bigIntegerSquareRootAlg = new BigIntSquareRootAlgorithm();
-            var bigIntSquareRoot = bigIntegerSquareRootAlg.Run(4294967296);
+            var bigIntSquareRoot = bigIntegerSquareRootAlg.Run(86467898987098776);
             Console.WriteLine(bigIntSquareRoot);
 
             var integerDomain = new IntegerDomain();
@@ -600,6 +630,12 @@
             var chineseAlg = new ChineseRemainderAlgorithm<int>(1);
             var congruence = chineseAlg.Run(congruences, integerDomain);
             Console.WriteLine(congruence);
+
+            var generalRoot = new GenericIntegerNthRootAlgorithm<BigInteger>(new BigIntegerDomain());
+            var rootIndex = 5;
+            var radicandValue = 1419877;
+            var sqrtRes = generalRoot.Run(rootIndex, radicandValue);
+            Console.WriteLine("A raiz de indice {0} de {1} vale {2}.", rootIndex, radicandValue, sqrtRes);
 
             var quadraticSieve = new QuadraticFieldSieve();
             var temp = quadraticSieve.Run(13459, 200, 100);
@@ -641,10 +677,21 @@
             Console.WriteLine(PrintVector(resSol.Run(10, 13)));
             Console.WriteLine(PrintVector(resSol.Run(17, 47)));
 
-            var perfectPowerAlgotithm = new PerfectPowerTestAlgorithm();
-            for (int i = 0; i <= 10; ++i)
+            var perfectPowerAlgotithm = new PerfectPowerTestAlgorithm(
+                new PrimeNumbersIteratorFactory());
+            for (int i = 0; i <= 100; ++i)
             {
                 if (perfectPowerAlgotithm.Run(i))
+                {
+                    Console.WriteLine(i);
+                }
+            }
+
+            Console.WriteLine("E agora sobre os números grandes.");
+            var bigintegerPerfeectPowAlg = new BigIntPerfectPowerTestAlg(new BigIntegerPrimeNumbersIteratorFactory());
+            for (int i = 0; i <= 100; ++i)
+            {
+                if (bigintegerPerfeectPowAlg.Run(i))
                 {
                     Console.WriteLine(i);
                 }

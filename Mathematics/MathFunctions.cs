@@ -127,6 +127,48 @@
         }
 
         /// <summary>
+        /// Obtém a potência de um valor.
+        /// </summary>
+        /// <typeparam name="T">O tipo do valor.</typeparam>
+        /// <typeparam name="D">O tipo da classe que define a multiplicação.</typeparam>
+        /// <param name="val">O valor.</param>
+        /// <param name="pow">O expoente.</param>
+        /// <param name="integerNumber">A classe que define as operações sobre números inteiros.</param>
+        /// <returns>A potência do valor.</returns>
+        public static T Power<T, D>(T val, T pow, D integerNumber)
+            where D : IIntegerNumber<T>
+        {
+            if (integerNumber == null)
+            {
+                throw new MathematicsException("Parameter integerNumber can't be null.");
+            }
+            else if (integerNumber.Compare(pow, integerNumber.AdditiveUnity) < 0)
+            {
+                throw new MathematicsException("Can't computer the powers with negative expoents.");
+            }
+            else
+            {
+                var result = integerNumber.MultiplicativeUnity;
+                var innerPow = pow;
+                var innerVal = val;
+                var two = integerNumber.Successor(integerNumber.MultiplicativeUnity);
+                while (integerNumber.Compare(innerPow, integerNumber.AdditiveUnity) > 0)
+                {
+                    var remQuo = integerNumber.GetQuotientAndRemainder(innerPow, two);
+                    if (integerNumber.IsMultiplicativeUnity(remQuo.Remainder))
+                    {
+                        result = integerNumber.Multiply(result, innerVal);
+                    }
+
+                    innerPow = remQuo.Quotient;
+                    innerVal = integerNumber.Multiply(innerVal, innerVal);
+                }
+
+                return result;
+            }
+        }
+
+        /// <summary>
         /// Obtém o valor da aplicação sucessiva da operação soma ao mesmo valor tendo em conta que esta é associativa.
         /// </summary>
         /// <typeparam name="T">O tipo do valor.</typeparam>

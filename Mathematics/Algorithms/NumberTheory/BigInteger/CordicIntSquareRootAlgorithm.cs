@@ -3,18 +3,19 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Numerics;
     using System.Text;
 
     /// <summary>
-    /// Possibilita o cálculo da raiz quadrada inteira de um inteiro grande.
+    /// Permite calcular a raiz quadrada inteira de um número sem recorrer à livraria de matemática.
     /// </summary>
-    /// <remarks>
-    /// Ver a primeira resposta em: http://stackoverflow.com/questions/3432412/calculate-square-root-of-a-biginteger-system-numerics-biginteger
-    /// </remarks>
-    public class BigIntSquareRootAlgorithm : IAlgorithm<BigInteger, BigInteger>
+    public class CordicIntSquareRootAlgorithm : IAlgorithm<int,int>
     {
-        public BigInteger Run(BigInteger data)
+        /// <summary>
+        /// Calcula a raiz quadrada inteira de um número.
+        /// </summary>
+        /// <param name="data">O número.</param>
+        /// <returns>A raiz quadrada inteira.</returns>
+        public int Run(int data)
         {
             if (data < 0)
             {
@@ -26,18 +27,16 @@
             }
             else
             {
-                var allBytes = data.ToByteArray();
-                var bytesNumber = allBytes.Length;
-                var b = bytesNumber << 2;
+                var b = 15;
                 --b;
-                var r = BigInteger.Zero;
-                var r2 = BigInteger.Zero; 
+                var r = 0;
+                var r2 = 0;
                 while (b >= 0)
                 {
                     var sr2 = r2;
                     var sr = r;
 
-                    r2 += ((r << (1 + b)) + (BigInteger.One << (b + b)));
+                    r2 += ((r << (1 + b)) + (1 << (b + b)));
                     r += (1 << b);
                     if (r2 > data)
                     {

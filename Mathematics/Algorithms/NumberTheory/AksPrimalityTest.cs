@@ -28,7 +28,8 @@
         /// </summary>
         public AksPrimalityTest()
         {
-            this.perfectPowerTest = new PerfectPowerTestAlgorithm();
+            this.perfectPowerTest = new PerfectPowerTestAlgorithm(
+                new PrimeNumbersIteratorFactory());
             this.integerDomain = new IntegerDomain();
             this.totientFunctionAlg = new EulerTotFuncAlg<int>(
                 new IntegerSquareRootAlgorithm(),

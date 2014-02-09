@@ -31,7 +31,10 @@ namespace Mathematics
 
         public int Multiply(int left, int right)
         {
-            return left * right;
+            checked
+            {
+                return left * right;
+            }
         }
 
         public int AdditiveInverse(int number)
@@ -41,12 +44,18 @@ namespace Mathematics
 
         public int Add(int left, int right)
         {
-            return left + right;
+            checked
+            {
+                return left + right;
+            }
         }
 
         public int AddRepeated(int left, int right)
         {
-            return left * right;
+            checked
+            {
+                return left * right;
+            }
         }
 
         public bool Equals(int x, int y)
@@ -107,7 +116,10 @@ namespace Mathematics
             }
             else
             {
-                return number - 1;
+                checked
+                {
+                    return number - 1;
+                }
             }
         }
 
@@ -119,7 +131,10 @@ namespace Mathematics
             }
             else
             {
-                return number + 1;
+                checked
+                {
+                    return number + 1;
+                }
             }
         }
 
