@@ -5,97 +5,133 @@
     using System.Linq;
     using System.Text;
 
-    public class LegendreJacobiSymbolAlgorithm : IAlgorithm<int, int, int>
+    public class LegendreJacobiSymbolAlgorithm<NumberType> : IAlgorithm<NumberType, NumberType, NumberType>
     {
+        /// <summary>
+        /// Mantém o objecto responsável pelas operações sobre inteiros.
+        /// </summary>
+        private IIntegerNumber<NumberType> integerNumber;
+
+        public LegendreJacobiSymbolAlgorithm(IIntegerNumber<NumberType> integerNumber)
+        {
+            if (integerNumber == null)
+            {
+                throw new ArgumentNullException("integerNumber");
+            }
+            else
+            {
+                this.integerNumber = integerNumber;
+            }
+        }
+
         /// <summary>
         /// Calcula o valor do símbolo de Jacobi para inteiros.
         /// </summary>
         /// <param name="topSymbolValue">O valor superior do símbolo.</param>
         /// <param name="bottomSymbolValue">O valor inferior do símbolo.</param>
         /// <returns>O valor numérico do símbolo.</returns>
-        public int Run(int topSymbolValue, int bottomSymbolValue)
+        public NumberType Run(NumberType topSymbolValue, NumberType bottomSymbolValue)
         {
-            if (bottomSymbolValue == 0)
+            if (this.integerNumber.IsAdditiveUnity(bottomSymbolValue))
             {
                 throw new ArgumentException("The bottom symbol value mustn't be zero.");
             }
-            else if (topSymbolValue == 0)
+            else if (this.integerNumber.IsAdditiveUnity(topSymbolValue))
             {
-                return 0;
+                return this.integerNumber.AdditiveUnity;
             }
-            else if (topSymbolValue % 2 == 0 && bottomSymbolValue % 2 == 0)
+            else if (this.integerNumber.IsAdditiveUnity(
+                this.integerNumber.Rem(topSymbolValue, this.integerNumber.MapFrom(2))) &&
+                this.integerNumber.IsAdditiveUnity(
+                this.integerNumber.Rem(bottomSymbolValue, this.integerNumber.MapFrom(2))))
             {
-                return 0;
+                return this.integerNumber.AdditiveUnity;
             }
             else
             {
-                var result = 1;
+                var result = this.integerNumber.MultiplicativeUnity;
                 var innerBottomSymbolValue = bottomSymbolValue;
 
                 // Uma vez que J(p,2) = J(2,p)
-                var power = 0;
-                while (innerBottomSymbolValue % 2 == 0)
+                var two = this.integerNumber.MapFrom(2);
+                var power = this.integerNumber.AdditiveUnity;
+                var remQuoResult = this.integerNumber.GetQuotientAndRemainder(innerBottomSymbolValue, two);
+                while (this.integerNumber.IsAdditiveUnity(remQuoResult.Remainder))
                 {
-                    ++power;
-                    innerBottomSymbolValue = innerBottomSymbolValue / 2;
+                    power = this.integerNumber.Successor(power);
+                    innerBottomSymbolValue = remQuoResult.Quotient;
+                    remQuoResult = this.integerNumber.GetQuotientAndRemainder(innerBottomSymbolValue, two);
                 }
 
-                var topRemainder = 0;
-                if (power % 2 != 0)
+                var topRemainder = this.integerNumber.AdditiveUnity;
+                var eight = this.integerNumber.MapFrom(8);
+                var three = this.integerNumber.MapFrom(3);
+                var five = this.integerNumber.MapFrom(5);
+                if (!this.integerNumber.IsAdditiveUnity(
+                    this.integerNumber.Rem(power, two)))
                 {
-                    topRemainder = topSymbolValue % 8;
-                    if (topRemainder == 3 || topRemainder == 5)
+                    topRemainder = this.integerNumber.Rem(topSymbolValue, eight);
+                    if (this.integerNumber.Equals(topRemainder, three) ||
+                        this.integerNumber.Equals(topRemainder, five))
                     {
-                        result = -result;
+                        result = this.integerNumber.AdditiveInverse(result);
                     }
                 }
 
-                if (innerBottomSymbolValue != 1)
+                if (!this.integerNumber.IsMultiplicativeUnity(innerBottomSymbolValue))
                 {
-                    var innerTopSymbolValue = topSymbolValue % bottomSymbolValue;
+                    var innerTopSymbolValue = this.integerNumber.Rem(topSymbolValue, bottomSymbolValue);
                     var state = 0;
                     while (state != -1)
                     {
-                        if (innerTopSymbolValue == 0)
+                        if (this.integerNumber.IsAdditiveUnity(innerTopSymbolValue))
                         {
-                            result = 0;
+                            result = this.integerNumber.AdditiveUnity;
                             state = -1;
                         }
-                        else if (innerTopSymbolValue == 1)
+                        else if (this.integerNumber.IsMultiplicativeUnity(innerTopSymbolValue))
                         {
                             state = -1;
                         }
                         else
                         {
-                            power = 0;
-                            while (innerTopSymbolValue % 2 == 0)
+                            power = this.integerNumber.AdditiveUnity;
+                            remQuoResult = this.integerNumber.GetQuotientAndRemainder(innerTopSymbolValue, two);
+                            while (this.integerNumber.IsAdditiveUnity(remQuoResult.Remainder))
                             {
-                                ++power;
-                                innerTopSymbolValue = innerTopSymbolValue / 2;
+                                power = this.integerNumber.Successor(power);
+                                innerTopSymbolValue = this.integerNumber.Quo(innerTopSymbolValue, two);
+                                remQuoResult = this.integerNumber.GetQuotientAndRemainder(innerTopSymbolValue, two);
                             }
 
-                            var bottomRemainder = 0;
-                            if (power % 2 != 0)
+                            var bottomRemainder = this.integerNumber.AdditiveUnity;
+                            if (!this.integerNumber.IsAdditiveUnity(
+                                this.integerNumber.Rem(power, two)))
                             {
-                                bottomRemainder = innerBottomSymbolValue % 8;
-                                if (bottomRemainder == 3 || bottomRemainder == 5)
+                                bottomRemainder = this.integerNumber.Rem(innerBottomSymbolValue, eight);
+                                if (this.integerNumber.Equals(bottomRemainder, three) || 
+                                    this.integerNumber.Equals(bottomRemainder, five))
                                 {
-                                    result = -result;
+                                    result = this.integerNumber.AdditiveInverse(result);
                                 }
                             }
 
-                            if (innerTopSymbolValue != 1)
+                            var four = this.integerNumber.MapFrom(4);
+                            if (!this.integerNumber.IsMultiplicativeUnity(innerTopSymbolValue))
                             {
-                                bottomRemainder = innerBottomSymbolValue % 4;
-                                topRemainder = innerTopSymbolValue % 4;
-                                if (bottomRemainder == 3 && topRemainder == 3)
+                                bottomRemainder = this.integerNumber.Rem(innerBottomSymbolValue, four);
+                                topRemainder = this.integerNumber.Rem(innerTopSymbolValue, four);
+                                if (this.integerNumber.Equals(bottomRemainder, three) && 
+                                    this.integerNumber.Equals(topRemainder, three))
                                 {
-                                    result = -result;
+                                    result = this.integerNumber.AdditiveInverse(result);
                                 }
 
                                 var temporaryBottomSymbolValue = innerBottomSymbolValue;
                                 innerBottomSymbolValue = innerTopSymbolValue;
-                                innerTopSymbolValue = temporaryBottomSymbolValue % innerTopSymbolValue;
+                                innerTopSymbolValue = this.integerNumber.Rem(
+                                    temporaryBottomSymbolValue,
+                                    innerTopSymbolValue);
                             }
                         }
                     }

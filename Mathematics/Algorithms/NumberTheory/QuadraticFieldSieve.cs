@@ -58,8 +58,8 @@
             else
             {
                 var primesList = new List<int>();
-                var primesIterator = new PrimeNumbersIterator(factorBase);
-                var legendreAlgorithm = new LegendreJacobiSymbolAlgorithm();
+                var primesIterator = new IntPrimeNumbersIterator(factorBase);
+                var legendreAlgorithm = new LegendreJacobiSymbolAlgorithm<int>(new IntegerDomain());
                 foreach (var prime in primesIterator)
                 {
                     if (legendreAlgorithm.Run(innerData, prime) == 1)

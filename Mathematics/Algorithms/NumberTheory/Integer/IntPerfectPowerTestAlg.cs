@@ -8,7 +8,7 @@
     /// <summary>
     /// Implementa um algoritmo que averigua se um determinado número é uma potência perfeita.
     /// </summary>
-    public class PerfectPowerTestAlgorithm : IAlgorithm<int, bool>
+    public class IntPerfectPowerTestAlg : IAlgorithm<int, bool>
     {
         /// <summary>
         /// O domínio sobre inteiros.
@@ -25,7 +25,7 @@
         /// </summary>
         /// <param name="primeNumbersIteratorFactory">A fábrica para instanciar o iterador sobre números primos.</param>
         /// <param name="binaryIntegerPartLogAlg">O algoritmo que permite calcular a parte inteira do logaritmo.</param>
-        public PerfectPowerTestAlgorithm(
+        public IntPerfectPowerTestAlg(
             IPrimeNumberIteratorFactory<int> primeNumbersIteratorFactory)
         {
             if (primeNumbersIteratorFactory == null)

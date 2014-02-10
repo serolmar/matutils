@@ -16,16 +16,27 @@
         /// </summary>
         private IPrimeNumberIteratorFactory<BigInteger> primeNumbersIteratorFactory;
 
+        /// <summary>
+        /// O algoritmo responsável pela determinação da raiz de índice n de um número.
+        /// </summary>
+        IAlgorithm<BigInteger, BigInteger, BigInteger> nthRootAlgorithm;
+
         public BigIntPerfectPowerTestAlg(
+            IAlgorithm<BigInteger, BigInteger, BigInteger> nthRootAlgorithm,
             IPrimeNumberIteratorFactory<BigInteger> primeNumbersIteratorFactory)
         {
             if (primeNumbersIteratorFactory == null)
             {
                 throw new ArgumentNullException("primeNumbersIteratorFactory");
             }
+            else if (nthRootAlgorithm == null)
+            {
+                throw new ArgumentNullException("nthRootAlgorithm");
+            }
             else
             {
                 this.primeNumbersIteratorFactory = primeNumbersIteratorFactory;
+                this.nthRootAlgorithm = nthRootAlgorithm;
             }
         }
 
@@ -53,9 +64,12 @@
                     limitValue + 1);
                 foreach (var prime in primeNumbersIterator)
                 {
-                    // Neste ponto é necessário engendrar um processo para calcular a raiz de índice arbitrário de
-                    // um número.
-                    throw new NotImplementedException();
+                    var root = this.nthRootAlgorithm.Run(prime, innerData);
+                    var power = BigInteger.Pow(root, (int)prime);
+                    if (power == innerData)
+                    {
+                        return true;
+                    }
                 }
 
                 return false;

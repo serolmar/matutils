@@ -12,7 +12,7 @@
     {
         public IEnumerable<int> CreatePrimeNumberIterator(int upperLimit)
         {
-            return new PrimeNumbersIterator(upperLimit);
+            return new IntPrimeNumbersIterator(upperLimit);
         }
     }
 }

@@ -9,7 +9,7 @@
     /// <summary>
     /// Implementa um iterador sobre o conjunto dos números primos.
     /// </summary>
-    public class PrimeNumbersIterator : IEnumerable<int>
+    public class IntPrimeNumbersIterator : IEnumerable<int>
     {
         /// <summary>
         /// Os primeiros números primos.
@@ -26,13 +26,13 @@
         /// </summary>
         private int upperLimit;
 
-        static PrimeNumbersIterator()
+        static IntPrimeNumbersIterator()
         {
             // Otbém os números primos e as diferenças a partir dos recursos.
             InitClassFromResources();
         }
 
-        public PrimeNumbersIterator(int upperLimit)
+        public IntPrimeNumbersIterator(int upperLimit)
         {
             this.upperLimit = upperLimit;
         }

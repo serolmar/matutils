@@ -6,7 +6,7 @@
     using System.Text;
     using System.Numerics;
 
-    public class ModularBigIntegerDomain : IModularField<BigInteger>
+    public class ModularBigIntegerField : IModularField<BigInteger>
     {
         /// <summary>
         /// O módulo.
@@ -18,7 +18,7 @@
         /// </summary>
         private LagrangeAlgorithm<BigInteger> inverseAlgorithm;
 
-        public ModularBigIntegerDomain(BigInteger module)
+        public ModularBigIntegerField(BigInteger module)
         {
             if (module == 0 || module == 1 || module == -1)
             {

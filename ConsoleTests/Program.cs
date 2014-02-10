@@ -107,7 +107,7 @@
 
             // Instanciação dos algoritmos
             var resultantAlg = new UnivarPolDeterminantResultantAlg<int>(new IntegerDomain());
-            var primesGenerator = new PrimeNumbersIterator(int.MaxValue);
+            var primesGenerator = new IntPrimeNumbersIterator(int.MaxValue);
 
             // Obtém o valor do coeficiente principal e do discriminante.
             var integerDomain = new IntegerDomain();
@@ -598,22 +598,38 @@
 
             stopWatch.Reset();
             stopWatch.Start();
-            computation = integerLogarithmComputation.Run(BigInteger.Pow(2,50000), BigInteger.Pow(2, 100000));
+            computation = integerLogarithmComputation.Run(BigInteger.Pow(2, 50000), BigInteger.Pow(2, 100000));
             stopWatch.Stop();
             Console.WriteLine("O valor do logaritmo foi {0} calculado em {1} ms.", computation, stopWatch.ElapsedMilliseconds);
 
             stopWatch.Reset();
             var fastBigIntLogComputation = new FastBigIntBinaryLogIntPartAlg();
             stopWatch.Start();
-            computation = fastBigIntLogComputation.Run(BigInteger.Pow(2, 1342567));
+            computation = fastBigIntLogComputation.Run(BigInteger.Pow(2, 10000000));
             stopWatch.Stop();
-            Console.WriteLine("O valor do logaritmo foi {0} calculado em {1} ms.", computation, stopWatch.ElapsedMilliseconds);
+            Console.WriteLine(
+                "O valor do logaritmo foi {0} calculado em {1} ms.",
+                computation,
+                stopWatch.ElapsedMilliseconds);
+
+            stopWatch.Reset();
+            var fasterBigIntLogComputation = new FasterBigIntBinaryLogIntPartAlg();
+            stopWatch.Start();
+            computation = fasterBigIntLogComputation.Run(BigInteger.Pow(2, 10000000));
+            stopWatch.Stop();
+            Console.WriteLine(
+                "O valor do logaritmo foi {0} calculado em {1} ms.",
+                computation,
+                stopWatch.ElapsedMilliseconds);
 
             stopWatch.Reset();
             stopWatch.Start();
-            var log = BigInteger.Log10(BigInteger.Pow(2, 1342567));
+            var log = BigInteger.Log(BigInteger.Pow(2, 10000000)) / Math.Log(2);
             stopWatch.Stop();
-            Console.WriteLine("O valor do logaritmo foi {0} calculado em {1} ms.", (int)Math.Floor(log), stopWatch.ElapsedMilliseconds);
+            Console.WriteLine(
+                "O valor do logaritmo foi {0} calculado em {1} ms.",
+                (int)Math.Floor(log),
+                stopWatch.ElapsedMilliseconds);
 
             var bigIntegerSquareRootAlg = new BigIntSquareRootAlgorithm();
             var bigIntSquareRoot = bigIntegerSquareRootAlg.Run(86467898987098776);
@@ -641,6 +657,22 @@
             var temp = quadraticSieve.Run(13459, 200, 100);
             Console.WriteLine("[{0},{1}]", temp.Item1, temp.Item2);
 
+            var eulerFunction = new EulerTotFuncAlg<int>(
+                new IntegerSquareRootAlgorithm(),
+                new PrimeNumbersIteratorFactory(),
+                integerDomain);
+            Console.WriteLine(eulerFunction.Run(1937));
+
+            var perfectPowerAlgotithm = new IntPerfectPowerTestAlg(
+                new PrimeNumbersIteratorFactory());
+            for (int i = 0; i <= 100; ++i)
+            {
+                if (perfectPowerAlgotithm.Run(i))
+                {
+                    Console.WriteLine(i);
+                }
+            }
+
             var aksPrimalityTest = new AksPrimalityTest();
             var n = 13459;
             for (int i = 1; i < 100; ++i)
@@ -655,13 +687,9 @@
                 }
             }
 
-            var eulerFunction = new EulerTotFuncAlg<int>(
-                new IntegerSquareRootAlgorithm(),
-                new PrimeNumbersIteratorFactory(),
+            var pollardRhoAlg = new PollardRhoAlgorithm<int>(
+                new ModularIntegerFieldFactory(),
                 integerDomain);
-            Console.WriteLine(eulerFunction.Run(1937));
-
-            var pollardRhoAlg = new PollardRhoAlgorithm();
             //n = 38;
             var pollardResult = pollardRhoAlg.Run(n);
             var pollardBlockedResult = pollardRhoAlg.Run(n, 10);
@@ -669,7 +697,7 @@
             Console.WriteLine("[{0}, {1}]", pollardBlockedResult.Item1, pollardBlockedResult.Item2);
 
             Console.WriteLine(MathFunctions.Power(2, 6, new IntegerDomain()));
-            var legendreJacobiAlg = new LegendreJacobiSymbolAlgorithm();
+            var legendreJacobiAlg = new LegendreJacobiSymbolAlgorithm<int>(integerDomain);
             Console.WriteLine(legendreJacobiAlg.Run(12345, 331));
             Console.WriteLine(legendreJacobiAlg.Run(13, 44));
 
@@ -677,18 +705,10 @@
             Console.WriteLine(PrintVector(resSol.Run(10, 13)));
             Console.WriteLine(PrintVector(resSol.Run(17, 47)));
 
-            var perfectPowerAlgotithm = new PerfectPowerTestAlgorithm(
-                new PrimeNumbersIteratorFactory());
-            for (int i = 0; i <= 100; ++i)
-            {
-                if (perfectPowerAlgotithm.Run(i))
-                {
-                    Console.WriteLine(i);
-                }
-            }
-
             Console.WriteLine("E agora sobre os números grandes.");
-            var bigintegerPerfeectPowAlg = new BigIntPerfectPowerTestAlg(new BigIntegerPrimeNumbersIteratorFactory());
+            var bigintegerPerfeectPowAlg = new BigIntPerfectPowerTestAlg(
+                new GenericIntegerNthRootAlgorithm<BigInteger>(new BigIntegerDomain()),
+                new BigIntegerPrimeNumbersIteratorFactory());
             for (int i = 0; i <= 100; ++i)
             {
                 if (bigintegerPerfeectPowAlg.Run(i))
@@ -697,7 +717,7 @@
                 }
             }
 
-            var primeNumberEnumerator = new PrimeNumbersIterator(100);
+            var primeNumberEnumerator = new IntPrimeNumbersIterator(100);
             foreach (var primeNumber in primeNumberEnumerator)
             {
                 Console.WriteLine(primeNumber);

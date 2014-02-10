@@ -10,14 +10,32 @@
     /// </summary>
     public class EulerTotFuncAlg<NumberType> : IAlgorithm<NumberType, NumberType>
     {
+        /// <summary>
+        /// Mantém o objecto responsável pelas operações sobre números inteiros.
+        /// </summary>
         private IIntegerNumber<NumberType> integerNumber;
 
+        /// <summary>
+        /// A fábrica de enumeardores de números primos.
+        /// </summary>
         IPrimeNumberIteratorFactory<NumberType> primeNumberFactory;
 
-        private IAlgorithm<NumberType, NumberType> squareNumberAlgorithm;
+        /// <summary>
+        /// Algoritmo que permite calcular a raiz quadrada.
+        /// </summary>
+        private IAlgorithm<NumberType, NumberType> squareRootAlgorithm;
 
+        /// <summary>
+        /// Obtém uma instância do algorimo orientado para o cálculo da função totient.
+        /// </summary>
+        /// <param name="squareRootAlgorithm">O algoritmo responsável pela extracção de raízes quadradas.</param>
+        /// <param name="primeNumberFactory">
+        /// A fábrica responsável pela instanciação de um iterador para números
+        /// primos.
+        /// </param>
+        /// <param name="integerNumber">O objecto responsável pelas operações sobre inteiros.</param>
         public EulerTotFuncAlg(
-            IAlgorithm<NumberType, NumberType> squareNumberAlgorithm,
+            IAlgorithm<NumberType, NumberType> squareRootAlgorithm,
             IPrimeNumberIteratorFactory<NumberType> primeNumberFactory,
             IIntegerNumber<NumberType> integerNumber)
         {
@@ -29,7 +47,7 @@
             {
                 throw new ArgumentNullException("primeNumberFactory");
             }
-            else if (squareNumberAlgorithm == null)
+            else if (squareRootAlgorithm == null)
             {
                 throw new ArgumentNullException("squareNumberAlgorithm");
             }
@@ -37,7 +55,7 @@
             {
                 this.integerNumber = integerNumber;
                 this.primeNumberFactory = primeNumberFactory;
-                this.squareNumberAlgorithm = squareNumberAlgorithm;
+                this.squareRootAlgorithm = squareRootAlgorithm;
             }
         }
 
@@ -70,7 +88,7 @@
                     }
 
                     var result = this.integerNumber.MapFrom(1);
-                    var sqrt = this.squareNumberAlgorithm.Run(innerData);
+                    var sqrt = this.squareRootAlgorithm.Run(innerData);
                     var primeNumbersIterator = this.primeNumberFactory.CreatePrimeNumberIterator(sqrt);
                     foreach (var prime in primeNumbersIterator)
                     {

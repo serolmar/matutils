@@ -8,7 +8,7 @@
     /// <summary>
     /// Permite calcular a raiz quadrada inteira de um número sem recorrer à livraria de matemática.
     /// </summary>
-    public class CordicIntSquareRootAlgorithm : IAlgorithm<int,int>
+    public class IntCordicSquareRootAlgorithm : IAlgorithm<int, int>
     {
         /// <summary>
         /// Calcula a raiz quadrada inteira de um número.

@@ -4,35 +4,61 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
-    using PolType = UnivariatePolynomialNormalForm<int>;
 
     /// <summary>
     /// Implementa o algoritmo rho de Pollard para factorizar um número.
     /// </summary>
-    public class PollardRhoAlgorithm :
-        IAlgorithm<int, Tuple<int, int>>, IAlgorithm<int, int, Tuple<int, int>>
+    public class PollardRhoAlgorithm<NumberType> :
+        IAlgorithm<NumberType, Tuple<NumberType, NumberType>>,
+        IAlgorithm<NumberType, NumberType, Tuple<NumberType, NumberType>>
     {
         /// <summary>
         /// Mantém uma lista de polinómios a serem considerados no algoritmo.
         /// </summary>
-        private List<PolType> polynomialsList;
+        private List<UnivariatePolynomialNormalForm<NumberType>> polynomialsList;
 
         /// <summary>
         /// O domínio responsável pelas operações sobre os números inteiros.
         /// </summary>
-        private IntegerDomain integerDomain = new IntegerDomain();
+        private IIntegerNumber<NumberType> integerNumber;
+
+        /// <summary>
+        /// Permite criar instâncias de um corpo modular.
+        /// </summary>
+        private IModularFieldFactory<NumberType> modularFieldFactory;
 
         /// <summary>
         /// O valor inicial para a execução do algoritmo.
         /// </summary>
-        private int startValue = 19;
+        private NumberType startValue;
 
-        public PollardRhoAlgorithm()
+        /// <summary>
+        /// Permite criar uma instância dum objecto responsável pela obtenção de factores de um número.
+        /// </summary>
+        /// <param name="modularFieldFactory">O objecto responsável pelas operações modulares.</param>
+        /// <param name="integerDomain">O objecto responsável pelas operações sobre números inteiros.</param>
+        public PollardRhoAlgorithm(
+            IModularFieldFactory<NumberType> modularFieldFactory,
+            IIntegerNumber<NumberType> integerNumber)
         {
-            this.SetupPolynomialList();
+            if (integerNumber == null)
+            {
+                throw new ArgumentNullException("integerNumber");
+            }
+            else if (modularFieldFactory == null)
+            {
+                throw new ArgumentNullException("modularFieldFactory");
+            }
+            else
+            {
+                this.integerNumber = integerNumber;
+                this.modularFieldFactory = modularFieldFactory;
+                this.startValue = this.integerNumber.MapFrom(19);
+                this.SetupPolynomialList();
+            }
         }
 
-        public PollardRhoAlgorithm(List<PolType> testPolynomials)
+        public PollardRhoAlgorithm(List<UnivariatePolynomialNormalForm<NumberType>> testPolynomials)
         {
             if (testPolynomials == null || testPolynomials.Count == 0)
             {
@@ -40,7 +66,7 @@
             }
             else
             {
-                this.polynomialsList = new List<PolType>();
+                this.polynomialsList = new List<UnivariatePolynomialNormalForm<NumberType>>();
                 this.polynomialsList.AddRange(testPolynomials);
             }
         }
@@ -48,7 +74,7 @@
         /// <summary>
         /// Obtém e atribui o valor inicial para o algoritmo.
         /// </summary>
-        public int StartValue
+        public NumberType StartValue
         {
             get
             {
@@ -70,52 +96,57 @@
         /// </remarks>
         /// <param name="number">O número especificado.</param>
         /// <returns>A decomposição do produto.</returns>
-        public Tuple<int, int> Run(int number)
+        public Tuple<NumberType, NumberType> Run(NumberType number)
         {
-            var innerNumber = Math.Abs(number);
-            if (innerNumber == 0)
+            var innerNumber = this.integerNumber.GetNorm(number);
+            if (this.integerNumber.IsAdditiveUnity(innerNumber))
             {
                 throw new MathematicsException("Zero has no factors.");
             }
-            else if (innerNumber == 1)
+            else if (this.integerNumber.IsMultiplicativeUnity(innerNumber))
             {
-                return Tuple.Create(1, 1);
+                return Tuple.Create(
+                    this.integerNumber.MultiplicativeUnity,
+                    this.integerNumber.MultiplicativeUnity);
             }
             else
             {
-                var modularRing = new ModularIntegerField(number);
+                var modularRing = this.modularFieldFactory.CreateInstance(number);
                 var innerStartValue = modularRing.GetReduced(this.startValue);
-                
+
                 foreach (var polynomial in this.polynomialsList)
                 {
                     var firstSequenceValue = modularRing.GetReduced(this.startValue);
                     var secondSequenceValue = modularRing.GetReduced(this.startValue);
-                    var gcd = 1;
+                    var gcd = this.integerNumber.MultiplicativeUnity;
                     do
                     {
                         firstSequenceValue = polynomial.Replace(firstSequenceValue, modularRing);
                         var secondSequenceTemp = polynomial.Replace(secondSequenceValue, modularRing);
                         secondSequenceValue = polynomial.Replace(secondSequenceTemp, modularRing);
-                        if (firstSequenceValue == secondSequenceValue)
+                        if (this.integerNumber.Equals(firstSequenceValue , secondSequenceValue))
                         {
-                            gcd = 0;
+                            gcd = this.integerNumber.AdditiveUnity;
                         }
                         else
                         {
                             gcd = MathFunctions.GreatCommonDivisor(
                                 innerNumber,
-                                Math.Abs(firstSequenceValue - secondSequenceValue),
-                                this.integerDomain);
+                                this.integerNumber.GetNorm(
+                                this.integerNumber.Add(
+                                firstSequenceValue,
+                                this.integerNumber.AdditiveInverse(secondSequenceValue))),
+                                this.integerNumber);
                         }
-                    } while (gcd == 1);
+                    } while (this.integerNumber.IsMultiplicativeUnity(gcd));
 
-                    if (gcd != 0)
+                    if (!this.integerNumber.IsAdditiveUnity(gcd))
                     {
-                        return Tuple.Create(gcd, innerNumber / gcd);
+                        return Tuple.Create(gcd, this.integerNumber.Quo(innerNumber, gcd));
                     }
                 }
 
-                return Tuple.Create(innerNumber, 1);
+                return Tuple.Create(innerNumber, this.integerNumber.MultiplicativeUnity);
             }
         }
 
@@ -133,90 +164,99 @@
         /// máximo divisor comum.
         /// </param>
         /// <returns>A decomposição do número em factores.</returns>
-        public Tuple<int, int> Run(int number, int block)
+        public Tuple<NumberType, NumberType> Run(NumberType number, NumberType block)
         {
-            var innerNumber = Math.Abs(number);
-            if (block <= 0)
+            var innerNumber = this.integerNumber.GetNorm(number);
+            if (this.integerNumber.Compare(block, this.integerNumber.AdditiveUnity) <= 0)
             {
                 throw new ArgumentException("Blocks number must be a positive integer.");
             }
-            else if (innerNumber == 0)
+            else if (this.integerNumber.IsAdditiveUnity(innerNumber))
             {
                 throw new MathematicsException("Zero has no factors.");
             }
-            else if (innerNumber == 1)
+            else if (this.integerNumber.IsMultiplicativeUnity(innerNumber))
             {
-                return Tuple.Create(1, 1);
+                return Tuple.Create(
+                    this.integerNumber.MultiplicativeUnity,
+                    this.integerNumber.MultiplicativeUnity);
             }
             else
             {
-                var modularRing = new ModularIntegerField(number);
+                var modularRing = this.modularFieldFactory.CreateInstance(innerNumber);
                 var innerStartValue = modularRing.GetReduced(this.startValue);
 
                 foreach (var polynomial in this.polynomialsList)
                 {
                     var firstSequenceValue = modularRing.GetReduced(this.startValue);
                     var secondSequenceValue = modularRing.GetReduced(this.startValue);
-                    var gcd = 1;
+                    var gcd = this.integerNumber.MultiplicativeUnity;
                     do
                     {
                         var initialFirstSequence = firstSequenceValue;
                         var initialSecondSequence = secondSequenceValue;
-                        var blocksNumber = 0;
-                        var blockProduct = 1;
-                        while (blocksNumber < block && blockProduct != 0)
+                        var blocksNumber = this.integerNumber.AdditiveUnity;
+                        var blockProduct = this.integerNumber.MultiplicativeUnity;
+                        while (this.integerNumber.Compare(blocksNumber,block )<0 && 
+                            !this.integerNumber.IsAdditiveUnity(blockProduct ))
                         {
                             firstSequenceValue = polynomial.Replace(firstSequenceValue, modularRing);
                             var secondSequenceTemp = polynomial.Replace(secondSequenceValue, modularRing);
                             secondSequenceValue = polynomial.Replace(secondSequenceTemp, modularRing);
-                            blockProduct = (blockProduct * Math.Abs(firstSequenceValue - secondSequenceValue)) %
-                                innerNumber;
-                            ++blocksNumber;
+                            var temp = this.integerNumber.GetNorm(
+                                this.integerNumber.Add(
+                                firstSequenceValue,
+                                this.integerNumber.AdditiveInverse(secondSequenceValue)));
+                            blockProduct = modularRing.Multiply(blockProduct, temp);
+                            blocksNumber = this.integerNumber.Successor(blocksNumber);
                         }
 
-                        if (blockProduct == 0)
+                        if (this.integerNumber.IsAdditiveUnity(blockProduct))
                         {
-                            gcd = 0;
+                            gcd = this.integerNumber.AdditiveUnity;
                         }
                         else
                         {
-                            gcd = MathFunctions.GreatCommonDivisor(blockProduct, innerNumber, this.integerDomain);
+                            gcd = MathFunctions.GreatCommonDivisor(blockProduct, innerNumber, this.integerNumber);
                         }
 
-                        if (gcd == 0)
+                        if (this.integerNumber.IsAdditiveUnity(gcd))
                         {
-                            gcd = 1;
-                            while (initialFirstSequence != firstSequenceValue &&
-                                initialSecondSequence != secondSequenceValue &&
-                                gcd == 1)
+                            gcd = this.integerNumber.MultiplicativeUnity;
+                            while (!this.integerNumber.Equals(initialFirstSequence, firstSequenceValue) &&
+                                !this.integerNumber.Equals(initialSecondSequence, secondSequenceValue) &&
+                                this.integerNumber.IsMultiplicativeUnity(gcd))
                             {
                                 initialFirstSequence = polynomial.Replace(initialFirstSequence, modularRing);
                                 var secondSequenceTemp = polynomial.Replace(initialSecondSequence, modularRing);
                                 initialSecondSequence = polynomial.Replace(secondSequenceTemp, modularRing);
-                                if (initialFirstSequence == initialSecondSequence)
+                                if (this.integerNumber.Equals(initialFirstSequence , initialSecondSequence))
                                 {
-                                    gcd = 0;
+                                    gcd = this.integerNumber.AdditiveUnity;
                                 }
                                 else
                                 {
                                     gcd = MathFunctions.GreatCommonDivisor(
                                         innerNumber,
-                                        Math.Abs(initialFirstSequence - initialSecondSequence),
-                                        this.integerDomain);
+                                        this.integerNumber.GetNorm(
+                                            this.integerNumber.Add(
+                                                firstSequenceValue,
+                                                this.integerNumber.AdditiveInverse(secondSequenceValue))),
+                                        this.integerNumber);
                                 }
                             }
                         }
 
-                    } while (gcd == 1);
+                    } while (this.integerNumber.IsAdditiveUnity(gcd));
 
-                    if (gcd != innerNumber && gcd != 0)
+                    if (!this.integerNumber.Equals(gcd, innerNumber) && !this.integerNumber.IsAdditiveUnity(gcd))
                     {
-                        return Tuple.Create(gcd, innerNumber / gcd);
+                        return Tuple.Create(gcd, this.integerNumber.Quo(innerNumber, gcd));
                     }
                 }
             }
 
-            return Tuple.Create(innerNumber, 1);
+            return Tuple.Create(innerNumber, this.integerNumber.MultiplicativeUnity);
         }
 
         /// <summary>
@@ -224,9 +264,17 @@
         /// </summary>
         private void SetupPolynomialList()
         {
-            this.polynomialsList = new List<PolType>();
-            var polynomial = new PolType(1, 0, "x", this.integerDomain);
-            polynomial = polynomial.Add(new PolType(1, 2, "x", this.integerDomain),this.integerDomain);
+            this.polynomialsList = new List<UnivariatePolynomialNormalForm<NumberType>>();
+            var polynomial = new UnivariatePolynomialNormalForm<NumberType>(
+                this.integerNumber.MultiplicativeUnity,
+                0,
+                "x",
+                this.integerNumber);
+            polynomial = polynomial.Add(new UnivariatePolynomialNormalForm<NumberType>(
+                this.integerNumber.MultiplicativeUnity,
+                2,
+                "x",
+                this.integerNumber), this.integerNumber);
             this.polynomialsList.Add(polynomial);
         }
     }

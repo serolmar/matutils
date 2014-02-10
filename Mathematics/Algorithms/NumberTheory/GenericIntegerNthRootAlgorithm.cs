@@ -136,7 +136,9 @@
             result.Add(number);
             var p = this.integerNumber.Predecessor(number);
             var n = number;
-            do
+            var pred = this.integerNumber.Predecessor(number);
+            var count = this.integerNumber.MultiplicativeUnity;
+            while (this.integerNumber.Compare(count, pred) < 0)
             {
                 var num = this.integerNumber.Multiply(n, p);
                 var den = this.integerNumber.Successor(
@@ -144,7 +146,8 @@
                 n = this.integerNumber.Quo(num, den);
                 p = this.integerNumber.Predecessor(p);
                 result.Add(n);
-            } while (!this.integerNumber.Equals(n, number));
+                count = this.integerNumber.Successor(count);
+            }
 
             return result;
         }

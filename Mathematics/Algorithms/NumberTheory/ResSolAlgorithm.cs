@@ -29,7 +29,7 @@
         {
             if (legendreJacobiSymbAlg == null)
             {
-                this.legendreJacobiSymAlg = new LegendreJacobiSymbolAlgorithm();
+                this.legendreJacobiSymAlg = new LegendreJacobiSymbolAlgorithm<int>(new IntegerDomain());
             }
             else
             {
