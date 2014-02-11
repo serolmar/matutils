@@ -135,8 +135,8 @@
         /// <param name="pow">O expoente.</param>
         /// <param name="integerNumber">A classe que define as operações sobre números inteiros.</param>
         /// <returns>A potência do valor.</returns>
-        public static T Power<T, D>(T val, T pow, D integerNumber)
-            where D : IIntegerNumber<T>
+        public static T Power<T, Deg, D>(T val, Deg pow, D domain, IIntegerNumber<Deg> integerNumber)
+            where D : IRing<T>
         {
             if (integerNumber == null)
             {
@@ -148,7 +148,7 @@
             }
             else
             {
-                var result = integerNumber.MultiplicativeUnity;
+                var result = domain.MultiplicativeUnity;
                 var innerPow = pow;
                 var innerVal = val;
                 var two = integerNumber.Successor(integerNumber.MultiplicativeUnity);
@@ -157,11 +157,11 @@
                     var remQuo = integerNumber.GetQuotientAndRemainder(innerPow, two);
                     if (integerNumber.IsMultiplicativeUnity(remQuo.Remainder))
                     {
-                        result = integerNumber.Multiply(result, innerVal);
+                        result = domain.Multiply(result, innerVal);
                     }
 
                     innerPow = remQuo.Quotient;
-                    innerVal = integerNumber.Multiply(innerVal, innerVal);
+                    innerVal = domain.Multiply(innerVal, innerVal);
                 }
 
                 return result;

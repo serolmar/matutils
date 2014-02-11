@@ -60,7 +60,7 @@
 
                     // Cálculo da aproximação inicial da matriz
                     var r = two;
-                    var pr = MathFunctions.Power(two, index, this.integerNumber);
+                    var pr = MathFunctions.Power(two, index, this.integerNumber, this.integerNumber);
                     var sr = this.integerNumber.MultiplicativeUnity;
                     var spr = this.integerNumber.MultiplicativeUnity;
 

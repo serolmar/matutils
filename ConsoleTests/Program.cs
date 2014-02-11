@@ -701,7 +701,7 @@
             Console.WriteLine(legendreJacobiAlg.Run(12345, 331));
             Console.WriteLine(legendreJacobiAlg.Run(13, 44));
 
-            var resSol = new ResSolAlgorithm();
+            var resSol = new ResSolAlgorithm<int>(new ModularIntegerFieldFactory(), integerDomain);
             Console.WriteLine(PrintVector(resSol.Run(10, 13)));
             Console.WriteLine(PrintVector(resSol.Run(17, 47)));
 
