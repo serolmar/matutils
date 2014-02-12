@@ -38,6 +38,7 @@
             if (!polynomialRing.IsAdditiveUnity(status.EPol) &&
                 k < iterationsNumber)
             {
+                result = true;
                 do
                 {
                     var c = status.EPol.ApplyQuo(status.LiftedFactorizationModule, status.MainDomain);

@@ -9,7 +9,7 @@
     /// Implemneta o crivo sobre corpos quadráticos para determinar uma factorização para
     /// qualquer número.
     /// </summary>
-    public class QuadraticFieldSieve : IAlgorithm<int, int, int, Tuple<int, int>>
+    public class QuadraticFieldSieve<NumberType> : IAlgorithm<NumberType, int, int, Tuple<NumberType, NumberType>>
     {
         /// <summary>
         /// Algoritmo que permite resolver o sistema de equações.
@@ -20,7 +20,7 @@
         /// <summary>
         /// Permite criar instâncias do corpo modular.
         /// </summary>
-        private IModularFieldFactory<int> modularFieldFactory;
+        private IModularFieldFactory<NumberType> modularFieldFactory;
 
         /// <summary>
         /// Permite criar instâncias de iteradores para números primos positivos.
@@ -30,27 +30,50 @@
         /// <summary>
         /// Permite determinar a parte inteira da raiz quadrada.
         /// </summary>
-        IAlgorithm<int, int> integerSquareRootAlgorithm;
+        IAlgorithm<NumberType, NumberType> integerSquareRootAlgorithm;
 
         /// <summary>
         /// Permite efectuar as operações sobre os números inteiros.
         /// </summary>
-        IIntegerNumber<int> integerNumber;
+        IIntegerNumber<NumberType> integerNumber;
 
         /// <summary>
         /// O corpo responsável pelas operações módulo dois.
         /// </summary>
         private ModularIntegerField field;
 
-        public QuadraticFieldSieve()
+        public QuadraticFieldSieve(
+            IAlgorithm<NumberType, NumberType> integerSquareRootAlgorithm,
+            IModularFieldFactory<NumberType> modularFieldFactory,
+            IPrimeNumberIteratorFactory<int> primesIteratorFactory,
+            IIntegerNumber<NumberType> integerNumber)
         {
-            this.integerNumber = new IntegerDomain();
-            this.modularFieldFactory = new ModularIntegerFieldFactory();
-            this.field = new ModularIntegerField(this.integerNumber.MapFrom(2));
-            this.linearSystemAlgorithm = new DenseCondensationLinSysAlgorithm<int>(
-                this.field);
-            this.primesIteratorFactory = new PrimeNumbersIteratorFactory();
-            this.integerSquareRootAlgorithm = new IntegerSquareRootAlgorithm();
+            if (integerNumber == null)
+            {
+                throw new ArgumentNullException("integerNumber");
+            }
+            else if (primesIteratorFactory == null)
+            {
+                throw new ArgumentNullException("primesIteratorFactory");
+            }
+            else if (modularFieldFactory == null)
+            {
+                throw new ArgumentNullException("modularFieldFactory");
+            }
+            else if (integerSquareRootAlgorithm == null)
+            {
+                throw new ArgumentNullException("integerSquareRootAlgorithm");
+            }
+            else
+            {
+                this.integerNumber = integerNumber;
+                this.modularFieldFactory = modularFieldFactory;
+                this.field = new ModularIntegerField(2);
+                this.linearSystemAlgorithm = new DenseCondensationLinSysAlgorithm<int>(
+                    this.field);
+                this.primesIteratorFactory = primesIteratorFactory;
+                this.integerSquareRootAlgorithm = integerSquareRootAlgorithm;
+            }
         }
 
         /// <summary>
@@ -60,15 +83,15 @@
         /// <param name="factorBase">O limite máximo para os números primos da base.</param>
         /// <param name="sieveInterval">O intervalo sobre os quais são crivados os números.</param>
         /// <returns>A decomposição do número especificado num produto de dois factores.</returns>
-        public Tuple<int, int> Run(int data, int factorBase, int sieveInterval)
+        public Tuple<NumberType, NumberType> Run(NumberType data, int factorBase, int sieveInterval)
         {
             var innerData = this.integerNumber.GetNorm(data);
             var two = this.integerNumber.MapFrom(2);
-            if (this.integerNumber.Compare(factorBase, 2) < 0)
+            if (factorBase < 2)
             {
                 throw new ArgumentException("Factor base limit can't be less than two.");
             }
-            else if (this.integerNumber.Compare(sieveInterval, this.integerNumber.MultiplicativeUnity) < 0)
+            else if (sieveInterval < 1)
             {
                 throw new ArgumentException("Sieve interval can't be less than one.");
             }
@@ -86,10 +109,10 @@
             {
                 var primesList = new List<int>();
                 var primesIterator = this.primesIteratorFactory.CreatePrimeNumberIterator(factorBase);
-                var legendreAlgorithm = new LegendreJacobiSymbolAlgorithm<int>(this.integerNumber);
+                var legendreAlgorithm = new LegendreJacobiSymbolAlgorithm<NumberType>(this.integerNumber);
                 foreach (var prime in primesIterator)
                 {
-                    if (legendreAlgorithm.Run(innerData, prime) == 1)
+                    if (this.integerNumber.IsMultiplicativeUnity(legendreAlgorithm.Run(innerData, this.integerNumber.MapFrom(prime))))
                     {
                         primesList.Add(prime);
                     }
@@ -135,17 +158,17 @@
         /// <param name="primesList">A lista dos números primos da base.</param>
         /// <param name="innerData">O número que está a ser factorizado.</param>
         /// <returns>Os factores.</returns>
-        private Tuple<int, int> GetSolution(
+        private Tuple<NumberType, NumberType> GetSolution(
             LinearSystemSolution<int> solution,
             List<int[]> matrixList,
             List<int> primesList,
-            int innerData)
+            NumberType innerData)
         {
             var innerDataModularField = this.modularFieldFactory.CreateInstance(innerData);
             var countFactors = primesList.Count - 1;
             foreach (var solutionBase in solution.VectorSpaceBasis)
             {
-                var firstValue = 1;
+                var firstValue = this.integerNumber.MultiplicativeUnity;
                 var factorsCount = new Dictionary<int, int>();
                 for (int i = 0; i < matrixList.Count; ++i)
                 {
@@ -154,7 +177,7 @@
                     {
                         firstValue = innerDataModularField.Multiply(
                             firstValue,
-                            this.integerNumber.GetNorm(currentMatrixLine[currentMatrixLine.Length - 1]));
+                            this.integerNumber.GetNorm(this.integerNumber.MapFrom(currentMatrixLine[currentMatrixLine.Length - 1])));
 
                         for (int j = 0; j < countFactors; ++j)
                         {
@@ -175,11 +198,11 @@
                     }
                 }
 
-                var secondValue = 1;
+                var secondValue = this.integerNumber.MultiplicativeUnity;
                 foreach (var factorCountKvp in factorsCount)
                 {
                     var primePower = MathFunctions.Power(
-                        factorCountKvp.Key,
+                        this.integerNumber.MapFrom(factorCountKvp.Key),
                         factorCountKvp.Value / 2,
                         innerDataModularField);
 
@@ -188,11 +211,11 @@
                         primePower);
                 }
 
-                if (firstValue != secondValue)
+                if (!this.integerNumber.Equals(firstValue, secondValue))
                 {
                     var firstFactor = MathFunctions.GreatCommonDivisor(
                         innerData,
-                        Math.Abs(firstValue - secondValue),
+                        this.integerNumber.GetNorm(this.integerNumber.Add(firstValue, this.integerNumber.AdditiveInverse(secondValue))),
                         this.integerNumber);
                     if (!this.integerNumber.IsMultiplicativeUnity(firstFactor))
                     {
@@ -214,12 +237,12 @@
         /// <param name="primesList">A base de primos.</param>
         /// <returns>A matriz com o vector.</returns>
         private List<int[]> ComputeSieveStep(
-            int innerData,
-            int sqrt,
+            NumberType innerData,
+            NumberType sqrt,
             int sieveInterval,
             List<int> primesList)
         {
-            var innerSieveInterval = sieveInterval;
+            var innerSieveInterval = this.integerNumber.MapFrom(sieveInterval);
             var tempInterval = this.integerNumber.Add(
                 innerData,
                 this.integerNumber.AdditiveInverse(this.integerNumber.Successor(sqrt)));
@@ -238,21 +261,25 @@
                 matrixList.Add(new int[primesList.Count + 2]);
             }
 
-            var resSolAlg = new ResSolAlgorithm<int>(
-                this.modularFieldFactory, 
+            var resSolAlg = new ResSolAlgorithm<NumberType>(
+                this.modularFieldFactory,
                 this.integerNumber);
             for (int i = 1; i < primesList.Count; ++i)
             {
-                var currentPrime = primesList[i];
+                var currentPrime = this.integerNumber.MapFrom(primesList[i]);
                 var quadraticRes = resSolAlg.Run(innerData, currentPrime);
-                var firstRes = (quadraticRes[0] - sqrt) % currentPrime;
-                var secondRes = (quadraticRes[1] - sqrt) % currentPrime;
-                if ((firstRes - secondRes) % currentPrime == 0)
+                var symmSqrt = this.integerNumber.AdditiveInverse(sqrt);
+                var firstRes = this.integerNumber.Rem(this.integerNumber.Add(quadraticRes[0], symmSqrt), currentPrime);
+                var secondRes = this.integerNumber.Rem(this.integerNumber.Add(quadraticRes[1], symmSqrt), currentPrime);
+                var tempResult = this.integerNumber.AdditiveInverse(secondRes);
+                tempResult = this.integerNumber.Add(firstRes, tempResult);
+                tempResult = this.integerNumber.Rem(tempResult, currentPrime);
+                if (this.integerNumber.IsAdditiveUnity(tempResult))
                 {
                     // Apenas uma solução encontrada
                     this.SetupQuadResSolution(
-                        firstRes,
-                        currentPrime,
+                        this.integerNumber.ConvertToInt(firstRes),
+                        primesList[i],
                         i,
                         sieveInterval,
                         sieveValues,
@@ -262,16 +289,16 @@
                 {
                     // Duas soluções encontradas
                     this.SetupQuadResSolution(
-                        firstRes,
-                        currentPrime,
+                        this.integerNumber.ConvertToInt(firstRes),
+                        primesList[i],
                         i,
                         sieveInterval,
                         sieveValues,
                         matrixList);
 
                     this.SetupQuadResSolution(
-                        secondRes,
-                        currentPrime,
+                        this.integerNumber.ConvertToInt(secondRes),
+                        primesList[i],
                         i,
                         sieveInterval,
                         sieveValues,
@@ -282,11 +309,11 @@
             // Tratamento do número primo 2
             var two = this.integerNumber.MapFrom(2);
             var eight = this.integerNumber.MapFrom(8);
-            if (this.integerNumber.IsMultiplicativeUnity(this.integerNumber.Rem(innerData,eight)))
+            if (this.integerNumber.IsMultiplicativeUnity(this.integerNumber.Rem(innerData, eight)))
             {
                 var index = 0;
-                while (index < sieveValues.Length && 
-                    sieveValues[index] % 2 != 0)
+                while (index < sieveValues.Length &&
+                    !this.integerNumber.IsAdditiveUnity(this.integerNumber.Rem(sieveValues[index], two)))
                 {
                     ++index;
                 }
@@ -295,10 +322,12 @@
                 {
                     var factorValue = sieveValues[index];
                     var factorPower = 0;
-                    while (factorValue % 2 == 0)
+                    var remQuoResult = this.integerNumber.GetQuotientAndRemainder(factorValue, two);
+                    while (this.integerNumber.IsAdditiveUnity(remQuoResult.Remainder))
                     {
                         ++factorPower;
-                        factorValue = factorValue / 2;
+                        factorValue = remQuoResult.Quotient;
+                        remQuoResult = this.integerNumber.GetQuotientAndRemainder(factorValue, two);
                     }
 
                     sieveValues[index] = factorValue;
@@ -309,14 +338,15 @@
             else
             {
                 var index = 0;
-                while (index < sieveValues.Length && sieveValues[index] % 2 != 0)
+                while (index < sieveValues.Length &&
+                    !this.integerNumber.IsAdditiveUnity(this.integerNumber.Rem(sieveValues[index], two)))
                 {
                     ++index;
                 }
 
                 while (index < sieveValues.Length)
                 {
-                    var factorValue = sieveValues[index] / 2;
+                    var factorValue = this.integerNumber.Quo(sieveValues[index], two);
                     sieveValues[index] = factorValue;
                     matrixList[index][0] = 1;
                     index += 2;
@@ -327,7 +357,7 @@
             primesList.Add(-1);
             for (int i = 0; i < matrixList.Count; ++i)
             {
-                if (sieveValues[i] < 0)
+                if (this.integerNumber.Compare(sieveValues[i], this.integerNumber.AdditiveUnity) < 0)
                 {
                     var currentLine = matrixList[i];
                     currentLine[currentLine.Length - 2] = 1;
@@ -339,7 +369,8 @@
             for (int i = 0; i < sieveValues.Length; ++i)
             {
                 var currentSieveValue = sieveValues[i];
-                if (currentSieveValue == 1 || currentSieveValue == -1)
+                if (this.integerNumber.IsMultiplicativeUnity(currentSieveValue) ||
+                    this.integerNumber.IsMultiplicativeUnity(this.integerNumber.AdditiveInverse(currentSieveValue)))
                 {
                     var currentLine = matrixList[matrixIndex];
                     currentLine[currentLine.Length - 1] = sieve[i];
@@ -381,15 +412,19 @@
         /// <param name="sieveInterval">O intervalo do crivo.</param>
         /// <param name="sqrt">A raíz quadrada.</param>
         /// <returns>Os valores do crivo.</returns>
-        private int[] ComputeSieveValues(int innerData, int sieveInterval, int sqrt)
+        private NumberType[] ComputeSieveValues(NumberType innerData, int sieveInterval, NumberType sqrt)
         {
             var length = 2 * sieveInterval + 1;
-            var result = new int[2 * sieveInterval + 1];
+            var result = new NumberType[2 * sieveInterval + 1];
             result[sieveInterval] = sqrt;
             for (int i = 1; i <= sieveInterval; ++i)
             {
-                result[sieveInterval - i] = (sqrt - i) * (sqrt - i) - innerData;
-                result[sieveInterval + i] = (sqrt + i) * (sqrt + i) - innerData;
+                var plus = this.integerNumber.MapFrom(i);
+                var minus = this.integerNumber.MapFrom(-i);
+                var addition = this.integerNumber.Add(sqrt, plus);
+                var difference = this.integerNumber.Add(sqrt, minus);
+                result[sieveInterval - i] = this.integerNumber.Add(this.integerNumber.Multiply(difference, difference), this.integerNumber.AdditiveInverse(innerData));
+                result[sieveInterval + i] = this.integerNumber.Add(this.integerNumber.Multiply(addition, addition), this.integerNumber.AdditiveInverse(innerData));
             }
 
             return result;
@@ -409,10 +444,11 @@
             int currentPrime,
             int currentPrimeIndex,
             int sieveInterval,
-            int[] sieve,
+            NumberType[] sieve,
             List<int[]> matrix)
         {
             var innerSolution = solution - currentPrime;
+            var mappedPrime = this.integerNumber.MapFrom(currentPrime);
             if (solution < sieveInterval)
             {
                 while (innerSolution > -sieveInterval)
@@ -420,10 +456,12 @@
                     var index = innerSolution + sieveInterval;
                     var factorValue = sieve[index];
                     var factorPower = 0;
-                    while (factorValue % currentPrime == 0)
+                    var remQuoRes = this.integerNumber.GetQuotientAndRemainder(factorValue, mappedPrime);
+                    while (this.integerNumber.IsAdditiveUnity(remQuoRes.Remainder))
                     {
                         ++factorPower;
-                        factorValue = factorValue / currentPrime;
+                        factorValue = remQuoRes.Quotient;
+                        remQuoRes = this.integerNumber.GetQuotientAndRemainder(factorValue, mappedPrime);
                     }
 
                     sieve[index] = factorValue;
@@ -441,10 +479,12 @@
                     var index = innerSolution + sieveInterval;
                     var factorValue = sieve[index];
                     var factorPower = 0;
-                    while (factorValue % currentPrime == 0)
+                    var remQuoRes = this.integerNumber.GetQuotientAndRemainder(factorValue, mappedPrime);
+                    while (this.integerNumber.IsAdditiveUnity(remQuoRes.Remainder))
                     {
                         ++factorPower;
-                        factorValue = factorValue / currentPrime;
+                        factorValue = remQuoRes.Quotient;
+                        remQuoRes = this.integerNumber.GetQuotientAndRemainder(factorValue, mappedPrime);
                     }
 
                     sieve[index] = factorValue;

@@ -3,8 +3,8 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Text;
     using System.Numerics;
+    using System.Text;
 
     /// <summary>
     /// Permite definir formalmente um número natural a partir de um objecto que possa possuir essa propriedade.
@@ -38,5 +38,26 @@
         /// <param name="number">O número inteiro grande a ser mapeado.</param>
         /// <returns>O número inteiro mapeado.</returns>
         NumberType MapFrom(BigInteger number);
+
+        /// <summary>
+        /// Tenta converter o valor inteiro para o tipo <see cref="int"/>.
+        /// </summary>
+        /// <param name="number">O número a ser convertido.</param>
+        /// <returns>A representação do número como <see cref="int"/>.</returns>
+        int ConvertToInt(NumberType number);
+
+        /// <summary>
+        /// Tenta converter o valor inteiro para o tipo <see cref="long"/>.
+        /// </summary>
+        /// <param name="number">O número a ser convertido.</param>
+        /// <returns>A representação do número como <see cref="long"/>.</returns>
+        long ConvertToLong(NumberType number);
+
+        /// <summary>
+        /// Tenta converter o valor inteiro para o tipo <see cref="BigInteger"/>.
+        /// </summary>
+        /// <param name="number">O número a ser convertido.</param>
+        /// <returns>A representação do número como <see cref="BigInteger"/>.</returns>
+        BigInteger ConvertToBigInteger(NumberType number);
     }
 }

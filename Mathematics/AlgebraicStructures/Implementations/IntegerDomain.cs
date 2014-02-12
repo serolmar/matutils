@@ -1,10 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Mathematics
+﻿namespace Mathematics
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Numerics;
+    using System.Text;
+
     /// <summary>
     /// Permite representar as operações sobre o subconjunto dos números inteiros representáveis por uma
     /// variável do tipo inteiro.
@@ -175,6 +176,21 @@ namespace Mathematics
         public int Compare(int x, int y)
         {
             return Comparer<int>.Default.Compare(x, y);
+        }
+
+        public int ConvertToInt(int number)
+        {
+            return number;
+        }
+
+        public long ConvertToLong(int number)
+        {
+            return number;
+        }
+
+        public BigInteger ConvertToBigInteger(int number)
+        {
+            return number;
         }
     }
 }

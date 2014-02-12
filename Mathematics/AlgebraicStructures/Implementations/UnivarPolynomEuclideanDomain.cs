@@ -21,12 +21,12 @@
         public UnivarPolynomEuclideanDomain(string variableName, IField<CoeffType> field)
             : base(variableName, field)
         {
+            this.field = field;
             this.unit = new UnivariatePolynomialNormalForm<CoeffType>(
                      this.field.MultiplicativeUnity,
                      1,
                      this.variableName,
                      this.field);
-            this.field = field;
         }
 
         /// <summary>

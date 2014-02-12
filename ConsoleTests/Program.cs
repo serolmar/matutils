@@ -21,7 +21,7 @@
 
         static void Main(string[] args)
         {
-            Test13();
+            Test20();
             Console.ReadLine();
         }
 
@@ -152,7 +152,7 @@
                 // Instancia o algoritmo responsável pela elevação multi-factor.
                 var multiFactorLiftAlg = new MultiFactorLiftAlgorithm<int>(new LinearLiftAlgorithm<int>());
                 var factored = finiteFieldFactorizationAlg.Run(polynom, integerModularField, new IntegerDomain());
-                var liftedFactors = new Dictionary<int, List<UnivariatePolynomialNormalForm<int>>>();
+                var liftedFactors = new Dictionary<int, IList<UnivariatePolynomialNormalForm<int>>>();
                 foreach (var factorKvp in factored)
                 {
                     var multiLiftStatus = new MultiFactorLiftingStatus<int>(
@@ -161,7 +161,8 @@
                         integerModularField,
                         integerDomain);
                     var liftResult = multiFactorLiftAlg.Run(multiLiftStatus, 5);
-                    liftedFactors.Add(factorKvp.Key, liftResult);
+                    Console.WriteLine("Módulo {0}.", liftResult.LiftingPrime);
+                    liftedFactors.Add(factorKvp.Key, liftResult.Factors);
                 }
 
                 // Imprime os resultados para a consola.
@@ -653,7 +654,11 @@
             var sqrtRes = generalRoot.Run(rootIndex, radicandValue);
             Console.WriteLine("A raiz de indice {0} de {1} vale {2}.", rootIndex, radicandValue, sqrtRes);
 
-            var quadraticSieve = new QuadraticFieldSieve();
+            var quadraticSieve = new QuadraticFieldSieve<int>(
+                new IntegerSquareRootAlgorithm(),
+                new ModularIntegerFieldFactory(),
+                new PrimeNumbersIteratorFactory(),
+                integerDomain);
             var temp = quadraticSieve.Run(13459, 200, 100);
             Console.WriteLine("[{0},{1}]", temp.Item1, temp.Item2);
 

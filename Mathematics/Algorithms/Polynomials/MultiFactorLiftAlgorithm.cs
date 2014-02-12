@@ -12,7 +12,7 @@
     public class MultiFactorLiftAlgorithm<CoeffType> : IAlgorithm<
         MultiFactorLiftingStatus<CoeffType>,
         int,
-        List<UnivariatePolynomialNormalForm<CoeffType>>>
+        MultiFactorLiftingResult<CoeffType>>
     {
         private IAlgorithm<LinearLiftingStatus<CoeffType>, int, bool> linearLiftAlg;
 
@@ -34,7 +34,7 @@
         /// <param name="multiFactorLiftingStatus">O estado do levantamento multifactor actual.</param>
         /// <param name="numberOfIterations">O número de iterações a ser efectuado.</param>
         /// <returns>A lista com os factores.</returns>
-        public List<UnivariatePolynomialNormalForm<CoeffType>> Run(
+        public MultiFactorLiftingResult<CoeffType> Run(
             MultiFactorLiftingStatus<CoeffType> multiFactorLiftingStatus,
             int numberOfIterations)
         {
@@ -50,13 +50,16 @@
                 // Não existem factores suficientes para elevar
                 var result = new List<UnivariatePolynomialNormalForm<CoeffType>>();
                 result.AddRange(multiFactorLiftingStatus.Factors);
-                return result;
+                return new MultiFactorLiftingResult<CoeffType>(
+                    multiFactorLiftingStatus.Polynom,
+                    result, 
+                    multiFactorLiftingStatus.LiftedFactorizationModule);
             }
             else
             {
                 // A árvore contém factores para elevar
                 var factorQueue = new Queue<TreeNode<LinearLiftingStatus<CoeffType>>>();
-
+                var factorPrime = multiFactorLiftingStatus.LiftedFactorizationModule;
                 for (int i = 0; i < numberOfIterations; ++i)
                 {
                     factorQueue.Enqueue(factorTree.InternalRootNode);
@@ -65,7 +68,11 @@
                         var dequeued = factorQueue.Dequeue();
                         if (dequeued.Count == 2)
                         {
-                            this.linearLiftAlg.Run(dequeued.NodeObject, 1);
+                            if (this.linearLiftAlg.Run(dequeued.NodeObject, 1))
+                            {
+                                factorPrime = dequeued.NodeObject.LiftedFactorizationModule;
+                            }
+
                             var solution = dequeued.NodeObject.GetSolution();
                             var firstChild = dequeued.ChildsList[0];
                             var secondChild = dequeued.ChildsList[1];
@@ -100,8 +107,11 @@
                     }
                 }
 
-                return treeSolution;
-            }
+                return new MultiFactorLiftingResult<CoeffType>(
+                    multiFactorLiftingStatus.Polynom,
+                    treeSolution, 
+                    factorPrime);
+            } 
         }
 
         /// <summary>

@@ -137,5 +137,20 @@
         {
             return Comparer<BigInteger>.Default.Compare(x, y);
         }
+
+        public int ConvertToInt(BigInteger number)
+        {
+            return (int)number;
+        }
+
+        public long ConvertToLong(BigInteger number)
+        {
+            return (long)number;
+        }
+
+        public BigInteger ConvertToBigInteger(BigInteger number)
+        {
+            return number;
+        }
     }
 }
