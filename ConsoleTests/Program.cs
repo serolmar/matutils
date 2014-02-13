@@ -103,7 +103,7 @@
         {
             // Leitura do polinómio
             var polynomialReader = new IntegerPolynomialReader();
-            var polynom = polynomialReader.Read("x^3-1");
+            var polynom = polynomialReader.Read("2*x^3-1");
 
             // Instanciação dos algoritmos
             var resultantAlg = new UnivarPolDeterminantResultantAlg<int>(new IntegerDomain());

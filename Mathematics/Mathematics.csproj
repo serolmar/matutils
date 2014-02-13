@@ -236,6 +236,7 @@
     <Compile Include="Algorithms\Polynomials\MultiFactorLiftingResult.cs" />
     <Compile Include="Algorithms\Polynomials\MultiFactorLiftingStatus.cs" />
     <Compile Include="Algorithms\Polynomials\SearchFactorizationAlgorithm.cs" />
+    <Compile Include="Algorithms\Polynomials\SearchFactorizationResult.cs" />
     <Compile Include="Algorithms\Polynomials\UnivarPolDeterminantResultantAlg.cs" />
     <Compile Include="Algorithms\Polynomials\UnivarPolSubResultantAlg.cs" />
     <Compile Include="Algorithms\Polynomials\UnivarSquareFreeDecomposition.cs" />
