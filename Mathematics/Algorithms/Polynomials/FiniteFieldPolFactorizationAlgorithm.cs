@@ -13,13 +13,13 @@
         : IAlgorithm<UnivariatePolynomialNormalForm<CoeffType>, 
         IModularField<CoeffType>, 
         IEuclidenDomain<CoeffType>,
-        Dictionary<CoeffType, List<UnivariatePolynomialNormalForm<CoeffType>>>>
+        Dictionary<int, List<UnivariatePolynomialNormalForm<CoeffType>>>>
     {
         /// <summary>
         /// O algoritmo que permite obter a factorização em polinómios livres de quadrados.
         /// </summary>
         IAlgorithm<UnivariatePolynomialNormalForm<Fraction<CoeffType, IEuclidenDomain<CoeffType>>>, 
-            IField<Fraction<CoeffType, IEuclidenDomain<CoeffType>>>, Dictionary<CoeffType, UnivariatePolynomialNormalForm<Fraction<CoeffType, IEuclidenDomain<CoeffType>>>>> 
+            IField<Fraction<CoeffType, IEuclidenDomain<CoeffType>>>, Dictionary<int, UnivariatePolynomialNormalForm<Fraction<CoeffType, IEuclidenDomain<CoeffType>>>>> 
         squareFreeFactorizationAlg;
 
         /// <summary>
@@ -31,7 +31,8 @@
 
         public FiniteFieldPolFactorizationAlgorithm(
             IAlgorithm<UnivariatePolynomialNormalForm<Fraction<CoeffType, IEuclidenDomain<CoeffType>>>, 
-            IField<Fraction<CoeffType, IEuclidenDomain<CoeffType>>>, Dictionary<CoeffType, UnivariatePolynomialNormalForm<Fraction<CoeffType, IEuclidenDomain<CoeffType>>>>> squareFreeFactorizationAlg,
+            IField<Fraction<CoeffType, IEuclidenDomain<CoeffType>>>, 
+            Dictionary<int, UnivariatePolynomialNormalForm<Fraction<CoeffType, IEuclidenDomain<CoeffType>>>>> squareFreeFactorizationAlg,
             IConversion<int, CoeffType> integerConversion,
             IAlgorithm<IMatrix<CoeffType>, IMatrix<CoeffType>, LinearSystemSolution<CoeffType>> linearSystemSolver)
         {
@@ -64,12 +65,12 @@
         /// <returns>
         /// O dicionário que contém cada um dos factores e o respectivo grau.
         /// </returns>
-        public Dictionary<CoeffType, List<UnivariatePolynomialNormalForm<CoeffType>>> Run(
+        public Dictionary<int, List<UnivariatePolynomialNormalForm<CoeffType>>> Run(
             UnivariatePolynomialNormalForm<CoeffType> polynom, 
             IModularField<CoeffType> modularField,
             IEuclidenDomain<CoeffType> coeffsDomain)
         {
-            var result = new Dictionary<CoeffType, List<UnivariatePolynomialNormalForm<CoeffType>>>();
+            var result = new Dictionary<int, List<UnivariatePolynomialNormalForm<CoeffType>>>();
 
             var fractionField = new FractionField<CoeffType, IEuclidenDomain<CoeffType>>(coeffsDomain);
             var polynomDomain = new UnivarPolynomEuclideanDomain<CoeffType>(

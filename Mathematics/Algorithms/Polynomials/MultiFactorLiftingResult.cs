@@ -21,17 +21,32 @@
         private List<UnivariatePolynomialNormalForm<CoeffType>> factors;
 
         /// <summary>
+        /// O corpo modular associado ao número primo original.
+        /// </summary>
+        private IModularField<CoeffType> modularField;
+
+        /// <summary>
+        /// O domínio polinomial baseado no corpo modular.
+        /// </summary>
+        private UnivarPolynomEuclideanDomain<CoeffType> modularPolynomialDomain;
+
+        /// <summary>
         /// O número primo ao qual os factores foram elevados.
         /// </summary>
-        private CoeffType liftingPrime;
+        private CoeffType liftingPrimePower;
 
         internal MultiFactorLiftingResult(
             UnivariatePolynomialNormalForm<CoeffType> polynom,
             List<UnivariatePolynomialNormalForm<CoeffType>> factors,
-            CoeffType liftingPrime)
+            CoeffType liftingPrimePower,
+            IModularField<CoeffType> modularField,
+            UnivarPolynomEuclideanDomain<CoeffType> modularPolynomialDomain)
         {
+            this.polynom = polynom;
             this.factors = factors;
-            this.liftingPrime = liftingPrime;
+            this.liftingPrimePower = liftingPrimePower;
+            this.modularField = modularField;
+            this.modularPolynomialDomain = modularPolynomialDomain;
         }
 
         /// <summary>
@@ -59,11 +74,32 @@
         /// <summary>
         /// Obtém o primo módulo o qual os factores foram elevados.
         /// </summary>
-        public CoeffType LiftingPrime
+        public CoeffType LiftingPrimePower
         {
             get
             {
-                return this.liftingPrime;
+                return this.liftingPrimePower;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o corpo modular associado ao número primo original.
+        /// </summary>
+        public IModularField<CoeffType> ModularField
+        {
+            get
+            {
+                return this.modularField;
+            }
+        }
+        /// <summary>
+        /// Obtém o domínio polinomial baseado no corpo modular.
+        /// </summary>
+        public UnivarPolynomEuclideanDomain<CoeffType> ModularPolynomialDomain
+        {
+            get
+            {
+                return this.modularPolynomialDomain;
             }
         }
     }

@@ -103,16 +103,24 @@
                 var bezoutResult = this.inverseAlgorithm.Run(this.module, innerNumber);
                 if (bezoutResult.GreatestCommonDivisor == 1)
                 {
-                    return -bezoutResult.SecondFactor;
+                    var result = bezoutResult.SecondFactor;
+                    if (result < 0)
+                    {
+                        result += this.module;
+                    }
+
+                    return result;
                 }
                 else
                 {
-                    throw new MathematicsException(string.Format("Number {0} mod {1} has no inverse.", number, this.module));
+                    throw new MathematicsException(
+                        string.Format("Number {0} mod {1} has no inverse.", number, this.module));
                 }
             }
             else
             {
-                throw new MathematicsException(string.Format("Number {0} mod {1} has no inverse.", number, this.module));
+                throw new MathematicsException(
+                    string.Format("Number {0} mod {1} has no inverse.", number, this.module));
             }
         }
 

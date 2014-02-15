@@ -102,21 +102,21 @@
         public static void Test20()
         {
             // Leitura do polinómio
-            var polynomialReader = new IntegerPolynomialReader();
-            var polynom = polynomialReader.Read("2*x^3-1");
+            var polynomialReader = new BigIntegerPolynomialReader();
+            var polynom = polynomialReader.Read("2*x^4+8*x^3+17*x^2+18*x+4");
 
             // Instanciação dos algoritmos
-            var resultantAlg = new UnivarPolDeterminantResultantAlg<int>(new IntegerDomain());
-            var primesGenerator = new IntPrimeNumbersIterator(int.MaxValue);
+            var resultantAlg = new UnivarPolDeterminantResultantAlg<BigInteger>(new BigIntegerDomain());
+            var primesGenerator = new BigIntPrimeNumbsIterator(int.MaxValue);
 
             // Obtém o valor do coeficiente principal e do discriminante.
-            var integerDomain = new IntegerDomain();
+            var integerDomain = new BigIntegerDomain();
             var leadingCoeff = polynom.GetLeadingCoefficient(integerDomain);
             var discriminant = resultantAlg.Run(
                 polynom,
                 polynom.GetPolynomialDerivative(integerDomain));
             var primesEnumerator = primesGenerator.GetEnumerator();
-            var prime = 1;
+            var prime = integerDomain.MultiplicativeUnity;
             var state = true;
             while (state)
             {
@@ -141,28 +141,33 @@
             if (prime > 1)
             {
                 // Realiza a factorização.
-                var integerModularField = new ModularIntegerField(prime);
+                var integerModularField = new ModularBigIntegerField(prime);
 
                 // Instancia o algoritmo responsável pela factorização sobre corpos finitos.
-                var finiteFieldFactorizationAlg = new FiniteFieldPolFactorizationAlgorithm<int>(
-                    new UnivarSquareFreeDecomposition<Fraction<int, IEuclidenDomain<int>>>(),
-                    new ElementToElementConversion<int>(),
-                    new DenseCondensationLinSysAlgorithm<int>(integerModularField));
+                var finiteFieldFactorizationAlg = new FiniteFieldPolFactorizationAlgorithm<BigInteger>(
+                    new UnivarSquareFreeDecomposition<Fraction<BigInteger, IEuclidenDomain<BigInteger>>>(),
+                    new BigIntegerToIntegerConversion(),
+                    new DenseCondensationLinSysAlgorithm<BigInteger>(integerModularField));
 
                 // Instancia o algoritmo responsável pela elevação multi-factor.
-                var multiFactorLiftAlg = new MultiFactorLiftAlgorithm<int>(new LinearLiftAlgorithm<int>());
-                var factored = finiteFieldFactorizationAlg.Run(polynom, integerModularField, new IntegerDomain());
-                var liftedFactors = new Dictionary<int, IList<UnivariatePolynomialNormalForm<int>>>();
+                var multiFactorLiftAlg = new MultiFactorLiftAlgorithm<BigInteger>(
+                    new LinearLiftAlgorithm<BigInteger>());
+                var factored = finiteFieldFactorizationAlg.Run(polynom, integerModularField, integerDomain);
+                var liftedFactors = new Dictionary<BigInteger, IList<UnivariatePolynomialNormalForm<BigInteger>>>();
                 foreach (var factorKvp in factored)
                 {
-                    var multiLiftStatus = new MultiFactorLiftingStatus<int>(
+                    var multiLiftStatus = new MultiFactorLiftingStatus<BigInteger>(
                         polynom,
                         factorKvp.Value,
                         integerModularField,
                         integerDomain);
                     var liftResult = multiFactorLiftAlg.Run(multiLiftStatus, 5);
-                    Console.WriteLine("Módulo {0}.", liftResult.LiftingPrime);
+                    Console.WriteLine("Módulo {0}.", liftResult.LiftingPrimePower);
                     liftedFactors.Add(factorKvp.Key, liftResult.Factors);
+
+                    // Teste à fase de pesquisa
+                    var searchAlgorithm = new SearchFactorizationAlgorithm<BigInteger>(new BigIntegerDomain());
+                    var searchResult = searchAlgorithm.Run(liftResult, 10, 3);
                 }
 
                 // Imprime os resultados para a consola.

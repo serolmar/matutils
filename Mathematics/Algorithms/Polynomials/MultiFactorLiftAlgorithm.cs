@@ -39,79 +39,95 @@
             int numberOfIterations)
         {
             var constants = new List<UnivariatePolynomialNormalForm<CoeffType>>();
-            var factorTree = this.MountFactorTree(
-                multiFactorLiftingStatus.Factors,
-                multiFactorLiftingStatus.ModularField,
-                multiFactorLiftingStatus.MainDomain,
-                constants);
-            factorTree.InternalRootNode.NodeObject.Polynom = multiFactorLiftingStatus.Polynom;
-            if (factorTree == null)
+            if (multiFactorLiftingStatus.Factors.Count > 1)
             {
-                // Não existem factores suficientes para elevar
-                var result = new List<UnivariatePolynomialNormalForm<CoeffType>>();
-                result.AddRange(multiFactorLiftingStatus.Factors);
-                return new MultiFactorLiftingResult<CoeffType>(
-                    multiFactorLiftingStatus.Polynom,
-                    result, 
-                    multiFactorLiftingStatus.LiftedFactorizationModule);
+                var factorTree = this.MountFactorTree(
+                    multiFactorLiftingStatus.Factors,
+                    multiFactorLiftingStatus.ModularField,
+                    multiFactorLiftingStatus.MainDomain,
+                    constants);
+                factorTree.InternalRootNode.NodeObject.Polynom = multiFactorLiftingStatus.Polynom;
+                if (factorTree == null)
+                {
+                    // Não existem factores suficientes para elevar
+                    var result = new List<UnivariatePolynomialNormalForm<CoeffType>>();
+                    result.AddRange(multiFactorLiftingStatus.Factors);
+                    return new MultiFactorLiftingResult<CoeffType>(
+                        multiFactorLiftingStatus.Polynom,
+                        result,
+                        multiFactorLiftingStatus.LiftedFactorizationModule,
+                        multiFactorLiftingStatus.ModularField,
+                        multiFactorLiftingStatus.ModularPolynomialDomain);
+                }
+                else
+                {
+                    // A árvore contém factores para elevar
+                    var factorQueue = new Queue<TreeNode<LinearLiftingStatus<CoeffType>>>();
+                    var factorPrime = multiFactorLiftingStatus.LiftedFactorizationModule;
+                    for (int i = 0; i < numberOfIterations; ++i)
+                    {
+                        factorQueue.Enqueue(factorTree.InternalRootNode);
+                        while (factorQueue.Count > 0)
+                        {
+                            var dequeued = factorQueue.Dequeue();
+                            if (dequeued.Count == 2)
+                            {
+                                if (this.linearLiftAlg.Run(dequeued.NodeObject, 1))
+                                {
+                                    factorPrime = dequeued.NodeObject.LiftedFactorizationModule;
+                                }
+
+                                var solution = dequeued.NodeObject.GetSolution();
+                                var firstChild = dequeued.ChildsList[0];
+                                var secondChild = dequeued.ChildsList[1];
+                                firstChild.NodeObject.Polynom = solution.Item1;
+                                secondChild.NodeObject.Polynom = solution.Item2;
+                                factorQueue.Enqueue(firstChild);
+                                factorQueue.Enqueue(secondChild);
+                            }
+                        }
+                    }
+
+                    var mainDomain = multiFactorLiftingStatus.MainDomain;
+                    var treeSolution = this.GetSolutionFromTree(factorTree, mainDomain);
+                    if (treeSolution.Count > 0)
+                    {
+                        var firstFactor = treeSolution[0];
+                        if (firstFactor.IsValue)
+                        {
+                            for (int i = 0; i < constants.Count; ++i)
+                            {
+                                firstFactor = firstFactor.Multiply(constants[i], mainDomain);
+                            }
+
+                            if (firstFactor.IsUnity(mainDomain))
+                            {
+                                treeSolution.RemoveAt(0);
+                            }
+                            else
+                            {
+                                treeSolution[0] = firstFactor;
+                            }
+                        }
+                    }
+
+                    return new MultiFactorLiftingResult<CoeffType>(
+                        multiFactorLiftingStatus.Polynom,
+                        treeSolution,
+                        factorPrime,
+                        multiFactorLiftingStatus.ModularField,
+                        multiFactorLiftingStatus.ModularPolynomialDomain);
+                }
             }
             else
             {
-                // A árvore contém factores para elevar
-                var factorQueue = new Queue<TreeNode<LinearLiftingStatus<CoeffType>>>();
-                var factorPrime = multiFactorLiftingStatus.LiftedFactorizationModule;
-                for (int i = 0; i < numberOfIterations; ++i)
-                {
-                    factorQueue.Enqueue(factorTree.InternalRootNode);
-                    while (factorQueue.Count > 0)
-                    {
-                        var dequeued = factorQueue.Dequeue();
-                        if (dequeued.Count == 2)
-                        {
-                            if (this.linearLiftAlg.Run(dequeued.NodeObject, 1))
-                            {
-                                factorPrime = dequeued.NodeObject.LiftedFactorizationModule;
-                            }
-
-                            var solution = dequeued.NodeObject.GetSolution();
-                            var firstChild = dequeued.ChildsList[0];
-                            var secondChild = dequeued.ChildsList[1];
-                            firstChild.NodeObject.Polynom = solution.Item1;
-                            secondChild.NodeObject.Polynom = solution.Item2;
-                            factorQueue.Enqueue(firstChild);
-                            factorQueue.Enqueue(secondChild);
-                        }
-                    }
-                }
-
-                var mainDomain = multiFactorLiftingStatus.MainDomain;
-                var treeSolution = this.GetSolutionFromTree(factorTree, mainDomain);
-                if (treeSolution.Count > 0)
-                {
-                    var firstFactor = treeSolution[0];
-                    if (firstFactor.IsValue)
-                    {
-                        for (int i = 0; i < constants.Count; ++i)
-                        {
-                            firstFactor = firstFactor.Multiply(constants[i], mainDomain);
-                        }
-
-                        if (firstFactor.IsUnity(mainDomain))
-                        {
-                            treeSolution.RemoveAt(0);
-                        }
-                        else
-                        {
-                            treeSolution[0] = firstFactor;
-                        }
-                    }
-                }
-
                 return new MultiFactorLiftingResult<CoeffType>(
                     multiFactorLiftingStatus.Polynom,
-                    treeSolution, 
-                    factorPrime);
-            } 
+                    multiFactorLiftingStatus.Factors,
+                    multiFactorLiftingStatus.LiftedFactorizationModule,
+                    multiFactorLiftingStatus.ModularField,
+                    multiFactorLiftingStatus.ModularPolynomialDomain);
+            }
         }
 
         /// <summary>

@@ -33,10 +33,12 @@
 
         internal SearchFactorizationResult(
             UnivariatePolynomialNormalForm<CoeffType> mainPolynomial,
-            List<UnivariatePolynomialNormalForm<CoeffType>> integerFactors)
+            List<UnivariatePolynomialNormalForm<CoeffType>> integerFactors,
+            List<UnivariatePolynomialNormalForm<CoeffType>> nonIntegerFactors)
         {
             this.mainPolynomial = mainPolynomial;
             this.integerFactors = integerFactors;
+            this.nonIntegerFactors = nonIntegerFactors;
         }
 
         /// <summary>

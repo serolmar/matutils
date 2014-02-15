@@ -115,12 +115,14 @@
                 }
                 else
                 {
-                    throw new MathematicsException(string.Format("Number {0} mod {1} has no inverse.", number, this.module));
+                    throw new MathematicsException(
+                        string.Format("Number {0} mod {1} has no inverse.", number, this.module));
                 }
             }
             else
             {
-                throw new MathematicsException(string.Format("Number {0} mod {1} has no inverse.", number, this.module));
+                throw new MathematicsException(
+                    string.Format("Number {0} mod {1} has no inverse.", number, this.module));
             }
         }
 
