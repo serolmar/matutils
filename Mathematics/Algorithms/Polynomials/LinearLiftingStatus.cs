@@ -451,5 +451,10 @@
                 return Tuple.Create(uFactor, wFactor);
             }
         }
+
+        public override string ToString()
+        {
+            return this.polynom.ToString();
+        }
     }
 }

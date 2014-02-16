@@ -142,18 +142,27 @@
                 }
             }
 
-            var factorsProduct = result[0].GetLeadingCoefficient(integerModule);
-            for (int i = 1; i < result.Count; ++i)
+            for (int i = 0; i < result.Count; ++i)
             {
                 var leadingMon = result[i].GetLeadingCoefficient(integerModule);
-                factorsProduct = integerModule.Multiply(factorsProduct, leadingMon);
+                if (!integerModule.IsMultiplicativeUnity(leadingMon))
+                {
+                    var invLeadingMon = integerModule.MultiplicativeInverse(leadingMon);
+                    result[i] = result[i].ApplyFunction(
+                        c=>integerModule.Multiply(c, invLeadingMon), 
+                        integerModule);
+                }
             }
 
-            if (!integerModule.IsMultiplicativeUnity(factorsProduct))
-            {
-                factorsProduct = integerModule.MultiplicativeInverse(factorsProduct);
-                result.Insert(0, new UnivariatePolynomialNormalForm<CoeffType>(factorsProduct, 0, polynom.VariableName, integerModule));
-            }
+            //if (!integerModule.IsMultiplicativeUnity(factorsProduct))
+            //{
+            //    factorsProduct = integerModule.MultiplicativeInverse(factorsProduct);
+            //    result.Insert(0, new UnivariatePolynomialNormalForm<CoeffType>(
+            //        factorsProduct, 
+            //        0, 
+            //        polynom.VariableName, 
+            //        integerModule));
+            //}
 
             return result;
         }

@@ -52,7 +52,7 @@
             else
             {
                 var halfPrime = this.integerNumber.Quo(
-                    liftedFactorization.ModularField.Module,
+                    liftedFactorization.LiftingPrimePower,
                     this.integerNumber.MapFrom(2));
 
                 var modularFactors = new List<UnivariatePolynomialNormalForm<CoeffType>>();
@@ -61,7 +61,7 @@
                     if (liftedFactor.Degree != 0)
                     {
                         modularFactors.Add(liftedFactor.ApplyFunction(
-                            c => this.GetSymmetricRemainder(c, liftedFactorization.ModularField.Module, halfPrime),
+                            c => this.GetSymmetricRemainder(c, liftedFactorization.LiftingPrimePower, halfPrime),
                             this.integerNumber));
                     }
                 }
@@ -138,7 +138,7 @@
                 {
                     if (state == 0)
                     {
-                        if (productStack.Count == currentCombinationNumber)
+                        if (pointers.Count == currentCombinationNumber)
                         {
                             var topPointer = pointers.Pop();
                             var topPol = productStack.Pop();

@@ -161,13 +161,13 @@
                         factorKvp.Value,
                         integerModularField,
                         integerDomain);
-                    var liftResult = multiFactorLiftAlg.Run(multiLiftStatus, 5);
+                    var liftResult = multiFactorLiftAlg.Run(multiLiftStatus, 4);
                     Console.WriteLine("Módulo {0}.", liftResult.LiftingPrimePower);
                     liftedFactors.Add(factorKvp.Key, liftResult.Factors);
 
                     // Teste à fase de pesquisa
                     var searchAlgorithm = new SearchFactorizationAlgorithm<BigInteger>(new BigIntegerDomain());
-                    var searchResult = searchAlgorithm.Run(liftResult, 10, 3);
+                    var searchResult = searchAlgorithm.Run(liftResult, 1288, 3);
                 }
 
                 // Imprime os resultados para a consola.

@@ -226,6 +226,18 @@ namespace Mathematics
             }
         }
 
+        public override string ToString()
+        {
+            if (this.nodeObject == null)
+            {
+                return "null";
+            }
+            else
+            {
+                return this.nodeObject.ToString();
+            }
+        }
+
         internal void Add(TreeNode<NodeObjectType> node)
         {
             this.childs.Add(node);
