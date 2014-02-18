@@ -101,8 +101,24 @@
         /// </summary>
         public static void Test20()
         {
+            var integerDomain = new BigIntegerDomain();
+
             // Leitura do polinómio
             var polynomialReader = new BigIntegerPolynomialReader();
+            var testPol = polynomialReader.Read("x^3+10*x^2-432*x+5040");
+            var firstFactor = polynomialReader.Read("x");
+            var secondFactor = polynomialReader.Read("x^2-2");
+            var modIntField = new ModularBigIntegerField(5);
+            var liftInput = new LinearLiftingStatus<BigInteger>(
+                testPol,
+                firstFactor,
+                secondFactor,
+                modIntField,
+                integerDomain);
+            var liftAlg = new LinearLiftAlgorithm<BigInteger>();
+            var liftAlgRes = liftAlg.Run(liftInput, 1);
+            var liftSol = liftInput.GetSolution();
+
             var polynom = polynomialReader.Read("2*x^4+8*x^3+17*x^2+18*x+4");
 
             // Instanciação dos algoritmos
@@ -110,7 +126,6 @@
             var primesGenerator = new BigIntPrimeNumbsIterator(int.MaxValue);
 
             // Obtém o valor do coeficiente principal e do discriminante.
-            var integerDomain = new BigIntegerDomain();
             var leadingCoeff = polynom.GetLeadingCoefficient(integerDomain);
             var discriminant = resultantAlg.Run(
                 polynom,
@@ -161,7 +176,7 @@
                         factorKvp.Value,
                         integerModularField,
                         integerDomain);
-                    var liftResult = multiFactorLiftAlg.Run(multiLiftStatus, 4);
+                    var liftResult = multiFactorLiftAlg.Run(multiLiftStatus, 1);
                     Console.WriteLine("Módulo {0}.", liftResult.LiftingPrimePower);
                     liftedFactors.Add(factorKvp.Key, liftResult.Factors);
 

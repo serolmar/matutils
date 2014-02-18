@@ -84,7 +84,7 @@
             var innerNumber = number % this.module;
             if (innerNumber < 0)
             {
-                innerNumber = this.module - innerNumber;
+                innerNumber = this.module + innerNumber;
             }
 
             return innerNumber;
@@ -97,7 +97,7 @@
             {
                 if (innerNumber < 0)
                 {
-                    innerNumber = this.module - innerNumber;
+                    innerNumber = this.module + innerNumber;
                 }
 
                 var bezoutResult = this.inverseAlgorithm.Run(this.module, innerNumber);

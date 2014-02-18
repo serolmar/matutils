@@ -47,7 +47,9 @@
                     var tauTild = polynomialDomain.Multiply(status.TPol, c).ApplyFunction(
                         coeff => status.ModularField.GetReduced(coeff), status.ModularField);
 
-                    var sigmaQuoRemResult = polynomialDomain.GetQuotientAndRemainder(sigmaTild, status.InnerW1Factor);
+                    var sigmaQuoRemResult = polynomialDomain.GetQuotientAndRemainder(
+                        sigmaTild, 
+                        status.InnerW1Factor);
 
                     var sigma = sigmaQuoRemResult.Remainder;
                     sigma = sigma.ApplyFunction(

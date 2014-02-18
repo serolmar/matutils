@@ -154,15 +154,16 @@
                 }
             }
 
-            //if (!integerModule.IsMultiplicativeUnity(factorsProduct))
-            //{
-            //    factorsProduct = integerModule.MultiplicativeInverse(factorsProduct);
-            //    result.Insert(0, new UnivariatePolynomialNormalForm<CoeffType>(
-            //        factorsProduct, 
-            //        0, 
-            //        polynom.VariableName, 
-            //        integerModule));
-            //}
+            var mainLeadingMon = polynom.GetLeadingCoefficient(integerModule);
+            if (!integerModule.IsMultiplicativeUnity(mainLeadingMon))
+            {
+                if (result.Count > 0)
+                {
+                    result[0] = result[0].ApplyFunction(
+                        c => integerModule.Multiply(c, mainLeadingMon),
+                        integerModule);
+                }
+            }
 
             return result;
         }
