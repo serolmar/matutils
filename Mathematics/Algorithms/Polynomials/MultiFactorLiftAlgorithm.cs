@@ -77,11 +77,10 @@
                                     factorPrime = dequeued.NodeObject.LiftedFactorizationModule;
                                 }
 
-                                var solution = dequeued.NodeObject.GetSolution();
                                 var firstChild = dequeued.ChildsList[0];
                                 var secondChild = dequeued.ChildsList[1];
-                                firstChild.NodeObject.Polynom = solution.Item1;
-                                secondChild.NodeObject.Polynom = solution.Item2;
+                                firstChild.NodeObject.Polynom = dequeued.NodeObject.UFactor;
+                                secondChild.NodeObject.Polynom = dequeued.NodeObject.WFactor;
                                 factorQueue.Enqueue(firstChild);
                                 factorQueue.Enqueue(secondChild);
                             }
@@ -154,7 +153,7 @@
                 else
                 {
                     currentNodes.Add(new TreeNode<LinearLiftingStatus<CoeffType>>(
-                        new LinearLiftingStatus<CoeffType>(factor, modularField, mainDomain),
+                        new LinearLiftingStatus<CoeffType>(factor, modularField.Module),
                         tree,
                         null));
                 }
@@ -185,8 +184,7 @@
                                 product,
                                 first.NodeObject.Polynom,
                                 second.NodeObject.Polynom,
-                                modularField,
-                                mainDomain);
+                                modularField.Module);
                             parentNode = new TreeNode<LinearLiftingStatus<CoeffType>>(
                                 liftingStatus,
                                 tree,

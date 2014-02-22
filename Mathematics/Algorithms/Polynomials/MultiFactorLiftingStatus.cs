@@ -86,7 +86,10 @@
                 this.mainPolynomialRing = new UnivarPolynomRing<CoeffType>(
                     polynom.VariableName,
                     mainDomain);
-                this.linearLiftAlgorithm = new LinearLiftAlgorithm<int>();
+                this.linearLiftAlgorithm = new LinearLiftAlgorithm<int>(
+                    new ModularIntegerFieldFactory(),
+                    new UnivarPolEuclideanDomainFactory<int>(),
+                    new IntegerDomain());
             }
         }
 

@@ -20,11 +20,6 @@
         private UnivariatePolynomialNormalForm<CoeffType> polynom;
 
         /// <summary>
-        /// A representação interna do polinómio após a inicialização.
-        /// </summary>
-        private UnivariatePolynomialNormalForm<CoeffType> innerPolynom;
-
-        /// <summary>
         /// Contém o valor de e(x).
         /// </summary>
         private UnivariatePolynomialNormalForm<CoeffType> ePol;
@@ -45,19 +40,9 @@
         private UnivariatePolynomialNormalForm<CoeffType> u1Factor;
 
         /// <summary>
-        /// Contém o valor de u1(x) após a inicialização.
-        /// </summary>
-        private UnivariatePolynomialNormalForm<CoeffType> innerU1Factor;
-
-        /// <summary>
         /// Contém o valor de w1(x).
         /// </summary>
         private UnivariatePolynomialNormalForm<CoeffType> w1Factor;
-
-        /// <summary>
-        /// Contém o valor de w1(x) após a inicialização.
-        /// </summary>
-        private UnivariatePolynomialNormalForm<CoeffType> innerW1Factor;
 
         /// <summary>
         /// Contém o valor de s(x).
@@ -70,46 +55,25 @@
         private UnivariatePolynomialNormalForm<CoeffType> tPol;
 
         /// <summary>
-        /// O corpo modular no qual é conhecida a factorização a levantar.
-        /// </summary>
-        private IModularField<CoeffType> modularField;
-
-        /// <summary>
-        /// O domínio responsável pela determinação de quocientes e restos sobre os coeficentes.
-        /// </summary>
-        private IEuclidenDomain<CoeffType> mainDomain;
-
-        /// <summary>
-        /// O domínio polinomial baseado no corpo modular.
-        /// </summary>
-        private UnivarPolynomEuclideanDomain<CoeffType> modularPolynomialDomain;
-
-        /// <summary>
-        /// O anel polinomial baseado no anel principal.
-        /// </summary>
-        private UnivarPolynomRing<CoeffType> mainPolynomialRing;
-
-        /// <summary>
         /// Coném o módulo associado à solução actual.
         /// </summary>
         private CoeffType liftFactorizationModule;
-
-        /// <summary>
-        /// Contém o valor de gama.
-        /// </summary>
-        private CoeffType gamma;
 
         /// <summary>
         /// Contém o valor que indica se o objecto já foi inicializado.
         /// </summary>
         private bool notInitialized;
 
+        /// <summary>
+        /// Valor que indica se os factores encontrados constituem uma solução inteira.
+        /// </summary>
+        private bool foundSolution;
+
         public LinearLiftingStatus(
             UnivariatePolynomialNormalForm<CoeffType> polynom,
             UnivariatePolynomialNormalForm<CoeffType> firstFactor,
             UnivariatePolynomialNormalForm<CoeffType> secondFactor,
-            IModularField<CoeffType> modularField,
-            IEuclidenDomain<CoeffType> mainDomain)
+            CoeffType liftFactorizationModule)
         {
             if (polynom == null)
             {
@@ -123,48 +87,27 @@
             {
                 throw new ArgumentNullException("secondFactor");
             }
-            else if (modularField == null)
+            else if (liftFactorizationModule == null)
             {
-                throw new ArgumentNullException("modularField");
-            }
-            else if (mainDomain == null)
-            {
-                throw new ArgumentNullException("mainDomain");
+                throw new ArgumentNullException("liftFactorizationModule");
             }
             else
             {
                 this.polynom = polynom;
                 this.u1Factor = firstFactor;
                 this.w1Factor = secondFactor;
-                this.modularField = modularField;
-                this.mainDomain = mainDomain;
-                this.liftFactorizationModule = modularField.Module;
-                this.modularPolynomialDomain = new UnivarPolynomEuclideanDomain<CoeffType>(
-                    polynom.VariableName,
-                    modularField);
-                this.mainPolynomialRing = new UnivarPolynomRing<CoeffType>(
-                    polynom.VariableName,
-                    mainDomain);
+                this.liftFactorizationModule = liftFactorizationModule;
                 this.notInitialized = true;
             }
         }
 
         internal LinearLiftingStatus(
             UnivariatePolynomialNormalForm<CoeffType> polynom,
-            IModularField<CoeffType> modularField,
-            IEuclidenDomain<CoeffType> mainDomain)
+            CoeffType liftFactorizationModule)
         {
             this.polynom = polynom;
-            this.modularField = modularField;
-            this.mainDomain = mainDomain;
-            this.liftFactorizationModule = modularField.Module;
-            this.modularPolynomialDomain = new UnivarPolynomEuclideanDomain<CoeffType>(
-                polynom.VariableName,
-                modularField);
-            this.mainPolynomialRing = new UnivarPolynomRing<CoeffType>(
-                polynom.VariableName,
-                mainDomain);
             this.notInitialized = true;
+            this.liftFactorizationModule = liftFactorizationModule;
         }
 
         /// <summary>
@@ -213,46 +156,17 @@
         }
 
         /// <summary>
-        /// Obtém o corpo modular no qual é conhecida a factorização a levantar.
+        /// Obtém o valor que indica se os factores correspondem a uma solução real.
         /// </summary>
-        public IModularField<CoeffType> ModularField
+        public bool FoundSolution
         {
             get
             {
-                return this.modularField;
+                return this.foundSolution;
             }
-        }
-
-        /// <summary>
-        /// Obtém o domínio responsável pela determinação de quocientes e restos sobre os coeficentes.
-        /// </summary>
-        public IEuclidenDomain<CoeffType> MainDomain
-        {
-            get
+            internal set
             {
-                return this.mainDomain;
-            }
-        }
-
-        /// <summary>
-        /// Obtém o domínio polinomial baseado no corpo modular.
-        /// </summary>
-        public UnivarPolynomEuclideanDomain<CoeffType> ModularPolynomialDomain
-        {
-            get
-            {
-                return this.modularPolynomialDomain;
-            }
-        }
-
-        /// <summary>
-        /// Obtém o anel polinomial baseado no anel principal.
-        /// </summary>
-        public UnivarPolynomRing<CoeffType> MainPolynomialRing
-        {
-            get
-            {
-                return this.mainPolynomialRing;
+                this.foundSolution = value;
             }
         }
 
@@ -268,32 +182,6 @@
             internal set
             {
                 this.liftFactorizationModule = value;
-            }
-        }
-
-        /// <summary>
-        /// Obtém um valor que determina se a solução encontrada é válida para o polinómio em questão.
-        /// </summary>
-        public bool ProveSolution
-        {
-            get
-            {
-                return this.mainPolynomialRing.IsAdditiveUnity(this.ePol);
-            }
-        }
-
-        /// <summary>
-        /// Obtém e atribui o polinómio obtido após a inicialização.
-        /// </summary>
-        internal UnivariatePolynomialNormalForm<CoeffType> InnerPolynom
-        {
-            get
-            {
-                return this.innerPolynom;
-            }
-            set
-            {
-                this.innerPolynom = value;
             }
         }
 
@@ -373,51 +261,6 @@
         }
 
         /// <summary>
-        /// Obtém e atribui o polinómio u1(x) apóes a inicialização.
-        /// </summary>
-        internal UnivariatePolynomialNormalForm<CoeffType> InnerU1Factor
-        {
-            get
-            {
-                return this.innerU1Factor;
-            }
-            set
-            {
-                this.innerU1Factor = value;
-            }
-        }
-
-        /// <summary>
-        /// Obtém e atribui o polinómio w1(x) após a inicialização.
-        /// </summary>
-        internal UnivariatePolynomialNormalForm<CoeffType> InnerW1Factor
-        {
-            get
-            {
-                return this.innerW1Factor;
-            }
-            set
-            {
-                this.innerW1Factor = value;
-            }
-        }
-
-        /// <summary>
-        /// Obtém o valor de gama.
-        /// </summary>
-        internal CoeffType Gamma
-        {
-            get
-            {
-                return this.gamma;
-            }
-            set
-            {
-                this.gamma = value;
-            }
-        }
-
-        /// <summary>
         /// Obtém e atribui o valor que indica se o objecto já foi inicializado.
         /// </summary>
         internal bool NotInitialized
@@ -429,26 +272,6 @@
             set
             {
                 this.notInitialized = value;
-            }
-        }
-
-        /// <summary>
-        /// Obtém a solução a partir do objecto de estado.
-        /// </summary>
-        /// <returns>O par ordenado com a respectiva factorização.</returns>
-        public Tuple<UnivariatePolynomialNormalForm<CoeffType>, UnivariatePolynomialNormalForm<CoeffType>> GetSolution()
-        {
-            if (this.notInitialized)
-            {
-                return Tuple.Create(this.u1Factor, this.w1Factor);
-            }
-            else
-            {
-                var delta = this.uFactor.GetContent(this.mainDomain);
-                var uResultFactor = this.uFactor.ApplyQuo(delta, this.mainDomain);
-                var quo = this.mainDomain.Quo(this.gamma, delta);
-                var wResultFactor = this.wFactor.ApplyQuo(quo, this.mainDomain);
-                return Tuple.Create(uFactor, wFactor);
             }
         }
 

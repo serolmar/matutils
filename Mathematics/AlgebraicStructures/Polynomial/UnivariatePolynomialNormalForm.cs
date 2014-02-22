@@ -750,7 +750,7 @@ namespace Mathematics
                                         result.terms[totalDegree] = sumCoeff;
                                     }
                                 }
-                                else
+                                else if (!ring.IsAdditiveUnity(totalCoeff))
                                 {
                                     result.terms.Add(totalDegree, totalCoeff);
                                 }

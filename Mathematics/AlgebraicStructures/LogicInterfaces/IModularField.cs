@@ -11,9 +11,9 @@
     public interface IModularField<ModuleType> : IField<ModuleType>
     {
         /// <summary>
-        /// Obtém o módulo.
+        /// Obtém e atribui o módulo.
         /// </summary>
-        ModuleType Module { get; }
+        ModuleType Module { get; set; }
 
         /// <summary>
         /// Obtém a forma reduzida do elemento especificado.

@@ -105,21 +105,20 @@
 
             // Leitura do polinómio
             var polynomialReader = new BigIntegerPolynomialReader();
-            var testPol = polynomialReader.Read("x^3+10*x^2-432*x+5040");
-            var firstFactor = polynomialReader.Read("x");
-            var secondFactor = polynomialReader.Read("x^2-2");
-            var modIntField = new ModularBigIntegerField(5);
-            var liftInput = new LinearLiftingStatus<BigInteger>(
-                testPol,
-                firstFactor,
-                secondFactor,
-                modIntField,
-                integerDomain);
-            var liftAlg = new LinearLiftAlgorithm<BigInteger>();
-            var liftAlgRes = liftAlg.Run(liftInput, 1);
-            var liftSol = liftInput.GetSolution();
+            //var testPol = polynomialReader.Read("x^3+10*x^2-432*x+5040");
+            //var firstFactor = polynomialReader.Read("x");
+            //var secondFactor = polynomialReader.Read("x^2-2");
+            //var modIntField = new ModularSymmetricBigIntField(5);
+            //var liftInput = new LinearLiftingStatus<BigInteger>(
+            //    testPol,
+            //    firstFactor,
+            //    secondFactor,
+            //    modIntField,
+            //    integerDomain);
+            //var liftAlg = new LinearLiftAlgorithm<BigInteger>();
+            //var liftAlgRes = liftAlg.Run(liftInput, 10);
 
-            var polynom = polynomialReader.Read("2*x^4+8*x^3+17*x^2+18*x+4");
+            var polynom = polynomialReader.Read("x^4-2*x^3-11*x^2+4*x+3");
 
             // Instanciação dos algoritmos
             var resultantAlg = new UnivarPolDeterminantResultantAlg<BigInteger>(new BigIntegerDomain());
@@ -152,11 +151,14 @@
                 }
             }
 
+            // Temporário
+            prime = 3;
+
             // Neste ponto estamos em condições de tentar factorizar o polinómio.
             if (prime > 1)
             {
                 // Realiza a factorização.
-                var integerModularField = new ModularBigIntegerField(prime);
+                var integerModularField = new ModularSymmetricBigIntField(prime);
 
                 // Instancia o algoritmo responsável pela factorização sobre corpos finitos.
                 var finiteFieldFactorizationAlg = new FiniteFieldPolFactorizationAlgorithm<BigInteger>(
@@ -166,7 +168,10 @@
 
                 // Instancia o algoritmo responsável pela elevação multi-factor.
                 var multiFactorLiftAlg = new MultiFactorLiftAlgorithm<BigInteger>(
-                    new LinearLiftAlgorithm<BigInteger>());
+                    new LinearLiftAlgorithm<BigInteger>(
+                        new ModularSymmetricBigIntFieldFactory(),
+                        new UnivarPolEuclideanDomainFactory<BigInteger>(),
+                        integerDomain));
                 var factored = finiteFieldFactorizationAlg.Run(polynom, integerModularField, integerDomain);
                 var liftedFactors = new Dictionary<BigInteger, IList<UnivariatePolynomialNormalForm<BigInteger>>>();
                 foreach (var factorKvp in factored)
@@ -176,7 +181,7 @@
                         factorKvp.Value,
                         integerModularField,
                         integerDomain);
-                    var liftResult = multiFactorLiftAlg.Run(multiLiftStatus, 1);
+                    var liftResult = multiFactorLiftAlg.Run(multiLiftStatus, 2);
                     Console.WriteLine("Módulo {0}.", liftResult.LiftingPrimePower);
                     liftedFactors.Add(factorKvp.Key, liftResult.Factors);
 
@@ -676,7 +681,7 @@
 
             var quadraticSieve = new QuadraticFieldSieve<int>(
                 new IntegerSquareRootAlgorithm(),
-                new ModularIntegerFieldFactory(),
+                new ModularSymmetricIntFieldFactory(),
                 new PrimeNumbersIteratorFactory(),
                 integerDomain);
             var temp = quadraticSieve.Run(13459, 200, 100);
@@ -1001,15 +1006,16 @@
                         conversion,
                         out thirdPol))
                     {
-                        var lifting = new LinearLiftAlgorithm<int>();
+                        var lifting = new LinearLiftAlgorithm<int>(
+                            new ModularIntegerFieldFactory(),
+                            new UnivarPolEuclideanDomainFactory<int>(),
+                            integerDomain);
                         var status = new LinearLiftingStatus<int>(
                             firstPol,
                             secondPol,
                             thirdPol,
-                            integerModularField,
-                            integerDomain);
+                            integerModularField.Module);
                         var liftingResult = lifting.Run(status, 10);
-                        var solution = status.GetSolution();
                         //status.ep
                     }
                 }
