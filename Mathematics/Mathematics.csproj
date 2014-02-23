@@ -233,6 +233,7 @@
     <Compile Include="Algorithms\NumberTheory\Integer\IntPrimeNumbersIterator.cs" />
     <Compile Include="Algorithms\NumberTheory\QuadraticFieldSieve.cs" />
     <Compile Include="Algorithms\NumberTheory\ResSolAlgorithm.cs" />
+    <Compile Include="Algorithms\Polynomials\FiniteFieldFactorizationResult.cs" />
     <Compile Include="Algorithms\Polynomials\FiniteFieldPolFactorizationAlgorithm.cs" />
     <Compile Include="Algorithms\Polynomials\LinearLiftAlgorithm.cs" />
     <Compile Include="Algorithms\Polynomials\LinearLiftingStatus.cs" />

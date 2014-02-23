@@ -13,7 +13,7 @@
         : IAlgorithm<UnivariatePolynomialNormalForm<CoeffType>, 
         IModularField<CoeffType>, 
         IEuclidenDomain<CoeffType>,
-        Dictionary<int, List<UnivariatePolynomialNormalForm<CoeffType>>>>
+        Dictionary<int, FiniteFieldFactorizationResult<CoeffType>>>
     {
         /// <summary>
         /// O algoritmo que permite obter a factorização em polinómios livres de quadrados.
@@ -65,12 +65,12 @@
         /// <returns>
         /// O dicionário que contém cada um dos factores e o respectivo grau.
         /// </returns>
-        public Dictionary<int, List<UnivariatePolynomialNormalForm<CoeffType>>> Run(
+        public Dictionary<int, FiniteFieldFactorizationResult<CoeffType>> Run(
             UnivariatePolynomialNormalForm<CoeffType> polynom, 
             IModularField<CoeffType> modularField,
             IEuclidenDomain<CoeffType> coeffsDomain)
         {
-            var result = new Dictionary<int, List<UnivariatePolynomialNormalForm<CoeffType>>>();
+            var result = new Dictionary<int, FiniteFieldFactorizationResult<CoeffType>>();
 
             var fractionField = new FractionField<CoeffType, IEuclidenDomain<CoeffType>>(coeffsDomain);
             var polynomDomain = new UnivarPolynomEuclideanDomain<CoeffType>(
@@ -88,9 +88,7 @@
             {
                 var clonedFactor = this.CloneInvPol(factorsKvp.Value, modularField);
                 var factored = this.Factorize(clonedFactor, modularField, polynomialField, bachetBezourAlg);
-                var squareFreeFactorsList = new List<UnivariatePolynomialNormalForm<CoeffType>>();
-                squareFreeFactorsList.AddRange(factored);
-                result.Add(factorsKvp.Key, squareFreeFactorsList);
+                result.Add(factorsKvp.Key, factored);
             }
 
             return result;
@@ -105,7 +103,7 @@
         /// <param name="polynomField">O corpo responsável pelo produto de polinómios.</param>
         /// <param name="bachetBezoutAlgorithm">O objecto responsável pelo algoritmo de máximo divisor comum.</param>
         /// <returns>A lista dos factores.</returns>
-        private List<UnivariatePolynomialNormalForm<CoeffType>> Factorize(
+        private FiniteFieldFactorizationResult<CoeffType> Factorize(
             UnivariatePolynomialNormalForm<CoeffType> polynom,
             IModularField<CoeffType> integerModule,
             UnivarPolynomEuclideanDomain<CoeffType> polynomField,
@@ -155,17 +153,7 @@
             }
 
             var mainLeadingMon = polynom.GetLeadingCoefficient(integerModule);
-            if (!integerModule.IsMultiplicativeUnity(mainLeadingMon))
-            {
-                if (result.Count > 0)
-                {
-                    result[0] = result[0].ApplyFunction(
-                        c => integerModule.Multiply(c, mainLeadingMon),
-                        integerModule);
-                }
-            }
-
-            return result;
+            return new FiniteFieldFactorizationResult<CoeffType>(mainLeadingMon, result);
         }
 
         /// <summary>

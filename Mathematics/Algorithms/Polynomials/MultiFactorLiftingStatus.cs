@@ -24,7 +24,7 @@
         /// <summary>
         /// Mantém a lista de factores módulo um número primo.
         /// </summary>
-        private List<UnivariatePolynomialNormalForm<CoeffType>> factors;
+        private FiniteFieldFactorizationResult<CoeffType> factorization;
 
         /// <summary>
         /// O corpo modular no qual é conhecida a factorização a levantar.
@@ -53,7 +53,7 @@
 
         public MultiFactorLiftingStatus(
             UnivariatePolynomialNormalForm<CoeffType> polynom,
-            List<UnivariatePolynomialNormalForm<CoeffType>> factors,
+            FiniteFieldFactorizationResult<CoeffType> factorization,
             IModularField<CoeffType> modularField,
             IEuclidenDomain<CoeffType> mainDomain)
         {
@@ -61,9 +61,9 @@
             {
                 throw new ArgumentNullException("polynom");
             }
-            else if (factors == null)
+            else if (factorization == null)
             {
-                throw new ArgumentNullException("factors");
+                throw new ArgumentNullException("factorization");
             }
             else if (modularField == null)
             {
@@ -76,7 +76,7 @@
             else
             {
                 this.polynom = polynom;
-                this.factors = factors;
+                this.factorization = factorization;
                 this.modularField = modularField;
                 this.mainDomain = mainDomain;
                 this.liftFactorizationModule = modularField.Module;
@@ -111,11 +111,11 @@
         /// <summary>
         /// Mantém a lista de factores módulo um número primo.
         /// </summary>
-        public List<UnivariatePolynomialNormalForm<CoeffType>> Factors
+        public FiniteFieldFactorizationResult<CoeffType> Factorization
         {
             get
             {
-                return this.factors;
+                return this.factorization;
             }
         }
 

@@ -39,10 +39,10 @@
             int numberOfIterations)
         {
             var constants = new List<UnivariatePolynomialNormalForm<CoeffType>>();
-            if (multiFactorLiftingStatus.Factors.Count > 1)
+            if (multiFactorLiftingStatus.Factorization.Factors.Count > 1)
             {
                 var factorTree = this.MountFactorTree(
-                    multiFactorLiftingStatus.Factors,
+                    multiFactorLiftingStatus.Factorization.Factors,
                     multiFactorLiftingStatus.ModularField,
                     multiFactorLiftingStatus.MainDomain,
                     constants);
@@ -51,7 +51,7 @@
                 {
                     // Não existem factores suficientes para elevar
                     var result = new List<UnivariatePolynomialNormalForm<CoeffType>>();
-                    result.AddRange(multiFactorLiftingStatus.Factors);
+                    result.AddRange(multiFactorLiftingStatus.Factorization.Factors);
                     return new MultiFactorLiftingResult<CoeffType>(
                         multiFactorLiftingStatus.Polynom,
                         result,
@@ -122,7 +122,7 @@
             {
                 return new MultiFactorLiftingResult<CoeffType>(
                     multiFactorLiftingStatus.Polynom,
-                    multiFactorLiftingStatus.Factors,
+                    multiFactorLiftingStatus.Factorization.Factors,
                     multiFactorLiftingStatus.LiftedFactorizationModule,
                     multiFactorLiftingStatus.ModularField,
                     multiFactorLiftingStatus.ModularPolynomialDomain);
@@ -137,7 +137,7 @@
         /// <param name="modularField">O corpo modular sobre o qual são efectuadas as operações.</param>
         /// <returns>A árvore.</returns>
         private Tree<LinearLiftingStatus<CoeffType>> MountFactorTree(
-            List<UnivariatePolynomialNormalForm<CoeffType>> factorsList,
+            IList<UnivariatePolynomialNormalForm<CoeffType>> factorsList,
             IModularField<CoeffType> modularField,
             IEuclidenDomain<CoeffType> mainDomain,
             List<UnivariatePolynomialNormalForm<CoeffType>> coefficientFactors)

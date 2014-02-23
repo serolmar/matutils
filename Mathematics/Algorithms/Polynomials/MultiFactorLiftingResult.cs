@@ -18,7 +18,7 @@
         /// <summary>
         /// O conjunto de factores.
         /// </summary>
-        private List<UnivariatePolynomialNormalForm<CoeffType>> factors;
+        private IList<UnivariatePolynomialNormalForm<CoeffType>> factors;
 
         /// <summary>
         /// O corpo modular associado ao número primo original.
@@ -37,7 +37,7 @@
 
         internal MultiFactorLiftingResult(
             UnivariatePolynomialNormalForm<CoeffType> polynom,
-            List<UnivariatePolynomialNormalForm<CoeffType>> factors,
+            IList<UnivariatePolynomialNormalForm<CoeffType>> factors,
             CoeffType liftingPrimePower,
             IModularField<CoeffType> modularField,
             UnivarPolynomEuclideanDomain<CoeffType> modularPolynomialDomain)
@@ -67,7 +67,7 @@
         {
             get
             {
-                return this.factors.AsReadOnly();
+                return this.factors;
             }
         }
 
