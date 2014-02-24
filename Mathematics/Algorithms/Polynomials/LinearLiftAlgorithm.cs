@@ -10,11 +10,7 @@
     /// módulo m^k dada a factorização p=fg módulo m.
     /// </summary>
     /// <typeparam name="T">O tipo de variável a utilizar.</typeparam>
-    public class LinearLiftAlgorithm<T>
-        : IAlgorithm<
-        LinearLiftingStatus<T>,
-        int,
-        bool>
+    public class LinearLiftAlgorithm<T> : ILinearLiftAlgorithm<T>
     {
         /// <summary>
         /// Permite efectuar todas as operações sobre o conjunto dos inteiros.
@@ -57,6 +53,39 @@
         }
 
         /// <summary>
+        /// Obtém a classe responsável pelas operações sobre os números inteiros.
+        /// </summary>
+        public IIntegerNumber<T> IntegerNumber
+        {
+            get
+            {
+                return this.integerNumber;
+            }
+        }
+
+        /// <summary>
+        /// Obtém a classe responsável pela obtenção de instâncias de um domínio polinomial.
+        /// </summary>
+        public IUnivarPolDomainFactory<T> PolynomialDomainFactory
+        {
+            get
+            {
+                return this.polynomialDomainFactory;
+            }
+        }
+
+        /// <summary>
+        /// Obtém a classe responsável pela obtenção de instâncias de um corpo modular.
+        /// </summary>
+        public IModularFieldFactory<T> ModularFieldFactory
+        {
+            get
+            {
+                return this.modularFieldFactory;
+            }
+        }
+
+        /// <summary>
         /// Aplica o lema do levantamento para elevar a factorização módulo m um número superior m'.
         /// </summary>
         /// <remarks>
@@ -80,7 +109,7 @@
             }
             else
             {
-                var modularField = this.modularFieldFactory.CreateInstance(status.LiftedFactorizationModule);
+                var modularField = this.modularFieldFactory.CreateInstance(status.InitializedFactorizationModulus);
                 var polynomialDomain = this.polynomialDomainFactory.CreateInstance(
                     status.Polynom.VariableName,
                     modularField);
@@ -137,10 +166,12 @@
                         modularField.Module = this.integerNumber.Multiply(
                             modularField.Module,
                             modularField.Module);
+                        status.InitializedFactorizationModulus = modularField.Module;
+
                         status.EPol = polynomialDomain.Add(
                             status.Polynom,
                             polynomialDomain.AdditiveInverse(polynomialDomain.Multiply(
-                            status.UFactor, 
+                            status.UFactor,
                             status.WFactor)));
                         status.FoundSolution = polynomialDomain.IsAdditiveUnity(status.EPol);
                         ++k;
@@ -193,6 +224,7 @@
                     status.WFactor = status.W1Factor;
 
                     modularField.Module = this.integerNumber.Multiply(modularField.Module, modularField.Module);
+                    status.InitializedFactorizationModulus = modularField.Module;
                     var ePol = polynomialDomain.Multiply(status.UFactor, status.WFactor);
                     ePol = polynomialDomain.Add(
                         status.Polynom,

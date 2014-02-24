@@ -16,19 +16,9 @@
         private UnivariatePolynomialNormalForm<CoeffType> polynom;
 
         /// <summary>
-        /// O conjunto de factores.
+        /// O conjunto de factores mónicos.
         /// </summary>
         private IList<UnivariatePolynomialNormalForm<CoeffType>> factors;
-
-        /// <summary>
-        /// O corpo modular associado ao número primo original.
-        /// </summary>
-        private IModularField<CoeffType> modularField;
-
-        /// <summary>
-        /// O domínio polinomial baseado no corpo modular.
-        /// </summary>
-        private UnivarPolynomEuclideanDomain<CoeffType> modularPolynomialDomain;
 
         /// <summary>
         /// O número primo ao qual os factores foram elevados.
@@ -38,15 +28,11 @@
         internal MultiFactorLiftingResult(
             UnivariatePolynomialNormalForm<CoeffType> polynom,
             IList<UnivariatePolynomialNormalForm<CoeffType>> factors,
-            CoeffType liftingPrimePower,
-            IModularField<CoeffType> modularField,
-            UnivarPolynomEuclideanDomain<CoeffType> modularPolynomialDomain)
+            CoeffType liftingPrimePower)
         {
             this.polynom = polynom;
             this.factors = factors;
             this.liftingPrimePower = liftingPrimePower;
-            this.modularField = modularField;
-            this.modularPolynomialDomain = modularPolynomialDomain;
         }
 
         /// <summary>
@@ -79,27 +65,6 @@
             get
             {
                 return this.liftingPrimePower;
-            }
-        }
-
-        /// <summary>
-        /// Obtém o corpo modular associado ao número primo original.
-        /// </summary>
-        public IModularField<CoeffType> ModularField
-        {
-            get
-            {
-                return this.modularField;
-            }
-        }
-        /// <summary>
-        /// Obtém o domínio polinomial baseado no corpo modular.
-        /// </summary>
-        public UnivarPolynomEuclideanDomain<CoeffType> ModularPolynomialDomain
-        {
-            get
-            {
-                return this.modularPolynomialDomain;
             }
         }
     }

@@ -14,9 +14,9 @@
         int,
         MultiFactorLiftingResult<CoeffType>>
     {
-        private IAlgorithm<LinearLiftingStatus<CoeffType>, int, bool> linearLiftAlg;
+        private ILinearLiftAlgorithm<CoeffType> linearLiftAlg;
 
-        public MultiFactorLiftAlgorithm(IAlgorithm<LinearLiftingStatus<CoeffType>, int, bool> linearLiftAlg)
+        public MultiFactorLiftAlgorithm(ILinearLiftAlgorithm<CoeffType> linearLiftAlg)
         {
             if (linearLiftAlg == null)
             {
@@ -38,14 +38,13 @@
             MultiFactorLiftingStatus<CoeffType> multiFactorLiftingStatus,
             int numberOfIterations)
         {
-            var constants = new List<UnivariatePolynomialNormalForm<CoeffType>>();
             if (multiFactorLiftingStatus.Factorization.Factors.Count > 1)
             {
+                var modularField = this.linearLiftAlg.ModularFieldFactory.CreateInstance(
+                    multiFactorLiftingStatus.LiftedFactorizationModule);
                 var factorTree = this.MountFactorTree(
                     multiFactorLiftingStatus.Factorization.Factors,
-                    multiFactorLiftingStatus.ModularField,
-                    multiFactorLiftingStatus.MainDomain,
-                    constants);
+                    modularField);
                 factorTree.InternalRootNode.NodeObject.Polynom = multiFactorLiftingStatus.Polynom;
                 if (factorTree == null)
                 {
@@ -55,18 +54,48 @@
                     return new MultiFactorLiftingResult<CoeffType>(
                         multiFactorLiftingStatus.Polynom,
                         result,
-                        multiFactorLiftingStatus.LiftedFactorizationModule,
-                        multiFactorLiftingStatus.ModularField,
-                        multiFactorLiftingStatus.ModularPolynomialDomain);
+                        multiFactorLiftingStatus.LiftedFactorizationModule);
                 }
                 else
                 {
                     // A árvore contém factores para elevar
                     var factorQueue = new Queue<TreeNode<LinearLiftingStatus<CoeffType>>>();
-                    var factorPrime = multiFactorLiftingStatus.LiftedFactorizationModule;
-                    for (int i = 0; i < numberOfIterations; ++i)
+                    var factorTreeRootNode = factorTree.RootNode.NodeObject.Polynom;
+                    var inverseLeadingCoeff = modularField.MultiplicativeUnity;
+                    if (!modularField.IsMultiplicativeUnity(
+                            multiFactorLiftingStatus.Factorization.IndependentCoeff))
                     {
+                        inverseLeadingCoeff = modularField.MultiplicativeInverse(
+                                multiFactorLiftingStatus.Factorization.IndependentCoeff);
+                    }
+
+                    var i = 0;
+                    var state = true;
+                    while( i < numberOfIterations && state)
+                    {
+                        if (!modularField.IsMultiplicativeUnity(
+                            multiFactorLiftingStatus.Factorization.IndependentCoeff))
+                        {
+                            modularField.Module = this.linearLiftAlg.IntegerNumber.Multiply(
+                                modularField.Module,
+                                modularField.Module);
+                            var firstTemp = modularField.Multiply(
+                                this.linearLiftAlg.IntegerNumber.MapFrom(2),
+                                inverseLeadingCoeff);
+                            var secondTemp = modularField.Multiply(
+                                inverseLeadingCoeff,
+                                inverseLeadingCoeff);
+                            secondTemp = modularField.Multiply(
+                                multiFactorLiftingStatus.Factorization.IndependentCoeff,
+                                secondTemp);
+                            secondTemp = modularField.AdditiveInverse(secondTemp);
+                            inverseLeadingCoeff = modularField.Add(firstTemp, secondTemp);
+                            factorTree.InternalRootNode.NodeObject.Polynom = factorTreeRootNode.Multiply(
+                                inverseLeadingCoeff, this.linearLiftAlg.IntegerNumber);
+                        }
+
                         factorQueue.Enqueue(factorTree.InternalRootNode);
+                        state = false;
                         while (factorQueue.Count > 0)
                         {
                             var dequeued = factorQueue.Dequeue();
@@ -74,7 +103,8 @@
                             {
                                 if (this.linearLiftAlg.Run(dequeued.NodeObject, 1))
                                 {
-                                    factorPrime = dequeued.NodeObject.LiftedFactorizationModule;
+                                    state = true;
+                                    multiFactorLiftingStatus.LiftedFactorizationModule = dequeued.NodeObject.LiftedFactorizationModule;
                                 }
 
                                 var firstChild = dequeued.ChildsList[0];
@@ -85,37 +115,16 @@
                                 factorQueue.Enqueue(secondChild);
                             }
                         }
+
+                        ++i;
                     }
 
-                    var mainDomain = multiFactorLiftingStatus.MainDomain;
-                    var treeSolution = this.GetSolutionFromTree(factorTree, mainDomain);
-                    if (treeSolution.Count > 0)
-                    {
-                        var firstFactor = treeSolution[0];
-                        if (firstFactor.IsValue)
-                        {
-                            for (int i = 0; i < constants.Count; ++i)
-                            {
-                                firstFactor = firstFactor.Multiply(constants[i], mainDomain);
-                            }
-
-                            if (firstFactor.IsUnity(mainDomain))
-                            {
-                                treeSolution.RemoveAt(0);
-                            }
-                            else
-                            {
-                                treeSolution[0] = firstFactor;
-                            }
-                        }
-                    }
+                    var treeSolution = this.GetSolutionFromTree(factorTree, this.linearLiftAlg.IntegerNumber);
 
                     return new MultiFactorLiftingResult<CoeffType>(
-                        multiFactorLiftingStatus.Polynom,
+                        factorTreeRootNode,
                         treeSolution,
-                        factorPrime,
-                        multiFactorLiftingStatus.ModularField,
-                        multiFactorLiftingStatus.ModularPolynomialDomain);
+                        multiFactorLiftingStatus.LiftedFactorizationModule);
                 }
             }
             else
@@ -123,24 +132,19 @@
                 return new MultiFactorLiftingResult<CoeffType>(
                     multiFactorLiftingStatus.Polynom,
                     multiFactorLiftingStatus.Factorization.Factors,
-                    multiFactorLiftingStatus.LiftedFactorizationModule,
-                    multiFactorLiftingStatus.ModularField,
-                    multiFactorLiftingStatus.ModularPolynomialDomain);
+                    multiFactorLiftingStatus.LiftedFactorizationModule);
             }
         }
 
         /// <summary>
         /// Contrói a árvore de factores.
         /// </summary>
-        /// <param name="polynomial">O polinómio factorizado.</param>
         /// <param name="factorsList">A lista de factores.</param>
         /// <param name="modularField">O corpo modular sobre o qual são efectuadas as operações.</param>
         /// <returns>A árvore.</returns>
         private Tree<LinearLiftingStatus<CoeffType>> MountFactorTree(
             IList<UnivariatePolynomialNormalForm<CoeffType>> factorsList,
-            IModularField<CoeffType> modularField,
-            IEuclidenDomain<CoeffType> mainDomain,
-            List<UnivariatePolynomialNormalForm<CoeffType>> coefficientFactors)
+            IModularField<CoeffType> modularField)
         {
             var tree = new Tree<LinearLiftingStatus<CoeffType>>();
             var currentNodes = new List<TreeNode<LinearLiftingStatus<CoeffType>>>();
@@ -148,7 +152,7 @@
             {
                 if (factor.Degree == 0)
                 {
-                    coefficientFactors.Add(factor);
+                    throw new MathematicsException("Unexpected constant factor.");
                 }
                 else
                 {
@@ -179,12 +183,16 @@
                         if (i < currentNodes.Count)
                         {
                             var second = currentNodes[i];
-                            var product = first.NodeObject.Polynom.Multiply(second.NodeObject.Polynom, modularField);
+                            var product = first.NodeObject.Polynom.Multiply(
+                                second.NodeObject.Polynom,
+                                modularField);
+
                             var liftingStatus = new LinearLiftingStatus<CoeffType>(
                                 product,
                                 first.NodeObject.Polynom,
                                 second.NodeObject.Polynom,
                                 modularField.Module);
+
                             parentNode = new TreeNode<LinearLiftingStatus<CoeffType>>(
                                 liftingStatus,
                                 tree,

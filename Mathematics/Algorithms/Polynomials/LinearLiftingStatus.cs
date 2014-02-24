@@ -60,6 +60,11 @@
         private CoeffType liftFactorizationModule;
 
         /// <summary>
+        /// O módulo inicializado que permite controlar as iterações.
+        /// </summary>
+        private CoeffType initializedFactorizationModulus;
+
+        /// <summary>
         /// Contém o valor que indica se o objecto já foi inicializado.
         /// </summary>
         private bool notInitialized;
@@ -97,6 +102,7 @@
                 this.u1Factor = firstFactor;
                 this.w1Factor = secondFactor;
                 this.liftFactorizationModule = liftFactorizationModule;
+                this.initializedFactorizationModulus = liftFactorizationModule;
                 this.notInitialized = true;
             }
         }
@@ -108,6 +114,7 @@
             this.polynom = polynom;
             this.notInitialized = true;
             this.liftFactorizationModule = liftFactorizationModule;
+            this.initializedFactorizationModulus = liftFactorizationModule;
         }
 
         /// <summary>
@@ -272,6 +279,21 @@
             set
             {
                 this.notInitialized = value;
+            }
+        }
+
+        /// <summary>
+        /// O módulo inicializado que permite controlar as iterações.
+        /// </summary>
+        internal CoeffType InitializedFactorizationModulus
+        {
+            get
+            {
+                return this.initializedFactorizationModulus;
+            }
+            set
+            {
+                this.initializedFactorizationModulus = value;
             }
         }
 

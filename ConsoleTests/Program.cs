@@ -118,7 +118,7 @@
             //var liftAlg = new LinearLiftAlgorithm<BigInteger>();
             //var liftAlgRes = liftAlg.Run(liftInput, 10);
 
-            var polynom = polynomialReader.Read("x^4-2*x^3-11*x^2+4*x+3");
+            var polynom = polynomialReader.Read("2*x^4+8*x^3+17*x^2+18*x+4");
 
             // Instanciação dos algoritmos
             var resultantAlg = new UnivarPolDeterminantResultantAlg<BigInteger>(new BigIntegerDomain());
@@ -152,7 +152,7 @@
             }
 
             // Temporário
-            prime = 3;
+            prime = 31;
 
             // Neste ponto estamos em condições de tentar factorizar o polinómio.
             if (prime > 1)
@@ -167,9 +167,10 @@
                     new DenseCondensationLinSysAlgorithm<BigInteger>(integerModularField));
 
                 // Instancia o algoritmo responsável pela elevação multi-factor.
+                var modularFactory = new ModularSymmetricBigIntFieldFactory();
                 var multiFactorLiftAlg = new MultiFactorLiftAlgorithm<BigInteger>(
                     new LinearLiftAlgorithm<BigInteger>(
-                        new ModularSymmetricBigIntFieldFactory(),
+                        modularFactory,
                         new UnivarPolEuclideanDomainFactory<BigInteger>(),
                         integerDomain));
                 var factored = finiteFieldFactorizationAlg.Run(polynom, integerModularField, integerDomain);
@@ -179,14 +180,15 @@
                     var multiLiftStatus = new MultiFactorLiftingStatus<BigInteger>(
                         polynom,
                         factorKvp.Value,
-                        integerModularField,
-                        integerDomain);
+                        prime);
                     var liftResult = multiFactorLiftAlg.Run(multiLiftStatus, 2);
                     Console.WriteLine("Módulo {0}.", liftResult.LiftingPrimePower);
                     liftedFactors.Add(factorKvp.Key, liftResult.Factors);
 
                     // Teste à fase de pesquisa
-                    var searchAlgorithm = new SearchFactorizationAlgorithm<BigInteger>(new BigIntegerDomain());
+                    var searchAlgorithm = new SearchFactorizationAlgorithm<BigInteger>(
+                        modularFactory,
+                        new BigIntegerDomain());
                     var searchResult = searchAlgorithm.Run(liftResult, 1288, 3);
                 }
 

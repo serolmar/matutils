@@ -13,17 +13,32 @@
     public class SearchFactorizationAlgorithm<CoeffType>
         : IAlgorithm<MultiFactorLiftingResult<CoeffType>, CoeffType, int, SearchFactorizationResult<CoeffType>>
     {
-        IIntegerNumber<CoeffType> integerNumber;
+        /// <summary>
+        /// Responsável pelas operações sobre os números inteiros.
+        /// </summary>
+        private IIntegerNumber<CoeffType> integerNumber;
 
-        public SearchFactorizationAlgorithm(IIntegerNumber<CoeffType> integerNumber)
+        /// <summary>
+        /// Responsável pela instanciação de corpos modulares.
+        /// </summary>
+        private IModularFieldFactory<CoeffType> modularFieldFactory;
+
+        public SearchFactorizationAlgorithm(
+            IModularFieldFactory<CoeffType> modularFieldFactory,
+            IIntegerNumber<CoeffType> integerNumber)
         {
             if (integerNumber == null)
             {
                 throw new ArgumentNullException("integerNumber");
             }
+            else if (modularFieldFactory == null)
+            {
+                throw new ArgumentNullException("modularFieldFactory");
+            }
             else
             {
                 this.integerNumber = integerNumber;
+                this.modularFieldFactory = modularFieldFactory;
             }
         }
 
@@ -51,6 +66,7 @@
             }
             else
             {
+                var modularField = this.modularFieldFactory.CreateInstance(liftedFactorization.LiftingPrimePower);
                 var halfPrime = this.integerNumber.Quo(
                     liftedFactorization.LiftingPrimePower,
                     this.integerNumber.MapFrom(2));
@@ -88,7 +104,7 @@
 
                 var modularPolynomialDomain = new UnivarPolynomEuclideanDomain<CoeffType>(
                     liftedFactorization.Polynom.VariableName,
-                    liftedFactorization.ModularField);
+                    modularField);
                 this.ProcessRemainingPolynomials(
                     modularFactors,
                     integerFactors,
@@ -160,7 +176,7 @@
                             {
                                 if (modularProduct == null)
                                 {
-                                    this.ComputeModularProduct(
+                                    modularProduct = this.ComputeModularProduct(
                                         modularFactors,
                                         modularPolynomialDomain);
                                 }

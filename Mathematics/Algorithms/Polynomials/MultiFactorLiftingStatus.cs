@@ -27,35 +27,14 @@
         private FiniteFieldFactorizationResult<CoeffType> factorization;
 
         /// <summary>
-        /// O corpo modular no qual é conhecida a factorização a levantar.
-        /// </summary>
-        private IModularField<CoeffType> modularField;
-
-        /// <summary>
-        /// O domínio responsável pela determinação de quocientes e restos sobre os coeficentes.
-        /// </summary>
-        private IEuclidenDomain<CoeffType> mainDomain;
-
-        /// <summary>
-        /// O domínio polinomial baseado no corpo modular.
-        /// </summary>
-        private UnivarPolynomEuclideanDomain<CoeffType> modularPolynomialDomain;
-
-        /// <summary>
-        /// O anel polinomial baseado no anel principal.
-        /// </summary>
-        private UnivarPolynomRing<CoeffType> mainPolynomialRing;
-
-        /// <summary>
-        /// Coném o módulo associado à solução actual.
+        /// Contém o módulo associado à solução actual.
         /// </summary>
         private CoeffType liftFactorizationModule;
 
         public MultiFactorLiftingStatus(
             UnivariatePolynomialNormalForm<CoeffType> polynom,
             FiniteFieldFactorizationResult<CoeffType> factorization,
-            IModularField<CoeffType> modularField,
-            IEuclidenDomain<CoeffType> mainDomain)
+            CoeffType liftFactorizationModule)
         {
             if (polynom == null)
             {
@@ -65,27 +44,15 @@
             {
                 throw new ArgumentNullException("factorization");
             }
-            else if (modularField == null)
+            else if (liftFactorizationModule == null)
             {
-                throw new ArgumentNullException("modularField");
-            }
-            else if (mainDomain == null)
-            {
-                throw new ArgumentNullException("mainDomain");
+                throw new ArgumentNullException("liftFactorizationModule");
             }
             else
             {
                 this.polynom = polynom;
                 this.factorization = factorization;
-                this.modularField = modularField;
-                this.mainDomain = mainDomain;
-                this.liftFactorizationModule = modularField.Module;
-                this.modularPolynomialDomain = new UnivarPolynomEuclideanDomain<CoeffType>(
-                    polynom.VariableName,
-                    modularField);
-                this.mainPolynomialRing = new UnivarPolynomRing<CoeffType>(
-                    polynom.VariableName,
-                    mainDomain);
+                this.liftFactorizationModule = liftFactorizationModule;
                 this.linearLiftAlgorithm = new LinearLiftAlgorithm<int>(
                     new ModularIntegerFieldFactory(),
                     new UnivarPolEuclideanDomainFactory<int>(),
@@ -116,50 +83,6 @@
             get
             {
                 return this.factorization;
-            }
-        }
-
-        /// <summary>
-        /// Obtém o corpo modular no qual é conhecida a factorização a levantar.
-        /// </summary>
-        public IModularField<CoeffType> ModularField
-        {
-            get
-            {
-                return this.modularField;
-            }
-        }
-
-        /// <summary>
-        /// Obtém o domínio responsável pela determinação de quocientes e restos sobre os coeficentes.
-        /// </summary>
-        public IEuclidenDomain<CoeffType> MainDomain
-        {
-            get
-            {
-                return this.mainDomain;
-            }
-        }
-
-        /// <summary>
-        /// Obtém o domínio polinomial baseado no corpo modular.
-        /// </summary>
-        public UnivarPolynomEuclideanDomain<CoeffType> ModularPolynomialDomain
-        {
-            get
-            {
-                return this.modularPolynomialDomain;
-            }
-        }
-
-        /// <summary>
-        /// Obtém o anel polinomial baseado no anel principal.
-        /// </summary>
-        public UnivarPolynomRing<CoeffType> MainPolynomialRing
-        {
-            get
-            {
-                return this.mainPolynomialRing;
             }
         }
 
