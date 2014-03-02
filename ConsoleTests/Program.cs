@@ -201,6 +201,20 @@
                         Console.WriteLine(factor);
                     }
 
+                    var modularField = new ModularSymmetricBigIntField(31*31*31*31);
+                    var polRing = new UnivarPolynomRing<BigInteger>("x", modularField);
+                    var factorsEnumerator = liftFactor.Value.GetEnumerator();
+                    if (factorsEnumerator.MoveNext())
+                    {
+                        var factor = factorsEnumerator.Current;
+                        while (factorsEnumerator.MoveNext())
+                        {
+                            factor = polRing.Multiply(factor, factorsEnumerator.Current);
+                        }
+
+                        Console.WriteLine("Product: {0}", factor);
+                    }
+
                     Console.WriteLine();
                 }
             }

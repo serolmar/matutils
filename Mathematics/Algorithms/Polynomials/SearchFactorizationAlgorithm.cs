@@ -195,6 +195,7 @@
                                 if (this.integerNumber.Compare(normProd, testValue) < 0)
                                 {
                                     integerFactors.Add(currentPol);
+                                    modularFactors.RemoveAt(topPointer);
                                     while (pointers.Count > 0)
                                     {
                                         var removeIndex = pointers.Pop();
@@ -202,7 +203,7 @@
                                     }
 
                                     productStack.Clear();
-                                    if (modularFactors.Count < combinationsNumber)
+                                    if (modularFactors.Count < currentCombinationNumber)
                                     {
                                         state = -1;
                                     }
@@ -210,6 +211,7 @@
                                     {
                                         productStack.Push(modularFactors[0]);
                                         pointers.Push(0);
+                                        pointers.Push(1);
                                     }
                                 }
                                 else
@@ -256,6 +258,7 @@
                             if (topPointer < pointerLimit)
                             {
                                 pointers.Push(topPointer);
+                                state = 0;
                             }
                             else
                             {
