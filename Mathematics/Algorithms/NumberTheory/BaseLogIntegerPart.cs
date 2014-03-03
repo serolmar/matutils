@@ -6,8 +6,7 @@
     using System.Text;
 
     /// <summary>
-    /// Permite calcular a parte inteira do logaritmo binário de um número. O logaritmo binário de um número
-    /// corresponde ao seu logaritmo na base 2.
+    /// Permite calcular a parte inteira do logaritmo numa base inteira arbitrária de um número.
     /// </summary>
     public class BaseLogIntegerPart<NumberType> : IAlgorithm<NumberType, NumberType, NumberType>
     {
@@ -30,7 +29,7 @@
         }
 
         /// <summary>
-        /// Determina a parte inteira do logaritmo binário do número especificado.
+        /// Determina a parte inteira do logaritmo numa base arbitrária do número especificado.
         /// </summary>
         /// <param name="baseNumber">A base do logaritmo.</param>
         /// <param name="data">O número.</param>
