@@ -21,7 +21,7 @@
 
         static void Main(string[] args)
         {
-            Test20();
+            Test13();
             Console.ReadLine();
         }
 
@@ -189,6 +189,11 @@
                     var searchAlgorithm = new SearchFactorizationAlgorithm<BigInteger>(
                         modularFactory,
                         new BigIntegerDomain());
+                    
+                    //Determinar a estimativa
+                    var estimation = Math.Sqrt(polynom.Degree + 1);
+                    //estimation = estimation * (2 << polynom.Degree) * polynom.GetLeadingCoefficient(integerDomain);
+
                     var searchResult = searchAlgorithm.Run(liftResult, 1288, 3);
                 }
 
