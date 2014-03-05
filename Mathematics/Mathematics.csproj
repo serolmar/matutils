@@ -208,7 +208,6 @@
     <Compile Include="Algorithms\NumberTheory\AksPrimalityTest.cs" />
     <Compile Include="Algorithms\NumberTheory\Auxiliary\AuxAksModArithmRing.cs" />
     <Compile Include="Algorithms\NumberTheory\Auxiliary\BigIntegerPrimeNumbersIteratorFactory.cs" />
-    <Compile Include="Algorithms\NumberTheory\Auxiliary\PrecisionBinaryLogCalculatorStatus.cs" />
     <Compile Include="Algorithms\NumberTheory\BigInteger\BigIntLogDoubleApproximationAlg.cs" />
     <Compile Include="Algorithms\NumberTheory\BigInteger\BigIntPerfectPowerTestAlg.cs" />
     <Compile Include="Algorithms\NumberTheory\BigInteger\FastBigIntBinaryLogIntPartAlg.cs" />
@@ -227,7 +226,6 @@
     <Compile Include="Algorithms\NumberTheory\GenericIntegerNthRootAlgorithm.cs" />
     <Compile Include="Algorithms\NumberTheory\Integer\IntegerSquareRootAlgorithm.cs" />
     <Compile Include="Algorithms\NumberTheory\Integer\IntLogDoubleApproximationAlg.cs" />
-    <Compile Include="Algorithms\NumberTheory\Integer\PrecisionIntBinaryLogCalculator.cs" />
     <Compile Include="Algorithms\NumberTheory\LegendreJacobiSymbolAlgorithm.cs" />
     <Compile Include="Algorithms\NumberTheory\NaiveIntegerFactorizationAlgorithm.cs" />
     <Compile Include="Algorithms\NumberTheory\Integer\IntPerfectPowerTestAlg.cs" />

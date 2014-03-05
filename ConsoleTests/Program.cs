@@ -21,7 +21,7 @@
 
         static void Main(string[] args)
         {
-            Test13();
+            Test20();
             Console.ReadLine();
         }
 
@@ -118,7 +118,7 @@
             //var liftAlg = new LinearLiftAlgorithm<BigInteger>();
             //var liftAlgRes = liftAlg.Run(liftInput, 10);
 
-            var polynom = polynomialReader.Read("2*x^4+8*x^3+17*x^2+18*x+4");
+            var polynom = polynomialReader.Read("(2*x+1)*(x+3)^2");
 
             // Instanciação dos algoritmos
             var resultantAlg = new UnivarPolDeterminantResultantAlg<BigInteger>(new BigIntegerDomain());
@@ -131,25 +131,25 @@
                 polynom.GetPolynomialDerivative(integerDomain));
             var primesEnumerator = primesGenerator.GetEnumerator();
             var prime = integerDomain.MultiplicativeUnity;
-            var state = true;
-            while (state)
-            {
-                if (primesEnumerator.MoveNext())
-                {
-                    var innerPrime = primesEnumerator.Current;
-                    if (!integerDomain.IsAdditiveUnity(integerDomain.Rem(leadingCoeff, innerPrime)) &&
-                        !integerDomain.IsAdditiveUnity(integerDomain.Rem(discriminant, innerPrime)))
-                    {
-                        prime = innerPrime;
-                        state = false;
-                    }
-                }
-                else // Todos os primos gerados dividem pelo menos o coeficiente principal e o discriminante
-                {
-                    Console.WriteLine("Foram esgotados todos os primos disponíveis sem encontrar um que não divida o coeficiente principal e o discriminante.");
-                    state = false;
-                }
-            }
+            //var state = true;
+            //while (state)
+            //{
+            //    if (primesEnumerator.MoveNext())
+            //    {
+            //        var innerPrime = primesEnumerator.Current;
+            //        if (!integerDomain.IsAdditiveUnity(integerDomain.Rem(leadingCoeff, innerPrime)) &&
+            //            !integerDomain.IsAdditiveUnity(integerDomain.Rem(discriminant, innerPrime)))
+            //        {
+            //            prime = innerPrime;
+            //            state = false;
+            //        }
+            //    }
+            //    else // Todos os primos gerados dividem pelo menos o coeficiente principal e o discriminante
+            //    {
+            //        Console.WriteLine("Foram esgotados todos os primos disponíveis sem encontrar um que não divida o coeficiente principal e o discriminante.");
+            //        state = false;
+            //    }
+            //}
 
             // Temporário
             prime = 31;
@@ -178,7 +178,7 @@
                 foreach (var factorKvp in factored)
                 {
                     var multiLiftStatus = new MultiFactorLiftingStatus<BigInteger>(
-                        polynom,
+                        factorKvp.Value.FactoredPolynomial,
                         factorKvp.Value,
                         prime);
                     var liftResult = multiFactorLiftAlg.Run(multiLiftStatus, 2);
@@ -191,10 +191,25 @@
                         new BigIntegerDomain());
                     
                     //Determinar a estimativa
-                    var estimation = Math.Sqrt(polynom.Degree + 1);
-                    //estimation = estimation * (2 << polynom.Degree) * polynom.GetLeadingCoefficient(integerDomain);
+                    var estimation = Math.Sqrt(factorKvp.Value.FactoredPolynomial.Degree + 1);
+                    var estimationIntegerPart = (2 << factorKvp.Value.FactoredPolynomial.Degree) * polynom.GetLeadingCoefficient(integerDomain);
+                    var norm = integerDomain.AdditiveUnity;
+                    foreach (var term in factorKvp.Value.FactoredPolynomial)
+                    {
+                        var termValue = integerDomain.GetNorm(term.Value);
+                        if (integerDomain.Compare(termValue, norm) > 0)
+                        {
+                            norm = termValue;
+                        }
+                    }
 
-                    var searchResult = searchAlgorithm.Run(liftResult, 1288, 3);
+                    estimationIntegerPart = estimationIntegerPart * norm;
+                    var integerPartLog = (int)Math.Floor(BigInteger.Log(estimationIntegerPart) + 2);
+                    var estimationPower = Math.Pow(10, integerPartLog);
+                    var estimationMultiplication = (int)Math.Floor(estimationPower * estimation);
+                    estimationIntegerPart = (estimationIntegerPart * estimationMultiplication) / estimationMultiplication;
+                    ++estimationIntegerPart;
+                    var searchResult = searchAlgorithm.Run(liftResult, estimationIntegerPart, 3);
                 }
 
                 // Imprime os resultados para a consola.

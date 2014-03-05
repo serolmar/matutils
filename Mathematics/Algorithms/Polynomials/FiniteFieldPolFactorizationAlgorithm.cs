@@ -77,6 +77,7 @@
                 polynom.VariableName,
                 modularField);
             var bachetBezourAlg = new LagrangeAlgorithm<UnivariatePolynomialNormalForm<CoeffType>>(polynomDomain);
+            var coeffLagAlg = new LagrangeAlgorithm<CoeffType>(coeffsDomain);
 
             var polynomialField = new UnivarPolynomEuclideanDomain<CoeffType>(
                 polynom.VariableName,
@@ -86,8 +87,19 @@
             var squareFreeFactors = this.squareFreeFactorizationAlg.Run(forSquareFreeFact, fractionField);
             foreach (var factorsKvp in squareFreeFactors)
             {
-                var clonedFactor = this.CloneInvPol(factorsKvp.Value, modularField);
-                var factored = this.Factorize(clonedFactor, modularField, polynomialField, bachetBezourAlg);
+                var divisionCoeff = this.GetDenominatorLcm(
+                    factorsKvp.Value,
+                    coeffLagAlg);
+                var clonedFactor = this.GetIntegerPol(
+                    factorsKvp.Value,
+                    divisionCoeff,
+                    coeffsDomain);
+                var factored = this.Factorize(
+                    clonedFactor, 
+                    modularField, 
+                    polynomialField, 
+                    divisionCoeff,
+                    bachetBezourAlg);
                 result.Add(factorsKvp.Key, factored);
             }
 
@@ -101,12 +113,14 @@
         /// <param name="order">A ordem do corpo finito sob consideração.</param>
         /// <param name="integerModule">O corpo responsável pelas operações sobre os coeficientes.</param>
         /// <param name="polynomField">O corpo responsável pelo produto de polinómios.</param>
+        /// <param name="divisionCoeff">O coeficiente pelo qual o polinómio terá de ser dividido no final.</param>
         /// <param name="bachetBezoutAlgorithm">O objecto responsável pelo algoritmo de máximo divisor comum.</param>
         /// <returns>A lista dos factores.</returns>
         private FiniteFieldFactorizationResult<CoeffType> Factorize(
             UnivariatePolynomialNormalForm<CoeffType> polynom,
             IModularField<CoeffType> integerModule,
             UnivarPolynomEuclideanDomain<CoeffType> polynomField,
+            CoeffType divisionCoeff,
             LagrangeAlgorithm<UnivariatePolynomialNormalForm<CoeffType>> bachetBezoutAlgorithm)
         {
             var result = new List<UnivariatePolynomialNormalForm<CoeffType>>();
@@ -153,7 +167,11 @@
             }
 
             var mainLeadingMon = polynom.GetLeadingCoefficient(integerModule);
-            return new FiniteFieldFactorizationResult<CoeffType>(mainLeadingMon, result);
+            return new FiniteFieldFactorizationResult<CoeffType>(
+                mainLeadingMon,
+                divisionCoeff,
+                result, 
+                polynom);
         }
 
         /// <summary>
@@ -340,6 +358,7 @@
         /// <param name="polynom">O polinómio.</param>
         /// <param name="modularIntegerField">O corpo.</param>
         /// <returns>A cópia.</returns>
+        [Obsolete("Esta função é obsoleta.")]
         private UnivariatePolynomialNormalForm<CoeffType> CloneInvPol(
             UnivariatePolynomialNormalForm<Fraction<CoeffType, IEuclidenDomain<CoeffType>>> polynom,
             IModularField<CoeffType> modularIntegerField)
@@ -356,6 +375,90 @@
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Obtém a parte inteira do polinómio aós ser reduzido ao mesmo denominador.
+        /// </summary>
+        /// <param name="polynom">O polinómio.</param>
+        /// <param name="denominatorLcm">O mínimo múltiplo comum do denominador.</param>
+        /// <param name="coeffsDomain">O domínio responsável pelas operações sobre os coeficientes.</param>
+        /// <returns>O polinómio com os coeficientes inteiros.</returns>
+        private UnivariatePolynomialNormalForm<CoeffType> GetIntegerPol(
+            UnivariatePolynomialNormalForm<Fraction<CoeffType, 
+            IEuclidenDomain<CoeffType>>> polynom,
+            CoeffType denominatorLcm,
+            IEuclidenDomain<CoeffType> coeffsDomain)
+        {
+            var result = new UnivariatePolynomialNormalForm<CoeffType>(polynom.VariableName);
+            if (!polynom.IsZero)
+            {
+                if (coeffsDomain.IsMultiplicativeUnity(denominatorLcm))
+                {
+                    foreach (var term in polynom)
+                    {
+                        result.Terms.Add(term.Key, term.Value.Numerator);
+                    }
+                }
+                else
+                {
+                    foreach (var term in polynom)
+                    {
+                        var integerPart = term.Value.Numerator;
+                        var coFactor = coeffsDomain.Quo(denominatorLcm, term.Value.Denominator);
+                        if (!coeffsDomain.IsMultiplicativeUnity(coFactor))
+                        {
+                            integerPart = coeffsDomain.Multiply(integerPart, coFactor);
+                        }
+
+                        result.Terms.Add(term.Key, integerPart);
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Obtém o mínimo múltiplo comum entre os denominadores do polinómio.
+        /// </summary>
+        /// <param name="polynom">O polinómio.</param>
+        /// <param name="gcdCAlg">O domínio responsável pelas operações sobre os coeficientes.</param>
+        /// <returns>O valor do mínimo múltiplo comum.</returns>
+        private CoeffType GetDenominatorLcm(
+            UnivariatePolynomialNormalForm<Fraction<CoeffType, IEuclidenDomain<CoeffType>>> polynom,
+            IBachetBezoutAlgorithm<CoeffType> gcdCAlg)
+        {
+            var termsEnumerator = polynom.GetEnumerator();
+            var state = termsEnumerator.MoveNext();
+            if (state)
+            {
+                var coeff = termsEnumerator.Current.Value.Denominator;
+                state = termsEnumerator.MoveNext();
+                while (state && gcdCAlg.Domain.IsMultiplicativeUnity(coeff))
+                {
+                    coeff = termsEnumerator.Current.Value.Denominator;
+                    state = termsEnumerator.MoveNext();
+                }
+
+                while (state)
+                {
+                    var current = termsEnumerator.Current.Value.Denominator;
+                    if (!gcdCAlg.Domain.IsMultiplicativeUnity(current))
+                    {
+                        var status = gcdCAlg.Run(coeff, current);
+                        coeff = gcdCAlg.Domain.Multiply(status.FirstItem, status.SecondCofactor);
+                    }
+
+                    state = termsEnumerator.MoveNext();
+                }
+
+                return coeff;
+            }
+            else
+            {
+                return gcdCAlg.Domain.MultiplicativeUnity;
+            }
         }
     }
 }

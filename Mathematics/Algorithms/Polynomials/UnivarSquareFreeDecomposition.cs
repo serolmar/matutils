@@ -73,8 +73,8 @@
             )
         {
             var result = MathFunctions.GreatCommonDivisor(first, second, polynomDomain);
-            var leadingCoeff = result.GetLeadingCoefficient(field);
-            result = result.Multiply(field.MultiplicativeInverse(leadingCoeff), field);
+            //var leadingCoeff = result.GetLeadingCoefficient(field);
+            //result = result.Multiply(field.MultiplicativeInverse(leadingCoeff), field);
             return result;
         }
     }

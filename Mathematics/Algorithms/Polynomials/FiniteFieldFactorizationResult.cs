@@ -21,12 +21,26 @@
         /// </summary>
         private CoeffType indepdendentCoeff;
 
+        /// <summary>
+        /// O coeficiente pelo qual o polinómio deverá ser dividido no final.
+        /// </summary>
+        private CoeffType divisionCoeff;
+
+        /// <summary>
+        /// O polinómio a ser factorizado.
+        /// </summary>
+        private UnivariatePolynomialNormalForm<CoeffType> factoredPolynomial;
+
         internal FiniteFieldFactorizationResult(
             CoeffType indepdendentCoeff,
-            List<UnivariatePolynomialNormalForm<CoeffType>> factors)
+            CoeffType divisionCoeff,
+            List<UnivariatePolynomialNormalForm<CoeffType>> factors,
+            UnivariatePolynomialNormalForm<CoeffType> factoredPolynomial)
         {
             this.factors = factors;
+            this.divisionCoeff = divisionCoeff;
             this.indepdendentCoeff = indepdendentCoeff;
+            this.factoredPolynomial = factoredPolynomial;
         }
 
         /// <summary>
@@ -48,6 +62,31 @@
             get
             {
                 return this.factors.AsReadOnly();
+            }
+        }
+
+        /// <summary>
+        /// Obtém o polinómio a ser factorizado.
+        /// </summary>
+        public UnivariatePolynomialNormalForm<CoeffType> FactoredPolynomial
+        {
+            get
+            {
+                return this.factoredPolynomial;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o coeficiente pelo qual o polinómio terá de ser dividido no final.
+        /// </summary>
+        /// <remarks>
+        /// Este coeficiente resulta da redunção ao mesmo denominador.
+        /// </remarks>
+        public CoeffType DivisionCoeff
+        {
+            get
+            {
+                return this.divisionCoeff;
             }
         }
     }
