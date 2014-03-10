@@ -8,9 +8,9 @@
     public class UnivarSquareFreeDecomposition<CoeffType> :
         IAlgorithm<UnivariatePolynomialNormalForm<CoeffType>,
         IField<CoeffType>,
-        Dictionary<int, UnivariatePolynomialNormalForm<CoeffType>>>
+        SquareFreeFactorizationResult<CoeffType, CoeffType>>
     {
-        public Dictionary<int, UnivariatePolynomialNormalForm<CoeffType>> Run(
+        public SquareFreeFactorizationResult<CoeffType, CoeffType> Run(
             UnivariatePolynomialNormalForm<CoeffType> data,
             IField<CoeffType> field)
         {
@@ -24,6 +24,7 @@
             }
             else
             {
+                var independentCoeff = field.MultiplicativeUnity;
                 var result = new Dictionary<int, UnivariatePolynomialNormalForm<CoeffType>>();
                 var currentDegree = 1;
                 var polynomDomain = new UnivarPolynomEuclideanDomain<CoeffType>(data.VariableName, field);
@@ -44,6 +45,21 @@
                     {
                         result.Add(currentDegree, squareFreeFactor);
                     }
+                    else
+                    {
+                        var value = squareFreeFactor.GetAsValue(field);
+                        if (!field.IsMultiplicativeUnity(value))
+                        {
+                            if (field.IsMultiplicativeUnity(independentCoeff))
+                            {
+                                independentCoeff = value;
+                            }
+                            else
+                            {
+                                independentCoeff = field.Multiply(independentCoeff, value);
+                            }
+                        }
+                    }
 
                     ++currentDegree;
                     while (gcd.Degree > 0)
@@ -56,12 +72,42 @@
                         {
                             result.Add(currentDegree, squareFreeFactor);
                         }
+                        else
+                        {
+                            var value = squareFreeFactor.GetAsValue(field);
+                            if (!field.IsMultiplicativeUnity(value))
+                            {
+                                if (field.IsMultiplicativeUnity(independentCoeff))
+                                {
+                                    independentCoeff = value;
+                                }
+                                else
+                                {
+                                    independentCoeff = field.Multiply(independentCoeff, value);
+                                }
+                            }
+                        }
 
                         ++currentDegree;
                     }
+
+                    var cofactorValue = polyCoffactor.GetAsValue(field);
+                    if (!field.IsMultiplicativeUnity(cofactorValue))
+                    {
+                        if (field.IsMultiplicativeUnity(independentCoeff))
+                        {
+                            independentCoeff = cofactorValue;
+                        }
+                        else
+                        {
+                            independentCoeff = field.Multiply(independentCoeff, cofactorValue);
+                        }
+                    }
                 }
 
-                return result;
+                return new SquareFreeFactorizationResult<CoeffType,CoeffType>(
+                    independentCoeff,
+                    result);
             }
         }
 
@@ -73,8 +119,8 @@
             )
         {
             var result = MathFunctions.GreatCommonDivisor(first, second, polynomDomain);
-            //var leadingCoeff = result.GetLeadingCoefficient(field);
-            //result = result.Multiply(field.MultiplicativeInverse(leadingCoeff), field);
+            var leadingCoeff = result.GetLeadingCoefficient(field);
+            result = result.Multiply(field.MultiplicativeInverse(leadingCoeff), field);
             return result;
         }
     }

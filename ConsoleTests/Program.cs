@@ -118,7 +118,8 @@
             //var liftAlg = new LinearLiftAlgorithm<BigInteger>();
             //var liftAlgRes = liftAlg.Run(liftInput, 10);
 
-            var polynom = polynomialReader.Read("(2*x+1)*(x+3)^2");
+            //var polynom = polynomialReader.Read("(2*x+1)*(x+3)^2");
+            var polynom = polynomialReader.Read("(2*x+1)^2*(x+3)^3");
 
             // Instanciação dos algoritmos
             var resultantAlg = new UnivarPolDeterminantResultantAlg<BigInteger>(new BigIntegerDomain());
@@ -161,7 +162,7 @@
                 var integerModularField = new ModularSymmetricBigIntField(prime);
 
                 // Instancia o algoritmo responsável pela factorização sobre corpos finitos.
-                var finiteFieldFactorizationAlg = new FiniteFieldPolFactorizationAlgorithm<BigInteger>(
+                var finiteFieldFactorizationAlg = new FiniteFieldPolFactorizationAlgorithmOld<BigInteger>(
                     new UnivarSquareFreeDecomposition<Fraction<BigInteger, IEuclidenDomain<BigInteger>>>(),
                     new BigIntegerToIntegerConversion(),
                     new DenseCondensationLinSysAlgorithm<BigInteger>(integerModularField));
@@ -925,7 +926,7 @@
                 var univarSquareFreeAlg = new UnivarSquareFreeDecomposition<Fraction<BigInteger, BigIntegerDomain>>();
                 var result = univarSquareFreeAlg.Run(thirdPol, otherFractionField);
                 Console.WriteLine("The squarefree factors are:");
-                foreach (var factor in result)
+                foreach (var factor in result.Factors)
                 {
                     Console.WriteLine("Factor: {0}; Degree: {1}", factor.Value, factor.Key);
                 }
@@ -1068,7 +1069,7 @@
                 conversion,
                 out parsedPol))
             {
-                var finiteFieldFactorization = new FiniteFieldPolFactorizationAlgorithm<int>(
+                var finiteFieldFactorization = new FiniteFieldPolFactorizationAlgorithmOld<int>(
                     new UnivarSquareFreeDecomposition<Fraction<int, IEuclidenDomain<int>>>(),
                     new ElementToElementConversion<int>(),
                     new DenseCondensationLinSysAlgorithm<int>(integerModularField));

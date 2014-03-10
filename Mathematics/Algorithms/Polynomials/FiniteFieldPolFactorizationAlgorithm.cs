@@ -6,102 +6,73 @@
     using System.Text;
 
     /// <summary>
-    /// Implementa o algoritmo que permite factorizar polinómios cujos coeficientes são elementos
-    /// de um corpo finito.
+    /// Implementa o algoritmo da factorização em corpos finitos inteiros.
     /// </summary>
+    /// <typeparam name="CoeffType">O tipo de coeficiente.</typeparam>
     public class FiniteFieldPolFactorizationAlgorithm<CoeffType>
-        : IAlgorithm<UnivariatePolynomialNormalForm<CoeffType>, 
-        IModularField<CoeffType>, 
-        IEuclidenDomain<CoeffType>,
-        Dictionary<int, FiniteFieldFactorizationResult<CoeffType>>>
+        : IAlgorithm<
+        UnivariatePolynomialNormalForm<CoeffType>,
+        IModularField<CoeffType>,
+        FiniteFieldFactorizationResult<CoeffType>>
     {
         /// <summary>
-        /// O algoritmo que permite obter a factorização em polinómios livres de quadrados.
+        /// O objecto responsável pelas operações sobre os números inteiros.
         /// </summary>
-        IAlgorithm<UnivariatePolynomialNormalForm<Fraction<CoeffType, IEuclidenDomain<CoeffType>>>, 
-            IField<Fraction<CoeffType, IEuclidenDomain<CoeffType>>>, Dictionary<int, UnivariatePolynomialNormalForm<Fraction<CoeffType, IEuclidenDomain<CoeffType>>>>> 
-        squareFreeFactorizationAlg;
+        private IIntegerNumber<CoeffType> integerNumber;
 
         /// <summary>
         /// O algoritmo responsável pela resolução de sistemas de equações lineares.
         /// </summary>
         private IAlgorithm<IMatrix<CoeffType>, IMatrix<CoeffType>, LinearSystemSolution<CoeffType>> linearSystemSolver;
 
-        private IConversion<int, CoeffType> integerConversion;
-
         public FiniteFieldPolFactorizationAlgorithm(
-            IAlgorithm<UnivariatePolynomialNormalForm<Fraction<CoeffType, IEuclidenDomain<CoeffType>>>, 
-            IField<Fraction<CoeffType, IEuclidenDomain<CoeffType>>>, 
-            Dictionary<int, UnivariatePolynomialNormalForm<Fraction<CoeffType, IEuclidenDomain<CoeffType>>>>> squareFreeFactorizationAlg,
-            IConversion<int, CoeffType> integerConversion,
-            IAlgorithm<IMatrix<CoeffType>, IMatrix<CoeffType>, LinearSystemSolution<CoeffType>> linearSystemSolver)
+            IAlgorithm<IMatrix<CoeffType>, IMatrix<CoeffType>, LinearSystemSolution<CoeffType>> linearSystemSolver,
+            IIntegerNumber<CoeffType> integerNumber)
         {
-            if (squareFreeFactorizationAlg == null)
+            if (integerNumber == null)
             {
-                throw new ArgumentNullException("squareFreeFactorizationAlg");
+                throw new ArgumentNullException("integerNumber");
             }
             else if (linearSystemSolver == null)
             {
                 throw new ArgumentNullException("linearSystemSolver");
             }
-            else if (integerConversion == null)
-            {
-                throw new ArgumentNullException("integerConversion");
-            }
             else
             {
-                this.squareFreeFactorizationAlg = squareFreeFactorizationAlg;
+                this.integerNumber = integerNumber;
                 this.linearSystemSolver = linearSystemSolver;
-                this.integerConversion = integerConversion;
             }
         }
 
         /// <summary>
-        /// Executa o algoritmo sobre polinómios com coeficientes em corpos finitos.
+        /// Executa o algoritmo sobre o polinómio com coeficientes inteiros.
         /// </summary>
-        /// <param name="polynom">O polinómio a ser factorizado.</param>
-        /// <param name="modularField">O corpo responsável pelas operações modulares.</param>
-        /// <param name="coeffsDomain">O domínio associado aos coeficientes.</param>
-        /// <returns>
-        /// O dicionário que contém cada um dos factores e o respectivo grau.
-        /// </returns>
-        public Dictionary<int, FiniteFieldFactorizationResult<CoeffType>> Run(
-            UnivariatePolynomialNormalForm<CoeffType> polynom, 
-            IModularField<CoeffType> modularField,
-            IEuclidenDomain<CoeffType> coeffsDomain)
+        /// <remarks>
+        /// O polinómio tem de ser livre de quadrados. Caso contrário, o resultado da aplicação do algoritmo
+        /// é imprevisível.
+        /// </remarks>
+        /// <param name="polymomial">O polinómio.</param>
+        /// <param name="modularField">O corpo modular.</param>
+        /// <returns>A factorização do polinómio.</returns>
+        public FiniteFieldFactorizationResult<CoeffType> Run(
+            UnivariatePolynomialNormalForm<CoeffType> polymomial,
+            IModularField<CoeffType> modularField)
         {
-            var result = new Dictionary<int, FiniteFieldFactorizationResult<CoeffType>>();
-
-            var fractionField = new FractionField<CoeffType, IEuclidenDomain<CoeffType>>(coeffsDomain);
+            var fractionField = new FractionField<CoeffType, IEuclidenDomain<CoeffType>>(this.integerNumber);
             var polynomDomain = new UnivarPolynomEuclideanDomain<CoeffType>(
-                polynom.VariableName,
+                polymomial.VariableName,
                 modularField);
             var bachetBezourAlg = new LagrangeAlgorithm<UnivariatePolynomialNormalForm<CoeffType>>(polynomDomain);
-            var coeffLagAlg = new LagrangeAlgorithm<CoeffType>(coeffsDomain);
 
             var polynomialField = new UnivarPolynomEuclideanDomain<CoeffType>(
-                polynom.VariableName,
+                polymomial.VariableName,
                 modularField);
 
-            var forSquareFreeFact = this.ClonePol(polynom, fractionField);
-            var squareFreeFactors = this.squareFreeFactorizationAlg.Run(forSquareFreeFact, fractionField);
-            foreach (var factorsKvp in squareFreeFactors)
-            {
-                var divisionCoeff = this.GetDenominatorLcm(
-                    factorsKvp.Value,
-                    coeffLagAlg);
-                var clonedFactor = this.GetIntegerPol(
-                    factorsKvp.Value,
-                    divisionCoeff,
-                    coeffsDomain);
-                var factored = this.Factorize(
-                    clonedFactor, 
-                    modularField, 
-                    polynomialField, 
-                    divisionCoeff,
+            var result = this.Factorize(
+                    polymomial,
+                    modularField,
+                    polynomialField,
                     bachetBezourAlg);
-                result.Add(factorsKvp.Key, factored);
-            }
 
             return result;
         }
@@ -110,26 +81,23 @@
         /// Aplica o método da factorização em corpos finitos ao polinómio simples.
         /// </summary>
         /// <param name="polynom">O polinómio simples.</param>
-        /// <param name="order">A ordem do corpo finito sob consideração.</param>
         /// <param name="integerModule">O corpo responsável pelas operações sobre os coeficientes.</param>
         /// <param name="polynomField">O corpo responsável pelo produto de polinómios.</param>
-        /// <param name="divisionCoeff">O coeficiente pelo qual o polinómio terá de ser dividido no final.</param>
         /// <param name="bachetBezoutAlgorithm">O objecto responsável pelo algoritmo de máximo divisor comum.</param>
         /// <returns>A lista dos factores.</returns>
         private FiniteFieldFactorizationResult<CoeffType> Factorize(
             UnivariatePolynomialNormalForm<CoeffType> polynom,
             IModularField<CoeffType> integerModule,
             UnivarPolynomEuclideanDomain<CoeffType> polynomField,
-            CoeffType divisionCoeff,
             LagrangeAlgorithm<UnivariatePolynomialNormalForm<CoeffType>> bachetBezoutAlgorithm)
         {
             var result = new List<UnivariatePolynomialNormalForm<CoeffType>>();
 
             var polynomialStack = new Stack<UnivariatePolynomialNormalForm<CoeffType>>();
             var processedPols = this.Process(
-                polynom, 
-                result, 
-                integerModule, 
+                polynom,
+                result,
+                integerModule,
                 polynomField,
                 bachetBezoutAlgorithm);
 
@@ -161,7 +129,7 @@
                 {
                     var invLeadingMon = integerModule.MultiplicativeInverse(leadingMon);
                     result[i] = result[i].ApplyFunction(
-                        c=>integerModule.Multiply(c, invLeadingMon), 
+                        c => integerModule.Multiply(c, invLeadingMon),
                         integerModule);
                 }
             }
@@ -169,8 +137,7 @@
             var mainLeadingMon = polynom.GetLeadingCoefficient(integerModule);
             return new FiniteFieldFactorizationResult<CoeffType>(
                 mainLeadingMon,
-                divisionCoeff,
-                result, 
+                result,
                 polynom);
         }
 
@@ -217,7 +184,7 @@
                     polynom.VariableName,
                     integerModule);
 
-                var integerModuleValue = this.integerConversion.DirectConversion(integerModule.Module);
+                var integerModuleValue = this.integerNumber.ConvertToInt(integerModule.Module);
 
                 pol = MathFunctions.Power(pol, integerModuleValue, module);
                 foreach (var term in pol)
@@ -282,10 +249,10 @@
 
                     for (int i = 0, k = 0; k < numberOfFactors && i < integerModuleValue; ++i)
                     {
-                        var converted = this.integerConversion.InverseConversion(i);
+                        var converted = this.integerNumber.MapFrom(i);
                         var currentPol = MathFunctions.GreatCommonDivisor(
-                            polynom, 
-                            hPol.Subtract(converted, integerModule), 
+                            polynom,
+                            hPol.Subtract(converted, integerModule),
                             polynomField);
                         var currentDegree = currentPol.Degree;
                         if (currentDegree == 1)
@@ -328,137 +295,6 @@
                 temporaryDic,
                 variableName,
                 module);
-        }
-
-        /// <summary>
-        /// Obtém uma cópia do polinómio especificado alterando-lhe o tipo de anel ou corpo.
-        /// </summary>
-        /// <param name="polynom">O polinómio.</param>
-        /// <param name="fractionField">O corpo.</param>
-        /// <returns>A cópia.</returns>
-        private UnivariatePolynomialNormalForm<Fraction<CoeffType, IEuclidenDomain<CoeffType>>> ClonePol(UnivariatePolynomialNormalForm<CoeffType> polynom, FractionField<CoeffType, IEuclidenDomain<CoeffType>> fractionField)
-        {
-            var result = new UnivariatePolynomialNormalForm<Fraction<CoeffType, IEuclidenDomain<CoeffType>>>(
-                polynom.VariableName);
-            foreach (var termKvp in polynom)
-            {
-                result = result.Add(new Fraction<CoeffType, IEuclidenDomain<CoeffType>>(
-                    termKvp.Value,
-                    fractionField.EuclideanDomain.MultiplicativeUnity,
-                    fractionField.EuclideanDomain),
-                    termKvp.Key, fractionField);
-            }
-
-            return result;
-        }
-
-        /// <summary>
-        /// Obém uma cópia do polinómio sobre o qual o corpo é alterado.
-        /// </summary>
-        /// <param name="polynom">O polinómio.</param>
-        /// <param name="modularIntegerField">O corpo.</param>
-        /// <returns>A cópia.</returns>
-        [Obsolete("Esta função é obsoleta.")]
-        private UnivariatePolynomialNormalForm<CoeffType> CloneInvPol(
-            UnivariatePolynomialNormalForm<Fraction<CoeffType, IEuclidenDomain<CoeffType>>> polynom,
-            IModularField<CoeffType> modularIntegerField)
-        {
-            var result = new UnivariatePolynomialNormalForm<CoeffType>(
-                polynom.VariableName);
-            foreach (var termKvp in polynom)
-            {
-                result = result.Add(
-                    modularIntegerField.Multiply(termKvp.Value.Numerator,
-                    modularIntegerField.MultiplicativeInverse(termKvp.Value.Denominator)),
-                    termKvp.Key,
-                    modularIntegerField);
-            }
-
-            return result;
-        }
-
-        /// <summary>
-        /// Obtém a parte inteira do polinómio aós ser reduzido ao mesmo denominador.
-        /// </summary>
-        /// <param name="polynom">O polinómio.</param>
-        /// <param name="denominatorLcm">O mínimo múltiplo comum do denominador.</param>
-        /// <param name="coeffsDomain">O domínio responsável pelas operações sobre os coeficientes.</param>
-        /// <returns>O polinómio com os coeficientes inteiros.</returns>
-        private UnivariatePolynomialNormalForm<CoeffType> GetIntegerPol(
-            UnivariatePolynomialNormalForm<Fraction<CoeffType, 
-            IEuclidenDomain<CoeffType>>> polynom,
-            CoeffType denominatorLcm,
-            IEuclidenDomain<CoeffType> coeffsDomain)
-        {
-            var result = new UnivariatePolynomialNormalForm<CoeffType>(polynom.VariableName);
-            if (!polynom.IsZero)
-            {
-                if (coeffsDomain.IsMultiplicativeUnity(denominatorLcm))
-                {
-                    foreach (var term in polynom)
-                    {
-                        result.Terms.Add(term.Key, term.Value.Numerator);
-                    }
-                }
-                else
-                {
-                    foreach (var term in polynom)
-                    {
-                        var integerPart = term.Value.Numerator;
-                        var coFactor = coeffsDomain.Quo(denominatorLcm, term.Value.Denominator);
-                        if (!coeffsDomain.IsMultiplicativeUnity(coFactor))
-                        {
-                            integerPart = coeffsDomain.Multiply(integerPart, coFactor);
-                        }
-
-                        result.Terms.Add(term.Key, integerPart);
-                    }
-                }
-            }
-
-            return result;
-        }
-
-        /// <summary>
-        /// Obtém o mínimo múltiplo comum entre os denominadores do polinómio.
-        /// </summary>
-        /// <param name="polynom">O polinómio.</param>
-        /// <param name="gcdCAlg">O domínio responsável pelas operações sobre os coeficientes.</param>
-        /// <returns>O valor do mínimo múltiplo comum.</returns>
-        private CoeffType GetDenominatorLcm(
-            UnivariatePolynomialNormalForm<Fraction<CoeffType, IEuclidenDomain<CoeffType>>> polynom,
-            IBachetBezoutAlgorithm<CoeffType> gcdCAlg)
-        {
-            var termsEnumerator = polynom.GetEnumerator();
-            var state = termsEnumerator.MoveNext();
-            if (state)
-            {
-                var coeff = termsEnumerator.Current.Value.Denominator;
-                state = termsEnumerator.MoveNext();
-                while (state && gcdCAlg.Domain.IsMultiplicativeUnity(coeff))
-                {
-                    coeff = termsEnumerator.Current.Value.Denominator;
-                    state = termsEnumerator.MoveNext();
-                }
-
-                while (state)
-                {
-                    var current = termsEnumerator.Current.Value.Denominator;
-                    if (!gcdCAlg.Domain.IsMultiplicativeUnity(current))
-                    {
-                        var status = gcdCAlg.Run(coeff, current);
-                        coeff = gcdCAlg.Domain.Multiply(status.FirstItem, status.SecondCofactor);
-                    }
-
-                    state = termsEnumerator.MoveNext();
-                }
-
-                return coeff;
-            }
-            else
-            {
-                return gcdCAlg.Domain.MultiplicativeUnity;
-            }
         }
     }
 }

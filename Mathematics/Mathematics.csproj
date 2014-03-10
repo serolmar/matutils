@@ -234,7 +234,9 @@
     <Compile Include="Algorithms\NumberTheory\QuadraticFieldSieve.cs" />
     <Compile Include="Algorithms\NumberTheory\ResSolAlgorithm.cs" />
     <Compile Include="Algorithms\Polynomials\FiniteFieldFactorizationResult.cs" />
+    <Compile Include="Algorithms\Polynomials\FiniteFieldFactorizationResultOld.cs" />
     <Compile Include="Algorithms\Polynomials\FiniteFieldPolFactorizationAlgorithm.cs" />
+    <Compile Include="Algorithms\Polynomials\FiniteFieldPolFactorizationAlgorithmOld.cs" />
     <Compile Include="Algorithms\Polynomials\ILinearLiftAlgorithm.cs" />
     <Compile Include="Algorithms\Polynomials\LinearLiftAlgorithm.cs" />
     <Compile Include="Algorithms\Polynomials\LinearLiftingStatus.cs" />
@@ -243,6 +245,8 @@
     <Compile Include="Algorithms\Polynomials\MultiFactorLiftingStatus.cs" />
     <Compile Include="Algorithms\Polynomials\SearchFactorizationAlgorithm.cs" />
     <Compile Include="Algorithms\Polynomials\SearchFactorizationResult.cs" />
+    <Compile Include="Algorithms\Polynomials\SquareFreeFactorizationResult.cs" />
+    <Compile Include="Algorithms\Polynomials\SquareFreeFractionFactorizationAlg.cs" />
     <Compile Include="Algorithms\Polynomials\UnivarPolDeterminantResultantAlg.cs" />
     <Compile Include="Algorithms\Polynomials\UnivarPolSubResultantAlg.cs" />
     <Compile Include="Algorithms\Polynomials\UnivarSquareFreeDecomposition.cs" />

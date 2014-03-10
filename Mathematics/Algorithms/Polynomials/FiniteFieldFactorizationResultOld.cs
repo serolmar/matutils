@@ -9,7 +9,7 @@
     /// Permite representar uma factorização em corpos finitos.
     /// </summary>
     /// <typeparam name="CoeffType">O tipo de coeficiente.</typeparam>
-    public class FiniteFieldFactorizationResult<CoeffType>
+    public class FiniteFieldFactorizationResultOld<CoeffType>
     {
         /// <summary>
         /// A lista de factores mónicos.
@@ -22,16 +22,23 @@
         private CoeffType indepdendentCoeff;
 
         /// <summary>
+        /// O coeficiente pelo qual o polinómio deverá ser dividido no final.
+        /// </summary>
+        private CoeffType divisionCoeff;
+
+        /// <summary>
         /// O polinómio a ser factorizado.
         /// </summary>
         private UnivariatePolynomialNormalForm<CoeffType> factoredPolynomial;
 
-        public FiniteFieldFactorizationResult(
+        public FiniteFieldFactorizationResultOld(
             CoeffType indepdendentCoeff,
+            CoeffType divisionCoeff,
             List<UnivariatePolynomialNormalForm<CoeffType>> factors,
             UnivariatePolynomialNormalForm<CoeffType> factoredPolynomial)
         {
             this.factors = factors;
+            this.divisionCoeff = divisionCoeff;
             this.indepdendentCoeff = indepdendentCoeff;
             this.factoredPolynomial = factoredPolynomial;
         }
@@ -66,6 +73,20 @@
             get
             {
                 return this.factoredPolynomial;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o coeficiente pelo qual o polinómio terá de ser dividido no final.
+        /// </summary>
+        /// <remarks>
+        /// Este coeficiente resulta da redunção ao mesmo denominador.
+        /// </remarks>
+        public CoeffType DivisionCoeff
+        {
+            get
+            {
+                return this.divisionCoeff;
             }
         }
     }
