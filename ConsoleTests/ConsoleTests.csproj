@@ -65,10 +65,13 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Readers\BigIntegerPolynomialReader.cs" />
+    <Compile Include="Readers\BigIntFractionPolReader.cs" />
     <Compile Include="Readers\DoubleArrayMatrixReader.cs" />
     <Compile Include="Readers\DoubleArrayVectorReader.cs" />
     <Compile Include="Readers\DoubleSparseMatrixReader.cs" />
     <Compile Include="Auxiliary\IntegerNullableDoubleConverter.cs" />
+    <Compile Include="Readers\IntegerBigIntFractionConversion.cs" />
+    <Compile Include="Readers\IntegerFractionPolReader.cs" />
     <Compile Include="Readers\IntegerPolynomialReader.cs" />
     <Compile Include="Readers\IntegerArrayVectorReader.cs" />
     <Compile Include="Readers\NullableDoubleParser.cs" />
