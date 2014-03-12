@@ -21,7 +21,7 @@
 
         static void Main(string[] args)
         {
-            Test20();
+            Test3();
             Console.ReadLine();
         }
 
@@ -162,7 +162,7 @@
                 var integerModularField = new ModularSymmetricBigIntField(prime);
 
                 // Instancia o algoritmo responsável pela factorização sobre corpos finitos.
-                var finiteFieldFactorizationAlg = new FiniteFieldPolFactorizationAlgorithmOld<BigInteger>(
+                var finiteFieldFactorizationAlgOld = new FiniteFieldPolFactorizationAlgorithmOld<BigInteger>(
                     new UnivarSquareFreeDecomposition<Fraction<BigInteger, IEuclidenDomain<BigInteger>>>(),
                     new BigIntegerToIntegerConversion(),
                     new DenseCondensationLinSysAlgorithm<BigInteger>(integerModularField));
@@ -174,7 +174,7 @@
                         modularFactory,
                         new UnivarPolEuclideanDomainFactory<BigInteger>(),
                         integerDomain));
-                var factored = finiteFieldFactorizationAlg.Run(polynom, integerModularField, integerDomain);
+                var factored = finiteFieldFactorizationAlgOld.Run(polynom, integerModularField, integerDomain);
                 var liftedFactors = new Dictionary<BigInteger, IList<UnivariatePolynomialNormalForm<BigInteger>>>();
                 foreach (var factorKvp in factored)
                 {
@@ -823,6 +823,7 @@
             var thirdInput = "(x^2+3*x+2)*(x^2-4*x+3)^3";
             var fourthInput = "x^8+x^6-3*x^4-3*x^3+8*x^2+2*x-5";
             var fifthInput = "3*x^6+5*x^4-4*x^2-9*x+21";
+            var antoherInput = "((2*x+1)*(x-4))^2*(x+3)^3";
 
             var integerDomain = new IntegerDomain();
             var bigIntegerDomain = new BigIntegerDomain();
@@ -830,6 +831,17 @@
             var integerParser = new IntegerParser<string>();
             var bigIntegerParser = new BigIntegerParser<string>();
             var fractionParser = new ElementFractionParser<int, IntegerDomain>(integerParser, integerDomain);
+
+            var bigIntFractionPolReader = new BigIntFractionPolReader();
+            var anotherPol = bigIntFractionPolReader.Read(antoherInput);
+            var integerSquareFreeFactorization = new SquareFreeFractionFactorizationAlg<BigInteger>(bigIntegerDomain);
+            var integerSquareFreeResult = integerSquareFreeFactorization.Run(anotherPol);
+
+            Console.WriteLine(integerSquareFreeResult.IndependentCoeff);
+            foreach (var factor in integerSquareFreeResult.Factors)
+            {
+                Console.WriteLine("{0} => {1}", factor.Key, factor.Value);
+            }
 
             // Leitura dos polinómios como sendo constituídos por inteiros grandes
             var integerReader = new StringReader(fourthInput);
@@ -1404,6 +1416,8 @@
         /// </summary>
         static void Test3()
         {
+            // Permite encontrar todas as permutações dos índices 0, 1 e 2 podendo estes serem repetidos tantas vezes
+            // quantas as indicadas: 0 - repete 2 vezes, 1 - repete 2 vezes, 2 - repete 2 vezes.
             var permutaionBoxAffector = new PermutationBoxAffector(new[] { 2, 2, 2 }, 3);
             foreach (var item in permutaionBoxAffector)
             {

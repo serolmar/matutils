@@ -19,21 +19,21 @@
         /// </remarks>
         /// <param name="polynomial">O texto.</param>
         /// <returns>O polinómio.</returns>
-        public UnivariatePolynomialNormalForm<Fraction<BigInteger, BigIntegerDomain>> Read(string polynomial)
+        public UnivariatePolynomialNormalForm<Fraction<BigInteger, IIntegerNumber<BigInteger>>> Read(string polynomial)
         {
             var integerDomain = new BigIntegerDomain();
-            var fractionField = new FractionField<BigInteger, BigIntegerDomain>(integerDomain);
+            var fractionField = new FractionField<BigInteger, IIntegerNumber<BigInteger>>(integerDomain);
             var integerParser = new BigIntegerParser<string>();
-            var fractionParser = new FractionExpressionParser<BigInteger, BigIntegerDomain>(integerParser, fractionField);
-            var conversion = new IntegerBigIntFractionConversion(integerDomain);
+            var fractionParser = new FractionExpressionParser<BigInteger, IIntegerNumber<BigInteger>>(integerParser, fractionField);
+            var conversion = new IntegerBigIntFractionConversion(integerDomain, new BigIntegerToIntegerConversion());
             var polInputReader = new StringReader(polynomial);
             var polSymbolReader = new StringSymbolReader(polInputReader, false);
-            var polParser = new UnivariatePolynomialReader<Fraction<BigInteger, BigIntegerDomain>, CharSymbolReader<string>>(
+            var polParser = new UnivariatePolynomialReader<Fraction<BigInteger, IIntegerNumber<BigInteger>>, CharSymbolReader<string>>(
                 "x",
                 fractionParser,
                 fractionField);
 
-            var result = default(UnivariatePolynomialNormalForm<Fraction<BigInteger, BigIntegerDomain>>);
+            var result = default(UnivariatePolynomialNormalForm<Fraction<BigInteger, IIntegerNumber<BigInteger>>>);
             if (polParser.TryParsePolynomial(polSymbolReader, conversion, out result))
             {
                 // O polinómio foi lido com sucesso.

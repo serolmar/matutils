@@ -8,40 +8,83 @@
     using Mathematics;
 
     public class IntegerBigIntFractionConversion
-        : IConversion<int, Fraction<BigInteger, BigIntegerDomain>>
+        : IConversion<int, Fraction<BigInteger, IIntegerNumber<BigInteger>>>
     {
-        private BigIntegerDomain bigIntegerDomain;
+        private IIntegerNumber<BigInteger> integerNumber;
 
-        public IntegerBigIntFractionConversion(BigIntegerDomain bigIntegerDomain)
+        private BigIntegerToIntegerConversion bigIntegerToIntegerConversion;
+
+        public IntegerBigIntFractionConversion(
+            IIntegerNumber<BigInteger> integerNumber,
+            BigIntegerToIntegerConversion bigIntegerToIntegerConversion)
         {
-            if (bigIntegerDomain == null)
+            if (integerNumber == null)
             {
-                throw new ArgumentNullException("bigIntegerDomain");
+                throw new ArgumentNullException("integerNumber");
+            }
+            else if (bigIntegerToIntegerConversion == null)
+            {
+                throw new ArgumentNullException("bigIntegerToIntegerConversion");
             }
             else
             {
-                this.bigIntegerDomain = bigIntegerDomain;
+                this.integerNumber = integerNumber;
+                this.bigIntegerToIntegerConversion = bigIntegerToIntegerConversion;
             }
         }
 
-        public bool CanApplyDirectConversion(Fraction<BigInteger, BigIntegerDomain> objectToConvert)
+        public bool CanApplyDirectConversion(Fraction<BigInteger, IIntegerNumber<BigInteger>> objectToConvert)
         {
-            throw new NotImplementedException();
+            if (objectToConvert == null)
+            {
+                throw new ArgumentNullException("objectToConvert");
+            }
+            else if (this.integerNumber.IsMultiplicativeUnity(objectToConvert.Denominator))
+            {
+                return this.bigIntegerToIntegerConversion.CanApplyDirectConversion(objectToConvert.Numerator);
+            }
+            else if (this.integerNumber.IsMultiplicativeUnity(this.integerNumber.AdditiveInverse(objectToConvert.Denominator)))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         public bool CanApplyInverseConversion(int objectToConvert)
         {
-            throw new NotImplementedException();
+            return true;
         }
 
-        public int DirectConversion(Fraction<BigInteger, BigIntegerDomain> objectToConvert)
+        public int DirectConversion(Fraction<BigInteger, IIntegerNumber<BigInteger>> objectToConvert)
         {
-            throw new NotImplementedException();
+            if (objectToConvert == null)
+            {
+                throw new ArgumentNullException("objectToConvert");
+            }
+            else if (this.integerNumber.IsMultiplicativeUnity(objectToConvert.Denominator))
+            {
+                return this.bigIntegerToIntegerConversion.DirectConversion(objectToConvert.Numerator);
+            }
+                else if (this.integerNumber.IsMultiplicativeUnity(this.integerNumber.AdditiveInverse(objectToConvert.Denominator)))
+            {
+                return this.bigIntegerToIntegerConversion.DirectConversion(
+                    this.integerNumber.AdditiveInverse(objectToConvert.Numerator));
+            }
+            else
+            {
+                throw new MathematicsException(string.Format("Can't convert {0} to an integer value.", objectToConvert));
+            }
         }
 
-        public Fraction<BigInteger, BigIntegerDomain> InverseConversion(int objectToConvert)
+        public Fraction<BigInteger, IIntegerNumber<BigInteger>> InverseConversion(int objectToConvert)
         {
-            throw new NotImplementedException();
+            return new Fraction<BigInteger, IIntegerNumber<BigInteger>>(
+                objectToConvert,
+                this.integerNumber.MultiplicativeUnity,
+                this.integerNumber);
         }
     }
 }

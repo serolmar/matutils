@@ -186,7 +186,7 @@
                                     lcm,
                                     this.integerNumber.MultiplicativeUnity,
                                     this.integerNumber);
-                                var multipliedPol = squareFreeFactor.Multiply(independentCoeff, this.fractionField);
+                                var multipliedPol = squareFreeFactor.Multiply(multipliable, this.fractionField);
                                 var integerPol = this.GetIntegerPol(multipliedPol);
                                 result.Add(currentDegree, integerPol);
                             }
@@ -297,7 +297,7 @@
             var result = new UnivariatePolynomialNormalForm<CoeffType>(polynomial.VariableName);
             foreach (var term in polynomial)
             {
-                result.Add(term.Value.Numerator, term.Key, this.integerNumber);
+                result = result.Add(term.Value.Numerator, term.Key, this.integerNumber);
             }
 
             return result;
