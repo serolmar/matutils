@@ -16,7 +16,7 @@
         private UnivariatePolynomialNormalForm<CoeffType> polynom;
 
         /// <summary>
-        /// O conjunto de factores mónicos.
+        /// O conjunto de factores mónicos com excepção do primeiro.
         /// </summary>
         private IList<UnivariatePolynomialNormalForm<CoeffType>> factors;
 
@@ -47,7 +47,7 @@
         }
 
         /// <summary>
-        /// Obtém o conjunto de factores.
+        /// Obtém o conjunto de factores sendo todos mónicos com excepção de, possivelmente, o primeiro.
         /// </summary>
         public IList<UnivariatePolynomialNormalForm<CoeffType>> Factors
         {

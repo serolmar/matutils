@@ -6,18 +6,14 @@
     using System.Numerics;
     using System.Text;
 
-    /// <summary>
-    /// Permite representar as operações sobre o subconjunto dos números inteiros representáveis por uma
-    /// variável do tipo inteiro.
-    /// </summary>
-    public class IntegerDomain : IIntegerNumber<int>
+    public class LongDomain : IIntegerNumber<long>
     {
-        public int MultiplicativeUnity
+        public long MultiplicativeUnity
         {
             get { return 1; }
         }
 
-        public int AdditiveUnity
+        public long AdditiveUnity
         {
             get { return 0; }
         }
@@ -30,7 +26,7 @@
             }
         }
 
-        public int Multiply(int left, int right)
+        public long Multiply(long left, long right)
         {
             checked
             {
@@ -38,12 +34,12 @@
             }
         }
 
-        public int AdditiveInverse(int number)
+        public long AdditiveInverse(long number)
         {
             return -number;
         }
 
-        public int Add(int left, int right)
+        public long Add(long left, long right)
         {
             checked
             {
@@ -51,7 +47,7 @@
             }
         }
 
-        public int AddRepeated(int left, int right)
+        public long AddRepeated(long left, int right)
         {
             checked
             {
@@ -59,47 +55,47 @@
             }
         }
 
-        public bool Equals(int x, int y)
+        public bool Equals(long x, long y)
         {
             return x == y;
         }
 
-        public int GetHashCode(int obj)
+        public int GetHashCode(long obj)
         {
             return obj.GetHashCode();
         }
 
-        public bool IsAdditiveUnity(int value)
+        public bool IsAdditiveUnity(long value)
         {
             return value == 0;
         }
 
-        public bool IsMultiplicativeUnity(int value)
+        public bool IsMultiplicativeUnity(long value)
         {
             return value == 1;
         }
 
-        public int Quo(int dividend, int divisor)
+        public long Quo(long dividend, long divisor)
         {
             return dividend / divisor;
         }
 
-        public int Rem(int dividend, int divisor)
+        public long Rem(long dividend, long divisor)
         {
             return dividend % divisor;
         }
 
-        public uint Degree(int value)
+        public uint Degree(long value)
         {
             return (uint)Math.Abs(value);
         }
 
-        public DomainResult<int> GetQuotientAndRemainder(int dividend, int divisor)
+        public DomainResult<long> GetQuotientAndRemainder(long dividend, long divisor)
         {
-            return new DomainResult<int>(dividend / divisor, dividend % divisor);
+            return new DomainResult<long>(dividend / divisor, dividend % divisor);
         }
 
-        public IEnumerable<int> Units
+        public IEnumerable<long> Units
         {
             get
             {
@@ -108,7 +104,7 @@
             }
         }
 
-        public int Predecessor(int number)
+        public long Predecessor(long number)
         {
             if (number == int.MinValue)
             {
@@ -123,9 +119,9 @@
             }
         }
 
-        public int Successor(int number)
+        public long Successor(long number)
         {
-            if (number == int.MaxValue)
+            if (number == long.MaxValue)
             {
                 throw new ArgumentException("The greatest number has no successor.");
             }
@@ -138,12 +134,12 @@
             }
         }
 
-        public int MapFrom(int number)
+        public long MapFrom(int number)
         {
             return number;
         }
 
-        public int MapFrom(long number)
+        public long MapFrom(long number)
         {
             if (number < int.MinValue || number > int.MaxValue)
             {
@@ -155,7 +151,7 @@
             }
         }
 
-        public int MapFrom(BigInteger number)
+        public long MapFrom(BigInteger number)
         {
             if (number < int.MinValue || number > int.MaxValue)
             {
@@ -167,27 +163,27 @@
             }
         }
 
-        public int GetNorm(int value)
+        public long GetNorm(long value)
         {
-            return (int)Math.Abs(value);
+            return (long)Math.Abs(value);
         }
 
-        public int Compare(int x, int y)
+        public int Compare(long x, long y)
         {
-            return Comparer<int>.Default.Compare(x, y);
+            return Comparer<long>.Default.Compare(x, y);
         }
 
-        public int ConvertToInt(int number)
+        public int ConvertToInt(long number)
+        {
+            return (int)number;
+        }
+
+        public long ConvertToLong(long number)
         {
             return number;
         }
 
-        public long ConvertToLong(int number)
-        {
-            return number;
-        }
-
-        public BigInteger ConvertToBigInteger(int number)
+        public BigInteger ConvertToBigInteger(long number)
         {
             return number;
         }

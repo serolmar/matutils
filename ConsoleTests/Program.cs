@@ -21,7 +21,7 @@
 
         static void Main(string[] args)
         {
-            Test3();
+            Test20();
             Console.ReadLine();
         }
 
@@ -119,7 +119,8 @@
             //var liftAlgRes = liftAlg.Run(liftInput, 10);
 
             //var polynom = polynomialReader.Read("(2*x+1)*(x+3)^2");
-            var polynom = polynomialReader.Read("(2*x+1)^2*(x+3)^3");
+            //var polynom = polynomialReader.Read("(2*x+1)^2*(x+3)^3");
+            var polynom = polynomialReader.Read("x^3+10*x^2-432*x+5040");
 
             // Instanciação dos algoritmos
             var resultantAlg = new UnivarPolDeterminantResultantAlg<BigInteger>(new BigIntegerDomain());
@@ -1416,6 +1417,12 @@
         /// </summary>
         static void Test3()
         {
+            var swapIndicesGenerator = new PermutationAffector(10);
+            foreach (var vector in swapIndicesGenerator)
+            {
+                Console.WriteLine(PrintVector(vector));
+            }
+
             // Permite encontrar todas as permutações dos índices 0, 1 e 2 podendo estes serem repetidos tantas vezes
             // quantas as indicadas: 0 - repete 2 vezes, 1 - repete 2 vezes, 2 - repete 2 vezes.
             var permutaionBoxAffector = new PermutationBoxAffector(new[] { 2, 2, 2 }, 3);

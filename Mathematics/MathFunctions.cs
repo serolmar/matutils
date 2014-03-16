@@ -34,15 +34,24 @@
             var result = multiplier.MultiplicativeUnity;
             var innerPow = pow;
             var innerVal = val;
-            while (innerPow > 0)
+            if (innerPow > 0)
             {
                 if (innerPow % 2 == 1)
                 {
                     result = multiplier.Multiply(result, innerVal);
                 }
 
-                innerPow = innerPow / 2;
-                innerVal = multiplier.Multiply(innerVal, innerVal);
+                innerPow = innerPow >> 1;
+                while (innerPow > 0)
+                {
+                    innerVal = multiplier.Multiply(innerVal, innerVal);
+                    if (innerPow % 2 == 1)
+                    {
+                        result = multiplier.Multiply(result, innerVal);
+                    }
+
+                    innerPow = innerPow >> 1;
+                }
             }
 
             return result;
@@ -73,15 +82,24 @@
             var result = multiplier.MultiplicativeUnity;
             var innerPow = pow;
             var innerVal = val;
-            while (innerPow > 0)
+            if (innerPow > 0)
             {
                 if (innerPow % 2 == 1)
                 {
                     result = multiplier.Multiply(result, innerVal);
                 }
 
-                innerPow = innerPow / 2;
-                innerVal = multiplier.Multiply(innerVal, innerVal);
+                innerPow = innerPow >> 1;
+                while (innerPow > 0)
+                {
+                    innerVal = multiplier.Multiply(innerVal, innerVal);
+                    if (innerPow % 2 == 1)
+                    {
+                        result = multiplier.Multiply(result, innerVal);
+                    }
+
+                    innerPow = innerPow >> 1;
+                }
             }
 
             return result;
@@ -112,15 +130,24 @@
             var result = multiplier.MultiplicativeUnity;
             var innerPow = pow;
             var innerVal = val;
-            while (innerPow > 0)
+            if (innerPow > 0)
             {
                 if (innerPow % 2 == 1)
                 {
                     result = multiplier.Multiply(result, innerVal);
                 }
 
-                innerPow = innerPow / 2;
-                innerVal = multiplier.Multiply(innerVal, innerVal);
+                innerPow = innerPow >> 1;
+                while (innerPow > 0)
+                {
+                    innerVal = multiplier.Multiply(innerVal, innerVal);
+                    if (innerPow % 2 == 1)
+                    {
+                        result = multiplier.Multiply(result, innerVal);
+                    }
+
+                    innerPow = innerPow >> 1;
+                }
             }
 
             return result;
@@ -152,7 +179,7 @@
                 var innerPow = pow;
                 var innerVal = val;
                 var two = integerNumber.Successor(integerNumber.MultiplicativeUnity);
-                while (integerNumber.Compare(innerPow, integerNumber.AdditiveUnity) > 0)
+                if (integerNumber.Compare(innerPow, integerNumber.AdditiveUnity) > 0)
                 {
                     var remQuo = integerNumber.GetQuotientAndRemainder(innerPow, two);
                     if (integerNumber.IsMultiplicativeUnity(remQuo.Remainder))
@@ -161,7 +188,17 @@
                     }
 
                     innerPow = remQuo.Quotient;
-                    innerVal = domain.Multiply(innerVal, innerVal);
+                    while (integerNumber.Compare(innerPow, integerNumber.AdditiveUnity) > 0)
+                    {
+                        innerVal = domain.Multiply(innerVal, innerVal);
+                        remQuo = integerNumber.GetQuotientAndRemainder(innerPow, two);
+                        if (integerNumber.IsMultiplicativeUnity(remQuo.Remainder))
+                        {
+                            result = domain.Multiply(result, innerVal);
+                        }
+
+                        innerPow = remQuo.Quotient;
+                    }
                 }
 
                 return result;
@@ -193,15 +230,25 @@
             var result = monoid.AdditiveUnity;
             var innerPow = pow;
             var innerVal = val;
-            while (innerPow > 0)
+
+            if (innerPow > 0)
             {
                 if (innerPow % 2 == 1)
                 {
                     result = monoid.Add(result, innerVal);
                 }
 
-                innerPow = innerPow / 2;
-                innerVal = monoid.Add(innerVal, innerVal);
+                innerPow = innerPow >> 1;
+                while (innerPow > 0)
+                {
+                    innerVal = monoid.Add(innerVal, innerVal);
+                    if (innerPow % 2 == 1)
+                    {
+                        result = monoid.Add(result, innerVal);
+                    }
+
+                    innerPow = innerPow >> 1;
+                }
             }
 
             return result;
@@ -232,15 +279,24 @@
             var result = monoid.AdditiveUnity;
             var innerPow = pow;
             var innerVal = val;
-            while (innerPow > 0)
+            if (innerPow > 0)
             {
                 if (innerPow % 2 == 1)
                 {
                     result = monoid.Add(result, innerVal);
                 }
 
-                innerPow = innerPow / 2;
-                innerVal = monoid.Add(innerVal, innerVal);
+                innerPow = innerPow >> 1;
+                while (innerPow > 0)
+                {
+                    innerVal = monoid.Add(innerVal, innerVal);
+                    if (innerPow % 2 == 1)
+                    {
+                        result = monoid.Add(result, innerVal);
+                    }
+
+                    innerPow = innerPow >> 1;
+                }
             }
 
             return result;
@@ -271,15 +327,24 @@
             var result = monoid.AdditiveUnity;
             var innerPow = pow;
             var innerVal = val;
-            while (innerPow > 0)
+            if (innerPow > 0)
             {
                 if (innerPow % 2 == 1)
                 {
                     result = monoid.Add(result, innerVal);
                 }
 
-                innerPow = innerPow / 2;
-                innerVal = monoid.Add(innerVal, innerVal);
+                innerPow = innerPow >> 1;
+                while (innerPow > 0)
+                {
+                    innerVal = monoid.Add(innerVal, innerVal);
+                    if (innerPow % 2 == 1)
+                    {
+                        result = monoid.Add(result, innerVal);
+                    }
+
+                    innerPow = innerPow >> 1;
+                }
             }
 
             return result;
@@ -413,6 +478,116 @@
             }
 
             return (int)current;
+        }
+
+        /// <summary>
+        /// Permite obter a divisão inteira de dois polinómios.
+        /// </summary>
+        /// <typeparam name="CoeffType">O tipo de coeficiente dos argumentos.</typeparam>
+        /// <param name="dividend">O dividendo.</param>
+        /// <param name="divisor">O divisor.</param>
+        /// <param name="coeffsDomain">O domínio responsável pelas operações sobre os coeficientes.</param>
+        /// <returns>O resultado da divisão.</returns>
+        /// <exception cref="ArgumentNullException">Caso alguns dos argumentos sejam nulos.</exception>
+        /// <exception cref="DivideByZeroException">Caso o divisor seja identicamente zero.</exception>
+        /// <exception cref="MathematicsException">Caso o dividendo não seja divisível pelo divisor.</exception>
+        public static DomainResult<UnivariatePolynomialNormalForm<CoeffType>> GetIntegerDivision<CoeffType>(
+            UnivariatePolynomialNormalForm<CoeffType> dividend,
+            UnivariatePolynomialNormalForm<CoeffType> divisor,
+            IEuclidenDomain<CoeffType> coeffsDomain)
+        {
+            if (dividend == null)
+            {
+                throw new ArgumentNullException("dividend");
+            }
+            else if (divisor == null)
+            {
+                throw new ArgumentNullException("divisor");
+            }
+            else if (coeffsDomain == null)
+            {
+                throw new ArgumentNullException("coeffsDomain");
+            }
+            else if (divisor.IsZero)
+            {
+                throw new DivideByZeroException("Can't divide by the null polynomial.");
+            }
+            else if (divisor.Degree > dividend.Degree)
+            {
+                return new DomainResult<UnivariatePolynomialNormalForm<CoeffType>>(
+                    new UnivariatePolynomialNormalForm<CoeffType>(dividend.VariableName),
+                    dividend);
+            }
+            else
+            {
+                var remainderSortedCoeffs = dividend.GetOrderedCoefficients(Comparer<int>.Default);
+                var divisorSorteCoeffs = divisor.GetOrderedCoefficients(Comparer<int>.Default);
+                var quotientCoeffs = new UnivariatePolynomialNormalForm<CoeffType>(dividend.VariableName);
+                var remainderLeadingDegree = remainderSortedCoeffs.Keys[remainderSortedCoeffs.Keys.Count - 1];
+                var divisorLeadingDegree = divisorSorteCoeffs.Keys[divisorSorteCoeffs.Keys.Count - 1];
+                var divisorLeadingCoeff = divisorSorteCoeffs[divisorLeadingDegree];
+                while (remainderLeadingDegree >= divisorLeadingDegree && remainderSortedCoeffs.Count > 0)
+                {
+                    var remainderLeadingCoeff = remainderSortedCoeffs[remainderLeadingDegree];
+                    var differenceDegree = remainderLeadingDegree - divisorLeadingDegree;
+                    var quotientRemainder = coeffsDomain.GetQuotientAndRemainder(remainderLeadingCoeff, divisorLeadingCoeff);
+                    if (coeffsDomain.IsAdditiveUnity(quotientRemainder.Remainder))
+                    {
+                        throw new MathematicsException("The dividend isn't divisible by the divisor.");
+                    }
+                    else
+                    {
+                        quotientCoeffs = quotientCoeffs.Add(quotientRemainder.Quotient, differenceDegree, coeffsDomain);
+                        remainderSortedCoeffs.Remove(remainderLeadingDegree);
+                        for (int i = 0; i < divisorSorteCoeffs.Keys.Count - 1; ++i)
+                        {
+                            var currentDivisorDegree = divisorSorteCoeffs.Keys[i];
+                            var currentCoeff = coeffsDomain.Multiply(
+                                divisorSorteCoeffs[currentDivisorDegree],
+                                remainderLeadingCoeff);
+                            currentDivisorDegree += differenceDegree;
+                            var addCoeff = default(CoeffType);
+                            if (remainderSortedCoeffs.TryGetValue(currentDivisorDegree, out addCoeff))
+                            {
+                                addCoeff = coeffsDomain.Add(
+                                    addCoeff,
+                                    coeffsDomain.AdditiveInverse(currentCoeff));
+                                if (coeffsDomain.IsAdditiveUnity(addCoeff))
+                                {
+                                    remainderSortedCoeffs.Remove(currentDivisorDegree);
+                                }
+                                else
+                                {
+                                    remainderSortedCoeffs[currentDivisorDegree] = addCoeff;
+                                }
+                            }
+                            else
+                            {
+                                remainderSortedCoeffs.Add(
+                                    currentDivisorDegree,
+                                    coeffsDomain.AdditiveInverse(currentCoeff));
+                            }
+                        }
+
+                        if (remainderSortedCoeffs.Count > 0)
+                        {
+                            remainderLeadingDegree = remainderSortedCoeffs.Keys[remainderSortedCoeffs.Keys.Count - 1];
+                        }
+                        else
+                        {
+                            remainderLeadingDegree = 0;
+                        }
+                    }
+                }
+
+                var remainder = new UnivariatePolynomialNormalForm<CoeffType>(
+                    remainderSortedCoeffs,
+                    dividend.VariableName,
+                    coeffsDomain);
+                return new DomainResult<UnivariatePolynomialNormalForm<CoeffType>>(
+                    quotientCoeffs,
+                    remainder);
+            }
         }
     }
 }

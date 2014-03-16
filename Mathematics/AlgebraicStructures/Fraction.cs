@@ -296,5 +296,42 @@ namespace Mathematics
             this.numerator = this.euclideanDomain.Quo(this.numerator, gcd);
             this.denominator = this.euclideanDomain.Quo(this.denominator, gcd);
         }
+
+        /// <summary>
+        /// Verifica a igualdade entre fracções.
+        /// </summary>
+        /// <param name="obj">A fracção a comprar.</param>
+        /// <returns>Verdadeiro caso as fracções sejam iguais e falso caso contrário.</returns>
+        public override bool Equals(object obj)
+        {
+            if (obj == null)
+            {
+                return false;
+            }
+            else
+            {
+                var innerObj = obj as Fraction<T, D>;
+                if (innerObj == null)
+                {
+                    return false;
+                }
+                else
+                {
+                    return this.euclideanDomain.Equals(this.numerator, innerObj.numerator) &&
+                        this.euclideanDomain.Equals(this.denominator, innerObj.denominator);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Obtém o valor representativo da fracção actual.
+        /// </summary>
+        /// <returns>O valor da fracção actual.</returns>
+        public override int GetHashCode()
+        {
+            var result = 17 * this.euclideanDomain.GetHashCode(this.numerator);
+            result *= 19 * this.euclideanDomain.GetHashCode(this.denominator);
+            return result.GetHashCode();
+        }
     }
 }

@@ -9,7 +9,7 @@
     /// Permite representar uma factorização em corpos finitos.
     /// </summary>
     /// <typeparam name="CoeffType">O tipo de coeficiente.</typeparam>
-    public class FiniteFieldFactorizationResult<CoeffType>
+    public class PolynomialFactorizationResult<CoeffType>
     {
         /// <summary>
         /// A lista de factores mónicos.
@@ -26,7 +26,7 @@
         /// </summary>
         private UnivariatePolynomialNormalForm<CoeffType> factoredPolynomial;
 
-        public FiniteFieldFactorizationResult(
+        public PolynomialFactorizationResult(
             CoeffType indepdendentCoeff,
             List<UnivariatePolynomialNormalForm<CoeffType>> factors,
             UnivariatePolynomialNormalForm<CoeffType> factoredPolynomial)
