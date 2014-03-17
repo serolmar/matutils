@@ -110,6 +110,7 @@
     <Compile Include="Parsers\ExpressionReader\ExpressionReader.cs" />
     <Compile Include="Parsers\ExpressionReader\ExpressionReaderException.cs" />
     <Compile Include="Parsers\Simple Parsers\IntegerParser.cs" />
+    <Compile Include="Parsers\Simple Parsers\LongParser.cs" />
     <Compile Include="Parsers\StringSymbol.cs" />
     <Compile Include="Parsers\StringSymbolReader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

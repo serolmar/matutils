@@ -73,8 +73,10 @@
     <Compile Include="AlgebraicStructures\Implementations\FractionNormSpace.cs" />
     <Compile Include="AlgebraicStructures\Implementations\IntegerNormSpace.cs" />
     <Compile Include="AlgebraicStructures\Implementations\LongDomain.cs" />
+    <Compile Include="AlgebraicStructures\Implementations\LongToIntegerConversion.cs" />
     <Compile Include="AlgebraicStructures\Implementations\ModularSymmetricBigIntField.cs" />
     <Compile Include="AlgebraicStructures\Implementations\ModularSymmetricIntField.cs" />
+    <Compile Include="AlgebraicStructures\Implementations\OuterElementFractionConversion.cs" />
     <Compile Include="AlgebraicStructures\Implementations\UnivarPolynomPseudoDomain.cs" />
     <Compile Include="AlgebraicStructures\Implementations\VectorSpace.cs" />
     <Compile Include="AlgebraicStructures\Implementations\MetricMatrixVectorScalarProduct.cs" />

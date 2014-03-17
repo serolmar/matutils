@@ -17,7 +17,9 @@
 
         IAlgorithm<NumberType, NumberType> integerSquareRootAlgorithm;
 
-        public NaiveIntegerFactorizationAlgorithm(IAlgorithm<NumberType, NumberType> integerSquareRootAlgorithm, IIntegerNumber<NumberType> integerNumber)
+        public NaiveIntegerFactorizationAlgorithm(
+            IAlgorithm<NumberType, NumberType> integerSquareRootAlgorithm, 
+            IIntegerNumber<NumberType> integerNumber)
         {
             if (integerNumber == null)
             {
@@ -85,11 +87,45 @@
                     }
                 }
 
-                var difference = this.integerNumber.MapFrom(2);
                 var sqrt = this.integerSquareRootAlgorithm.Run(innerData);
+                power = 0;
                 currentPrime = this.integerNumber.MapFrom(3);
-                while (this.integerNumber.Compare(currentPrime, sqrt) <= 0 &&
-                    this.integerNumber.Compare(currentPrime, innerData) <= 0)
+                computation = this.integerNumber.GetQuotientAndRemainder(innerData, currentPrime);
+                while (this.integerNumber.IsAdditiveUnity(computation.Remainder))
+                {
+                    ++power;
+                    innerData = computation.Quotient;
+                    computation = this.integerNumber.GetQuotientAndRemainder(innerData, currentPrime);
+                }
+
+                if (power > 0)
+                {
+                    result.Add(currentPrime, power);
+                    sqrt = this.integerSquareRootAlgorithm.Run(innerData);
+                }
+
+                power = 0;
+                currentPrime = this.integerNumber.MapFrom(5);
+                computation = this.integerNumber.GetQuotientAndRemainder(innerData, currentPrime);
+                computation = this.integerNumber.GetQuotientAndRemainder(innerData, currentPrime);
+                while (this.integerNumber.IsAdditiveUnity(computation.Remainder))
+                {
+                    ++power;
+                    innerData = computation.Quotient;
+                    computation = this.integerNumber.GetQuotientAndRemainder(innerData, currentPrime);
+                }
+
+                if (power > 0)
+                {
+                    result.Add(currentPrime, power);
+                    sqrt = this.integerSquareRootAlgorithm.Run(innerData);
+                }
+
+                var n1 = this.integerNumber.MapFrom(2);
+                var n2 = this.integerNumber.MapFrom(4);
+                var n3 = this.integerNumber.MapFrom(6);
+                currentPrime = this.integerNumber.MapFrom(7);
+                while (this.integerNumber.Compare(currentPrime, sqrt) <= 0)
                 {
                     power = 0;
                     computation = this.integerNumber.GetQuotientAndRemainder(innerData, currentPrime);
@@ -103,9 +139,122 @@
                     if (power > 0)
                     {
                         result.Add(currentPrime, power);
+                        sqrt = this.integerSquareRootAlgorithm.Run(innerData);
                     }
 
-                    currentPrime = this.integerNumber.Add(currentPrime, difference);
+                    power = 0;
+                    currentPrime = this.integerNumber.Add(currentPrime, n2);
+                    computation = this.integerNumber.GetQuotientAndRemainder(innerData, currentPrime);
+                    while (this.integerNumber.IsAdditiveUnity(computation.Remainder))
+                    {
+                        ++power;
+                        innerData = computation.Quotient;
+                        computation = this.integerNumber.GetQuotientAndRemainder(innerData, currentPrime);
+                    }
+
+                    if (power > 0)
+                    {
+                        result.Add(currentPrime, power);
+                        sqrt = this.integerSquareRootAlgorithm.Run(innerData);
+                    }
+
+                    power = 0;
+                    currentPrime = this.integerNumber.Add(currentPrime, n1);
+                    computation = this.integerNumber.GetQuotientAndRemainder(innerData, currentPrime);
+                    while (this.integerNumber.IsAdditiveUnity(computation.Remainder))
+                    {
+                        ++power;
+                        innerData = computation.Quotient;
+                        computation = this.integerNumber.GetQuotientAndRemainder(innerData, currentPrime);
+                    }
+
+                    if (power > 0)
+                    {
+                        result.Add(currentPrime, power);
+                        sqrt = this.integerSquareRootAlgorithm.Run(innerData);
+                    }
+
+                    power = 0;
+                    currentPrime = this.integerNumber.Add(currentPrime, n2);
+                    computation = this.integerNumber.GetQuotientAndRemainder(innerData, currentPrime);
+                    while (this.integerNumber.IsAdditiveUnity(computation.Remainder))
+                    {
+                        ++power;
+                        innerData = computation.Quotient;
+                        computation = this.integerNumber.GetQuotientAndRemainder(innerData, currentPrime);
+                    }
+
+                    if (power > 0)
+                    {
+                        result.Add(currentPrime, power);
+                        sqrt = this.integerSquareRootAlgorithm.Run(innerData);
+                    }
+
+                    power = 0;
+                    currentPrime = this.integerNumber.Add(currentPrime, n1);
+                    computation = this.integerNumber.GetQuotientAndRemainder(innerData, currentPrime);
+                    while (this.integerNumber.IsAdditiveUnity(computation.Remainder))
+                    {
+                        ++power;
+                        innerData = computation.Quotient;
+                        computation = this.integerNumber.GetQuotientAndRemainder(innerData, currentPrime);
+                    }
+
+                    if (power > 0)
+                    {
+                        result.Add(currentPrime, power);
+                        sqrt = this.integerSquareRootAlgorithm.Run(innerData);
+                    }
+
+                    power = 0;
+                    currentPrime = this.integerNumber.Add(currentPrime, n2);
+                    computation = this.integerNumber.GetQuotientAndRemainder(innerData, currentPrime);
+                    while (this.integerNumber.IsAdditiveUnity(computation.Remainder))
+                    {
+                        ++power;
+                        innerData = computation.Quotient;
+                        computation = this.integerNumber.GetQuotientAndRemainder(innerData, currentPrime);
+                    }
+
+                    if (power > 0)
+                    {
+                        result.Add(currentPrime, power);
+                        sqrt = this.integerSquareRootAlgorithm.Run(innerData);
+                    }
+
+                    power = 0;
+                    currentPrime = this.integerNumber.Add(currentPrime, n3);
+                    computation = this.integerNumber.GetQuotientAndRemainder(innerData, currentPrime);
+                    while (this.integerNumber.IsAdditiveUnity(computation.Remainder))
+                    {
+                        ++power;
+                        innerData = computation.Quotient;
+                        computation = this.integerNumber.GetQuotientAndRemainder(innerData, currentPrime);
+                    }
+
+                    if (power > 0)
+                    {
+                        result.Add(currentPrime, power);
+                        sqrt = this.integerSquareRootAlgorithm.Run(innerData);
+                    }
+
+                    power = 0;
+                    currentPrime = this.integerNumber.Add(currentPrime, n1);
+                    computation = this.integerNumber.GetQuotientAndRemainder(innerData, currentPrime);
+                    while (this.integerNumber.IsAdditiveUnity(computation.Remainder))
+                    {
+                        ++power;
+                        innerData = computation.Quotient;
+                        computation = this.integerNumber.GetQuotientAndRemainder(innerData, currentPrime);
+                    }
+
+                    if (power > 0)
+                    {
+                        result.Add(currentPrime, power);
+                        sqrt = this.integerSquareRootAlgorithm.Run(innerData);
+                    }
+
+                    currentPrime = this.integerNumber.Add(currentPrime, n3);
                 }
 
                 var isunit = false;

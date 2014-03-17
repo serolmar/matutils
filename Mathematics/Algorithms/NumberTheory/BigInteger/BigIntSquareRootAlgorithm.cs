@@ -38,7 +38,7 @@
                     var sr = r;
 
                     r2 += ((r << (1 + b)) + (BigInteger.One << (b + b)));
-                    r += (1 << b);
+                    r += (BigInteger.One << b);
                     if (r2 > data)
                     {
                         r = sr;

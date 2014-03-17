@@ -23,15 +23,30 @@
         /// </summary>
         private BigInteger upperLimit;
 
+        /// <summary>
+        /// Algoritmo que permite calcular a parte inteira da raiz quadrada de um número.
+        /// </summary>
+        private IAlgorithm<BigInteger, BigInteger> squareRootAlgorithm;
+
         static BigIntPrimeNumbsIterator()
         {
             // Otbém os números primos e as diferenças a partir dos recursos.
             InitClassFromResources();
         }
 
-        public BigIntPrimeNumbsIterator(BigInteger upperLimit)
+        public BigIntPrimeNumbsIterator(
+            BigInteger upperLimit,
+            IAlgorithm<BigInteger, BigInteger> squareRootAlgorithm)
         {
-            this.upperLimit = upperLimit;
+            if (squareRootAlgorithm == null)
+            {
+                throw new ArgumentNullException("squareRootAlgorithm");
+            }
+            else
+            {
+                this.squareRootAlgorithm = squareRootAlgorithm;
+                this.upperLimit = upperLimit;
+            }
         }
 
         /// <summary>
@@ -51,7 +66,11 @@
         /// <returns>O enumerador.</returns>
         public IEnumerator<BigInteger> GetEnumerator()
         {
-            return new BigIntPrimeNumbsEnumerator(this.upperLimit, firstPrimes, differences);
+            return new BigIntPrimeNumbsEnumerator(
+                this.upperLimit, 
+                firstPrimes, 
+                differences,
+                this.squareRootAlgorithm);
         }
 
         /// <summary>
@@ -159,14 +178,21 @@
             /// </summary>
             private int firstPrimesPointer;
 
+            /// <summary>
+            /// O algoritmo que permite calcular a parte inteira da raiz quadrada de um número.
+            /// </summary>
+            private IAlgorithm<BigInteger, BigInteger> squareRootAlgorithm;
+
             public BigIntPrimeNumbsEnumerator(
                 BigInteger upperLimit, 
                 int[] firstPrimes,
-                int[] differenceNumbers)
+                int[] differenceNumbers,
+                IAlgorithm<BigInteger, BigInteger> squareRootAlgorithm)
             {
                 this.firstPrimes = firstPrimes;
                 this.differenceNumbers = differenceNumbers;
                 this.upperLimit = upperLimit;
+                this.squareRootAlgorithm = squareRootAlgorithm;
                 this.Reset();
             }
 
@@ -234,7 +260,7 @@
                     if (this.firstPrimesPointer == this.firstPrimes.Length)
                     {
                         var nextPrimeNumber = 1 + this.differenceNumbers[this.collectionPointer];
-                        this.squareRoot = (BigInteger)Math.Floor(Math.Sqrt(nextPrimeNumber));
+                        this.squareRoot = this.squareRootAlgorithm.Run(nextPrimeNumber);
                         this.nextPerfectSquare = (squareRoot + 1) * (squareRoot + 1);
                         this.oddNumber = 2 * this.squareRoot + 3;
                         ++this.firstPrimesPointer;

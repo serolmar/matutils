@@ -10,7 +10,7 @@
     {
         public IEnumerable<BigInteger> CreatePrimeNumberIterator(BigInteger upperLimit)
         {
-            return new BigIntPrimeNumbsIterator(upperLimit);
+            return new BigIntPrimeNumbsIterator(upperLimit, new BigIntSquareRootAlgorithm());
         }
     }
 }

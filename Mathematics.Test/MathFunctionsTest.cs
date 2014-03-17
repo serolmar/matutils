@@ -5,6 +5,7 @@
     using System;
     using System.Numerics;
     using System.Collections;
+    using Utilities;
 
     [TestClass()]
     public class MathFunctionsTest
@@ -294,6 +295,202 @@
             {
                 var actual = MathFunctions.Power(values[i], bigIntPowers[i], multiplier, bigIntegerNumber);
                 Assert.AreEqual(expected[i], actual);
+            }
+        }
+
+        [TestMethod()]
+        public void PowerTest_IntegerPolynomial()
+        {
+            var integerDomain = new IntegerDomain();
+            var longDomain = new LongDomain();
+            var bigIntegerDomain = new BigIntegerDomain();
+
+            var variableName = "x";
+            var intPolDomain = new UnivarPolynomRing<int>(variableName, integerDomain);
+            var longPolDomain = new UnivarPolynomRing<long>(variableName, longDomain);
+            var bigIntegerPolDomain = new UnivarPolynomRing<BigInteger>(variableName, bigIntegerDomain);
+
+            // Leitores
+            var integerParser = new IntegerParser<string>();
+            var longParser = new LongParser<string>();
+            var bigIntegerParser = new BigIntegerParser<string>();
+
+            var integerConversion = new ElementToElementConversion<int>();
+            var longToIntegerConversion = new LongToIntegerConversion();
+            var bigIntegerToIntegerConversion = new BigIntegerToIntegerConversion();
+
+            var intPowers = new int[3] { 2, 3, 4};
+            var longPowers = new long[3] { 2, 3, 4 };
+            var bigIntPowers = new BigInteger[3] { 2, 3, 4};
+
+            var polynomialsTexts = new string[3] { "x^3-2*x^2+3*x-1", "2*x^2+4*x+4", "x+1" };
+            var expectedPolinomialsTexts = new string[3] { 
+                "x^6-4*x^5+10*x^4-13*x^3+13*x^2-6*x+1", 
+                "8*x^6+48*x^5+120*x^4+160*x^3+120*x^2+48*x+8", 
+                "x^4+4*x^3+6*x^2+4*x+1" };
+
+            // Coeficientes inteiros.
+            for (int i = 0; i < 3; ++i)
+            {
+                var polynomialValue = TestsHelper.ReadUnivarPolynomial(
+                    polynomialsTexts[i], 
+                    integerDomain, 
+                    integerParser, 
+                    integerConversion, 
+                    variableName);
+
+                var expectedPolynomial = TestsHelper.ReadUnivarPolynomial(
+                    expectedPolinomialsTexts[i],
+                    integerDomain,
+                    integerParser,
+                    integerConversion,
+                    variableName);
+
+                var actualPolynomial = MathFunctions.Power(polynomialValue, intPowers[i], intPolDomain);
+                Assert.AreEqual(expectedPolynomial, actualPolynomial);
+            }
+
+            // Coeficientes longos.
+            for (int i = 0; i < 3; ++i)
+            {
+                var polynomialValue = TestsHelper.ReadUnivarPolynomial(
+                    polynomialsTexts[i],
+                    longDomain,
+                    longParser,
+                    longToIntegerConversion,
+                    variableName);
+
+                var expectedPolynomial = TestsHelper.ReadUnivarPolynomial(
+                    expectedPolinomialsTexts[i],
+                    longDomain,
+                    longParser,
+                    longToIntegerConversion,
+                    variableName);
+
+                var actualPolynomial = MathFunctions.Power(polynomialValue, intPowers[i], longPolDomain);
+                Assert.AreEqual(expectedPolynomial, actualPolynomial);
+            }
+
+            // Coeficientes correspondentes a inteiros de precisão arbitrária.
+            for (int i = 0; i < 3; ++i)
+            {
+                var polynomialValue = TestsHelper.ReadUnivarPolynomial(
+                    polynomialsTexts[i],
+                    bigIntegerDomain,
+                    bigIntegerParser,
+                    bigIntegerToIntegerConversion,
+                    variableName);
+
+                var expectedPolynomial = TestsHelper.ReadUnivarPolynomial(
+                    expectedPolinomialsTexts[i],
+                    bigIntegerDomain,
+                    bigIntegerParser,
+                    bigIntegerToIntegerConversion,
+                    variableName);
+
+                var actualPolynomial = MathFunctions.Power(polynomialValue, intPowers[i], bigIntegerPolDomain);
+                Assert.AreEqual(expectedPolynomial, actualPolynomial);
+            }
+        }
+
+        [TestMethod()]
+        public void PowerTest_FractionPolynomial()
+        {
+            var integerDomain = new IntegerDomain();
+            var longDomain = new LongDomain();
+            var bigIntegerDomain = new BigIntegerDomain();
+
+            var variableName = "x";
+            var integerPolynomialField = new UnivarPolynomEuclideanDomain<Fraction<int, IntegerDomain>>(
+                variableName, 
+                new FractionField<int, IntegerDomain>(integerDomain));
+            var longPolynomialField = new UnivarPolynomEuclideanDomain<Fraction<long, LongDomain>>(
+                variableName,
+                new FractionField<long, LongDomain>(longDomain));
+            var bigIntegerPolynomialField = new UnivarPolynomEuclideanDomain<Fraction<BigInteger, BigIntegerDomain>>(
+                variableName,
+                new FractionField<BigInteger, BigIntegerDomain>(bigIntegerDomain));
+
+            // Leitores
+            var integerParser = new IntegerParser<string>();
+            var longParser = new LongParser<string>();
+            var bigIntegerParser = new BigIntegerParser<string>();
+
+            var integerConversion = new OuterElementFractionConversion<int, int, IntegerDomain>(new ElementToElementConversion<int>(), integerDomain);
+            var longToIntegerConversion = new OuterElementFractionConversion<int, long, LongDomain>(new LongToIntegerConversion(), longDomain);
+            var bigIntegerToIntegerConversion = new OuterElementFractionConversion<int, BigInteger, BigIntegerDomain>(new BigIntegerToIntegerConversion(), bigIntegerDomain);
+
+            var intPowers = new int[3] { 2, 3, 4 };
+            var longPowers = new long[3] { 2, 3, 4 };
+            var bigIntPowers = new BigInteger[3] { 2, 3, 4 };
+
+            var polynomialsTexts = new string[3] { "1/3*x^3-2/3*x^2+3/2*x-1/2", "2*x^2+4/3*x+4/9", "7/5*x+1" };
+            var expectedPolinomialsTexts = new string[3] { 
+                "1/9*x^6-4/9*x^5+11/9*x^4-3/2*x^3+17/12*x^2-3*x+1/4", 
+                "8*x^6+16*x^5+40/3*x^4+160/27*x^3+40/27*x^2+16/81*x+8/729", 
+                "2401/625*x^4+1372/125*x^3+294/25*x^2+28/5*x+1" };
+
+            // Coeficientes inteiros.
+            for (int i = 0; i < 3; ++i)
+            {
+                var polynomialValue = TestsHelper.ReadFractionalCoeffsUnivarPol(
+                    polynomialsTexts[i],
+                    integerDomain,
+                    integerParser,
+                    integerConversion,
+                    variableName);
+
+                var expectedPolynomial = TestsHelper.ReadFractionalCoeffsUnivarPol(
+                    expectedPolinomialsTexts[i],
+                    integerDomain,
+                    integerParser,
+                    integerConversion,
+                    variableName);
+
+                var actualPolynomial = MathFunctions.Power(polynomialValue, intPowers[i], integerPolynomialField);
+                Assert.AreEqual(expectedPolynomial, actualPolynomial);
+            }
+
+            // Coeficientes longos.
+            for (int i = 0; i < 3; ++i)
+            {
+                var polynomialValue = TestsHelper.ReadFractionalCoeffsUnivarPol(
+                    polynomialsTexts[i],
+                    longDomain,
+                    longParser,
+                    longToIntegerConversion,
+                    variableName);
+
+                var expectedPolynomial = TestsHelper.ReadFractionalCoeffsUnivarPol(
+                    expectedPolinomialsTexts[i],
+                    longDomain,
+                    longParser,
+                    longToIntegerConversion,
+                    variableName);
+
+                var actualPolynomial = MathFunctions.Power(polynomialValue, intPowers[i], longPolynomialField);
+                Assert.AreEqual(expectedPolynomial, actualPolynomial);
+            }
+
+            // Coeficientes correspondentes a inteiros de precisão arbitrária.
+            for (int i = 0; i < 3; ++i)
+            {
+                var polynomialValue = TestsHelper.ReadFractionalCoeffsUnivarPol(
+                    polynomialsTexts[i],
+                    bigIntegerDomain,
+                    bigIntegerParser,
+                    bigIntegerToIntegerConversion,
+                    variableName);
+
+                var expectedPolynomial = TestsHelper.ReadFractionalCoeffsUnivarPol(
+                    expectedPolinomialsTexts[i],
+                    bigIntegerDomain,
+                    bigIntegerParser,
+                    bigIntegerToIntegerConversion,
+                    variableName);
+
+                var actualPolynomial = MathFunctions.Power(polynomialValue, intPowers[i], bigIntegerPolynomialField);
+                Assert.AreEqual(expectedPolynomial, actualPolynomial);
             }
         }
 

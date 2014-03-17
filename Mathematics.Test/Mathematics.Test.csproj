@@ -52,7 +52,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Auxiliary\TestsHelper.cs" />
+    <Compile Include="EulerTotFuncAlgTest.cs" />
     <Compile Include="MathFunctionsTest.cs" />
+    <Compile Include="NaiveIntegerFactorizationAlgorithmTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

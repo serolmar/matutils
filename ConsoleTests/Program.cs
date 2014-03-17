@@ -124,7 +124,7 @@
 
             // Instanciação dos algoritmos
             var resultantAlg = new UnivarPolDeterminantResultantAlg<BigInteger>(new BigIntegerDomain());
-            var primesGenerator = new BigIntPrimeNumbsIterator(int.MaxValue);
+            var primesGenerator = new BigIntPrimeNumbsIterator(int.MaxValue, new BigIntSquareRootAlgorithm());
 
             // Obtém o valor do coeficiente principal e do discriminante.
             var leadingCoeff = polynom.GetLeadingCoefficient(integerDomain);
@@ -785,7 +785,7 @@
                 }
             }
 
-            var primeNumberEnumerator = new IntPrimeNumbersIterator(100);
+            var primeNumberEnumerator = new IntPrimeNumbersIterator(100, new IntegerSquareRootAlgorithm());
             foreach (var primeNumber in primeNumberEnumerator)
             {
                 Console.WriteLine(primeNumber);

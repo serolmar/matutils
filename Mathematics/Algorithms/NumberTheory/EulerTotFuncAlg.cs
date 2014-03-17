@@ -66,6 +66,8 @@
         /// <returns>A quantidade de números primos nestas condições.</returns>
         public NumberType Run(NumberType data)
         {
+            // TODO: Acelerar o processo eliminando o iterador para números primos. O teste de
+            // primalidade é apenas aplicado caso o número encontrado seja um factor.
             if (data == null)
             {
                 throw new ArgumentNullException("data");
@@ -83,7 +85,7 @@
                     {
                         if (data.Equals(unit))
                         {
-                            return this.integerNumber.AdditiveUnity;
+                            return this.integerNumber.MultiplicativeUnity;
                         }
                     }
 
@@ -104,6 +106,7 @@
                             {
                                 result = this.integerNumber.Multiply(result, prime);
                                 innerData = computation.Quotient;
+                                computation = this.integerNumber.GetQuotientAndRemainder(innerData, prime);
                             }
 
                             foreach (var unit in this.integerNumber.Units)

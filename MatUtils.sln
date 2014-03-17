@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleTests", "ConsoleTest
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OdmpProblem", "OdmpProblem\OdmpProblem.csproj", "{4480DDC7-E675-4EC1-912D-64DE05948E54}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mathematics.Test", "Mathematics.Test\Mathematics.Test.csproj", "{1F0844F1-6095-47AD-9137-A327DEFA9578}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -61,6 +63,16 @@ Global
 		{4480DDC7-E675-4EC1-912D-64DE05948E54}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{4480DDC7-E675-4EC1-912D-64DE05948E54}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{4480DDC7-E675-4EC1-912D-64DE05948E54}.Release|x86.ActiveCfg = Release|Any CPU
+		{1F0844F1-6095-47AD-9137-A327DEFA9578}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1F0844F1-6095-47AD-9137-A327DEFA9578}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1F0844F1-6095-47AD-9137-A327DEFA9578}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{1F0844F1-6095-47AD-9137-A327DEFA9578}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{1F0844F1-6095-47AD-9137-A327DEFA9578}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{1F0844F1-6095-47AD-9137-A327DEFA9578}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1F0844F1-6095-47AD-9137-A327DEFA9578}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1F0844F1-6095-47AD-9137-A327DEFA9578}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{1F0844F1-6095-47AD-9137-A327DEFA9578}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{1F0844F1-6095-47AD-9137-A327DEFA9578}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
