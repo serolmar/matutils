@@ -89,7 +89,7 @@
     <Compile Include="Events\InsertEventArgs.cs" />
     <Compile Include="Events\UpdateEventArgs.cs" />
     <Compile Include="ExpressionBuilders\BoolExpressionParser.cs" />
-    <Compile Include="InverseIntegerComparer.cs" />
+    <Compile Include="InverseComparer.cs" />
     <Compile Include="Lambda\ELambdaExpressionWordType.cs" />
     <Compile Include="Lambda\SmartFilterLambdaBuilder.cs" />
     <Compile Include="Parsers\ArraySymbolReader.cs" />

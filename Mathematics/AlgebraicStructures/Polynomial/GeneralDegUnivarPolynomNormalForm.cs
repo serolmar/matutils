@@ -1,32 +1,48 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Mathematics.Algorithms;
-using Utilities;
-
-namespace Mathematics
+﻿namespace Mathematics
 {
-    /// <summary>
-    /// Representa um polinómio com apenas uma variável escrito na sua forma normal.
-    /// </summary>
-    /// <remarks>
-    /// O modo de funcionamento deste tipo de polinómios é em tudo semelhante ao dos polinómios gerais diferindo
-    /// apenas em questões de desempenho.
-    /// </remarks>
-    /// <typeparam name="ObjectType">O tipo de dados dos coeficientes.</typeparam>
-    /// <typeparam name="RingType">O tipo de dados do anel responsável pelas respectivas operações.</typeparam>
-    public class UnivariatePolynomialNormalForm<CoeffType> : IEnumerable<KeyValuePair<int, CoeffType>>
-    {
-        private SortedList<int, CoeffType> terms;
+    using System;
+    using System.Collections;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using Utilities;
 
+    /// <summary>
+    /// Representa um polinómio geral na forma normal.
+    /// </summary>
+    /// <typeparam name="CoeffType">O tipo de dados associado aos coeficientes.</typeparam>
+    /// <typeparam name="DegreeType">O tipo de dados associado ao grau.</typeparam>
+    public class GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType>
+    {
+        /// <summary>
+        /// Objecto responsável pelas operações sobre o grau.
+        /// </summary>
+        private IIntegerNumber<DegreeType> degreeNumber;
+
+        /// <summary>
+        /// Os termos do polinómio, mapeando o grau ao coeficiente correspondente.
+        /// </summary>
+        private SortedList<DegreeType, CoeffType> terms;
+
+        /// <summary>
+        /// O nome da variável associada ao polinómio.
+        /// </summary>
         private string variableName;
 
-        private UnivariatePolynomialNormalForm()
+        private GeneralDegUnivarPolynomNormalForm(IIntegerNumber<DegreeType> degreeNumber)
         {
+            if (degreeNumber == null)
+            {
+                throw new ArgumentNullException("degreeNumber");
+            }
+            else
+            {
+                this.degreeNumber = degreeNumber;
+            }
         }
 
-        public UnivariatePolynomialNormalForm(string variable)
+        public GeneralDegUnivarPolynomNormalForm(string variable, IIntegerNumber<DegreeType> degreeNumber)
+            : this(degreeNumber)
         {
             if (string.IsNullOrWhiteSpace(variable))
             {
@@ -35,17 +51,19 @@ namespace Mathematics
             else
             {
                 //this.ring = ring;
-                this.terms = new SortedList<int, CoeffType>(new InverseComparer<int>(Comparer<int>.Default));
+                this.terms = new SortedList<DegreeType, CoeffType>(
+                    new InverseComparer<DegreeType>(degreeNumber));
                 this.variableName = variable;
             }
         }
 
-        public UnivariatePolynomialNormalForm(
+        public GeneralDegUnivarPolynomNormalForm(
             CoeffType coeff,
-            int degree,
+            DegreeType degree,
             string variable,
-            IMonoid<CoeffType> monoid) :
-            this(variable)
+            IMonoid<CoeffType> monoid,
+            IIntegerNumber<DegreeType> degreeNumber) :
+            this(variable, degreeNumber)
         {
             if (monoid == null)
             {
@@ -55,7 +73,7 @@ namespace Mathematics
             {
                 throw new ArgumentNullException("coeff");
             }
-            else if (degree < 0)
+            else if (this.degreeNumber.Compare(degree, this.degreeNumber.AdditiveUnity) < 0)
             {
                 throw new ArgumentException("Negative degrees aren't allowed.");
             }
@@ -66,11 +84,12 @@ namespace Mathematics
         }
 
 
-        public UnivariatePolynomialNormalForm(
-            IDictionary<int, CoeffType> terms,
+        public GeneralDegUnivarPolynomNormalForm(
+            IDictionary<DegreeType, CoeffType> terms,
             string variable,
-            IRing<CoeffType> ring)
-            : this(variable)
+            IRing<CoeffType> ring,
+            IIntegerNumber<DegreeType> degreeNumber)
+            : this(variable, degreeNumber)
         {
             if (terms == null)
             {
@@ -80,7 +99,7 @@ namespace Mathematics
             {
                 foreach (var kvp in terms)
                 {
-                    if (kvp.Key < 0)
+                    if (this.degreeNumber.Compare(kvp.Key, this.degreeNumber.AdditiveUnity) < 0)
                     {
                         throw new ArgumentException("Negative degrees aren't allowed.");
                     }
@@ -142,7 +161,7 @@ namespace Mathematics
                     }
                     else
                     {
-                        return currentTerm.Key == 0;
+                        return this.degreeNumber.IsAdditiveUnity(currentTerm.Key);
                     }
                 }
                 else
@@ -155,14 +174,14 @@ namespace Mathematics
         /// <summary>
         /// Obtém o grau do polinómio.
         /// </summary>
-        public int Degree
+        public DegreeType Degree
         {
             get
             {
-                var result = 0;
+                var result = this.degreeNumber.AdditiveUnity;
                 foreach (var kvp in terms)
                 {
-                    if (kvp.Key > result)
+                    if (this.degreeNumber.Compare(kvp.Key, result) > 0)
                     {
                         result = kvp.Key;
                     }
@@ -188,7 +207,7 @@ namespace Mathematics
                 if (termsEnumerator.MoveNext())
                 {
                     var currentValue = termsEnumerator.Current;
-                    if (currentValue.Key == 0)
+                    if (this.degreeNumber.IsAdditiveUnity(currentValue.Key))
                     {
                         if (termsEnumerator.MoveNext())
                         {
@@ -218,7 +237,7 @@ namespace Mathematics
         /// <summary>
         /// Obtém o conjunto de termos que constituem o polinómio.
         /// </summary>
-        internal SortedList<int, CoeffType> Terms
+        internal SortedList<DegreeType, CoeffType> Terms
         {
             get
             {
@@ -243,7 +262,7 @@ namespace Mathematics
                 if (termsEnumerator.MoveNext())
                 {
                     var currentTerm = termsEnumerator.Current;
-                    if (termsEnumerator.MoveNext() || currentTerm.Key != 0)
+                    if (termsEnumerator.MoveNext() || !this.degreeNumber.IsAdditiveUnity(currentTerm.Key))
                     {
                         throw new MathematicsException("Polynomail can't be converted to a value.");
                     }
@@ -263,11 +282,11 @@ namespace Mathematics
         /// Obtém uma cópia do polinómio corrente.
         /// </summary>
         /// <returns>A cópia.</returns>
-        public UnivariatePolynomialNormalForm<CoeffType> Clone()
+        public GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType> Clone()
         {
-            var result = new UnivariatePolynomialNormalForm<CoeffType>();
+            var result = new GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType>(this.degreeNumber);
             result.variableName = this.variableName;
-            result.terms = new SortedList<int, CoeffType>(Comparer<int>.Default);
+            result.terms = new SortedList<DegreeType, CoeffType>(this.terms.Comparer);
             foreach (var kvp in this.terms)
             {
                 result.terms.Add(kvp.Key, kvp.Value);
@@ -280,9 +299,9 @@ namespace Mathematics
         /// Obtém o monómio com o maior grau.
         /// </summary>
         /// <returns>O monómio.</returns>
-        public UnivariatePolynomialNormalForm<CoeffType> GetLeadingMonomial()
+        public GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType> GetLeadingMonomial()
         {
-            var result = new UnivariatePolynomialNormalForm<CoeffType>();
+            var result = new GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType>(this.degreeNumber);
             result.variableName = this.variableName;
             if (this.terms.Count != 0)
             {
@@ -319,9 +338,9 @@ namespace Mathematics
         /// Obtém o monómio com o menor grau.
         /// </summary>
         /// <returns>O monómio.</returns>
-        public UnivariatePolynomialNormalForm<CoeffType> GetTailMonomial()
+        public GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType> GetTailMonomial()
         {
-            var result = new UnivariatePolynomialNormalForm<CoeffType>();
+            var result = new GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType>(this.degreeNumber);
             result.variableName = this.variableName;
             if (this.terms.Count != 0)
             {
@@ -359,7 +378,8 @@ namespace Mathematics
         /// </summary>
         /// <param name="monoid">O anel responsável pelas operações.</param>
         /// <returns>A derivada.</returns>
-        public UnivariatePolynomialNormalForm<CoeffType> GetPolynomialDerivative(IRing<CoeffType> ring)
+        public GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType> GetPolynomialDerivative(
+            IRing<CoeffType> ring)
         {
             if (ring == null)
             {
@@ -367,17 +387,20 @@ namespace Mathematics
             }
             else
             {
-                var result = new UnivariatePolynomialNormalForm<CoeffType>();
+                var result = new GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType>(this.degreeNumber);
                 result.variableName = this.variableName;
-                result.terms = new SortedList<int, CoeffType>(Comparer<int>.Default);
+                result.terms = new SortedList<DegreeType, CoeffType>(this.terms.Comparer);
                 foreach (var termKvp in this.terms)
                 {
-                    if (termKvp.Key > 0)
+                    if (this.degreeNumber.Compare(termKvp.Key, this.degreeNumber.AdditiveUnity) > 0)
                     {
-                        var elementsToAdd = ring.AddRepeated(termKvp.Value, termKvp.Key);
+                        var elementsToAdd = ring.AddRepeated(
+                            termKvp.Value, 
+                            termKvp.Key, 
+                            this.degreeNumber);
                         if (!ring.IsAdditiveUnity(elementsToAdd))
                         {
-                            result.terms.Add(termKvp.Key - 1, elementsToAdd);
+                            result.terms.Add(this.degreeNumber.Predecessor(termKvp.Key), elementsToAdd);
                         }
                     }
                 }
@@ -390,28 +413,41 @@ namespace Mathematics
         /// Obtém um vector com a soma das potências, desde 1 até ao grau do polinómio, das raízes.
         /// </summary>
         /// <param name="field">O corpo responsável pelas operações.</param>
+        /// <param name="conversion">O conversor que permite converter entre o grau e os números inteiros.</param>
         /// <returns>O vector com o valor da soma das potências.</returns>
-        public IMatrix<CoeffType> GetRootPowerSums(IField<CoeffType> field)
+        public IMatrix<CoeffType> GetRootPowerSums(
+            IField<CoeffType> field,
+            IConversion<int, DegreeType> conversion)
         {
             if (field == null)
             {
                 throw new ArgumentNullException("field");
             }
+            else if (conversion == null)
+            {
+                throw new ArgumentNullException("conversion");
+            }
+            else if (!conversion.CanApplyDirectConversion(this.Degree))
+            {
+                throw new MathematicsException("Degree is too long to get all power sums entries.");
+            }
             else
             {
-                var result = new ArrayMatrix<CoeffType>(this.Degree, 1, field.AdditiveUnity);
+                var result = new ArrayMatrix<CoeffType>(
+                    conversion.DirectConversion(this.Degree), 1, field.AdditiveUnity);
                 var termsEnumerator = this.terms.GetEnumerator();
                 if (termsEnumerator.MoveNext())
                 {
                     var topTerm = termsEnumerator.Current.Value;
-                    var topDegree = termsEnumerator.Current.Key;
+                    var topDegree = conversion.DirectConversion(termsEnumerator.Current.Key);
                     if (topDegree == 0)
                     {
                         return new ArrayMatrix<CoeffType>(0, 0, field.AdditiveUnity);
                     }
                     else if (termsEnumerator.MoveNext())
                     {
-                        var difference = topDegree - termsEnumerator.Current.Key - 1;
+                        var currentDegree = conversion.DirectConversion(termsEnumerator.Current.Key);
+                        var difference = topDegree - currentDegree - 1;
 
                         var value = field.AdditiveInverse(termsEnumerator.Current.Value);
                         value = field.AddRepeated(value, difference + 1);
@@ -426,7 +462,7 @@ namespace Mathematics
                             var compareDegree = topDegree - 1;
                             while (state && currentIteration > control)
                             {
-                                var currentDegree = termsEnumerator.Current.Key;
+                                currentDegree = conversion.DirectConversion(termsEnumerator.Current.Key);
                                 if (compareDegree == currentDegree)
                                 {
                                     value = field.AdditiveInverse(termsEnumerator.Current.Value);
@@ -442,7 +478,7 @@ namespace Mathematics
                             while (state && control >= 0)
                             {
                                 --control;
-                                var currentDegree = termsEnumerator.Current.Key;
+                                currentDegree = conversion.DirectConversion(termsEnumerator.Current.Key);
                                 if (compareDegree == currentDegree)
                                 {
                                     state = termsEnumerator.MoveNext();
@@ -452,7 +488,7 @@ namespace Mathematics
 
                             if (state)
                             {
-                                var currentDegree = termsEnumerator.Current.Key;
+                                currentDegree = conversion.DirectConversion(termsEnumerator.Current.Key);
                                 if (compareDegree == currentDegree)
                                 {
                                     value = field.AdditiveInverse(termsEnumerator.Current.Value);
@@ -483,8 +519,8 @@ namespace Mathematics
         /// <param name="right">O outro polinómio.</param>
         /// <param name="monoid">O monóide responsável pelas operações.</param>
         /// <returns>A soma.</returns>
-        public UnivariatePolynomialNormalForm<CoeffType> Add(
-            UnivariatePolynomialNormalForm<CoeffType> right,
+        public GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType> Add(
+            GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType> right,
             IMonoid<CoeffType> monoid)
         {
             if (right == null)
@@ -497,9 +533,10 @@ namespace Mathematics
             }
             else
             {
-                var result = new UnivariatePolynomialNormalForm<CoeffType>();
+                var result = new GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType>(this.degreeNumber);
                 result.variableName = this.variableName;
-                result.terms = new SortedList<int, CoeffType>(new InverseComparer<int>(Comparer<int>.Default));
+                result.terms = new SortedList<DegreeType, CoeffType>(
+                    new InverseComparer<DegreeType>(this.degreeNumber));
                 foreach (var term in this.terms)
                 {
                     result.terms.Add(term.Key, term.Value);
@@ -535,7 +572,9 @@ namespace Mathematics
         /// </summary>
         /// <param name="right">O termo constante.</param>
         /// <returns>A soma.</returns>
-        public UnivariatePolynomialNormalForm<CoeffType> Add(CoeffType coeff, IMonoid<CoeffType> monoid)
+        public GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType> Add(
+            CoeffType coeff,
+            IMonoid<CoeffType> monoid)
         {
             return this.Add(coeff, 0, monoid);
         }
@@ -547,9 +586,9 @@ namespace Mathematics
         /// <param name="degree">O grau do coeficiente.</param>
         /// <param name="monoid">O monóide responsável pelas operações.</param>
         /// <returns>A soma.</returns>
-        public UnivariatePolynomialNormalForm<CoeffType> Add(
+        public GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType> Add(
             CoeffType coeff,
-            int degree,
+            DegreeType degree,
             IMonoid<CoeffType> monoid)
         {
             if (coeff == null)
@@ -562,13 +601,14 @@ namespace Mathematics
             }
             else
             {
-                var result = new UnivariatePolynomialNormalForm<CoeffType>();
+                var result = new GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType>(this.degreeNumber);
                 result.variableName = this.variableName;
-                result.terms = new SortedList<int, CoeffType>(new InverseComparer<int>(Comparer<int>.Default));
+                result.terms = new SortedList<DegreeType, CoeffType>(
+                    new InverseComparer<DegreeType>(this.degreeNumber));
                 var degreeCoeff = coeff;
                 foreach (var kvp in this.terms)
                 {
-                    if (kvp.Key == degree)
+                    if (this.degreeNumber.Equals(kvp.Key, degree))
                     {
                         degreeCoeff = monoid.Add(degreeCoeff, kvp.Value);
                     }
@@ -593,8 +633,8 @@ namespace Mathematics
         /// <param name="right">O outro polinómio.</param>
         /// <param name="group">O grupo responsável pelas operações.</param>
         /// <returns>A diferença.</returns>
-        public UnivariatePolynomialNormalForm<CoeffType> Subtract(
-            UnivariatePolynomialNormalForm<CoeffType> right,
+        public GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType> Subtract(
+            GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType> right,
             IGroup<CoeffType> group)
         {
             if (group == null)
@@ -611,9 +651,10 @@ namespace Mathematics
             }
             else
             {
-                var result = new UnivariatePolynomialNormalForm<CoeffType>();
+                var result = new GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType>(this.degreeNumber);
                 result.variableName = this.variableName;
-                result.terms = new SortedList<int, CoeffType>(new InverseComparer<int>(Comparer<int>.Default));
+                result.terms = new SortedList<DegreeType, CoeffType>(
+                    new InverseComparer<DegreeType>(this.degreeNumber));
                 foreach (var term in this.terms)
                 {
                     result.terms.Add(term.Key, term.Value);
@@ -651,9 +692,11 @@ namespace Mathematics
         /// <param name="coeff">O coeficiente a ser strubtraído.</param>
         /// <param name="group">O grupo responsável pelas operações.</param>
         /// <returns>A diferença.</returns>
-        public UnivariatePolynomialNormalForm<CoeffType> Subtract(CoeffType coeff, IGroup<CoeffType> group)
+        public GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType> Subtract(
+            CoeffType coeff,
+            IGroup<CoeffType> group)
         {
-            return this.Subtract(coeff, 0, group);
+            return this.Subtract(coeff, this.degreeNumber.AdditiveUnity, group);
         }
 
         /// <summary>
@@ -663,7 +706,10 @@ namespace Mathematics
         /// <param name="degree">O grau.</param>
         /// <param name="group">O grupo responsável pelas operações.</param>
         /// <returns>A diferença.</returns>
-        public UnivariatePolynomialNormalForm<CoeffType> Subtract(CoeffType coeff, int degree, IGroup<CoeffType> group)
+        public GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType> Subtract(
+            CoeffType coeff,
+            DegreeType degree,
+            IGroup<CoeffType> group)
         {
             if (group == null)
             {
@@ -675,13 +721,14 @@ namespace Mathematics
             }
             else
             {
-                var result = new UnivariatePolynomialNormalForm<CoeffType>();
+                var result = new GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType>(this.degreeNumber);
                 result.variableName = this.variableName;
-                result.terms = new SortedList<int, CoeffType>(new InverseComparer<int>(Comparer<int>.Default));
+                result.terms = new SortedList<DegreeType, CoeffType>(
+                    new InverseComparer<DegreeType>(this.degreeNumber));
                 var degreeCoeff = group.AdditiveInverse(coeff);
                 foreach (var kvp in this.terms)
                 {
-                    if (kvp.Key == degree)
+                    if (this.degreeNumber.Equals(kvp.Key, degree))
                     {
                         degreeCoeff = group.Add(degreeCoeff, kvp.Value);
                     }
@@ -706,8 +753,8 @@ namespace Mathematics
         /// <param name="right">O outro polinómio.</param>
         /// <param name="ring">O anel responsável pelas operações.</param>
         /// <returns>O produto.</returns>
-        public UnivariatePolynomialNormalForm<CoeffType> Multiply(
-            UnivariatePolynomialNormalForm<CoeffType> right,
+        public GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType> Multiply(
+            GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType> right,
             IRing<CoeffType> ring)
         {
             if (ring == null)
@@ -720,13 +767,15 @@ namespace Mathematics
             }
             else if (right.variableName != this.variableName)
             {
-                throw new MathematicsException("Can't multiply two univariate polynomials with different variable names.");
+                throw new MathematicsException(
+                    "Can't multiply two univariate polynomials with different variable names.");
             }
             else
             {
-                var result = new UnivariatePolynomialNormalForm<CoeffType>();
+                var result = new GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType>(this.degreeNumber);
                 result.variableName = this.variableName;
-                result.terms = new SortedList<int, CoeffType>(new InverseComparer<int>(Comparer<int>.Default));
+                result.terms = new SortedList<DegreeType, CoeffType>(
+                    new InverseComparer<DegreeType>(this.degreeNumber));
                 foreach (var thisTerm in this.terms)
                 {
                     if (!ring.IsAdditiveUnity(thisTerm.Value))
@@ -735,7 +784,7 @@ namespace Mathematics
                         {
                             if (!ring.IsAdditiveUnity(rightTerm.Value))
                             {
-                                var totalDegree = thisTerm.Key + rightTerm.Key;
+                                var totalDegree = this.degreeNumber.Add(thisTerm.Key, rightTerm.Key);
                                 var totalCoeff = ring.Multiply(thisTerm.Value, rightTerm.Value);
                                 var sumCoeff = default(CoeffType);
                                 if (result.terms.TryGetValue(totalDegree, out sumCoeff))
@@ -770,7 +819,9 @@ namespace Mathematics
         /// <param name="coeff">O coeficiente a ser multiplicado.</param>
         /// <param name="ring">O anel responsável pelas operações.</param>
         /// <returns>O produto.</returns>
-        public UnivariatePolynomialNormalForm<CoeffType> Multiply(CoeffType coeff, IRing<CoeffType> ring)
+        public GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType> Multiply(
+            CoeffType coeff,
+            IRing<CoeffType> ring)
         {
             if (ring == null)
             {
@@ -782,9 +833,10 @@ namespace Mathematics
             }
             else
             {
-                var result = new UnivariatePolynomialNormalForm<CoeffType>();
+                var result = new GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType>(this.degreeNumber);
                 result.variableName = this.variableName;
-                result.terms = new SortedList<int, CoeffType>(new InverseComparer<int>(Comparer<int>.Default));
+                result.terms = new SortedList<DegreeType, CoeffType>(
+                    new InverseComparer<DegreeType>(this.degreeNumber));
                 if (!ring.IsAdditiveUnity(coeff))
                 {
                     foreach (var thisTerm in this.terms)
@@ -802,11 +854,12 @@ namespace Mathematics
         /// </summary>
         /// <param name="group">O grupo responsável pela determinação da inversa.</param>
         /// <returns>O polinómio simétrico do actual.</returns>
-        public UnivariatePolynomialNormalForm<CoeffType> GetSymmetric(IGroup<CoeffType> group)
+        public GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType> GetSymmetric(IGroup<CoeffType> group)
         {
-            var result = new UnivariatePolynomialNormalForm<CoeffType>();
+            var result = new GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType>(this.degreeNumber);
             result.variableName = this.variableName;
-            result.terms = new SortedList<int, CoeffType>(new InverseComparer<int>(Comparer<int>.Default));
+            result.terms = new SortedList<DegreeType, CoeffType>(
+                new InverseComparer<DegreeType>(this.degreeNumber));
             foreach (var kvp in this.terms)
             {
                 result.terms.Add(kvp.Key, group.AdditiveInverse(kvp.Value));
@@ -841,13 +894,16 @@ namespace Mathematics
                     while (termsEnumerator.MoveNext())
                     {
                         var currentDegree = termsEnumerator.Current.Key;
-                        var power = MathFunctions.Power(coeff, previousDegree - currentDegree, ring);
+                        var power = MathFunctions.Power(
+                            coeff,
+                            this.degreeNumber.Add(previousDegree, this.degreeNumber.AdditiveInverse(currentDegree)),
+                            ring, this.degreeNumber);
                         result = ring.Multiply(result, power);
                         result = ring.Add(result, termsEnumerator.Current.Value);
                         previousDegree = currentDegree;
                     }
 
-                    var lastPower = MathFunctions.Power(coeff, previousDegree, ring);
+                    var lastPower = MathFunctions.Power(coeff, previousDegree, ring, this.degreeNumber);
                     result = ring.Multiply(result, lastPower);
                     return result;
                 }
@@ -887,7 +943,11 @@ namespace Mathematics
                     while (termsEnumerator.MoveNext())
                     {
                         var currentDegree = termsEnumerator.Current.Key;
-                        var power = MathFunctions.Power(value, previousDegree - currentDegree, algebra);
+                        var power = MathFunctions.Power(
+                            value,
+                            this.degreeNumber.Add(previousDegree, this.degreeNumber.AdditiveInverse(currentDegree)),
+                            algebra,
+                            this.degreeNumber);
                         result = algebra.Multiply(result, power);
                         result = algebra.Add(
                             result,
@@ -895,7 +955,7 @@ namespace Mathematics
                         previousDegree = currentDegree;
                     }
 
-                    var lastPower = MathFunctions.Power(value, previousDegree, algebra);
+                    var lastPower = MathFunctions.Power(value, previousDegree, algebra, this.degreeNumber);
                     result = algebra.Multiply(result, lastPower);
                     return result;
                 }
@@ -911,7 +971,7 @@ namespace Mathematics
         /// </summary>
         /// <param name="variableName">O nome da variável.</param>
         /// <returns>O polinómio com a variável substituída.</returns>
-        public UnivariatePolynomialNormalForm<CoeffType> Replace(string variableName)
+        public GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType> Replace(string variableName)
         {
             if (string.IsNullOrWhiteSpace(variableName))
             {
@@ -919,9 +979,10 @@ namespace Mathematics
             }
             else
             {
-                var result = new UnivariatePolynomialNormalForm<CoeffType>();
+                var result = new GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType>(this.degreeNumber);
                 result.variableName = variableName;
-                result.terms = new SortedList<int, CoeffType>(new InverseComparer<int>(Comparer<int>.Default));
+                result.terms = new SortedList<DegreeType, CoeffType>(
+                    new InverseComparer<DegreeType>(this.degreeNumber));
                 foreach (var kvp in this.terms)
                 {
                     result.terms.Add(kvp.Key, kvp.Value);
@@ -936,8 +997,8 @@ namespace Mathematics
         /// </summary>
         /// <param name="other">O polinómio a substituir.</param>
         /// <returns>O resultado da substituição.</returns>
-        public UnivariatePolynomialNormalForm<CoeffType> Replace(
-            UnivariatePolynomialNormalForm<CoeffType> other,
+        public GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType> Replace(
+            GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType> other,
             IRing<CoeffType> ring)
         {
             if (ring == null)
@@ -950,26 +1011,35 @@ namespace Mathematics
             }
             else
             {
-                var polynomialRing = new UnivarPolynomRing<CoeffType>(this.variableName, ring);
+                var polynomialRing = new UnivarPolynomRing<CoeffType, DegreeType>(this.variableName, ring);
                 var termsEnumerator = this.terms.GetEnumerator();
                 if (termsEnumerator.MoveNext())
                 {
-                    var result = new UnivariatePolynomialNormalForm<CoeffType>(
+                    var result = new GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType>(
                         termsEnumerator.Current.Value,
-                        0,
+                        this.degreeNumber.AdditiveUnity,
                         this.variableName,
-                        ring);
+                        ring,
+                        this.degreeNumber);
                     var previousDegree = termsEnumerator.Current.Key;
                     while (termsEnumerator.MoveNext())
                     {
                         var currentDegree = termsEnumerator.Current.Key;
-                        var power = MathFunctions.Power(other, previousDegree - currentDegree, polynomialRing);
+                        var power = MathFunctions.Power(
+                            other,
+                            this.degreeNumber.Add(previousDegree, this.degreeNumber.AdditiveInverse(currentDegree)),
+                            polynomialRing,
+                            this.degreeNumber);
                         result = result.Multiply(power, ring);
                         result = result.Add(termsEnumerator.Current.Value, ring);
                         previousDegree = currentDegree;
                     }
 
-                    var lastPower = MathFunctions.Power(other, previousDegree, polynomialRing);
+                    var lastPower = MathFunctions.Power(
+                        other,
+                        previousDegree,
+                        polynomialRing,
+                        this.degreeNumber);
                     result = result.Multiply(lastPower, ring);
                     return result;
                 }
@@ -984,7 +1054,7 @@ namespace Mathematics
 
         public override bool Equals(object obj)
         {
-            var innerObj = obj as UnivariatePolynomialNormalForm<CoeffType>;
+            var innerObj = obj as GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType>;
             if (innerObj == null)
             {
                 return false;
@@ -1053,11 +1123,11 @@ namespace Mathematics
                     var currentDegree = termsEnum.Current.Key;
                     var currentValue = termsEnum.Current.Value;
                     resultBuilder.AppendFormat("{0}", currentValue);
-                    if (currentDegree == 1)
+                    if (this.degreeNumber.IsMultiplicativeUnity(currentDegree))
                     {
                         resultBuilder.AppendFormat("*{0}", this.variableName);
                     }
-                    else if (currentDegree > 1)
+                    else if (this.degreeNumber.Compare(currentDegree, this.degreeNumber.MultiplicativeUnity) > 0)
                     {
                         resultBuilder.AppendFormat("*{0}^{1}", this.variableName, currentDegree);
                     }
@@ -1068,11 +1138,11 @@ namespace Mathematics
                         currentDegree = termsEnum.Current.Key;
                         currentValue = termsEnum.Current.Value;
                         resultBuilder.AppendFormat("{0}", currentValue);
-                        if (currentDegree == 1)
+                        if (this.degreeNumber.IsMultiplicativeUnity(currentDegree))
                         {
                             resultBuilder.AppendFormat("*{0}", this.variableName);
                         }
-                        else if (currentDegree > 1)
+                        else if (this.degreeNumber.Compare(currentDegree, this.degreeNumber.MultiplicativeUnity) > 0)
                         {
                             resultBuilder.AppendFormat("*{0}^{1}", this.variableName, currentDegree);
                         }
@@ -1088,10 +1158,10 @@ namespace Mathematics
         /// </summary>
         /// <param name="degreeComparer">O comparador.</param>
         /// <returns>Uma colecção ordenada com os coeficientes.</returns>
-        public SortedList<int, CoeffType> GetOrderedCoefficients(
-            IComparer<int> degreeComparer)
+        public SortedList<DegreeType, CoeffType> GetOrderedCoefficients(
+            IComparer<DegreeType> degreeComparer)
         {
-            var result = new SortedList<int, CoeffType>(degreeComparer);
+            var result = new SortedList<DegreeType, CoeffType>(degreeComparer);
             foreach (var kvp in this.terms)
             {
                 result.Add(kvp.Key, kvp.Value);
@@ -1107,7 +1177,9 @@ namespace Mathematics
         /// <param name="coeff">O coeficiente que serve de quociente.</param>
         /// <param name="domain">O domínio responsável pelas operações.</param>
         /// <returns>O polinómio cujos coeficientes são o resultado do quociente respectivo.</returns>
-        public UnivariatePolynomialNormalForm<CoeffType> ApplyQuo(CoeffType coeff, IEuclidenDomain<CoeffType> domain)
+        public GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType> ApplyQuo(
+            CoeffType coeff, 
+            IEuclidenDomain<CoeffType> domain)
         {
             if (coeff == null)
             {
@@ -1119,7 +1191,9 @@ namespace Mathematics
             }
             else
             {
-                var result = new UnivariatePolynomialNormalForm<CoeffType>(this.variableName);
+                var result = new GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType>(
+                    this.variableName,
+                    this.degreeNumber);
                 foreach (var kvp in this.terms)
                 {
                     var quo = domain.Quo(kvp.Value, coeff);
@@ -1140,7 +1214,7 @@ namespace Mathematics
         /// <param name="coeff">O coeficiente que serve de quociente.</param>
         /// <param name="domain">O domínio responsável pelas operações.</param>
         /// <returns>O polinómio cujos coeficientes são o resultado do resto respectivo.</returns>
-        public UnivariatePolynomialNormalForm<CoeffType> ApplyRem(CoeffType coeff, IEuclidenDomain<CoeffType> domain)
+        public GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType> ApplyRem(CoeffType coeff, IEuclidenDomain<CoeffType> domain)
         {
             if (coeff == null)
             {
@@ -1152,7 +1226,9 @@ namespace Mathematics
             }
             else
             {
-                var result = new UnivariatePolynomialNormalForm<CoeffType>(this.variableName);
+                var result = new GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType>(
+                    this.variableName,
+                    this.degreeNumber);
                 foreach (var kvp in this.terms)
                 {
                     var rem = domain.Rem(kvp.Value, coeff);
@@ -1173,7 +1249,7 @@ namespace Mathematics
         /// <param name="func">A função a ser aplicada.</param>
         /// <param name="monoid">O monóide que irá permitir eliminar os elementos nulos.</param>
         /// <returns>O polinómio.</returns>
-        public UnivariatePolynomialNormalForm<CoeffType> ApplyFunction(
+        public GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType> ApplyFunction(
             Func<CoeffType, CoeffType> func,
             IMonoid<CoeffType> monoid)
         {
@@ -1187,7 +1263,9 @@ namespace Mathematics
             }
             else
             {
-                var result = new UnivariatePolynomialNormalForm<CoeffType>(this.variableName);
+                var result = new GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType>(
+                    this.variableName,
+                    this.degreeNumber);
                 foreach (var kvp in this.terms)
                 {
                     var funcRes = func.Invoke(kvp.Value);
@@ -1238,7 +1316,7 @@ namespace Mathematics
         /// aditiva.
         /// </param>
         /// <returns>O polinómio resultante da substituição.</returns>
-        public UnivariatePolynomialNormalForm<CoeffType> ReplaceLeadingCoeff(CoeffType coeff, IMonoid<CoeffType> monoid)
+        public GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType> ReplaceLeadingCoeff(CoeffType coeff, IMonoid<CoeffType> monoid)
         {
             if (coeff == null)
             {
@@ -1250,7 +1328,9 @@ namespace Mathematics
             }
             else
             {
-                var result = new UnivariatePolynomialNormalForm<CoeffType>(this.variableName);
+                var result = new GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType>(
+                    this.variableName,
+                    this.degreeNumber);
                 var termsEnumerator = this.terms.GetEnumerator();
                 if (termsEnumerator.MoveNext())
                 {
@@ -1266,7 +1346,7 @@ namespace Mathematics
                 }
                 else if (!monoid.IsAdditiveUnity(coeff))
                 {
-                    result.terms.Add(0, coeff);
+                    result.terms.Add(this.degreeNumber.AdditiveUnity, coeff);
                 }
 
                 return result;
@@ -1278,7 +1358,7 @@ namespace Mathematics
         /// contém o grau e o valor contém o respectivo coeficiente.
         /// </summary>
         /// <returns>O enumerador.</returns>
-        public IEnumerator<KeyValuePair<int, CoeffType>> GetEnumerator()
+        public IEnumerator<KeyValuePair<DegreeType, CoeffType>> GetEnumerator()
         {
             return this.terms.GetEnumerator();
         }
