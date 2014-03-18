@@ -160,6 +160,7 @@
     <Compile Include="AlgebraicStructures\Polynomial\CoefficientComparer.cs" />
     <Compile Include="AlgebraicStructures\Polynomial\CoefficientDegreePair.cs" />
     <Compile Include="AlgebraicStructures\Polynomial\DegreeEqualityComparer.cs" />
+    <Compile Include="AlgebraicStructures\Polynomial\GeneralDegUnivarPolynomNormalForm.cs" />
     <Compile Include="AlgebraicStructures\Polynomial\IntegerFactorialFraction.cs" />
     <Compile Include="AlgebraicStructures\Polynomial\Polynomial.cs" />
     <Compile Include="AlgebraicStructures\Polynomial\PolynomialGeneralVariable.cs" />

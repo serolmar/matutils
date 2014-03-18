@@ -12,7 +12,8 @@
     /// </summary>
     /// <typeparam name="CoeffType">O tipo de dados associado aos coeficientes.</typeparam>
     /// <typeparam name="DegreeType">O tipo de dados associado ao grau.</typeparam>
-    public class GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType>
+    public class GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType> 
+        : IEnumerable<KeyValuePair<DegreeType, CoeffType>>
     {
         /// <summary>
         /// Objecto responsável pelas operações sobre o grau.
@@ -374,7 +375,7 @@
         }
 
         /// <summary>
-        /// Obtém a derivada do polinómio corrente.
+        /// Obtém a derivada formal do polinómio corrente.
         /// </summary>
         /// <param name="monoid">O anel responsável pelas operações.</param>
         /// <returns>A derivada.</returns>
@@ -394,9 +395,10 @@
                 {
                     if (this.degreeNumber.Compare(termKvp.Key, this.degreeNumber.AdditiveUnity) > 0)
                     {
-                        var elementsToAdd = ring.AddRepeated(
+                        var elementsToAdd = MathFunctions.AddPower(
                             termKvp.Value, 
                             termKvp.Key, 
+                            ring, 
                             this.degreeNumber);
                         if (!ring.IsAdditiveUnity(elementsToAdd))
                         {
@@ -576,7 +578,7 @@
             CoeffType coeff,
             IMonoid<CoeffType> monoid)
         {
-            return this.Add(coeff, 0, monoid);
+            return this.Add(coeff, this.degreeNumber.AdditiveUnity, monoid);
         }
 
         /// <summary>
@@ -1001,53 +1003,55 @@
             GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType> other,
             IRing<CoeffType> ring)
         {
-            if (ring == null)
-            {
-                throw new ArgumentNullException("ring");
-            }
-            else if (other == null)
-            {
-                throw new ArgumentNullException("other");
-            }
-            else
-            {
-                var polynomialRing = new UnivarPolynomRing<CoeffType, DegreeType>(this.variableName, ring);
-                var termsEnumerator = this.terms.GetEnumerator();
-                if (termsEnumerator.MoveNext())
-                {
-                    var result = new GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType>(
-                        termsEnumerator.Current.Value,
-                        this.degreeNumber.AdditiveUnity,
-                        this.variableName,
-                        ring,
-                        this.degreeNumber);
-                    var previousDegree = termsEnumerator.Current.Key;
-                    while (termsEnumerator.MoveNext())
-                    {
-                        var currentDegree = termsEnumerator.Current.Key;
-                        var power = MathFunctions.Power(
-                            other,
-                            this.degreeNumber.Add(previousDegree, this.degreeNumber.AdditiveInverse(currentDegree)),
-                            polynomialRing,
-                            this.degreeNumber);
-                        result = result.Multiply(power, ring);
-                        result = result.Add(termsEnumerator.Current.Value, ring);
-                        previousDegree = currentDegree;
-                    }
+            //if (ring == null)
+            //{
+            //    throw new ArgumentNullException("ring");
+            //}
+            //else if (other == null)
+            //{
+            //    throw new ArgumentNullException("other");
+            //}
+            //else
+            //{
+            //    var polynomialRing = new UnivarPolynomRing<CoeffType, DegreeType>(this.variableName, ring);
+            //    var termsEnumerator = this.terms.GetEnumerator();
+            //    if (termsEnumerator.MoveNext())
+            //    {
+            //        var result = new GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType>(
+            //            termsEnumerator.Current.Value,
+            //            this.degreeNumber.AdditiveUnity,
+            //            this.variableName,
+            //            ring,
+            //            this.degreeNumber);
+            //        var previousDegree = termsEnumerator.Current.Key;
+            //        while (termsEnumerator.MoveNext())
+            //        {
+            //            var currentDegree = termsEnumerator.Current.Key;
+            //            var power = MathFunctions.Power(
+            //                other,
+            //                this.degreeNumber.Add(previousDegree, this.degreeNumber.AdditiveInverse(currentDegree)),
+            //                polynomialRing,
+            //                this.degreeNumber);
+            //            result = result.Multiply(power, ring);
+            //            result = result.Add(termsEnumerator.Current.Value, ring);
+            //            previousDegree = currentDegree;
+            //        }
 
-                    var lastPower = MathFunctions.Power(
-                        other,
-                        previousDegree,
-                        polynomialRing,
-                        this.degreeNumber);
-                    result = result.Multiply(lastPower, ring);
-                    return result;
-                }
-                else
-                {
-                    return polynomialRing.AdditiveUnity;
-                }
-            }
+            //        var lastPower = MathFunctions.Power(
+            //            other,
+            //            previousDegree,
+            //            polynomialRing,
+            //            this.degreeNumber);
+            //        result = result.Multiply(lastPower, ring);
+            //        return result;
+            //    }
+            //    else
+            //    {
+            //        return polynomialRing.AdditiveUnity;
+            //    }
+            //}
+
+            throw new NotImplementedException();
         }
 
         #endregion Operações

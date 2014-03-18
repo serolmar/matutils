@@ -163,7 +163,7 @@
         /// <param name="integerNumber">A classe que define as operações sobre números inteiros.</param>
         /// <returns>A potência do valor.</returns>
         public static T Power<T, Deg, D>(T val, Deg pow, D domain, IIntegerNumber<Deg> integerNumber)
-            where D : IRing<T>
+            where D : IMultipliable<T>
         {
             if (integerNumber == null)
             {
@@ -348,6 +348,72 @@
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Obtém o valor da aplicação sucessiva da operação soma ao mesmo valor tendo em conta que esta é associativa.
+        /// </summary>
+        /// <typeparam name="T">O tipo do valor.</typeparam>
+        /// <typeparam name="Deg">O tipo que representa o número de vezes a adicionar.</typeparam>
+        /// <typeparam name="D">A classe que define a soma.</typeparam>
+        /// <param name="val">O valor.</param>
+        /// <param name="pow">O expoente.</param>
+        /// <param name="monoid">A classe que define a soma sobre o valor.</param>
+        /// <param name="degreeIntegerNumber">O objecto responsável pelas operaçóes sobre o grau.</param>
+        /// <returns>A potência do valor.</returns>
+        public static T AddPower<T, Deg, D>(
+            T val,
+            Deg pow,
+            D monoid,
+            IIntegerNumber<Deg> degreeIntegerNumber)
+            where D : IMonoid<T>
+        {
+            if (monoid == null)
+            {
+                throw new MathematicsException("Parameter multiplier can't be null.");
+            }
+            else if (degreeIntegerNumber == null)
+            {
+                throw new ArgumentNullException("degreeIntegerNumber");
+            }
+            else if (degreeIntegerNumber.Compare(pow, degreeIntegerNumber.AdditiveUnity) < 0)
+            {
+                throw new MathematicsException("Can't computer the powers with negative expoents.");
+            }
+            else
+            {
+                var result = monoid.AdditiveUnity;
+                var innerPow = pow;
+                var innerVal = val;
+                var n = degreeIntegerNumber.MapFrom(2);
+                if (degreeIntegerNumber.Compare(innerPow, degreeIntegerNumber.AdditiveUnity) > 0)
+                {
+                    var degreeQuotientAndRemainder = degreeIntegerNumber.GetQuotientAndRemainder(
+                        innerPow,
+                        n);
+                    if (degreeIntegerNumber.IsMultiplicativeUnity(degreeQuotientAndRemainder.Remainder))
+                    {
+                        result = monoid.Add(result, innerVal);
+                    }
+
+                    innerPow = degreeIntegerNumber.Multiply(innerPow, n);
+                    while (degreeIntegerNumber.Compare(innerPow, degreeIntegerNumber.AdditiveUnity) > 0)
+                    {
+                        innerVal = monoid.Add(innerVal, innerVal);
+                        degreeQuotientAndRemainder = degreeIntegerNumber.GetQuotientAndRemainder(
+                        innerPow,
+                        n);
+                        if (degreeIntegerNumber.IsMultiplicativeUnity(degreeQuotientAndRemainder.Remainder))
+                        {
+                            result = monoid.Add(result, innerVal);
+                        }
+
+                        innerPow = degreeIntegerNumber.Multiply(innerPow, n);
+                    }
+                }
+
+                return result;
+            }
         }
 
         /// <summary>
