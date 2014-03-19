@@ -36,6 +36,11 @@
             }
         }
 
+        /// <summary>
+        /// Determina o polinómio característico de uma matriz.
+        /// </summary>
+        /// <param name="data">A matriz.</param>
+        /// <returns>O polinómio característico.</returns>
         public UnivariatePolynomialNormalForm<ElementType> Run(ISquareMatrix<ElementType> data)
         {
             if (data == null)

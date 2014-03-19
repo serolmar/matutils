@@ -951,39 +951,6 @@
         }
 
         /// <summary>
-        /// Testes os vários métodos de cálculo do polinómio característico.
-        /// </summary>
-        public static void Test11()
-        {
-            var input = "[[1,-1,2], [3,4,5], [2,1,1]]";
-
-            var reader = new StringReader(input);
-            var stringsymbolReader = new StringSymbolReader(reader, true);
-            var integerParser = new IntegerParser<string>();
-
-            var arrayMatrixFactory = new ArraySquareMatrixFactory<int>();
-            var arrayMatrixReader = new ConfigMatrixReader<int, string, string, CharSymbolReader<string>>(
-                3,
-                3,
-                arrayMatrixFactory);
-            arrayMatrixReader.MapInternalDelimiters("left_bracket", "right_bracket");
-            arrayMatrixReader.AddBlanckSymbolType("blancks");
-            arrayMatrixReader.SeparatorSymbType = "comma";
-
-            var matrix = default(IMatrix<int>);
-            var errors = new List<string>();
-            if (arrayMatrixReader.TryParseMatrix(stringsymbolReader, integerParser, errors, out matrix))
-            {
-                var integerDomain = new IntegerDomain();
-                var divFreeCharPol = new FastDivisionFreeCharPolynomCalculator<int>(
-                    "lambda",
-                    integerDomain);
-                var computedCharPol = divFreeCharPol.Run(matrix as ISquareMatrix<int>);
-                Console.WriteLine("O determinante usando permutações vale: {0}.", computedCharPol);
-            }
-        }
-
-        /// <summary>
         /// Testes à factorização de polinómios.
         /// </summary>
         public static void Test10()

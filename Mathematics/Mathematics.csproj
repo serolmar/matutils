@@ -59,6 +59,8 @@
     <Compile Include="AlgebraicStructures\Implementations\Factories\ModularIntegerFieldFactory.cs" />
     <Compile Include="AlgebraicStructures\Implementations\Factories\ModularSymmetricBigIntFieldFactory.cs" />
     <Compile Include="AlgebraicStructures\Implementations\Factories\ModularSymmetricIntFieldFactory.cs" />
+    <Compile Include="AlgebraicStructures\Implementations\GeneralDegUnivarPolynomEuclideanDomain.cs" />
+    <Compile Include="AlgebraicStructures\Implementations\GeneralDegUnivarPolynomRing.cs" />
     <Compile Include="AlgebraicStructures\Implementations\IntegerDecimalConverter.cs" />
     <Compile Include="AlgebraicStructures\Implementations\IntegerDoubleConverter.cs" />
     <Compile Include="AlgebraicStructures\Implementations\IntegerDoubleMultiplicationOperation.cs" />

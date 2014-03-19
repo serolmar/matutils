@@ -77,13 +77,11 @@ namespace Mathematics.Test
             var factorizationAlg = new NaiveIntegerFactorizationAlgorithm<BigInteger>(
                 integerSquareRootAlg,
                 integerNumber);
-            var value = new BigInteger(6095540);
+            var value = BigInteger.Parse("1000000000001");
             var expected = new Dictionary<BigInteger, int>();
-            expected.Add(2,2);
-            expected.Add(5, 1);
-            expected.Add(11, 1);
-            expected.Add(103, 1);
-            expected.Add(269, 1);
+            expected.Add(137, 1);
+            expected.Add(73, 1);
+            expected.Add(BigInteger.Parse("99990001"), 1);
             var actual = factorizationAlg.Run(value);
             CollectionAssert.AreEquivalent(expected, actual);
         }

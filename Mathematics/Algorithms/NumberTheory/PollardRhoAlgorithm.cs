@@ -58,7 +58,10 @@
             }
         }
 
-        public PollardRhoAlgorithm(List<UnivariatePolynomialNormalForm<NumberType>> testPolynomials)
+        public PollardRhoAlgorithm(
+            List<UnivariatePolynomialNormalForm<NumberType>> testPolynomials,
+            IModularFieldFactory<NumberType> modularFieldFactory,
+            IIntegerNumber<NumberType> integerNumber) : this(modularFieldFactory, integerNumber)
         {
             if (testPolynomials == null || testPolynomials.Count == 0)
             {

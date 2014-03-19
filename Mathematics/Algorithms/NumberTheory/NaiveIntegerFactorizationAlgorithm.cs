@@ -260,7 +260,7 @@
                 var isunit = false;
                 foreach (var unit in this.integerNumber.Units)
                 {
-                    if (data.Equals(unit))
+                    if (innerData.Equals(unit))
                     {
                         isunit = true;
                         break;

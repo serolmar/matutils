@@ -52,7 +52,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Auxiliary\TestsHelper.cs" />
+    <Compile Include="DecompositionFactorizationAlgorithmTest.cs" />
     <Compile Include="EulerTotFuncAlgTest.cs" />
+    <Compile Include="FastDivisionFreeCharPolynomCalculatorTest.cs" />
+    <Compile Include="LagrangeAlgorithmTest.cs" />
     <Compile Include="MathFunctionsTest.cs" />
     <Compile Include="NaiveIntegerFactorizationAlgorithmTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
