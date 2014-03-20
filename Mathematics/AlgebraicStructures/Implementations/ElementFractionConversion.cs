@@ -15,13 +15,12 @@ namespace Mathematics
     /// <summary>
     /// Converte entre o elemento e a respectiva fracção.
     /// </summary>
-    public class ElementFractionConversion<ElementType, DomainType> 
-        : IConversion<ElementType, Fraction<ElementType, DomainType>>
-        where DomainType : IEuclidenDomain<ElementType>
+    public class ElementFractionConversion<ElementType> 
+        : IConversion<ElementType, Fraction<ElementType>>
     {
-        protected DomainType domain;
+        protected IEuclidenDomain<ElementType> domain;
 
-        public ElementFractionConversion(DomainType domain)
+        public ElementFractionConversion(IEuclidenDomain<ElementType> domain)
         {
             if (domain == null)
             {
@@ -33,14 +32,15 @@ namespace Mathematics
             }
         }
 
-        public DomainType Domain {
+        public IEuclidenDomain<ElementType> Domain
+        {
             get
             {
                 return this.domain;
             }
         }
 
-        public bool CanApplyDirectConversion(Fraction<ElementType, DomainType> objectToConvert)
+        public bool CanApplyDirectConversion(Fraction<ElementType> objectToConvert)
         {
             if (objectToConvert == null)
             {
@@ -48,7 +48,7 @@ namespace Mathematics
             }
             else
             {
-                var fractionPartValue = objectToConvert.FractionalPart.Numerator;
+                var fractionPartValue = objectToConvert.FractionalPart(this.domain).Numerator;
                 if (this.domain.IsAdditiveUnity(fractionPartValue))
                 {
                     return true;
@@ -72,7 +72,7 @@ namespace Mathematics
             }
         }
 
-        public ElementType DirectConversion(Fraction<ElementType, DomainType> objectToConvert)
+        public ElementType DirectConversion(Fraction<ElementType> objectToConvert)
         {
             if (objectToConvert == null)
             {
@@ -80,7 +80,7 @@ namespace Mathematics
             }
             else
             {
-                var fractionDecomposition = objectToConvert.FractionDecomposition;
+                var fractionDecomposition = objectToConvert.FractionDecomposition(this.domain);
                 if (this.domain.IsAdditiveUnity(fractionDecomposition.FractionalPart.Numerator))
                 {
                     return fractionDecomposition.IntegralPart;
@@ -92,7 +92,7 @@ namespace Mathematics
             }
         }
 
-        public Fraction<ElementType, DomainType> InverseConversion(ElementType objectToConvert)
+        public Fraction<ElementType> InverseConversion(ElementType objectToConvert)
         {
             if (objectToConvert == null)
             {
@@ -100,7 +100,7 @@ namespace Mathematics
             }
             else
             {
-                return new Fraction<ElementType, DomainType>(objectToConvert, this.domain.MultiplicativeUnity, this.domain);
+                return new Fraction<ElementType>(objectToConvert, this.domain.MultiplicativeUnity, this.domain);
             }
         }
     }

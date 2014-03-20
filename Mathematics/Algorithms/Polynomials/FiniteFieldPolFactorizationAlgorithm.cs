@@ -58,7 +58,7 @@
             UnivariatePolynomialNormalForm<CoeffType> polymomial,
             IModularField<CoeffType> modularField)
         {
-            var fractionField = new FractionField<CoeffType, IEuclidenDomain<CoeffType>>(this.integerNumber);
+            var fractionField = new FractionField<CoeffType>(this.integerNumber);
             var polynomDomain = new UnivarPolynomEuclideanDomain<CoeffType>(
                 polymomial.VariableName,
                 modularField);

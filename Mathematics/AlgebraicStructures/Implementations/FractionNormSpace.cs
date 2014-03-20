@@ -5,14 +5,15 @@
     using System.Linq;
     using System.Text;
 
-    public class FractionNormSpace<CoeffType, DomainType>
-        : INormSpace<Fraction<CoeffType, DomainType>, Fraction<CoeffType, DomainType>>
-        where DomainType : IEuclidenDomain<CoeffType>
+    public class FractionNormSpace<CoeffType>
+        : INormSpace<Fraction<CoeffType>, Fraction<CoeffType>>
     {
         /// <summary>
         /// O objeto responsável pela comparação de fracções.
         /// </summary>
-        FractionComparer<CoeffType, DomainType> fractionComparer;
+        private FractionComparer<CoeffType> fractionComparer;
+
+        private IEuclidenDomain<CoeffType> domain;
 
         /// <summary>
         /// O espaço das normas associado aos coeficientes.
@@ -21,11 +22,16 @@
 
         public FractionNormSpace(
             INormSpace<CoeffType, CoeffType> coeffNormSpace,
-            FractionComparer<CoeffType, DomainType> fractionComparer)
+            IComparer<CoeffType> coeffsComparer,
+            IEuclidenDomain<CoeffType> domain)
         {
-            if (fractionComparer == null)
+            if (domain == null)
             {
-                throw new ArgumentNullException("fractionComparer");
+                throw new ArgumentNullException("domain");
+            }
+            else if (coeffsComparer == null)
+            {
+                throw new ArgumentNullException("coeffsComparer");
             }
             if (coeffNormSpace == null)
             {
@@ -33,15 +39,18 @@
             }
             else
             {
-                this.fractionComparer = fractionComparer;
+                this.fractionComparer = new FractionComparer<CoeffType>(
+                    coeffsComparer, 
+                    domain);
                 this.coeffNormSpace = coeffNormSpace;
+                this.domain = domain;
             }
         }
 
         /// <summary>
         /// Obtém o objeto responsável pela comparação de fracções.
         /// </summary>
-        FractionComparer<CoeffType, DomainType> FractionComparer
+        FractionComparer<CoeffType> FractionComparer
         {
             get
             {
@@ -65,7 +74,7 @@
         /// </summary>
         /// <param name="value">A fracção.</param>
         /// <returns>O módulo da fracção.</returns>
-        public Fraction<CoeffType, DomainType> GetNorm(Fraction<CoeffType, DomainType> value)
+        public Fraction<CoeffType> GetNorm(Fraction<CoeffType> value)
         {
             if (value == null)
             {
@@ -73,10 +82,10 @@
             }
             else
             {
-                return new Fraction<CoeffType, DomainType>(
+                return new Fraction<CoeffType>(
                     this.coeffNormSpace.GetNorm(value.Numerator),
                     this.coeffNormSpace.GetNorm(value.Denominator),
-                    value.Domain);
+                    this.domain);
             }
 
         }
@@ -89,7 +98,7 @@
         /// <returns>
         /// O valor 1 caso a primeira seja superior à segunda, 0 caso sejam iguais e -1 caso contrário.
         /// </returns>
-        public int Compare(Fraction<CoeffType, DomainType> x, Fraction<CoeffType, DomainType> y)
+        public int Compare(Fraction<CoeffType> x, Fraction<CoeffType> y)
         {
             return this.fractionComparer.Compare(x, y);
         }

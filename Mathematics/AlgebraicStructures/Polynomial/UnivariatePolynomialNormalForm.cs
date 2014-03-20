@@ -369,7 +369,7 @@ namespace Mathematics
             {
                 var result = new UnivariatePolynomialNormalForm<CoeffType>();
                 result.variableName = this.variableName;
-                result.terms = new SortedList<int, CoeffType>(Comparer<int>.Default);
+                result.terms = new SortedList<int, CoeffType>(this.terms.Comparer);
                 foreach (var termKvp in this.terms)
                 {
                     if (termKvp.Key > 0)
@@ -1008,7 +1008,10 @@ namespace Mathematics
                             var otherTerm = default(CoeffType);
                             if (innerObj.terms.TryGetValue(term.Key, out otherTerm))
                             {
-                                return term.Value.Equals(otherTerm);
+                                if (!term.Value.Equals(otherTerm))
+                                {
+                                    return false;
+                                }
                             }
                             else
                             {

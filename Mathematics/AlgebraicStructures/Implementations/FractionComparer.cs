@@ -5,8 +5,7 @@
     using System.Linq;
     using System.Text;
 
-    public class FractionComparer<CoeffType, DomainType> : IComparer<Fraction<CoeffType, DomainType>>
-        where DomainType : IEuclidenDomain<CoeffType>
+    public class FractionComparer<CoeffType> : IComparer<Fraction<CoeffType>>
     {
         /// <summary>
         /// O objecto responsável pela multiplicação dos coeficientes.
@@ -60,8 +59,8 @@
         /// a primeira seja menor que a segunda.
         /// </returns>
         public int Compare(
-            Fraction<CoeffType, DomainType> x, 
-            Fraction<CoeffType, DomainType> y)
+            Fraction<CoeffType> x, 
+            Fraction<CoeffType> y)
         {
             if (x == null)
             {

@@ -9,14 +9,13 @@
     /// <summary>
     /// Representa um leitor de itens como sendo fracções.
     /// </summary>
-    public class ElementFractionParser<ElementType, DomainType> : IParse<Fraction<ElementType, DomainType>, string, string>
-        where DomainType : IEuclidenDomain<ElementType>
+    public class ElementFractionParser<ElementType> : IParse<Fraction<ElementType>, string, string>
     {
-        private DomainType domain;
+        private IEuclidenDomain<ElementType> domain;
 
         protected IParse<ElementType, string, string> elementParser;
 
-        public ElementFractionParser(IParse<ElementType, string, string> elementParser, DomainType domain)
+        public ElementFractionParser(IParse<ElementType, string, string> elementParser, IEuclidenDomain<ElementType> domain)
         {
             if (domain == null)
             {
@@ -33,13 +32,13 @@
             }
         }
 
-        public bool TryParse(ISymbol<string, string>[] symbolListToParse, out Fraction<ElementType, DomainType> value)
+        public bool TryParse(ISymbol<string, string>[] symbolListToParse, out Fraction<ElementType> value)
         {
             value = null;
             var parsedElement = default(ElementType);
             if (this.elementParser.TryParse(symbolListToParse, out parsedElement))
             {
-                value = new Fraction<ElementType, DomainType>(parsedElement, this.domain.MultiplicativeUnity, this.domain);
+                value = new Fraction<ElementType>(parsedElement, this.domain.MultiplicativeUnity, this.domain);
                 return true;
             }
             else

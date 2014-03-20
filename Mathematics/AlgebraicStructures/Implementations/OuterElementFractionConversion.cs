@@ -10,18 +10,16 @@
     /// </summary>
     /// <typeparam name="OutElementType">O tipo do elemento externo.</typeparam>
     /// <typeparam name="FractionElementType">O tipo de elementos que constitui a fracção.</typeparam>
-    /// <typeparam name="DomainType">O tipo do domínio que será responsável pelas operações sobre os elementos da fracção.</typeparam>
-    public class OuterElementFractionConversion<OutElementType, FractionElementType, DomainType>
-        : IConversion<OutElementType, Fraction<FractionElementType, DomainType>>
-        where DomainType : IEuclidenDomain<FractionElementType>
+    public class OuterElementFractionConversion<OutElementType, FractionElementType>
+        : IConversion<OutElementType, Fraction<FractionElementType>>
     {
-        protected DomainType domain;
+        protected IEuclidenDomain<FractionElementType> domain;
 
         protected IConversion<OutElementType, FractionElementType> outTypeToFractionTypeConversion;
 
         public OuterElementFractionConversion(
             IConversion<OutElementType, FractionElementType> outTypeToFractionTypeConversion,
-            DomainType domain)
+            IEuclidenDomain<FractionElementType> domain)
         {
             if (domain == null)
             {
@@ -38,7 +36,7 @@
             }
         }
 
-        public bool CanApplyDirectConversion(Fraction<FractionElementType, DomainType> objectToConvert)
+        public bool CanApplyDirectConversion(Fraction<FractionElementType> objectToConvert)
         {
             if (objectToConvert == null)
             {
@@ -46,11 +44,11 @@
             }
             else
             {
-                var fractionPartValue = objectToConvert.FractionalPart.Numerator;
+                var fractionPartValue = objectToConvert.FractionalPart(this.domain).Numerator;
                 if (this.domain.IsAdditiveUnity(fractionPartValue))
                 {
                     return this.outTypeToFractionTypeConversion.CanApplyDirectConversion(
-                        objectToConvert.IntegralPart);
+                        objectToConvert.IntegralPart(this.domain));
                 }
                 else
                 {
@@ -71,7 +69,7 @@
             }
         }
 
-        public OutElementType DirectConversion(Fraction<FractionElementType, DomainType> objectToConvert)
+        public OutElementType DirectConversion(Fraction<FractionElementType> objectToConvert)
         {
             if (objectToConvert == null)
             {
@@ -79,7 +77,7 @@
             }
             else
             {
-                var fractionDecomposition = objectToConvert.FractionDecomposition;
+                var fractionDecomposition = objectToConvert.FractionDecomposition(this.domain);
                 if (this.domain.IsAdditiveUnity(fractionDecomposition.FractionalPart.Numerator))
                 {
                     return this.outTypeToFractionTypeConversion.DirectConversion(fractionDecomposition.IntegralPart);
@@ -91,7 +89,7 @@
             }
         }
 
-        public Fraction<FractionElementType, DomainType> InverseConversion(OutElementType objectToConvert)
+        public Fraction<FractionElementType> InverseConversion(OutElementType objectToConvert)
         {
             if (objectToConvert == null)
             {
@@ -99,7 +97,7 @@
             }
             else
             {
-                return new Fraction<FractionElementType, DomainType>(
+                return new Fraction<FractionElementType>(
                     this.outTypeToFractionTypeConversion.InverseConversion(objectToConvert), 
                     this.domain.MultiplicativeUnity, 
                     this.domain);

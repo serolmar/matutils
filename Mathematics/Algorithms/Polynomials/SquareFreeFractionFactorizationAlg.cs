@@ -11,8 +11,8 @@
     /// </summary>
     /// <typeparam name="CoeffType">O tipo de coeficiente.</typeparam>
     public class SquareFreeFractionFactorizationAlg<CoeffType>
-        : IAlgorithm<UnivariatePolynomialNormalForm<Fraction<CoeffType, IIntegerNumber<CoeffType>>>,
-                     SquareFreeFactorizationResult<Fraction<CoeffType, IIntegerNumber<CoeffType>>, CoeffType>>
+        : IAlgorithm<UnivariatePolynomialNormalForm<Fraction<CoeffType>>,
+                     SquareFreeFactorizationResult<Fraction<CoeffType>, CoeffType>>
     {
         /// <summary>
         /// O objecto responsável pelas operações sobre inteiros.
@@ -22,7 +22,7 @@
         /// <summary>
         /// O corpo responsável pelas operações sobre as fracções.
         /// </summary>
-        private IField<Fraction<CoeffType, IIntegerNumber<CoeffType>>> fractionField;
+        private IField<Fraction<CoeffType>> fractionField;
 
         public SquareFreeFractionFactorizationAlg(
             IIntegerNumber<CoeffType> integerNumber)
@@ -34,7 +34,7 @@
             else
             {
                 this.integerNumber = integerNumber;
-                this.fractionField = new FractionField<CoeffType, IIntegerNumber<CoeffType>>(this.integerNumber);
+                this.fractionField = new FractionField<CoeffType>(this.integerNumber);
             }
         }
 
@@ -43,8 +43,8 @@
         /// </summary>
         /// <param name="polynomial">O polinómio de entrada.</param>
         /// <returns>A factorização livre de quadrados.</returns>
-        public SquareFreeFactorizationResult<Fraction<CoeffType, IIntegerNumber<CoeffType>>, CoeffType> Run(
-            UnivariatePolynomialNormalForm<Fraction<CoeffType, IIntegerNumber<CoeffType>>> polynomial)
+        public SquareFreeFactorizationResult<Fraction<CoeffType>, CoeffType> Run(
+            UnivariatePolynomialNormalForm<Fraction<CoeffType>> polynomial)
         {
             if (polynomial == null)
             {
@@ -55,7 +55,7 @@
                 var independentCoeff = this.fractionField.MultiplicativeUnity;
                 var result = new Dictionary<int, UnivariatePolynomialNormalForm<CoeffType>>();
                 var currentDegree = 1;
-                var polynomDomain = new UnivarPolynomEuclideanDomain<Fraction<CoeffType, IIntegerNumber<CoeffType>>>(
+                var polynomDomain = new UnivarPolynomEuclideanDomain<Fraction<CoeffType>>(
                     polynomial.VariableName, 
                     this.fractionField);
 
@@ -72,11 +72,11 @@
                     }
                     else
                     {
-                        independentCoeff = new Fraction<CoeffType, IIntegerNumber<CoeffType>>(
+                        independentCoeff = new Fraction<CoeffType>(
                             this.integerNumber.MultiplicativeUnity,
                             lcm,
                             this.integerNumber);
-                        var multipliable = new Fraction<CoeffType, IIntegerNumber<CoeffType>>(
+                        var multipliable = new Fraction<CoeffType>(
                             lcm,
                             this.integerNumber.MultiplicativeUnity,
                             this.integerNumber);
@@ -102,11 +102,11 @@
                         }
                         else if (this.fractionField.IsAdditiveUnity(independentCoeff))
                         {
-                            independentCoeff = new Fraction<CoeffType, IIntegerNumber<CoeffType>>(
+                            independentCoeff = new Fraction<CoeffType>(
                             this.integerNumber.MultiplicativeUnity,
                             MathFunctions.Power(lcm, currentDegree, this.integerNumber),
                             this.integerNumber);
-                            var multipliable = new Fraction<CoeffType, IIntegerNumber<CoeffType>>(
+                            var multipliable = new Fraction<CoeffType>(
                                 lcm,
                                 this.integerNumber.MultiplicativeUnity,
                                 this.integerNumber);
@@ -116,12 +116,12 @@
                         }
                         else
                         {
-                            var multiplicationCoeff = new Fraction<CoeffType, IIntegerNumber<CoeffType>>(
+                            var multiplicationCoeff = new Fraction<CoeffType>(
                             this.integerNumber.MultiplicativeUnity,
                             MathFunctions.Power( lcm, currentDegree, this.integerNumber),
                             this.integerNumber);
                             independentCoeff = this.fractionField.Multiply(independentCoeff, multiplicationCoeff);
-                            var multipliable = new Fraction<CoeffType, IIntegerNumber<CoeffType>>(
+                            var multipliable = new Fraction<CoeffType>(
                                 lcm,
                                 this.integerNumber.MultiplicativeUnity,
                                 this.integerNumber);
@@ -163,11 +163,11 @@
                             }
                             else if (this.fractionField.IsAdditiveUnity(independentCoeff))
                             {
-                                independentCoeff = new Fraction<CoeffType, IIntegerNumber<CoeffType>>(
+                                independentCoeff = new Fraction<CoeffType>(
                                 this.integerNumber.MultiplicativeUnity,
                                 MathFunctions.Power(lcm, currentDegree, this.integerNumber),
                                 this.integerNumber);
-                                var multipliable = new Fraction<CoeffType, IIntegerNumber<CoeffType>>(
+                                var multipliable = new Fraction<CoeffType>(
                                     lcm,
                                     this.integerNumber.MultiplicativeUnity,
                                     this.integerNumber);
@@ -177,12 +177,12 @@
                             }
                             else
                             {
-                                var multiplicationCoeff = new Fraction<CoeffType, IIntegerNumber<CoeffType>>(
+                                var multiplicationCoeff = new Fraction<CoeffType>(
                                 this.integerNumber.MultiplicativeUnity,
                                 MathFunctions.Power(lcm, currentDegree, this.integerNumber),
                                 this.integerNumber);
                                 independentCoeff = this.fractionField.Multiply(independentCoeff, multiplicationCoeff);
-                                var multipliable = new Fraction<CoeffType, IIntegerNumber<CoeffType>>(
+                                var multipliable = new Fraction<CoeffType>(
                                     lcm,
                                     this.integerNumber.MultiplicativeUnity,
                                     this.integerNumber);
@@ -224,16 +224,16 @@
                     }
                 }
 
-                return new SquareFreeFactorizationResult<Fraction<CoeffType, IIntegerNumber<CoeffType>>, CoeffType>(
+                return new SquareFreeFactorizationResult<Fraction<CoeffType>, CoeffType>(
                     independentCoeff,
                     result);
             }
         }
 
-        private UnivariatePolynomialNormalForm<Fraction<CoeffType, IIntegerNumber<CoeffType>>> GreatCommonDivisor(
-            UnivariatePolynomialNormalForm<Fraction<CoeffType, IIntegerNumber<CoeffType>>> first,
-            UnivariatePolynomialNormalForm<Fraction<CoeffType, IIntegerNumber<CoeffType>>> second,
-            UnivarPolynomEuclideanDomain<Fraction<CoeffType, IIntegerNumber<CoeffType>>> polynomDomain
+        private UnivariatePolynomialNormalForm<Fraction<CoeffType>> GreatCommonDivisor(
+            UnivariatePolynomialNormalForm<Fraction<CoeffType>> first,
+            UnivariatePolynomialNormalForm<Fraction<CoeffType>> second,
+            UnivarPolynomEuclideanDomain<Fraction<CoeffType>> polynomDomain
             )
         {
             var result = MathFunctions.GreatCommonDivisor(first, second, polynomDomain);
@@ -251,7 +251,7 @@
         /// <param name="gcdCAlg">O domínio responsável pelas operações sobre os coeficientes.</param>
         /// <returns>O valor do mínimo múltiplo comum.</returns>
         private CoeffType GetDenominatorLcm(
-            UnivariatePolynomialNormalForm<Fraction<CoeffType, IIntegerNumber<CoeffType>>> polynom,
+            UnivariatePolynomialNormalForm<Fraction<CoeffType>> polynom,
             IBachetBezoutAlgorithm<CoeffType> gcdCAlg)
         {
             var termsEnumerator = polynom.GetEnumerator();
@@ -292,7 +292,7 @@
         /// <param name="polynomial">O polinómio a ser convertido.</param>
         /// <returns>O polinómio convertido.</returns>
         private UnivariatePolynomialNormalForm<CoeffType> GetIntegerPol(
-            UnivariatePolynomialNormalForm<Fraction<CoeffType, IIntegerNumber<CoeffType>>> polynomial)
+            UnivariatePolynomialNormalForm<Fraction<CoeffType>> polynomial)
         {
             var result = new UnivariatePolynomialNormalForm<CoeffType>(polynomial.VariableName);
             foreach (var term in polynomial)

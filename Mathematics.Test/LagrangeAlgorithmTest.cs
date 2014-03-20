@@ -67,16 +67,16 @@
         public void RunTest_IntegerPolynomial()
         {
             var integerDomain = new IntegerDomain();
-            var fractionField = new FractionField<int, IntegerDomain>(integerDomain);
+            var fractionField = new FractionField<int>(integerDomain);
             var integerParser = new IntegerParser<string>();
             var conversion = new ElementToElementConversion<int>();
-            var fractionConversion = new ElementFractionConversion<int, IntegerDomain>(integerDomain);
+            var fractionConversion = new ElementFractionConversion<int>(integerDomain);
             string variableName = "x";
-            var univarPolDomain = new UnivarPolynomEuclideanDomain<Fraction<int, IntegerDomain>>(
+            var univarPolDomain = new UnivarPolynomEuclideanDomain<Fraction<int>>(
                 variableName,
                 fractionField);
 
-            var lagAlg = new LagrangeAlgorithm<UnivariatePolynomialNormalForm<Fraction<int, IntegerDomain>>>(univarPolDomain);
+            var lagAlg = new LagrangeAlgorithm<UnivariatePolynomialNormalForm<Fraction<int>>>(univarPolDomain);
             var firstValue = TestsHelper.ReadFractionalCoeffsUnivarPol<int, IntegerDomain>(
                 "(x-1/2)*(x+1/3)",
                 integerDomain,
@@ -121,16 +121,16 @@
         public void RunTest_BigIntegerPolynomial()
         {
             var integerDomain = new BigIntegerDomain();
-            var fractionField = new FractionField<BigInteger, BigIntegerDomain>(integerDomain);
+            var fractionField = new FractionField<BigInteger>(integerDomain);
             var integerParser = new BigIntegerParser<string>();
             var conversion = new BigIntegerToIntegerConversion();
-            var fractionConversion = new OuterElementFractionConversion<int, BigInteger, BigIntegerDomain>(conversion, integerDomain);
+            var fractionConversion = new OuterElementFractionConversion<int, BigInteger>(conversion, integerDomain);
             string variableName = "x";
-            var univarPolDomain = new UnivarPolynomEuclideanDomain<Fraction<BigInteger, BigIntegerDomain>>(
+            var univarPolDomain = new UnivarPolynomEuclideanDomain<Fraction<BigInteger>>(
                 variableName,
                 fractionField);
 
-            var lagAlg = new LagrangeAlgorithm<UnivariatePolynomialNormalForm<Fraction<BigInteger, BigIntegerDomain>>>(univarPolDomain);
+            var lagAlg = new LagrangeAlgorithm<UnivariatePolynomialNormalForm<Fraction<BigInteger>>>(univarPolDomain);
             var firstValue = TestsHelper.ReadFractionalCoeffsUnivarPol<BigInteger, BigIntegerDomain>(
                 "(x-1/2)^2*(x+1/3)^5",
                 integerDomain,

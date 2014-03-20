@@ -8,7 +8,7 @@
     using Mathematics;
 
     public class IntegerBigIntFractionConversion
-        : IConversion<int, Fraction<BigInteger, IIntegerNumber<BigInteger>>>
+        : IConversion<int, Fraction<BigInteger>>
     {
         private IIntegerNumber<BigInteger> integerNumber;
 
@@ -33,7 +33,7 @@
             }
         }
 
-        public bool CanApplyDirectConversion(Fraction<BigInteger, IIntegerNumber<BigInteger>> objectToConvert)
+        public bool CanApplyDirectConversion(Fraction<BigInteger> objectToConvert)
         {
             if (objectToConvert == null)
             {
@@ -58,7 +58,7 @@
             return true;
         }
 
-        public int DirectConversion(Fraction<BigInteger, IIntegerNumber<BigInteger>> objectToConvert)
+        public int DirectConversion(Fraction<BigInteger> objectToConvert)
         {
             if (objectToConvert == null)
             {
@@ -79,9 +79,9 @@
             }
         }
 
-        public Fraction<BigInteger, IIntegerNumber<BigInteger>> InverseConversion(int objectToConvert)
+        public Fraction<BigInteger> InverseConversion(int objectToConvert)
         {
-            return new Fraction<BigInteger, IIntegerNumber<BigInteger>>(
+            return new Fraction<BigInteger>(
                 objectToConvert,
                 this.integerNumber.MultiplicativeUnity,
                 this.integerNumber);

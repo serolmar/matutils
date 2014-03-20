@@ -6,20 +6,19 @@
     using System.Text;
     using Utilities;
 
-    internal class FractionParser<ObjectType, DomainType> : IParse<Fraction<ObjectType, DomainType>, string, string>
-        where DomainType : IEuclidenDomain<ObjectType>
+    internal class FractionParser<ObjectType> : IParse<Fraction<ObjectType>, string, string>
     {
         /// <summary>
         /// O domínio euclideano associado à fracção.
         /// </summary>
-        private DomainType domain;
+        private IEuclidenDomain<ObjectType> domain;
 
         /// <summary>
         /// O leitor para o objecto.
         /// </summary>
         private IParse<ObjectType, string, string> simpleObjectParser;
 
-        public FractionParser(IParse<ObjectType, string, string> simpleObjectParser, DomainType domain)
+        public FractionParser(IParse<ObjectType, string, string> simpleObjectParser, IEuclidenDomain<ObjectType> domain)
         {
             if (domain == null)
             {
@@ -36,7 +35,7 @@
             }
         }
 
-        public DomainType Domain
+        public IEuclidenDomain<ObjectType> Domain
         {
             get
             {
@@ -52,13 +51,13 @@
             }
         }
 
-        public bool TryParse(ISymbol<string, string>[] symbolListToParse, out Fraction<ObjectType, DomainType> value)
+        public bool TryParse(ISymbol<string, string>[] symbolListToParse, out Fraction<ObjectType> value)
         {
             value = null;
             var readedObject = default(ObjectType);
             if (this.simpleObjectParser.TryParse(symbolListToParse, out readedObject))
             {
-                value = new Fraction<ObjectType, DomainType>(readedObject,
+                value = new Fraction<ObjectType>(readedObject,
                     this.domain.MultiplicativeUnity,
                     this.domain);
                 return true;

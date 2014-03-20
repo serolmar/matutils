@@ -21,7 +21,7 @@
 
         static void Main(string[] args)
         {
-            Test20();
+            Test21();
             Console.ReadLine();
         }
 
@@ -164,7 +164,7 @@
 
                 // Instancia o algoritmo responsável pela factorização sobre corpos finitos.
                 var finiteFieldFactorizationAlgOld = new FiniteFieldPolFactorizationAlgorithmOld<BigInteger>(
-                    new UnivarSquareFreeDecomposition<Fraction<BigInteger, IEuclidenDomain<BigInteger>>>(),
+                    new UnivarSquareFreeDecomposition<Fraction<BigInteger>>(),
                     new BigIntegerToIntegerConversion(),
                     new DenseCondensationLinSysAlgorithm<BigInteger>(integerModularField));
 
@@ -581,13 +581,13 @@
             var stringsymbolReader = new StringSymbolReader(reader, false);
             var integerDomain = new BigIntegerDomain();
             var integerParser = new BigIntegerParser<string>();
-            var fractionField = new FractionField<BigInteger, BigIntegerDomain>(integerDomain);
-            var fractionParser = new FractionExpressionParser<BigInteger, BigIntegerDomain>(
+            var fractionField = new FractionField<BigInteger>(integerDomain);
+            var fractionParser = new FractionExpressionParser<BigInteger>(
                 integerParser,
                 fractionField);
 
-            var arrayMatrixFactory = new ArrayMatrixFactory<Fraction<BigInteger, BigIntegerDomain>>();
-            var arrayMatrixReader = new ConfigMatrixReader<Fraction<BigInteger, BigIntegerDomain>, string, string, CharSymbolReader<string>>(
+            var arrayMatrixFactory = new ArrayMatrixFactory<Fraction<BigInteger>>();
+            var arrayMatrixReader = new ConfigMatrixReader<Fraction<BigInteger>, string, string, CharSymbolReader<string>>(
                 3,
                 3,
                 arrayMatrixFactory);
@@ -595,10 +595,10 @@
             arrayMatrixReader.AddBlanckSymbolType("blancks");
             arrayMatrixReader.SeparatorSymbType = "comma";
 
-            var matrix = default(IMatrix<Fraction<BigInteger, BigIntegerDomain>>);
+            var matrix = default(IMatrix<Fraction<BigInteger>>);
             if (arrayMatrixReader.TryParseMatrix(stringsymbolReader, fractionParser, out matrix))
             {
-                arrayMatrixReader = new ConfigMatrixReader<Fraction<BigInteger, BigIntegerDomain>, string, string, CharSymbolReader<string>>(
+                arrayMatrixReader = new ConfigMatrixReader<Fraction<BigInteger>, string, string, CharSymbolReader<string>>(
                 3,
                 1,
                 arrayMatrixFactory);
@@ -606,15 +606,15 @@
                 arrayMatrixReader.AddBlanckSymbolType("blancks");
                 arrayMatrixReader.SeparatorSymbType = "comma";
 
-                var independentVector = default(IMatrix<Fraction<BigInteger, BigIntegerDomain>>);
+                var independentVector = default(IMatrix<Fraction<BigInteger>>);
                 reader = new StringReader(inputVector);
                 stringsymbolReader = new StringSymbolReader(reader, false);
                 if (arrayMatrixReader.TryParseMatrix(stringsymbolReader, fractionParser, out independentVector))
                 {
-                    var systemSolver = new SequentialLanczosAlgorithm<Fraction<BigInteger, BigIntegerDomain>, FractionField<BigInteger, BigIntegerDomain>>(
+                    var systemSolver = new SequentialLanczosAlgorithm<Fraction<BigInteger>, FractionField<BigInteger>>(
                         arrayMatrixFactory,
                         fractionField);
-                    var squareMatrix = (matrix as ArrayMatrix<Fraction<BigInteger, BigIntegerDomain>>).AsSquare();
+                    var squareMatrix = (matrix as ArrayMatrix<Fraction<BigInteger>>).AsSquare();
                     var result = systemSolver.Run(squareMatrix, independentVector);
                 }
             }
@@ -725,12 +725,6 @@
             var temp = quadraticSieve.Run(13459, 200, 100);
             Console.WriteLine("[{0},{1}]", temp.Item1, temp.Item2);
 
-            var eulerFunction = new EulerTotFuncAlg<int>(
-                new IntegerSquareRootAlgorithm(),
-                new PrimeNumbersIteratorFactory(),
-                integerDomain);
-            Console.WriteLine(eulerFunction.Run(1937));
-
             var perfectPowerAlgotithm = new IntPerfectPowerTestAlg(
                 new PrimeNumbersIteratorFactory());
             for (int i = 0; i <= 100; ++i)
@@ -828,10 +822,10 @@
 
             var integerDomain = new IntegerDomain();
             var bigIntegerDomain = new BigIntegerDomain();
-            var fractionField = new FractionField<int, IntegerDomain>(integerDomain);
+            var fractionField = new FractionField<int>(integerDomain);
             var integerParser = new IntegerParser<string>();
             var bigIntegerParser = new BigIntegerParser<string>();
-            var fractionParser = new ElementFractionParser<int, IntegerDomain>(integerParser, integerDomain);
+            var fractionParser = new ElementFractionParser<int>(integerParser, integerDomain);
 
             var bigIntFractionPolReader = new BigIntFractionPolReader();
             var anotherPol = bigIntFractionPolReader.Read(antoherInput);
@@ -889,22 +883,22 @@
             // Leitura dos polinómios como sendo consituídos por fracções
             var reader = new StringReader(firstInput);
             var stringSymbolReader = new StringSymbolReader(reader, false);
-            var polynomialParser = new UnivariatePolynomialReader<Fraction<int, IntegerDomain>,
+            var polynomialParser = new UnivariatePolynomialReader<Fraction<int>,
                 CharSymbolReader<string>>(
                 "x",
                 fractionParser,
                 fractionField);
 
-            var fractionConversion = new ElementFractionConversion<int, IntegerDomain>(integerDomain);
-            var firstPol = default(UnivariatePolynomialNormalForm<Fraction<int, IntegerDomain>>);
+            var fractionConversion = new ElementFractionConversion<int>(integerDomain);
+            var firstPol = default(UnivariatePolynomialNormalForm<Fraction<int>>);
             if (polynomialParser.TryParsePolynomial(stringSymbolReader, fractionConversion, out firstPol))
             {
                 reader = new StringReader(secondInput);
                 stringSymbolReader = new StringSymbolReader(reader, false);
-                var secondPol = default(UnivariatePolynomialNormalForm<Fraction<int, IntegerDomain>>);
+                var secondPol = default(UnivariatePolynomialNormalForm<Fraction<int>>);
                 if (polynomialParser.TryParsePolynomial(stringSymbolReader, fractionConversion, out secondPol))
                 {
-                    var polynomialEuclideanDomain = new UnivarPolynomEuclideanDomain<Fraction<int, IntegerDomain>>(
+                    var polynomialEuclideanDomain = new UnivarPolynomEuclideanDomain<Fraction<int>>(
                         "x",
                         fractionField);
 
@@ -924,19 +918,19 @@
 
             reader = new StringReader(thirdInput);
             stringSymbolReader = new StringSymbolReader(reader, false);
-            var otherFractionParser = new ElementFractionParser<BigInteger, BigIntegerDomain>(bigIntegerParser, bigIntegerDomain);
-            var otherFractionField = new FractionField<BigInteger, BigIntegerDomain>(bigIntegerDomain);
+            var otherFractionParser = new ElementFractionParser<BigInteger>(bigIntegerParser, bigIntegerDomain);
+            var otherFractionField = new FractionField<BigInteger>(bigIntegerDomain);
             var otherPolParser = new UnivariatePolynomialReader<
-                Fraction<BigInteger, BigIntegerDomain>,
+                Fraction<BigInteger>,
                 CharSymbolReader<string>>(
                 "x",
                 otherFractionParser,
                 otherFractionField);
             var otherFractionConversion = new BigIntegerFractionToIntConversion();
-            var thirdPol = default(UnivariatePolynomialNormalForm<Fraction<BigInteger, BigIntegerDomain>>);
+            var thirdPol = default(UnivariatePolynomialNormalForm<Fraction<BigInteger>>);
             if (otherPolParser.TryParsePolynomial(stringSymbolReader, otherFractionConversion, out thirdPol))
             {
-                var univarSquareFreeAlg = new UnivarSquareFreeDecomposition<Fraction<BigInteger, BigIntegerDomain>>();
+                var univarSquareFreeAlg = new UnivarSquareFreeDecomposition<Fraction<BigInteger>>();
                 var result = univarSquareFreeAlg.Run(thirdPol, otherFractionField);
                 Console.WriteLine("The squarefree factors are:");
                 foreach (var factor in result.Factors)
@@ -958,22 +952,22 @@
             var integerDomain = new IntegerDomain();
             var integerModularField = new ModularIntegerField(5);
             var integerParser = new IntegerParser<string>();
-            var fractionParser = new ElementFractionParser<int, IntegerDomain>(integerParser, integerDomain);
-            var fractionField = new FractionField<int, IntegerDomain>(integerDomain);
+            var fractionParser = new ElementFractionParser<int>(integerParser, integerDomain);
+            var fractionField = new FractionField<int>(integerDomain);
 
             // Soma nas n-potências das raízes de um polinómio
             var polInput = "x^6+4*x^4-3*x^3-x";
             var polInputReader = new StringReader(polInput);
             var polSymbolReader = new StringSymbolReader(polInputReader, false);
-            var polParser = new UnivariatePolynomialReader<Fraction<int, IntegerDomain>, CharSymbolReader<string>>(
+            var polParser = new UnivariatePolynomialReader<Fraction<int>, CharSymbolReader<string>>(
                 "x",
                 fractionParser,
                 fractionField);
 
-            var pol = default(UnivariatePolynomialNormalForm<Fraction<int, IntegerDomain>>);
+            var pol = default(UnivariatePolynomialNormalForm<Fraction<int>>);
             if (polParser.TryParsePolynomial(
                 polSymbolReader,
-                new ElementFractionConversion<int, IntegerDomain>(integerDomain),
+                new ElementFractionConversion<int>(integerDomain),
                 out pol))
             {
                 var powerRootsSums = pol.GetRootPowerSums(fractionField);
@@ -1050,7 +1044,7 @@
                 out parsedPol))
             {
                 var finiteFieldFactorization = new FiniteFieldPolFactorizationAlgorithmOld<int>(
-                    new UnivarSquareFreeDecomposition<Fraction<int, IEuclidenDomain<int>>>(),
+                    new UnivarSquareFreeDecomposition<Fraction<int>>(),
                     new ElementToElementConversion<int>(),
                     new DenseCondensationLinSysAlgorithm<int>(integerModularField));
 
@@ -1074,13 +1068,13 @@
             var stringsymbolReader = new StringSymbolReader(reader, false);
             var integerDomain = new IntegerDomain();
             var integerParser = new IntegerParser<string>();
-            var fractionField = new FractionField<int, IntegerDomain>(integerDomain);
-            var fractionParser = new FractionExpressionParser<int, IntegerDomain>(integerParser, fractionField);
-            var firstVector = default(IVector<Fraction<int, IntegerDomain>>);
-            var secondVector = default(IVector<Fraction<int, IntegerDomain>>);
-            var vectorFactory = new ArrayVectorFactory<Fraction<int, IntegerDomain>>();
+            var fractionField = new FractionField<int>(integerDomain);
+            var fractionParser = new FractionExpressionParser<int>(integerParser, fractionField);
+            var firstVector = default(IVector<Fraction<int>>);
+            var secondVector = default(IVector<Fraction<int>>);
+            var vectorFactory = new ArrayVectorFactory<Fraction<int>>();
 
-            var vectorReader = new ConfigVectorReader<Fraction<int, IntegerDomain>, string, string, CharSymbolReader<string>>(
+            var vectorReader = new ConfigVectorReader<Fraction<int>, string, string, CharSymbolReader<string>>(
                 2,
                 vectorFactory);
             vectorReader.MapInternalDelimiters("left_bracket", "right_bracket");
@@ -1094,19 +1088,19 @@
                 stringsymbolReader = new StringSymbolReader(reader, false);
                 if (vectorReader.TryParseVector(stringsymbolReader, fractionParser, errors, out secondVector))
                 {
-                    var vectorSpace = new VectorSpace<Fraction<int, IntegerDomain>>(
+                    var vectorSpace = new VectorSpace<Fraction<int>>(
                         2,
                         vectorFactory,
                         fractionField);
 
-                    var scalarProd = new OrthoVectorScalarProduct<Fraction<int, IntegerDomain>>(
-                        new FractionComparer<int, IntegerDomain>(Comparer<int>.Default, integerDomain),
+                    var scalarProd = new OrthoVectorScalarProduct<Fraction<int>>(
+                        new FractionComparer<int>(Comparer<int>.Default, integerDomain),
                         fractionField);
 
-                    var thirdVector = new ArrayVector<Fraction<int, IntegerDomain>>(2);
-                    thirdVector[0] = new Fraction<int, IntegerDomain>(1, 1, integerDomain);
-                    thirdVector[1] = new Fraction<int, IntegerDomain>(1, 1, integerDomain);
-                    var generator = new VectorSpaceGenerator<Fraction<int, IntegerDomain>>(2);
+                    var thirdVector = new ArrayVector<Fraction<int>>(2);
+                    thirdVector[0] = new Fraction<int>(1, 1, integerDomain);
+                    thirdVector[1] = new Fraction<int>(1, 1, integerDomain);
+                    var generator = new VectorSpaceGenerator<Fraction<int>>(2);
                     generator.Add(firstVector);
                     generator.Add(secondVector);
                     generator.Add(thirdVector);
@@ -1121,21 +1115,21 @@
                         Console.WriteLine(PrintVector(basisVector));
                     }
 
-                    var fractionComparer = new FractionComparer<int, IntegerDomain>(
+                    var fractionComparer = new FractionComparer<int>(
                         Comparer<int>.Default,
                         integerDomain);
                     var nearest = new FractionNearestInteger(integerDomain);
-                    var lllReductionAlg = new LLLBasisReductionAlgorithm<IVector<Fraction<int, IntegerDomain>>,
-                                                                         Fraction<int, IntegerDomain>,
+                    var lllReductionAlg = new LLLBasisReductionAlgorithm<IVector<Fraction<int>>,
+                                                                         Fraction<int>,
                                                                          int>(
                            vectorSpace,
                            scalarProd,
                            nearest,
-                           new FractionComparer<int, IntegerDomain>(Comparer<int>.Default, integerDomain));
+                           new FractionComparer<int>(Comparer<int>.Default, integerDomain));
 
                     var lllReduced = lllReductionAlg.Run(
-                        new IVector<Fraction<int, IntegerDomain>>[] { firstVector, secondVector },
-                        new Fraction<int, IntegerDomain>(4, 3, integerDomain));
+                        new IVector<Fraction<int>>[] { firstVector, secondVector },
+                        new Fraction<int>(4, 3, integerDomain));
 
                     for (int i = 0; i < lllReduced.Length; ++i)
                     {

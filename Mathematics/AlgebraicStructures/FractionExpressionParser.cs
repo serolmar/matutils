@@ -6,16 +6,15 @@
     using System.Text;
     using Utilities;
 
-    public class FractionExpressionParser<ObjectType, DomainType> : IParse<Fraction<ObjectType, DomainType>, string, string>
-        where DomainType : IEuclidenDomain<ObjectType>
+    public class FractionExpressionParser<ObjectType> : IParse<Fraction<ObjectType>, string, string>
     {
-        protected FractionField<ObjectType, DomainType> fractionField;
+        protected FractionField<ObjectType> fractionField;
 
-        protected ExpressionReader<Fraction<ObjectType, DomainType>, string, string> expressionReader;
+        protected ExpressionReader<Fraction<ObjectType>, string, string> expressionReader;
 
         public FractionExpressionParser(
             IParse<ObjectType, string, string> simpleObjectParser, 
-            FractionField<ObjectType, DomainType> fractionField)
+            FractionField<ObjectType> fractionField)
         {
             if (fractionField == null)
             {
@@ -28,8 +27,8 @@
             else
             {
                 this.fractionField = fractionField;
-                this.expressionReader = new ExpressionReader<Fraction<ObjectType, DomainType>, string, string>(
-                    new FractionParser<ObjectType, DomainType>(simpleObjectParser, fractionField.EuclideanDomain));
+                this.expressionReader = new ExpressionReader<Fraction<ObjectType>, string, string>(
+                    new FractionParser<ObjectType>(simpleObjectParser, fractionField.EuclideanDomain));
                 this.expressionReader.RegisterBinaryOperator("plus", Add, 0);
                 this.expressionReader.RegisterBinaryOperator("times", Multiply, 1);
                 this.expressionReader.RegisterBinaryOperator("minus", Subtract, 0);
@@ -44,33 +43,33 @@
             }
         }
 
-        public bool TryParse(ISymbol<string, string>[] symbolListToParse, out Fraction<ObjectType, DomainType> value)
+        public bool TryParse(ISymbol<string, string>[] symbolListToParse, out Fraction<ObjectType> value)
         {
             var arrayReader = new ArraySymbolReader<string, string>(symbolListToParse, "eof");
             return this.expressionReader.TryParse(arrayReader, out value);
         }
 
-        protected virtual Fraction<ObjectType, DomainType> Add(Fraction<ObjectType, DomainType> i, Fraction<ObjectType, DomainType> j)
+        protected virtual Fraction<ObjectType> Add(Fraction<ObjectType> i, Fraction<ObjectType> j)
         {
             return this.fractionField.Add(i, j);
         }
 
-        protected virtual Fraction<ObjectType, DomainType> Subtract(Fraction<ObjectType, DomainType> i, Fraction<ObjectType, DomainType> j)
+        protected virtual Fraction<ObjectType> Subtract(Fraction<ObjectType> i, Fraction<ObjectType> j)
         {
             return this.fractionField.Add(i, this.fractionField.AdditiveInverse(j));
         }
 
-        protected virtual Fraction<ObjectType, DomainType> Multiply(Fraction<ObjectType, DomainType> i, Fraction<ObjectType, DomainType> j)
+        protected virtual Fraction<ObjectType> Multiply(Fraction<ObjectType> i, Fraction<ObjectType> j)
         {
             return this.fractionField.Multiply(i, j);
         }
 
-        protected virtual Fraction<ObjectType, DomainType> Divide(Fraction<ObjectType, DomainType> i, Fraction<ObjectType, DomainType> j)
+        protected virtual Fraction<ObjectType> Divide(Fraction<ObjectType> i, Fraction<ObjectType> j)
         {
             return this.fractionField.Multiply(i, this.fractionField.MultiplicativeInverse(j));
         }
 
-        protected virtual Fraction<ObjectType, DomainType> Symmetric(Fraction<ObjectType, DomainType> i)
+        protected virtual Fraction<ObjectType> Symmetric(Fraction<ObjectType> i)
         {
             return this.fractionField.AdditiveInverse(i);
         }

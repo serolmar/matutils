@@ -10,14 +10,28 @@
     /// Permite determinar o valor inteiro mais próximo de uma fracção.
     /// </summary>
     public class FractionNearestBigInt
-        : INearest<Fraction<BigInteger, BigIntegerDomain>, BigInteger>
+        : INearest<Fraction<BigInteger>, BigInteger>
     {
+        private IEuclidenDomain<BigInteger> domain;
+
+        public FractionNearestBigInt(IEuclidenDomain<BigInteger> domain)
+        {
+            if (domain == null)
+            {
+                throw new ArgumentNullException("domain");
+            }
+            else
+            {
+                this.domain = domain;
+            }
+        }
+
         /// <summary>
         /// Obtém o valor inteiro mais próximo de uma fracção.
         /// </summary>
         /// <param name="source">A facção.</param>
         /// <returns>O valor inteiro.</returns>
-        public BigInteger GetNearest(Fraction<BigInteger, BigIntegerDomain> source)
+        public BigInteger GetNearest(Fraction<BigInteger> source)
         {
             if (source == null)
             {
@@ -25,8 +39,8 @@
             }
             else
             {
-                var integerPart = source.IntegralPart;
-                var fractionPart = source.FractionalPart;
+                var integerPart = source.IntegralPart(this.domain);
+                var fractionPart = source.FractionalPart(this.domain);
                 var factor = fractionPart.Denominator / fractionPart.Numerator;
                 if (factor > 2)
                 {

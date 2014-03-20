@@ -5,14 +5,13 @@ using System.Text;
 
 namespace Mathematics
 {
-    public class FractionField<T, D> : IField<Fraction<T, D>>
-        where D : IEuclidenDomain<T>
+    public class FractionField<T> : IField<Fraction<T>>
     {
-        private D euclideanDomain;
+        private IEuclidenDomain<T> euclideanDomain;
 
         private IEqualityComparer<T> elementsComparer;
 
-        public FractionField(D euclideanDomain)
+        public FractionField(IEuclidenDomain<T> euclideanDomain)
         {
             if (euclideanDomain == null)
             {
@@ -25,7 +24,7 @@ namespace Mathematics
             }
         }
 
-        public FractionField(IEqualityComparer<T> elementsComparer, D euclideanDomain)
+        public FractionField(IEqualityComparer<T> elementsComparer, IEuclidenDomain<T> euclideanDomain)
         {
             if (euclideanDomain == null)
             {
@@ -38,7 +37,7 @@ namespace Mathematics
             }
         }
 
-        public D EuclideanDomain
+        public IEuclidenDomain<T> EuclideanDomain
         {
             get
             {
@@ -46,26 +45,26 @@ namespace Mathematics
             }
         }
 
-        public Fraction<T, D> AdditiveUnity
+        public Fraction<T> AdditiveUnity
         {
             get
             {
-                return new Fraction<T, D>(this.euclideanDomain);
+                return new Fraction<T>(this.euclideanDomain);
             }
         }
 
-        public Fraction<T, D> MultiplicativeUnity
+        public Fraction<T> MultiplicativeUnity
         {
             get
             {
-                return new Fraction<T, D>(
+                return new Fraction<T>(
                     this.euclideanDomain.MultiplicativeUnity,
                     this.euclideanDomain.MultiplicativeUnity,
                     this.euclideanDomain);
             }
         }
 
-        public Fraction<T, D> MultiplicativeInverse(Fraction<T, D> number)
+        public Fraction<T> MultiplicativeInverse(Fraction<T> number)
         {
             if (number == null)
             {
@@ -73,11 +72,11 @@ namespace Mathematics
             }
             else
             {
-                return number.GetInverse();
+                return number.GetInverse(this.euclideanDomain);
             }
         }
 
-        public Fraction<T, D> AdditiveInverse(Fraction<T, D> number)
+        public Fraction<T> AdditiveInverse(Fraction<T> number)
         {
             if (number == null)
             {
@@ -85,11 +84,11 @@ namespace Mathematics
             }
             else
             {
-                return number.GetSymmetric();
+                return number.GetSymmetric(this.euclideanDomain);
             }
         }
 
-        public bool IsAdditiveUnity(Fraction<T, D> value)
+        public bool IsAdditiveUnity(Fraction<T> value)
         {
             if (value == null)
             {
@@ -101,7 +100,7 @@ namespace Mathematics
             }
         }
 
-        public Fraction<T, D> Add(Fraction<T, D> left, Fraction<T, D> right)
+        public Fraction<T> Add(Fraction<T> left, Fraction<T> right)
         {
             if (left == null)
             {
@@ -113,11 +112,11 @@ namespace Mathematics
             }
             else
             {
-                return left.Add(right);
+                return left.Add(right, this.euclideanDomain);
             }
         }
 
-        public Fraction<T, D> Multiply(Fraction<T, D> left, Fraction<T, D> right)
+        public Fraction<T> Multiply(Fraction<T> left, Fraction<T> right)
         {
             if (left == null)
             {
@@ -129,11 +128,11 @@ namespace Mathematics
             }
             else
             {
-                return left.Multiply(right);
+                return left.Multiply(right, this.euclideanDomain);
             }
         }
 
-        public bool IsMultiplicativeUnity(Fraction<T, D> value)
+        public bool IsMultiplicativeUnity(Fraction<T> value)
         {
             if (value == null)
             {
@@ -146,20 +145,20 @@ namespace Mathematics
             }
         }
 
-        public Fraction<T, D> AddRepeated(Fraction<T, D> element, int times)
+        public Fraction<T> AddRepeated(Fraction<T> element, int times)
         {
             if (this.euclideanDomain.IsAdditiveUnity(element.Numerator))
             {
-                return new Fraction<T, D>(element.Numerator, element.Denominator, this.euclideanDomain);
+                return new Fraction<T>(element.Numerator, element.Denominator, this.euclideanDomain);
             }
             else
             {
                 var added = this.euclideanDomain.AddRepeated(element.Numerator, times);
-                return new Fraction<T, D>(added, element.Denominator, this.euclideanDomain);
+                return new Fraction<T>(added, element.Denominator, this.euclideanDomain);
             }
         }
 
-        public bool Equals(Fraction<T, D> x, Fraction<T, D> y)
+        public bool Equals(Fraction<T> x, Fraction<T> y)
         {
             if (x == null && y == null)
             {
@@ -184,7 +183,7 @@ namespace Mathematics
             }
         }
 
-        public int GetHashCode(Fraction<T, D> obj)
+        public int GetHashCode(Fraction<T> obj)
         {
             if (obj == null)
             {

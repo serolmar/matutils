@@ -154,27 +154,27 @@
         public void PowerTest_IntegerFraction()
         {
             var domain = new IntegerDomain();
-            var multiplier = new FractionField<int, IntegerDomain>(domain);
+            var multiplier = new FractionField<int>(domain);
 
             var intPowers = new int[] { 2, 3, 4, 1, 20, 13 };
             var longPowers = new long[] { 2, 3, 4, 1, 20, 13 };
             var bigIntPowers = new BigInteger[] { 2, 3, 4, 1, 20, 13 };
 
             var values = new[] { 
-                new Fraction<int,IntegerDomain>(13,17,domain), 
-                new Fraction<int,IntegerDomain>(25,23,domain), 
-                new Fraction<int,IntegerDomain>(11,15,domain), 
-                new Fraction<int,IntegerDomain>(100,99,domain), 
-                new Fraction<int,IntegerDomain>(1,2,domain), 
-                new Fraction<int,IntegerDomain>(3,5,domain) };
+                new Fraction<int>(13,17,domain), 
+                new Fraction<int>(25,23,domain), 
+                new Fraction<int>(11,15,domain), 
+                new Fraction<int>(100,99,domain), 
+                new Fraction<int>(1,2,domain), 
+                new Fraction<int>(3,5,domain) };
 
             var expected = new[] { 
-                new Fraction<int,IntegerDomain>(169,289,domain), 
-                new Fraction<int,IntegerDomain>(15625,12167,domain), 
-                new Fraction<int,IntegerDomain>(14641,50625,domain), 
-                new Fraction<int,IntegerDomain>(100,99,domain), 
-                new Fraction<int,IntegerDomain>(1,1048576,domain), 
-                new Fraction<int,IntegerDomain>(1594323,1220703125,domain) };
+                new Fraction<int>(169,289,domain), 
+                new Fraction<int>(15625,12167,domain), 
+                new Fraction<int>(14641,50625,domain), 
+                new Fraction<int>(100,99,domain), 
+                new Fraction<int>(1,1048576,domain), 
+                new Fraction<int>(1594323,1220703125,domain) };
 
             // Potências inteiras.
             for (int i = 0; i < intPowers.Length; ++i)
@@ -228,27 +228,27 @@
         public void PowerTest_BigIntegerFraction()
         {
             var domain = new BigIntegerDomain();
-            var multiplier = new FractionField<BigInteger, BigIntegerDomain>(domain);
+            var multiplier = new FractionField<BigInteger>(domain);
 
             var intPowers = new int[] { 2, 3, 4, 1, 20, 13 };
             var longPowers = new long[] { 2, 3, 4, 1, 20, 13 };
             var bigIntPowers = new BigInteger[] { 2, 3, 4, 1, 20, 13 };
 
             var values = new[] { 
-                new Fraction<BigInteger,BigIntegerDomain>(13,17,domain), 
-                new Fraction<BigInteger,BigIntegerDomain>(25,23,domain), 
-                new Fraction<BigInteger,BigIntegerDomain>(11,15,domain), 
-                new Fraction<BigInteger,BigIntegerDomain>(100,99,domain), 
-                new Fraction<BigInteger,BigIntegerDomain>(1,2,domain), 
-                new Fraction<BigInteger,BigIntegerDomain>(3,5,domain) };
+                new Fraction<BigInteger>(13,17,domain), 
+                new Fraction<BigInteger>(25,23,domain), 
+                new Fraction<BigInteger>(11,15,domain), 
+                new Fraction<BigInteger>(100,99,domain), 
+                new Fraction<BigInteger>(1,2,domain), 
+                new Fraction<BigInteger>(3,5,domain) };
 
             var expected = new[] { 
-                new Fraction<BigInteger,BigIntegerDomain>(169,289,domain), 
-                new Fraction<BigInteger,BigIntegerDomain>(15625,12167,domain), 
-                new Fraction<BigInteger,BigIntegerDomain>(14641,50625,domain), 
-                new Fraction<BigInteger,BigIntegerDomain>(100,99,domain), 
-                new Fraction<BigInteger,BigIntegerDomain>(1,1048576,domain), 
-                new Fraction<BigInteger,BigIntegerDomain>(1594323,1220703125,domain) };
+                new Fraction<BigInteger>(169,289,domain), 
+                new Fraction<BigInteger>(15625,12167,domain), 
+                new Fraction<BigInteger>(14641,50625,domain), 
+                new Fraction<BigInteger>(100,99,domain), 
+                new Fraction<BigInteger>(1,1048576,domain), 
+                new Fraction<BigInteger>(1594323,1220703125,domain) };
 
             // Potências inteiras.
             for (int i = 0; i < intPowers.Length; ++i)
@@ -401,24 +401,24 @@
             var bigIntegerDomain = new BigIntegerDomain();
 
             var variableName = "x";
-            var integerPolynomialField = new UnivarPolynomEuclideanDomain<Fraction<int, IntegerDomain>>(
+            var integerPolynomialField = new UnivarPolynomEuclideanDomain<Fraction<int>>(
                 variableName, 
-                new FractionField<int, IntegerDomain>(integerDomain));
-            var longPolynomialField = new UnivarPolynomEuclideanDomain<Fraction<long, LongDomain>>(
+                new FractionField<int>(integerDomain));
+            var longPolynomialField = new UnivarPolynomEuclideanDomain<Fraction<long>>(
                 variableName,
-                new FractionField<long, LongDomain>(longDomain));
-            var bigIntegerPolynomialField = new UnivarPolynomEuclideanDomain<Fraction<BigInteger, BigIntegerDomain>>(
+                new FractionField<long>(longDomain));
+            var bigIntegerPolynomialField = new UnivarPolynomEuclideanDomain<Fraction<BigInteger>>(
                 variableName,
-                new FractionField<BigInteger, BigIntegerDomain>(bigIntegerDomain));
+                new FractionField<BigInteger>(bigIntegerDomain));
 
             // Leitores
             var integerParser = new IntegerParser<string>();
             var longParser = new LongParser<string>();
             var bigIntegerParser = new BigIntegerParser<string>();
 
-            var integerConversion = new OuterElementFractionConversion<int, int, IntegerDomain>(new ElementToElementConversion<int>(), integerDomain);
-            var longToIntegerConversion = new OuterElementFractionConversion<int, long, LongDomain>(new LongToIntegerConversion(), longDomain);
-            var bigIntegerToIntegerConversion = new OuterElementFractionConversion<int, BigInteger, BigIntegerDomain>(new BigIntegerToIntegerConversion(), bigIntegerDomain);
+            var integerConversion = new OuterElementFractionConversion<int, int>(new ElementToElementConversion<int>(), integerDomain);
+            var longToIntegerConversion = new OuterElementFractionConversion<int, long>(new LongToIntegerConversion(), longDomain);
+            var bigIntegerToIntegerConversion = new OuterElementFractionConversion<int, BigInteger>(new BigIntegerToIntegerConversion(), bigIntegerDomain);
 
             var intPowers = new int[3] { 2, 3, 4 };
             var longPowers = new long[3] { 2, 3, 4 };
@@ -591,27 +591,27 @@
         public void AddPowerTest_IntegerFraction()
         {
             var domain = new IntegerDomain();
-            var multiplier = new FractionField<int, IntegerDomain>(domain);
+            var multiplier = new FractionField<int>(domain);
 
             var intPowers = new int[] { 2, 3, 4, 1, 20, 13 };
             var longPowers = new long[] { 2, 3, 4, 1, 20, 13 };
             var bigIntPowers = new BigInteger[] { 2, 3, 4, 1, 20, 13 };
 
             var values = new[] { 
-                new Fraction<int,IntegerDomain>(13,17,domain), 
-                new Fraction<int,IntegerDomain>(25,23,domain), 
-                new Fraction<int,IntegerDomain>(11,15,domain), 
-                new Fraction<int,IntegerDomain>(100,99,domain), 
-                new Fraction<int,IntegerDomain>(1,2,domain), 
-                new Fraction<int,IntegerDomain>(3,5,domain) };
+                new Fraction<int>(13,17,domain), 
+                new Fraction<int>(25,23,domain), 
+                new Fraction<int>(11,15,domain), 
+                new Fraction<int>(100,99,domain), 
+                new Fraction<int>(1,2,domain), 
+                new Fraction<int>(3,5,domain) };
 
             var expected = new[] { 
-                new Fraction<int,IntegerDomain>(26,17,domain), 
-                new Fraction<int,IntegerDomain>(75,23,domain), 
-                new Fraction<int,IntegerDomain>(44,15,domain), 
-                new Fraction<int,IntegerDomain>(100,99,domain), 
-                new Fraction<int,IntegerDomain>(10,1,domain), 
-                new Fraction<int,IntegerDomain>(39,5,domain) };
+                new Fraction<int>(26,17,domain), 
+                new Fraction<int>(75,23,domain), 
+                new Fraction<int>(44,15,domain), 
+                new Fraction<int>(100,99,domain), 
+                new Fraction<int>(10,1,domain), 
+                new Fraction<int>(39,5,domain) };
 
             // Potências inteiras.
             for (int i = 0; i < intPowers.Length; ++i)
@@ -639,27 +639,27 @@
         public void AddPowerTest_BigIntegerFraction()
         {
             var domain = new BigIntegerDomain();
-            var multiplier = new FractionField<BigInteger, BigIntegerDomain>(domain);
+            var multiplier = new FractionField<BigInteger>(domain);
 
             var intPowers = new int[] { 2, 3, 4, 1, 20, 13 };
             var longPowers = new long[] { 2, 3, 4, 1, 20, 13 };
             var bigIntPowers = new BigInteger[] { 2, 3, 4, 1, 20, 13 };
 
             var values = new[] { 
-                new Fraction<BigInteger,BigIntegerDomain>(13,17,domain), 
-                new Fraction<BigInteger,BigIntegerDomain>(25,23,domain), 
-                new Fraction<BigInteger,BigIntegerDomain>(11,15,domain), 
-                new Fraction<BigInteger,BigIntegerDomain>(100,99,domain), 
-                new Fraction<BigInteger,BigIntegerDomain>(1,2,domain), 
-                new Fraction<BigInteger,BigIntegerDomain>(3,5,domain) };
+                new Fraction<BigInteger>(13,17,domain), 
+                new Fraction<BigInteger>(25,23,domain), 
+                new Fraction<BigInteger>(11,15,domain), 
+                new Fraction<BigInteger>(100,99,domain), 
+                new Fraction<BigInteger>(1,2,domain), 
+                new Fraction<BigInteger>(3,5,domain) };
 
             var expected = new[] { 
-                new Fraction<BigInteger,BigIntegerDomain>(26,17,domain), 
-                new Fraction<BigInteger,BigIntegerDomain>(75,23,domain), 
-                new Fraction<BigInteger,BigIntegerDomain>(44,15,domain), 
-                new Fraction<BigInteger,BigIntegerDomain>(100,99,domain), 
-                new Fraction<BigInteger,BigIntegerDomain>(10,1,domain), 
-                new Fraction<BigInteger,BigIntegerDomain>(39,5,domain) };
+                new Fraction<BigInteger>(26,17,domain), 
+                new Fraction<BigInteger>(75,23,domain), 
+                new Fraction<BigInteger>(44,15,domain), 
+                new Fraction<BigInteger>(100,99,domain), 
+                new Fraction<BigInteger>(10,1,domain), 
+                new Fraction<BigInteger>(39,5,domain) };
 
             // Potências inteiras.
             for (int i = 0; i < intPowers.Length; ++i)

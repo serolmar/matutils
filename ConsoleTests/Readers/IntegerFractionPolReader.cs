@@ -18,21 +18,21 @@
         /// </remarks>
         /// <param name="polynomial">O texto.</param>
         /// <returns>O polinómio.</returns>
-        public UnivariatePolynomialNormalForm<Fraction<int, IntegerDomain>> Read(string polynomial)
+        public UnivariatePolynomialNormalForm<Fraction<int>> Read(string polynomial)
         {
             var integerDomain = new IntegerDomain();
-            var fractionField = new FractionField<int, IntegerDomain>(integerDomain);
+            var fractionField = new FractionField<int>(integerDomain);
             var integerParser = new IntegerParser<string>();
-            var fractionParser = new FractionExpressionParser<int, IntegerDomain>(integerParser, fractionField);
-            var conversion = new ElementFractionConversion<int, IntegerDomain>(integerDomain);
+            var fractionParser = new FractionExpressionParser<int>(integerParser, fractionField);
+            var conversion = new ElementFractionConversion<int>(integerDomain);
             var polInputReader = new StringReader(polynomial);
             var polSymbolReader = new StringSymbolReader(polInputReader, false);
-            var polParser = new UnivariatePolynomialReader<Fraction<int, IntegerDomain>, CharSymbolReader<string>>(
+            var polParser = new UnivariatePolynomialReader<Fraction<int>, CharSymbolReader<string>>(
                 "x",
                 fractionParser,
                 fractionField);
 
-            var result = default(UnivariatePolynomialNormalForm<Fraction<int, IntegerDomain>>);
+            var result = default(UnivariatePolynomialNormalForm<Fraction<int>>);
             if (polParser.TryParsePolynomial(polSymbolReader, conversion, out result))
             {
                 // O polinómio foi lido com sucesso.

@@ -8,17 +8,17 @@
     using Mathematics;
     using Utilities;
 
-    class BigIntegerFractionToIntConversion : IConversion<int, Fraction<BigInteger, BigIntegerDomain>>
+    class BigIntegerFractionToIntConversion : IConversion<int, Fraction<BigInteger>>
     {
-        private ElementFractionConversion<BigInteger, BigIntegerDomain> elementFractionConversion;
+        private ElementFractionConversion<BigInteger> elementFractionConversion;
 
         public BigIntegerFractionToIntConversion()
         {
-            this.elementFractionConversion = new ElementFractionConversion<BigInteger, BigIntegerDomain>(
+            this.elementFractionConversion = new ElementFractionConversion<BigInteger>(
                 new BigIntegerDomain());
         }
 
-        public bool CanApplyDirectConversion(Fraction<BigInteger, BigIntegerDomain> objectToConvert)
+        public bool CanApplyDirectConversion(Fraction<BigInteger> objectToConvert)
         {
             if (objectToConvert == null)
             {
@@ -35,7 +35,7 @@
             return true;
         }
 
-        public int DirectConversion(Fraction<BigInteger, BigIntegerDomain> objectToConvert)
+        public int DirectConversion(Fraction<BigInteger> objectToConvert)
         {
             if (objectToConvert == null)
             {
@@ -48,10 +48,10 @@
             }
         }
 
-        public Fraction<BigInteger, BigIntegerDomain> InverseConversion(int objectToConvert)
+        public Fraction<BigInteger> InverseConversion(int objectToConvert)
         {
             var bigInt = new BigInteger(objectToConvert);
-            return new Fraction<BigInteger, BigIntegerDomain>(bigInt, 1, this.elementFractionConversion.Domain);
+            return new Fraction<BigInteger>(bigInt, 1, this.elementFractionConversion.Domain);
         }
     }
 }

@@ -18,9 +18,9 @@
         /// <summary>
         /// O algoritmo que permite obter a factorização em polinómios livres de quadrados.
         /// </summary>
-        IAlgorithm<UnivariatePolynomialNormalForm<Fraction<CoeffType, IEuclidenDomain<CoeffType>>>,
-            IField<Fraction<CoeffType, IEuclidenDomain<CoeffType>>>,
-            SquareFreeFactorizationResult<Fraction<CoeffType, IEuclidenDomain<CoeffType>>, Fraction<CoeffType, IEuclidenDomain<CoeffType>>>> 
+        IAlgorithm<UnivariatePolynomialNormalForm<Fraction<CoeffType>>,
+            IField<Fraction<CoeffType>>,
+            SquareFreeFactorizationResult<Fraction<CoeffType>, Fraction<CoeffType>>> 
         squareFreeFactorizationAlg;
 
         /// <summary>
@@ -31,9 +31,9 @@
         private IConversion<int, CoeffType> integerConversion;
 
         public FiniteFieldPolFactorizationAlgorithmOld(
-            IAlgorithm<UnivariatePolynomialNormalForm<Fraction<CoeffType, IEuclidenDomain<CoeffType>>>, 
-            IField<Fraction<CoeffType, IEuclidenDomain<CoeffType>>>,
-            SquareFreeFactorizationResult<Fraction<CoeffType, IEuclidenDomain<CoeffType>>, Fraction<CoeffType, IEuclidenDomain<CoeffType>>>> squareFreeFactorizationAlg,
+            IAlgorithm<UnivariatePolynomialNormalForm<Fraction<CoeffType>>, 
+            IField<Fraction<CoeffType>>,
+            SquareFreeFactorizationResult<Fraction<CoeffType>, Fraction<CoeffType>>> squareFreeFactorizationAlg,
             IConversion<int, CoeffType> integerConversion,
             IAlgorithm<IMatrix<CoeffType>, IMatrix<CoeffType>, LinearSystemSolution<CoeffType>> linearSystemSolver)
         {
@@ -73,7 +73,7 @@
         {
             var result = new Dictionary<int, FiniteFieldFactorizationResultOld<CoeffType>>();
 
-            var fractionField = new FractionField<CoeffType, IEuclidenDomain<CoeffType>>(coeffsDomain);
+            var fractionField = new FractionField<CoeffType>(coeffsDomain);
             var polynomDomain = new UnivarPolynomEuclideanDomain<CoeffType>(
                 polynom.VariableName,
                 modularField);
@@ -336,13 +336,15 @@
         /// <param name="polynom">O polinómio.</param>
         /// <param name="fractionField">O corpo.</param>
         /// <returns>A cópia.</returns>
-        private UnivariatePolynomialNormalForm<Fraction<CoeffType, IEuclidenDomain<CoeffType>>> ClonePol(UnivariatePolynomialNormalForm<CoeffType> polynom, FractionField<CoeffType, IEuclidenDomain<CoeffType>> fractionField)
+        private UnivariatePolynomialNormalForm<Fraction<CoeffType>> ClonePol(
+            UnivariatePolynomialNormalForm<CoeffType> polynom, 
+            FractionField<CoeffType> fractionField)
         {
-            var result = new UnivariatePolynomialNormalForm<Fraction<CoeffType, IEuclidenDomain<CoeffType>>>(
+            var result = new UnivariatePolynomialNormalForm<Fraction<CoeffType>>(
                 polynom.VariableName);
             foreach (var termKvp in polynom)
             {
-                result = result.Add(new Fraction<CoeffType, IEuclidenDomain<CoeffType>>(
+                result = result.Add(new Fraction<CoeffType>(
                     termKvp.Value,
                     fractionField.EuclideanDomain.MultiplicativeUnity,
                     fractionField.EuclideanDomain),
@@ -360,7 +362,7 @@
         /// <returns>A cópia.</returns>
         [Obsolete("Esta função é obsoleta.")]
         private UnivariatePolynomialNormalForm<CoeffType> CloneInvPol(
-            UnivariatePolynomialNormalForm<Fraction<CoeffType, IEuclidenDomain<CoeffType>>> polynom,
+            UnivariatePolynomialNormalForm<Fraction<CoeffType>> polynom,
             IModularField<CoeffType> modularIntegerField)
         {
             var result = new UnivariatePolynomialNormalForm<CoeffType>(
@@ -385,8 +387,7 @@
         /// <param name="coeffsDomain">O domínio responsável pelas operações sobre os coeficientes.</param>
         /// <returns>O polinómio com os coeficientes inteiros.</returns>
         private UnivariatePolynomialNormalForm<CoeffType> GetIntegerPol(
-            UnivariatePolynomialNormalForm<Fraction<CoeffType, 
-            IEuclidenDomain<CoeffType>>> polynom,
+            UnivariatePolynomialNormalForm<Fraction<CoeffType>> polynom,
             CoeffType denominatorLcm,
             IEuclidenDomain<CoeffType> coeffsDomain)
         {
@@ -426,7 +427,7 @@
         /// <param name="gcdCAlg">O domínio responsável pelas operações sobre os coeficientes.</param>
         /// <returns>O valor do mínimo múltiplo comum.</returns>
         private CoeffType GetDenominatorLcm(
-            UnivariatePolynomialNormalForm<Fraction<CoeffType, IEuclidenDomain<CoeffType>>> polynom,
+            UnivariatePolynomialNormalForm<Fraction<CoeffType>> polynom,
             IBachetBezoutAlgorithm<CoeffType> gcdCAlg)
         {
             var termsEnumerator = polynom.GetEnumerator();
