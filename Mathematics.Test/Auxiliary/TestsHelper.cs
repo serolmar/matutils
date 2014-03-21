@@ -17,14 +17,14 @@
         /// </summary>
         /// <typeparam name="T">O tipo dos coeficientes do polinómio.</typeparam>
         /// <param name="polynomialRepresentation">A representação textual do polinómio.</param>
-        /// <param name="domain">O domínio responsável pelas operações sobre os coeficientes.</param>
+        /// <param name="ring">O anel responsável pelas operações sobre os coeficientes.</param>
         /// <param name="coeffsParser">O leitor de representações textuais para os coeficientes.</param>
         /// <param name="conversion">A conversão do tipo do coeficientes para inteiro.</param>
         /// <param name="variableName">O nome da variável.</param>
         /// <returns>O polinómio lido a partir da representação textual.</returns>
         public static UnivariatePolynomialNormalForm<T> ReadUnivarPolynomial<T>(
             string polynomialRepresentation,
-            IEuclidenDomain<T> domain,
+            IRing<T> ring,
             IParse<T, string, string> coeffsParser,
             IConversion<int, T> conversion,
             string variableName)
@@ -34,7 +34,7 @@
             var polParser = new UnivariatePolynomialReader<T, CharSymbolReader<string>>(
                 "x",
                 coeffsParser,
-                domain);
+                ring);
 
             var result = default(UnivariatePolynomialNormalForm<T>);
             if (polParser.TryParsePolynomial(polSymbolReader, conversion, out result))
@@ -54,7 +54,7 @@
         /// </summary>
         /// <typeparam name="T">O tipo dos coeficientes do polinómio.</typeparam>
         /// <param name="polynomialRepresentation">A representação textual do polinómio.</param>
-        /// <param name="domain">O domínio responsável pelas operações sobre os coeficientes.</param>
+        /// <param name="ring">O anel responsável pelas operações sobre os coeficientes.</param>
         /// <param name="coeffsParser">O leitor de representações textuais para os coeficientes.</param>
         /// <param name="conversion">A conversão do tipo do coeficientes para inteiro.</param>
         /// <param name="variableName">O nome da variável.</param>
@@ -62,18 +62,18 @@
         /// <returns>O polinómio lido a partir da representação textual.</returns>
         public static UnivariatePolynomialNormalForm<T> ReadUnivarPolynomial<T>(
             string polynomialRepresentation,
-            IEuclidenDomain<T> domain,
+            IRing<T> ring,
             IParse<T, string, string> coeffsParser,
             IConversion<int, T> conversion,
             string variableName,
             Dictionary<string,string> externalDelimitersTypes)
         {
             var polInputReader = new StringReader(polynomialRepresentation);
-            var polSymbolReader = new StringSymbolReader(polInputReader, false);
+            var polSymbolReader = new StringSymbolReader(polInputReader, true);
             var polParser = new UnivariatePolynomialReader<T, CharSymbolReader<string>>(
                 "x",
                 coeffsParser,
-                domain);
+                ring);
 
             foreach (var kvp in externalDelimitersTypes)
             {
@@ -113,7 +113,7 @@
             var fractionField = new FractionField<T>(domain);
             var fractionParser = new FractionExpressionParser<T>(itemsParser, fractionField);
             var polInputReader = new StringReader(polynomialRepresentation);
-            var polSymbolReader = new StringSymbolReader(polInputReader, false);
+            var polSymbolReader = new StringSymbolReader(polInputReader, true);
             var polParser = new UnivariatePolynomialReader<Fraction<T>, CharSymbolReader<string>>(
                 "x",
                 fractionParser,

@@ -1,24 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Mathematics
+﻿namespace Mathematics
 {
-    public class MatrixMultiplicationOperation<ObjectType, AdditionOperationType, MultiplicationOperationType>
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+
+    public class MatrixMultiplicationOperation<ObjectType>
         : IMultiplicationOperation<IMatrix<ObjectType>, IMatrix<ObjectType>, IMatrix<ObjectType>>
-        where AdditionOperationType : IAdditionOperation<ObjectType>
-        where MultiplicationOperationType : IMultiplicationOperation<ObjectType, ObjectType, ObjectType>
     {
         /// <summary>
         /// A classe responsável pela multiplicação das entradas da matriz.
         /// </summary>
-        MultiplicationOperationType multiplicationOperation;
+        IMultiplicationOperation<ObjectType, ObjectType, ObjectType> multiplicationOperation;
 
         /// <summary>
         /// A classe que será responsável pela adição das entradas da matriz.
         /// </summary>
-        AdditionOperationType additionOperation;
+        IAdditionOperation<ObjectType> additionOperation;
 
         /// <summary>
         /// A classe que será responsável pela instanciação do resultado.
@@ -26,8 +24,8 @@ namespace Mathematics
         IMatrixFactory<ObjectType> matrixFactory;
 
         public MatrixMultiplicationOperation(IMatrixFactory<ObjectType> matrixFactory,
-            AdditionOperationType additionOperation,
-            MultiplicationOperationType multiplicationOperation)
+            IAdditionOperation<ObjectType> additionOperation,
+            IMultiplicationOperation<ObjectType, ObjectType, ObjectType> multiplicationOperation)
         {
             if (multiplicationOperation == null)
             {
@@ -52,7 +50,7 @@ namespace Mathematics
         /// <summary>
         /// Obtém o objecto responsável pela multiplicação das entradas da matriz.
         /// </summary>
-        public MultiplicationOperationType MultiplicationOperation
+        public IMultiplicationOperation<ObjectType, ObjectType, ObjectType> MultiplicationOperation
         {
             get
             {
@@ -63,7 +61,7 @@ namespace Mathematics
         /// <summary>
         /// Obtém o objecto responsável pela adição das entradas da matriz.
         /// </summary>
-        public AdditionOperationType AdditionOperation
+        public IAdditionOperation<ObjectType> AdditionOperation
         {
             get
             {

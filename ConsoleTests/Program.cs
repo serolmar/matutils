@@ -535,7 +535,7 @@
             var costsMatrix = sparseMatrixReader.ReadArray(5, 5, costsMatrixInput);
             var linearRelaxation = new LinearRelaxationAlgorithm<double>(
                 new SimplexAlgorithm<double>(Comparer<double>.Default, doubleField),
-                new IntegerDoubleConverter(),
+                new DoubleToIntegerConversion(),
                 doubleField);
             var linearRelaxationResult = linearRelaxation.Run(costsMatrix, 3);
 

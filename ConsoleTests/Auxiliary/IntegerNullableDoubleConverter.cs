@@ -8,11 +8,11 @@
 
     public class IntegerNullableDoubleConverter : IConversion<int, Nullable<double>>
     {
-        private IntegerDoubleConverter converter;
+        private DoubleToIntegerConversion converter;
 
         public IntegerNullableDoubleConverter(double precision = 0.00001)
         {
-            this.converter = new IntegerDoubleConverter(precision);
+            this.converter = new DoubleToIntegerConversion(precision);
         }
 
         public bool CanApplyDirectConversion(Nullable<double> objectToConvert)

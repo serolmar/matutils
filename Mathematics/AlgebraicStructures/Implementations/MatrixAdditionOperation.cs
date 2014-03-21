@@ -5,20 +5,19 @@
     using System.Linq;
     using System.Text;
 
-    public class MatrixAdditionOperation<ObjectType, AdditionOperationType> : IAdditionOperation<IMatrix<ObjectType>>
-        where AdditionOperationType : IAdditionOperation<ObjectType>
+    public class MatrixAdditionOperation<ObjectType> : IAdditionOperation<IMatrix<ObjectType>>
     {
         /// <summary>
         /// A classe que será responsável pela adição das entradas da matriz.
         /// </summary>
-        AdditionOperationType additionOperation;
+        protected IAdditionOperation<ObjectType> additionOperation;
 
         /// <summary>
         /// A classe que será responsável pela instanciação do resultado.
         /// </summary>
-        IMatrixFactory<ObjectType> matrixFactory;
+        protected IMatrixFactory<ObjectType> matrixFactory;
 
-        public MatrixAdditionOperation(IMatrixFactory<ObjectType> matrixFactory, AdditionOperationType additionOperation)
+        public MatrixAdditionOperation(IMatrixFactory<ObjectType> matrixFactory, IAdditionOperation<ObjectType> additionOperation)
         {
             if (additionOperation == null)
             {

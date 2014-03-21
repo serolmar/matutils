@@ -48,6 +48,7 @@
     <Compile Include="AlgebraicStructures\Implementations\BigIntegerDomain.cs" />
     <Compile Include="AlgebraicStructures\Implementations\BigIntegerNormSpace.cs" />
     <Compile Include="AlgebraicStructures\Implementations\BigIntegerToIntegerConversion.cs" />
+    <Compile Include="AlgebraicStructures\Implementations\CantConvertConversion.cs" />
     <Compile Include="AlgebraicStructures\Implementations\CoeffFractionMultiplicationOperation.cs" />
     <Compile Include="AlgebraicStructures\Implementations\CoeffVectorMultiplicationOperation.cs" />
     <Compile Include="AlgebraicStructures\Implementations\ComplexNumberField.cs" />
@@ -61,8 +62,10 @@
     <Compile Include="AlgebraicStructures\Implementations\Factories\ModularSymmetricIntFieldFactory.cs" />
     <Compile Include="AlgebraicStructures\Implementations\GeneralDegUnivarPolynomEuclideanDomain.cs" />
     <Compile Include="AlgebraicStructures\Implementations\GeneralDegUnivarPolynomRing.cs" />
+    <Compile Include="AlgebraicStructures\Implementations\GeneralMatrixGroup.cs" />
+    <Compile Include="AlgebraicStructures\Implementations\GeneralMatrixRing.cs" />
     <Compile Include="AlgebraicStructures\Implementations\IntegerDecimalConverter.cs" />
-    <Compile Include="AlgebraicStructures\Implementations\IntegerDoubleConverter.cs" />
+    <Compile Include="AlgebraicStructures\Implementations\DoubleToIntegerConversion.cs" />
     <Compile Include="AlgebraicStructures\Implementations\IntegerDoubleMultiplicationOperation.cs" />
     <Compile Include="AlgebraicStructures\Implementations\DoubleNearestInteger.cs" />
     <Compile Include="AlgebraicStructures\Implementations\DoubleNormSpace.cs" />
@@ -79,6 +82,7 @@
     <Compile Include="AlgebraicStructures\Implementations\ModularSymmetricBigIntField.cs" />
     <Compile Include="AlgebraicStructures\Implementations\ModularSymmetricIntField.cs" />
     <Compile Include="AlgebraicStructures\Implementations\OuterElementFractionConversion.cs" />
+    <Compile Include="AlgebraicStructures\Implementations\UnivarPolynomNormalFormToIntegerConversion.cs" />
     <Compile Include="AlgebraicStructures\Implementations\UnivarPolynomPseudoDomain.cs" />
     <Compile Include="AlgebraicStructures\Implementations\VectorSpace.cs" />
     <Compile Include="AlgebraicStructures\Implementations\MetricMatrixVectorScalarProduct.cs" />
@@ -179,6 +183,7 @@
     <Compile Include="AlgebraicStructures\Polynomial\SymmetricPolynomial.cs" />
     <Compile Include="AlgebraicStructures\Polynomial\SymmetricPolynomialDegreeEqualityComparer.cs" />
     <Compile Include="AlgebraicStructures\Polynomial\UnivariatePolynomialNormalForm.cs" />
+    <Compile Include="AlgebraicStructures\Polynomial\UnivarPolynomNormalFormEqualityComparer.cs" />
     <Compile Include="AlgebraicStructures\Readers\ARangeReader.cs" />
     <Compile Include="AlgebraicStructures\Readers\RangeConfigReader.cs" />
     <Compile Include="AlgebraicStructures\Readers\RangeNoConfigReader.cs" />

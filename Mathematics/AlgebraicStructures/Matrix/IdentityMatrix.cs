@@ -6,20 +6,19 @@
     using System.Text;
     using Utilities.Collections;
 
-    public class IdentityMatrix<ElementType, RingType> : IMatrix<ElementType>
-        where RingType : IRing<ElementType>
+    public class IdentityMatrix<ElementType> : IMatrix<ElementType>
     {
         /// <summary>
         /// O anel responsável pela indicação das unidades aditiva e multiplicativa.
         /// </summary>
-        private RingType ring;
+        private IRing<ElementType> ring;
 
         /// <summary>
         /// As dimensões da matriz quadrada.
         /// </summary>
         private int dimensions;
 
-        public IdentityMatrix(int dimensions, RingType ring)
+        public IdentityMatrix(int dimensions, IRing<ElementType> ring)
         {
             if (ring == null)
             {

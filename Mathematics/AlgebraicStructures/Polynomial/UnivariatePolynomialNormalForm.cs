@@ -982,6 +982,63 @@ namespace Mathematics
 
         #endregion Operações
 
+        public bool Equals(
+            UnivariatePolynomialNormalForm<CoeffType> other,
+            IEqualityComparer<CoeffType> coeffsEqualityComparer)
+        {
+            if (coeffsEqualityComparer == null)
+            {
+                throw new ArgumentNullException("coeffsEqualityComparer");
+            }
+            else if (other == null)
+            {
+                return false;
+            }
+            else if (this == other)
+            {
+                return true;
+            }
+            else
+            {
+                foreach (var term in this.terms)
+                {
+                    var otherTerm = default(CoeffType);
+                    if (other.terms.TryGetValue(term.Key, out otherTerm))
+                    {
+                        if (!coeffsEqualityComparer.Equals(term.Value, otherTerm))
+                        {
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+        }
+
+        public int GetHashCode(IEqualityComparer<CoeffType> coeffsEqualityComparer)
+        {
+            if (coeffsEqualityComparer == null)
+            {
+                throw new ArgumentNullException("coeffsEqualityComparer");
+            }
+            else
+            {
+                var result = this.variableName.GetHashCode();
+                foreach (var term in this.terms)
+                {
+                    result ^= term.Key.GetHashCode();
+                    result ^= coeffsEqualityComparer.GetHashCode(term.Value);
+                }
+
+                return result;
+            }
+        }
+
         public override bool Equals(object obj)
         {
             var innerObj = obj as UnivariatePolynomialNormalForm<CoeffType>;

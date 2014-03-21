@@ -10,14 +10,12 @@
     /// Representa uma matriz constante cujas entradas são os elementos nulos de um monóide.
     /// </summary>
     /// <typeparam name="ElementType">O tipo de dados contidos na matriz.</typeparam>
-    /// <typeparam name="MonoidType">O tipo do monóide.</typeparam>
-    public class ZeroMatrix<ElementType, MonoidType> : IMatrix<ElementType>
-        where MonoidType : IMonoid<ElementType>
+    public class ZeroMatrix<ElementType> : IMatrix<ElementType>
     {
         /// <summary>
         /// O monóide responsável por determinar o elemento nulo.
         /// </summary>
-        private MonoidType monoid;
+        private IMonoid<ElementType> monoid;
 
         /// <summary>
         /// O número de linhas.
@@ -29,7 +27,7 @@
         /// </summary>
         private int columnsNumber;
 
-        public ZeroMatrix(int lines, int columns, MonoidType monoid)
+        public ZeroMatrix(int lines, int columns, IMonoid<ElementType> monoid)
         {
             if (monoid == null)
             {

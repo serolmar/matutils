@@ -6,7 +6,7 @@
     using System.Text;
     using Utilities;
 
-    class ConfigMatrixParser<T> :
+    public class ConfigMatrixParser<T> :
         IParse<IMatrix<T>, string, string>
     {
         /// <summary>
@@ -18,6 +18,18 @@
         /// O leitor dos elmentos contidos na matriz multidimensional.
         /// </summary>
         private IParse<T, string, string> elementsParser;
+
+        public string SeparatorSymbType
+        {
+            get
+            {
+                return this.arrayMatrixReader.SeparatorSymbType;
+            }
+            set
+            {
+                this.arrayMatrixReader.SeparatorSymbType = value;
+            }
+        }
 
         public ConfigMatrixParser(
             IParse<T, string, string> elementsParser, 
@@ -54,6 +66,31 @@
         {
             var arrayReader = new ArraySymbolReader<string, string>(symbolListToParse, "eof");
             return this.arrayMatrixReader.TryParseMatrix(arrayReader, this.elementsParser, out value);
+        }
+
+        public void MapInternalDelimiters(string openSymbolType, string closeSymbType)
+        {
+            this.arrayMatrixReader.MapInternalDelimiters(openSymbolType, closeSymbType);
+        }
+
+        public void MapExternalDelimiters(string openSymbType, string closeSymbType)
+        {
+            this.arrayMatrixReader.MapExternalDelimiters(openSymbType, closeSymbType);
+        }
+
+        public void AddBlanckSymbolType(string symbolType)
+        {
+            this.arrayMatrixReader.AddBlanckSymbolType(symbolType);
+        }
+
+        public void RemoveBlanckSymbolType(string symbolType)
+        {
+            this.arrayMatrixReader.RemoveBlanckSymbolType(symbolType);
+        }
+
+        public void ClearBlanckSymbols()
+        {
+            this.arrayMatrixReader.ClearBlanckSymbols();
         }
     }
 }

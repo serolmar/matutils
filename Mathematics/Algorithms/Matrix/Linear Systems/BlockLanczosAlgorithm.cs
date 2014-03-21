@@ -16,9 +16,9 @@
 
         private IMatrixFactory<ElementType> matrixFactory;
 
-        private MatrixAdditionOperation<ElementType, FieldType> additionOperation;
+        private MatrixAdditionOperation<ElementType> additionOperation;
 
-        private MatrixMultiplicationOperation<ElementType, FieldType, FieldType> multiplicationOperation;
+        private MatrixMultiplicationOperation<ElementType> multiplicationOperation;
 
         public BlockLanczosAlgorithm(IMatrixFactory<ElementType> matrixFactory, FieldType field)
         {
@@ -34,10 +34,10 @@
             {
                 this.field = field;
                 this.matrixFactory = matrixFactory;
-                this.additionOperation = new MatrixAdditionOperation<ElementType, FieldType>(
+                this.additionOperation = new MatrixAdditionOperation<ElementType>(
                     matrixFactory,
                     field);
-                this.multiplicationOperation = new MatrixMultiplicationOperation<ElementType, FieldType, FieldType>(
+                this.multiplicationOperation = new MatrixMultiplicationOperation<ElementType>(
                     matrixFactory,
                     field,
                     field);

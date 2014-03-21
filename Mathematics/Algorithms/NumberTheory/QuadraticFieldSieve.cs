@@ -139,7 +139,7 @@
                     // Implementação do algoritmo associado à combinação linear para a obtenção do resultado
                     var solution = this.linearSystemAlgorithm.Run(
                         modularMatrix,
-                        new ZeroMatrix<int, ModularIntegerField>(
+                        new ZeroMatrix<int>(
                             modularMatrix.GetLength(0),
                             1,
                             this.field));

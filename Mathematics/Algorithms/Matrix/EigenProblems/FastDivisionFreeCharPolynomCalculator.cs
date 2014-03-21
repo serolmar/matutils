@@ -87,8 +87,7 @@
                 else
                 {
                     var matrixFactory = new ArrayMatrixFactory<ElementType>();
-                    var matrixMultiplicator = new MatrixMultiplicationOperation
-                        <ElementType, IRing<ElementType>, IRing<ElementType>>(
+                    var matrixMultiplicator = new MatrixMultiplicationOperation<ElementType>(
                         matrixFactory, this.ring, this.ring);
                     var subMatrixSequence = new IntegerSequence();
                     var singleValueSequence = new IntegerSequence();
@@ -164,7 +163,7 @@
             ElementType diagonalElement,
             IntegerSequence subMatrixSequence,
             IntegerSequence singleValueSequence,
-            MatrixMultiplicationOperation<ElementType, IRing<ElementType>, IRing<ElementType>> multiplicator,
+            MatrixMultiplicationOperation<ElementType> multiplicator,
             IMatrix<ElementType> multiplicationMatrix)
         {
             var dimension = multiplicationMatrix.GetLength(1);

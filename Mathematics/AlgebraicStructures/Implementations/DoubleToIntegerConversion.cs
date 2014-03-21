@@ -5,7 +5,7 @@
     using System.Linq;
     using System.Text;
 
-    public class IntegerDoubleConverter : IConversion<int, double>
+    public class DoubleToIntegerConversion : IConversion<int, double>
     {
         /// <summary>
         /// A precisão que se pretende considerar.
@@ -22,7 +22,7 @@
         /// <param name="precision">
         /// A precisão a ter em conta na comparação de valores. Será considerado o módulo do valor fornecido.
         /// </param>
-        public IntegerDoubleConverter(double precision = 0.0)
+        public DoubleToIntegerConversion(double precision = 0.0)
         {
             this.precision = Math.Abs(precision);
         }

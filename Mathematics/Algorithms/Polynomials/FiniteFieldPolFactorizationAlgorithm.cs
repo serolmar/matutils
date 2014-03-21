@@ -211,7 +211,7 @@
                     arrayMatrix[i, i] = value;
                 }
 
-                var emtpyMatrix = new ZeroMatrix<CoeffType, IModularField<CoeffType>>(degree, 1, integerModule);
+                var emtpyMatrix = new ZeroMatrix<CoeffType>(degree, 1, integerModule);
                 var linearSystemSolution = this.linearSystemSolver.Run(arrayMatrix, emtpyMatrix);
 
                 var numberOfFactors = linearSystemSolution.VectorSpaceBasis.Count;
