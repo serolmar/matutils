@@ -20,26 +20,34 @@ namespace Mathematics
         private IParse<int, string, string> integerParser = new IntegerParser<string>();
 
         /// <summary>
+        /// O nome da variável.
+        /// </summary>
+        private string variableName;
+
+        /// <summary>
         /// O anel responsável pela aplicação das operações sobre os coeficientes.
         /// </summary>
         private IRing<CoeffType> coeffRing;
 
         public SimpleUnivarPolynomNormalFormReader(
             IParse<CoeffType, string, string> coeffParser, 
-            IRing<CoeffType> coeffRing)
+            IRing<CoeffType> coeffRing,
+            string variableName)
         {
             if (coeffParser == null)
             {
                 throw new MathematicsException("A coefficient parser must be provided.");
             }
-
-            if (coeffRing == null)
+            else if (coeffRing == null)
             {
                 throw new MathematicsException("A coefficient ring must be provided.");
             }
-
-            this.coeffParser = coeffParser;
-            this.coeffRing = coeffRing;
+            else
+            {
+                this.coeffParser = coeffParser;
+                this.coeffRing = coeffRing;
+                this.variableName = variableName;
+            }
         }
 
         /// <summary>
@@ -53,13 +61,8 @@ namespace Mathematics
         {
             pol = null;
             var parsedCoeff = default(CoeffType);
-            if (this.coeffParser.TryParse(symbolListToParse, out parsedCoeff))
-            {
-                pol = new ParseUnivarPolynomNormalFormItem<CoeffType>();
-                pol.Coeff = parsedCoeff;
-                return true;
-            }
-            else if (symbolListToParse.Length == 1)
+            
+            if (symbolListToParse.Length == 1)
             {
                 var stringValue = symbolListToParse[0].SymbolValue;
                 if (string.IsNullOrWhiteSpace(stringValue))
@@ -68,12 +71,31 @@ namespace Mathematics
                 }
                 else if (char.IsLetter(stringValue[0]))
                 {
+                    if (stringValue == this.variableName)
+                    {
+                        pol = new ParseUnivarPolynomNormalFormItem<CoeffType>();
+                        pol.Polynomial = new UnivariatePolynomialNormalForm<CoeffType>(
+                            this.coeffRing.MultiplicativeUnity,
+                            1,
+                            stringValue,
+                            this.coeffRing);
+                        return true;
+                    }
+                    else if (this.coeffParser.TryParse(symbolListToParse, out parsedCoeff))
+                    {
+                        pol = new ParseUnivarPolynomNormalFormItem<CoeffType>();
+                        pol.Coeff = parsedCoeff;
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else if (this.coeffParser.TryParse(symbolListToParse, out parsedCoeff))
+                {
                     pol = new ParseUnivarPolynomNormalFormItem<CoeffType>();
-                    pol.Polynomial = new UnivariatePolynomialNormalForm<CoeffType>(
-                        this.coeffRing.MultiplicativeUnity,
-                        1,
-                        stringValue,
-                        this.coeffRing);
+                    pol.Coeff = parsedCoeff;
                     return true;
                 }
                 else
@@ -90,6 +112,12 @@ namespace Mathematics
                         return false;
                     }
                 }
+            }
+            else if (this.coeffParser.TryParse(symbolListToParse, out parsedCoeff))
+            {
+                pol = new ParseUnivarPolynomNormalFormItem<CoeffType>();
+                pol.Coeff = parsedCoeff;
+                return true;
             }
             else
             {

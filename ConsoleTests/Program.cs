@@ -971,9 +971,9 @@
                 out pol))
             {
                 var powerRootsSums = pol.GetRootPowerSums(fractionField);
-                for (int i = 0; i < powerRootsSums.GetLength(0); ++i)
+                for (int i = 0; i < powerRootsSums.Length; ++i)
                 {
-                    Console.Write("{0} ", powerRootsSums[i, 0]);
+                    Console.Write("{0} ", powerRootsSums[i]);
                 }
 
                 Console.WriteLine();

@@ -110,5 +110,25 @@ namespace Mathematics
                 return this.valueType;
             }
         }
+
+        /// <summary>
+        /// Obtém uma representação texutal do elemento corrente.
+        /// </summary>
+        /// <returns>A representação textual.</returns>
+        public override string ToString()
+        {
+            if (this.valueType == EParsePolynomialValueType.COEFFICIENT)
+            {
+                return string.Format("{0}: {1}", this.valueType, this.coeff);
+            }
+            else if (this.valueType == EParsePolynomialValueType.POLYNOMIAL)
+            {
+                return string.Format("{0}: {1}", this.valueType, this.polynomial);
+            }
+            else
+            {
+                return string.Format("{0}: {1}", this.valueType, this.degree);
+            }
+        }
     }
 }

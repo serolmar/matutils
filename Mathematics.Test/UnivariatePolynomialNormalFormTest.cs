@@ -188,7 +188,7 @@
             var polynomialDerivativeText = "[[2,4],[6,8]]*x+[[-1,0],[0,-1]]";
             var variableName = "x";
 
-            var arrayDelimiters = new Dictionary<string,string>();
+            var arrayDelimiters = new Dictionary<string, string>();
             arrayDelimiters.Add("left_bracket", "right_bracket");
 
             // Os domínios responsáveis sobre as operações sobre os inteiros.
@@ -266,7 +266,8 @@
                 integerMatrixConfigParser,
                 integerMatrixConversion,
                 variableName,
-                arrayDelimiters);
+                arrayDelimiters,
+                true);
             var integerActualDerivative = integerPolynomial.GetPolynomialDerivative(integerGenericMatrixRing);
             Assert.IsTrue(
                 new UnivarPolynomNormalFormEqualityComparer<IMatrix<int>>(integerGenericMatrixRing).Equals(integerExpectedDerivative, integerActualDerivative),
@@ -285,7 +286,8 @@
                 longMatrixConfigParser,
                 longMatrixConversion,
                 variableName,
-                arrayDelimiters);
+                arrayDelimiters,
+                true);
             var longActualDerivative = longPolynomial.GetPolynomialDerivative(longGenericMatrixRing);
             Assert.IsTrue(
                 new UnivarPolynomNormalFormEqualityComparer<IMatrix<long>>(longGenericMatrixRing).Equals(longExpectedDerivative, longActualDerivative),
@@ -304,11 +306,12 @@
                 bigIntegerMatrixConfigParser,
                 bigIntegerMatrixConversion,
                 variableName,
-                arrayDelimiters);
+                arrayDelimiters,
+                true);
             var bigIntegerActualDerivative = bigIntegerPolynomial.GetPolynomialDerivative(bigIntegerGenericMatrixRing);
             Assert.IsTrue(
                 new UnivarPolynomNormalFormEqualityComparer<IMatrix<BigInteger>>(
-                    bigIntegerGenericMatrixRing).Equals(bigIntegerExpectedDerivative, 
+                    bigIntegerGenericMatrixRing).Equals(bigIntegerExpectedDerivative,
                     bigIntegerActualDerivative),
                 string.Format("Expected {0} isn't equal to actual {1}.", integerExpectedDerivative, integerActualDerivative));
         }
@@ -317,7 +320,7 @@
         public void GetPolynomialDerivativeTest_IntegerPolynomialAsCoefficients()
         {
             var polynomialText = "(y^2+y+1)*x^3-2*x^2*y+x*(y^5-3)+4";
-            var polynomialDerivative = "3*(y^2+y+1)*x^2-4*y*x+y^5-3";
+            var polynomialDerivativeText = "3*(y^2+y+1)*x^2-4*y*x+y^5-3";
             var variableName = "x";
             var coeffsVariableName = "y";
 
@@ -331,27 +334,91 @@
             var longParser = new LongParser<string>();
             var bigIntegerParser = new BigIntegerParser<string>();
 
+            // Definição das conversões.
             var integerConversion = new ElementToElementConversion<int>();
+            var longConversion = new LongToIntegerConversion();
+            var bigIntegerConversion = new BigIntegerToIntegerConversion();
 
             var integerPolConvertion = new UnivarPolynomNormalFormToIntegerConversion<int>(
                 coeffsVariableName,
                 integerConversion,
                 integerDomain);
+            var longPolConvertion = new UnivarPolynomNormalFormToIntegerConversion<long>(
+                coeffsVariableName,
+                longConversion,
+                longDomain);
+            var bigIntegerPolConvertion = new UnivarPolynomNormalFormToIntegerConversion<BigInteger>(
+                coeffsVariableName,
+                bigIntegerConversion,
+                bigIntegerDomain);
 
+            // Definição dos anéis polinomiais.
             var integerPolynomialRing = new UnivarPolynomRing<int>(coeffsVariableName, integerDomain);
+            var longPolynomialRing = new UnivarPolynomRing<long>(coeffsVariableName, longDomain);
+            var bigIntegerPolynomialRing = new UnivarPolynomRing<BigInteger>(coeffsVariableName, bigIntegerDomain);
 
+            // Definição dos leitores polinomiais.
             var integerPolynomialParser = new UnivarPolNormalFormParser<int>(
                 coeffsVariableName,
                 integerConversion,
                 integerParser,
                 integerDomain);
+            var longPolynomialParser = new UnivarPolNormalFormParser<long>(
+                coeffsVariableName,
+                longConversion,
+                longParser,
+                longDomain);
+            var bigIntegerPolynomialParser = new UnivarPolNormalFormParser<BigInteger>(
+                coeffsVariableName,
+                bigIntegerConversion,
+                bigIntegerParser,
+                bigIntegerDomain);
 
+            // Definição dos testes.
             var integerPolynomial = TestsHelper.ReadUnivarPolynomial<UnivariatePolynomialNormalForm<int>>(
                 polynomialText,
                 integerPolynomialRing,
                 integerPolynomialParser,
                 integerPolConvertion,
                 variableName);
+            var integerExpectedPol = TestsHelper.ReadUnivarPolynomial<UnivariatePolynomialNormalForm<int>>(
+                polynomialDerivativeText,
+                integerPolynomialRing,
+                integerPolynomialParser,
+                integerPolConvertion,
+                variableName);
+            var integerActualPlynomial = integerPolynomial.GetPolynomialDerivative(integerPolynomialRing);
+            Assert.AreEqual(integerExpectedPol, integerActualPlynomial);
+
+            var longPolynomial = TestsHelper.ReadUnivarPolynomial<UnivariatePolynomialNormalForm<long>>(
+                polynomialText,
+                longPolynomialRing,
+                longPolynomialParser,
+                longPolConvertion,
+                variableName);
+            var longExpectedPol = TestsHelper.ReadUnivarPolynomial<UnivariatePolynomialNormalForm<long>>(
+                polynomialDerivativeText,
+                longPolynomialRing,
+                longPolynomialParser,
+                longPolConvertion,
+                variableName);
+            var longActualPlynomial = longPolynomial.GetPolynomialDerivative(longPolynomialRing);
+            Assert.AreEqual(longExpectedPol, longActualPlynomial);
+
+            var bigIntegerPolynomial = TestsHelper.ReadUnivarPolynomial<UnivariatePolynomialNormalForm<BigInteger>>(
+                polynomialText,
+                bigIntegerPolynomialRing,
+                bigIntegerPolynomialParser,
+                bigIntegerPolConvertion,
+                variableName);
+            var bigIntegerExpectedPol = TestsHelper.ReadUnivarPolynomial<UnivariatePolynomialNormalForm<BigInteger>>(
+                polynomialDerivativeText,
+                bigIntegerPolynomialRing,
+                bigIntegerPolynomialParser,
+                bigIntegerPolConvertion,
+                variableName);
+            var bigIntegerActualPlynomial = bigIntegerPolynomial.GetPolynomialDerivative(bigIntegerPolynomialRing);
+            Assert.AreEqual(bigIntegerExpectedPol, bigIntegerExpectedPol);
         }
     }
 }

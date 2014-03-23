@@ -27,10 +27,11 @@
             IRing<T> ring,
             IParse<T, string, string> coeffsParser,
             IConversion<int, T> conversion,
-            string variableName)
+            string variableName,
+            bool readNegativeNumbers = false)
         {
             var polInputReader = new StringReader(polynomialRepresentation);
-            var polSymbolReader = new StringSymbolReader(polInputReader, false);
+            var polSymbolReader = new StringSymbolReader(polInputReader, readNegativeNumbers);
             var polParser = new UnivariatePolynomialReader<T, CharSymbolReader<string>>(
                 "x",
                 coeffsParser,
@@ -59,6 +60,7 @@
         /// <param name="conversion">A conversão do tipo do coeficientes para inteiro.</param>
         /// <param name="variableName">O nome da variável.</param>
         /// <param name="externalDelimitersTypes">Os delimitadores externos.</param>
+        /// <param name="readNegativeNumbers">Indica se o leitor identifica números negativos.</param>
         /// <returns>O polinómio lido a partir da representação textual.</returns>
         public static UnivariatePolynomialNormalForm<T> ReadUnivarPolynomial<T>(
             string polynomialRepresentation,
@@ -66,10 +68,11 @@
             IParse<T, string, string> coeffsParser,
             IConversion<int, T> conversion,
             string variableName,
-            Dictionary<string,string> externalDelimitersTypes)
+            Dictionary<string,string> externalDelimitersTypes,
+            bool readNegativeNumbers = false)
         {
             var polInputReader = new StringReader(polynomialRepresentation);
-            var polSymbolReader = new StringSymbolReader(polInputReader, true);
+            var polSymbolReader = new StringSymbolReader(polInputReader, readNegativeNumbers);
             var polParser = new UnivariatePolynomialReader<T, CharSymbolReader<string>>(
                 "x",
                 coeffsParser,

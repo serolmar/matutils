@@ -391,7 +391,7 @@ namespace Mathematics
         /// </summary>
         /// <param name="field">O corpo responsável pelas operações.</param>
         /// <returns>O vector com o valor da soma das potências.</returns>
-        public IMatrix<CoeffType> GetRootPowerSums(IField<CoeffType> field)
+        public IVector<CoeffType> GetRootPowerSums(IField<CoeffType> field)
         {
             if (field == null)
             {
@@ -399,15 +399,15 @@ namespace Mathematics
             }
             else
             {
-                var result = new ArrayMatrix<CoeffType>(this.Degree, 1, field.AdditiveUnity);
                 var termsEnumerator = this.terms.GetEnumerator();
                 if (termsEnumerator.MoveNext())
                 {
+                    var result = new ArrayVector<CoeffType>(this.Degree, field.AdditiveUnity);
                     var topTerm = termsEnumerator.Current.Value;
                     var topDegree = termsEnumerator.Current.Key;
                     if (topDegree == 0)
                     {
-                        return new ArrayMatrix<CoeffType>(0, 0, field.AdditiveUnity);
+                        return result;
                     }
                     else if (termsEnumerator.MoveNext())
                     {
@@ -415,7 +415,7 @@ namespace Mathematics
 
                         var value = field.AdditiveInverse(termsEnumerator.Current.Value);
                         value = field.AddRepeated(value, difference + 1);
-                        result[difference, 0] = field.Multiply(value, field.MultiplicativeInverse(topTerm));
+                        result[difference] = field.Multiply(value, field.MultiplicativeInverse(topTerm));
                         var control = difference - 1;
                         for (var i = difference + 1; i < topDegree; ++i)
                         {
@@ -430,8 +430,8 @@ namespace Mathematics
                                 if (compareDegree == currentDegree)
                                 {
                                     value = field.AdditiveInverse(termsEnumerator.Current.Value);
-                                    value = field.Multiply(value, result[currentIteration, 0]);
-                                    result[i, 0] = field.Add(result[i, 0], value);
+                                    value = field.Multiply(value, result[currentIteration]);
+                                    result[i] = field.Add(result[i], value);
                                     state = termsEnumerator.MoveNext();
                                 }
 
@@ -457,22 +457,24 @@ namespace Mathematics
                                 {
                                     value = field.AdditiveInverse(termsEnumerator.Current.Value);
                                     value = field.AddRepeated(value, i + 1);
-                                    result[i, 0] = field.Add(result[i, 0], value);
+                                    result[i] = field.Add(result[i], value);
                                 }
                             }
 
-                            result[i, 0] = field.Multiply(result[i, 0], field.MultiplicativeInverse(topTerm));
+                            result[i] = field.Multiply(result[i], field.MultiplicativeInverse(topTerm));
                         }
 
+                        return result;
+                    }
+                    else
+                    {
                         return result;
                     }
                 }
                 else
                 {
-                    return new ArrayMatrix<CoeffType>(0, 0, field.AdditiveUnity);
+                    return new ArrayVector<CoeffType>(0, field.AdditiveUnity);
                 }
-
-                return result;
             }
         }
 
@@ -1112,7 +1114,7 @@ namespace Mathematics
                 {
                     var currentDegree = termsEnum.Current.Key;
                     var currentValue = termsEnum.Current.Value;
-                    resultBuilder.AppendFormat("{0}", currentValue);
+                    resultBuilder.AppendFormat("<{0}>", currentValue);
                     if (currentDegree == 1)
                     {
                         resultBuilder.AppendFormat("*{0}", this.variableName);
@@ -1127,7 +1129,7 @@ namespace Mathematics
                         resultBuilder.Append("+");
                         currentDegree = termsEnum.Current.Key;
                         currentValue = termsEnum.Current.Value;
-                        resultBuilder.AppendFormat("{0}", currentValue);
+                        resultBuilder.AppendFormat("<{0}>", currentValue);
                         if (currentDegree == 1)
                         {
                             resultBuilder.AppendFormat("*{0}", this.variableName);

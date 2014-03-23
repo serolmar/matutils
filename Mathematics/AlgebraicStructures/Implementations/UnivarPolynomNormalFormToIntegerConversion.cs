@@ -44,6 +44,7 @@
             {
                 this.coeffsConversion = coeffsConversion;
                 this.coeffsRing = coeffsRing;
+                this.variableName = variableName;
             }
         }
 

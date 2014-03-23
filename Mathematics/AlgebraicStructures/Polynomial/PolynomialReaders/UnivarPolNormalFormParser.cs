@@ -75,5 +75,45 @@
             var arrayReader = new ArraySymbolReader<string, string>(symbolListToParse, "eof");
             return this.polynomialReader.TryParsePolynomial(arrayReader, this.conversion, out value);
         }
+
+        /// <summary>
+        /// Permite registar delimitadores de precedência na expressão.
+        /// </summary>
+        /// <remarks>
+        /// Caso nenhum delimitador de expressão se encontre registado, serão utilizados os parêntesis
+        /// de abertura e fecho por defeito.
+        /// </remarks>
+        /// <param name="openDelimiterType">O tipo do delimitador de abertura.</param>
+        /// <param name="closeDelimiterType">O tiop do delimitador de fecho.</param>
+        public void RegisterExpressionDelimitersTyes(string openDelimiterType, string closeDelimiterType)
+        {
+            this.polynomialReader.RegisterInteralDelimiterTypes(openDelimiterType, closeDelimiterType);
+        }
+
+        /// <summary>
+        /// Elimmina todos os mapeamentos de expressão previamente registados.
+        /// </summary>
+        public void ClearExpressionDelimitersTypes()
+        {
+            this.polynomialReader.ClearInternalDelimitersMappings();
+        }
+
+        /// <summary>
+        /// Permite associar tipos de delimitadores externos.
+        /// </summary>
+        /// <param name="openDelimiterType">O tiop de delimitador externo de abertura.</param>
+        /// <param name="closeDelimiterType">O tipo de delimitador externo de fecho.</param>
+        public void RegisterExternalDelimitersTypes(string openDelimiterType, string closeDelimiterType)
+        {
+            this.polynomialReader.RegisterExternalDelimiterTypes(openDelimiterType, closeDelimiterType);
+        }
+
+        /// <summary>
+        /// Elimina todos os mapeamentos externos previamente registados.
+        /// </summary>
+        public void ClearExternalDelmitersTypes()
+        {
+            this.polynomialReader.ClearExternalDelimitersMappings();
+        }
     }
 }

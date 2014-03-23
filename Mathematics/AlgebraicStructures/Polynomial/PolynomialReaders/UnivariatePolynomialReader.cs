@@ -31,6 +31,11 @@
         private Dictionary<string, List<string>> externalDelimitersTypes = new Dictionary<string, List<string>>();
 
         /// <summary>
+        /// Faz o mapeamento de delimitadores de expressões.
+        /// </summary>
+        private Dictionary<string, List<string>> expressionDelimiterTypes = new Dictionary<string, List<string>>();
+
+        /// <summary>
         /// O domínio que contém as funções sobre inteiros.
         /// </summary>
         private IntegerDomain integerRing = new IntegerDomain();
@@ -112,9 +117,9 @@
         /// <param name="resultPolynomial">O polinómio lido.</param>
         /// <returns>Verdadeiro caso a leitura seja bem sucedida e falso caso contrário.</returns>
         public bool TryParsePolynomial(
-            MementoSymbolReader<InputReader, string, string> polynomialReader, 
+            MementoSymbolReader<InputReader, string, string> polynomialReader,
             IConversion<int, T> conversion,
-            List<string> errors, 
+            List<string> errors,
             out UnivariatePolynomialNormalForm<T> resultPolynomial)
         {
             if (polynomialReader == null)
@@ -130,7 +135,7 @@
             this.conversion = conversion;
             resultPolynomial = default(UnivariatePolynomialNormalForm<T>);
             var expressionReader = new ExpressionReader<ParseUnivarPolynomNormalFormItem<T>, string, string>(
-                new SimpleUnivarPolynomNormalFormReader<T>(this.coeffParser, this.ring));
+                new SimpleUnivarPolynomNormalFormReader<T>(this.coeffParser, this.ring, this.variable));
             expressionReader.RegisterBinaryOperator("plus", Add, 0);
             expressionReader.RegisterBinaryOperator("times", Multiply, 1);
             expressionReader.RegisterBinaryOperator("minus", Subtract, 0);
@@ -138,7 +143,23 @@
             expressionReader.RegisterUnaryOperator("minus", Symmetric, 0);
             expressionReader.RegisterBinaryOperator("over", Divide, 1);
 
-            expressionReader.RegisterExpressionDelimiterTypes("left_parenthesis", "right_parenthesis");
+            if (this.expressionDelimiterTypes.Any())
+            {
+                foreach (var expressionDelimiterKvp in this.expressionDelimiterTypes)
+                {
+                    foreach (var closeDelimiter in expressionDelimiterKvp.Value)
+                    {
+                        expressionReader.RegisterExpressionDelimiterTypes(
+                        expressionDelimiterKvp.Key,
+                        closeDelimiter);
+                    }
+                }
+            }
+            else
+            {
+                expressionReader.RegisterExpressionDelimiterTypes("left_parenthesis", "right_parenthesis");
+            }
+
             expressionReader.RegisterSequenceDelimiterTypes("left_parenthesis", "right_parenthesis");
             foreach (var kvp in this.externalDelimitersTypes)
             {
@@ -159,9 +180,9 @@
                 if (expressionResult.ValueType == EParsePolynomialValueType.COEFFICIENT)
                 {
                     resultPolynomial = new UnivariatePolynomialNormalForm<T>(
-                        expressionResult.Coeff, 
-                        0, 
-                        this.variable, 
+                        expressionResult.Coeff,
+                        0,
+                        this.variable,
                         this.ring);
                     return true;
                 }
@@ -171,8 +192,8 @@
                     {
                         resultPolynomial = new UnivariatePolynomialNormalForm<T>(
                             (T)(object)expressionResult.Degree,
-                            0, 
-                            this.variable, 
+                            0,
+                            this.variable,
                             this.ring);
                         return true;
                     }
@@ -203,6 +224,55 @@
         }
 
         /// <summary>
+        /// Mapeia os delimitadores de expressão.
+        /// </summary>
+        /// <remarks>
+        /// Caso não existam delimitadores de expressão, serão considerados os parêntesis
+        /// de abertura e fecho por defeito.
+        /// </remarks>
+        /// <param name="openDelimiter">O delimitador de abertura.</param>
+        /// <param name="closeDelimiter">O delimitador de fecho.</param>
+        public void RegisterInteralDelimiterTypes(string openDelimiter, string closeDelimiter)
+        {
+            if (string.IsNullOrWhiteSpace(openDelimiter))
+            {
+                throw new ArgumentException("An open delimiter must be provided.");
+            }
+            else if (string.IsNullOrWhiteSpace(closeDelimiter))
+            {
+                throw new ArgumentException("A close delimiter must be provided.");
+            }
+            else
+            {
+                if (this.expressionDelimiterTypes.ContainsKey(openDelimiter))
+                {
+                    if (!this.expressionDelimiterTypes[openDelimiter].Contains(closeDelimiter))
+                    {
+                        this.expressionDelimiterTypes[openDelimiter].Add(closeDelimiter);
+                    }
+                }
+                else
+                {
+                    List<string> temporary = new List<string>();
+                    temporary.Add(closeDelimiter);
+                    this.expressionDelimiterTypes.Add(openDelimiter, temporary);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Elimina todos os mapeamentos de expressão.
+        /// </summary>
+        /// <remarks>
+        /// Caso não existam delimitadores de expressão, serão considerados os parêntesis
+        /// de abertura e fecho por defeito.
+        /// </remarks>
+        public void ClearInternalDelimitersMappings()
+        {
+            this.expressionDelimiterTypes.Clear();
+        }
+
+        /// <summary>
         /// Regista os delimitadores externos.
         /// </summary>
         /// <param name="openDelimiter">O delimitador de abertura.</param>
@@ -225,16 +295,24 @@
         }
 
         /// <summary>
+        /// Elimina todos os mapeamentos externos.
+        /// </summary>
+        public void ClearExternalDelimitersMappings()
+        {
+            this.externalDelimitersTypes.Clear();
+        }
+
+        /// <summary>
         /// Adiciona dois polinómios.
         /// </summary>
         /// <param name="left">O primeiro polinómio a adicionar.</param>
         /// <param name="right">O segundo polinómio a adicionar.</param>
         /// <returns>O polinómio resultante.</returns>
         protected virtual ParseUnivarPolynomNormalFormItem<T> Add(
-            ParseUnivarPolynomNormalFormItem<T> left, 
+            ParseUnivarPolynomNormalFormItem<T> left,
             ParseUnivarPolynomNormalFormItem<T> right)
         {
-            var result = new  ParseUnivarPolynomNormalFormItem<T>();
+            var result = new ParseUnivarPolynomNormalFormItem<T>();
             if (left.ValueType == EParsePolynomialValueType.COEFFICIENT)
             {
                 if (right.ValueType == EParsePolynomialValueType.COEFFICIENT)
@@ -295,10 +373,10 @@
         /// <param name="right">O segundo polinómio.</param>
         /// <returns>O polinómio resultante.</returns>
         protected virtual ParseUnivarPolynomNormalFormItem<T> Multiply(
-            ParseUnivarPolynomNormalFormItem<T> left, 
+            ParseUnivarPolynomNormalFormItem<T> left,
             ParseUnivarPolynomNormalFormItem<T> right)
         {
-            var result = new  ParseUnivarPolynomNormalFormItem<T>();
+            var result = new ParseUnivarPolynomNormalFormItem<T>();
             if (left.ValueType == EParsePolynomialValueType.COEFFICIENT)
             {
                 if (right.ValueType == EParsePolynomialValueType.COEFFICIENT)
@@ -359,10 +437,10 @@
         /// <param name="right">O segundo polinómio.</param>
         /// <returns>O polinómio resultante.</returns>
         protected virtual ParseUnivarPolynomNormalFormItem<T> Subtract(
-            ParseUnivarPolynomNormalFormItem<T> left, 
+            ParseUnivarPolynomNormalFormItem<T> left,
             ParseUnivarPolynomNormalFormItem<T> right)
         {
-            var result = new  ParseUnivarPolynomNormalFormItem<T>();
+            var result = new ParseUnivarPolynomNormalFormItem<T>();
             if (left.ValueType == EParsePolynomialValueType.COEFFICIENT)
             {
                 if (right.ValueType == EParsePolynomialValueType.COEFFICIENT)
@@ -423,10 +501,10 @@
         /// <param name="right">O segundo polinómio.</param>
         /// <returns>O polinómio resultante.</returns>
         protected virtual ParseUnivarPolynomNormalFormItem<T> Divide(
-            ParseUnivarPolynomNormalFormItem<T> left, 
+            ParseUnivarPolynomNormalFormItem<T> left,
             ParseUnivarPolynomNormalFormItem<T> right)
         {
-            var result = new  ParseUnivarPolynomNormalFormItem<T>();
+            var result = new ParseUnivarPolynomNormalFormItem<T>();
             if (left.ValueType == EParsePolynomialValueType.COEFFICIENT)
             {
                 if (right.ValueType == EParsePolynomialValueType.COEFFICIENT)
@@ -542,7 +620,7 @@
                     else
                     {
                         result.Polynomial = left.Polynomial.Multiply(
-                            field.MultiplicativeInverse(right.Coeff), 
+                            field.MultiplicativeInverse(right.Coeff),
                             this.ring);
                     }
                 }
@@ -557,7 +635,7 @@
                     {
                         var rightConverted = this.conversion.InverseConversion(right.Degree);
                         result.Polynomial.Multiply(
-                            field.MultiplicativeInverse(rightConverted), 
+                            field.MultiplicativeInverse(rightConverted),
                             this.ring);
                     }
                 }
@@ -574,7 +652,7 @@
                         else
                         {
                             result.Polynomial = left.Polynomial.Multiply(
-                                field.MultiplicativeInverse(rightValue), 
+                                field.MultiplicativeInverse(rightValue),
                                 this.ring);
                         }
                     }
@@ -596,7 +674,7 @@
         protected virtual ParseUnivarPolynomNormalFormItem<T> Symmetric(
             ParseUnivarPolynomNormalFormItem<T> pol)
         {
-            var result = new  ParseUnivarPolynomNormalFormItem<T>();
+            var result = new ParseUnivarPolynomNormalFormItem<T>();
             if (pol.ValueType == EParsePolynomialValueType.COEFFICIENT)
             {
                 result.Coeff = this.ring.AdditiveInverse(pol.Coeff);
@@ -619,11 +697,11 @@
         /// <param name="left">O polinómio.</param>
         /// <param name="right">O expoente.</param>
         /// <returns>O resultado da potência.</returns>
-        protected virtual ParseUnivarPolynomNormalFormItem<T> Power( 
-            ParseUnivarPolynomNormalFormItem<T> left,  
+        protected virtual ParseUnivarPolynomNormalFormItem<T> Power(
+            ParseUnivarPolynomNormalFormItem<T> left,
             ParseUnivarPolynomNormalFormItem<T> right)
         {
-            var result = new  ParseUnivarPolynomNormalFormItem<T>();
+            var result = new ParseUnivarPolynomNormalFormItem<T>();
             if (left.ValueType == EParsePolynomialValueType.COEFFICIENT)
             {
                 if (right.ValueType == EParsePolynomialValueType.COEFFICIENT)
