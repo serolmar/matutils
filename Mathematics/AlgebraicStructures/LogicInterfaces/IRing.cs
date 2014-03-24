@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Mathematics
 {
-    public interface IRing<T> : IGroup<T>, IMultipliable<T>
+    public interface IRing<T> : IGroup<T>, IMultiplication<T>
     {
         /// <summary>
         /// Addiciona um elemento tantas vezes quanto o número especificado.

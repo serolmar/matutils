@@ -11,11 +11,19 @@
     /// </summary>
     public class ElementFractionParser<ElementType> : IParse<Fraction<ElementType>, string, string>
     {
+        /// <summary>
+        /// O domínio euclideano associado à fracção.
+        /// </summary>
         private IEuclidenDomain<ElementType> domain;
 
+        /// <summary>
+        /// O leitor para o objecto.
+        /// </summary>
         protected IParse<ElementType, string, string> elementParser;
 
-        public ElementFractionParser(IParse<ElementType, string, string> elementParser, IEuclidenDomain<ElementType> domain)
+        public ElementFractionParser(
+            IParse<ElementType, string, string> elementParser, 
+            IEuclidenDomain<ElementType> domain)
         {
             if (domain == null)
             {
@@ -29,6 +37,22 @@
             {
                 this.elementParser = elementParser;
                 this.domain = domain;
+            }
+        }
+
+        public IEuclidenDomain<ElementType> Domain
+        {
+            get
+            {
+                return this.domain;
+            }
+        }
+
+        public IParse<ElementType, string, string> SimpleObjectParser
+        {
+            get
+            {
+                return this.elementParser;
             }
         }
 

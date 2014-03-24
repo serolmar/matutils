@@ -10,14 +10,14 @@
         /// <summary>
         /// O objecto responsável pela multiplicação dos coeficientes.
         /// </summary>
-        IMultipliable<CoeffType> multipliable;
+        IMultiplication<CoeffType> multipliable;
 
         /// <summary>
         /// O comparador dos elementos da fracção.
         /// </summary>
         private IComparer<CoeffType> comparer;
 
-        public FractionComparer(IComparer<CoeffType> comparer, IMultipliable<CoeffType> multipliable)
+        public FractionComparer(IComparer<CoeffType> comparer, IMultiplication<CoeffType> multipliable)
         {
             if (multipliable == null)
             {

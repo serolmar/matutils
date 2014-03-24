@@ -28,7 +28,7 @@
             {
                 this.fractionField = fractionField;
                 this.expressionReader = new ExpressionReader<Fraction<ObjectType>, string, string>(
-                    new FractionParser<ObjectType>(simpleObjectParser, fractionField.EuclideanDomain));
+                    new ElementFractionParser<ObjectType>(simpleObjectParser, fractionField.EuclideanDomain));
                 this.expressionReader.RegisterBinaryOperator("plus", Add, 0);
                 this.expressionReader.RegisterBinaryOperator("times", Multiply, 1);
                 this.expressionReader.RegisterBinaryOperator("minus", Subtract, 0);

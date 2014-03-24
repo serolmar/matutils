@@ -36,7 +36,7 @@
         public SquareRoot(
             ObjectType integerPart,
             Dictionary<ObjectType, int> rootNumberFactorization,
-            IMultipliable<ObjectType> multipliable)
+            IMultiplication<ObjectType> multipliable)
         {
             this.SetupParameters(integerPart, rootNumberFactorization, multipliable);
             this.ComputeRootNumber(multipliable);
@@ -46,7 +46,7 @@
             ObjectType integerPart,
             ObjectType rootNumber,
             IAlgorithm<ObjectType, Dictionary<ObjectType, int>> factorizationAlg,
-            IMultipliable<ObjectType> multipliable)
+            IMultiplication<ObjectType> multipliable)
         {
             if (factorizationAlg == null)
             {
@@ -64,7 +64,7 @@
             ObjectType integerPart,
             ObjectType rootNumber,
             IAlgorithm<ObjectType, Tuple<ObjectType, ObjectType>> factorizationAlg,
-            IMultipliable<ObjectType> multipliable,
+            IMultiplication<ObjectType> multipliable,
             IEqualityComparer<ObjectType> comparer)
         {
             this.SetupParameters(
@@ -106,7 +106,7 @@
         /// <returns>O resultado do produto.</returns>
         public SquareRoot<ObjectType> Multiply(
             SquareRoot<ObjectType> right,
-            IMultipliable<ObjectType> multipliable)
+            IMultiplication<ObjectType> multipliable)
         {
             var result = new SquareRoot<ObjectType>();
             result.integerPart = multipliable.Multiply(this.integerPart, right.integerPart);
@@ -148,7 +148,7 @@
         private void SetupParameters(
             ObjectType integerPart,
             Dictionary<ObjectType, int> rootNumberFactorization,
-            IMultipliable<ObjectType> multipliable)
+            IMultiplication<ObjectType> multipliable)
         {
             if (integerPart == null)
             {
@@ -193,7 +193,7 @@
             ObjectType integerPart,
             ObjectType rootNumber,
             IAlgorithm<ObjectType, Tuple<ObjectType, ObjectType>> factorizationAlg,
-            IMultipliable<ObjectType> multipliable,
+            IMultiplication<ObjectType> multipliable,
             IEqualityComparer<ObjectType> comparer)
         {
             if (integerPart == null)
@@ -281,7 +281,7 @@
         /// Determina o valor do radicando após o processamento.
         /// </summary>
         /// <param name="multipliable">O objecto responsável pelas multiplicações.</param>
-        private void ComputeRootNumber(IMultipliable<ObjectType> multipliable)
+        private void ComputeRootNumber(IMultiplication<ObjectType> multipliable)
         {
             this.rootNumber = multipliable.MultiplicativeUnity;
             foreach (var factKvp in rootNumberFactorization)

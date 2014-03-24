@@ -5,8 +5,8 @@ using System.Text;
 
 namespace Mathematics
 {
-    public interface IAdditionOperation<T>
+    public interface IAdditionOperation<in P, in Q, out T>
     {
-        T Add(T left, T right);
+        T Add(P left, Q right);
     }
 }

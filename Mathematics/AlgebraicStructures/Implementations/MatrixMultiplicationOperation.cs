@@ -16,7 +16,7 @@
         /// <summary>
         /// A classe que será responsável pela adição das entradas da matriz.
         /// </summary>
-        IAdditionOperation<ObjectType> additionOperation;
+        IAdditionOperation<ObjectType, ObjectType, ObjectType> additionOperation;
 
         /// <summary>
         /// A classe que será responsável pela instanciação do resultado.
@@ -24,7 +24,7 @@
         IMatrixFactory<ObjectType> matrixFactory;
 
         public MatrixMultiplicationOperation(IMatrixFactory<ObjectType> matrixFactory,
-            IAdditionOperation<ObjectType> additionOperation,
+            IAdditionOperation<ObjectType, ObjectType, ObjectType> additionOperation,
             IMultiplicationOperation<ObjectType, ObjectType, ObjectType> multiplicationOperation)
         {
             if (multiplicationOperation == null)
@@ -61,7 +61,7 @@
         /// <summary>
         /// Obtém o objecto responsável pela adição das entradas da matriz.
         /// </summary>
-        public IAdditionOperation<ObjectType> AdditionOperation
+        public IAdditionOperation<ObjectType, ObjectType, ObjectType> AdditionOperation
         {
             get
             {

@@ -44,7 +44,6 @@
     <Compile Include="AlgebraicStructures\ComplexNumber.cs" />
     <Compile Include="AlgebraicStructures\Fraction.cs" />
     <Compile Include="AlgebraicStructures\FractionDecompositionResult.cs" />
-    <Compile Include="AlgebraicStructures\FractionParser.cs" />
     <Compile Include="AlgebraicStructures\Implementations\BigIntegerDomain.cs" />
     <Compile Include="AlgebraicStructures\Implementations\BigIntegerNormSpace.cs" />
     <Compile Include="AlgebraicStructures\Implementations\BigIntegerToIntegerConversion.cs" />
@@ -56,6 +55,7 @@
     <Compile Include="AlgebraicStructures\Implementations\DecimalNearestInteger.cs" />
     <Compile Include="AlgebraicStructures\Implementations\DomainResult.cs" />
     <Compile Include="AlgebraicStructures\Implementations\DoubleField.cs" />
+    <Compile Include="AlgebraicStructures\Implementations\ElementFractionAddOper.cs" />
     <Compile Include="AlgebraicStructures\Implementations\Factories\ModularBigIntFieldFactory.cs" />
     <Compile Include="AlgebraicStructures\Implementations\Factories\ModularIntegerFieldFactory.cs" />
     <Compile Include="AlgebraicStructures\Implementations\Factories\ModularSymmetricBigIntFieldFactory.cs" />
@@ -102,7 +102,7 @@
     <Compile Include="AlgebraicStructures\Matrix\ArrayVector.cs" />
     <Compile Include="AlgebraicStructures\Matrix\ArrayVectorFactory.cs" />
     <Compile Include="AlgebraicStructures\Matrix\BitMatrix.cs" />
-    <Compile Include="AlgebraicStructures\Matrix\ConfigVectorReader.cs" />
+    <Compile Include="AlgebraicStructures\Readers\ConfigVectorReader.cs" />
     <Compile Include="AlgebraicStructures\Matrix\IntegerSequenceSubVector.cs" />
     <Compile Include="AlgebraicStructures\Implementations\OrthoVectorScalarProduct.cs" />
     <Compile Include="AlgebraicStructures\Implementations\Factories\UnivarPolEuclideanDomainFactory.cs" />
@@ -125,7 +125,7 @@
     <Compile Include="AlgebraicStructures\LogicInterfaces\IModularField.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\IMonoid.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\IMultiDimensionalRange.cs" />
-    <Compile Include="AlgebraicStructures\LogicInterfaces\IMultipliable.cs" />
+    <Compile Include="AlgebraicStructures\LogicInterfaces\IMultiplication.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\IMultiplicationOperation.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\IRing.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\IScalarProductSpace.cs" />
@@ -140,8 +140,8 @@
     <Compile Include="AlgebraicStructures\Matrix\ArrayBitMatrixFactory.cs" />
     <Compile Include="AlgebraicStructures\Matrix\ArrayMatrix.cs" />
     <Compile Include="AlgebraicStructures\Matrix\ArrayMatrixFactory.cs" />
-    <Compile Include="AlgebraicStructures\Matrix\ConfigMatrixParser.cs" />
-    <Compile Include="AlgebraicStructures\Matrix\ConfigMatrixReader.cs" />
+    <Compile Include="AlgebraicStructures\Parsers\ConfigMatrixParser.cs" />
+    <Compile Include="AlgebraicStructures\Readers\ConfigMatrixReader.cs" />
     <Compile Include="AlgebraicStructures\Matrix\IdentityMatrix.cs" />
     <Compile Include="AlgebraicStructures\Matrix\IMatrixFactory.cs" />
     <Compile Include="AlgebraicStructures\Matrix\IntegerSequenceSubMatrix.cs" />
@@ -160,8 +160,8 @@
     <Compile Include="AlgebraicStructures\Matrix\ZeroMatrix.cs" />
     <Compile Include="AlgebraicStructures\Matrix\ZeroVector.cs" />
     <Compile Include="AlgebraicStructures\MultiDimensionalRange\MultiDimensionalRange.cs" />
-    <Compile Include="AlgebraicStructures\MultiDimensionalRange\MultiDimensionalRangeParser.cs" />
-    <Compile Include="AlgebraicStructures\MultiDimensionalRange\MultiDimensionalRangeReader.cs" />
+    <Compile Include="AlgebraicStructures\Parsers\MultiDimensionalRangeParser.cs" />
+    <Compile Include="AlgebraicStructures\Readers\MultiDimensionalRangeReader.cs" />
     <Compile Include="AlgebraicStructures\MultiDimensionalRange\SubMultiDimensionalRange.cs" />
     <Compile Include="AlgebraicStructures\Polynomial\CoefficientComparer.cs" />
     <Compile Include="AlgebraicStructures\Polynomial\CoefficientDegreePair.cs" />
@@ -170,16 +170,16 @@
     <Compile Include="AlgebraicStructures\Polynomial\IntegerFactorialFraction.cs" />
     <Compile Include="AlgebraicStructures\Polynomial\Polynomial.cs" />
     <Compile Include="AlgebraicStructures\Polynomial\PolynomialGeneralVariable.cs" />
-    <Compile Include="AlgebraicStructures\Polynomial\PolynomialReaders\ElementFractionParser.cs" />
+    <Compile Include="AlgebraicStructures\Parsers\ElementFractionParser.cs" />
     <Compile Include="AlgebraicStructures\Polynomial\PolynomialReaders\EParsePolynomialValueType.cs" />
     <Compile Include="AlgebraicStructures\Polynomial\PolynomialReaders\ParsePolynomialItem.cs" />
     <Compile Include="AlgebraicStructures\Polynomial\PolynomialReaders\ParseUnivarPolynomNormalFormItem.cs" />
-    <Compile Include="AlgebraicStructures\Polynomial\PolynomialReaders\PolynomialParser.cs" />
-    <Compile Include="AlgebraicStructures\Polynomial\PolynomialReaders\PolynomialReader.cs" />
+    <Compile Include="AlgebraicStructures\Parsers\PolynomialParser.cs" />
+    <Compile Include="AlgebraicStructures\Readers\PolynomialReader.cs" />
     <Compile Include="AlgebraicStructures\Polynomial\PolynomialReaders\SimplePolynomialReader.cs" />
     <Compile Include="AlgebraicStructures\Polynomial\PolynomialReaders\SimpleUnivarPolynomNormalFormReader.cs" />
-    <Compile Include="AlgebraicStructures\Polynomial\PolynomialReaders\UnivariatePolynomialReader.cs" />
-    <Compile Include="AlgebraicStructures\Polynomial\PolynomialReaders\UnivarPolNormalFormParser.cs" />
+    <Compile Include="AlgebraicStructures\Readers\UnivariatePolynomialReader.cs" />
+    <Compile Include="AlgebraicStructures\Parsers\UnivarPolNormalFormParser.cs" />
     <Compile Include="AlgebraicStructures\Polynomial\SymmetricPolynomial.cs" />
     <Compile Include="AlgebraicStructures\Polynomial\SymmetricPolynomialDegreeEqualityComparer.cs" />
     <Compile Include="AlgebraicStructures\Polynomial\UnivariatePolynomialNormalForm.cs" />
@@ -267,7 +267,7 @@
     <Compile Include="Algorithms\Simplex\SimplexMaximumNumberField.cs" />
     <Compile Include="Algorithms\Simplex\SimplexOutput.cs" />
     <Compile Include="BacheBezoutResult.cs" />
-    <Compile Include="AlgebraicStructures\FractionExpressionParser.cs" />
+    <Compile Include="AlgebraicStructures\Parsers\FractionExpressionParser.cs" />
     <Compile Include="Diagnostics.cs" />
     <Compile Include="MathFunctions.cs" />
     <Compile Include="Algorithms\Simplex\RevisedSimplexWithDoubles.cs" />

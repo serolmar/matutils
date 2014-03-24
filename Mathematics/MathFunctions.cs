@@ -19,7 +19,7 @@
         /// <param name="multiplier">A classe que define o produto sobre o valor.</param>
         /// <returns>A potência do valor.</returns>
         public static T Power<T, D>(T val, int pow, D multiplier)
-            where D : IMultipliable<T>
+            where D : IMultiplication<T>
         {
             if (multiplier == null)
             {
@@ -67,7 +67,7 @@
         /// <param name="multiplier">A classe que define o produto sobre o valor.</param>
         /// <returns>A potência do valor.</returns>
         public static T Power<T, D>(T val, long pow, D multiplier)
-            where D : IMultipliable<T>
+            where D : IMultiplication<T>
         {
             if (multiplier == null)
             {
@@ -115,7 +115,7 @@
         /// <param name="multiplier">A classe que define o produto sobre o valor.</param>
         /// <returns>A potência do valor.</returns>
         public static T Power<T, D>(T val, BigInteger pow, D multiplier)
-            where D : IMultipliable<T>
+            where D : IMultiplication<T>
         {
             if (multiplier == null)
             {
@@ -163,7 +163,7 @@
         /// <param name="integerNumber">A classe que define as operações sobre números inteiros.</param>
         /// <returns>A potência do valor.</returns>
         public static T Power<T, Deg, D>(T val, Deg pow, D domain, IIntegerNumber<Deg> integerNumber)
-            where D : IMultipliable<T>
+            where D : IMultiplication<T>
         {
             if (integerNumber == null)
             {

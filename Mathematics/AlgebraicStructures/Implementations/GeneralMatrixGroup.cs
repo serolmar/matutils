@@ -9,7 +9,7 @@
     {
         protected IGroup<CoeffType> coeffsGroup;
 
-        protected IAdditionOperation<IMatrix<CoeffType>> matrixAdditionOperation;
+        protected IAdditionOperation<IMatrix<CoeffType>, IMatrix<CoeffType>, IMatrix<CoeffType>> matrixAdditionOperation;
 
         IMatrixFactory<CoeffType> matrixFactory;
 

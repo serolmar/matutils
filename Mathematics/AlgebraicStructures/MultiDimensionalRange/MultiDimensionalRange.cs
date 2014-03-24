@@ -168,7 +168,7 @@
             return result;
         }
 
-        public MultiDimensionalRange<T> Multiply(MultiDimensionalRange<T> right, IMultipliable<T> multiplyable)
+        public MultiDimensionalRange<T> Multiply(MultiDimensionalRange<T> right, IMultiplication<T> multiplyable)
         {
             if (multiplyable == null)
             {

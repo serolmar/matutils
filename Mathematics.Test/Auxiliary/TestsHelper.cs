@@ -105,18 +105,20 @@
         /// <param name="itemsParser">O leitor de elementos da fracção.</param>
         /// <param name="conversion">A conversão entre cada fracção e o valor inteiro.</param>
         /// <param name="variableName">O nome da variável.</param>
+        /// <param name="readNegativeNumbers">Indica se são lidos os números negativos.</param>
         /// <returns>O polinómio lido.</returns>
         public static UnivariatePolynomialNormalForm<Fraction<T>> ReadFractionalCoeffsUnivarPol<T, D>(
             string polynomialRepresentation,
             D domain,
             IParse<T,string,string> itemsParser,
             IConversion<int, Fraction<T>> conversion,
-            string variableName) where D : IEuclidenDomain<T>
+            string variableName,
+            bool readNegativeNumbers = false) where D : IEuclidenDomain<T>
         {
             var fractionField = new FractionField<T>(domain);
             var fractionParser = new FractionExpressionParser<T>(itemsParser, fractionField);
             var polInputReader = new StringReader(polynomialRepresentation);
-            var polSymbolReader = new StringSymbolReader(polInputReader, true);
+            var polSymbolReader = new StringSymbolReader(polInputReader, readNegativeNumbers);
             var polParser = new UnivariatePolynomialReader<Fraction<T>, CharSymbolReader<string>>(
                 "x",
                 fractionParser,

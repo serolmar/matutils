@@ -17,7 +17,7 @@ namespace Mathematics
     /// <typeparam name="VectorSpaceType">O tipo do espaço vectorial.</typeparam>
     public interface IAlgebra<CoeffType, VectorSpaceType> : 
         IVectorSpace<CoeffType, VectorSpaceType>,
-        IMultipliable<VectorSpaceType>
+        IMultiplication<VectorSpaceType>
     {
     }
 }

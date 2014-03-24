@@ -167,6 +167,30 @@ namespace Mathematics
         }
 
         /// <summary>
+        /// Obtém a adição entre a fracção e um coeficiente independente.
+        /// </summary>
+        /// <param name="coeff">O coeficiente independente.</param>
+        /// <param name="domain">O domínio responsável pelas operações sobre os coeficientes.</param>
+        /// <returns>O resultado da soma.</returns>
+        public Fraction<T> Add(T coeff, IEuclidenDomain<T> domain)
+        {
+            if (domain == null)
+            {
+                throw new ArgumentNullException("domain");
+            }
+            else if (coeff == null)
+            {
+                throw new ArgumentNullException("coeff");
+            }
+            else
+            {
+                var rightAddNumerator = domain.Multiply(coeff, this.denominator);
+                var resultNumerator = domain.Add(this.numerator, rightAddNumerator);
+                return new Fraction<T>(resultNumerator, this.denominator, domain);
+            }
+        }
+
+        /// <summary>
         /// Obtém o resultado da diferença entre a fracção corrente e a fracção especificada.
         /// </summary>
         /// <param name="right">A fracção especificada.</param>
@@ -195,6 +219,31 @@ namespace Mathematics
                     rightAddNumerator);
                 var resultNumerator = domain.Add(currentAddNumerator, rightAddNumerator);
                 return new Fraction<T>(resultNumerator, resultDenominator, domain);
+            }
+        }
+
+        /// <summary>
+        /// Obtém a diferença entre a fracção e um coeficiente independente.
+        /// </summary>
+        /// <param name="coeff">O coeficiente independente.</param>
+        /// <param name="domain">O domínio responsável pelas operações sobre os coeficientes.</param>
+        /// <returns>O resultado da soma.</returns>
+        public Fraction<T> Subtract(T coeff, IEuclidenDomain<T> domain)
+        {
+            if (domain == null)
+            {
+                throw new ArgumentNullException("domain");
+            }
+            else if (coeff == null)
+            {
+                throw new ArgumentNullException("coeff");
+            }
+            else
+            {
+                var rightAddNumerator = domain.Multiply(coeff, this.denominator);
+                rightAddNumerator = domain.AdditiveInverse(rightAddNumerator);
+                var resultNumerator = domain.Add(this.numerator, rightAddNumerator);
+                return new Fraction<T>(resultNumerator, this.denominator, domain);
             }
         }
 
@@ -248,6 +297,51 @@ namespace Mathematics
         }
 
         /// <summary>
+        /// Obtém o produto da fracção por um coeficiente independente.
+        /// </summary>
+        /// <param name="coeff">O coeficiente independente.</param>
+        /// <param name="domain">O domínio responsável pelas operações sobre os coeficientes.</param>
+        /// <returns>O resultado do produto.</returns>
+        public Fraction<T> Multiply(T coeff, IEuclidenDomain<T> domain)
+        {
+            if (domain == null)
+            {
+                throw new ArgumentNullException("domain");
+            }
+            else if (coeff == null)
+            {
+                throw new ArgumentNullException("coeff");
+            }
+            else if (domain.IsAdditiveUnity(this.numerator))
+            {
+                var result = new Fraction<T>(domain);
+                result.numerator = domain.AdditiveUnity;
+                result.denominator = domain.MultiplicativeUnity;
+                return result;
+            }
+            else if (domain.IsAdditiveUnity(coeff))
+            {
+                var result = new Fraction<T>(domain);
+                result.numerator = domain.AdditiveUnity;
+                result.denominator = domain.MultiplicativeUnity;
+                return result;
+            }
+            else
+            {
+                var crossGcd = MathFunctions.GreatCommonDivisor(this.denominator, coeff, domain);
+                var secondNumerator = domain.Quo(coeff, crossGcd);
+                var firstDenominator = domain.Quo(this.denominator, crossGcd);
+
+                var resultNumerator = domain.Multiply(this.numerator, secondNumerator);
+
+                var result = new Fraction<T>(domain);
+                result.numerator = resultNumerator;
+                result.denominator = firstDenominator;
+                return result;
+            }
+        }
+
+        /// <summary>
         /// Obtém o resultado do quociente da fracção corrente com a fracção especificada.
         /// </summary>
         /// <param name="right">A fracção especificada.</param>
@@ -267,11 +361,71 @@ namespace Mathematics
             {
                 throw new DivideByZeroException();
             }
+            else if (domain.IsAdditiveUnity(this.numerator))
+            {
+                var result = new Fraction<T>(domain);
+                result.numerator = domain.AdditiveUnity;
+                result.denominator = domain.MultiplicativeUnity;
+                return result;
+            }
             else
             {
-                var resultNumerator = domain.Multiply(this.numerator, right.denominator);
-                var resultDenominator = domain.Multiply(this.denominator, right.numerator);
-                return new Fraction<T>(resultNumerator, resultDenominator, domain);
+                var crossGcd = MathFunctions.GreatCommonDivisor(this.numerator, right.numerator, domain);
+                var firstNumerator = domain.Quo(this.numerator, crossGcd);
+                var secondDenominator = domain.Quo(right.numerator, crossGcd);
+                crossGcd = MathFunctions.GreatCommonDivisor(this.denominator, right.denominator, domain);
+                var secondNumerator = domain.Quo(right.denominator, crossGcd);
+                var firstDenominator = domain.Quo(this.denominator, crossGcd);
+
+                var resultNumerator = domain.Multiply(firstNumerator, secondNumerator);
+                var resultDenominator = domain.Multiply(firstDenominator, secondDenominator);
+
+                var result = new Fraction<T>(domain);
+                result.numerator = resultNumerator;
+                result.denominator = resultDenominator;
+                return result;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o quociente da fracção corrente com um coeficiente independente.
+        /// </summary>
+        /// <param name="coeff">O coeficiente.</param>
+        /// <param name="domain">O domínio responsável pelas operações sobre os coeficientes.</param>
+        /// <returns>O resultado do quociente.</returns>
+        public Fraction<T> Divide(T coeff, IEuclidenDomain<T> domain)
+        {
+            if (domain == null)
+            {
+                throw new ArgumentNullException("domain");
+            }
+            else if (coeff == null)
+            {
+                throw new ArgumentNullException("coeff");
+            }
+            else if (domain.IsAdditiveUnity(coeff))
+            {
+                throw new DivideByZeroException();
+            }
+            else if (domain.IsAdditiveUnity(this.numerator))
+            {
+                var result = new Fraction<T>(domain);
+                result.numerator = domain.AdditiveUnity;
+                result.denominator = domain.MultiplicativeUnity;
+                return result;
+            }
+            else
+            {
+                var crossGcd = MathFunctions.GreatCommonDivisor(this.numerator, coeff, domain);
+                var secondNumerator = domain.Quo(coeff, crossGcd);
+                var firstNumerator = domain.Quo(this.numerator, crossGcd);
+
+                var resultDenominator = domain.Multiply(this.denominator, secondNumerator);
+
+                var result = new Fraction<T>(domain);
+                result.numerator = firstNumerator;
+                result.denominator = resultDenominator;
+                return result;
             }
         }
 

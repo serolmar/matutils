@@ -35,7 +35,8 @@ namespace Mathematics
             else
             {
                 //this.ring = ring;
-                this.terms = new SortedList<int, CoeffType>(new InverseComparer<int>(Comparer<int>.Default));
+                this.terms = new SortedList<int, CoeffType>(
+                    new InverseComparer<int>(Comparer<int>.Default));
                 this.variableName = variable;
             }
         }
@@ -387,6 +388,127 @@ namespace Mathematics
         }
 
         /// <summary>
+        /// Obtém um vector com a soma das potências, desde 1 até ao grau do polinómio.
+        /// </summary>
+        /// <remarks>
+        /// É possível apenas extrair este valor relativamente a um anel caso a parte principal do polinómio seja mónica.
+        /// </remarks>
+        /// <param name="domain">O domínio responsável pelas operações sobre os coeficientes.</param>
+        /// <returns>O vector com a soma das potências.</returns>
+        public IVector<CoeffType> GetRootPowerSums(IEuclidenDomain<CoeffType> domain)
+        {
+            if (domain == null)
+            {
+                throw new ArgumentNullException("ring");
+            }
+            else
+            {
+                var termsEnumerator = this.terms.GetEnumerator();
+                if (termsEnumerator.MoveNext())
+                {
+                    var result = new ArrayVector<CoeffType>(this.Degree, domain.AdditiveUnity);
+                    var topTerm = termsEnumerator.Current.Value;
+                    var topDegree = termsEnumerator.Current.Key;
+                    if (topDegree == 0)
+                    {
+                        return result;
+                    }
+                    else if (termsEnumerator.MoveNext())
+                    {
+                        var currentTerm = termsEnumerator.Current;
+                        var quoResult = domain.GetQuotientAndRemainder(currentTerm.Value, topTerm);
+                        if (domain.IsAdditiveUnity(quoResult.Remainder))
+                        {
+                            var principalPartCoeffs = new SortedList<int, CoeffType>(this.terms.Comparer);
+                            principalPartCoeffs.Add(currentTerm.Key, quoResult.Quotient);
+                            while (termsEnumerator.MoveNext())
+                            {
+                                currentTerm = termsEnumerator.Current;
+                                quoResult = domain.GetQuotientAndRemainder(currentTerm.Value, topTerm);
+                                if (domain.IsAdditiveUnity(quoResult.Remainder))
+                                {
+                                    principalPartCoeffs.Add(currentTerm.Key, quoResult.Quotient);
+                                }
+                                else
+                                {
+                                    throw new MathematicsException("The current polynomial may have roots whose values are outside of the provided domain.");
+                                }
+                            }
+
+                            // Aplica as fórmulas que permitem determinar o valor procurado.
+                            termsEnumerator = principalPartCoeffs.GetEnumerator();
+                            termsEnumerator.MoveNext();
+                            var difference = topDegree - termsEnumerator.Current.Key - 1;
+
+                            var value = domain.AdditiveInverse(termsEnumerator.Current.Value);
+                            value = domain.AddRepeated(value, difference + 1);
+                            result[difference] = value;
+                            var control = difference - 1;
+                            for (var i = difference + 1; i < topDegree; ++i)
+                            {
+                                termsEnumerator = this.terms.GetEnumerator();
+                                termsEnumerator.MoveNext();
+                                var state = termsEnumerator.MoveNext();
+                                var currentIteration = i - 1;
+                                var compareDegree = topDegree - 1;
+                                while (state && currentIteration > control)
+                                {
+                                    var currentDegree = termsEnumerator.Current.Key;
+                                    if (compareDegree == currentDegree)
+                                    {
+                                        value = domain.AdditiveInverse(termsEnumerator.Current.Value);
+                                        value = domain.Multiply(value, result[currentIteration]);
+                                        result[i] = domain.Add(result[i], value);
+                                        state = termsEnumerator.MoveNext();
+                                    }
+
+                                    --compareDegree;
+                                    --currentIteration;
+                                }
+
+                                while (state && control >= 0)
+                                {
+                                    --control;
+                                    var currentDegree = termsEnumerator.Current.Key;
+                                    if (compareDegree == currentDegree)
+                                    {
+                                        state = termsEnumerator.MoveNext();
+                                        --compareDegree;
+                                    }
+                                }
+
+                                if (state)
+                                {
+                                    var currentDegree = termsEnumerator.Current.Key;
+                                    if (compareDegree == currentDegree)
+                                    {
+                                        value = domain.AdditiveInverse(termsEnumerator.Current.Value);
+                                        value = domain.AddRepeated(value, i + 1);
+                                        result[i] = domain.Add(result[i], value);
+                                    }
+                                }
+                            }
+
+                            return result;
+                        }
+                        else
+                        {
+                            throw new MathematicsException("The current polynomial may have roots whose values are outside of the provided domain.");
+                        }
+                    }
+                    else
+                    {
+                        return new ZeroVector<CoeffType>(this.Degree, domain);
+                    }
+                }
+                else
+                {
+                    return new ArrayVector<CoeffType>(0, domain.AdditiveUnity);
+                }
+            }
+        }
+
+        /// <summary>
         /// Obtém um vector com a soma das potências, desde 1 até ao grau do polinómio, das raízes.
         /// </summary>
         /// <param name="field">O corpo responsável pelas operações.</param>
@@ -468,7 +590,7 @@ namespace Mathematics
                     }
                     else
                     {
-                        return result;
+                        return new ZeroVector<CoeffType>(this.Degree, field);
                     }
                 }
                 else
@@ -501,7 +623,7 @@ namespace Mathematics
             {
                 var result = new UnivariatePolynomialNormalForm<CoeffType>();
                 result.variableName = this.variableName;
-                result.terms = new SortedList<int, CoeffType>(new InverseComparer<int>(Comparer<int>.Default));
+                result.terms = new SortedList<int, CoeffType>(this.terms.Comparer);
                 foreach (var term in this.terms)
                 {
                     result.terms.Add(term.Key, term.Value);
@@ -566,7 +688,7 @@ namespace Mathematics
             {
                 var result = new UnivariatePolynomialNormalForm<CoeffType>();
                 result.variableName = this.variableName;
-                result.terms = new SortedList<int, CoeffType>(new InverseComparer<int>(Comparer<int>.Default));
+                result.terms = new SortedList<int, CoeffType>(this.terms.Comparer);
                 var degreeCoeff = coeff;
                 foreach (var kvp in this.terms)
                 {
@@ -615,7 +737,7 @@ namespace Mathematics
             {
                 var result = new UnivariatePolynomialNormalForm<CoeffType>();
                 result.variableName = this.variableName;
-                result.terms = new SortedList<int, CoeffType>(new InverseComparer<int>(Comparer<int>.Default));
+                result.terms = new SortedList<int, CoeffType>(this.terms.Comparer);
                 foreach (var term in this.terms)
                 {
                     result.terms.Add(term.Key, term.Value);
@@ -679,7 +801,7 @@ namespace Mathematics
             {
                 var result = new UnivariatePolynomialNormalForm<CoeffType>();
                 result.variableName = this.variableName;
-                result.terms = new SortedList<int, CoeffType>(new InverseComparer<int>(Comparer<int>.Default));
+                result.terms = new SortedList<int, CoeffType>(this.terms.Comparer);
                 var degreeCoeff = group.AdditiveInverse(coeff);
                 foreach (var kvp in this.terms)
                 {
@@ -728,7 +850,7 @@ namespace Mathematics
             {
                 var result = new UnivariatePolynomialNormalForm<CoeffType>();
                 result.variableName = this.variableName;
-                result.terms = new SortedList<int, CoeffType>(new InverseComparer<int>(Comparer<int>.Default));
+                result.terms = new SortedList<int, CoeffType>(this.terms.Comparer);
                 foreach (var thisTerm in this.terms)
                 {
                     if (!ring.IsAdditiveUnity(thisTerm.Value))
@@ -786,7 +908,7 @@ namespace Mathematics
             {
                 var result = new UnivariatePolynomialNormalForm<CoeffType>();
                 result.variableName = this.variableName;
-                result.terms = new SortedList<int, CoeffType>(new InverseComparer<int>(Comparer<int>.Default));
+                result.terms = new SortedList<int, CoeffType>(this.terms.Comparer);
                 if (!ring.IsAdditiveUnity(coeff))
                 {
                     foreach (var thisTerm in this.terms)
@@ -808,7 +930,7 @@ namespace Mathematics
         {
             var result = new UnivariatePolynomialNormalForm<CoeffType>();
             result.variableName = this.variableName;
-            result.terms = new SortedList<int, CoeffType>(new InverseComparer<int>(Comparer<int>.Default));
+            result.terms = new SortedList<int, CoeffType>(this.terms.Comparer);
             foreach (var kvp in this.terms)
             {
                 result.terms.Add(kvp.Key, group.AdditiveInverse(kvp.Value));
@@ -850,6 +972,59 @@ namespace Mathematics
                     }
 
                     var lastPower = MathFunctions.Power(coeff, previousDegree, ring);
+                    result = ring.Multiply(result, lastPower);
+                    return result;
+                }
+                else
+                {
+                    return ring.AdditiveUnity;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Substitui a variável pelo elemento especificado e calcula o resultado de acordo com as operações
+        /// definidas nos objectos por elas responsáveis.
+        /// </summary>
+        /// <typeparam name="ResultType">O tipo de dados a ser substituído e do resultado.</typeparam>
+        /// <param name="value">O valor.</param>
+        /// <param name="additionOperation">O objecto responsável pelas operações sobre os coeficientes.</param>
+        /// <param name="multiplicatioOperation">O anel responsável pelas operações sobre os valores de saída.</param>
+        /// <returns>O resultado calculado.</returns>
+        public ResultType Replace<ResultType>(
+            ResultType value,
+            IAdditionOperation<CoeffType, ResultType, ResultType> additionOperation,
+            IRing<ResultType> ring)
+        {
+            if (ring == null)
+            {
+                throw new ArgumentNullException("ring");
+            }
+            else if (additionOperation == null)
+            {
+                throw new ArgumentNullException("additionOperation");
+            }
+            else if (value == null)
+            {
+                throw new ArgumentNullException("value");
+            }
+            else
+            {
+                var termsEnumerator = this.terms.GetEnumerator();
+                if (termsEnumerator.MoveNext())
+                {
+                    var result = additionOperation.Add(termsEnumerator.Current.Value, ring.AdditiveUnity);
+                    var previousDegree = termsEnumerator.Current.Key;
+                    while (termsEnumerator.MoveNext())
+                    {
+                        var currentDegree = termsEnumerator.Current.Key;
+                        var power = MathFunctions.Power(value, previousDegree - currentDegree, ring);
+                        result = ring.Multiply(result, power);
+                        result = additionOperation.Add(termsEnumerator.Current.Value, result);
+                        previousDegree = currentDegree;
+                    }
+
+                    var lastPower = MathFunctions.Power(value, previousDegree, ring);
                     result = ring.Multiply(result, lastPower);
                     return result;
                 }
@@ -923,7 +1098,7 @@ namespace Mathematics
             {
                 var result = new UnivariatePolynomialNormalForm<CoeffType>();
                 result.variableName = variableName;
-                result.terms = new SortedList<int, CoeffType>(new InverseComparer<int>(Comparer<int>.Default));
+                result.terms = new SortedList<int, CoeffType>(this.terms.Comparer);
                 foreach (var kvp in this.terms)
                 {
                     result.terms.Add(kvp.Key, kvp.Value);

@@ -1,4 +1,8 @@
-﻿namespace Mathematics.Test
+﻿using Mathematics;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+
+namespace Mathematics.Test
 {
     using Mathematics;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -181,7 +185,7 @@
         }
 
         [TestMethod()]
-        public void GetPolynomialDerivativeTest_IntegerPolynomial()
+        public void GetPolynomialDerivativeTest_IntegerMatrix()
         {
             // Os valores a serem lidos
             var polynomialText = "[[1,2],[3,4]]*x^2-[[1,0],[0,1]]*x+[[7,6],[9,8]]";
@@ -419,6 +423,169 @@
                 variableName);
             var bigIntegerActualPlynomial = bigIntegerPolynomial.GetPolynomialDerivative(bigIntegerPolynomialRing);
             Assert.AreEqual(bigIntegerExpectedPol, bigIntegerExpectedPol);
+        }
+
+        [TestMethod()]
+        public void GetRootPowerSumsTest_Integer()
+        {
+            // Representação dos polinómios.
+            var polynomText = "(x-3)*(x-2)^2*(x+1)^3";
+            var variableName = "x";
+
+            // Estabelece os domínios.
+            var integerDomain = new IntegerDomain();
+
+            // Estabelece os conversores.
+            var integerToIntegerConv = new ElementToElementConversion<int>();
+
+            // Estabelece os leitores individuais.
+            var integerParser = new IntegerParser<string>();
+
+            // Estabelece os polinómios.
+            var integerPolynomial = TestsHelper.ReadUnivarPolynomial(
+                polynomText,
+                integerDomain,
+                integerParser,
+                integerToIntegerConv,
+                variableName);
+            var integerExpectedVector = new ArrayVector<int>(6);
+            integerExpectedVector[0] = 4;
+            integerExpectedVector[1] = 20;
+            integerExpectedVector[2] = 40;
+            integerExpectedVector[3] = 116;
+            integerExpectedVector[4] = 304;
+            integerExpectedVector[5] = 860;
+            var integerActualVector = integerPolynomial.GetRootPowerSums(integerDomain);
+            Assert.AreEqual(integerExpectedVector.Length, integerActualVector.Length, "Vector lengths aren't equal.");
+            for (int i = 0; i < integerActualVector.Length; ++i)
+            {
+                Assert.AreEqual(integerExpectedVector[i], integerActualVector[i]);
+            }
+        }
+
+        [TestMethod()]
+        public void GetRootPowerSumsTest_IntegerFraction()
+        {
+            // Representação dos polinómios.
+            var polynomText = "(x-3)*(x-2)^2*(x+1)^3";
+            var variableName = "x";
+
+            // Estabelece os domínios.
+            var integerDomain = new IntegerDomain();
+
+            // Estabelece o corpo responsável pelas operações sobre as fracções.
+            var fractionField = new FractionField<int>(integerDomain);
+
+            // Estabelece os conversores.
+            var integerToFractionConversion = new ElementFractionConversion<int>(integerDomain);
+
+            // Estabelece os leitores individuais.
+            var integerParser = new IntegerParser<string>();
+
+            // Estabelece o leitor de fracções.
+            var fractionParser = new ElementFractionParser<int>(integerParser, integerDomain);
+
+            // Estabelece os polinómios.
+            var integerPolynomial = TestsHelper.ReadUnivarPolynomial(
+                polynomText,
+                fractionField,
+                fractionParser,
+                integerToFractionConversion,
+                variableName);
+            var integerFractionExpectedVector = new ArrayVector<Fraction<int>>(6);
+            integerFractionExpectedVector[0] = new Fraction<int>(4, 1, integerDomain);
+            integerFractionExpectedVector[1] = new Fraction<int>(20, 1, integerDomain);
+            integerFractionExpectedVector[2] = new Fraction<int>(40, 1, integerDomain);
+            integerFractionExpectedVector[3] = new Fraction<int>(116, 1, integerDomain);
+            integerFractionExpectedVector[4] = new Fraction<int>(304, 1, integerDomain);
+            integerFractionExpectedVector[5] = new Fraction<int>(860, 1, integerDomain);
+            var integerFractionActualVector = integerPolynomial.GetRootPowerSums(fractionField);
+            Assert.AreEqual(integerFractionExpectedVector.Length, integerFractionActualVector.Length, "Vector lengths aren't equal.");
+            for (int i = 0; i < integerFractionActualVector.Length; ++i)
+            {
+                Assert.AreEqual(integerFractionExpectedVector[i], integerFractionActualVector[i]);
+            }
+        }
+
+        [TestMethod()]
+        public void ReplaceTest_Integer()
+        {
+            // Representação dos polinómios.
+            var polynomText = "x^5+2*x^4+3*x^3+4*x^2+5*x+6";
+            var variableName = "x";
+
+            // Estabelece os domínios.
+            var integerDomain = new IntegerDomain();
+
+            // Estabelece os conversores.
+            var integerToIntegerConv = new ElementToElementConversion<int>();
+
+            // Estabelece os leitores individuais.
+            var integerParser = new IntegerParser<string>();
+
+            // Estabelece os polinómios.
+            var integerPolynomial = TestsHelper.ReadUnivarPolynomial(
+                polynomText,
+                integerDomain,
+                integerParser,
+                integerToIntegerConv,
+                variableName);
+            var integerReplaceValues = new int[] { 0, 1, 2, 3 };
+            var integerExpectedValues = new int[] { 6, 21, 120, 543 };
+            for (int i = 0; i < integerReplaceValues.Length; ++i)
+            {
+                var integerActualValue = integerPolynomial.Replace(integerReplaceValues[i], integerDomain);
+                Assert.AreEqual(integerExpectedValues[i], integerActualValue);
+            }
+        }
+
+        [TestMethod()]
+        public void ReplaceTest_ReplaceByFraction()
+        {
+            // Representação dos polinómios.
+            var polynomText = "x^5+2*x^4+3*x^3+4*x^2+5*x+6";
+            var variableName = "x";
+
+            // Estabelece os domínios.
+            var integerDomain = new IntegerDomain();
+
+            // Estabelece os conversores.
+            var integerToIntegerConv = new ElementToElementConversion<int>();
+
+            // Estabelece os leitores individuais.
+            var integerParser = new IntegerParser<string>();
+
+            var fractionField = new FractionField<int>(integerDomain);
+
+            var integerFractionAddOp = new ElementFractionAddOper<int>(integerDomain);
+
+            // Estabelece os polinómios.
+            var integerPolynomial = TestsHelper.ReadUnivarPolynomial(
+                polynomText,
+                integerDomain,
+                integerParser,
+                integerToIntegerConv,
+                variableName);
+            var fractionValues = new Fraction<int>[] { 
+                new Fraction<int>(0,1,integerDomain),
+                new Fraction<int>(1,1,integerDomain),
+                new Fraction<int>(1,2,integerDomain),
+                new Fraction<int>(1,3,integerDomain)};
+
+            var fractionExpectedValues = new Fraction<int>[] { 
+                new Fraction<int>(6,1,integerDomain),
+                new Fraction<int>(21,1,integerDomain),
+                new Fraction<int>(321,32,integerDomain),
+                new Fraction<int>(2005,243,integerDomain)};
+
+            for (int i = 0; i < fractionValues.Length; ++i)
+            {
+                var integerActualValue = integerPolynomial.Replace(
+                    fractionValues[i], 
+                    integerFractionAddOp,
+                    fractionField);
+                Assert.AreEqual(fractionExpectedValues[i], integerActualValue);
+            }
         }
     }
 }
