@@ -116,7 +116,9 @@
             bool readNegativeNumbers = false) where D : IEuclidenDomain<T>
         {
             var fractionField = new FractionField<T>(domain);
-            var fractionParser = new FractionExpressionParser<T>(itemsParser, fractionField);
+            var fractionParser = new FieldDrivenExpressionParser<Fraction<T>>(
+                new SimpleElementFractionParser<T>(itemsParser, domain), 
+                fractionField);
             var polInputReader = new StringReader(polynomialRepresentation);
             var polSymbolReader = new StringSymbolReader(polInputReader, readNegativeNumbers);
             var polParser = new UnivariatePolynomialReader<Fraction<T>, CharSymbolReader<string>>(

@@ -93,7 +93,7 @@
     <Compile Include="Lambda\ELambdaExpressionWordType.cs" />
     <Compile Include="Lambda\SmartFilterLambdaBuilder.cs" />
     <Compile Include="Parsers\ArraySymbolReader.cs" />
-    <Compile Include="Parsers\EStringSymbolReader.cs" />
+    <Compile Include="Parsers\EStringSymbolReaderType.cs" />
     <Compile Include="ExpressionBuilders\DoubleExpressionParser.cs" />
     <Compile Include="ExpressionBuilders\IntegerExpressionParser.cs" />
     <Compile Include="Parsers\ExpressionReader\EOperatorType.cs" />
@@ -125,6 +125,7 @@
     <Compile Include="StateMachine\MementoSymbolReader.cs" />
     <Compile Include="StateMachine\StateMachine.cs" />
     <Compile Include="StateMachine\SymbolReader.cs" />
+    <Compile Include="Utils.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Parsers\ParsersDiagram.cd" />

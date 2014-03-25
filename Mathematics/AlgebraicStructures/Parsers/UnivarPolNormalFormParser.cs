@@ -10,34 +10,20 @@
         : IParse<UnivariatePolynomialNormalForm<CoeffType>, string, string>
     {
         /// <summary>
-        /// O anel que contém as operações a serem efectuadas sobre o polinómio.
-        /// </summary>
-        private IRing<CoeffType> coefficientsRing;
-
-        /// <summary>
         /// O leitor de matrizes multidimensionais.
         /// </summary>
         private UnivariatePolynomialReader<CoeffType, ISymbol<string, string>[]> polynomialReader;
-
-        /// <summary>
-        /// O leitor dos elmentos contidos na matriz multidimensional.
-        /// </summary>
-        private IParse<CoeffType, string, string> elementsParser;
 
         /// <summary>
         /// O conversor entre os coeficientes e os inteiros.
         /// </summary>
         private IConversion<int, CoeffType> conversion;
 
-        /// <summary>
-        /// O nome da variável.
-        /// </summary>
-        private string variable;
-
         public UnivarPolNormalFormParser(
             string variable, 
             IConversion<int, CoeffType> conversion,
-            IParse<CoeffType, string, string> elementsParser, IRing<CoeffType> ring)
+            IParse<CoeffType, string, string> elementsParser, 
+            IRing<CoeffType> ring)
         {
             if (string.IsNullOrWhiteSpace(variable))
             {
@@ -57,14 +43,11 @@
             }
             else
             {
-                this.variable = variable;
                 this.conversion = conversion;
-                this.coefficientsRing = ring;
-                this.elementsParser = elementsParser;
                 this.polynomialReader = new UnivariatePolynomialReader<CoeffType, ISymbol<string, string>[]>(
                     variable,
-                    this.elementsParser,
-                    this.coefficientsRing);
+                    elementsParser,
+                    ring);
             }
         }
 
@@ -87,7 +70,7 @@
         /// <param name="closeDelimiterType">O tiop do delimitador de fecho.</param>
         public void RegisterExpressionDelimitersTyes(string openDelimiterType, string closeDelimiterType)
         {
-            this.polynomialReader.RegisterInteralDelimiterTypes(openDelimiterType, closeDelimiterType);
+            this.polynomialReader.RegisterExpressionDelimiterTypes(openDelimiterType, closeDelimiterType);
         }
 
         /// <summary>
@@ -95,7 +78,7 @@
         /// </summary>
         public void ClearExpressionDelimitersTypes()
         {
-            this.polynomialReader.ClearInternalDelimitersMappings();
+            this.polynomialReader.ClearExpressionDelimitersMappings();
         }
 
         /// <summary>

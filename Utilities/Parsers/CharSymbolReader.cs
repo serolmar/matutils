@@ -217,7 +217,7 @@
         }
 
         /// <summary>
-        /// Adds the next readed symbol from stream to buffer list.
+        /// Adiciona o próximo símbolo lido para o contentor temporário.
         /// </summary>
         private void AddNextSymbolFromStream()
         {

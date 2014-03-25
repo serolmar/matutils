@@ -26,7 +26,7 @@
         private string variable;
 
         /// <summary>
-        /// Maps the external delimiters. External delimiters bounds entire elementary subexpressions.
+        /// Faz os mapeamentos dos delimitadores externos.
         /// </summary>
         private Dictionary<string, List<string>> externalDelimitersTypes = new Dictionary<string, List<string>>();
 
@@ -126,100 +126,101 @@
             {
                 throw new ArgumentNullException("polynomialReader");
             }
-
-            if (conversion == null)
+            else if (conversion == null)
             {
                 throw new ArgumentNullException("conversion");
             }
-
-            this.conversion = conversion;
-            resultPolynomial = default(UnivariatePolynomialNormalForm<T>);
-            var expressionReader = new ExpressionReader<ParseUnivarPolynomNormalFormItem<T>, string, string>(
-                new SimpleUnivarPolynomNormalFormReader<T>(this.coeffParser, this.ring, this.variable));
-            expressionReader.RegisterBinaryOperator("plus", Add, 0);
-            expressionReader.RegisterBinaryOperator("times", Multiply, 1);
-            expressionReader.RegisterBinaryOperator("minus", Subtract, 0);
-            expressionReader.RegisterBinaryOperator("hat", Power, 2);
-            expressionReader.RegisterUnaryOperator("minus", Symmetric, 0);
-            expressionReader.RegisterBinaryOperator("over", Divide, 1);
-
-            if (this.expressionDelimiterTypes.Any())
-            {
-                foreach (var expressionDelimiterKvp in this.expressionDelimiterTypes)
-                {
-                    foreach (var closeDelimiter in expressionDelimiterKvp.Value)
-                    {
-                        expressionReader.RegisterExpressionDelimiterTypes(
-                        expressionDelimiterKvp.Key,
-                        closeDelimiter);
-                    }
-                }
-            }
             else
             {
-                expressionReader.RegisterExpressionDelimiterTypes("left_parenthesis", "right_parenthesis");
-            }
+                this.conversion = conversion;
+                resultPolynomial = default(UnivariatePolynomialNormalForm<T>);
+                var expressionReader = new ExpressionReader<ParseUnivarPolynomNormalFormItem<T>, string, string>(
+                    new SimpleUnivarPolynomNormalFormReader<T>(this.coeffParser, this.ring, this.variable));
+                expressionReader.RegisterBinaryOperator("plus", Add, 0);
+                expressionReader.RegisterBinaryOperator("times", Multiply, 1);
+                expressionReader.RegisterBinaryOperator("minus", Subtract, 0);
+                expressionReader.RegisterBinaryOperator("hat", Power, 2);
+                expressionReader.RegisterUnaryOperator("minus", Symmetric, 0);
+                expressionReader.RegisterBinaryOperator("over", Divide, 1);
 
-            expressionReader.RegisterSequenceDelimiterTypes("left_parenthesis", "right_parenthesis");
-            foreach (var kvp in this.externalDelimitersTypes)
-            {
-                foreach (var delimiter in kvp.Value)
+                if (this.expressionDelimiterTypes.Any())
                 {
-                    expressionReader.RegisterExternalDelimiterTypes(kvp.Key, delimiter);
+                    foreach (var expressionDelimiterKvp in this.expressionDelimiterTypes)
+                    {
+                        foreach (var closeDelimiter in expressionDelimiterKvp.Value)
+                        {
+                            expressionReader.RegisterExpressionDelimiterTypes(
+                            expressionDelimiterKvp.Key,
+                            closeDelimiter);
+                        }
+                    }
                 }
-            }
-
-            expressionReader.AddVoid("blancks");
-            expressionReader.AddVoid("space");
-            expressionReader.AddVoid("carriage_return");
-            expressionReader.AddVoid("new_line");
-
-            var expressionResult = default(ParseUnivarPolynomNormalFormItem<T>);
-            if (expressionReader.TryParse(polynomialReader, errors, out expressionResult))
-            {
-                if (expressionResult.ValueType == EParsePolynomialValueType.COEFFICIENT)
+                else
                 {
-                    resultPolynomial = new UnivariatePolynomialNormalForm<T>(
-                        expressionResult.Coeff,
-                        0,
-                        this.variable,
-                        this.ring);
-                    return true;
+                    expressionReader.RegisterExpressionDelimiterTypes("left_parenthesis", "right_parenthesis");
                 }
-                else if (expressionResult.ValueType == EParsePolynomialValueType.INTEGER)
+
+                expressionReader.RegisterSequenceDelimiterTypes("left_parenthesis", "right_parenthesis");
+                foreach (var kvp in this.externalDelimitersTypes)
                 {
-                    if (typeof(T).IsAssignableFrom(typeof(int)))
+                    foreach (var delimiter in kvp.Value)
+                    {
+                        expressionReader.RegisterExternalDelimiterTypes(kvp.Key, delimiter);
+                    }
+                }
+
+                expressionReader.AddVoid("blancks");
+                expressionReader.AddVoid("space");
+                expressionReader.AddVoid("carriage_return");
+                expressionReader.AddVoid("new_line");
+
+                var expressionResult = default(ParseUnivarPolynomNormalFormItem<T>);
+                if (expressionReader.TryParse(polynomialReader, errors, out expressionResult))
+                {
+                    if (expressionResult.ValueType == EParsePolynomialValueType.COEFFICIENT)
                     {
                         resultPolynomial = new UnivariatePolynomialNormalForm<T>(
-                            (T)(object)expressionResult.Degree,
+                            expressionResult.Coeff,
                             0,
                             this.variable,
                             this.ring);
                         return true;
                     }
+                    else if (expressionResult.ValueType == EParsePolynomialValueType.INTEGER)
+                    {
+                        if (typeof(T).IsAssignableFrom(typeof(int)))
+                        {
+                            resultPolynomial = new UnivariatePolynomialNormalForm<T>(
+                                (T)(object)expressionResult.Degree,
+                                0,
+                                this.variable,
+                                this.ring);
+                            return true;
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }
+                    else if (expressionResult.ValueType == EParsePolynomialValueType.POLYNOMIAL)
+                    {
+                        resultPolynomial = expressionResult.Polynomial;
+                        return true;
+                    }
                     else
                     {
+                        if (errors != null)
+                        {
+                            errors.Add("Severe error.");
+                        }
+
                         return false;
                     }
                 }
-                else if (expressionResult.ValueType == EParsePolynomialValueType.POLYNOMIAL)
-                {
-                    resultPolynomial = expressionResult.Polynomial;
-                    return true;
-                }
                 else
                 {
-                    if (errors != null)
-                    {
-                        errors.Add("Severe error.");
-                    }
-
                     return false;
                 }
-            }
-            else
-            {
-                return false;
             }
         }
 
@@ -232,7 +233,7 @@
         /// </remarks>
         /// <param name="openDelimiter">O delimitador de abertura.</param>
         /// <param name="closeDelimiter">O delimitador de fecho.</param>
-        public void RegisterInteralDelimiterTypes(string openDelimiter, string closeDelimiter)
+        public void RegisterExpressionDelimiterTypes(string openDelimiter, string closeDelimiter)
         {
             if (string.IsNullOrWhiteSpace(openDelimiter))
             {
@@ -253,8 +254,7 @@
                 }
                 else
                 {
-                    List<string> temporary = new List<string>();
-                    temporary.Add(closeDelimiter);
+                    var temporary = new List<string>() { closeDelimiter };
                     this.expressionDelimiterTypes.Add(openDelimiter, temporary);
                 }
             }
@@ -267,7 +267,7 @@
         /// Caso não existam delimitadores de expressão, serão considerados os parêntesis
         /// de abertura e fecho por defeito.
         /// </remarks>
-        public void ClearInternalDelimitersMappings()
+        public void ClearExpressionDelimitersMappings()
         {
             this.expressionDelimiterTypes.Clear();
         }
@@ -288,8 +288,7 @@
             }
             else
             {
-                List<string> temporary = new List<string>();
-                temporary.Add(closeDelimiter);
+                var temporary = new List<string>() { closeDelimiter };
                 this.externalDelimitersTypes.Add(openDelimiter, temporary);
             }
         }

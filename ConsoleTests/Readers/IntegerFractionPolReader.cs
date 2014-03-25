@@ -23,7 +23,9 @@
             var integerDomain = new IntegerDomain();
             var fractionField = new FractionField<int>(integerDomain);
             var integerParser = new IntegerParser<string>();
-            var fractionParser = new FractionExpressionParser<int>(integerParser, fractionField);
+            var fractionParser = new FieldDrivenExpressionParser<Fraction<int>>(
+                new SimpleElementFractionParser<int>(integerParser, integerDomain),
+                fractionField);
             var conversion = new ElementFractionConversion<int>(integerDomain);
             var polInputReader = new StringReader(polynomial);
             var polSymbolReader = new StringSymbolReader(polInputReader, false);

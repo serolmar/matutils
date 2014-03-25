@@ -582,8 +582,8 @@
             var integerDomain = new BigIntegerDomain();
             var integerParser = new BigIntegerParser<string>();
             var fractionField = new FractionField<BigInteger>(integerDomain);
-            var fractionParser = new FractionExpressionParser<BigInteger>(
-                integerParser,
+            var fractionParser = new FieldDrivenExpressionParser<Fraction<BigInteger>>(
+                new SimpleElementFractionParser<BigInteger>(integerParser, integerDomain),
                 fractionField);
 
             var arrayMatrixFactory = new ArrayMatrixFactory<Fraction<BigInteger>>();
@@ -1069,7 +1069,9 @@
             var integerDomain = new IntegerDomain();
             var integerParser = new IntegerParser<string>();
             var fractionField = new FractionField<int>(integerDomain);
-            var fractionParser = new FractionExpressionParser<int>(integerParser, fractionField);
+            var fractionParser = new FieldDrivenExpressionParser<Fraction<int>>(
+                new SimpleElementFractionParser<int>(integerParser, integerDomain),
+                fractionField);
             var firstVector = default(IVector<Fraction<int>>);
             var secondVector = default(IVector<Fraction<int>>);
             var vectorFactory = new ArrayVectorFactory<Fraction<int>>();

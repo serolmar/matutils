@@ -102,6 +102,9 @@
     <Compile Include="AlgebraicStructures\Matrix\ArrayVector.cs" />
     <Compile Include="AlgebraicStructures\Matrix\ArrayVectorFactory.cs" />
     <Compile Include="AlgebraicStructures\Matrix\BitMatrix.cs" />
+    <Compile Include="AlgebraicStructures\Parsers\FieldDrivenExpressionParser.cs" />
+    <Compile Include="AlgebraicStructures\Parsers\RingDrivenExpressionParser.cs" />
+    <Compile Include="AlgebraicStructures\Parsers\SimpleElementFractionParser.cs" />
     <Compile Include="AlgebraicStructures\Readers\ConfigVectorReader.cs" />
     <Compile Include="AlgebraicStructures\Matrix\IntegerSequenceSubVector.cs" />
     <Compile Include="AlgebraicStructures\Implementations\OrthoVectorScalarProduct.cs" />
@@ -161,6 +164,7 @@
     <Compile Include="AlgebraicStructures\Matrix\ZeroVector.cs" />
     <Compile Include="AlgebraicStructures\MultiDimensionalRange\MultiDimensionalRange.cs" />
     <Compile Include="AlgebraicStructures\Parsers\MultiDimensionalRangeParser.cs" />
+    <Compile Include="AlgebraicStructures\Readers\FieldDrivenExpressionReader.cs" />
     <Compile Include="AlgebraicStructures\Readers\MultiDimensionalRangeReader.cs" />
     <Compile Include="AlgebraicStructures\MultiDimensionalRange\SubMultiDimensionalRange.cs" />
     <Compile Include="AlgebraicStructures\Polynomial\CoefficientComparer.cs" />
@@ -178,6 +182,7 @@
     <Compile Include="AlgebraicStructures\Readers\PolynomialReader.cs" />
     <Compile Include="AlgebraicStructures\Polynomial\PolynomialReaders\SimplePolynomialReader.cs" />
     <Compile Include="AlgebraicStructures\Polynomial\PolynomialReaders\SimpleUnivarPolynomNormalFormReader.cs" />
+    <Compile Include="AlgebraicStructures\Readers\RingDrivenExpressionReader.cs" />
     <Compile Include="AlgebraicStructures\Readers\UnivariatePolynomialReader.cs" />
     <Compile Include="AlgebraicStructures\Parsers\UnivarPolNormalFormParser.cs" />
     <Compile Include="AlgebraicStructures\Polynomial\SymmetricPolynomial.cs" />
@@ -267,7 +272,6 @@
     <Compile Include="Algorithms\Simplex\SimplexMaximumNumberField.cs" />
     <Compile Include="Algorithms\Simplex\SimplexOutput.cs" />
     <Compile Include="BacheBezoutResult.cs" />
-    <Compile Include="AlgebraicStructures\Parsers\FractionExpressionParser.cs" />
     <Compile Include="Diagnostics.cs" />
     <Compile Include="MathFunctions.cs" />
     <Compile Include="Algorithms\Simplex\RevisedSimplexWithDoubles.cs" />

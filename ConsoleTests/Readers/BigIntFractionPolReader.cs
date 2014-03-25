@@ -24,7 +24,9 @@
             var integerDomain = new BigIntegerDomain();
             var fractionField = new FractionField<BigInteger>(integerDomain);
             var integerParser = new BigIntegerParser<string>();
-            var fractionParser = new FractionExpressionParser<BigInteger>(integerParser, fractionField);
+            var fractionParser = new FieldDrivenExpressionParser<Fraction<BigInteger>>(
+                new SimpleElementFractionParser<BigInteger>(integerParser, integerDomain),
+                fractionField);
             var conversion = new IntegerBigIntFractionConversion(integerDomain, new BigIntegerToIntegerConversion());
             var polInputReader = new StringReader(polynomial);
             var polSymbolReader = new StringSymbolReader(polInputReader, false);
