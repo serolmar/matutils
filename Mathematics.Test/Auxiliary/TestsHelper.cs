@@ -148,16 +148,18 @@
         /// <param name="matrixText">A representação textual da matriz.</param>
         /// <param name="matrixFactory">A fábrica responsável pela criação de matrizes.</param>
         /// <param name="elementParser">O leitor de elementos.</param>
+        /// <param name="readNegativeNumbers">Indica se são lidos os números negativos.</param>
         /// <returns>A matriz.</returns>
         public static IMatrix<T> ReadMatrix<T>(
             int lines, 
             int columns, 
             string matrixText, 
             IMatrixFactory<T> matrixFactory, 
-            IParse<T, string, string> elementParser)
+            IParse<T, string, string> elementParser,
+            bool readNegativeNumbers = false)
         {
             var reader = new StringReader(matrixText);
-            var stringSymbolReader = new StringSymbolReader(reader, true);
+            var stringSymbolReader = new StringSymbolReader(reader, readNegativeNumbers);
             var arrayMatrixReader = new ConfigMatrixReader<T, string, string, CharSymbolReader<string>>(
                 lines,
                 columns,

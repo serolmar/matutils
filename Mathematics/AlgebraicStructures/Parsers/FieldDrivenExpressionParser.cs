@@ -22,6 +22,21 @@
         public FieldDrivenExpressionParser(
             IParse<ObjectType, string, string> elementsParser,
             IField<ObjectType> field)
-            : base(elementsParser, field) { }
+        {
+            if (field == null)
+            {
+                throw new ArgumentNullException("field");
+            }
+            else if (elementsParser == null)
+            {
+                throw new ArgumentNullException("elementsParser");
+            }
+            else
+            {
+                this.expressionReader = new FieldDrivenExpressionReader<ObjectType, ISymbol<string, string>[]>(
+                    elementsParser,
+                    field);
+            }
+        }
     }
 }

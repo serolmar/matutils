@@ -44,6 +44,7 @@
     <Compile Include="AlgebraicStructures\ComplexNumber.cs" />
     <Compile Include="AlgebraicStructures\Fraction.cs" />
     <Compile Include="AlgebraicStructures\FractionDecompositionResult.cs" />
+    <Compile Include="AlgebraicStructures\GeneralMatrixAlgebra.cs" />
     <Compile Include="AlgebraicStructures\Implementations\BigIntegerDomain.cs" />
     <Compile Include="AlgebraicStructures\Implementations\BigIntegerNormSpace.cs" />
     <Compile Include="AlgebraicStructures\Implementations\BigIntegerToIntegerConversion.cs" />
@@ -79,6 +80,7 @@
     <Compile Include="AlgebraicStructures\Implementations\IntegerNormSpace.cs" />
     <Compile Include="AlgebraicStructures\Implementations\LongDomain.cs" />
     <Compile Include="AlgebraicStructures\Implementations\LongToIntegerConversion.cs" />
+    <Compile Include="AlgebraicStructures\Implementations\GeneralMatrixVectorSpace.cs" />
     <Compile Include="AlgebraicStructures\Implementations\ModularSymmetricBigIntField.cs" />
     <Compile Include="AlgebraicStructures\Implementations\ModularSymmetricIntField.cs" />
     <Compile Include="AlgebraicStructures\Implementations\OuterElementFractionConversion.cs" />
@@ -102,6 +104,7 @@
     <Compile Include="AlgebraicStructures\Matrix\ArrayVector.cs" />
     <Compile Include="AlgebraicStructures\Matrix\ArrayVectorFactory.cs" />
     <Compile Include="AlgebraicStructures\Matrix\BitMatrix.cs" />
+    <Compile Include="AlgebraicStructures\Matrix\IMatrixGroup.cs" />
     <Compile Include="AlgebraicStructures\Parsers\FieldDrivenExpressionParser.cs" />
     <Compile Include="AlgebraicStructures\Parsers\RingDrivenExpressionParser.cs" />
     <Compile Include="AlgebraicStructures\Parsers\SimpleElementFractionParser.cs" />

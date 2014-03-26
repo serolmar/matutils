@@ -24,6 +24,10 @@
         /// </summary>
         protected RingDrivenExpressionReader<ObjectType, ISymbol<string, string>[]> expressionReader;
 
+        protected RingDrivenExpressionParser()
+        {
+        }
+
         public RingDrivenExpressionParser(
             IParse<ObjectType, string, string> elementsParser,
             IRing<ObjectType> ring)

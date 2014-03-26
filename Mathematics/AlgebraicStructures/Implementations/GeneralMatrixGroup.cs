@@ -5,13 +5,13 @@
     using System.Linq;
     using System.Text;
 
-    public class GeneralMatrixGroup<CoeffType> : IGroup<IMatrix<CoeffType>>
+    public class GeneralMatrixGroup<CoeffType> : IMatrixGroup<CoeffType>
     {
         protected IGroup<CoeffType> coeffsGroup;
 
         protected IAdditionOperation<IMatrix<CoeffType>, IMatrix<CoeffType>, IMatrix<CoeffType>> matrixAdditionOperation;
 
-        IMatrixFactory<CoeffType> matrixFactory;
+        protected IMatrixFactory<CoeffType> matrixFactory;
 
         protected int lines;
 
@@ -46,6 +46,36 @@
                 this.coeffsGroup = coeffsGroup;
                 this.matrixFactory = matrixFactory;
                 this.matrixAdditionOperation = new MatrixAdditionOperation<CoeffType>(matrixFactory, this.coeffsGroup);
+            }
+        }
+
+        /// <summary>
+        /// Obtém o número de linhas das matrizes que fazem parte do grupo.
+        /// </summary>
+        public int Lines
+        {
+            get
+            {
+                return this.lines;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o número de colunas das matrizes que fazem parte do grupo.
+        /// </summary>
+        public int Columns
+        {
+            get
+            {
+                return this.columns;
+            }
+        }
+
+        public IMatrixFactory<CoeffType> Factory
+        {
+            get
+            {
+                return this.matrixFactory;
             }
         }
 

@@ -587,5 +587,56 @@ namespace Mathematics.Test
                 Assert.AreEqual(fractionExpectedValues[i], integerActualValue);
             }
         }
+
+        [TestMethod()]
+        public void ReplaceTest_ReplaceByMatrixWithMatrixAlgebra()
+        {
+            // Representação dos polinómios.
+            var polynomText = "x^2 + 2*x + 1";
+            var variableName = "x";
+
+            var integerDomain = new IntegerDomain();
+            var integerToIntegerConv = new ElementToElementConversion<int>();
+            var integerParser = new IntegerParser<string>();
+            var fractionField = new FractionField<int>(integerDomain);
+            var fractionFieldParser = new FieldDrivenExpressionParser<Fraction<int>>(
+                new SimpleElementFractionParser<int>(integerParser, integerDomain),
+                fractionField);
+
+            var polynomial = TestsHelper.ReadUnivarPolynomial<Fraction<int>>(
+                polynomText,
+                fractionField,
+                fractionFieldParser,
+                new ElementFractionConversion<int>(integerDomain),
+                variableName);
+
+            // Leitura da matriz.
+            var matrix = TestsHelper.ReadMatrix<Fraction<int>>(
+                2, 
+                2, 
+                "[[1/2+1/3,1/2-1/3],[1/5+1/4,1/5-1/4]]", 
+                new ArrayMatrixFactory<Fraction<int>>(), 
+                fractionFieldParser);
+
+            var matrixAlgebra = new GeneralMatrixAlgebra<Fraction<int>>(
+                2,
+                new ArrayMatrixFactory<Fraction<int>>(),
+                fractionField,
+                fractionField);
+            var actual = polynomial.Replace(matrix, matrixAlgebra);
+            var expected = TestsHelper.ReadMatrix<Fraction<int>>(
+                2,
+                2,
+                "[[1237/360,167/360],[501/400,391/400]]",
+                new ArrayMatrixFactory<Fraction<int>>(),
+                fractionFieldParser);
+            for (int i = 0; i < 2; ++i)
+            {
+                for (int j = 0; j < 2; ++j)
+                {
+                    Assert.AreEqual(expected[i, j], actual[i, j]);
+                }
+            }
+        }
     }
 }

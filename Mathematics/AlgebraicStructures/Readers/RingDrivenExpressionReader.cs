@@ -233,7 +233,7 @@
             ObjectType left,
             ObjectType right)
         {
-            throw new NotImplementedException();
+            return this.ring.Add(left, right);
         }
 
         /// <summary>
@@ -246,7 +246,7 @@
             ObjectType left,
             ObjectType right)
         {
-            throw new NotImplementedException();
+            return this.ring.Multiply(left, right);
         }
 
         /// <summary>
@@ -259,7 +259,9 @@
             ObjectType left,
             ObjectType right)
         {
-            throw new NotImplementedException();
+            return this.ring.Add(
+                left,
+                this.ring.AdditiveInverse(right));
         }
 
         /// <summary>
@@ -278,12 +280,12 @@
         /// <summary>
         /// Obtém o simétrico de um elemento.
         /// </summary>
-        /// <param name="pol">O elemento.</param>
+        /// <param name="elem">O elemento.</param>
         /// <returns>O elemento resultante.</returns>
         protected virtual ObjectType Symmetric(
-            ObjectType pol)
+            ObjectType elem)
         {
-            throw new NotImplementedException();
+            return this.ring.AdditiveInverse(elem);
         }
 
         /// <summary>
@@ -296,7 +298,7 @@
             ObjectType left,
             ObjectType right)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException("The powers functionality isn't supported yet.");
         }
     }
 }
