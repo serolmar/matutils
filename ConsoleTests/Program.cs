@@ -243,79 +243,6 @@
         }
 
         /// <summary>
-        /// Testa a simplificação de expressões lógicas.
-        /// </summary>
-        public static void Test19()
-        {
-            var booleanInput = new BooleanMinimalFormInOut();
-
-            var combination = new LogicCombinationBitArray(5, EBooleanMinimalFormOutStatus.OFF);
-            booleanInput.Add(combination, EBooleanMinimalFormOutStatus.ON);
-
-            combination = new LogicCombinationBitArray(5, EBooleanMinimalFormOutStatus.OFF);
-            combination[0] = EBooleanMinimalFormOutStatus.ON;
-            booleanInput.Add(combination, EBooleanMinimalFormOutStatus.ON);
-
-            combination = new LogicCombinationBitArray(5, EBooleanMinimalFormOutStatus.OFF);
-            combination[2] = EBooleanMinimalFormOutStatus.ON;
-            booleanInput.Add(combination, EBooleanMinimalFormOutStatus.ON);
-
-            combination = new LogicCombinationBitArray(5, EBooleanMinimalFormOutStatus.OFF);
-            combination[0] = EBooleanMinimalFormOutStatus.ON;
-            combination[2] = EBooleanMinimalFormOutStatus.ON;
-            booleanInput.Add(combination, EBooleanMinimalFormOutStatus.ON);
-
-            combination = new LogicCombinationBitArray(5, EBooleanMinimalFormOutStatus.OFF);
-            combination[0] = EBooleanMinimalFormOutStatus.ON;
-            combination[3] = EBooleanMinimalFormOutStatus.ON;
-            booleanInput.Add(combination, EBooleanMinimalFormOutStatus.ON);
-
-            combination = new LogicCombinationBitArray(5, EBooleanMinimalFormOutStatus.OFF);
-            combination[2] = EBooleanMinimalFormOutStatus.ON;
-            combination[3] = EBooleanMinimalFormOutStatus.ON;
-            booleanInput.Add(combination, EBooleanMinimalFormOutStatus.ON);
-
-            combination = new LogicCombinationBitArray(5, EBooleanMinimalFormOutStatus.OFF);
-            combination[1] = EBooleanMinimalFormOutStatus.ON;
-            combination[2] = EBooleanMinimalFormOutStatus.ON;
-            combination[3] = EBooleanMinimalFormOutStatus.ON;
-            booleanInput.Add(combination, EBooleanMinimalFormOutStatus.ON);
-
-            combination = new LogicCombinationBitArray(5, EBooleanMinimalFormOutStatus.OFF);
-            combination[2] = EBooleanMinimalFormOutStatus.ON;
-            combination[4] = EBooleanMinimalFormOutStatus.ON;
-            booleanInput.Add(combination, EBooleanMinimalFormOutStatus.ON);
-
-            combination = new LogicCombinationBitArray(5, EBooleanMinimalFormOutStatus.OFF);
-            combination[0] = EBooleanMinimalFormOutStatus.ON;
-            combination[2] = EBooleanMinimalFormOutStatus.ON;
-            combination[3] = EBooleanMinimalFormOutStatus.ON;
-            combination[4] = EBooleanMinimalFormOutStatus.ON;
-            booleanInput.Add(combination, EBooleanMinimalFormOutStatus.ON);
-
-            var algorithm = new BooleanMinimalFormAlgorithm();
-            var result = algorithm.Run(booleanInput);
-            foreach (var logicComb in result)
-            {
-                Console.WriteLine(logicComb.LogicInput);
-            }
-        }
-
-        /// <summary>
-        /// Testes ao método da condensação.
-        /// </summary>
-        public static void Test18()
-        {
-            var doubleArrayMatrixReader = new DoubleArrayMatrixReader();
-            var independentMatrix = doubleArrayMatrixReader.ReadArray(3, 4, "[[1,0,0],[0,0,0],[0,3,3],[2,0,1]]");
-            var dependentMatrix = doubleArrayMatrixReader.ReadArray(3, 1, "[[1,3,3]]");
-
-            var linearSystemAlg = new DenseCondensationLinSysAlgorithm<double>(
-                new DoubleField());
-            var result = linearSystemAlg.Run(independentMatrix, dependentMatrix);
-        }
-
-        /// <summary>
         /// Testes ao algoritmo de decomposição.
         /// </summary>
         public static void Test17()
@@ -564,60 +491,6 @@
 
             var simplexOut = simplexAlg.Run(simplexInput);
             Console.WriteLine("Cost: {0}", simplexOut.Cost);
-        }
-
-        /// <summary>
-        /// Teste aos méotodos relacionados com a resolução de sistemas de equações.
-        /// </summary>
-        public static void Test15()
-        {
-            // Note-se que a leitura é realizada coluna a coluna.
-            var inputMatrix = "[[1,2,1],[2,-1,-1],[1,-1,3]]";
-
-            // Vector coluna.
-            var inputVector = "[[1,2,3]]";
-
-            var reader = new StringReader(inputMatrix);
-            var stringsymbolReader = new StringSymbolReader(reader, false);
-            var integerDomain = new BigIntegerDomain();
-            var integerParser = new BigIntegerParser<string>();
-            var fractionField = new FractionField<BigInteger>(integerDomain);
-            var fractionParser = new FieldDrivenExpressionParser<Fraction<BigInteger>>(
-                new SimpleElementFractionParser<BigInteger>(integerParser, integerDomain),
-                fractionField);
-
-            var arrayMatrixFactory = new ArrayMatrixFactory<Fraction<BigInteger>>();
-            var arrayMatrixReader = new ConfigMatrixReader<Fraction<BigInteger>, string, string, CharSymbolReader<string>>(
-                3,
-                3,
-                arrayMatrixFactory);
-            arrayMatrixReader.MapInternalDelimiters("left_bracket", "right_bracket");
-            arrayMatrixReader.AddBlanckSymbolType("blancks");
-            arrayMatrixReader.SeparatorSymbType = "comma";
-
-            var matrix = default(IMatrix<Fraction<BigInteger>>);
-            if (arrayMatrixReader.TryParseMatrix(stringsymbolReader, fractionParser, out matrix))
-            {
-                arrayMatrixReader = new ConfigMatrixReader<Fraction<BigInteger>, string, string, CharSymbolReader<string>>(
-                3,
-                1,
-                arrayMatrixFactory);
-                arrayMatrixReader.MapInternalDelimiters("left_bracket", "right_bracket");
-                arrayMatrixReader.AddBlanckSymbolType("blancks");
-                arrayMatrixReader.SeparatorSymbType = "comma";
-
-                var independentVector = default(IMatrix<Fraction<BigInteger>>);
-                reader = new StringReader(inputVector);
-                stringsymbolReader = new StringSymbolReader(reader, false);
-                if (arrayMatrixReader.TryParseMatrix(stringsymbolReader, fractionParser, out independentVector))
-                {
-                    var systemSolver = new SequentialLanczosAlgorithm<Fraction<BigInteger>, FractionField<BigInteger>>(
-                        arrayMatrixFactory,
-                        fractionField);
-                    var squareMatrix = (matrix as ArrayMatrix<Fraction<BigInteger>>).AsSquare();
-                    var result = systemSolver.Run(squareMatrix, independentVector);
-                }
-            }
         }
 
         /// <summary>
@@ -1454,25 +1327,6 @@
         /// </summary>
         static void Test1()
         {
-            var graph = new EdgeListGraph<int, int>();
-            graph.AddEdge(0, 1, 1);
-            graph.AddEdge(0, 2, 3);
-            graph.AddEdge(0, 3, 5);
-            graph.AddEdge(1, 2, 1);
-            graph.AddEdge(1, 3, 3);
-            graph.AddEdge(2, 3, 7);
-            graph.AddEdge(2, 4, 6);
-            graph.AddEdge(3, 4, 7);
-
-            graph.AddVertex(10);
-            graph.AddVertex(11);
-
-            var graphAlgs = graph.GetAlgorithmsProcessor();
-            var result = graphAlgs.GetMinimumSpanningTree<double>(
-                0,
-                e => e.Value,
-                Comparer<double>.Default,
-                new DoubleField());
         }
 
         static string PrintVector<T>(IEnumerable<T> vectorToPrint)

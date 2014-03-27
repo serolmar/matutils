@@ -52,13 +52,17 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Auxiliary\TestsHelper.cs" />
+    <Compile Include="BooleanMinimalFormAlgorithmTest.cs" />
     <Compile Include="DecompositionFactorizationAlgorithmTest.cs" />
+    <Compile Include="DenseCondensationLinSysAlgorithmTest.cs" />
+    <Compile Include="EdgeListGraphTest.cs" />
     <Compile Include="EulerTotFuncAlgTest.cs" />
     <Compile Include="FastDivisionFreeCharPolynomCalculatorTest.cs" />
     <Compile Include="LagrangeAlgorithmTest.cs" />
     <Compile Include="MathFunctionsTest.cs" />
     <Compile Include="NaiveIntegerFactorizationAlgorithmTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SequentialLanczosAlgorithmTest.cs" />
     <Compile Include="UnivariatePolynomialNormalFormTest.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -178,12 +178,15 @@
                     innerImplicantList = groupedImplicantsList;
                 }
 
-                var lastGroup = innerImplicantList[0];
-                foreach (var combination in lastGroup)
+                if (innerImplicantList.Any())
                 {
-                    if (!result.Contains(combination, combinationEqualityComparer))
+                    var lastGroup = innerImplicantList[0];
+                    foreach (var combination in lastGroup)
                     {
-                        result.Add(combination);
+                        if (!result.Contains(combination, combinationEqualityComparer))
+                        {
+                            result.Add(combination);
+                        }
                     }
                 }
             }
