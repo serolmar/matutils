@@ -57,6 +57,8 @@
     <Compile Include="Algorithms\Greedy\InverseGreedyRefGetAlgorithm.cs" />
     <Compile Include="Algorithms\LinearRelaxation\LinearRelaxationAlgorithm.cs" />
     <Compile Include="Algorithms\LinearRelaxation\LinearRelRoundCorrectorAlg.cs" />
+    <Compile Include="Auxiliary\Label.cs" />
+    <Compile Include="Auxiliary\LabelsReader.cs" />
     <Compile Include="Matrix\ArrayMatrix\OdmpArrayMatrix.cs" />
     <Compile Include="Matrix\ArrayMatrix\OdmpArrayMatrixRow.cs" />
     <Compile Include="Matrix\IOdmpMatrix.cs" />

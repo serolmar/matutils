@@ -381,23 +381,67 @@
         /// <param name="range">O conjunto de bits a ser adicionado.</param>
         public void AddRange(BitList range)
         {
-            int rem = this.countBits % BitList.bitNumber;
-            int quo = this.countBits / BitList.bitNumber;
-            ++quo;
-            //ulong[] temporary = range.elements.ToArray();
-            this.elements.AddRange(range.elements);
-            if (rem != 0)
+            if (range == null)
             {
-                //ulong tempMaskHigh = maskPositionBits[bitNumber - rem] - 1;
-                for (int i = quo; i < this.elements.Count; ++i)
-                {
-                    ulong tempMask = this.elements[i] << rem;
-                    this.elements[i - 1] = (this.elements[i - 1] & (maskPositionBits[rem] - 1)) | tempMask;
-                    this.elements[i] = this.elements[i] >> (bitNumber - rem);
-                }
+                throw new ArgumentNullException("range");
             }
-            this.countBits += range.countBits;
-            UpdateList();
+            else
+            {
+                int rem = this.countBits % BitList.bitNumber;
+                int quo = this.countBits / BitList.bitNumber;
+                ++quo;
+
+                this.elements.AddRange(range.elements);
+                if (rem != 0)
+                {
+                    for (int i = quo; i < this.elements.Count; ++i)
+                    {
+                        ulong tempMask = this.elements[i] << rem;
+                        this.elements[i - 1] = (this.elements[i - 1] & (maskPositionBits[rem] - 1)) | tempMask;
+                        this.elements[i] = this.elements[i] >> (bitNumber - rem);
+                    }
+                }
+
+                this.countBits += range.countBits;
+                this.UpdateList();
+            }
+        }
+
+        /// <summary>
+        /// Adiciona um conjunto de bits a partir de um vector de longos.
+        /// </summary>
+        /// <param name="bitsArray">O vector de longos.</param>
+        /// <param name="bitsNumber">O número de bits a serem adicionados.</param>
+        public void AddRange(ulong[] bitsArray, int bitsNumber)
+        {
+            if (bitsArray == null)
+            {
+                throw new ArgumentNullException("bitsArray");
+            }
+            else if (bitsNumber < 0 || bitsNumber >= bitsArray.Length * (sizeof(ulong)*BitList.byteNumber))
+            {
+                throw new ArgumentOutOfRangeException("bitsNumber");
+            }
+            else
+            {
+                int rem = this.countBits % BitList.bitNumber;
+                int quo = this.countBits / BitList.bitNumber;
+                ++quo;
+
+                this.elements.AddRange(bitsArray);
+                if (rem != 0)
+                {
+                    for (int i = quo; i < this.elements.Count; ++i)
+                    {
+                        ulong tempMask = this.elements[i] << rem;
+                        this.elements[i - 1] = (this.elements[i - 1] & (maskPositionBits[rem] - 1)) | tempMask;
+                        this.elements[i] = this.elements[i] >> (bitNumber - rem);
+                    }
+                }
+
+                this.countBits += bitsNumber;
+                this.UpdateList();
+            }
         }
 
         /// <summary>

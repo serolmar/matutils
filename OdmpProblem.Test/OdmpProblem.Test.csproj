@@ -6,11 +6,11 @@
     <ProductVersion>
     </ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{1F0844F1-6095-47AD-9137-A327DEFA9578}</ProjectGuid>
+    <ProjectGuid>{18D06F19-C349-4612-9BA7-4EEB25CD0313}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Mathematics.Test</RootNamespace>
-    <AssemblyName>Mathematics.Test</AssemblyName>
+    <RootNamespace>OdmpProblem.Test</RootNamespace>
+    <AssemblyName>OdmpProblem.Test</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -41,7 +41,6 @@
     </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Numerics" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
@@ -51,25 +50,17 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Auxiliary\TestsHelper.cs" />
-    <Compile Include="BitListTest.cs" />
-    <Compile Include="BooleanMinimalFormAlgorithmTest.cs" />
-    <Compile Include="DecompositionFactorizationAlgorithmTest.cs" />
-    <Compile Include="DenseCondensationLinSysAlgorithmTest.cs" />
-    <Compile Include="EdgeListGraphTest.cs" />
-    <Compile Include="EulerTotFuncAlgTest.cs" />
-    <Compile Include="FastDivisionFreeCharPolynomCalculatorTest.cs" />
-    <Compile Include="LagrangeAlgorithmTest.cs" />
-    <Compile Include="MathFunctionsTest.cs" />
-    <Compile Include="NaiveIntegerFactorizationAlgorithmTest.cs" />
+    <Compile Include="LabelsReaderTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SequentialLanczosAlgorithmTest.cs" />
-    <Compile Include="UnivariatePolynomialNormalFormTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Mathematics\Mathematics.csproj">
       <Project>{0C268918-73CB-46FB-93C8-87792CF351FA}</Project>
       <Name>Mathematics</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\OdmpProblem\OdmpProblem.csproj">
+      <Project>{4480DDC7-E675-4EC1-912D-64DE05948E54}</Project>
+      <Name>OdmpProblem</Name>
     </ProjectReference>
     <ProjectReference Include="..\Utilities\Utilities.csproj">
       <Project>{301A8CA6-8B0D-40B5-A6AC-0671FE9EE74D}</Project>
