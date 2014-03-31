@@ -8,6 +8,14 @@
     public interface ISparseMatrix<ObjectType> : IMatrix<ObjectType>
     {
         /// <summary>
+        /// Obtém a linha pelo respectivo valor.
+        /// </summary>
+        /// <param name="line">O índice.</param>
+        /// <returns>A linha caso exista.</returns>
+        /// <exception cref="MathematicsException">Se a linha não existir.</exception>
+        ISparseMatrixLine<ObjectType> this[int line] { get; }
+
+        /// <summary>
         /// Obtém o valor por defeito.
         /// </summary>
         ObjectType DefaultValue { get; }

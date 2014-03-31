@@ -68,5 +68,48 @@ namespace Mathematics.Test
                 Assert.AreEqual(0, bit);
             }
         }
+
+        [TestMethod()]
+        public void ReadNumericTest_EmptyValue()
+        {
+            string numericText = "";
+            var expected = new BitList();
+            var actual = BitList.ReadNumeric(numericText);
+            Assert.AreEqual(expected, actual);
+        }
+
+        [TestMethod()]
+        public void ReadNumericTest_SmallValue()
+        {
+            string numericText = "10";
+            var expected = new BitList() { 0, 1, 0, 1 };
+            var actual = BitList.ReadNumeric(numericText);
+            Assert.AreEqual(expected, actual);
+        }
+
+        [TestMethod()]
+        public void ReadNumericTest_LeadingZeroesSmallValue()
+        {
+            string numericText = "0000010";
+            var expected = new BitList() { 0, 1, 0, 1 };
+            var actual = BitList.ReadNumeric(numericText);
+            Assert.AreEqual(expected, actual);
+        }
+
+        [TestMethod()]
+        public void ReadNumericTest_BigValue()
+        {
+            // Centésima potência de 2
+            string numericText = "1267650600228229401496703205376";
+            var expected = new BitList();
+            for (int i = 0; i < 100; ++i)
+            {
+                expected.Add(0);
+            }
+
+            expected.Add(1);
+            var actual = BitList.ReadNumeric(numericText);
+            Assert.AreEqual(expected, actual);
+        }
     }
 }

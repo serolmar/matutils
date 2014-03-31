@@ -13,7 +13,7 @@
     /// </summary>
     /// <typeparam name="ElementType">O tipo de dados utilizado na matriz dos custos.</typeparam>
     public class DirectGreedyRefGetAlgorithm<ElementType>
-        : IAlgorithm<IntegerSequence, SparseDictionaryMatrix<ElementType>, ElementType[], Tuple<int, ElementType>>
+        : IAlgorithm<IntegerSequence, ISparseMatrix<ElementType>, ElementType[], Tuple<int, ElementType>>
     {
         /// <summary>
         /// O objecto utilizado para bloquear os processos.
@@ -78,7 +78,7 @@
         /// <returns>O índice da linha corresponde à próxima referência bem como o ganho respectivo.</returns>
         public Tuple<int, ElementType> Run(
             IntegerSequence chosenReferences,
-            SparseDictionaryMatrix<ElementType> currentMatrix,
+            ISparseMatrix<ElementType> currentMatrix,
             ElementType[] currentLineBoard)
         {
             var result = default(KeyValuePair<int, ISparseMatrixLine<ElementType>>);

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Utilities.Collections
 {
-    public class CollectionsException : Exception
+    public class CollectionsException : UtilitiesException
     {
         public CollectionsException() : base() { }
 

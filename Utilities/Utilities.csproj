@@ -125,6 +125,7 @@
     <Compile Include="StateMachine\MementoSymbolReader.cs" />
     <Compile Include="StateMachine\StateMachine.cs" />
     <Compile Include="StateMachine\SymbolReader.cs" />
+    <Compile Include="UtilitiesException.cs" />
     <Compile Include="Utils.cs" />
   </ItemGroup>
   <ItemGroup>

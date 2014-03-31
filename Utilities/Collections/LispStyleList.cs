@@ -26,7 +26,8 @@
         /// </summary>
         private List<ElementList<T>> values = new List<LispStyleList<T>.ElementList<T>>();
 
-        #region constructors
+        #region Construtores
+
         public LispStyleList() { }
 
         public LispStyleList(T val)
@@ -49,7 +50,8 @@
                 this.values.Add(item.Clone());
             }
         }
-        #endregion
+
+        #endregion Construtores
 
         public LispStyleList<T> this[int index]
         {
@@ -112,7 +114,8 @@
             }
         }
 
-        #region methods
+        #region Métodos
+
         public void Concatenate(LispStyleList<T> toAppend)
         {
             List<ElementList<T>> temp = new List<ElementList<T>>();
@@ -184,7 +187,9 @@
         /// <param name="parserForT">The parser for list objects.</param>
         /// <param name="type">The type of delimiters to be used during the parsing.</param>
         /// <returns>The parser.</returns>
-        public static ILispStyleListParser<T> GetParser(IParse<T, string, string> parserForT, LispDelimiterType type)
+        public static ILispStyleListParser<T> GetParser(
+            IParse<T, string, string> parserForT, 
+            LispDelimiterType type)
         {
             return new LispStyleParser<T>(parserForT, type);
         }
@@ -262,7 +267,8 @@
             }
             return result;
         }
-        #endregion
+
+        #endregion Métodos
 
         private class ElementList<R>
         {

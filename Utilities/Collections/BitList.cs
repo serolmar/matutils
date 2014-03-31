@@ -5,7 +5,7 @@
     using System.Collections.Generic;
     using System.Text;
 
-    public class BitList : IList<int>
+    public class BitList : IList<int>, IEquatable<BitList>, IComparable<BitList>
     {
         #region fields
         /// <summary>
@@ -115,9 +115,10 @@
                 throw new ArgumentOutOfRangeException("Index was out of range. Must be non-negative and less than the size of the collection." +
                 Environment.NewLine + "Parameter name: index");
             }
+
             int pointer = index / bitNumber;
             int rem = index % bitNumber;
-            elements[pointer] = RotateVariableBetweenIndices(rem, bitNumber - 1, this.elements[pointer], 1, true);
+            elements[pointer] = this.RotateVariableBetweenIndices(rem, bitNumber - 1, this.elements[pointer], 1, true);
             for (int i = pointer + 1; i < elements.Count; ++i)
             {
                 ulong firstBitInCurrent = this.maskPositionBits[0] & this.elements[pointer];
@@ -129,10 +130,12 @@
                 {
                     this.elements[i - 1] = this.elements[i - 1] | maskPositionBits[bitNumber - 1];
                 }
+
                 elements[i] = elements[i] << 1;
             }
+
             --countBits;
-            UpdateList();
+            this.UpdateList();
         }
 
         /// <summary>
@@ -174,7 +177,7 @@
         /// Adiciona um bit à lista de bits. Se o valor for zero, adiciona o bit zero. Caso contrário, adiciona o
         /// bit 1.
         /// </summary>
-        /// <param name="item">The bit to add.O bit a ser adicionado.</param>
+        /// <param name="item">O bit a ser adicionado.</param>
         public void Add(int item)
         {
             long elementCounter = countBits % bitNumber;
@@ -189,6 +192,9 @@
             ++countBits;
         }
 
+        /// <summary>
+        /// Limpa todos os valores da lista.
+        /// </summary>
         public void Clear()
         {
             this.elements.Clear();
@@ -206,9 +212,10 @@
                         return true;
                     }
                 }
+
                 return false;
             }
-            if (item == 1)
+            else if (item == 1)
             {
                 foreach (ulong val in this.elements)
                 {
@@ -217,8 +224,10 @@
                         return true;
                     }
                 }
+
                 return false;
             }
+
             return false;
         }
 
@@ -276,20 +285,20 @@
                 }
                 else
                 {
-
-                } int bitPointer = 0;
-                int variablePointer = 0;
-                int arrayPointer = arrayIndex;
-                while (variablePointer < this.elements.Count && arrayPointer < countBits)
-                {
-                    array[arrayPointer] = (this.elements[variablePointer] & maskPositionBits[bitPointer]) == 0UL ? 
-                        false : true;
-                    ++arrayPointer;
-                    ++bitPointer;
-                    if (bitPointer >= bitNumber)
+                    int bitPointer = 0;
+                    int variablePointer = 0;
+                    int arrayPointer = arrayIndex;
+                    while (variablePointer < this.elements.Count && arrayPointer < countBits)
                     {
-                        bitPointer = 0;
-                        ++variablePointer;
+                        array[arrayPointer] = (this.elements[variablePointer] & maskPositionBits[bitPointer]) == 0UL ?
+                            false : true;
+                        ++arrayPointer;
+                        ++bitPointer;
+                        if (bitPointer >= bitNumber)
+                        {
+                            bitPointer = 0;
+                            ++variablePointer;
+                        }
                     }
                 }
             }
@@ -297,7 +306,10 @@
 
         public int Count
         {
-            get { return this.countBits; }
+            get
+            {
+                return this.countBits;
+            }
         }
 
         public bool IsReadOnly
@@ -311,6 +323,7 @@
             {
                 return false;
             }
+
             ulong comparer = item != 0 ? 0L : ulong.MaxValue;
             int pointer = 0;
             int bitPointer = 0;
@@ -319,16 +332,19 @@
                 ++pointer;
                 bitPointer += bitNumber;
             }
+
             if (pointer == this.elements.Count)
             {
                 return false;
             }
+
             int index = FindFirstBitInVariable(item, this.elements[pointer]);
             bitPointer += index;
             if (bitPointer >= countBits)
             {
                 return false;
             }
+
             elements[pointer] = RotateVariableBetweenIndices(index, bitNumber - 1, this.elements[pointer], 1, true);
             for (int i = pointer + 1; i < elements.Count; ++i)
             {
@@ -341,10 +357,12 @@
                 {
                     this.elements[pointer - 1] = this.elements[pointer - 1] | maskPositionBits[bitNumber - 1];
                 }
+
                 elements[pointer] = elements[pointer] << 1;
             }
+
             --countBits;
-            UpdateList();
+            this.UpdateList();
             return true;
         }
 
@@ -369,10 +387,53 @@
         #endregion
 
         #region Override members
+
         public override string ToString()
         {
             return "[" + GetBitsFromLongArray(elements.ToArray(), countBits) + "]";
         }
+
+        public override bool Equals(object obj)
+        {
+            if (object.ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+            else if (obj == null)
+            {
+                return false;
+            }
+            else
+            {
+                var innerObj = obj as BitList;
+                return this.Equals(innerObj);
+            }
+        }
+
+        public override int GetHashCode()
+        {
+            var result = 19UL;
+            if (this.countBits > 0)
+            {
+                var length = this.elements.Count - 1;
+                for (int i = 0; i < length; ++i)
+                {
+                    result ^= this.elements[i] * 17;
+                }
+
+                var lastElement = this.elements[length];
+                var rem = this.countBits % bitNumber;
+                if (rem > 0)
+                {
+                    lastElement = lastElement & (ulong.MaxValue >> (bitNumber - rem));
+                }
+
+                result ^= lastElement * 17;
+            }
+
+            return result.GetHashCode();
+        }
+
         #endregion
 
         /// <summary>
@@ -418,7 +479,7 @@
             {
                 throw new ArgumentNullException("bitsArray");
             }
-            else if (bitsNumber < 0 || bitsNumber >= bitsArray.Length * (sizeof(ulong)*BitList.byteNumber))
+            else if (bitsNumber < 0 || bitsNumber >= bitsArray.Length * (sizeof(ulong) * BitList.byteNumber))
             {
                 throw new ArgumentOutOfRangeException("bitsNumber");
             }
@@ -580,6 +641,449 @@
         }
 
         /// <summary>
+        /// Permite verificar se duas listas são iguais.
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
+        public bool Equals(BitList other)
+        {
+            if (other == null)
+            {
+                return false;
+            }
+            else if (this.countBits == other.countBits)
+            {
+                if (this.countBits == 0)
+                {
+                    return true;
+                }
+                else
+                {
+                    var length = this.elements.Count - 1;
+                    for (int i = 0; i < length; ++i)
+                    {
+                        if (this.elements[i] != other.elements[i])
+                        {
+                            return false;
+                        }
+                    }
+
+                    // Último elemento
+                    var currentLastElement = this.elements[length];
+                    var otherLastElement = other.elements[length];
+                    var rem = this.countBits % bitNumber;
+                    if (rem > 0)
+                    {
+                        currentLastElement = currentLastElement & (ulong.MaxValue >> (bitNumber - rem));
+                        otherLastElement = otherLastElement & (ulong.MaxValue >> (bitNumber - rem));
+                    }
+
+                    return currentLastElement == otherLastElement;
+                }
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Permite comparar duas listas para verificar qual é a maior quando encarada como sendo um número
+        /// binário no qual o primeiro elemento corresopnde à menor potência.
+        /// </summary>
+        /// <example>
+        /// A lista "1001" representa o número 9 que é menor do que "1010" que representa o número 10.
+        /// </example>
+        /// <param name="other">A lista a ser comparada.</param>
+        /// <returns>Os valores 1, 0, -1 caso a lista actual seja maior, igual ou menor do que a lista especificada, respectivamente.</returns>
+        public int CompareTo(BitList other)
+        {
+            if (other == null)
+            {
+                throw new ArgumentNullException("other");
+            }
+            else if (this.countBits == 0)
+            {
+                if (other.countBits == 0)
+                {
+                    return 0;
+                }
+                else
+                {
+                    return -1;
+                }
+            }
+            else if (other.countBits == 0)
+            {
+                return 1;
+            }
+            else
+            {
+                var comparer = Comparer<ulong>.Default;
+                var i = 0;
+                var j = 0;
+                var currentLastIndex = this.elements.Count - 1;
+                var otherLastIndex = other.elements.Count - 1;
+                while (i < currentLastIndex && j < otherLastIndex)
+                {
+                    var compareValue = comparer.Compare(this.elements[i], other.elements[j]);
+                    if (compareValue != 0)
+                    {
+                        return compareValue;
+                    }
+
+                    ++i;
+                    ++j;
+                }
+
+                if (currentLastIndex == otherLastIndex)
+                {
+                    var firstRemainder = this.countBits % bitNumber;
+                    var secondRemainder = other.countBits % bitNumber;
+
+                    var currentLastValue = this.elements[currentLastIndex];
+                    if (firstRemainder != 0)
+                    {
+                        currentLastValue = currentLastValue & (ulong.MaxValue >> (bitNumber - firstRemainder));
+                    }
+
+                    var otherLastValue = other.elements[currentLastIndex];
+                    if (secondRemainder != 0)
+                    {
+                        otherLastValue = otherLastValue & (ulong.MaxValue >> (bitNumber - firstRemainder));
+                    }
+
+                    return comparer.Compare(currentLastValue, otherLastValue);
+                }
+                else if (currentLastIndex < otherLastIndex)
+                {
+                    j = otherLastIndex - 1;
+                    while (j > currentLastIndex)
+                    {
+                        if (other.elements[j] != 0)
+                        {
+                            return -1;
+                        }
+
+                        --j;
+                    }
+
+                    var firstRemainder = this.countBits % bitNumber;
+                    var currentLastValue = this.elements[currentLastIndex];
+                    if (firstRemainder != 0)
+                    {
+                        currentLastValue = currentLastValue & (ulong.MaxValue >> (bitNumber - firstRemainder));
+                    }
+
+                    var result = comparer.Compare(currentLastValue, other.elements[j]);
+                    if (result == 0)
+                    {
+                        var secondRemainder = other.countBits & bitNumber;
+                        var otherLastValue = other.elements[otherLastIndex];
+                        if (secondRemainder != 0)
+                        {
+                            otherLastValue = otherLastValue & (ulong.MaxValue >> (bitNumber - secondRemainder));
+                        }
+
+                        if (otherLastValue == 0)
+                        {
+                            return 0;
+                        }
+                        else
+                        {
+                            return -1;
+                        }
+                    }
+                    else
+                    {
+                        return result;
+                    }
+                }
+                else
+                {
+                    i = currentLastIndex - 1;
+                    while (i > currentLastIndex)
+                    {
+                        if (this.elements[i] != 0)
+                        {
+                            return 1;
+                        }
+
+                        --i;
+                    }
+
+                    var secondRemainder = other.countBits % bitNumber;
+                    var otherLastValue = other.elements[otherLastIndex];
+                    if (secondRemainder != 0)
+                    {
+                        otherLastValue = otherLastValue & (ulong.MaxValue >> (bitNumber - secondRemainder));
+                    }
+
+                    var result = comparer.Compare(otherLastValue, this.elements[i]);
+                    if (result == 0)
+                    {
+                        var firstRemainder = this.countBits & bitNumber;
+                        var currentLastValue = this.elements[currentLastIndex];
+                        if (secondRemainder != 0)
+                        {
+                            currentLastValue = currentLastValue & (ulong.MaxValue >> (bitNumber - firstRemainder));
+                        }
+
+                        if (currentLastValue == 0)
+                        {
+                            return 0;
+                        }
+                        else
+                        {
+                            return 1;
+                        }
+                    }
+                    else
+                    {
+                        return result;
+                    }
+                }
+            }
+        }
+
+        #region Operações Lógicas
+
+        /// <summary>
+        /// Aplica o operador "ou" entre os "bits" da lista actual e os da lista especificada.
+        /// </summary>
+        /// <param name="other">A lista de entrada.</param>
+        /// <returns>O resultado da operação.</returns>
+        public BitList BitListOr(BitList other)
+        {
+            if (other == null)
+            {
+                throw new ArgumentNullException("other");
+            }
+            else
+            {
+                var result = new BitList();
+                result.countBits = this.countBits < other.countBits ? other.countBits : this.countBits;
+                var i = 0;
+                var j = 0;
+                while (i < this.elements.Count && j < other.elements.Count)
+                {
+                    result.elements.Add(this.elements[i] | other.elements[j]);
+                    ++i;
+                    ++j;
+                }
+
+                while (i < this.elements.Count)
+                {
+                    result.elements.Add(this.elements[i] | 0);
+                    ++i;
+                }
+
+                while (j < other.elements.Count)
+                {
+                    result.elements.Add(0 | other.elements[j]);
+                    ++j;
+                }
+
+                return result;
+            }
+        }
+
+        /// <summary>
+        /// Aplica o operador "e" entre os "bits" da lista actual e os da lista especificada.
+        /// </summary>
+        /// <param name="other">A lista de entrada.</param>
+        /// <returns>O resultado da operação.</returns>
+        public BitList BitListAnd(BitList other)
+        {
+            if (other == null)
+            {
+                throw new ArgumentNullException("other");
+            }
+            else
+            {
+                var result = new BitList();
+                result.countBits = this.countBits < other.countBits ? other.countBits : this.countBits;
+                var i = 0;
+                var j = 0;
+                while (i < this.elements.Count && j < other.elements.Count)
+                {
+                    result.elements.Add(this.elements[i] & other.elements[j]);
+                    ++i;
+                    ++j;
+                }
+
+                while (i < this.elements.Count)
+                {
+                    result.elements.Add(this.elements[i] | 0);
+                    ++i;
+                }
+
+                while (j < other.elements.Count)
+                {
+                    result.elements.Add(0 & other.elements[j]);
+                    ++j;
+                }
+
+                return result;
+            }
+        }
+
+        /// <summary>
+        /// Aplica o operador "ou exclusivo" entre os "bits" da lista actual e os da lista especificada.
+        /// </summary>
+        /// <param name="other">A lista de entrada.</param>
+        /// <returns>O resultado da operação.</returns>
+        public BitList BitListXor(BitList other)
+        {
+            if (other == null)
+            {
+                throw new ArgumentNullException("other");
+            }
+            else
+            {
+                var result = new BitList();
+                result.countBits = this.countBits < other.countBits ? other.countBits : this.countBits;
+                var i = 0;
+                var j = 0;
+                while (i < this.elements.Count && j < other.elements.Count)
+                {
+                    result.elements.Add(this.elements[i] | other.elements[j]);
+                    ++i;
+                    ++j;
+                }
+
+                while (i < this.elements.Count)
+                {
+                    result.elements.Add(this.elements[i] | 0);
+                    ++i;
+                }
+
+                while (j < other.elements.Count)
+                {
+                    result.elements.Add(0 | other.elements[j]);
+                    ++j;
+                }
+
+                return result;
+            }
+        }
+
+        /// <summary>
+        /// Aplica o operador "negação" aos "bits" da lista actual.
+        /// </summary>
+        /// <returns>O resultado da operação.</returns>
+        public BitList BitListNot()
+        {
+            var result = new BitList();
+            result.countBits = this.countBits;
+            if (result.countBits > 0)
+            {
+                var lastIndex = this.countBits - 1;
+                for (int i = 0; i < lastIndex; ++i)
+                {
+                    result.elements.Add(~this.elements[i]);
+                }
+
+                var lastElement = this.elements[lastIndex];
+                var rem = this.countBits % bitNumber;
+                if (rem == 0)
+                {
+                    result.elements.Add(lastElement);
+                }
+                else
+                {
+                    lastElement = lastElement & (ulong.MaxValue >> (bitNumber - rem));
+                    result.elements.Add(lastElement);
+                }
+            }
+
+            return result;
+        }
+
+        #endregion
+
+        /// <summary>
+        /// Permite ler uma lista de bits a partir de uma sequência de 0 e 1.
+        /// </summary>
+        /// <param name="binaryText">A sequência de 0 e 1.</param>
+        /// <returns>A lista de bits.</returns>
+        public static BitList ReadBinary(string binaryText)
+        {
+            var result = new BitList();
+            if (!string.IsNullOrWhiteSpace(binaryText))
+            {
+                var innerText = binaryText.Trim();
+                for (int i = 0; i < innerText.Length; ++i)
+                {
+                    var currentChar = innerText[i];
+                    if (currentChar == '0')
+                    {
+                        result.Add(0);
+                    }
+                    else if (currentChar == '1')
+                    {
+                        result.Add(1);
+                    }
+                    else
+                    {
+                        throw new UtilitiesException(string.Format("Unexpected char: '{0}'.", currentChar));
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Permite fazer a leitura da lista de bits a partir de texto que representa
+        /// um número inteiro.
+        /// </summary>
+        /// <param name="numericText">O texto que representa um número inteiro.</param>
+        /// <returns>A lista.</returns>
+        public static BitList ReadNumeric(string numericText)
+        {
+            var result = new BitList();
+            if (!string.IsNullOrWhiteSpace(numericText))
+            {
+                var innerText = numericText.Trim().TrimStart('0');
+                while (innerText != string.Empty)
+                {
+                    var auxText = string.Empty;
+                    var value = 0;
+                    for (int i = 0; i < innerText.Length; ++i)
+                    {
+                        var currentChar = innerText[i];
+                        var currentValue = (int)char.GetNumericValue(currentChar);
+                        if (currentValue < 0)
+                        {
+                            throw new UtilitiesException(string.Format(
+                                "Char '{0}' seems not to be a digit.",
+                                currentChar));
+                        }
+                        else
+                        {
+                            value = 10 * value + currentValue;
+                            auxText += (value >> 1);
+                            value = (value & 1);
+                        }
+                    }
+
+                    result.Add(value);
+                    innerText = auxText.TrimStart('0');
+                }
+
+                if (result.countBits == 0)
+                {
+                    result.Add(0);
+                }
+            }
+
+            return result;
+        }
+
+        #region Funções Privadas
+
+        /// <summary>
         /// Obtém uma sublista de bits sem efectuar a verificação das restrições.
         /// </summary>
         /// <param name="startIndex">O índice de partida.</param>
@@ -620,6 +1124,9 @@
             return bitlist;
         }
 
+        /// <summary>
+        /// Inicializa as máscaras.
+        /// </summary>
         private void InitMask()
         {
             ulong powerOfTwo = 1;
@@ -662,6 +1169,7 @@
             {
                 return variable;
             }
+
             ulong mask = ~(maskPositionBits[index1] - 1);
             if (index2 < bitNumber - 1)
             {
@@ -671,6 +1179,7 @@
             {
                 mask &= ulong.MaxValue;
             }
+
             ulong result = variable & mask;
             if (direction)
             {
@@ -680,6 +1189,7 @@
             {
                 result = result << rotationNumber;
             }
+
             return (variable & ~mask) | (result & mask);
         }
 
@@ -703,9 +1213,17 @@
                     return i;
                 }
             }
+
             return -1;
         }
 
+        /// <summary>
+        /// Estabelece o valor do "bit" na variável dada pelo respectivo número.
+        /// </summary>
+        /// <param name="variable">A variável.</param>
+        /// <param name="bitToSet">O valor do "bit".</param>
+        /// <param name="index">A posição a atribuir.</param>
+        /// <returns>A variável que resulta aquando da atribuição do valor do "bit" na respectiva posição.</returns>
         private ulong SetBitInVariable(ulong variable, int bitToSet, int index)
         {
             if (index < 0 || index > bitNumber)
@@ -757,6 +1275,10 @@
             return resultBuilder.ToString();
         }
 
+        /// <summary>
+        /// Atribui o valor especificado a todos os "bits" da lista.
+        /// </summary>
+        /// <param name="set">O valor do "bit" a ser atribuído.</param>
         private void SetAllBits(bool set)
         {
             if (countBits == 0)
@@ -794,6 +1316,10 @@
             }
         }
 
+        /// <summary>
+        /// Reserva o espaço especificado.
+        /// </summary>
+        /// <param name="capacity">O espaço a ser reservado.</param>
         private void Reserve(int capacity)
         {
             int listCapacity = capacity / bitNumber;
@@ -818,6 +1344,8 @@
             }
             return resultBuilder.ToString();
         }
+
+        #endregion Funções Privadas
 
         private class Enumerator : IEnumerator<int>
         {

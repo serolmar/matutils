@@ -14,12 +14,12 @@
         /// <summary>
         /// O carácter de mudança de linha.
         /// </summary>
-        private static int newLine = 12;
+        private static int newLine = 10;
 
         /// <summary>
         /// O carácter de mudança de linha com arrasto.
         /// </summary>
-        private static int carriageReturn = 15;
+        private static int carriageReturn = 13;
 
         /// <summary>
         /// O carácter que corresponde ao espaço.
@@ -48,7 +48,6 @@
         {
             if (stream == null)
             {
-
                 throw new ArgumentException("stream");
             }
             else
@@ -68,7 +67,6 @@
                     var emtpyLine = true;
                     while (state != -1)
                     {
-                        var readed = textReader.Read();
                         switch (state)
                         {
                             case 0:
@@ -80,7 +78,7 @@
                                     }
                                     else
                                     {
-                                        readed = textReader.Read();
+                                        var readed = textReader.Read();
                                         if (readed == newLine)
                                         {
                                             if (!emtpyLine)
@@ -133,7 +131,7 @@
                                     }
                                     else
                                     {
-                                        readed = textReader.Read();
+                                        var readed = textReader.Read();
                                         if (readed == space)
                                         {
                                             if (!string.IsNullOrWhiteSpace(readedBuffer))
@@ -211,7 +209,7 @@
                                     }
                                     else
                                     {
-                                        readed = textReader.Read();
+                                        var readed = textReader.Read();
                                         if (readed == semicollon)
                                         {
                                             var value = default(double);
@@ -222,6 +220,7 @@
                                                 out value))
                                             {
                                                 currentLabel.Price = value;
+                                                readedBuffer = string.Empty;
                                                 state = 3;
                                             }
                                             else
@@ -254,7 +253,7 @@
                                     }
                                     else
                                     {
-                                        readed = textReader.Read();
+                                        var readed = textReader.Read();
                                         if (readed == semicollon)
                                         {
                                             var value = default(double);
@@ -265,6 +264,7 @@
                                                 out value))
                                             {
                                                 currentLabel.Rate = value;
+                                                readedBuffer = string.Empty;
                                                 state = 4;
                                             }
                                             else
@@ -288,7 +288,7 @@
                                 }
                                 break;
                             case 4:
-                                while (state == 2)
+                                while (state == 4)
                                 {
                                     if (textReader.EndOfStream)
                                     {
@@ -323,7 +323,7 @@
                                     }
                                     else
                                     {
-                                        readed = textReader.Read();
+                                        var readed = textReader.Read();
                                         if (readed == semicollon)
                                         {
                                             throw new OdmpProblemException(string.Format(
@@ -340,6 +340,7 @@
                                                 out value))
                                             {
                                                 currentLabel.CarsNumber = value;
+                                                readedBuffer = string.Empty;
                                                 state = 0;
                                                 emtpyLine = true;
                                             }
@@ -358,7 +359,7 @@
                                             ++currentLine;
                                             state = 0;
                                         }
-                                        else
+                                        else if(readed != carriageReturn)
                                         {
                                             readedBuffer += (char)readed;
                                         }

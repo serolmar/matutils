@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Utilities
 {
-    public class UtilitiesDataException : Exception
+    public class UtilitiesDataException : UtilitiesException
     {
         public UtilitiesDataException() : base() { }
 

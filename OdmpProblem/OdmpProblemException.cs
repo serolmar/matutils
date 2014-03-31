@@ -5,7 +5,10 @@ using System.Text;
 
 namespace OdmpProblem
 {
-    class OdmpProblemException : Exception
+    /// <summary>
+    /// Qualquer erro relacionado com o problema do ODMP.
+    /// </summary>
+    public class OdmpProblemException : Exception
     {
         public OdmpProblemException() : base() { }
 
