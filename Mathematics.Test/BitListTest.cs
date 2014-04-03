@@ -111,5 +111,56 @@ namespace Mathematics.Test
             var actual = BitList.ReadNumeric(numericText);
             Assert.AreEqual(expected, actual);
         }
+
+        [TestMethod()]
+        public void ReadBinaryTest_SimpleBinary()
+        {
+            string binaryText = "11100010";
+            BitList expected = new BitList() { 1, 1, 1, 0, 0, 0, 1, 0 };
+            var actual = BitList.ReadBinary(binaryText);
+            Assert.AreEqual(expected, actual);
+        }
+        #region Testes às operações lógicas
+
+        [TestMethod()]
+        public void BitListOrTest()
+        {
+            var target = BitList.ReadBinary("10010101010111010100010101101110011110111010111010000101011001011100110110110101000111011");
+            BitList other = BitList.ReadBinary("01");
+            BitList expected = BitList.ReadBinary("11010101010111010100010101101110011110111010111010000101011001011100110110110101000111011");
+            var actual = target.BitListOr(other);
+            Assert.AreEqual(expected, actual);
+        }
+
+        [TestMethod()]
+        public void BitListXorTest()
+        {
+            var target = BitList.ReadBinary("1010");
+            BitList other = BitList.ReadBinary("1001100");
+            BitList expected = BitList.ReadBinary("0011100");
+            var actual = target.BitListXor(other);
+            Assert.AreEqual(expected, actual);
+        }
+
+        [TestMethod()]
+        public void BitListNotTest()
+        {
+            BitList target = BitList.ReadBinary("11111111111111111111");
+            BitList expected = BitList.ReadBinary("00000000000000000000");
+            var actual = target.BitListNot();
+            Assert.AreEqual(expected, actual);
+        }
+
+        [TestMethod()]
+        public void BitListAndTest()
+        {
+            var target = BitList.ReadBinary("10010101010111010100010101101110011110111010111010000101011001011100110110110101000111011");
+            BitList other = BitList.ReadBinary("010101");
+            BitList expected = BitList.ReadBinary("00010100000000000000000000000000000000000000000000000000000000000000000000000000000000000");
+            var actual = target.BitListAnd(other);
+            Assert.AreEqual(expected, actual);
+        }
+
+        #endregion Testes às operações lógicas
     }
 }

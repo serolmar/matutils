@@ -59,12 +59,17 @@
     <Compile Include="EdgeListGraphTest.cs" />
     <Compile Include="EulerTotFuncAlgTest.cs" />
     <Compile Include="FastDivisionFreeCharPolynomCalculatorTest.cs" />
+    <Compile Include="IntegerMinWeightTdecompositionTest.cs" />
     <Compile Include="LagrangeAlgorithmTest.cs" />
+    <Compile Include="LLLBasisReductionAlgorithmTest.cs" />
     <Compile Include="MathFunctionsTest.cs" />
     <Compile Include="NaiveIntegerFactorizationAlgorithmTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SequentialLanczosAlgorithmTest.cs" />
+    <Compile Include="SquareFreeFractionFactorizationAlgTest.cs" />
+    <Compile Include="SubsetSumLLLReductionAlgorithmTest.cs" />
     <Compile Include="UnivariatePolynomialNormalFormTest.cs" />
+    <Compile Include="UnivarPolynomEuclideanDomainTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Mathematics\Mathematics.csproj">

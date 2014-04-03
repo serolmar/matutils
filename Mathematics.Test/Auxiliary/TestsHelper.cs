@@ -178,5 +178,42 @@
                 throw new Exception("Can't read matrix.");
             }
         }
+
+        /// <summary>
+        /// Permite fazer a leitura de um vector.
+        /// </summary>
+        /// <typeparam name="T">O tipo de elementos do vector.</typeparam>
+        /// <param name="dimension">A dimensão do vector a ser lido.</param>
+        /// <param name="vectorText">O texto que representa o vector.</param>
+        /// <param name="vectorFactory">A fábrica responsável pela criação de vectores.</param>
+        /// <param name="elementParser">O leitor de elementos.</param>
+        /// <param name="readNegativeNumbers">Indica se são lidos os números negativos.</param>
+        /// <returns></returns>
+        public static IVector<T> ReadVector<T>(
+            int dimension,
+            string vectorText,
+            IVectorFactory<T> vectorFactory,
+            IParse<T, string, string> elementParser,
+            bool readNegativeNumbers = false)
+        {
+            var reader = new StringReader(vectorText);
+            var stringSymbolReader = new StringSymbolReader(reader, readNegativeNumbers);
+            var arrayVectorReader = new ConfigVectorReader<T, string, string, CharSymbolReader<string>>(
+                dimension,
+                vectorFactory);
+            arrayVectorReader.MapInternalDelimiters("left_bracket", "right_bracket");
+            arrayVectorReader.AddBlanckSymbolType("blancks");
+            arrayVectorReader.SeparatorSymbType = "comma";
+
+            var vector = default(IVector<T>);
+            if (arrayVectorReader.TryParseVector(stringSymbolReader, elementParser, out vector))
+            {
+                return vector;
+            }
+            else
+            {
+                throw new Exception("Can't read vector.");
+            }
+        }
     }
 }

@@ -5,6 +5,11 @@
     using System.Linq;
     using System.Text;
 
+    /// <summary>
+    /// Permite aplicar o algoritmo da factorização livre de quadrados a um polinómio cujos coeficientes
+    /// são elementos de um corpo arbitrário.
+    /// </summary>
+    /// <typeparam name="CoeffType">O tipo de coeficiente.</typeparam>
     public class UnivarSquareFreeDecomposition<CoeffType> :
         IAlgorithm<UnivariatePolynomialNormalForm<CoeffType>,
         IField<CoeffType>,

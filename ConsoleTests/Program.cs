@@ -21,7 +21,7 @@
 
         static void Main(string[] args)
         {
-            Test21();
+            Test12();
             Console.ReadLine();
         }
 
@@ -34,66 +34,6 @@
         {
             var tester = new ObjectTester();
             tester.Run(Console.In, Console.Out);
-        }
-
-        /// <summary>
-        /// Testes a alguns algoritmos de decisão.
-        /// </summary>
-        public static void Test21()
-        {
-            var integerDomain = new IntegerDomain();
-            var decimalField = new DecimalField();
-            var vectorFactory = new ArrayVectorFactory<decimal>();
-            var decimalComparer = Comparer<decimal>.Default;
-            var nearest = new DecimalNearestInteger();
-
-            var scalarProd = new OrthoVectorScalarProduct<decimal>(
-                        decimalComparer,
-                        decimalField);
-
-            var integerDecimalConverter = new IntegerDecimalConverter();
-
-            //var lllReductionAlg = new LLLBasisReductionAlgorithm<IVector<decimal>, decimal, int>(
-            //    new VectorSpace<decimal>(3, vectorFactory, decimalField),
-            //    scalarProd,
-            //    nearest,
-            //    Comparer<decimal>.Default);
-
-            //var vectorSet = new IVector<decimal>[3];
-            //vectorSet[0] = new ArrayVector<decimal>(new decimal[] { 1, 1, 1 });
-            //vectorSet[1] = new ArrayVector<decimal>(new decimal[] { -1, 0, 2 });
-            //vectorSet[2] = new ArrayVector<decimal>(new decimal[] { 3, 5, 6 });
-
-            //var reduced = lllReductionAlg.Run(vectorSet, 3M / 4);
-
-            //var dim = 4;
-            //var vectorSet = new IVector<decimal>[dim];
-            //var lllReductionAlg = new LLLBasisReductionAlgorithm<IVector<decimal>, decimal, int>(
-            //    new VectorSpace<decimal>(dim, vectorFactory, decimalField),
-            //    scalarProd,
-            //    nearest,
-            //    Comparer<decimal>.Default);
-
-            //vectorSet[0] = new ArrayVector<decimal>(new decimal[] { 1, 1, 7, 2 });
-            //vectorSet[1] = new ArrayVector<decimal>(new decimal[] { 9, 8, 4, 6 });
-            //vectorSet[2] = new ArrayVector<decimal>(new decimal[] { 1, 8, 5, 7 });
-            //vectorSet[3] = new ArrayVector<decimal>(new decimal[] { 2, 3, 1, 1 });
-
-            //var reduced = lllReductionAlg.Run(vectorSet, 3M / 4);
-
-            var subsetSumAlg = new SubsetSumLLLReductionAlgorithm<int, decimal>(
-                vectorFactory,
-                scalarProd,
-                nearest,
-                Comparer<decimal>.Default,
-                integerDecimalConverter,
-                decimalField);
-
-            var vectorReader = new IntegerArrayVectorReader();
-            var vector = new[] { 366, 385, 392, 401, 422, 437 };
-            var result = subsetSumAlg.Run(vector, 1215, 3M / 4);
-
-            Console.WriteLine(PrintVector(result));
         }
 
         /// <summary>
@@ -240,39 +180,6 @@
                     Console.WriteLine();
                 }
             }
-        }
-
-        /// <summary>
-        /// Testes ao algoritmo de decomposição.
-        /// </summary>
-        public static void Test17()
-        {
-            var costs = new List<List<int>>();
-            costs.Add(new List<int>() { 12, 9, 7, 6, 4 });
-            costs.Add(new List<int>() { 12, 11, 8, 7, 5 });
-            costs.Add(new List<int>() { 13, 10, 9, 6, 3 });
-            costs.Add(new List<int>() { 12, 8, 6, 4, 2 });
-
-            var integerDomain = new IntegerDomain();
-            var numberTdecomposition = new IntegerMinWeightTdecomposition<int>(
-                Comparer<int>.Default,
-                integerDomain);
-
-            var result = numberTdecomposition.Run(18, costs);
-            Console.WriteLine("Cost: {0}", result.Cost);
-            Console.WriteLine(PrintVector(result.Medians)); ;
-
-            var upperCosts = new List<List<int>>();
-            upperCosts.Add(new List<int>() { 12, 9, 7, 6, 4 });
-            upperCosts.Add(new List<int>() { 12, 11, 8, 7, 5 });
-            upperCosts.Add(new List<int>() { 13, 10, 9, 6, 3 });
-            upperCosts.Add(new List<int>() { 12, 8, 6, 4, 2 });
-
-            var boundsAlg = new ComponentBoundsAlgorithm<int>(
-                numberTdecomposition,
-                Comparer<int>.Default,
-                integerDomain);
-            var boundsResult = boundsAlg.Run(13, costs, upperCosts);
         }
 
         /// <summary>
@@ -686,12 +593,9 @@
         /// </summary>
         public static void Test12()
         {
-            var firstInput = "    x^3-1/3*x^2+ - -x/5-1/2";
-            var secondInput = "x^2-x/2+1";
             var thirdInput = "(x^2+3*x+2)*(x^2-4*x+3)^3";
             var fourthInput = "x^8+x^6-3*x^4-3*x^3+8*x^2+2*x-5";
             var fifthInput = "3*x^6+5*x^4-4*x^2-9*x+21";
-            var antoherInput = "((2*x+1)*(x-4))^2*(x+3)^3";
 
             var integerDomain = new IntegerDomain();
             var bigIntegerDomain = new BigIntegerDomain();
@@ -701,15 +605,6 @@
             var fractionParser = new ElementFractionParser<int>(integerParser, integerDomain);
 
             var bigIntFractionPolReader = new BigIntFractionPolReader();
-            var anotherPol = bigIntFractionPolReader.Read(antoherInput);
-            var integerSquareFreeFactorization = new SquareFreeFractionFactorizationAlg<BigInteger>(bigIntegerDomain);
-            var integerSquareFreeResult = integerSquareFreeFactorization.Run(anotherPol);
-
-            Console.WriteLine(integerSquareFreeResult.IndependentCoeff);
-            foreach (var factor in integerSquareFreeResult.Factors)
-            {
-                Console.WriteLine("{0} => {1}", factor.Key, factor.Value);
-            }
 
             // Leitura dos polinómios como sendo constituídos por inteiros grandes
             var integerReader = new StringReader(fourthInput);
@@ -753,44 +648,8 @@
                 Console.WriteLine("Ocorreu um erro durante a leitura do primeiro polinomio.");
             }
 
-            // Leitura dos polinómios como sendo consituídos por fracções
-            var reader = new StringReader(firstInput);
+            var reader = new StringReader(thirdInput);
             var stringSymbolReader = new StringSymbolReader(reader, false);
-            var polynomialParser = new UnivariatePolynomialReader<Fraction<int>,
-                CharSymbolReader<string>>(
-                "x",
-                fractionParser,
-                fractionField);
-
-            var fractionConversion = new ElementFractionConversion<int>(integerDomain);
-            var firstPol = default(UnivariatePolynomialNormalForm<Fraction<int>>);
-            if (polynomialParser.TryParsePolynomial(stringSymbolReader, fractionConversion, out firstPol))
-            {
-                reader = new StringReader(secondInput);
-                stringSymbolReader = new StringSymbolReader(reader, false);
-                var secondPol = default(UnivariatePolynomialNormalForm<Fraction<int>>);
-                if (polynomialParser.TryParsePolynomial(stringSymbolReader, fractionConversion, out secondPol))
-                {
-                    var polynomialEuclideanDomain = new UnivarPolynomEuclideanDomain<Fraction<int>>(
-                        "x",
-                        fractionField);
-
-                    var result = polynomialEuclideanDomain.GetQuotientAndRemainder(firstPol, secondPol);
-                    Console.WriteLine("Quotient: {0}", result.Quotient);
-                    Console.WriteLine("Remainder: {0}", result.Remainder);
-                }
-                else
-                {
-                    Console.WriteLine("Can't parse the second polynomial.");
-                }
-            }
-            else
-            {
-                Console.WriteLine("Can't parse the first polynomial.");
-            }
-
-            reader = new StringReader(thirdInput);
-            stringSymbolReader = new StringSymbolReader(reader, false);
             var otherFractionParser = new ElementFractionParser<BigInteger>(bigIntegerParser, bigIntegerDomain);
             var otherFractionField = new FractionField<BigInteger>(bigIntegerDomain);
             var otherPolParser = new UnivariatePolynomialReader<

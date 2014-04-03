@@ -914,7 +914,7 @@
 
                 while (i < this.elements.Count)
                 {
-                    result.elements.Add(this.elements[i] | 0);
+                    result.elements.Add(this.elements[i] & 0);
                     ++i;
                 }
 
@@ -947,20 +947,20 @@
                 var j = 0;
                 while (i < this.elements.Count && j < other.elements.Count)
                 {
-                    result.elements.Add(this.elements[i] | other.elements[j]);
+                    result.elements.Add(this.elements[i] ^ other.elements[j]);
                     ++i;
                     ++j;
                 }
 
                 while (i < this.elements.Count)
                 {
-                    result.elements.Add(this.elements[i] | 0);
+                    result.elements.Add(this.elements[i] ^ 0);
                     ++i;
                 }
 
                 while (j < other.elements.Count)
                 {
-                    result.elements.Add(0 | other.elements[j]);
+                    result.elements.Add(0 ^ other.elements[j]);
                     ++j;
                 }
 
