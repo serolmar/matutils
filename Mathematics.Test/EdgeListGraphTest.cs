@@ -25,18 +25,7 @@
         [TestMethod()]
         public void GetAlgorithmsProcessorTest_GetMinimumSpanningTree()
         {
-            var graph = new EdgeListGraph<int, int>();
-            graph.AddEdge(0, 1, 1);
-            graph.AddEdge(0, 2, 3);
-            graph.AddEdge(0, 3, 5);
-            graph.AddEdge(1, 2, 1);
-            graph.AddEdge(1, 3, 3);
-            graph.AddEdge(2, 3, 7);
-            graph.AddEdge(2, 4, 6);
-            graph.AddEdge(3, 4, 7);
-
-            graph.AddVertex(10);
-            graph.AddVertex(11);
+            var graph = this.GetTestGraph();
 
             var graphAlgs = graph.GetAlgorithmsProcessor();
             var result = graphAlgs.GetMinimumSpanningTree<double>(
@@ -77,6 +66,52 @@
             {
                 Assert.Fail("Nó não esperado.");
             }
+        }
+
+        [TestMethod()]
+        public void GetAlgorithmsProcessorTest_GetCycles()
+        {
+            var graph = this.GetTestGraph();
+
+            var graphAlgs = graph.GetAlgorithmsProcessor();
+            var cycles = graphAlgs.GetCycles();
+
+            // O número de conjuntos de ciclos tem de igualar o número de componentes conexas.
+            Assert.AreEqual(3, cycles.Count);
+        }
+
+        [TestMethod()]
+        public void GetAlgorithmsProcessorTest_GetConnectedComponents()
+        {
+            var graph = this.GetTestGraph();
+
+            var graphAlgs = graph.GetAlgorithmsProcessor();
+            var cycles = graphAlgs.GetConnectedComponents();
+
+            // Vaerifica o número de compoentes conexas.
+            Assert.AreEqual(3, cycles.Count);
+        }
+
+        /// <summary>
+        /// Obtém o grafo que irá servir de teste.
+        /// </summary>
+        /// <returns>O grafo.</returns>
+        private EdgeListGraph<int, int> GetTestGraph()
+        {
+            var graph = new EdgeListGraph<int, int>();
+            graph.AddEdge(0, 1, 1);
+            graph.AddEdge(0, 2, 3);
+            graph.AddEdge(0, 3, 5);
+            graph.AddEdge(1, 2, 1);
+            graph.AddEdge(1, 3, 3);
+            graph.AddEdge(2, 3, 7);
+            graph.AddEdge(2, 4, 6);
+            graph.AddEdge(3, 4, 7);
+
+            graph.AddVertex(10);
+            graph.AddVertex(11);
+
+            return graph;
         }
     }
 }

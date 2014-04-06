@@ -1038,7 +1038,7 @@
         /// Permite fazer a leitura da lista de bits a partir de texto que representa
         /// um número inteiro.
         /// </summary>
-        /// <param name="numericText">O texto que representa um número inteiro.</param>
+        /// <param name="numericText">O texto que representa um número inteiro positivo.</param>
         /// <returns>A lista.</returns>
         public static BitList ReadNumeric(string numericText)
         {

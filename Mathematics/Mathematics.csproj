@@ -275,6 +275,7 @@
     <Compile Include="Algorithms\Simplex\SimplexMaximumNumberField.cs" />
     <Compile Include="Algorithms\Simplex\SimplexOutput.cs" />
     <Compile Include="BacheBezoutResult.cs" />
+    <Compile Include="BigDecimalNumber.cs" />
     <Compile Include="Diagnostics.cs" />
     <Compile Include="MathFunctions.cs" />
     <Compile Include="Algorithms\Simplex\RevisedSimplexWithDoubles.cs" />

@@ -21,7 +21,6 @@
 
         static void Main(string[] args)
         {
-            Test12();
             Console.ReadLine();
         }
 
