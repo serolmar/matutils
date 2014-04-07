@@ -978,7 +978,7 @@
             result.countBits = this.countBits;
             if (result.countBits > 0)
             {
-                var lastIndex = this.countBits - 1;
+                var lastIndex = this.elements.Count - 1;
                 for (int i = 0; i < lastIndex; ++i)
                 {
                     result.elements.Add(~this.elements[i]);
@@ -992,7 +992,7 @@
                 }
                 else
                 {
-                    lastElement = lastElement & (ulong.MaxValue >> (bitNumber - rem));
+                    lastElement = ~lastElement;
                     result.elements.Add(lastElement);
                 }
             }

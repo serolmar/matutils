@@ -37,7 +37,8 @@
                 3,
                 matrixText,
                 new ArraySquareMatrixFactory<int>(),
-                integerParser);
+                integerParser,
+                true);
             var fastDivFreeCharacPolAlg = new FastDivisionFreeCharPolynomCalculator<int>(variableName, integerDomain);
             var expected = TestsHelper.ReadUnivarPolynomial("x^3-6*x^2+3*x+18", integerDomain, integerParser, conversion, variableName);
             var actual = fastDivFreeCharacPolAlg.Run(matrix as ISquareMatrix<int>);

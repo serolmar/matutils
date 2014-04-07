@@ -240,13 +240,13 @@
         /// <summary>
         /// Obtém o valor de u(x).
         /// </summary>
-        internal UnivariatePolynomialNormalForm<CoeffType> UFactor
+        public UnivariatePolynomialNormalForm<CoeffType> UFactor
         {
             get
             {
                 return this.uFactor;
             }
-            set
+            internal set
             {
                 this.uFactor = value;
             }
@@ -255,13 +255,13 @@
         /// <summary>
         /// Obtém o valor de w(x).
         /// </summary>
-        internal UnivariatePolynomialNormalForm<CoeffType> WFactor
+        public UnivariatePolynomialNormalForm<CoeffType> WFactor
         {
             get
             {
                 return this.wFactor;
             }
-            set
+            internal set
             {
                 this.wFactor = value;
             }
