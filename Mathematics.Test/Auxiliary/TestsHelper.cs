@@ -21,6 +21,9 @@
         /// <param name="coeffsParser">O leitor de representações textuais para os coeficientes.</param>
         /// <param name="conversion">A conversão do tipo do coeficientes para inteiro.</param>
         /// <param name="variableName">O nome da variável.</param>
+        /// <param name="readNegativeNumbers">
+        /// Indica se os números negativos são para ser lidos ou se é lido
+        /// o sinal e depois o respectivo valor como símbolos independentes.</param>
         /// <returns>O polinómio lido a partir da representação textual.</returns>
         public static UnivariatePolynomialNormalForm<T> ReadUnivarPolynomial<T>(
             string polynomialRepresentation,
@@ -38,6 +41,44 @@
                 ring);
 
             var result = default(UnivariatePolynomialNormalForm<T>);
+            if (polParser.TryParsePolynomial(polSymbolReader, conversion, out result))
+            {
+                // O polinómio foi lido com sucesso.
+                return result;
+            }
+            else
+            {
+                // Não é possível ler o polinómio.
+                throw new Exception("Can't read polynomial.");
+            }
+        }
+
+        /// <summary>
+        /// Permite fazer a leitura de um polinómio genérico a partir de uma reprsentação textual.
+        /// </summary>
+        /// <typeparam name="T">O tipo de dados associado aos coeficientes.</typeparam>
+        /// <param name="polynomialRepresentation">A representação textual do polinómio.</param>
+        /// <param name="polynomialRing">O anel responsável pelas operações sobre os coeficientes.</param>
+        /// <param name="coeffsParser">O leitor de coeficientes.</param>
+        /// <param name="conversion">O conversor entre inteiros e o tiop de coeficiente.</param>
+        /// <param name="readNegativeNumbers">
+        /// Indica se os números negativos são para ser lidos ou se é lido
+        /// o sinal e depois o respectivo valor como símbolos independentes.</param>
+        /// <returns></returns>
+        public static Polynomial<T> ReadPolynomial<T>(
+            string polynomialRepresentation,
+            IRing<T> polynomialRing,
+            IConversion<int,T> conversion,
+            IParse<T, string, string> coeffsParser,
+            bool readNegativeNumbers = false)
+        {
+            var polInputReader = new StringReader(polynomialRepresentation);
+            var polSymbolReader = new StringSymbolReader(polInputReader, readNegativeNumbers);
+            var polParser = new PolynomialReader<T, CharSymbolReader<string>>(
+                coeffsParser,
+                polynomialRing);
+
+            var result = default(Polynomial<T>);
             if (polParser.TryParsePolynomial(polSymbolReader, conversion, out result))
             {
                 // O polinómio foi lido com sucesso.
@@ -84,6 +125,49 @@
             }
 
             var result = default(UnivariatePolynomialNormalForm<T>);
+            if (polParser.TryParsePolynomial(polSymbolReader, conversion, out result))
+            {
+                // O polinómio foi lido com sucesso.
+                return result;
+            }
+            else
+            {
+                // Não é possível ler o polinómio.
+                throw new Exception("Can't read polynomial.");
+            }
+        }
+
+        /// <summary>
+        /// Permite realizar a leitura de um polinómio a partir de uma representação textual.
+        /// </summary>
+        /// <typeparam name="T">O tipo dos coeficientes do polinómio.</typeparam>
+        /// <param name="polynomialRepresentation">A representação textual do polinómio.</param>
+        /// <param name="ring">O anel responsável pelas operações sobre os coeficientes.</param>
+        /// <param name="coeffsParser">O leitor de representações textuais para os coeficientes.</param>
+        /// <param name="conversion">A conversão do tipo do coeficientes para inteiro.</param>
+        /// <param name="externalDelimitersTypes">Os delimitadores externos.</param>
+        /// <param name="readNegativeNumbers">Indica se o leitor identifica números negativos.</param>
+        /// <returns>O polinómio lido a partir da representação textual.</returns>
+        public static Polynomial<T> ReadPolynomial<T>(
+            string polynomialRepresentation,
+            IRing<T> ring,
+            IParse<T, string, string> coeffsParser,
+            IConversion<int, T> conversion,
+            Dictionary<string, string> externalDelimitersTypes,
+            bool readNegativeNumbers = false)
+        {
+            var polInputReader = new StringReader(polynomialRepresentation);
+            var polSymbolReader = new StringSymbolReader(polInputReader, readNegativeNumbers);
+            var polParser = new PolynomialReader<T, CharSymbolReader<string>>(
+                coeffsParser,
+                ring);
+
+            foreach (var kvp in externalDelimitersTypes)
+            {
+                polParser.RegisterExternalDelimiterTypes(kvp.Key, kvp.Value);
+            }
+
+            var result = default(Polynomial<T>);
             if (polParser.TryParsePolynomial(polSymbolReader, conversion, out result))
             {
                 // O polinómio foi lido com sucesso.

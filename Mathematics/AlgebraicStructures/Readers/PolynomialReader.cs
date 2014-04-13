@@ -63,7 +63,7 @@
             IConversion<int, T> conversion,
             out Polynomial<T> resultPolynomial)
         {
-            return this.TryParsePolynomial(polynomialReader, null, out resultPolynomial);
+            return this.TryParsePolynomial(polynomialReader, conversion, null, out resultPolynomial);
         }
 
         /// <summary>

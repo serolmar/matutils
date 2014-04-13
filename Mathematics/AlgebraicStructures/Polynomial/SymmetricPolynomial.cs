@@ -41,6 +41,10 @@ namespace Mathematics.AlgebraicStructures.Polynomial
             this.polynomialTerms = new Dictionary<Dictionary<int, int>, T>(this.degreeComparer);
         }
 
+        /// <summary>
+        /// Permite construir um polinómio simétrico nulo com base numa lista de variáveis.
+        /// </summary>
+        /// <param name="variables">A lista de variáveis.</param>
         public SymmetricPolynomial(List<string> variables)
         {
             if (variables == null || variables.Count == 0)
@@ -65,75 +69,200 @@ namespace Mathematics.AlgebraicStructures.Polynomial
             this.variables.AddRange(variables);
         }
 
-        public SymmetricPolynomial(List<string> variables, int elementarySymmIndex)
+        /// <summary>
+        /// Permite construir o polinómio simétrico elementar com base no respectivo índice.
+        /// </summary>
+        /// <remarks>
+        /// O índice de cada polinómio simétrico elementar varia entre zero e o número de itens na lista
+        /// de variáveis. Por exemplo, s[0] corresponde à unidade, s[1] corresponde à soma das variáveis e,
+        /// em geral, s[i] corresponde à soma das combinações de i variáveis. Neste caso, i designa o índice
+        /// do polinómio simétrico elementar.
+        /// </remarks>
+        /// <param name="coefficient">O coeficiente multiplicativo do polinómio simétrico elementar.</param>
+        /// <param name="variables">A lista de variáveis.</param>
+        /// <param name="elementarySymmIndex">O índice do polinómio simétrico elemnetar.</param>
+        /// <param name="monoid">O monóide responsável pelas operações sobre os coeficientes.</param>
+        public SymmetricPolynomial(
+            T coefficient, 
+            List<string> variables, 
+            int elementarySymmIndex,
+            IMonoid<T> monoid)
             : this(variables)
         {
             if (elementarySymmIndex < 0 || elementarySymmIndex > variables.Count)
             {
-                throw new IndexOutOfRangeException("The specified elementary symmetric index must be between zero and the number of variables.");
+                throw new IndexOutOfRangeException(
+                    "The specified elementary symmetric index must be between zero and the number of variables.");
+            }
+            else if (monoid == null)
+            {
+                throw new ArgumentNullException("monoid");
+            }
+            else if (coefficient == null)
+            {
+                throw new ArgumentNullException("coefficient");
             }
             else
             {
-
-            }
-        }
-
-        public SymmetricPolynomial(List<string> variables, List<int> degree, T coeff, IRing<T> ring)
-            : this(variables)
-        {
-            if (coeff == null)
-            {
-                throw new ArgumentNullException("coeff");
-            }
-
-            var innerDegree = this.GetSimplifiedDegree(degree);
-            if (degree.Count > this.variables.Count)
-            {
-                throw new ArgumentException("The number elements on degree must not surpass the number of defined variables.");
-            }
-
-            if (!ring.IsAdditiveUnity(coeff))
-            {
-                this.polynomialTerms.Add(innerDegree, coeff);
-            }
-        }
-
-        public SymmetricPolynomial(List<string> variables, Dictionary<int, int> degree, T coeff, IRing<T> ring)
-            : this(variables)
-        {
-            if (coeff == null)
-            {
-                throw new ArgumentNullException("coeff");
-            }
-
-            if (degree != null && !ring.IsAdditiveUnity(coeff))
-            {
-                var innerDegree = new Dictionary<int, int>();
-                var degreeCount = 0;
-                foreach (var kvp in degree)
+                var containsVariable = new Dictionary<string, bool>();
+                foreach (var variable in variables)
                 {
-                    if (kvp.Key < 0)
+                    if (containsVariable.ContainsKey(variable))
                     {
-                        throw new ArgumentException("Every degree in symmetric polynomial can't be negative.");
-                    }
-                    else if (kvp.Value <= 0)
-                    {
-                        throw new ArgumentException("Every degree count in symmetric polynomial must be non-negative.");
+                        throw new ArgumentException("Repeated variables in variables list aren't allowed.");
                     }
                     else
                     {
-                        degreeCount += kvp.Value;
-                        innerDegree.Add(kvp.Key, kvp.Value);
+                        containsVariable.Add(variable, true);
                     }
                 }
 
-                if (degreeCount != variables.Count)
+                this.polynomialTerms = new Dictionary<Dictionary<int, int>, T>(this.degreeComparer);
+                this.variables.AddRange(variables);
+
+                if (!monoid.IsAdditiveUnity(coefficient))
+                {
+                    var totalDegree = variables.Count;
+                    var degreeDictionary = new Dictionary<int, int>();
+                    if (elementarySymmIndex == 0) // O valor uniário.
+                    {
+                        degreeDictionary.Add(0, totalDegree);
+                    }
+                    else if (elementarySymmIndex == totalDegree)
+                    {
+                        degreeDictionary.Add(1, elementarySymmIndex);
+                    }
+                    else
+                    {
+                        degreeDictionary.Add(0, totalDegree - elementarySymmIndex);
+                        degreeDictionary.Add(1, elementarySymmIndex);
+                    }
+
+                    this.polynomialTerms.Add(degreeDictionary, coefficient);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Permite constuir um monómio simétrico providenciando os graus das variáveis nas várias combinações.
+        /// </summary>
+        /// <remarks>
+        /// A título de exemplo, nas variáveis x e y, o polinómio simétrico associado à lista [1,2] é da forma
+        /// xy^2+x^2y onde é construído, em primeiro lugar, o monómio xy^2 e de seguida são aplicadas todas as
+        /// permutações relevantes sobre as variáveis.
+        /// </remarks>
+        /// <param name="variables">A lista de variáveis que consituem o polinómio simétrico.</param>
+        /// <param name="degree">A lista dos graus.</param>
+        /// <param name="coeff">O coeficientes multiplicativo do monómio simétrico.</param>
+        /// <param name="monoid">O anel responsável pela determinação da nulidade dos coeficientes.</param>
+        public SymmetricPolynomial(List<string> variables, List<int> degree, T coeff, IMonoid<T> monoid)
+            : this(variables)
+        {
+            if (monoid == null)
+            {
+                throw new ArgumentNullException("monoid");
+            }
+            else if (coeff == null)
+            {
+                throw new ArgumentNullException("coeff");
+            }
+            else
+            {
+                var containsVariable = new Dictionary<string, bool>();
+                foreach (var variable in variables)
+                {
+                    if (containsVariable.ContainsKey(variable))
+                    {
+                        throw new ArgumentException("Repeated variables in variables list aren't allowed.");
+                    }
+                    else
+                    {
+                        containsVariable.Add(variable, true);
+                    }
+                }
+
+                var innerDegree = this.GetSimplifiedDegree(degree);
+                if (degree.Count > this.variables.Count)
                 {
                     throw new ArgumentException("The number elements on degree must not surpass the number of defined variables.");
                 }
-                else
+
+                if (!monoid.IsAdditiveUnity(coeff))
                 {
                     this.polynomialTerms.Add(innerDegree, coeff);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Permite construir um monómio simétrico com base numa lista de variáveis e num descritor de graus.
+        /// </summary>
+        /// <remarks>
+        /// Considerando a lista de variáveis [x,y,z], o monómio simétrico associado à lista de graus [1,2,3]
+        /// é da forma xy^2z^3+xy^3z^2+..., onde os restantes termos são dados a partir das permutações 
+        /// pertinentes das variáveis. No entanto, a maior parte da lista de graus contém elementos repetidos,
+        /// tais como [0,0,0,1,1]. Assim, é útil passar um dicionário que contenha os graus e a respectiva
+        /// contagem.
+        /// </remarks>
+        /// <param name="variables">O conjunto de variáveis.</param>
+        /// <param name="degree">O dicionário que contém a contagem dos graus.</param>
+        /// <param name="coeff">O coeficiente multiplicativo.</param>
+        /// <param name="monoid">O monóide responsável pela determinação da nulidade dos coeficientes.</param>
+        public SymmetricPolynomial(List<string> variables, Dictionary<int, int> degree, T coeff, IMonoid<T> monoid)
+            : this(variables)
+        {
+            if (monoid == null)
+            {
+                throw new ArgumentNullException("monoid");
+            }
+            else if (coeff == null)
+            {
+                throw new ArgumentNullException("coeff");
+            }
+            else
+            {
+                var containsVariable = new Dictionary<string, bool>();
+                foreach (var variable in variables)
+                {
+                    if (containsVariable.ContainsKey(variable))
+                    {
+                        throw new ArgumentException("Repeated variables in variables list aren't allowed.");
+                    }
+                    else
+                    {
+                        containsVariable.Add(variable, true);
+                    }
+                }
+
+                if (degree != null && !monoid.IsAdditiveUnity(coeff))
+                {
+                    var innerDegree = new Dictionary<int, int>();
+                    var degreeCount = 0;
+                    foreach (var kvp in degree)
+                    {
+                        if (kvp.Key < 0)
+                        {
+                            throw new ArgumentException("Every degree in symmetric polynomial can't be negative.");
+                        }
+                        else if (kvp.Value <= 0)
+                        {
+                            throw new ArgumentException("Every degree count in symmetric polynomial must be non-negative.");
+                        }
+                        else
+                        {
+                            degreeCount += kvp.Value;
+                            innerDegree.Add(kvp.Key, kvp.Value);
+                        }
+                    }
+
+                    if (degreeCount != variables.Count)
+                    {
+                        throw new ArgumentException("The number elements on degree must not surpass the number of defined variables.");
+                    }
+                    else
+                    {
+                        this.polynomialTerms.Add(innerDegree, coeff);
+                    }
                 }
             }
         }
@@ -716,7 +845,7 @@ namespace Mathematics.AlgebraicStructures.Polynomial
         /// <returns>O nome por defeito.</returns>
         private string GetElementarySymmDefaultName(int index)
         {
-            return string.Format("s[{0}]", index);
+            return string.Format("s{0}", index);
         }
 
         /// <summary>

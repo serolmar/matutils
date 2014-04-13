@@ -70,6 +70,7 @@
     <Compile Include="SequentialLanczosAlgorithmTest.cs" />
     <Compile Include="SquareFreeFractionFactorizationAlgTest.cs" />
     <Compile Include="SubsetSumLLLReductionAlgorithmTest.cs" />
+    <Compile Include="SymmetricPolynomialTest.cs" />
     <Compile Include="UnivariatePolynomialNormalFormTest.cs" />
     <Compile Include="UnivarPolynomEuclideanDomainTest.cs" />
   </ItemGroup>

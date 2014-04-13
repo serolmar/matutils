@@ -27,7 +27,8 @@
 
         private List<PolynomialGeneralVariable<T>> variables = new List<PolynomialGeneralVariable<T>>();
 
-        #region Constructors
+        #region Construtores
+
         public Polynomial()
         {
             this.coeffsMap = new Dictionary<List<int>, T>(this.degreeComparer);
@@ -130,7 +131,8 @@
             : this(coeff, 1, var, coefficientRing)
         {
         }
-        #endregion
+
+        #endregion Construtores
 
         public bool IsValue
         {
@@ -280,7 +282,8 @@
             throw new NotImplementedException();
         }
 
-        #region Operations
+        #region Operações
+
         /// <summary>
         /// Obtém a soma do polinómio corrente com outro polinómio.
         /// </summary>
@@ -1240,7 +1243,8 @@
                 return res;
             }
         }
-        #endregion
+
+        #endregion Operações
 
         public override bool Equals(object obj)
         {

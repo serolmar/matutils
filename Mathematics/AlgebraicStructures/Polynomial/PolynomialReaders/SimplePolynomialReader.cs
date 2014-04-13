@@ -6,7 +6,7 @@
     using System.Text;
     using Utilities;
 
-    class SimplePolynomialReader<CoeffType> :
+    internal class SimplePolynomialReader<CoeffType> :
         IParse<ParsePolynomialItem<CoeffType>, string, string>
     {
         /// <summary>
