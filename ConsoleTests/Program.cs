@@ -21,6 +21,9 @@
 
         static void Main(string[] args)
         {
+            var decimalNumber = default(BigDecimalNumber);
+            BigDecimalNumber.TryParse("0.1", 2048, out decimalNumber);
+            Console.WriteLine(decimalNumber);
             Console.ReadLine();
         }
 
@@ -968,29 +971,6 @@
             }
 
             Console.ReadKey();
-        }
-
-        /// <summary>
-        /// Teste aos polinómios simétricos.
-        /// </summary>
-        static void Test4()
-        {
-            var dictionary = new Dictionary<int, int>();
-            dictionary.Add(5, 2);
-            dictionary.Add(0, 2);
-
-            var varDictionary = new Dictionary<int, Tuple<bool, string, int>>();
-            varDictionary.Add(1, Tuple.Create(true, "s[1]", 0));
-
-            var symmetric = new SymmetricPolynomial<int>(
-                new List<string>() { "x", "y", "z", "w" },
-                dictionary,
-                1,
-                new IntegerDomain());
-
-            var rep = symmetric.GetElementarySymmetricRepresentation(varDictionary, new IntegerDomain());
-            var expanded = rep.GetExpanded(new IntegerDomain());
-            Console.WriteLine(expanded);
         }
 
         /// <summary>

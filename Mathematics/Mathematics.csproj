@@ -45,6 +45,7 @@
     <Compile Include="AlgebraicStructures\Fraction.cs" />
     <Compile Include="AlgebraicStructures\FractionDecompositionResult.cs" />
     <Compile Include="AlgebraicStructures\GeneralMatrixAlgebra.cs" />
+    <Compile Include="AlgebraicStructures\Implementations\BigDecimalNumberField.cs" />
     <Compile Include="AlgebraicStructures\Implementations\BigIntegerDomain.cs" />
     <Compile Include="AlgebraicStructures\Implementations\BigIntegerNormSpace.cs" />
     <Compile Include="AlgebraicStructures\Implementations\BigIntegerToIntegerConversion.cs" />

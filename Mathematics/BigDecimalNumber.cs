@@ -420,6 +420,19 @@
             }
         }
 
+        /// <summary>
+        /// Obtém o simétrico de um número decimal de precisão arbitrária.
+        /// </summary>
+        /// <param name="number">O número.</param>
+        /// <returns>O valor simétrico.</returns>
+        public static BigDecimalNumber Negate(BigDecimalNumber number)
+        {
+            var result = new BigDecimalNumber();
+            result.number = number.number;
+            result.negativeExponent = number.negativeExponent;
+            return result;
+        }
+
         #endregion Operações Aritméticas
 
         /// <summary>
