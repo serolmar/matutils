@@ -9,19 +9,31 @@
     public class BigDecimalNumberField : IField<BigDecimalNumber>
     {
         /// <summary>
-        /// A precisão em número de bits.
+        /// Permite calcular de forma rápida o logaritmo binário de um inteiro de precisão arbitrária.
         /// </summary>
-        private uint bitsPrecision;
+        private FasterBigIntBinaryLogIntPartAlg binaryLogAlg = new FasterBigIntBinaryLogIntPartAlg();
 
         /// <summary>
-        /// O módulo que permite manter a precisão.
+        /// A precisão em número de bits.
         /// </summary>
-        private BigInteger modulus;
+        private int bitsPrecision;
 
-        public BigDecimalNumberField(uint bitsPrecision)
+        /// <summary>
+        /// A precisão decimal associada aos números.
+        /// </summary>
+        private int decimalPrecision;
+
+        public BigDecimalNumberField(int bitsPrecision)
         {
-            this.bitsPrecision = bitsPrecision;
-            this.modulus = BigInteger.One << (int)bitsPrecision;
+            if (bitsPrecision < 0)
+            {
+                throw new ArgumentOutOfRangeException("bitsPrecision");
+            }
+            else
+            {
+                this.bitsPrecision = bitsPrecision;
+                this.decimalPrecision = (int)(bitsPrecision * Math.Log10(2));
+            }
         }
 
         public BigDecimalNumber AdditiveUnity
@@ -40,19 +52,46 @@
             }
         }
 
+        public int BitsPrecision
+        {
+            get
+            {
+                return this.bitsPrecision;
+            }
+        }
+
+        public int DecimalPrecision
+        {
+            get
+            {
+                return this.decimalPrecision;
+            }
+        }
+
         public BigDecimalNumber MultiplicativeInverse(BigDecimalNumber number)
         {
-            throw new NotImplementedException();
+            return BigDecimalNumber.Divide(BigDecimalNumber.One, number, this.bitsPrecision);
         }
 
         public BigDecimalNumber AddRepeated(BigDecimalNumber element, int times)
         {
-            throw new NotImplementedException();
+            var number = element.Number * times;
+            var exponent = element.NegativeExponent;
+            var numberLog = (int)this.binaryLogAlg.Run(BigInteger.Abs(number));
+            if (numberLog > this.bitsPrecision)
+            {
+                var difference = numberLog - this.bitsPrecision;
+                number = number >> difference;
+                exponent += difference;
+            }
+
+            var result = new BigDecimalNumber(number, element.NegativeExponent);
+            return result;
         }
 
         public BigDecimalNumber AdditiveInverse(BigDecimalNumber number)
         {
-            throw new NotImplementedException();
+            return BigDecimalNumber.Negate(number);
         }
 
         public bool IsAdditiveUnity(BigDecimalNumber value)
@@ -62,17 +101,17 @@
 
         public bool Equals(BigDecimalNumber x, BigDecimalNumber y)
         {
-            throw new NotImplementedException();
+            return x.Equals(y);
         }
 
         public int GetHashCode(BigDecimalNumber obj)
         {
-            throw new NotImplementedException();
+            return obj.GetHashCode();
         }
 
         public BigDecimalNumber Add(BigDecimalNumber left, BigDecimalNumber right)
         {
-            throw new NotImplementedException();
+            return BigDecimalNumber.Add(left, right);
         }
 
         public bool IsMultiplicativeUnity(BigDecimalNumber value)
@@ -81,6 +120,26 @@
         }
 
         public BigDecimalNumber Multiply(BigDecimalNumber left, BigDecimalNumber right)
+        {
+            var exponent = left.NegativeExponent + right.NegativeExponent;
+            var number = left.Number * right.Number;
+            var numberLog = (int)this.binaryLogAlg.Run(BigInteger.Abs(number));
+            if (numberLog > this.bitsPrecision)
+            {
+                var difference = numberLog - this.bitsPrecision;
+                number = number >> difference;
+                exponent += difference;
+            }
+
+            return new BigDecimalNumber(number, exponent);
+        }
+
+        public string ToString(BigDecimalNumber number)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool TryParse(string numberText, out BigDecimalNumber number)
         {
             throw new NotImplementedException();
         }

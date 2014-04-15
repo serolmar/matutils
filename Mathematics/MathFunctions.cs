@@ -655,5 +655,25 @@
                     remainder);
             }
         }
+
+        /// <summary>
+        /// Obtém o valor da precisão binária de um número quando é conhecida a sua precisão decimal.
+        /// </summary>
+        /// <param name="decimalPrecision">A precisão decimal.</param>
+        /// <returns>A precisão binária.</returns>
+        public static int GetBinaryFromDecimalPrecision(int decimalPrecision)
+        {
+            return (int)(decimalPrecision / Math.Log10(2));
+        }
+
+        /// <summary>
+        /// Obtém o valor da precisão decimal quando é conhecida a sua precisão binária.
+        /// </summary>
+        /// <param name="binaryPrecision">A precisão binária.</param>
+        /// <returns>A precisão decimal.</returns>
+        public static int GetDecimalFromBinaryPrecision(int binaryPrecision)
+        {
+            return (int)(binaryPrecision * Math.Log10(2));
+        }
     }
 }

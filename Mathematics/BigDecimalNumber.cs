@@ -35,7 +35,7 @@
         /// <summary>
         /// O valor do expoente negativo.
         /// </summary>
-        private uint negativeExponent;
+        private int negativeExponent;
 
         /// <summary>
         /// O número.
@@ -60,7 +60,7 @@
             this.number = number;
         }
 
-        public BigDecimalNumber(double number, uint mantissaBitsPrecision = 64)
+        public BigDecimalNumber(double number, int mantissaBitsPrecision = 64)
         {
             var innerNumber = number;
             var signal = false;
@@ -71,12 +71,12 @@
             }
 
             var integerPart = (int)innerNumber;
-            var currentExponent = 0U;
+            var currentExponent = 0;
             var currentNumber = new BigInteger(integerPart);
-            var precision = 0U;
+            var precision = 0;
             if (currentNumber > BigInteger.One)
             {
-                precision = (uint)BigInteger.Log(currentNumber);
+                precision = (int)BigInteger.Log(currentNumber);
             }
 
             var mantissa = innerNumber - integerPart;
@@ -106,7 +106,7 @@
             this.negativeExponent = currentExponent;
         }
 
-        public BigDecimalNumber(float number, uint mantissaBitsPrecision = 32)
+        public BigDecimalNumber(float number, int mantissaBitsPrecision = 32)
         {
             var innerNumber = number;
             var signal = false;
@@ -117,12 +117,12 @@
             }
 
             var integerPart = (int)innerNumber;
-            var currentExponent = 0U;
+            var currentExponent = 0;
             var currentNumber = new BigInteger(integerPart);
-            var precision = 0U;
+            var precision = 0;
             if (currentNumber > BigInteger.One)
             {
-                precision = (uint)BigInteger.Log(currentNumber);
+                precision = (int)BigInteger.Log(currentNumber);
             }
 
             var mantissa = innerNumber - integerPart;
@@ -152,7 +152,7 @@
             this.negativeExponent = currentExponent;
         }
 
-        public BigDecimalNumber(decimal number, uint mantissaBitsPrecision = 128)
+        public BigDecimalNumber(decimal number, int mantissaBitsPrecision = 128)
         {
             var innerNumber = number;
             var signal = false;
@@ -163,12 +163,12 @@
             }
 
             var integerPart = (int)innerNumber;
-            var currentExponent = 0U;
+            var currentExponent = 0;
             var currentNumber = new BigInteger(integerPart);
-            var precision = 0U;
+            var precision = 0;
             if (currentNumber > BigInteger.One)
             {
-                precision = (uint)BigInteger.Log(currentNumber);
+                precision = (int)BigInteger.Log(currentNumber);
             }
 
             var mantissa = innerNumber - integerPart;
@@ -196,6 +196,12 @@
             }
 
             this.negativeExponent = currentExponent;
+        }
+
+        internal BigDecimalNumber(BigInteger number, int exponent)
+        {
+            this.number = number;
+            this.negativeExponent = exponent;
         }
 
         #region Propriedades Públicas
@@ -247,7 +253,7 @@
         /// <summary>
         /// Obtém a potência negativa de dois ao qual o número se encontra multiplicado.
         /// </summary>
-        public uint NegativeExponent
+        public int NegativeExponent
         {
             get
             {
@@ -362,9 +368,9 @@
         /// <param name="maxPrecision">O valor da precisão máxima para a divisão.</param>
         /// <returns>O resultdao da divisão.</returns>
         public static BigDecimalNumber Divide(
-            BigDecimalNumber left, 
+            BigDecimalNumber left,
             BigDecimalNumber right,
-            uint maxPrecision)
+            int maxPrecision)
         {
             if (right.number == 0)
             {
@@ -392,13 +398,13 @@
                 {
                     if (currentExponent <= maxPrecision)
                     {
-                        var divisorLog = (uint)integerPartLogAlg.Run(right.number);
+                        var divisorLog = (int)integerPartLogAlg.Run(right.number);
                         while (remainder != 0 && currentExponent < maxPrecision)
                         {
-                            var remLog = (uint)integerPartLogAlg.Run(remainder);
+                            var remLog = (int)integerPartLogAlg.Run(remainder);
                             var lower = divisorLog - remLog + 1;
-                            remainder = remainder << (int)lower;
-                            currentNumber = currentNumber << (int)lower;
+                            remainder = remainder << lower;
+                            currentNumber = currentNumber << lower;
                             var quo = BigInteger.DivRem(remainder, right.number, out remainder);
                             currentNumber += quo;
                             currentExponent += lower;
@@ -465,7 +471,7 @@
                     var integerPart = tempNumber >> (int)this.negativeExponent;
                     result += integerPart.ToString();
                     var mantissaPart = tempNumber & (mantissaMask - 1);
-                    var mantissaPlaces = (uint)(integerPartLogAlg.Run(mantissaPart)  + 1);
+                    var mantissaPlaces = (uint)(integerPartLogAlg.Run(mantissaPart) + 1);
                     var exponent = this.negativeExponent;
                     result += ".";
                     while (mantissaPart != 0)
@@ -529,7 +535,7 @@
         /// <param name="precision">A precisão segundo a qual o número é lido.</param>
         /// <param name="number">O número.</param>
         /// <returns>Verdadeiro caso a leitura tenha sido feita com sucesso e falso caso contrário.</returns>
-        public static bool TryParse(string text, uint precision, out BigDecimalNumber number)
+        public static bool TryParse(string text, int precision, out BigDecimalNumber number)
         {
             number = new BigDecimalNumber();
             if (string.IsNullOrWhiteSpace(text))
@@ -553,11 +559,11 @@
                     }
 
                     matchText = matches.Groups[2].Value.Trim().TrimEnd('0');
-                    uint exponent = 0;
+                    var exponent = 0;
                     if (!string.IsNullOrWhiteSpace(matchText))
                     {
                         var mantissa = BigInteger.Zero;
-                        var currentPrecision = 0U;
+                        var currentPrecision = 0;
                         while (!string.IsNullOrWhiteSpace(matchText) && currentPrecision <= precision)
                         {
                             var innerText = string.Empty;
@@ -598,7 +604,7 @@
                             matchText = innerText;
                         }
 
-                        currentNumber = (currentNumber << (int)exponent) + mantissa;
+                        currentNumber = (currentNumber << exponent) + mantissa;
                     }
 
                     if (text.Contains("-"))

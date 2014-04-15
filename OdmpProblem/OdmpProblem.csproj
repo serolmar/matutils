@@ -58,6 +58,7 @@
     <Compile Include="Algorithms\LinearRelaxation\LinearRelaxationAlgorithm.cs" />
     <Compile Include="Algorithms\LinearRelaxation\LinearRelRoundCorrectorAlg.cs" />
     <Compile Include="Auxiliary\Label.cs" />
+    <Compile Include="Auxiliary\LabelsComparer.cs" />
     <Compile Include="Auxiliary\LabelsReader.cs" />
     <Compile Include="Matrix\ArrayMatrix\OdmpArrayMatrix.cs" />
     <Compile Include="Matrix\ArrayMatrix\OdmpArrayMatrixRow.cs" />
@@ -65,6 +66,9 @@
     <Compile Include="Matrix\IOdmpMatrixColumn.cs" />
     <Compile Include="Matrix\IOdmpMatrixRow.cs" />
     <Compile Include="Matrix\IOdmpMatrixSet.cs" />
+    <Compile Include="Matrix\LabelsMatrix\OdmpLabelsMatrix.cs" />
+    <Compile Include="Matrix\LabelsMatrix\OdmpLabelsMatrixColumn.cs" />
+    <Compile Include="Matrix\LabelsMatrix\OdmpLabelsMatrixRow.cs" />
     <Compile Include="Matrix\OdmpMatrixColumn.cs" />
     <Compile Include="Matrix\MatrixReader\OdmpSparseMatrixSetReader.cs" />
     <Compile Include="Matrix\OdmpMatrixSet.cs" />

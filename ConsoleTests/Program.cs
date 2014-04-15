@@ -21,9 +21,6 @@
 
         static void Main(string[] args)
         {
-            var decimalNumber = default(BigDecimalNumber);
-            BigDecimalNumber.TryParse("0.1", 2048, out decimalNumber);
-            Console.WriteLine(decimalNumber);
             Console.ReadLine();
         }
 
