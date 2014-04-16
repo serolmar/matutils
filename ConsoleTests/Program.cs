@@ -21,6 +21,11 @@
 
         static void Main(string[] args)
         {
+            var number = default(BigDecimalNumber);
+            BigDecimalNumber.TryParse("0.33",50, out number);
+            var bidecimalNumberField = new BigDecimalNumberField(50);
+
+            Console.WriteLine(bidecimalNumberField.ToString(number));
             Console.ReadLine();
         }
 

@@ -353,6 +353,12 @@
         {
             var currentExponent = left.negativeExponent + right.negativeExponent;
             var currentResultNumber = BigInteger.Multiply(left.number, right.number);
+            while ((currentResultNumber & 1) == 0 && currentExponent > 0)
+            {
+                currentResultNumber = currentResultNumber >> 1;
+                --currentExponent;
+            }
+
             return new BigDecimalNumber()
             {
                 negativeExponent = currentExponent,
