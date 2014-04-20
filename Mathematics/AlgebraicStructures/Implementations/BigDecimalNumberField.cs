@@ -180,10 +180,8 @@
                         var multiplied = (mantissaPart << 2) + mantissaPart;
                         mantissaPlaces += 2;
                         var mask = mantissaMask << 2;
-                        var nextMask = mask << 1;
                         if ((multiplied & mask) != 0)
                         {
-                            mask = nextMask;
                             ++mantissaPlaces;
                         }
 
@@ -192,10 +190,10 @@
                         if (mantissaPlaces < exponent)
                         {
                             result += "0";
+                            mantissaPart = multiplied;
                         }
                         else
                         {
-                            var difference = mantissaPlaces - exponent;
                             mantissaPart = multiplied & (mantissaMask - 1);
                             var value = multiplied >> (int)exponent;
                             result += value;

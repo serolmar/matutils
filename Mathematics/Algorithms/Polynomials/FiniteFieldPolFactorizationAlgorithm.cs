@@ -13,7 +13,7 @@
         : IAlgorithm<
         UnivariatePolynomialNormalForm<CoeffType>,
         IModularField<CoeffType>,
-        PolynomialFactorizationResult<CoeffType>>
+        FiniteFieldPolynomialFactorizationResult<CoeffType>>
     {
         /// <summary>
         /// O objecto responsável pelas operações sobre os números inteiros.
@@ -54,7 +54,7 @@
         /// <param name="polymomial">O polinómio.</param>
         /// <param name="modularField">O corpo modular.</param>
         /// <returns>A factorização do polinómio.</returns>
-        public PolynomialFactorizationResult<CoeffType> Run(
+        public FiniteFieldPolynomialFactorizationResult<CoeffType> Run(
             UnivariatePolynomialNormalForm<CoeffType> polymomial,
             IModularField<CoeffType> modularField)
         {
@@ -85,7 +85,7 @@
         /// <param name="polynomField">O corpo responsável pelo produto de polinómios.</param>
         /// <param name="bachetBezoutAlgorithm">O objecto responsável pelo algoritmo de máximo divisor comum.</param>
         /// <returns>A lista dos factores.</returns>
-        private PolynomialFactorizationResult<CoeffType> Factorize(
+        private FiniteFieldPolynomialFactorizationResult<CoeffType> Factorize(
             UnivariatePolynomialNormalForm<CoeffType> polynom,
             IModularField<CoeffType> integerModule,
             UnivarPolynomEuclideanDomain<CoeffType> polynomField,
@@ -135,7 +135,7 @@
             }
 
             var mainLeadingMon = polynom.GetLeadingCoefficient(integerModule);
-            return new PolynomialFactorizationResult<CoeffType>(
+            return new FiniteFieldPolynomialFactorizationResult<CoeffType>(
                 mainLeadingMon,
                 result,
                 polynom);

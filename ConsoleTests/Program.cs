@@ -21,11 +21,7 @@
 
         static void Main(string[] args)
         {
-            var number = default(BigDecimalNumber);
-            BigDecimalNumber.TryParse("0.33",50, out number);
-            var bidecimalNumberField = new BigDecimalNumberField(50);
-
-            Console.WriteLine(bidecimalNumberField.ToString(number));
+            Test20();
             Console.ReadLine();
         }
 
@@ -48,7 +44,7 @@
             var integerDomain = new BigIntegerDomain();
 
             // Leitura do polinómio
-            var polynomialReader = new BigIntegerPolynomialReader();
+            var polynomialReader = new BigIntFractionPolReader();
             //var testPol = polynomialReader.Read("x^3+10*x^2-432*x+5040");
             //var firstFactor = polynomialReader.Read("x");
             //var secondFactor = polynomialReader.Read("x^2-2");
@@ -66,16 +62,20 @@
             //var polynom = polynomialReader.Read("(2*x+1)^2*(x+3)^3");
             var polynom = polynomialReader.Read("x^3+10*x^2-432*x+5040");
 
+            var squareFreeFactorizationAlgorithm = new SquareFreeFractionFactorizationAlg<BigInteger>(
+                    integerDomain);
+            var squareFreeFactored = squareFreeFactorizationAlgorithm.Run(polynom);
+
             // Instanciação dos algoritmos
             var resultantAlg = new UnivarPolDeterminantResultantAlg<BigInteger>(new BigIntegerDomain());
             var primesGenerator = new BigIntPrimeNumbsIterator(int.MaxValue, new BigIntSquareRootAlgorithm());
 
             // Obtém o valor do coeficiente principal e do discriminante.
-            var leadingCoeff = polynom.GetLeadingCoefficient(integerDomain);
-            var discriminant = resultantAlg.Run(
-                polynom,
-                polynom.GetPolynomialDerivative(integerDomain));
-            var primesEnumerator = primesGenerator.GetEnumerator();
+            //var leadingCoeff = polynom.GetLeadingCoefficient(integerDomain);
+            //var discriminant = resultantAlg.Run(
+            //    polynom,
+            //    polynom.GetPolynomialDerivative(integerDomain));
+            //var primesEnumerator = primesGenerator.GetEnumerator();
             var prime = integerDomain.MultiplicativeUnity;
             //var state = true;
             //while (state)
@@ -107,10 +107,9 @@
                 var integerModularField = new ModularSymmetricBigIntField(prime);
 
                 // Instancia o algoritmo responsável pela factorização sobre corpos finitos.
-                var finiteFieldFactorizationAlgOld = new FiniteFieldPolFactorizationAlgorithmOld<BigInteger>(
-                    new UnivarSquareFreeDecomposition<Fraction<BigInteger>>(),
-                    new BigIntegerToIntegerConversion(),
-                    new DenseCondensationLinSysAlgorithm<BigInteger>(integerModularField));
+                var finiteFieldFactorizationAlg = new FiniteFieldPolFactorizationAlgorithm<BigInteger>(
+                    new DenseCondensationLinSysAlgorithm<BigInteger>(integerModularField),
+                    integerDomain);
 
                 // Instancia o algoritmo responsável pela elevação multi-factor.
                 var modularFactory = new ModularSymmetricBigIntFieldFactory();
@@ -119,44 +118,46 @@
                         modularFactory,
                         new UnivarPolEuclideanDomainFactory<BigInteger>(),
                         integerDomain));
-                var factored = finiteFieldFactorizationAlgOld.Run(polynom, integerModularField, integerDomain);
+                //var factored = finiteFieldFactorizationAlg.Run(polynom, integerModularField);
                 var liftedFactors = new Dictionary<BigInteger, IList<UnivariatePolynomialNormalForm<BigInteger>>>();
-                foreach (var factorKvp in factored)
-                {
-                    var multiLiftStatus = new MultiFactorLiftingStatus<BigInteger>(
-                        factorKvp.Value.FactoredPolynomial,
-                        factorKvp.Value,
-                        prime);
-                    var liftResult = multiFactorLiftAlg.Run(multiLiftStatus, 2);
-                    Console.WriteLine("Módulo {0}.", liftResult.LiftingPrimePower);
-                    liftedFactors.Add(factorKvp.Key, liftResult.Factors);
+                //foreach (var factorKvp in factored)
+                //{
+                //    var multiLiftStatus = new MultiFactorLiftingStatus<BigInteger>(
+                //        factorKvp.Value.FactoredPolynomial,
+                //        factorKvp.Value,
+                //        prime);
+                //    var liftResult = multiFactorLiftAlg.Run(multiLiftStatus, 2);
+                //    Console.WriteLine("Módulo {0}.", liftResult.LiftingPrimePower);
+                //    liftedFactors.Add(factorKvp.Key, liftResult.Factors);
 
-                    // Teste à fase de pesquisa
-                    var searchAlgorithm = new SearchFactorizationAlgorithm<BigInteger>(
-                        modularFactory,
-                        new BigIntegerDomain());
+                //    // Teste à fase de pesquisa
+                //    var searchAlgorithm = new SearchFactorizationAlgorithm<BigInteger>(
+                //        modularFactory,
+                //        new BigIntegerDomain());
                     
-                    //Determinar a estimativa
-                    var estimation = Math.Sqrt(factorKvp.Value.FactoredPolynomial.Degree + 1);
-                    var estimationIntegerPart = (2 << factorKvp.Value.FactoredPolynomial.Degree) * polynom.GetLeadingCoefficient(integerDomain);
-                    var norm = integerDomain.AdditiveUnity;
-                    foreach (var term in factorKvp.Value.FactoredPolynomial)
-                    {
-                        var termValue = integerDomain.GetNorm(term.Value);
-                        if (integerDomain.Compare(termValue, norm) > 0)
-                        {
-                            norm = termValue;
-                        }
-                    }
+                //    //Determinar a estimativa
+                //    var estimation = Math.Sqrt(factorKvp.Value.FactoredPolynomial.Degree + 1);
+                //    var estimationIntegerPart = (1 << factorKvp.Value.FactoredPolynomial.Degree) * 
+                //      polynom.GetLeadingCoefficient(integerDomain);
+                //    var norm = integerDomain.AdditiveUnity;
+                //    foreach (var term in factorKvp.Value.FactoredPolynomial)
+                //    {
+                //        var termValue = integerDomain.GetNorm(term.Value);
+                //        if (integerDomain.Compare(termValue, norm) > 0)
+                //        {
+                //            norm = termValue;
+                //        }
+                //    }
 
-                    estimationIntegerPart = estimationIntegerPart * norm;
-                    var integerPartLog = (int)Math.Floor(BigInteger.Log(estimationIntegerPart) + 2);
-                    var estimationPower = Math.Pow(10, integerPartLog);
-                    var estimationMultiplication = (int)Math.Floor(estimationPower * estimation);
-                    estimationIntegerPart = (estimationIntegerPart * estimationMultiplication) / estimationMultiplication;
-                    ++estimationIntegerPart;
-                    var searchResult = searchAlgorithm.Run(liftResult, estimationIntegerPart, 3);
-                }
+                //    estimationIntegerPart = estimationIntegerPart * norm;
+                //    var integerPartLog = (int)Math.Floor(BigInteger.Log(estimationIntegerPart) + 2);
+                //    var estimationPower = Math.Pow(10, integerPartLog);
+                //    var estimationMultiplication = (int)Math.Floor(estimationPower * estimation);
+                //    estimationIntegerPart = (estimationIntegerPart * estimationMultiplication) / 
+                //      estimationMultiplication;
+                //    ++estimationIntegerPart;
+                //    var searchResult = searchAlgorithm.Run(liftResult, estimationIntegerPart, 3);
+                //}
 
                 // Imprime os resultados para a consola.
                 foreach (var liftFactor in liftedFactors)

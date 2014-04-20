@@ -5,67 +5,57 @@
     using System.Linq;
     using System.Text;
 
-    /// <summary>
-    /// Permite representar uma factorização em corpos finitos.
-    /// </summary>
-    /// <typeparam name="CoeffType">O tipo de coeficiente.</typeparam>
-    public class PolynomialFactorizationResult<CoeffType>
+    public class PolynomialFactorizationResult<InputPolCoeffType, OutputPolCoeffType>
     {
         /// <summary>
-        /// A lista de factores mónicos.
+        /// O coeficiente independente.
         /// </summary>
-        private List<UnivariatePolynomialNormalForm<CoeffType>> factors;
+        private InputPolCoeffType independentCoeff;
 
         /// <summary>
-        /// O coeficiente independente - coeficiente principal do polinómio a factorizar.
+        /// Os facotres seleccionados por grau.
         /// </summary>
-        private CoeffType indepdendentCoeff;
-
-        /// <summary>
-        /// O polinómio a ser factorizado.
-        /// </summary>
-        private UnivariatePolynomialNormalForm<CoeffType> factoredPolynomial;
+        private Dictionary<int, List<UnivariatePolynomialNormalForm<OutputPolCoeffType>>> factors;
 
         public PolynomialFactorizationResult(
-            CoeffType indepdendentCoeff,
-            List<UnivariatePolynomialNormalForm<CoeffType>> factors,
-            UnivariatePolynomialNormalForm<CoeffType> factoredPolynomial)
+            InputPolCoeffType independentCoeff,
+            Dictionary<int, List<UnivariatePolynomialNormalForm<OutputPolCoeffType>>> factors)
         {
-            this.factors = factors;
-            this.indepdendentCoeff = indepdendentCoeff;
-            this.factoredPolynomial = factoredPolynomial;
-        }
-
-        /// <summary>
-        /// Obtém o coeficiente independente - coeficiente principal do polinómio a factorizar.
-        /// </summary>
-        public CoeffType IndependentCoeff
-        {
-            get
+            if (independentCoeff == null)
             {
-                return this.indepdendentCoeff;
+                throw new ArgumentNullException("independentCoeff");
+            }
+            else if (factors == null)
+            {
+                this.independentCoeff = independentCoeff;
+                this.factors = new Dictionary<int, List<UnivariatePolynomialNormalForm<OutputPolCoeffType>>>();
+            }
+            else
+            {
+                this.independentCoeff = independentCoeff;
+                this.factors = factors;
             }
         }
 
         /// <summary>
-        /// Obtém a lista de factores mónicos.
+        /// Obtém o coeficiente independente.
         /// </summary>
-        public IList<UnivariatePolynomialNormalForm<CoeffType>> Factors
+        public InputPolCoeffType IndependentCoeff
         {
             get
             {
-                return this.factors.AsReadOnly();
+                return this.independentCoeff;
             }
         }
 
         /// <summary>
-        /// Obtém o polinómio a ser factorizado.
+        /// Obtém os factores seleccionados por grau.
         /// </summary>
-        public UnivariatePolynomialNormalForm<CoeffType> FactoredPolynomial
+        public Dictionary<int, List<UnivariatePolynomialNormalForm<OutputPolCoeffType>>> Factors
         {
             get
             {
-                return this.factoredPolynomial;
+                return this.factors;
             }
         }
     }
