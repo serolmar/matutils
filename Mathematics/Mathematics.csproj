@@ -256,7 +256,6 @@
     <Compile Include="Algorithms\Polynomials\IntegerPolynomialFactorizationAlgorithm.cs" />
     <Compile Include="Algorithms\Polynomials\LatticeReductPolynomFactorAlg.cs" />
     <Compile Include="Algorithms\Polynomials\FiniteFieldPolynomialFactorizationResult.cs" />
-    <Compile Include="Algorithms\Polynomials\FiniteFieldFactorizationResultOld.cs" />
     <Compile Include="Algorithms\Polynomials\FiniteFieldPolFactorizationAlgorithm.cs" />
     <Compile Include="Algorithms\Polynomials\ILinearLiftAlgorithm.cs" />
     <Compile Include="Algorithms\Polynomials\LinearLiftAlgorithm.cs" />

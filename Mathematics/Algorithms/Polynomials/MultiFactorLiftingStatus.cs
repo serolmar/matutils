@@ -24,7 +24,7 @@
         /// <summary>
         /// Mantém a lista de factores módulo um número primo.
         /// </summary>
-        private FiniteFieldFactorizationResultOld<CoeffType> factorization;
+        private FiniteFieldPolynomialFactorizationResult<CoeffType> factorization;
 
         /// <summary>
         /// Contém o módulo associado à solução actual.
@@ -33,7 +33,7 @@
 
         public MultiFactorLiftingStatus(
             UnivariatePolynomialNormalForm<CoeffType> polynom,
-            FiniteFieldFactorizationResultOld<CoeffType> factorization,
+            FiniteFieldPolynomialFactorizationResult<CoeffType> factorization,
             CoeffType liftFactorizationModule)
         {
             if (polynom == null)
@@ -78,7 +78,7 @@
         /// <summary>
         /// Mantém a lista de factores módulo um número primo.
         /// </summary>
-        public FiniteFieldFactorizationResultOld<CoeffType> Factorization
+        public FiniteFieldPolynomialFactorizationResult<CoeffType> Factorization
         {
             get
             {
