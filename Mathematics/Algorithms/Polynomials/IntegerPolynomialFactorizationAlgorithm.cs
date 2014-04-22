@@ -72,6 +72,12 @@
         private IAlgorithm<CoeffType, double> logarithmAlgorithm;
 
         /// <summary>
+        /// O algoritmo responsável pelo levantamento da factorização em corpos finitos.
+        /// </summary>
+        IAlgorithm<MultiFactorLiftingStatus<CoeffType>,int, MultiFactorLiftingResult<CoeffType>> 
+            multiFactorLiftingAlg;
+
+        /// <summary>
         /// Constrói uma instância de um objecto responsável pela factorização de um polinómio
         /// cujos coeficientes são fracções inteiras.
         /// </summary>
@@ -110,6 +116,7 @@
             else
             {
                 this.integerNumber = integerNumber;
+                this.fractionField = new FractionField<CoeffType>(integerNumber);
                 this.modularSymmetricFactory = modularSymmetricFactory;
                 this.squareFreeAlg = new SquareFreeFractionFactorizationAlg<CoeffType>(integerNumber);
                 this.searchFactorizationAlgorithm = new SearchFactorizationAlgorithm<CoeffType>(
@@ -120,6 +127,13 @@
                 this.logarithmAlgorithm = logarithmAlgorithm;
                 this.resultantAlg = new UnivarPolDeterminantResultantAlg<CoeffType>(
                     this.integerNumber);
+
+                // O algoritmo responsável pelo levantamento módulo uma potência de um número primo.
+                this.multiFactorLiftingAlg = new MultiFactorLiftAlgorithm<CoeffType>(
+                    new LinearLiftAlgorithm<CoeffType>(
+                        modularSymmetricFactory,
+                        new UnivarPolEuclideanDomainFactory<CoeffType>(),
+                        integerNumber));
             }
         }
 
@@ -191,6 +205,24 @@
                         if (status == 1) // Encontrou um número primo sobre o qual é possível proceder à elevação.
                         {
                             var factorList = new List<UnivariatePolynomialNormalForm<CoeffType>>();
+                            var iterationsNumber = this.GetHenselLiftingIterationsNumber(bound, currentPrime);
+                            var coeff = this.FactorizePolynomial(
+                                currentPolynomial,
+                                currentPrime,
+                                bound,
+                                iterationsNumber,
+                                factorList);
+
+                            var multiplicationCoeff = this.fractionField.InverseConversion(coeff);
+                            multiplicationCoeff = MathFunctions.Power(
+                                multiplicationCoeff,
+                                squareFreeFactorKvp.Key,
+                                this.fractionField);
+
+                            independentCoeff = this.fractionField.Multiply(independentCoeff, multiplicationCoeff);
+                            factorizationDictionary.Add(
+                            squareFreeFactorKvp.Key,
+                            factorList);
                         }
                         else
                         {
@@ -198,8 +230,6 @@
                             squareFreeFactorKvp.Key,
                             new List<UnivariatePolynomialNormalForm<CoeffType>>() { squareFreeFactorKvp.Value });
                         }
-
-                        throw new NotImplementedException();
                     }
                 }
 
@@ -215,12 +245,14 @@
         /// <param name="polynomial">O polinómio a ser factorizado.</param>
         /// <param name="primeNumber">O número primo.</param>
         /// <param name="bound">O limite dos coeficientes que podem representar números inteiros.</param>
+        /// <param name="iterationsNumber">O número de iterações para o algoritmo do levantamento multifactor.</param>
         /// <param name="factorsList">A lista de factores.</param>
         /// <returns>O coeficiente independente.</returns>
         private CoeffType FactorizePolynomial(
             UnivariatePolynomialNormalForm<CoeffType> polynomial,
             CoeffType primeNumber,
             CoeffType bound,
+            int iterationsNumber,
             List<UnivariatePolynomialNormalForm<CoeffType>> factorsList)
         {
             var modularField = this.modularSymmetricFactory.CreateInstance(primeNumber);
@@ -232,6 +264,41 @@
             var finiteFieldFactorizationResult = finiteFieldFactAlg.Run(
                 polynomial,
                 modularField);
+            var multiFactorLiftingStatus = new MultiFactorLiftingStatus<CoeffType>(
+                polynomial,
+                finiteFieldFactorizationResult,
+                primeNumber);
+            var multiFactorLiftingResult = this.multiFactorLiftingAlg.Run(
+                multiFactorLiftingStatus,
+                iterationsNumber);
+            var searchResult = this.searchFactorizationAlgorithm.Run(
+                multiFactorLiftingResult,
+                bound,
+                3);
+
+            if (searchResult.IntegerFactors.Count > 0)
+            {
+                factorsList.AddRange(searchResult.IntegerFactors);
+                if (searchResult.NonIntegerFactors.Count > 0) // É necessário factorizar.
+                {
+                    var currentFactor = searchResult.IntegerFactors[0];
+                    for (int i = 1; i < searchResult.IntegerFactors.Count; ++i)
+                    {
+                        currentFactor = currentFactor.Multiply(
+                            searchResult.IntegerFactors[i],
+                            this.integerNumber);
+                    }
+
+                    var nonFactored = MathFunctions.GetIntegerDivision(
+                        searchResult.MainPolynomial,
+                        currentFactor,
+                        this.integerNumber);
+                }
+            }
+            else
+            {
+            }
+
             throw new NotImplementedException();
         }
 
@@ -412,6 +479,85 @@
             var logResult = this.logarithmAlgorithm.Run(logArg);
             logResult = logResult / this.logarithmAlgorithm.Run(primeNumber);
             return (int)Math.Ceiling(logResult);
+        }
+
+        /// <summary>
+        /// Determina o corte de um número sobre as potências de um número primo.
+        /// </summary>
+        /// <param name="value">O valor do qual se pretende obter o corte.</param>
+        /// <param name="prime">O número primo.</param>
+        /// <param name="firstExponent">O expoente inferior do corte.</param>
+        /// <param name="secondExponent">O expoente superior do corte.</param>
+        /// <returns>O resultado do corte.</returns>
+        private CoeffType ComputeTwoSidedCut(
+            CoeffType value, 
+            CoeffType prime,
+            CoeffType firstExponent, 
+            CoeffType secondExponent)
+        {
+            var difference = this.integerNumber.Add(
+                secondExponent,
+                this.integerNumber.AdditiveInverse(firstExponent));
+            if (this.integerNumber.Compare(firstExponent, difference) < 0)
+            {
+                // Cálculo da primeira potência.
+                var firstExponentFactor = MathFunctions.Power(
+                    prime, 
+                    firstExponent, 
+                    this.integerNumber, 
+                    this.integerNumber);
+
+                // Cálculo da segunda potência com base na primeira.
+                var increment = this.integerNumber.Add(
+                    firstExponent,
+                    this.integerNumber.AdditiveInverse(difference));
+                var differenceExponentFactor = MathFunctions.Power(
+                    prime,
+                    increment,
+                    this.integerNumber,
+                    this.integerNumber);
+                differenceExponentFactor = this.integerNumber.Multiply(
+                    differenceExponentFactor,
+                    firstExponentFactor);
+
+                var result = this.integerNumber.Rem(value, firstExponentFactor);
+                result = this.integerNumber.Add(
+                    value,
+                    this.integerNumber.AdditiveInverse(result));
+                result = this.integerNumber.Quo(result, firstExponentFactor);
+                result = this.integerNumber.Rem(result, differenceExponentFactor);
+                return result;
+            }
+            else
+            {
+                // Cálculo da primeira potência.
+                var differenceExponentFactor = MathFunctions.Power(
+                    prime, 
+                    difference,
+                    this.integerNumber,
+                    this.integerNumber);
+
+                // Cálculo da segunda potência com base na primeira.
+                var increment = this.integerNumber.Add(
+                    difference,
+                    this.integerNumber.AdditiveInverse(firstExponent));
+                var firstExponentFactor = MathFunctions.Power(
+                    prime,
+                    increment,
+                    this.integerNumber,
+                    this.integerNumber);
+                firstExponentFactor = this.integerNumber.Multiply(
+                    firstExponentFactor,
+                    firstExponentFactor);
+
+                var result = this.integerNumber.Rem(value, firstExponentFactor);
+                result = this.integerNumber.Add(
+                    value,
+                    this.integerNumber.AdditiveInverse(result));
+                result = this.integerNumber.Quo(result, firstExponentFactor);
+                result = this.integerNumber.Rem(result, differenceExponentFactor);
+                return result;
+            }
         }
     }
 }

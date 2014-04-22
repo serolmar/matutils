@@ -5,51 +5,27 @@ using System.Text;
 
 namespace Mathematics
 {
-    public class FractionField<T> : IField<Fraction<T>>
+    public class FractionField<T> : ElementFractionConversion<T>, IField<Fraction<T>>, IConversion<T, Fraction<T>>
     {
-        private IEuclidenDomain<T> euclideanDomain;
-
         private IEqualityComparer<T> elementsComparer;
 
-        public FractionField(IEuclidenDomain<T> euclideanDomain)
+        public FractionField(IEuclidenDomain<T> domain)
+            : base(domain)
         {
-            if (euclideanDomain == null)
-            {
-                throw new ArgumentNullException("euclideanDomain");
-            }
-            else
-            {
-                this.euclideanDomain = euclideanDomain;
-                this.elementsComparer = null;
-            }
+            this.elementsComparer = null;
         }
 
-        public FractionField(IEqualityComparer<T> elementsComparer, IEuclidenDomain<T> euclideanDomain)
+        public FractionField(IEqualityComparer<T> elementsComparer, IEuclidenDomain<T> domain)
+            : base(domain)
         {
-            if (euclideanDomain == null)
-            {
-                throw new ArgumentNullException("euclideanDomain");
-            }
-            else
-            {
-                this.euclideanDomain = euclideanDomain;
-                this.elementsComparer = elementsComparer;
-            }
-        }
-
-        public IEuclidenDomain<T> EuclideanDomain
-        {
-            get
-            {
-                return this.euclideanDomain;
-            }
+            this.elementsComparer = elementsComparer;
         }
 
         public Fraction<T> AdditiveUnity
         {
             get
             {
-                return new Fraction<T>(this.euclideanDomain);
+                return new Fraction<T>(this.domain);
             }
         }
 
@@ -58,9 +34,9 @@ namespace Mathematics
             get
             {
                 return new Fraction<T>(
-                    this.euclideanDomain.MultiplicativeUnity,
-                    this.euclideanDomain.MultiplicativeUnity,
-                    this.euclideanDomain);
+                    this.domain.MultiplicativeUnity,
+                    this.domain.MultiplicativeUnity,
+                    this.domain);
             }
         }
 
@@ -72,7 +48,7 @@ namespace Mathematics
             }
             else
             {
-                return number.GetInverse(this.euclideanDomain);
+                return number.GetInverse(this.domain);
             }
         }
 
@@ -84,7 +60,7 @@ namespace Mathematics
             }
             else
             {
-                return number.GetSymmetric(this.euclideanDomain);
+                return number.GetSymmetric(this.domain);
             }
         }
 
@@ -96,7 +72,7 @@ namespace Mathematics
             }
             else
             {
-                return this.euclideanDomain.IsAdditiveUnity(value.Numerator);
+                return this.domain.IsAdditiveUnity(value.Numerator);
             }
         }
 
@@ -112,7 +88,7 @@ namespace Mathematics
             }
             else
             {
-                return left.Add(right, this.euclideanDomain);
+                return left.Add(right, this.domain);
             }
         }
 
@@ -128,7 +104,7 @@ namespace Mathematics
             }
             else
             {
-                return left.Multiply(right, this.euclideanDomain);
+                return left.Multiply(right, this.domain);
             }
         }
 
@@ -140,21 +116,21 @@ namespace Mathematics
             }
             else
             {
-                return this.euclideanDomain.IsMultiplicativeUnity(value.Numerator) &&
-                    this.euclideanDomain.IsMultiplicativeUnity(value.Denominator);
+                return this.domain.IsMultiplicativeUnity(value.Numerator) &&
+                    this.domain.IsMultiplicativeUnity(value.Denominator);
             }
         }
 
         public Fraction<T> AddRepeated(Fraction<T> element, int times)
         {
-            if (this.euclideanDomain.IsAdditiveUnity(element.Numerator))
+            if (this.domain.IsAdditiveUnity(element.Numerator))
             {
-                return new Fraction<T>(element.Numerator, element.Denominator, this.euclideanDomain);
+                return new Fraction<T>(element.Numerator, element.Denominator, this.domain);
             }
             else
             {
-                var added = this.euclideanDomain.AddRepeated(element.Numerator, times);
-                return new Fraction<T>(added, element.Denominator, this.euclideanDomain);
+                var added = this.domain.AddRepeated(element.Numerator, times);
+                return new Fraction<T>(added, element.Denominator, this.domain);
             }
         }
 

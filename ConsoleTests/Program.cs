@@ -62,6 +62,13 @@
             //var polynom = polynomialReader.Read("(2*x+1)^2*(x+3)^3");
             var polynom = polynomialReader.Read("x^3+10*x^2-432*x+5040");
 
+            var integerPolynomialAlg = new IntegerPolynomialFactorizationAlgorithm<BigInteger>(
+                integerDomain,
+                new ModularSymmetricBigIntFieldFactory(),
+                new BigIntegerPrimeNumbersIteratorFactory(),
+                new BigIntLogDoubleApproximationAlg());
+            var integerPolFactAlgResult = integerPolynomialAlg.Run(polynom);
+
             var squareFreeFactorizationAlgorithm = new SquareFreeFractionFactorizationAlg<BigInteger>(
                     integerDomain);
             var squareFreeFactored = squareFreeFactorizationAlgorithm.Run(polynom);
