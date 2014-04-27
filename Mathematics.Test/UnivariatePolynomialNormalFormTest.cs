@@ -499,8 +499,13 @@ namespace Mathematics.Test
             integerFractionExpectedVector[3] = new Fraction<int>(116, 1, integerDomain);
             integerFractionExpectedVector[4] = new Fraction<int>(304, 1, integerDomain);
             integerFractionExpectedVector[5] = new Fraction<int>(860, 1, integerDomain);
-            var integerFractionActualVector = integerPolynomial.GetRootPowerSums(fractionField);
-            Assert.AreEqual(integerFractionExpectedVector.Length, integerFractionActualVector.Length, "Vector lengths aren't equal.");
+            var integerFractionActualVector = integerPolynomial.GetRootPowerSums(
+                fractionField, 
+                new SparseDictionaryVectorFactory<Fraction<int>>());
+            Assert.AreEqual(
+                integerFractionExpectedVector.Length, 
+                integerFractionActualVector.Length, 
+                "Vector lengths aren't equal.");
             for (int i = 0; i < integerFractionActualVector.Length; ++i)
             {
                 Assert.AreEqual(integerFractionExpectedVector[i], integerFractionActualVector[i]);
@@ -636,6 +641,79 @@ namespace Mathematics.Test
                 {
                     Assert.AreEqual(expected[i, j], actual[i, j]);
                 }
+            }
+        }
+
+        [TestMethod()]
+        public void GetRootPowerSumsTest()
+        {
+            // Representação dos polinómios.
+            var polynomText = "(x-3)*(x-2)^2*(x+1)^3";
+            var variableName = "x";
+
+            // Estabelece os domínios.
+            var integerDomain = new IntegerDomain();
+
+            // Estabelece o corpo responsável pelas operações sobre as fracções.
+            var fractionField = new FractionField<int>(integerDomain);
+
+            // Estabelece os conversores.
+            var integerToFractionConversion = new ElementFractionConversion<int>(integerDomain);
+
+            // Estabelece os leitores individuais.
+            var integerParser = new IntegerParser<string>();
+
+            // Estabelece o leitor de fracções.
+            var fractionParser = new ElementFractionParser<int>(integerParser, integerDomain);
+
+            // Estabelece os polinómios.
+            var integerPolynomial = TestsHelper.ReadUnivarPolynomial(
+                polynomText,
+                fractionField,
+                fractionParser,
+                integerToFractionConversion,
+                variableName);
+
+            var number = 10;
+            var roots = new int[] { 3, 2, 2, -1, -1, -1 };
+            var powerRoots = new int[] { 3, 2, 2, -1, -1, -1 };
+            var integerFractionExpectedVector = new ArrayVector<Fraction<int>>(number);
+
+            // Primeiro cálculo
+            var sum = powerRoots[0];
+            for (int i = 1; i < powerRoots.Length; ++i)
+            {
+                sum += powerRoots[i];
+            }
+
+            integerFractionExpectedVector[0] = new Fraction<int>(sum, 1, integerDomain);
+            for (int i = 1; i < number; ++i)
+            {
+                for (int j = 0; j < roots.Length; ++j)
+                {
+                    powerRoots[j] *= roots[j];
+                }
+
+                sum = powerRoots[0];
+                for (int j = 1; j < powerRoots.Length; ++j)
+                {
+                    sum += powerRoots[j];
+                }
+
+                integerFractionExpectedVector[i] = new Fraction<int>(sum, 1, integerDomain);
+            }
+
+            var integerFractionActualVector = integerPolynomial.GetRootPowerSums(
+                number,
+                fractionField, 
+                new SparseDictionaryVectorFactory<Fraction<int>>());
+            Assert.AreEqual(
+                integerFractionExpectedVector.Length,
+                integerFractionActualVector.Length,
+                "Vector lengths aren't equal.");
+            for (int i = 0; i < integerFractionActualVector.Length; ++i)
+            {
+                Assert.AreEqual(integerFractionExpectedVector[i], integerFractionActualVector[i]);
             }
         }
     }

@@ -35,7 +35,7 @@
         /// <summary>
         /// O valor do expoente negativo.
         /// </summary>
-        private int negativeExponent;
+        private int exponent;
 
         /// <summary>
         /// O número.
@@ -44,19 +44,19 @@
 
         public BigDecimalNumber(int number)
         {
-            this.negativeExponent = 0;
+            this.exponent = 0;
             this.number = number;
         }
 
         public BigDecimalNumber(long number)
         {
-            this.negativeExponent = 0;
+            this.exponent = 0;
             this.number = number;
         }
 
         public BigDecimalNumber(BigInteger number)
         {
-            this.negativeExponent = 0;
+            this.exponent = 0;
             this.number = number;
         }
 
@@ -103,7 +103,7 @@
                 this.number = currentNumber;
             }
 
-            this.negativeExponent = currentExponent;
+            this.exponent = -currentExponent;
         }
 
         public BigDecimalNumber(float number, int mantissaBitsPrecision = 32)
@@ -149,7 +149,7 @@
                 this.number = currentNumber;
             }
 
-            this.negativeExponent = currentExponent;
+            this.exponent = -currentExponent;
         }
 
         public BigDecimalNumber(decimal number, int mantissaBitsPrecision = 128)
@@ -195,13 +195,13 @@
                 this.number = currentNumber;
             }
 
-            this.negativeExponent = currentExponent;
+            this.exponent = -currentExponent;
         }
 
         internal BigDecimalNumber(BigInteger number, int exponent)
         {
             this.number = number;
-            this.negativeExponent = exponent;
+            this.exponent = exponent;
         }
 
         #region Propriedades Públicas
@@ -248,16 +248,24 @@
             {
                 return this.number;
             }
+            internal set
+            {
+                this.number = value;
+            }
         }
 
         /// <summary>
         /// Obtém a potência negativa de dois ao qual o número se encontra multiplicado.
         /// </summary>
-        public int NegativeExponent
+        public int Exponent
         {
             get
             {
-                return this.negativeExponent;
+                return this.exponent;
+            }
+            internal set
+            {
+                this.exponent = value;
             }
         }
 
@@ -275,20 +283,20 @@
         {
             var firstNumber = left;
             var secondNumber = right;
-            if (left.negativeExponent < right.negativeExponent)
+            if (left.exponent < right.exponent)
             {
                 firstNumber = right;
                 secondNumber = left;
             }
 
-            var difference = firstNumber.negativeExponent - secondNumber.negativeExponent;
+            var difference = -firstNumber.exponent + secondNumber.exponent;
             var secondInternalNumber = secondNumber.number;
             if (difference > 0)
             {
                 secondInternalNumber = secondInternalNumber << (int)difference;
             }
 
-            var currentExponent = left.negativeExponent;
+            var currentExponent = -left.exponent;
             var resultNumber = BigInteger.Add(firstNumber.number, secondInternalNumber);
             var unity = BigInteger.One;
             while ((resultNumber & unity) == 0 && currentExponent > 0)
@@ -299,7 +307,7 @@
 
             return new BigDecimalNumber()
             {
-                negativeExponent = currentExponent,
+                exponent = -currentExponent,
                 number = resultNumber
             };
         }
@@ -314,20 +322,20 @@
         {
             var firstNumber = left;
             var secondNumber = right;
-            if (left.negativeExponent < right.negativeExponent)
+            if (-left.exponent < -right.exponent)
             {
                 firstNumber = right;
                 secondNumber = left;
             }
 
-            var difference = firstNumber.negativeExponent - secondNumber.negativeExponent;
+            var difference = -firstNumber.exponent + secondNumber.exponent;
             var secondInternalNumber = secondNumber.number;
             if (difference > 0)
             {
                 secondInternalNumber = secondInternalNumber << (int)difference;
             }
 
-            var currentExponent = left.negativeExponent;
+            var currentExponent = -left.exponent;
             var resultNumber = BigInteger.Subtract(firstNumber.number, secondInternalNumber);
             var unity = BigInteger.One;
             while ((resultNumber & unity) == 0 && currentExponent > 0)
@@ -338,7 +346,7 @@
 
             return new BigDecimalNumber()
             {
-                negativeExponent = currentExponent,
+                exponent = -currentExponent,
                 number = resultNumber
             };
         }
@@ -351,17 +359,25 @@
         /// <returns>O resultado da multiplicação.</returns>
         public static BigDecimalNumber Multiply(BigDecimalNumber left, BigDecimalNumber right)
         {
-            var currentExponent = left.negativeExponent + right.negativeExponent;
+            var currentExponent = -left.exponent - right.exponent;
             var currentResultNumber = BigInteger.Multiply(left.number, right.number);
-            while ((currentResultNumber & 1) == 0 && currentExponent > 0)
+            if (currentExponent < 0) // O expoente do número é positivo.
             {
-                currentResultNumber = currentResultNumber >> 1;
-                --currentExponent;
+                currentResultNumber = currentResultNumber >> currentExponent;
+                currentExponent = 0;
+            }
+            else
+            {
+                while ((currentResultNumber & 1) == 0 && currentExponent > 0)
+                {
+                    currentResultNumber = currentResultNumber >> 1;
+                    --currentExponent;
+                }
             }
 
             return new BigDecimalNumber()
             {
-                negativeExponent = currentExponent,
+                exponent = -currentExponent,
                 number = currentResultNumber
             };
         }
@@ -385,16 +401,16 @@
             else
             {
                 var currentNumber = left.number;
-                var currentExponent = left.negativeExponent;
-                if (left.negativeExponent < right.negativeExponent)
+                var currentExponent = -left.exponent;
+                if (-left.exponent < -right.exponent)
                 {
-                    var difference = right.negativeExponent - left.negativeExponent;
+                    var difference = right.exponent - left.exponent;
                     currentNumber = currentNumber << (int)difference;
                     currentExponent = 0;
                 }
                 else
                 {
-                    currentExponent -= right.negativeExponent;
+                    currentExponent += right.exponent;
                 }
 
                 // Pode ser que se esteja na presença de múltiplos.
@@ -427,7 +443,7 @@
                 return new BigDecimalNumber()
                 {
                     number = currentNumber,
-                    negativeExponent = currentExponent
+                    exponent = -currentExponent
                 };
             }
         }
@@ -441,7 +457,7 @@
         {
             var result = new BigDecimalNumber();
             result.number = number.number;
-            result.negativeExponent = number.negativeExponent;
+            result.exponent = number.exponent;
             return result;
         }
 
@@ -450,63 +466,29 @@
         /// <summary>
         /// Permite ober a representação textual do número de precisão arbitrária.
         /// </summary>
+        /// <remarks>
+        /// A precisão binária estabelecida por defeito é 1024.
+        /// </remarks>
         /// <returns>A representação actual.</returns>
         public override string ToString()
         {
-            if (this.number == 0)
+            return this.GetString(1024);
+        }
+
+        /// <summary>
+        /// Permite ober a representação textual do número de precisão arbitrária.
+        /// </summary>
+        /// <param name="precision">A precisão binária que deverá ser considerada.</param>
+        /// <returns>A representação actual.</returns>
+        public string ToString(int precision)
+        {
+            if (precision <= 0)
             {
-                return "0";
+                throw new ArgumentOutOfRangeException("precision");
             }
             else
             {
-                if (this.negativeExponent == 0)
-                {
-                    return this.number.ToString();
-                }
-                else
-                {
-                    var result = string.Empty;
-                    var tempNumber = this.number;
-                    if (this.number < 0)
-                    {
-                        tempNumber = -this.number;
-                        result += "-";
-                    }
-
-                    var mantissaMask = BigInteger.One << (int)this.negativeExponent;
-                    var integerPart = tempNumber >> (int)this.negativeExponent;
-                    result += integerPart.ToString();
-                    var mantissaPart = tempNumber & (mantissaMask - 1);
-                    var mantissaPlaces = (uint)(integerPartLogAlg.Run(mantissaPart) + 1);
-                    var exponent = this.negativeExponent;
-                    result += ".";
-                    while (mantissaPart != 0)
-                    {
-                        var multiplied = (mantissaPart << 2) + mantissaPart;
-                        mantissaPlaces += 2;
-                        var mask = mantissaMask << 2;
-                        if ((multiplied & mask) != 0)
-                        {
-                            ++mantissaPlaces;
-                        }
-
-                        --exponent;
-                        mantissaMask = mantissaMask >> 1;
-                        if (mantissaPlaces <= exponent)
-                        {
-                            result += "0";
-                            mantissaPart = multiplied;
-                        }
-                        else
-                        {
-                            mantissaPart = multiplied & (mantissaMask - 1);
-                            var value = multiplied >> (int)exponent;
-                            result += value;
-                        }
-                    }
-
-                    return result;
-                }
+                return this.GetString(precision);
             }
         }
 
@@ -523,13 +505,13 @@
             else
             {
                 var innerObj = (BigDecimalNumber)obj;
-                return this.number == innerObj.number && this.negativeExponent == innerObj.negativeExponent;
+                return this.number == innerObj.number && this.exponent == innerObj.exponent;
             }
         }
 
         public override int GetHashCode()
         {
-            return this.number.GetHashCode() ^ this.negativeExponent.GetHashCode();
+            return this.number.GetHashCode() ^ this.exponent.GetHashCode();
         }
 
         /// <summary>
@@ -563,7 +545,7 @@
                     }
 
                     matchText = matches.Groups[2].Value.Trim().TrimEnd('0');
-                    var exponent = 0;
+                    var currentExponent = 0;
                     if (!string.IsNullOrWhiteSpace(matchText))
                     {
                         var mantissa = BigInteger.Zero;
@@ -603,7 +585,7 @@
                                 ++mantissa;
                             }
 
-                            ++exponent;
+                            ++currentExponent;
                             if (mantissa != 0)
                             {
                                 currentPrecision = (int)integerPartLogAlg.Run(mantissa);
@@ -612,7 +594,17 @@
                             matchText = innerText;
                         }
 
-                        currentNumber = (currentNumber << exponent) + mantissa;
+                        currentNumber = (currentNumber << currentExponent) + mantissa;
+                    }
+                    else
+                    {
+                        var log = (int)integerPartLogAlg.Run(currentNumber) + 1;
+                        if (log > precision)
+                        {
+                            var difference = log - precision;
+                            currentNumber = currentNumber >> difference;
+                            currentExponent -= difference;
+                        }
                     }
 
                     if (text.Contains("-"))
@@ -620,7 +612,12 @@
                         currentNumber = -currentNumber;
                     }
 
-                    number = new BigDecimalNumber() { number = currentNumber, negativeExponent = exponent };
+                    number = new BigDecimalNumber()
+                    {
+                        number = currentNumber,
+                        exponent = -currentExponent
+                    };
+
                     return true;
                 }
                 else
@@ -628,6 +625,308 @@
                     return false;
                 }
             }
+        }
+
+        /// <summary>
+        /// Permite obter a representação textual do número sem proceder a qualquer tipo de validação.
+        /// </summary>
+        /// <param name="precision">A precisão binária que deverá ser considerada.</param>
+        /// <returns>A representação textual.</returns>
+        private string GetString(int precision)
+        {
+            if (this.number == 0)
+            {
+                return "0";
+            }
+            else
+            {
+                if (this.exponent > 0)
+                {
+                    return this.GetPositiveExponentString(precision);
+                }
+                if (this.exponent == 0)
+                {
+                    return this.number.ToString();
+                }
+                else
+                {
+                    return this.GetNegativeExponentString(precision);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Permite obter a representação textual do número tendo em conta que o expoente associado é negativo.
+        /// </summary>
+        /// <param name="precision">A precisão binária pretendida.</param>
+        /// <returns>A representação textual.</returns>
+        private string GetNegativeExponentString(int precision)
+        {
+            var currentExpnent = -this.exponent;
+            var result = string.Empty;
+            var tempNumber = this.number;
+            if (this.number < 0)
+            {
+                tempNumber = -this.number;
+                result += "-";
+            }
+
+            var mantissaMask = BigInteger.One << currentExpnent;
+            var integerPart = tempNumber >> currentExpnent;
+            result += integerPart.ToString();
+            var mantissaPart = tempNumber & (mantissaMask - 1);
+            var mantissaPlaces = (uint)(integerPartLogAlg.Run(mantissaPart) + 1);
+            result += ".";
+            var decimalPlaces = -1;
+            var decimalPrecision = (int)(precision * Math.Log10(2));
+            while (mantissaPart != 0 && decimalPlaces < decimalPrecision)
+            {
+                var multiplied = (mantissaPart << 2) + mantissaPart;
+                mantissaPlaces += 2;
+                var mask = mantissaMask << 2;
+                if ((multiplied & mask) != 0)
+                {
+                    ++mantissaPlaces;
+                }
+
+                --currentExpnent;
+                mantissaMask = mantissaMask >> 1;
+                if (mantissaPlaces < currentExpnent)
+                {
+                    result += "0";
+                    mantissaPart = multiplied;
+                }
+                else
+                {
+                    mantissaPart = multiplied & (mantissaMask - 1);
+                    var value = multiplied >> (int)currentExpnent;
+                    result += value;
+                }
+
+                ++decimalPlaces;
+            }
+
+            var temporary = result;
+            result = string.Empty;
+            var i = decimalPrecision + 2;
+            if (i < temporary.Length)
+            {
+                var tempValue = (int)char.GetNumericValue(temporary[i]);
+                var carry = true;
+                if (tempValue < 5)
+                {
+                    carry = false;
+                }
+
+                --i;
+                var tempChar = temporary[i--];
+                while (tempChar != '.')
+                {
+                    tempValue = (int)char.GetNumericValue(tempChar);
+                    if (carry)
+                    {
+                        ++tempValue;
+                    }
+
+                    carry = false;
+                    if (tempValue == 10)
+                    {
+                        carry = true;
+                        tempValue = 0;
+                    }
+
+                    result = tempValue + result;
+                    tempChar = temporary[i--];
+                }
+
+                result = tempChar + result;
+                while (i >= 0)
+                {
+                    tempChar = temporary[i--];
+                    tempValue = (int)char.GetNumericValue(tempChar);
+                    if (carry)
+                    {
+                        ++tempValue;
+                    }
+
+                    carry = false;
+                    if (tempValue == 10)
+                    {
+                        carry = true;
+                        tempValue = 0;
+                    }
+
+                    result = tempValue + result;
+                }
+            }
+            else
+            {
+                result = temporary;
+            }
+
+            result = result.TrimEnd('0').TrimEnd('.');
+            return result;
+        }
+
+        /// <summary>
+        /// Permite obter a representação textual do número tendo em conta que o expoente associado é positivo.
+        /// </summary>
+        /// <param name="precision">A precisão binária do número.</param>
+        /// <returns>A representação textual do número.</returns>
+        private string GetPositiveExponentString(int precision)
+        {
+            var result = this.number.ToString();
+            var decimalPrecision = (int)(precision * Math.Log10(2)) + 1;
+            var currentExponent = this.exponent;
+            var decimalExponent = 0;
+            while (currentExponent > 0)
+            {
+                // Duplica o valor do resultado.
+                var duplicated = string.Empty;
+                var carry = 0;
+                for (int i = result.Length - 1; i >= 0; --i)
+                {
+                    var digit = result[i];
+                    var value = (int)char.GetNumericValue(digit);
+                    var duple = (value << 1) + carry;
+
+                    carry = 1;
+                    if (duple < 10)
+                    {
+                        carry = 0;
+                    }
+                    else
+                    {
+                        duple = duple % 10;
+                    }
+
+                    duplicated = duple + duplicated;
+                }
+
+                if (carry > 0) // Arredonda o último dígito e elimina-o de consideração.
+                {
+                    if (duplicated.Length < decimalPrecision)
+                    {
+                        result = "1" + duplicated;
+                    }
+                    else
+                    {
+                        result = string.Empty;
+                        var index = duplicated.Length - 1;
+                        var digit = duplicated[index];
+                        var value = (int)char.GetNumericValue(digit);
+                        carry = 1;
+                        if (value < 5)
+                        {
+                            carry = 0;
+                        }
+
+                        --index;
+                        for (; index >= 0; --index)
+                        {
+                            digit = duplicated[index];
+                            value = (int)char.GetNumericValue(digit);
+                            value += carry;
+
+                            carry = 0;
+                            if (value > 10)
+                            {
+                                value = value % 10;
+                                carry = 1;
+                                result = "0" + result;
+                            }
+                            else
+                            {
+                                result = value + result;
+                            }
+                        }
+
+                        result = (carry + 1) + result;
+                        ++decimalExponent;
+                    }
+                }
+                else
+                {
+                    result = duplicated;
+                }
+
+                --currentExponent;
+            }
+
+            if (decimalExponent > 0)
+            {
+                decimalExponent += decimalPrecision - 1;
+                if (result.Length > 1)
+                {
+                    result = result.Insert(1, ".");
+                }
+
+                result += "E" + decimalExponent;
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Permite arredondar o último dígito e eliminá-lo da representação textual.
+        /// </summary>
+        /// <param name="representation">A representação textual.</param>
+        /// <returns>O resultado do arredondamento.</returns>
+        private string RoundUpAndTrim(string representation)
+        {
+            var result = string.Empty;
+            var index = representation.Length - 1;
+            var digit = representation[index];
+            var value = char.GetNumericValue(digit);
+            var carry = 1;
+            if (value < 5)
+            {
+                carry = 0;
+            }
+
+            for (; index >= 0; --index)
+            {
+                digit = representation[index];
+                value = char.GetNumericValue(digit);
+                value += carry;
+
+                carry = 0;
+                if (value > 10)
+                {
+                    value = value % 10;
+                    carry = 1;
+                    result = "0" + result;
+                }
+                else
+                {
+                    result = value + result;
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Permite obter o dobro de uma representação textual de um número inteiro.
+        /// </summary>
+        /// <param name="value">A representação textual do número inteiro.</param>
+        /// <returns>A representação textual do dobro desse número.</returns>
+        private string Duplicate(string value)
+        {
+            var result = string.Empty;
+            var carry = 0;
+            for (int i = value.Length - 1; i >= 0; --i)
+            {
+                var digit = value[i];
+
+            }
+
+            if (carry == 1)
+            {
+                result = "1" + result;
+            }
+
+            return result;
         }
     }
 }

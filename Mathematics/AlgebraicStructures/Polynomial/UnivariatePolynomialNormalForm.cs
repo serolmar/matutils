@@ -512,19 +512,26 @@ namespace Mathematics
         /// Obtém um vector com a soma das potências, desde 1 até ao grau do polinómio, das raízes.
         /// </summary>
         /// <param name="field">O corpo responsável pelas operações.</param>
+        /// <param name="vectorFactory">A fábrica responsável pela instanciação de vectores.</param>
         /// <returns>O vector com o valor da soma das potências.</returns>
-        public IVector<CoeffType> GetRootPowerSums(IField<CoeffType> field)
+        public IVector<CoeffType> GetRootPowerSums(
+            IField<CoeffType> field, 
+            IVectorFactory<CoeffType> vectorFactory)
         {
             if (field == null)
             {
                 throw new ArgumentNullException("field");
+            }
+            else if (vectorFactory == null)
+            {
+                throw new ArgumentNullException("vectorFactory");
             }
             else
             {
                 var termsEnumerator = this.terms.GetEnumerator();
                 if (termsEnumerator.MoveNext())
                 {
-                    var result = new ArrayVector<CoeffType>(this.Degree, field.AdditiveUnity);
+                    var result = vectorFactory.CreateVector(this.Degree, field.AdditiveUnity);
                     var topTerm = termsEnumerator.Current.Value;
                     var topDegree = termsEnumerator.Current.Key;
                     if (topDegree == 0)
@@ -595,7 +602,113 @@ namespace Mathematics
                 }
                 else
                 {
-                    return new ArrayVector<CoeffType>(0, field.AdditiveUnity);
+                    return vectorFactory.CreateVector(0, field.AdditiveUnity);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Obtém um vector com a soma das potências, desde 1 até ao grau do polinómio, das raízes.
+        /// </summary>
+        /// <param name="number">
+        /// O número de potências que se pretende calcular, o qual pode ser superior
+        /// ao grau do polinómio.</param>
+        /// <param name="field">O corpo responsável pelas operações.</param>
+        /// <returns>O vector com o valor da soma das potências.</returns>
+        public IVector<CoeffType> GetRootPowerSums(
+            int number,
+            IField<CoeffType> field,
+            IVectorFactory<CoeffType> vectorFactory)
+        {
+            if (field == null)
+            {
+                throw new ArgumentNullException("field");
+            }
+            else if (vectorFactory == null)
+            {
+                throw new ArgumentNullException("vectorFactory");
+            }
+            else if (number < 0)
+            {
+                throw new ArgumentOutOfRangeException("number");
+            }
+            else
+            {
+                var termsEnumerator = this.terms.GetEnumerator();
+                if (termsEnumerator.MoveNext())
+                {
+                    var result = vectorFactory.CreateVector(number, field.AdditiveUnity);
+                    var topTerm = termsEnumerator.Current.Value;
+                    var topDegree = termsEnumerator.Current.Key;
+                    if (topDegree == 0)
+                    {
+                        return result;
+                    }
+                    else if (termsEnumerator.MoveNext())
+                    {
+                        var difference = topDegree - termsEnumerator.Current.Key - 1;
+
+                        var value = field.AdditiveInverse(termsEnumerator.Current.Value);
+                        value = field.AddRepeated(value, difference + 1);
+                        result[difference] = field.Multiply(value, field.MultiplicativeInverse(topTerm));
+                        var control = difference - 1;
+                        for (var i = difference + 1; i < number; ++i)
+                        {
+                            termsEnumerator = this.terms.GetEnumerator();
+                            termsEnumerator.MoveNext();
+                            var state = termsEnumerator.MoveNext();
+                            var currentIteration = i - 1;
+                            var compareDegree = topDegree - 1;
+                            while (state && currentIteration > control)
+                            {
+                                var currentDegree = termsEnumerator.Current.Key;
+                                if (compareDegree == currentDegree)
+                                {
+                                    value = field.AdditiveInverse(termsEnumerator.Current.Value);
+                                    value = field.Multiply(value, result[currentIteration]);
+                                    result[i] = field.Add(result[i], value);
+                                    state = termsEnumerator.MoveNext();
+                                }
+
+                                --compareDegree;
+                                --currentIteration;
+                            }
+
+                            while (state && control >= 0)
+                            {
+                                --control;
+                                var currentDegree = termsEnumerator.Current.Key;
+                                if (compareDegree == currentDegree)
+                                {
+                                    state = termsEnumerator.MoveNext();
+                                    --compareDegree;
+                                }
+                            }
+
+                            if (state)
+                            {
+                                var currentDegree = termsEnumerator.Current.Key;
+                                if (compareDegree == currentDegree)
+                                {
+                                    value = field.AdditiveInverse(termsEnumerator.Current.Value);
+                                    value = field.AddRepeated(value, i + 1);
+                                    result[i] = field.Add(result[i], value);
+                                }
+                            }
+
+                            result[i] = field.Multiply(result[i], field.MultiplicativeInverse(topTerm));
+                        }
+
+                        return result;
+                    }
+                    else
+                    {
+                        return new ZeroVector<CoeffType>(this.Degree, field);
+                    }
+                }
+                else
+                {
+                    return vectorFactory.CreateVector(0, field.AdditiveUnity);
                 }
             }
         }
