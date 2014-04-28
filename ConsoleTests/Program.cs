@@ -21,15 +21,12 @@
 
         static void Main(string[] args)
         {
+            var bigDecimalField = new BigDecimalNumberField(4);
             var firstNumber = default(BigDecimalNumber);
             var secondNumber = default(BigDecimalNumber);
-            BigDecimalNumber.TryParse("0.1", 4, out firstNumber);
-            BigDecimalNumber.TryParse("0.9", 4, out secondNumber);
+            bigDecimalField.TryParse("10", out firstNumber);
+            bigDecimalField.TryParse("20", out secondNumber);
 
-            var multiplied = BigDecimalNumber.Multiply(firstNumber, secondNumber);
-            Console.WriteLine(multiplied.ToString(4));
-
-            var bigDecimalField = new BigDecimalNumberField(4);
             Console.WriteLine(bigDecimalField.ToString(firstNumber));
             Console.WriteLine(bigDecimalField.ToString(secondNumber));
 

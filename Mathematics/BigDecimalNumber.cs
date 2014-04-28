@@ -530,12 +530,18 @@
             }
             else
             {
-                var numberRegex = new Regex(@"^\s*(?:-){0,1}(\d*)(?:\.(\d+)){0,1}\s*$");
+                var numberRegex = new Regex(@"^\s*(-){0,1}(\d*)(?:\.(\d+)){0,1}\s*$");
                 var matches = numberRegex.Match(text);
                 if (matches.Success)
                 {
+                    var signal = false;
+                    if (matches.Groups[1].Value.Contains("-"))
+                    {
+                        signal = true;
+                    }
+
                     var currentNumber = BigInteger.Zero;
-                    var matchText = matches.Groups[1].Value;
+                    var matchText = matches.Groups[2].Value;
                     if (!string.IsNullOrWhiteSpace(matchText))
                     {
                         if (!BigInteger.TryParse(matchText, out currentNumber))
@@ -544,79 +550,40 @@
                         }
                     }
 
-                    matchText = matches.Groups[2].Value.Trim().TrimEnd('0');
-                    var currentExponent = 0;
+                    matchText = matches.Groups[3].Value.Trim().TrimEnd('0');
                     if (!string.IsNullOrWhiteSpace(matchText))
                     {
-                        var mantissa = BigInteger.Zero;
-                        var currentPrecision = 0;
-                        while (!string.IsNullOrWhiteSpace(matchText) && currentPrecision < precision)
+                        if (currentNumber.IsZero)
                         {
-                            var innerText = string.Empty;
-                            var i = matchText.Length - 1;
-                            var currentChar = matchText[i];
-                            var currentValue = (int)char.GetNumericValue(currentChar);
-                            currentValue = currentValue << 1;
-                            var carry = currentValue / 10;
-                            currentValue = currentValue % 10;
-                            if (!string.IsNullOrWhiteSpace(innerText) || currentValue != 0)
-                            {
-                                innerText = innerText.Insert(0, currentValue.ToString());
-                            }
-
-                            --i;
-                            for (; i >= 0; --i)
-                            {
-                                currentChar = matchText[i];
-                                currentValue = (int)char.GetNumericValue(currentChar);
-                                currentValue = (currentValue << 1) + carry;
-                                carry = currentValue / 10;
-                                currentValue = currentValue % 10;
-                                if (!string.IsNullOrWhiteSpace(innerText) || currentValue != 0)
-                                {
-                                    innerText = innerText.Insert(0, currentValue.ToString());
-                                }
-                            }
-
-                            var temporary = mantissa;
-                            mantissa = mantissa << 1;
-                            if (carry > 0)
-                            {
-                                ++mantissa;
-                            }
-
-                            ++currentExponent;
-                            if (mantissa != 0)
-                            {
-                                currentPrecision = (int)integerPartLogAlg.Run(mantissa);
-                            }
-
-                            matchText = innerText;
+                            number = GetFromPureDecimalNumber(matchText, precision, signal);
                         }
-
-                        currentNumber = (currentNumber << currentExponent) + mantissa;
+                        else
+                        {
+                            number = GetFromCompleteNumber(currentNumber, matchText, precision, signal);
+                        }
                     }
-                    else
+                    else if(!currentNumber.IsZero)
                     {
                         var log = (int)integerPartLogAlg.Run(currentNumber) + 1;
+                        var currentExponent = 0;
                         if (log > precision)
                         {
                             var difference = log - precision;
                             currentNumber = currentNumber >> difference;
                             currentExponent -= difference;
                         }
-                    }
 
-                    if (text.Contains("-"))
-                    {
-                        currentNumber = -currentNumber;
-                    }
+                        if (signal)
+                        {
+                            currentNumber = -currentNumber;
+                        }
 
-                    number = new BigDecimalNumber()
-                    {
-                        number = currentNumber,
-                        exponent = -currentExponent
-                    };
+                        number = new BigDecimalNumber()
+                        {
+                            number = currentNumber,
+                            exponent = -currentExponent
+                        };
+                    }
 
                     return true;
                 }
@@ -625,6 +592,127 @@
                     return false;
                 }
             }
+        }
+
+        /// <summary>
+        /// Obtém o valor a partir de uma mantissa.
+        /// </summary>
+        /// <param name="currentNumber">O número.</param>
+        /// <param name="matchText">O valor da mantissa.</param>
+        /// <param name="precision">A precisão.</param>
+        /// <param name="signal">Se encontrou sinal.</param>
+        /// <returns>O valor do número.</returns>
+        private static BigDecimalNumber GetFromCompleteNumber(
+            BigInteger currentNumber,
+            string matchText,
+            int precision,
+            bool signal)
+        {
+            var currentNumberPrecision = (int)integerPartLogAlg.Run(currentNumber);
+            if (currentNumberPrecision < precision)
+            {
+                var mantissa = BigInteger.Zero;
+                var currentPrecision = 0;
+                var currentExponent = 0;
+                while (!string.IsNullOrWhiteSpace(matchText) && currentPrecision < precision)
+                {
+                    var innerText = string.Empty;
+                    var i = matchText.Length - 1;
+                    var currentChar = matchText[i];
+                    var currentValue = (int)char.GetNumericValue(currentChar);
+                    currentValue = currentValue << 1;
+                    var carry = currentValue / 10;
+                    currentValue = currentValue % 10;
+                    if (!string.IsNullOrWhiteSpace(innerText) || currentValue != 0)
+                    {
+                        innerText = innerText.Insert(0, currentValue.ToString());
+                    }
+
+                    --i;
+                    for (; i >= 0; --i)
+                    {
+                        currentChar = matchText[i];
+                        currentValue = (int)char.GetNumericValue(currentChar);
+                        currentValue = (currentValue << 1) + carry;
+                        carry = currentValue / 10;
+                        currentValue = currentValue % 10;
+                        if (!string.IsNullOrWhiteSpace(innerText) || currentValue != 0)
+                        {
+                            innerText = innerText.Insert(0, currentValue.ToString());
+                        }
+                    }
+
+                    var temporary = mantissa;
+                    mantissa = mantissa << 1;
+                    if (carry > 0)
+                    {
+                        ++mantissa;
+                    }
+
+                    ++currentExponent;
+                    if (mantissa != 0)
+                    {
+                        currentPrecision = (int)integerPartLogAlg.Run(mantissa);
+                    }
+
+                    matchText = innerText;
+                }
+
+                currentNumber = (currentNumber << currentExponent) + mantissa;
+                if (signal)
+                {
+                    currentNumber = -currentNumber;
+                }
+
+                return new BigDecimalNumber()
+                {
+                    number = currentNumber,
+                    exponent = -currentExponent
+                };
+            }
+            else if (currentNumberPrecision > precision)
+            {
+                var difference = currentNumberPrecision - precision;
+                currentNumber = currentNumber >> difference;
+
+                if (signal)
+                {
+                    currentNumber = -currentNumber;
+                }
+
+                return new BigDecimalNumber()
+                {
+                    number = currentNumber,
+                    exponent = difference
+                };
+            }
+            else
+            {
+                return new BigDecimalNumber()
+                {
+                    number = currentNumber,
+                    exponent = 0
+                };
+            }
+        }
+
+        /// <summary>
+        /// Efectua a leitura a partir de uma mantissa pura.
+        /// </summary>
+        /// <param name="matchText">A representação textual da mantissa.</param>
+        /// <param name="precision">A precisão do número.</param>
+        /// <param name="signal">Se encontrou sinal.</param>
+        /// <returns>O valor do número lido.</returns>
+        private static BigDecimalNumber GetFromPureDecimalNumber(
+            string matchText, 
+            int precision,
+            bool signal)
+        {
+            var mantissa = BigInteger.Zero;
+            var currentPrecision = 0;
+            var currentExponent = 0;
+
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -678,7 +766,7 @@
             var mantissaPlaces = (uint)(integerPartLogAlg.Run(mantissaPart) + 1);
             result += ".";
             var decimalPlaces = -1;
-            var decimalPrecision = (int)(precision * Math.Log10(2));
+            var decimalPrecision = (int)(precision * Math.Log10(2)) + 1;
             while (mantissaPart != 0 && decimalPlaces < decimalPrecision)
             {
                 var multiplied = (mantissaPart << 2) + mantissaPart;
