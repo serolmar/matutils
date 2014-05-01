@@ -142,34 +142,7 @@
 
         public BigDecimalNumber Multiply(BigDecimalNumber left, BigDecimalNumber right)
         {
-            if (left.Number.IsZero || right.Number.IsZero)
-            {
-                return BigDecimalNumber.Zero;
-            }
-            else
-            {
-                var currentExponent = -left.Exponent - right.Exponent;
-                var currentResultNumber = BigInteger.Multiply(left.Number, right.Number);
-                while ((currentResultNumber & 1) == 0 && currentExponent > 0)
-                {
-                    currentResultNumber = currentResultNumber >> 1;
-                    --currentExponent;
-                }
-
-                var log = (int)integerPartLogAlg.Run(currentResultNumber);
-                if (log > bitsPrecision)
-                {
-                    var difference = log - bitsPrecision + 1;
-                    currentResultNumber = currentResultNumber >> difference;
-                    currentExponent -= difference;
-                }
-
-                return new BigDecimalNumber()
-                {
-                    Exponent = -currentExponent,
-                    Number = currentResultNumber
-                };
-            }
+            return BigDecimalNumber.Multiply(left, right, this.bitsPrecision);
         }
 
         public string ToString(BigDecimalNumber number)

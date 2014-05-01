@@ -278,38 +278,105 @@
         /// </summary>
         /// <param name="left">O primeiro número a ser adcicionado.</param>
         /// <param name="right">O segundo número a ser adicionado.</param>
+        /// <param name="maxPrecision">A precisão binária associada ao número.</param>
         /// <returns>O resultado da adição.</returns>
-        public static BigDecimalNumber Add(BigDecimalNumber left, BigDecimalNumber right)
+        public static BigDecimalNumber Add(
+            BigDecimalNumber left,
+            BigDecimalNumber right,
+            int maxPrecision = 1024)
         {
-            var firstNumber = left;
-            var secondNumber = right;
-            if (left.exponent < right.exponent)
+            if (left.number.IsZero)
             {
-                firstNumber = right;
-                secondNumber = left;
+                return right;
             }
-
-            var difference = -firstNumber.exponent + secondNumber.exponent;
-            var secondInternalNumber = secondNumber.number;
-            if (difference > 0)
+            else if (right.number.IsZero)
             {
-                secondInternalNumber = secondInternalNumber << (int)difference;
+                return left;
             }
-
-            var currentExponent = -left.exponent;
-            var resultNumber = BigInteger.Add(firstNumber.number, secondInternalNumber);
-            var unity = BigInteger.One;
-            while ((resultNumber & unity) == 0 && currentExponent > 0)
+            else if (left.exponent == right.exponent)
             {
-                --currentExponent;
-                resultNumber = resultNumber >> 1;
+                var resultNumber = BigInteger.Add(left.number, right.number);
+                var currentExponent = left.exponent;
+
+                var log = (int)integerPartLogAlg.Run(resultNumber);
+                if (log > maxPrecision)
+                {
+                    var difference = log - maxPrecision + 1;
+                    resultNumber = resultNumber >> difference;
+                    currentExponent += difference;
+                }
+
+                var unity = BigInteger.One;
+                while ((resultNumber & unity) == 0 && currentExponent > 0)
+                {
+                    ++currentExponent;
+                    resultNumber = resultNumber >> 1;
+                }
+
+                return new BigDecimalNumber()
+                {
+                    exponent = currentExponent,
+                    number = resultNumber
+                };
             }
-
-            return new BigDecimalNumber()
+            else
             {
-                exponent = -currentExponent,
-                number = resultNumber
-            };
+                var firstNumber = left;
+                var secondNumber = right;
+                if (left.exponent < right.exponent)
+                {
+                    firstNumber = right;
+                    secondNumber = left;
+                }
+
+                var firstTemporaryNumber = BigInteger.Abs(firstNumber.number);
+                var secondTemporaryNumber = BigInteger.Abs(secondNumber.number);
+                var firstNumberSlack = maxPrecision - (int)integerPartLogAlg.Run(firstTemporaryNumber) - 1;
+                var secondNumberSlack = maxPrecision - (int)integerPartLogAlg.Run(secondTemporaryNumber) - 1;
+
+                if (firstNumber.exponent + secondNumber.exponent > firstNumberSlack + secondNumberSlack)
+                {
+                    return firstNumber;
+                }
+                else
+                {
+                    var currentExponent = secondNumber.exponent;
+                    var differenceExponent = firstNumber.exponent - secondNumber.exponent;
+                    if (differenceExponent < firstNumberSlack)
+                    {
+                        firstTemporaryNumber = firstNumber.number << differenceExponent;
+                    }
+                    else
+                    {
+                        firstTemporaryNumber = firstNumber.number << firstNumberSlack;
+                        var slackDiff = differenceExponent - secondNumberSlack;
+                        secondTemporaryNumber = secondNumber.number >> slackDiff;
+                        currentExponent += slackDiff;
+                    }
+
+                    var resultNumber = BigInteger.Add(firstTemporaryNumber, secondTemporaryNumber);
+                    var log = (int)integerPartLogAlg.Run(resultNumber);
+                    if (log > maxPrecision)
+                    {
+                        var difference = log - maxPrecision + 1;
+                        resultNumber = resultNumber >> difference;
+                        currentExponent += difference;
+                    }
+
+                    var unity = BigInteger.One;
+                    while ((resultNumber & unity) == 0 && currentExponent > 0)
+                    {
+                        ++currentExponent;
+                        resultNumber = resultNumber >> 1;
+                    }
+
+                    return new BigDecimalNumber()
+                    {
+                        Exponent = currentExponent,
+                        Number = resultNumber
+                    };
+                }
+            }
         }
 
         /// <summary>
@@ -356,30 +423,42 @@
         /// </summary>
         /// <param name="left">O primeiro número a ser multiplicado.</param>
         /// <param name="right">O segundo número a ser multiplicado.</param>
+        /// <param name="maxPrecision">A precisão binária associada ao número.</param>
         /// <returns>O resultado da multiplicação.</returns>
-        public static BigDecimalNumber Multiply(BigDecimalNumber left, BigDecimalNumber right)
+        public static BigDecimalNumber Multiply(
+            BigDecimalNumber left,
+            BigDecimalNumber right,
+            int maxPrecision = 1024)
         {
-            var currentExponent = -left.exponent - right.exponent;
-            var currentResultNumber = BigInteger.Multiply(left.number, right.number);
-            if (currentExponent < 0) // O expoente do número é positivo.
+            if (left.Number.IsZero || right.Number.IsZero)
             {
-                currentResultNumber = currentResultNumber >> currentExponent;
-                currentExponent = 0;
+                return BigDecimalNumber.Zero;
             }
             else
             {
+                var currentExponent = left.Exponent + right.Exponent;
+                var currentResultNumber = BigInteger.Multiply(left.Number, right.Number);
+
+                var log = (int)integerPartLogAlg.Run(currentResultNumber);
+                if (log > maxPrecision)
+                {
+                    var difference = log - maxPrecision + 1;
+                    currentResultNumber = currentResultNumber >> difference;
+                    currentExponent += difference;
+                }
+
                 while ((currentResultNumber & 1) == 0 && currentExponent > 0)
                 {
                     currentResultNumber = currentResultNumber >> 1;
-                    --currentExponent;
+                    ++currentExponent;
                 }
-            }
 
-            return new BigDecimalNumber()
-            {
-                exponent = -currentExponent,
-                number = currentResultNumber
-            };
+                return new BigDecimalNumber()
+                {
+                    Exponent = currentExponent,
+                    Number = currentResultNumber
+                };
+            }
         }
 
         /// <summary>
@@ -562,7 +641,7 @@
                             number = GetFromCompleteNumber(currentNumber, matchText, precision, signal);
                         }
                     }
-                    else if(!currentNumber.IsZero)
+                    else if (!currentNumber.IsZero)
                     {
                         var log = (int)integerPartLogAlg.Run(currentNumber) + 1;
                         var currentExponent = 0;
@@ -608,13 +687,14 @@
             int precision,
             bool signal)
         {
-            var currentNumberPrecision = (int)integerPartLogAlg.Run(currentNumber);
+            var currentNumberPrecision = (int)integerPartLogAlg.Run(currentNumber) + 1;
             if (currentNumberPrecision < precision)
             {
                 var mantissa = BigInteger.Zero;
                 var currentPrecision = 0;
                 var currentExponent = 0;
-                while (!string.IsNullOrWhiteSpace(matchText) && currentPrecision < precision)
+                var innerPrecision = precision - currentNumberPrecision;
+                while (!string.IsNullOrWhiteSpace(matchText) && currentPrecision < innerPrecision)
                 {
                     var innerText = string.Empty;
                     var i = matchText.Length - 1;
@@ -642,7 +722,6 @@
                         }
                     }
 
-                    var temporary = mantissa;
                     mantissa = mantissa << 1;
                     if (carry > 0)
                     {
@@ -652,13 +731,20 @@
                     ++currentExponent;
                     if (mantissa != 0)
                     {
-                        currentPrecision = (int)integerPartLogAlg.Run(mantissa);
+                        currentPrecision = (int)integerPartLogAlg.Run(mantissa) + 1;
                     }
 
                     matchText = innerText;
                 }
 
-                currentNumber = (currentNumber << currentExponent) + mantissa;
+                currentNumber = (currentNumber << innerPrecision) +
+                        (mantissa >> (currentExponent - innerPrecision));
+                if ((currentNumber & 1) == 0)
+                {
+                    ++currentNumber;
+                }
+
+                currentExponent = innerPrecision;
                 if (signal)
                 {
                     currentNumber = -currentNumber;
@@ -704,15 +790,108 @@
         /// <param name="signal">Se encontrou sinal.</param>
         /// <returns>O valor do número lido.</returns>
         private static BigDecimalNumber GetFromPureDecimalNumber(
-            string matchText, 
+            string matchText,
             int precision,
             bool signal)
         {
             var mantissa = BigInteger.Zero;
             var currentPrecision = 0;
             var currentExponent = 0;
+            var state = true;
 
-            throw new NotImplementedException();
+            // Aumenta o expoente enquanto o valor for nulo.
+            while (state)
+            {
+                var innerText = string.Empty;
+                var i = matchText.Length - 1;
+                var currentChar = matchText[i];
+                var currentValue = (int)char.GetNumericValue(currentChar);
+                currentValue = currentValue << 1;
+                var carry = currentValue / 10;
+                currentValue = currentValue % 10;
+                if (!string.IsNullOrWhiteSpace(innerText) || currentValue != 0)
+                {
+                    innerText = innerText.Insert(0, currentValue.ToString());
+                }
+
+                --i;
+                for (; i >= 0; --i)
+                {
+                    currentChar = matchText[i];
+                    currentValue = (int)char.GetNumericValue(currentChar);
+                    currentValue = (currentValue << 1) + carry;
+                    carry = currentValue / 10;
+                    currentValue = currentValue % 10;
+                    if (!string.IsNullOrWhiteSpace(innerText) || currentValue != 0)
+                    {
+                        innerText = innerText.Insert(0, currentValue.ToString());
+                    }
+                }
+
+                ++currentExponent;
+                if (carry > 0)
+                {
+                    ++mantissa;
+                    currentPrecision = 1;
+                    state = false;
+                }
+
+                matchText = innerText;
+            }
+
+            while (!string.IsNullOrWhiteSpace(matchText) && currentPrecision < precision)
+            {
+                var innerText = string.Empty;
+                var i = matchText.Length - 1;
+                var currentChar = matchText[i];
+                var currentValue = (int)char.GetNumericValue(currentChar);
+                currentValue = currentValue << 1;
+                var carry = currentValue / 10;
+                currentValue = currentValue % 10;
+                if (!string.IsNullOrWhiteSpace(innerText) || currentValue != 0)
+                {
+                    innerText = innerText.Insert(0, currentValue.ToString());
+                }
+
+                --i;
+                for (; i >= 0; --i)
+                {
+                    currentChar = matchText[i];
+                    currentValue = (int)char.GetNumericValue(currentChar);
+                    currentValue = (currentValue << 1) + carry;
+                    carry = currentValue / 10;
+                    currentValue = currentValue % 10;
+                    if (!string.IsNullOrWhiteSpace(innerText) || currentValue != 0)
+                    {
+                        innerText = innerText.Insert(0, currentValue.ToString());
+                    }
+                }
+
+                mantissa = mantissa << 1;
+                if (carry > 0)
+                {
+                    ++mantissa;
+                }
+
+                ++currentExponent;
+                if (mantissa != 0)
+                {
+                    currentPrecision = (int)integerPartLogAlg.Run(mantissa) + 1;
+                }
+
+                matchText = innerText;
+            }
+
+            if (signal)
+            {
+                mantissa = -mantissa;
+            }
+
+            return new BigDecimalNumber()
+            {
+                number = mantissa,
+                exponent = -currentExponent
+            };
         }
 
         /// <summary>
@@ -750,110 +929,15 @@
         /// <returns>A representação textual.</returns>
         private string GetNegativeExponentString(int precision)
         {
-            var currentExpnent = -this.exponent;
-            var result = string.Empty;
-            var tempNumber = this.number;
-            if (this.number < 0)
+            var currentExponent = -this.exponent;
+            if (currentExponent < precision)
             {
-                tempNumber = -this.number;
-                result += "-";
-            }
-
-            var mantissaMask = BigInteger.One << currentExpnent;
-            var integerPart = tempNumber >> currentExpnent;
-            result += integerPart.ToString();
-            var mantissaPart = tempNumber & (mantissaMask - 1);
-            var mantissaPlaces = (uint)(integerPartLogAlg.Run(mantissaPart) + 1);
-            result += ".";
-            var decimalPlaces = -1;
-            var decimalPrecision = (int)(precision * Math.Log10(2)) + 1;
-            while (mantissaPart != 0 && decimalPlaces < decimalPrecision)
-            {
-                var multiplied = (mantissaPart << 2) + mantissaPart;
-                mantissaPlaces += 2;
-                var mask = mantissaMask << 2;
-                if ((multiplied & mask) != 0)
-                {
-                    ++mantissaPlaces;
-                }
-
-                --currentExpnent;
-                mantissaMask = mantissaMask >> 1;
-                if (mantissaPlaces < currentExpnent)
-                {
-                    result += "0";
-                    mantissaPart = multiplied;
-                }
-                else
-                {
-                    mantissaPart = multiplied & (mantissaMask - 1);
-                    var value = multiplied >> (int)currentExpnent;
-                    result += value;
-                }
-
-                ++decimalPlaces;
-            }
-
-            var temporary = result;
-            result = string.Empty;
-            var i = decimalPrecision + 2;
-            if (i < temporary.Length)
-            {
-                var tempValue = (int)char.GetNumericValue(temporary[i]);
-                var carry = true;
-                if (tempValue < 5)
-                {
-                    carry = false;
-                }
-
-                --i;
-                var tempChar = temporary[i--];
-                while (tempChar != '.')
-                {
-                    tempValue = (int)char.GetNumericValue(tempChar);
-                    if (carry)
-                    {
-                        ++tempValue;
-                    }
-
-                    carry = false;
-                    if (tempValue == 10)
-                    {
-                        carry = true;
-                        tempValue = 0;
-                    }
-
-                    result = tempValue + result;
-                    tempChar = temporary[i--];
-                }
-
-                result = tempChar + result;
-                while (i >= 0)
-                {
-                    tempChar = temporary[i--];
-                    tempValue = (int)char.GetNumericValue(tempChar);
-                    if (carry)
-                    {
-                        ++tempValue;
-                    }
-
-                    carry = false;
-                    if (tempValue == 10)
-                    {
-                        carry = true;
-                        tempValue = 0;
-                    }
-
-                    result = tempValue + result;
-                }
+                return this.GetMixedDecimalNumberRepresentation(precision);
             }
             else
             {
-                result = temporary;
+                return this.GetPureDecimalNumberRepresentation(precision);
             }
-
-            result = result.TrimEnd('0').TrimEnd('.');
-            return result;
         }
 
         /// <summary>
@@ -956,62 +1040,285 @@
         }
 
         /// <summary>
-        /// Permite arredondar o último dígito e eliminá-lo da representação textual.
+        /// Obtém a representação textual de um número que contém parte inteira.
         /// </summary>
-        /// <param name="representation">A representação textual.</param>
-        /// <returns>O resultado do arredondamento.</returns>
-        private string RoundUpAndTrim(string representation)
+        /// <param name="precision">A precisão.</param>
+        /// <returns>A representação textual do número.</returns>
+        private string GetMixedDecimalNumberRepresentation(int precision)
         {
             var result = string.Empty;
-            var index = representation.Length - 1;
-            var digit = representation[index];
-            var value = char.GetNumericValue(digit);
-            var carry = 1;
-            if (value < 5)
+            var tempNumber = this.number;
+            if (this.number < 0)
             {
-                carry = 0;
+                tempNumber = -this.number;
+                result += "-";
             }
 
-            for (; index >= 0; --index)
-            {
-                digit = representation[index];
-                value = char.GetNumericValue(digit);
-                value += carry;
+            var currentExponent = -this.exponent;
+            var tempNumberPrecision = (int)integerPartLogAlg.Run(tempNumber) + 1;
+            var mantissaPrecision = Math.Min(currentExponent, precision);
 
-                carry = 0;
-                if (value > 10)
+            var mantissaMask = BigInteger.One << mantissaPrecision;
+            var integerPart = tempNumber >> currentExponent;
+            result += integerPart.ToString();
+            var mantissaPart = tempNumber & (mantissaMask - 1);
+            var mantissaPlaces = (uint)(integerPartLogAlg.Run(mantissaPart) + 1);
+            result += ".";
+            var decimalPlaces = -1;
+            var decimalPrecision = (int)(precision * Math.Log10(2));
+            decimalPrecision -= (int)((int)integerPartLogAlg.Run(integerPart) * Math.Log10(2));
+            while (mantissaPart != 0 && decimalPlaces < decimalPrecision)
+            {
+                var multiplied = (mantissaPart << 2) + mantissaPart;
+                mantissaPlaces += 2;
+                var mask = mantissaMask << 2;
+                if ((multiplied & mask) != 0)
                 {
-                    value = value % 10;
-                    carry = 1;
-                    result = "0" + result;
+                    ++mantissaPlaces;
+                }
+
+                --currentExponent;
+                mantissaMask = mantissaMask >> 1;
+                if (mantissaPlaces < currentExponent)
+                {
+                    result += "0";
+                    mantissaPart = multiplied;
                 }
                 else
                 {
-                    result = value + result;
+                    mantissaPart = multiplied & (mantissaMask - 1);
+                    var value = multiplied >> (int)currentExponent;
+                    result += value;
                 }
+
+                ++decimalPlaces;
             }
 
+            var temporary = result;
+            result = string.Empty;
+            var i = decimalPrecision + temporary.IndexOf('.') + 1;
+            if (i < temporary.Length)
+            {
+                var tempValue = (int)char.GetNumericValue(temporary[i]);
+                var carry = true;
+                if (tempValue < 5)
+                {
+                    carry = false;
+                }
+
+                --i;
+                var tempChar = temporary[i--];
+                while (tempChar != '.')
+                {
+                    tempValue = (int)char.GetNumericValue(tempChar);
+                    if (carry)
+                    {
+                        ++tempValue;
+                    }
+
+                    carry = false;
+                    if (tempValue == 10)
+                    {
+                        carry = true;
+                        tempValue = 0;
+                    }
+
+                    result = tempValue + result;
+                    tempChar = temporary[i--];
+                }
+
+                result = tempChar + result;
+                while (i >= 0)
+                {
+                    tempChar = temporary[i--];
+                    tempValue = (int)char.GetNumericValue(tempChar);
+                    if (carry)
+                    {
+                        ++tempValue;
+                    }
+
+                    carry = false;
+                    if (tempValue == 10)
+                    {
+                        carry = true;
+                        tempValue = 0;
+                    }
+
+                    result = tempValue + result;
+                }
+            }
+            else
+            {
+                result = temporary;
+            }
+
+            result = result.TrimEnd('0').TrimEnd('.');
             return result;
         }
 
         /// <summary>
-        /// Permite obter o dobro de uma representação textual de um número inteiro.
+        /// Otbém a representação textual de um número decimal sem parte inteira.
         /// </summary>
-        /// <param name="value">A representação textual do número inteiro.</param>
-        /// <returns>A representação textual do dobro desse número.</returns>
-        private string Duplicate(string value)
+        /// <param name="precision">A precisão do número.</param>
+        /// <returns>A representação textual do número.</returns>
+        private string GetPureDecimalNumberRepresentation(int precision)
         {
-            var result = string.Empty;
-            var carry = 0;
-            for (int i = value.Length - 1; i >= 0; --i)
-            {
-                var digit = value[i];
+            var tempNumber = this.number;
+            var currentExponent = -this.exponent;
 
+            // Estabelecimento das precisões.
+            var log2 = Math.Log10(2);
+            var decimalPrecision = (int)Math.Ceiling(precision * log2);
+            var numberDecimalPlaces = decimalPrecision;
+
+            var result = tempNumber.ToString();
+            var decimalExponent = 0;
+            while (currentExponent > 0)
+            {
+                var tempResult = result;
+                result = string.Empty;
+                var lastItem = tempResult.Length - 1;
+                if (lastItem > 0)
+                {
+                    var currentValue = (int)char.GetNumericValue(tempResult[0]);
+                    var quo = currentValue >> 1;
+                    var rem = currentValue & 1;
+                    if (quo == 0) // Inclui o valor caso seja diferente de zero.
+                    {
+                        --numberDecimalPlaces;
+                    }
+                    else
+                    {
+                        result += quo.ToString();
+                    }
+
+                    for (int i = 1; i < lastItem; ++i)
+                    {
+                        currentValue = (int)char.GetNumericValue(tempResult[i]);
+                        if (rem == 1)
+                        {
+                            currentValue += 10;
+                        }
+
+                        quo = currentValue >> 1;
+                        rem = currentValue & 1;
+                        result += quo.ToString();
+                    }
+
+                    currentValue = (int)char.GetNumericValue(tempResult[lastItem]);
+                    if (rem == 1)
+                    {
+                        currentValue += 10;
+                    }
+
+                    quo = currentValue >> 1;
+                    rem = currentValue & 1;
+                    result = result + quo.ToString();
+                    if (rem == 1 && numberDecimalPlaces > 0)
+                    {
+                        --decimalExponent;
+                        result += "5";
+                    }
+                }
+                else
+                {
+                    var currentValue = (int)char.GetNumericValue(tempResult[lastItem]);
+                    var quo = currentValue >> 1;
+                    var rem = currentValue & 1;
+
+                    quo = currentValue >> 1;
+                    rem = currentValue & 1;
+                    if (quo != 0)
+                    {
+                        result = result + quo.ToString();
+                    }
+
+                    if (rem == 1 && numberDecimalPlaces > 0)
+                    {
+                        --decimalExponent;
+                        result += "5";
+                    }
+                }
+
+                --currentExponent;
             }
 
-            if (carry == 1)
+            decimalExponent += result.Length - 1;
+            if (decimalExponent > -decimalPrecision)
             {
-                result = "1" + result;
+                var prefix = string.Empty;
+                while(decimalExponent < 0)
+                {
+                    prefix = prefix + "0";
+                    ++decimalExponent;
+                }
+
+                result = prefix + result;
+            }
+
+            var j = decimalPrecision;
+            if (result.Length > j)
+            {
+                var tempResult = result;
+                result = string.Empty;
+                var value = (int)char.GetNumericValue(tempResult[j]);
+                var carry = true;
+                if (value < 5)
+                {
+                    carry = false;
+                }
+
+                --j;
+                while (j >= 0)
+                {
+                    var tempChar = tempResult[j--];
+                    value = (int)char.GetNumericValue(tempChar);
+                    if (carry)
+                    {
+                        ++value;
+                    }
+
+                    carry = false;
+                    if (value == 10)
+                    {
+                        carry = true;
+                        value = 0;
+                    }
+
+                    result = value + result;
+                }
+
+                while (j >= 0)
+                {
+                    var tempChar = tempResult[j--];
+                    value = (int)char.GetNumericValue(tempChar);
+                    if (carry)
+                    {
+                        ++value;
+                    }
+
+                    carry = false;
+                    if (value == 10)
+                    {
+                        carry = true;
+                        value = 0;
+                    }
+
+                    result = value + result;
+                }
+            }
+
+            result = result.Insert(1, ".");
+            result = result.TrimEnd('0');
+            if (decimalExponent != 0)
+            {
+                result += string.Format("E{0}", decimalExponent);
+            }
+
+            if (this.number < 0)
+            {
+                tempNumber = -this.number;
+                result = "-" + result;
             }
 
             return result;
