@@ -384,38 +384,105 @@
         /// </summary>
         /// <param name="left">O primeiro número a ser subtraído.</param>
         /// <param name="right">O segundo número a ser subtraído.</param>
+        /// <param name="maxPrecision">A precisão binária.</param>
         /// <returns>O resultado da subtracção.</returns>
-        public static BigDecimalNumber Subtract(BigDecimalNumber left, BigDecimalNumber right)
+        public static BigDecimalNumber Subtract(
+            BigDecimalNumber left,
+            BigDecimalNumber right,
+            int maxPrecision = 1024)
         {
-            var firstNumber = left;
-            var secondNumber = right;
-            if (-left.exponent < -right.exponent)
+            if (left.number.IsZero)
             {
-                firstNumber = right;
-                secondNumber = left;
+                return BigDecimalNumber.Negate(right);
             }
-
-            var difference = -firstNumber.exponent + secondNumber.exponent;
-            var secondInternalNumber = secondNumber.number;
-            if (difference > 0)
+            else if (right.number.IsZero)
             {
-                secondInternalNumber = secondInternalNumber << (int)difference;
+                return left;
             }
-
-            var currentExponent = -left.exponent;
-            var resultNumber = BigInteger.Subtract(firstNumber.number, secondInternalNumber);
-            var unity = BigInteger.One;
-            while ((resultNumber & unity) == 0 && currentExponent > 0)
+            else if (left.exponent == right.exponent)
             {
-                --currentExponent;
-                resultNumber = resultNumber >> 1;
+                var resultNumber = BigInteger.Subtract(left.number, right.number);
+                var currentExponent = left.exponent;
+
+                var log = (int)integerPartLogAlg.Run(resultNumber);
+                if (log > maxPrecision)
+                {
+                    var difference = log - maxPrecision + 1;
+                    resultNumber = resultNumber >> difference;
+                    currentExponent += difference;
+                }
+
+                var unity = BigInteger.One;
+                while ((resultNumber & unity) == 0 && currentExponent > 0)
+                {
+                    ++currentExponent;
+                    resultNumber = resultNumber >> 1;
+                }
+
+                return new BigDecimalNumber()
+                {
+                    exponent = currentExponent,
+                    number = resultNumber
+                };
             }
-
-            return new BigDecimalNumber()
+            else
             {
-                exponent = -currentExponent,
-                number = resultNumber
-            };
+                var firstNumber = left;
+                var secondNumber = right;
+                if (left.exponent < right.exponent)
+                {
+                    firstNumber = right;
+                    secondNumber = left;
+                }
+
+                var firstTemporaryNumber = BigInteger.Abs(firstNumber.number);
+                var secondTemporaryNumber = BigInteger.Abs(secondNumber.number);
+                var firstNumberSlack = maxPrecision - (int)integerPartLogAlg.Run(firstTemporaryNumber) - 1;
+                var secondNumberSlack = maxPrecision - (int)integerPartLogAlg.Run(secondTemporaryNumber) - 1;
+
+                if (firstNumber.exponent + secondNumber.exponent > firstNumberSlack + secondNumberSlack)
+                {
+                    return firstNumber;
+                }
+                else
+                {
+                    var currentExponent = secondNumber.exponent;
+                    var differenceExponent = firstNumber.exponent - secondNumber.exponent;
+                    if (differenceExponent < firstNumberSlack)
+                    {
+                        firstTemporaryNumber = firstNumber.number << differenceExponent;
+                    }
+                    else
+                    {
+                        firstTemporaryNumber = firstNumber.number << firstNumberSlack;
+                        var slackDiff = differenceExponent - secondNumberSlack;
+                        secondTemporaryNumber = secondNumber.number >> slackDiff;
+                        currentExponent += slackDiff;
+                    }
+
+                    var resultNumber = BigInteger.Subtract(firstTemporaryNumber, secondTemporaryNumber);
+                    var log = (int)integerPartLogAlg.Run(resultNumber);
+                    if (log > maxPrecision)
+                    {
+                        var difference = log - maxPrecision + 1;
+                        resultNumber = resultNumber >> difference;
+                        currentExponent += difference;
+                    }
+
+                    var unity = BigInteger.One;
+                    while ((resultNumber & unity) == 0 && currentExponent > 0)
+                    {
+                        ++currentExponent;
+                        resultNumber = resultNumber >> 1;
+                    }
+
+                    return new BigDecimalNumber()
+                    {
+                        Exponent = currentExponent,
+                        Number = resultNumber
+                    };
+                }
+            }
         }
 
         /// <summary>
@@ -477,52 +544,72 @@
             {
                 throw new DivideByZeroException();
             }
+            else if (left.number.IsZero)
+            {
+                return BigDecimalNumber.Zero;
+            }
             else
             {
-                var currentNumber = left.number;
-                var currentExponent = -left.exponent;
-                if (-left.exponent < -right.exponent)
+                var currentLeftNumber = BigInteger.Abs(left.number);
+                var currentRightNumber = BigInteger.Abs(right.number);
+                var differenceExponent = left.exponent - right.exponent;
+
+                var divisorLog = (int)integerPartLogAlg.Run(currentRightNumber);
+                if (currentLeftNumber < currentRightNumber)
                 {
-                    var difference = right.exponent - left.exponent;
-                    currentNumber = currentNumber << (int)difference;
-                    currentExponent = 0;
-                }
-                else
-                {
-                    currentExponent += right.exponent;
+                    var remoLog = (int)integerPartLogAlg.Run(currentLeftNumber);
+                    var lower = divisorLog - remoLog + 1;
+                    currentLeftNumber = currentLeftNumber << lower;
+                    differenceExponent -= lower;
                 }
 
                 // Pode ser que se esteja na presença de múltiplos.
+                var currentExponent = 0;
                 var remainder = default(BigInteger);
-                currentNumber = BigInteger.DivRem(currentNumber, right.number, out remainder);
+                currentLeftNumber = BigInteger.DivRem(currentLeftNumber, currentRightNumber, out remainder);
                 if (remainder != 0)
                 {
-                    if (currentExponent <= maxPrecision)
+                    if (currentExponent < maxPrecision)
                     {
-                        var divisorLog = (int)integerPartLogAlg.Run(right.number);
                         while (remainder != 0 && currentExponent < maxPrecision)
                         {
                             var remLog = (int)integerPartLogAlg.Run(remainder);
                             var lower = divisorLog - remLog + 1;
                             remainder = remainder << lower;
-                            currentNumber = currentNumber << lower;
-                            var quo = BigInteger.DivRem(remainder, right.number, out remainder);
-                            currentNumber += quo;
+                            currentLeftNumber = currentLeftNumber << lower;
+                            var quo = BigInteger.DivRem(remainder, currentRightNumber, out remainder);
+                            currentLeftNumber += quo;
                             currentExponent += lower;
                         }
 
-                        while (currentExponent > maxPrecision)
+                        while (currentExponent >= maxPrecision)
                         {
-                            currentNumber = currentNumber >> 1;
+                            currentLeftNumber = currentLeftNumber >> 1;
                             --currentExponent;
                         }
                     }
                 }
 
+                while ((currentLeftNumber & 1) == 0 && currentExponent > 0)
+                {
+                    currentLeftNumber = currentLeftNumber >> 1;
+                    --currentExponent;
+                }
+
+                if (left.number < 0)
+                {
+                    currentLeftNumber = BigInteger.Negate(currentLeftNumber);
+                }
+
+                if (right.number < 0)
+                {
+                    currentLeftNumber = BigInteger.Negate(currentLeftNumber);
+                }
+
                 return new BigDecimalNumber()
                 {
-                    number = currentNumber,
-                    exponent = -currentExponent
+                    number = currentLeftNumber,
+                    exponent = differenceExponent - currentExponent
                 };
             }
         }
@@ -1066,7 +1153,11 @@
             result += ".";
             var decimalPlaces = -1;
             var decimalPrecision = (int)(precision * Math.Log10(2));
-            decimalPrecision -= (int)((int)integerPartLogAlg.Run(integerPart) * Math.Log10(2));
+            if (!integerPart.IsZero)
+            {
+                decimalPrecision -= (int)((int)integerPartLogAlg.Run(integerPart) * Math.Log10(2));
+            }
+
             while (mantissaPart != 0 && decimalPlaces < decimalPrecision)
             {
                 var multiplied = (mantissaPart << 2) + mantissaPart;
@@ -1247,7 +1338,7 @@
             if (decimalExponent > -decimalPrecision)
             {
                 var prefix = string.Empty;
-                while(decimalExponent < 0)
+                while (decimalExponent < 0)
                 {
                     prefix = prefix + "0";
                     ++decimalExponent;

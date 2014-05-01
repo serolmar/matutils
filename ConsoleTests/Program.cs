@@ -21,16 +21,13 @@
 
         static void Main(string[] args)
         {
-            var bigDecimalField = new BigDecimalNumberField(119);
+            var bigDecimalField = new BigDecimalNumberField(23);
             var firstNumber = default(BigDecimalNumber);
             var secondNumber = default(BigDecimalNumber);
             bigDecimalField.TryParse("1.1", out firstNumber);
-            bigDecimalField.TryParse("25.23", out secondNumber);
+            bigDecimalField.TryParse("15", out secondNumber);
 
-            Console.WriteLine(bigDecimalField.ToString(firstNumber));
-            Console.WriteLine(bigDecimalField.ToString(secondNumber));
-
-            var result = bigDecimalField.Multiply(firstNumber, secondNumber);
+            var result = bigDecimalField.MultiplicativeInverse(firstNumber);
             Console.WriteLine(bigDecimalField.ToString(result));
 
             // Test20();
