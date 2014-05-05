@@ -21,7 +21,8 @@
     {
         public FieldDrivenExpressionParser(
             IParse<ObjectType, string, string> elementsParser,
-            IField<ObjectType> field)
+            IField<ObjectType> field,
+            IIntegerNumber<ObjectType> integerNumber = null)
         {
             if (field == null)
             {
@@ -35,7 +36,8 @@
             {
                 this.expressionReader = new FieldDrivenExpressionReader<ObjectType, ISymbol<string, string>[]>(
                     elementsParser,
-                    field);
+                    field,
+                    integerNumber);
             }
         }
     }

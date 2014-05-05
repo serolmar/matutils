@@ -998,60 +998,63 @@
         /// Substitui a variável pelo polinómio especificado e calcula o resultado.
         /// </summary>
         /// <param name="other">O polinómio a substituir.</param>
+        /// <param name="integerNumber">O número inteiro.</param>
         /// <returns>O resultado da substituição.</returns>
         public GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType> Replace(
             GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType> other,
-            IRing<CoeffType> ring)
+            IRing<CoeffType> ring,
+            IIntegerNumber<DegreeType> integerNumber)
         {
-            //if (ring == null)
-            //{
-            //    throw new ArgumentNullException("ring");
-            //}
-            //else if (other == null)
-            //{
-            //    throw new ArgumentNullException("other");
-            //}
-            //else
-            //{
-            //    var polynomialRing = new UnivarPolynomRing<CoeffType, DegreeType>(this.variableName, ring);
-            //    var termsEnumerator = this.terms.GetEnumerator();
-            //    if (termsEnumerator.MoveNext())
-            //    {
-            //        var result = new GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType>(
-            //            termsEnumerator.Current.Value,
-            //            this.degreeNumber.AdditiveUnity,
-            //            this.variableName,
-            //            ring,
-            //            this.degreeNumber);
-            //        var previousDegree = termsEnumerator.Current.Key;
-            //        while (termsEnumerator.MoveNext())
-            //        {
-            //            var currentDegree = termsEnumerator.Current.Key;
-            //            var power = MathFunctions.Power(
-            //                other,
-            //                this.degreeNumber.Add(previousDegree, this.degreeNumber.AdditiveInverse(currentDegree)),
-            //                polynomialRing,
-            //                this.degreeNumber);
-            //            result = result.Multiply(power, ring);
-            //            result = result.Add(termsEnumerator.Current.Value, ring);
-            //            previousDegree = currentDegree;
-            //        }
+            if (ring == null)
+            {
+                throw new ArgumentNullException("ring");
+            }
+            else if (other == null)
+            {
+                throw new ArgumentNullException("other");
+            }
+            else
+            {
+                var polynomialRing = new GeneralDegUnivarPolynomRing<CoeffType, DegreeType>(
+                    this.variableName, 
+                    ring,
+                    integerNumber);
+                var termsEnumerator = this.terms.GetEnumerator();
+                if (termsEnumerator.MoveNext())
+                {
+                    var result = new GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType>(
+                        termsEnumerator.Current.Value,
+                        this.degreeNumber.AdditiveUnity,
+                        this.variableName,
+                        ring,
+                        this.degreeNumber);
+                    var previousDegree = termsEnumerator.Current.Key;
+                    while (termsEnumerator.MoveNext())
+                    {
+                        var currentDegree = termsEnumerator.Current.Key;
+                        var power = MathFunctions.Power(
+                            other,
+                            this.degreeNumber.Add(previousDegree, this.degreeNumber.AdditiveInverse(currentDegree)),
+                            polynomialRing,
+                            this.degreeNumber);
+                        result = result.Multiply(power, ring);
+                        result = result.Add(termsEnumerator.Current.Value, ring);
+                        previousDegree = currentDegree;
+                    }
 
-            //        var lastPower = MathFunctions.Power(
-            //            other,
-            //            previousDegree,
-            //            polynomialRing,
-            //            this.degreeNumber);
-            //        result = result.Multiply(lastPower, ring);
-            //        return result;
-            //    }
-            //    else
-            //    {
-            //        return polynomialRing.AdditiveUnity;
-            //    }
-            //}
-
-            throw new NotImplementedException();
+                    var lastPower = MathFunctions.Power(
+                        other,
+                        previousDegree,
+                        polynomialRing,
+                        this.degreeNumber);
+                    result = result.Multiply(lastPower, ring);
+                    return result;
+                }
+                else
+                {
+                    return polynomialRing.AdditiveUnity;
+                }
+            }
         }
 
         #endregion Operações

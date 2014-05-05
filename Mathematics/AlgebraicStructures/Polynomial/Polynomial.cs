@@ -259,7 +259,36 @@
         /// <returns>O conjunto das variáveis.</returns>
         public List<string> GetVariables()
         {
-            throw new NotImplementedException();
+            var result = new List<string>();
+            var generalVarStack = new Stack<IEnumerator<PolynomialGeneralVariable<T>>>();
+            var generalVarEnum = this.variables.GetEnumerator();
+            generalVarStack.Push(generalVarEnum);
+            while (generalVarStack.Count != 0)
+            {
+                var currentVarEnum = generalVarStack.Pop();
+                if (currentVarEnum.MoveNext())
+                {
+                    var current = currentVarEnum.Current;
+                    if (current.IsVariable)
+                    {
+                        var variable = current.GetVariable();
+                        if (!result.Contains(variable))
+                        {
+                            result.Add(variable);
+                        }
+                    }
+                    else if (current.IsPolynomial)
+                    {
+                        var polynomial = current.GetPolynomial();
+                        generalVarEnum = polynomial.variables.GetEnumerator();
+                        generalVarStack.Push(generalVarEnum);
+                    }
+
+                    generalVarStack.Push(currentVarEnum);
+                }
+            }
+
+            return result;
         }
 
         /// <summary>

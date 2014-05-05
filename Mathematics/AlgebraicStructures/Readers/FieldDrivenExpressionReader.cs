@@ -16,7 +16,8 @@
 
         public FieldDrivenExpressionReader(
             IParse<ObjectType, string, string> objectParser,
-            IField<ObjectType> field) : base(objectParser, field)
+            IField<ObjectType> field,
+            IIntegerNumber<ObjectType> integerNumber = null) : base(objectParser, field, integerNumber)
         {
             // A verificação de nulidade do campo é levada a cabo na classe base.
             this.field = field;

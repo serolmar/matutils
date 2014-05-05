@@ -373,7 +373,14 @@
         /// <returns>O valor do grau.</returns>
         public uint Degree(UnivariatePolynomialNormalForm<CoeffType> value)
         {
-            throw new NotImplementedException();
+            if (value == null)
+            {
+                throw new ArgumentNullException("value");
+            }
+            else
+            {
+                return (uint)value.Degree;
+            }
         }
 
         /// <summary>

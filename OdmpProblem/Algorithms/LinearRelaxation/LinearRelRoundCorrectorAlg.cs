@@ -10,7 +10,7 @@
     using Utilities.Collections;
 
     /// <summary>
-    /// Permite obter uma correcção ao resultado proveniente da relaxalão linear. 
+    /// Permite obter uma correcção ao resultado proveniente da relaxação linear. 
     /// </summary>
     /// <typeparam name="CoeffType">O tipo de coeficientes que corresponde à saída da relaxação linear.</typeparam>
     public class LinearRelRoundCorrectorAlg<CoeffType>

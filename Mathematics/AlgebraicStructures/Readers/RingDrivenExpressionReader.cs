@@ -9,6 +9,11 @@
     public class RingDrivenExpressionReader<ObjectType, InputReader>
     {
         /// <summary>
+        /// O objecto responsável pelas operações sobre inteiros.
+        /// </summary>
+        private IIntegerNumber<ObjectType> integerNumber;
+
+        /// <summary>
         /// O anel responsável pelas operações sobre os elementos.
         /// </summary>
         private IRing<ObjectType> ring;
@@ -28,9 +33,16 @@
         /// </summary>
         private Dictionary<string, List<string>> expressionDelimiterTypes = new Dictionary<string, List<string>>();
 
+        /// <summary>
+        /// Permite instanciar um leitor de expressões com base num anel numérico.
+        /// </summary>
+        /// <param name="objectParser">O objecto responsável pela leitura de cada elemento.</param>
+        /// <param name="ring">O anel responsável pelas operações sobre os elementos.</param>
+        /// <param name="integerNumber">O objecto responsável pelas operações sobre o grau.</param>
         public RingDrivenExpressionReader(
             IParse<ObjectType, string, string> objectParser, 
-            IRing<ObjectType> ring)
+            IRing<ObjectType> ring,
+            IIntegerNumber<ObjectType> integerNumber)
         {
             if (objectParser == null)
             {
@@ -44,6 +56,7 @@
             {
                 this.objectParser = objectParser;
                 this.ring = ring;
+                this.integerNumber = integerNumber;
             }
         }
 
@@ -298,7 +311,14 @@
             ObjectType left,
             ObjectType right)
         {
-            throw new NotImplementedException("The powers functionality isn't supported yet.");
+            if (this.integerNumber == null)
+            {
+                throw new MathematicsException("No integer number arithmetic operations class was provided.");
+            }
+            else
+            {
+                return MathFunctions.Power(left, right, this.ring, this.integerNumber);
+            }
         }
     }
 }

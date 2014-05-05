@@ -8,7 +8,7 @@
     using Utilities.Collections;
 
     /// <summary>
-    /// Representa um sub-vector.
+    /// Representa um sub-vector definido com base nos índices.
     /// </summary>
     internal class SubVector<CoeffType> : IVector<CoeffType>
     {
@@ -93,7 +93,7 @@
         /// <returns>O sub-vector.</returns>
         public IVector<CoeffType> GetSubVector(IntegerSequence indices)
         {
-            throw new NotImplementedException();
+            return new IntegerSequenceSubVector<CoeffType>(this, indices);
         }
 
         /// <summary>

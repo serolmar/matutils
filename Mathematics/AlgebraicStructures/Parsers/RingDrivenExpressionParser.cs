@@ -30,7 +30,8 @@
 
         public RingDrivenExpressionParser(
             IParse<ObjectType, string, string> elementsParser,
-            IRing<ObjectType> ring)
+            IRing<ObjectType> ring,
+            IIntegerNumber<ObjectType> integerNumber = null)
         {
             if (ring == null)
             {
@@ -44,7 +45,8 @@
             {
                 this.expressionReader = new RingDrivenExpressionReader<ObjectType, ISymbol<string, string>[]>(
                     elementsParser,
-                    ring);
+                    ring,
+                    integerNumber);
             }
         }
 
