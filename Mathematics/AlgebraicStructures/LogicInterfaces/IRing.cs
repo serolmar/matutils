@@ -5,6 +5,10 @@ using System.Text;
 
 namespace Mathematics
 {
+    /// <summary>
+    /// Define as operações de anel sobre um objecto genérico.
+    /// </summary>
+    /// <typeparam name="T">O tipo de objecto sobre o qual estão definidas as operações.</typeparam>
     public interface IRing<T> : IGroup<T>, IMultiplication<T>
     {
         /// <summary>

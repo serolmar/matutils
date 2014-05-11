@@ -9,6 +9,7 @@
     /// <summary>
     /// Permite definir formalmente um número natural a partir de um objecto que possa possuir essa propriedade.
     /// </summary>
+    /// <typeparam name="NumberType">O tipo de objecto que representa o número.</typeparam>
     public interface INaturalNumber<NumberType> : IEuclidenDomain<NumberType>
     {
         /// <summary>

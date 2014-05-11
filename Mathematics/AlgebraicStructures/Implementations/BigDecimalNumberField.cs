@@ -6,6 +6,10 @@
     using System.Numerics;
     using System.Text;
 
+    /// <summary>
+    /// Proporciona as funções de corpo sobre números decimais de precisão arbitrária.
+    /// Ver também <see cref="BigDecimalNumber"/>.
+    /// </summary>
     public class BigDecimalNumberField : IField<BigDecimalNumber>
     {
         /// <summary>
@@ -28,6 +32,14 @@
         /// </summary>
         private int decimalPrecision;
 
+        /// <summary>
+        /// Cria uma instância capaz de aplicar as operações aritméticas sobre números decimais de precisão
+        /// arbitrária.
+        /// </summary>
+        /// <param name="bitsPrecision">A precisão em número de bits utilizada durante as operações.</param>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// Caso o número de bits proporcionado seja um número
+        /// negativo.</exception>
         public BigDecimalNumberField(int bitsPrecision)
         {
             if (bitsPrecision < 0)
@@ -41,6 +53,10 @@
             }
         }
 
+        /// <summary>
+        /// Obtém a unidade aditiva.
+        /// </summary>
+        /// <value>A unidade aditiva.</value>
         public BigDecimalNumber AdditiveUnity
         {
             get
@@ -49,6 +65,12 @@
             }
         }
 
+        /// <summary>
+        /// Obtém a unidade multiplicativa.
+        /// </summary>
+        /// <value>
+        /// A unidade multiplicativa.
+        /// </value>
         public BigDecimalNumber MultiplicativeUnity
         {
             get
@@ -57,6 +79,10 @@
             }
         }
 
+        /// <summary>
+        /// Otbém a precisão em número de bits utilizada durante as operações sobre os números decimais
+        /// de precisão arbitrária.
+        /// </summary>
         public int BitsPrecision
         {
             get
@@ -65,6 +91,18 @@
             }
         }
 
+        /// <summary>
+        /// Obtém a precisão decimal.
+        /// </summary>
+        /// <remarks>
+        /// A precisão associada às operações sobre os números decimais são definidas em termos de número de bits.
+        /// Assim, o número de algarismos significativos correctos é dado pela sua precisão decimal. Esta calcula-se
+        /// como D = d log10(2) onde D é a precisão decimal, d é a precisão em bits e log10(2) corresponde ao logaritmo
+        /// de dois na base dez.
+        /// </remarks>
+        /// <value>
+        /// A precisão decimal.
+        /// </value>
         public int DecimalPrecision
         {
             get
@@ -115,41 +153,91 @@
             return BigDecimalNumber.Negate(number);
         }
 
+        /// <summary>
+        /// Determina se um valor é uma unidade aditivia.
+        /// </summary>
+        /// <param name="value">O valor.</param>
+        /// <returns>Verdadeiro caso o valor seja uma unidade aditiva e falso caso contrário.</returns>
         public bool IsAdditiveUnity(BigDecimalNumber value)
         {
             return value.Number.IsZero;
         }
 
+        /// <summary>
+        /// Determina quando dois números decimais são iguais.
+        /// </summary>
+        /// <param name="x">O primeiro objecto do tipo <paramref name="T" /> a ser comparado.</param>
+        /// <param name="y">O segundo objecto do tipo <paramref name="T" /> a ser comparado.</param>
+        /// <returns>
+        /// Verdadeiro caso ambos os objectos sejam iguais e falso no caso contrário.
+        /// </returns>
         public bool Equals(BigDecimalNumber x, BigDecimalNumber y)
         {
             return x.Equals(y);
         }
 
+        /// <summary>
+        /// Retorna um código confuso para a instância.
+        /// </summary>
+        /// <param name="obj">A instância.</param>
+        /// <returns>
+        /// Um código confuso para a instância que pode ser usado em vários algoritmos habituais.
+        /// </returns>
         public int GetHashCode(BigDecimalNumber obj)
         {
             return obj.GetHashCode();
         }
 
+        /// <summary>
+        /// Calcula a adição aritmética entre dois números.
+        /// </summary>
+        /// <param name="left">O primeiro número.</param>
+        /// <param name="right">O segundo número.</param>
+        /// <returns></returns>
         public BigDecimalNumber Add(BigDecimalNumber left, BigDecimalNumber right)
         {
             return BigDecimalNumber.Add(left, right);
         }
 
+        /// <summary>
+        /// Determina se o valor é uma unidade multiplicativa.
+        /// </summary>
+        /// <param name="value">O valor.</param>
+        /// <returns>Verdadeiro caso o valor seja uma unidade multiplicativa e falso caso contrário.</returns>
         public bool IsMultiplicativeUnity(BigDecimalNumber value)
         {
             return value.Number.IsOne && value.Exponent == 1;
         }
 
+        /// <summary>
+        /// Calcula a multiplicação de dois números.
+        /// </summary>
+        /// <param name="left">O primeiro número.</param>
+        /// <param name="right">O segundo número.</param>
+        /// <returns>O resultado da multiplicação.</returns>
         public BigDecimalNumber Multiply(BigDecimalNumber left, BigDecimalNumber right)
         {
             return BigDecimalNumber.Multiply(left, right, this.bitsPrecision);
         }
 
+        /// <summary>
+        /// Retorna um valor do tipo <see cref="System.String" /> que representa a instância.
+        /// </summary>
+        /// <param name="number">O número.</param>
+        /// <returns>
+        /// Um valor do tipo <see cref="System.String" /> que representa a instância.
+        /// </returns>
         public string ToString(BigDecimalNumber number)
         {
             return number.ToString(this.bitsPrecision);
         }
 
+        /// <summary>
+        /// Tenta efectuar a leitura de um número decimal a partir de uma representação textual.
+        /// </summary>
+        /// <param name="numberText">A representação textual do número.</param>
+        /// <param name="number">O número.</param>
+        /// <returns>Verdadeiro caso a leitura seja bem-sucedida e falso caso contrário.</returns>
         public bool TryParse(string numberText, out BigDecimalNumber number)
         {
             return BigDecimalNumber.TryParse(numberText, this.bitsPrecision, out number);

@@ -8,7 +8,7 @@
     /// <summary>
     /// Representa um conjunto de objectos que permitem criar instâncias de aneis polinomiais.
     /// </summary>
-    /// <typeparam name="CoeffType">O tipo de coeficiente.</typeparam>
+    /// <typeparam name="CoeffType">O tipo de objetos que representam os coeficiente.</typeparam>
     public interface IUnivarPolRingFactory<CoeffType>
     {
         /// <summary>

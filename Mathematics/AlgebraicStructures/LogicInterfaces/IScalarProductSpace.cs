@@ -8,6 +8,8 @@
     /// <summary>
     /// Representa um espaço onde está definido um produto escalar.
     /// </summary>
+    /// <typeparam name="VectorType">O tipo de objecto que representa um vector.</typeparam>
+    /// <typeparam name="CoeffType">O tipo de objecto que representa um coeficiente.</typeparam>
     public interface IScalarProductSpace<in VectorType, CoeffType> : IComparer<CoeffType>
     {
         /// <summary>

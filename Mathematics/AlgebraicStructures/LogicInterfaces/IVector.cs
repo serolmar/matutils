@@ -6,6 +6,10 @@
     using System.Text;
     using Utilities.Collections;
 
+    /// <summary>
+    /// Define as propriedades e método essenciais a um vector.
+    /// </summary>
+    /// <typeparam name="CoeffType">O tipo dos objectos que constituem as entradas do vector.</typeparam>
     public interface IVector<CoeffType> : IEnumerable<CoeffType>
     {
         /// <summary>

@@ -8,6 +8,7 @@
     /// <summary>
     /// Representa um conjunto de objectos que permitem criar instâncias de domínios polinomiais.
     /// </summary>
+    /// <typeparam name="CoeffType">O tipo de objectos que representam os coeficientes.</typeparam>
     public interface IUnivarPolDomainFactory<CoeffType>
     {
         /// <summary>

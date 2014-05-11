@@ -5,6 +5,10 @@
     using System.Linq;
     using System.Text;
 
+    /// <summary>
+    /// Define as propriedades e métodos essenciais a uma matriz esparsa.
+    /// </summary>
+    /// <typeparam name="ObjectType">O tipo dos objectos que constituem as entradas da matriz.</typeparam>
     public interface ISparseMatrix<ObjectType> : IMatrix<ObjectType>
     {
         /// <summary>

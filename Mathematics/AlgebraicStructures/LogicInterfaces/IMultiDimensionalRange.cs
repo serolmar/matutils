@@ -5,6 +5,15 @@ using System.Text;
 
 namespace Mathematics
 {
+    /// <summary>
+    /// Define as propriedades e métodos essenciais a um alcance multidimensional.
+    /// </summary>
+    /// <remarks>
+    /// Um alcance multidimensional consiste numa generalização da matriz a várias dimensões. A vantagem sobre
+    /// os vectores multidimensionais embebidos prende-se com possibilidade de definir a respectiva dimensão
+    /// em tempo de execução.
+    /// </remarks>
+    /// <typeparam name="ObjectType">O tipo de objectos que constituem as entradas do alcance multidimensional.</typeparam>
     public interface IMultiDimensionalRange<ObjectType> : IEnumerable<ObjectType>
     {
         /// <summary>

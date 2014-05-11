@@ -6,16 +6,16 @@
     using System.Text;
 
     /// <summary>
-    /// Permite representar um número inteiro.
+    /// Define as operações aritméticas de um inteiro sobre um objecto genérico.
     /// </summary>
-    /// <typeparam name="NumberType">O tipo do número.</typeparam>
+    /// <typeparam name="NumberType">O tipo do objecto.</typeparam>
     public interface IIntegerNumber<NumberType> : INaturalNumber<NumberType>, INormSpace<NumberType, NumberType>
     {
         /// <summary>
-        /// Obtém o antecessor de um número.
+        /// Obtém o antecessor de um objecto.
         /// </summary>
-        /// <param name="number">O número em análise.</param>
-        /// <returns>O antecessor do número.</returns>
+        /// <param name="number">O objecto do qual se pretende obter o antecessor.</param>
+        /// <returns>O antecessor do objecto.</returns>
         NumberType Predecessor(NumberType number);
     }
 }

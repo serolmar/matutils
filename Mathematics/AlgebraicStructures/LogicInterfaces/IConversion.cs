@@ -6,8 +6,14 @@
     using System.Text;
 
     /// <summary>
-    /// Representa uma conversão.
+    /// Representa uma conversão entre dois tipos de objectos.
     /// </summary>
+    /// <remarks>
+    /// Apesar de definir uma conversão enrte objectos do tipo <see cref="SecondType"/> em objectos do tipo
+    /// <see cref="FirstType"/>, é ainda definida uma operação que permite definir a conversão inversa.
+    /// </remarks>
+    /// <typeparam name="FirstType">O tipo de objecto que resulta da conversão.</typeparam>
+    /// <typeparam name="SecondType">O tipo de objecto a converter.</typeparam>
     public interface IConversion<FirstType, SecondType>
     {
         /// <summary>

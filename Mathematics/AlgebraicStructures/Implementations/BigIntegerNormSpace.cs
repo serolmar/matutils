@@ -6,6 +6,9 @@
     using System.Numerics;
     using System.Text;
 
+    /// <summary>
+    /// Define as operações sobre um espaço normado de inteiros de precisão arbitrária.
+    /// </summary>
     public class BigIntegerNormSpace : INormSpace<BigInteger, BigInteger>
     {
         /// <summary>

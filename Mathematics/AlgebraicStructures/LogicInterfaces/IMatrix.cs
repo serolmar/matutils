@@ -6,6 +6,10 @@
     using System.Text;
     using Utilities.Collections;
 
+    /// <summary>
+    /// Define as propriedades e métodos essenciais à definição de uma matriz.
+    /// </summary>
+    /// <typeparam name="ObjectType">O tipo de objectos que constituem as entradas da matriz.</typeparam>
     public interface IMatrix<ObjectType> : IEnumerable<ObjectType>
     {
         /// <summary>

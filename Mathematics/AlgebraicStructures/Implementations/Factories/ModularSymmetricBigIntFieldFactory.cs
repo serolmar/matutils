@@ -14,6 +14,10 @@
         /// <summary>
         /// Obtém a instância de um corpo modular simétrico.
         /// </summary>
+        /// <remarks>
+        /// Apesar de ser possível criar instâncias dos vários tipos de objectos que permitem realizar
+        /// aritmética modular, alguns algoritmos poderão necessitar criá-los internamente.
+        /// </remarks>
         /// <param name="modulus">O módulo associado ao corpo modular.</param>
         /// <returns>O corpo modular simétrico.</returns>
         public IModularField<BigInteger> CreateInstance(BigInteger modulus)

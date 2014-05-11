@@ -5,6 +5,10 @@
     using System.Linq;
     using System.Text;
 
+    /// <summary>
+    /// Define a multiplicação entre um coeficiente e uma fracção que envolva coeficientes do mesmo tipo.
+    /// </summary>
+    /// <typeparam name="CoeffType">O tipo do coeficiente.</typeparam>
     public class CoeffFractionMultiplicationOperation<CoeffType>
         : IMultiplicationOperation<CoeffType, Fraction<CoeffType>, Fraction<CoeffType>>
     {
@@ -13,6 +17,11 @@
         /// </summary>
         private IEuclidenDomain<CoeffType> domain;
 
+        /// <summary>
+        /// Inicializa uma instância da classe <see cref="CoeffFractionMultiplicationOperation{CoeffType}"/>.
+        /// </summary>
+        /// <param name="domain">O domínio reponsável pelas operações de simplificação das fracções.</param>
+        /// <exception cref="System.ArgumentNullException">domain</exception>
         public CoeffFractionMultiplicationOperation(IEuclidenDomain<CoeffType> domain)
         {
             if (domain == null)

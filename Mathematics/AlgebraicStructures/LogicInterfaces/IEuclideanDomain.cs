@@ -5,6 +5,10 @@ using System.Text;
 
 namespace Mathematics
 {
+    /// <summary>
+    /// Define as operações associadas as um domínio euclideano.
+    /// </summary>
+    /// <typeparam name="T">O tipo de objectos que fazem parte do domínio.</typeparam>
     public interface IEuclidenDomain<T> : IUniqueFactorizationDomain<T>
     {
         /// <summary>
