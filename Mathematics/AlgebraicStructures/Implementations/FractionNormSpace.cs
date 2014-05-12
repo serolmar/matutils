@@ -5,6 +5,10 @@
     using System.Linq;
     using System.Text;
 
+    /// <summary>
+    /// Define uma norma sobre o espaço de fracções.
+    /// </summary>
+    /// <typeparam name="CoeffType">O tipo dos coeficientes na fracção.</typeparam>
     public class FractionNormSpace<CoeffType>
         : INormSpace<Fraction<CoeffType>, Fraction<CoeffType>>
     {
@@ -13,6 +17,9 @@
         /// </summary>
         private FractionComparer<CoeffType> fractionComparer;
 
+        /// <summary>
+        /// O domínio responsável pelas operações sobre os coeficientes.
+        /// </summary>
         private IEuclidenDomain<CoeffType> domain;
 
         /// <summary>
@@ -20,6 +27,15 @@
         /// </summary>
         private INormSpace<CoeffType, CoeffType> coeffNormSpace;
 
+        /// <summary>
+        /// Cria uma instância de objectos do tipo <see cref="FractionNormSpace{CoeffType}"/>.
+        /// </summary>
+        /// <param name="coeffNormSpace">O objecto que define uma norma sobre os coeficientes.</param>
+        /// <param name="coeffsComparer">O comprador de coeficientes.</param>
+        /// <param name="domain">O domínio responsável pelas operações sobre os coeficientes.</param>
+        /// <exception cref="System.ArgumentNullException">
+        /// Caso algum dos argumentos seja nulo.
+        /// </exception>
         public FractionNormSpace(
             INormSpace<CoeffType, CoeffType> coeffNormSpace,
             IComparer<CoeffType> coeffsComparer,
@@ -50,6 +66,9 @@
         /// <summary>
         /// Obtém o objeto responsável pela comparação de fracções.
         /// </summary>
+        /// <value>
+        /// O objecto responsável pela compração de fracções.
+        /// </value>
         FractionComparer<CoeffType> FractionComparer
         {
             get
@@ -59,8 +78,11 @@
         }
 
         /// <summary>
-        /// O espaço das normas associado aos coeficientes.
+        /// Obtém o espaço das normas associado aos coeficientes.
         /// </summary>
+        /// <value>
+        /// O espaço das normas associado aos coeficientes.
+        /// </value>
         public INormSpace<CoeffType, CoeffType> CoeffNormSpace
         {
             get
@@ -74,6 +96,7 @@
         /// </summary>
         /// <param name="value">A fracção.</param>
         /// <returns>O módulo da fracção.</returns>
+        /// <exception cref="ArgumentNullException">Caso o argumento seja nulo.</exception>
         public Fraction<CoeffType> GetNorm(Fraction<CoeffType> value)
         {
             if (value == null)

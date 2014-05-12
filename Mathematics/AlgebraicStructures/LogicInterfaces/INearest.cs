@@ -6,7 +6,7 @@
     using System.Text;
 
     /// <summary>
-    /// Obtém o objecto do tipo alvo mais próximo do tipo fonte.
+    /// Define uma função capaz de obter um objecto do tipo alvo mais próximo do tipo fonte.
     /// </summary>
     /// <remarks>
     /// Um possível exemplo consite na determinação do inteiro que se encontra mais próximo de uma fracção ou
@@ -16,6 +16,11 @@
     /// <typeparam name="TargetType">O tipo do alvo.</typeparam>
     public interface INearest<in SourceType, out TargetType>
     {
+        /// <summary>
+        /// Otbém o objecto mais próximo da fote especificada.
+        /// </summary>
+        /// <param name="source">A fonte.</param>
+        /// <returns>O objecto mais próximo.</returns>
         TargetType GetNearest(SourceType source);
     }
 }

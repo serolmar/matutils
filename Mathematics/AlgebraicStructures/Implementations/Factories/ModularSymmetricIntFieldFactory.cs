@@ -6,7 +6,7 @@
     using System.Text;
 
     /// <summary>
-    /// Permite criar corpos modulares simétricos.
+    /// Permite criar corpos modulares simétricos para números inteiros.
     /// </summary>
     public class ModularSymmetricIntFieldFactory : IModularFieldFactory<int>
     {

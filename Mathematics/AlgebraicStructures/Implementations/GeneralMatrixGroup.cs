@@ -5,18 +5,48 @@
     using System.Linq;
     using System.Text;
 
+    /// <summary>
+    /// Define operações de grupo sobre matrizes.
+    /// </summary>
+    /// <typeparam name="CoeffType">O tipo de objectos que constituem as entradas das matrizes.</typeparam>
     public class GeneralMatrixGroup<CoeffType> : IMatrixGroup<CoeffType>
     {
+        /// <summary>
+        /// O grupo responsável pelas operações sobre os coeficientes.
+        /// </summary>
         protected IGroup<CoeffType> coeffsGroup;
 
+        /// <summary>
+        /// O objecto responsável pela adição de matrizes.
+        /// </summary>
         protected IAdditionOperation<IMatrix<CoeffType>, IMatrix<CoeffType>, IMatrix<CoeffType>> matrixAdditionOperation;
 
+        /// <summary>
+        /// A fábrica responsável pela criação de instâncias de matrizes.
+        /// </summary>
         protected IMatrixFactory<CoeffType> matrixFactory;
 
+        /// <summary>
+        /// O número de linhas das matrizes que podem ser processadas.
+        /// </summary>
         protected int lines;
 
+        /// <summary>
+        /// O número de colunas das matrizes que podem ser processadas.
+        /// </summary>
         protected int columns;
 
+        /// <summary>
+        /// Cria instâncias de objectos do tipo <see cref="GeneralMatrixGroup{CoeffType}"/>.
+        /// </summary>
+        /// <param name="lines">O número de linhas.</param>
+        /// <param name="columns">O número de colunas.</param>
+        /// <param name="matrixFactory">A fábrica responsável pela criação de instâncias de matrizes.</param>
+        /// <param name="coeffsGroup">O grupo responsável pelas operações sobre as entradas das matrizes.</param>
+        /// <exception cref="System.ArgumentException">Se o número de linhas ou de colunas for negativo.</exception>
+        /// <exception cref="System.ArgumentNullException">
+        /// Se forem nulos os argumentos "matrixFactory" e "coeffsGroup".
+        /// </exception>
         public GeneralMatrixGroup(
             int lines,
             int columns,
@@ -29,7 +59,7 @@
             }
             else if (columns < 0)
             {
-                throw new ArgumentNullException("The number of columns must be non negative.");
+                throw new ArgumentException("The number of columns must be non negative.");
             }
             else if (matrixFactory == null)
             {
@@ -52,6 +82,9 @@
         /// <summary>
         /// Obtém o número de linhas das matrizes que fazem parte do grupo.
         /// </summary>
+        /// <value>
+        /// O número de linhas das matrizes que fazem parte do grupo.
+        /// </value>
         public int Lines
         {
             get
@@ -63,6 +96,9 @@
         /// <summary>
         /// Obtém o número de colunas das matrizes que fazem parte do grupo.
         /// </summary>
+        /// <value>
+        /// O número de colunas que fazem parte do grupo.
+        /// </value>
         public int Columns
         {
             get
@@ -71,6 +107,12 @@
             }
         }
 
+        /// <summary>
+        /// Obtém a fábrica responsável pela criação de instâncias de matrizes.
+        /// </summary>
+        /// <value>
+        /// A fábrica responsável pela criação de instâncias de matrizes.
+        /// </value>
         public IMatrixFactory<CoeffType> Factory
         {
             get
@@ -79,6 +121,12 @@
             }
         }
 
+        /// <summary>
+        /// Obtém a unidade aditiva.
+        /// </summary>
+        /// <value>
+        /// A unidade aditiva.
+        /// </value>
         public IMatrix<CoeffType> AdditiveUnity
         {
             get
@@ -87,6 +135,16 @@
             }
         }
 
+        /// <summary>
+        /// Determina a inversa aditiva de uma matriz.
+        /// </summary>
+        /// <param name="number">A matriz.</param>
+        /// <returns>A inversa aditiva.</returns>
+        /// <exception cref="System.ArgumentNullException">Caso o argumento seja nulo.</exception>
+        /// <exception cref="MathematicsException">
+        /// Se o número de linhas ou colunas da matriz proporcionada não estiver de acordo com o número de linhas
+        /// e colunas aceites pelo grupo actual, respectivamente.
+        /// </exception>
         public IMatrix<CoeffType> AdditiveInverse(IMatrix<CoeffType> number)
         {
             if (number == null)
@@ -122,6 +180,16 @@
             }
         }
 
+        /// <summary>
+        /// Determina se o valor especificado é uma unidade aditiva.
+        /// </summary>
+        /// <param name="value">O valor.</param>
+        /// <returns></returns>
+        /// <exception cref="System.ArgumentNullException">Caso o valor seja nulo.</exception>
+        /// <exception cref="MathematicsException">
+        /// Se o número de linhas ou colunas da matriz proporcionada não estiver de acordo com o número de linhas
+        /// e colunas aceites pelo grupo actual, respectivamente.
+        /// </exception>
         public bool IsAdditiveUnity(IMatrix<CoeffType> value)
         {
             if (value == null)
@@ -157,6 +225,19 @@
         }
 
 
+        /// <summary>
+        /// Adiciona duas matrizes.
+        /// </summary>
+        /// <param name="left">A primeira matriz a ser adicionada.</param>
+        /// <param name="right">A segunda matriz a ser adicionada.</param>
+        /// <returns>A soma das matrizes.</returns>
+        /// <exception cref="System.ArgumentNullException">
+        /// Se algum dos argumentos for nulo.
+        /// </exception>
+        /// <exception cref="MathematicsException">
+        /// Se o número de linhas ou colunas da matriz proporcionada não estiver de acordo com o número de linhas
+        /// e colunas aceites pelo grupo actual, respectivamente.
+        /// </exception>
         public IMatrix<CoeffType> Add(IMatrix<CoeffType> left, IMatrix<CoeffType> right)
         {
             if (left == null)
@@ -194,6 +275,10 @@
         /// <param name="y">A segunda matriz.</param>
         /// <returns>Verdadeiro caso as matrizes sejam iguais e falso caso contrário.</returns>
         /// <exception cref="ArgumentNullException">Caso um dos argumentos seja nulo.</exception>
+        /// <exception cref="MathematicsException">
+        /// Se o número de linhas ou colunas da matriz proporcionada não estiver de acordo com o número de linhas
+        /// e colunas aceites pelo grupo actual, respectivamente.
+        /// </exception>
         public bool Equals(IMatrix<CoeffType> x, IMatrix<CoeffType> y)
         {
             if (x == null)
@@ -257,6 +342,10 @@
         /// <param name="obj">A matriz.</param>
         /// <returns>O código misturado.</returns>
         /// <exception cref="ArgumentNullException">Caso a matriz introduzida seja a referência nula.</exception>
+        /// <exception cref="MathematicsException">
+        /// Se o número de linhas ou colunas da matriz proporcionada não estiver de acordo com o número de linhas
+        /// e colunas aceites pelo grupo actual, respectivamente.
+        /// </exception>
         public int GetHashCode(IMatrix<CoeffType> obj)
         {
             if (obj == null)

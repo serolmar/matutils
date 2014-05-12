@@ -5,22 +5,44 @@ using System.Text;
 
 namespace Mathematics
 {
+    /// <summary>
+    /// Permite aplicar as operações de corpo sobre objectos do tipo <see cref="FractionField[T}" />.
+    /// </summary>
+    /// <typeparam name="T">O tipo dos coeficientes das fracções.</typeparam>
     public class FractionField<T> : ElementFractionConversion<T>, IField<Fraction<T>>, IConversion<T, Fraction<T>>
     {
+        /// <summary>
+        /// O comparador de coeficientes das fracções.
+        /// </summary>
         private IEqualityComparer<T> elementsComparer;
 
+        /// <summary>
+        /// Cria uma nova instância de objectos do tipo <see cref="FractionField{T}"/>.
+        /// </summary>
+        /// <param name="domain">O domínio responsável pelas operações sobre os coeficientes.</param>
         public FractionField(IEuclidenDomain<T> domain)
             : base(domain)
         {
             this.elementsComparer = null;
         }
 
+        /// <summary>
+        /// Cria uma nova instância de objectos do tipo <see cref="FractionField{T}"/>.
+        /// </summary>
+        /// <param name="elementsComparer">O comparador de coeficientes das fracções.</param>
+        /// <param name="domain">O domínio responsável pelas operações sobre os coeficientes.</param>
         public FractionField(IEqualityComparer<T> elementsComparer, IEuclidenDomain<T> domain)
             : base(domain)
         {
             this.elementsComparer = elementsComparer;
         }
 
+        /// <summary>
+        /// Obtém a unidade aditiva.
+        /// </summary>
+        /// <value>
+        /// A unidade aditiva.
+        /// </value>
         public Fraction<T> AdditiveUnity
         {
             get
@@ -29,6 +51,12 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Obtém a unidade multiplicativa.
+        /// </summary>
+        /// <value>
+        /// A unidade multiplicativa.
+        /// </value>
         public Fraction<T> MultiplicativeUnity
         {
             get
@@ -40,6 +68,12 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Obtém a inversa multiplicativa de uma fracção.
+        /// </summary>
+        /// <param name="number">A fracção.</param>
+        /// <returns>A inversa multiplicativa da fracção.</returns>
+        /// <exception cref="System.ArgumentNullException">Caso a fracção proporcionada seja nula.</exception>
         public Fraction<T> MultiplicativeInverse(Fraction<T> number)
         {
             if (number == null)
@@ -52,6 +86,12 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Obtém a inversa aditiva de uma fracção.
+        /// </summary>
+        /// <param name="number">A fracção.</param>
+        /// <returns>A inversa multiplicativa.</returns>
+        /// <exception cref="System.ArgumentNullException">Caso a fracção proporcionada seja nula.</exception>
         public Fraction<T> AdditiveInverse(Fraction<T> number)
         {
             if (number == null)
@@ -64,6 +104,12 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Determina se uma fracção é uma unidade aditiva.
+        /// </summary>
+        /// <param name="value">A fracção a ser analisada.</param>
+        /// <returns>Verdadeiro caso a fracção seja uma unidade aditiva e falso caso contrário.</returns>
+        /// <exception cref="System.ArgumentNullException">Caso o valor passado seja nulo.</exception>
         public bool IsAdditiveUnity(Fraction<T> value)
         {
             if (value == null)
@@ -76,6 +122,15 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Calcula a soma aritmética de duas fracções.
+        /// </summary>
+        /// <param name="left">A primeira fracção a ser adicionada.</param>
+        /// <param name="right">A segunda fracção a ser adicionada.</param>
+        /// <returns>O resultado da adição.</returns>
+        /// <exception cref="System.ArgumentNullException">
+        /// Caso ambos os argumentos sejam nulos.
+        /// </exception>
         public Fraction<T> Add(Fraction<T> left, Fraction<T> right)
         {
             if (left == null)
@@ -92,6 +147,15 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Calcula o produto aritmético de dois números.
+        /// </summary>
+        /// <param name="left">O primeiro número a ser multiplicado.</param>
+        /// <param name="right">O segundo número a ser multiplicado.</param>
+        /// <returns>O resultado do produto.</returns>
+        /// <exception cref="System.ArgumentNullException">
+        /// Caso um dos argumentos seja nulo.
+        /// </exception>
         public Fraction<T> Multiply(Fraction<T> left, Fraction<T> right)
         {
             if (left == null)
@@ -108,6 +172,12 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Determina se a fracção é uma unidade multiplicativa.
+        /// </summary>
+        /// <param name="value">A fracção.</param>
+        /// <returns>Verdadeiro caso a fracção seja uma unidade multiplicativa e falso caso contrário.</returns>
+        /// <exception cref="System.ArgumentNullException">Caso o valor seja nulo.</exception>
         public bool IsMultiplicativeUnity(Fraction<T> value)
         {
             if (value == null)
@@ -121,6 +191,12 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Calcula o resultado da adição repetida de uma fracção.
+        /// </summary>
+        /// <param name="element">A fracção.</param>
+        /// <param name="times">O número de vezes a adicionar.</param>
+        /// <returns>O resultado da adição repetida.</returns>
         public Fraction<T> AddRepeated(Fraction<T> element, int times)
         {
             if (this.domain.IsAdditiveUnity(element.Numerator))
@@ -134,6 +210,14 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Determina quando dois números decimais são iguais.
+        /// </summary>
+        /// <param name="x">A primeira fracção a ser comparada.</param>
+        /// <param name="y">A segunda fracção a ser comparada.</param>
+        /// <returns>
+        /// Verdadeiro caso ambos os objectos sejam iguais e falso no caso contrário.
+        /// </returns>
         public bool Equals(Fraction<T> x, Fraction<T> y)
         {
             if (x == null && y == null)
@@ -159,6 +243,13 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Retorna um código confuso para a instância.
+        /// </summary>
+        /// <param name="obj">A instância.</param>
+        /// <returns>
+        /// Um código confuso para a instância que pode ser usado em vários algoritmos habituais.
+        /// </returns>
         public int GetHashCode(Fraction<T> obj)
         {
             if (obj == null)

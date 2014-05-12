@@ -12,8 +12,16 @@
     public class FractionNearestBigInt
         : INearest<Fraction<BigInteger>, BigInteger>
     {
+        /// <summary>
+        /// O domínio responsável pelas operações sobre os coeficientes.
+        /// </summary>
         private IEuclidenDomain<BigInteger> domain;
 
+        /// <summary>
+        /// Cria uma instância de objectos do tipo <see cref="FractionNearestBigInt"/>.
+        /// </summary>
+        /// <param name="domain">O domínio responsável pelas operações sobre os coeficientes.</param>
+        /// <exception cref="System.ArgumentNullException">Caso o domínio seja nulo.</exception>
         public FractionNearestBigInt(IEuclidenDomain<BigInteger> domain)
         {
             if (domain == null)
@@ -31,6 +39,7 @@
         /// </summary>
         /// <param name="source">A facção.</param>
         /// <returns>O valor inteiro.</returns>
+        /// <exception cref="ArgumentNullException">Caso o argumento seja nulo.</exception>
         public BigInteger GetNearest(Fraction<BigInteger> source)
         {
             if (source == null)

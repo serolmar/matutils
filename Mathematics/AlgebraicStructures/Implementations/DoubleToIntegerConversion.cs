@@ -5,6 +5,10 @@
     using System.Linq;
     using System.Text;
 
+    /// <summary>
+    /// Permite converter de um número de precisão dupla <see cref="System.double"/> para um inteiro 
+    /// <see cref="System.int"/>.
+    /// </summary>
     public class DoubleToIntegerConversion : IConversion<int, double>
     {
         /// <summary>
@@ -27,6 +31,11 @@
             this.precision = Math.Abs(precision);
         }
 
+        /// <summary>
+        /// Indica se é possível converter o número de precisão dupla para inteiro.
+        /// </summary>
+        /// <param name="objectToConvert">O número em análise.</param>
+        /// <returns>Verdadeiro caso a conversão seja possível e falso caso contrário.</returns>
         public bool CanApplyDirectConversion(double objectToConvert)
         {
             var value = Math.Round(objectToConvert);
@@ -44,11 +53,25 @@
             }
         }
 
+        /// <summary>
+        /// Indica se é possível converter um número inteiro para um número de precisão dupla.
+        /// </summary>
+        /// <remarks>
+        /// Esta conversão é sempre possível.
+        /// </remarks>
+        /// <param name="objectToConvert">O número inteiro.</param>
+        /// <returns>Verdadeiro.</returns>
         public bool CanApplyInverseConversion(int objectToConvert)
         {
             return true;
         }
 
+        /// <summary>
+        /// Obtém o resultado da conversão de um número de precisão dupla num inteiro.
+        /// </summary>
+        /// <param name="objectToConvert">O número de precisão dupla.</param>
+        /// <returns>O inteiro convertido.</returns>
+        /// <exception cref="MathematicsException">Caso o número de precisão dupla não represente um valor inteiro.</exception>
         public int DirectConversion(double objectToConvert)
         {
             var value = Math.Round(objectToConvert);
@@ -67,6 +90,11 @@
             }
         }
 
+        /// <summary>
+        /// Converte um número inteiro num número de precisão dupla.
+        /// </summary>
+        /// <param name="objectToConvert">O número inteiro a ser convertido.</param>
+        /// <returns>O número de precisão dupla.</returns>
         public double InverseConversion(int objectToConvert)
         {
             return objectToConvert;

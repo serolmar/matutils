@@ -7,7 +7,7 @@
     using System.Text;
 
     /// <summary>
-    /// Permite criar instâncias de corpos modulares simétricos.
+    /// Permite criar instâncias de corpos modulares simétricos para inteiros de precisão arbitrária.
     /// </summary>
     public class ModularSymmetricBigIntFieldFactory : IModularFieldFactory<BigInteger>
     {

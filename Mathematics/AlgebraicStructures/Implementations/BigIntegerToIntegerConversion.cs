@@ -45,6 +45,7 @@
         /// </summary>
         /// <param name="objectToConvert">O inteiro grande a ser convertido.</param>
         /// <returns>O resultado da conversão.</returns>
+        /// <exception cref="MathematicsException">Caso a conversão não seja possível devido ao valor do inteiro de precisão arbitrária.</exception>
         public int DirectConversion(BigInteger objectToConvert)
         {
             if (objectToConvert > int.MaxValue || objectToConvert < int.MinValue)

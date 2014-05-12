@@ -5,6 +5,10 @@
     using System.Linq;
     using System.Text;
 
+    /// <summary>
+    /// Permite comprar duas fracções de acordo com a ordenação aritmética.
+    /// </summary>
+    /// <typeparam name="CoeffType">O tipo de coeficientes na fracção.</typeparam>
     public class FractionComparer<CoeffType> : IComparer<Fraction<CoeffType>>
     {
         /// <summary>
@@ -17,6 +21,18 @@
         /// </summary>
         private IComparer<CoeffType> comparer;
 
+
+        /// <summary>
+        /// Cria um nova instância de um objecto do tipo <see cref="FractionComparer{CoeffType}"/>.
+        /// </summary>
+        /// <param name="comparer">O comparador de coeficientes das fracções.</param>
+        /// <param name="multipliable">
+        /// O objecto responsável pelas operações de multiplicação dos coeficientes
+        /// da fracções.
+        /// </param>
+        /// <exception cref="System.ArgumentNullException">
+        /// Caso o objecto responsável pelas multiplicações seja nulo.
+        /// </exception>
         public FractionComparer(IComparer<CoeffType> comparer, IMultiplication<CoeffType> multipliable)
         {
             if (multipliable == null)

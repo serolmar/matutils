@@ -5,14 +5,39 @@
     using System.Linq;
     using System.Text;
 
+    /// <summary>
+    /// Define as operações de domínio sobre um polinómio univariável na forma normal com grau genérico.
+    /// </summary>
+    /// <remarks>
+    /// Uma definição comum de polinómios que se adapta à ciência de computadores consiste em considerá-los
+    /// como sendo funçlões do conjunto de inteiros (graus) num conjunto de valores (coeficientes). Porém, esta
+    /// definição admite uma generalização óbvia que consiste em considerá-los como sendo funções de um conjunto de
+    /// objectos (grau) sobre o qual está definida uma estrutura de monóide sobre um conjunto de valores (coeficientes).
+    /// No presente caso, considera-se que essa estrutura seja a de um número inteiro por ser mais útil na
+    /// implementação dos vários algoritmos.
+    /// </remarks>
+    /// <typeparam name="CoeffType">O tipo dos coeficientes do polinómio.</typeparam>
+    /// <typeparam name="DegreeType">O tipo do grau do polinómio.</typeparam>
     public class GeneralDegUnivarPolynomEuclideanDomain<CoeffType, DegreeType>
         : GeneralDegUnivarPolynomRing<CoeffType, DegreeType>,
         IEuclidenDomain<GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType>>
     {
+        /// <summary>
+        /// O corpo responsável pelas operações sobre os coeficientes.
+        /// </summary>
         private IField<CoeffType> field;
 
+        /// <summary>
+        /// A unidade do polinómio geral na forma normal.
+        /// </summary>
         private GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType> unit;
 
+        /// <summary>
+        /// Cria uma instância de objectos do tipo <see cref="GeneralDegUnivarPolynomEuclideanDomain{CoeffType, DegreeType}"/>.
+        /// </summary>
+        /// <param name="variableName">O nome da variável.</param>
+        /// <param name="field">O corpo responsável pelas operações sobre os coeficiente.</param>
+        /// <param name="integerNumber">O objecto que é responsável pelas operações sobre os graus.</param>
         public GeneralDegUnivarPolynomEuclideanDomain(
             string variableName,
             IField<CoeffType> field,
@@ -29,8 +54,11 @@
         }
 
         /// <summary>
-        /// Obtém o corpo sobre os coeficientes do polinómio.
+        /// Obtém o corpo responsável pelas operações sobre os coeficientes do polinómio.
         /// </summary>
+        /// <value>
+        /// O corpo responsável pelas operações sobre os coeficientes do polinómio.
+        /// </value>
         public IField<CoeffType> Field
         {
             get
@@ -51,6 +79,12 @@
             }
         }
 
+        /// <summary>
+        /// Obtém o número de unidades.
+        /// </summary>
+        /// <value>
+        /// O número de unidades.
+        /// </value>
         public int UnitsCount
         {
             get
@@ -65,6 +99,9 @@
         /// <param name="dividend">O dividendo.</param>
         /// <param name="divisor">O divisor.</param>
         /// <returns>O quociente.</returns>
+        /// <exception cref="ArgumentNullException">Caso algum dos argumentos seja nulo.</exception>
+        /// <exception cref="ArgumentException">Se os polinómios contiverem variáveis cujos nomes são diferentes.</exception>
+        /// <exception cref="DivideByZeroException">Se o divisor for uma unidade aditiva.</exception>
         public GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType> Quo(
             GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType> dividend,
             GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType> divisor)
@@ -171,6 +208,9 @@
         /// <param name="dividend">O dividendo.</param>
         /// <param name="divisor">O divisor.</param>
         /// <returns>O resto.</returns>
+        /// <exception cref="ArgumentNullException">Caso algum dos argumentos seja nulo.</exception>
+        /// <exception cref="ArgumentException">Se os polinómios contiverem variáveis cujos nomes são diferentes.</exception>
+        /// <exception cref="DivideByZeroException">Se o divisor for uma unidade aditiva.</exception>
         public GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType> Rem(
             GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType> dividend,
             GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType> divisor)
@@ -275,6 +315,9 @@
         /// <param name="dividend">O dividendo.</param>
         /// <param name="divisor">O divisor.</param>
         /// <returns>O quociente e o resto.</returns>
+        /// <exception cref="ArgumentNullException">Caso algum dos argumentos seja nulo.</exception>
+        /// <exception cref="ArgumentException">Se os polinómios contiverem variáveis cujos nomes são diferentes.</exception>
+        /// <exception cref="DivideByZeroException">Se o divisor for uma unidade aditiva.</exception>
         public DomainResult<GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType>> GetQuotientAndRemainder(
             GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType> dividend,
             GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType> divisor)
@@ -390,6 +433,7 @@
         /// </summary>
         /// <param name="value">O polinómio do qual se pretende obter o grau.</param>
         /// <returns>O valor do grau.</returns>
+        /// <exception cref="ArgumentNullException">Se o argumento for nulo.</exception>
         public uint Degree(GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType> value)
         {
             if (value == null)
@@ -402,6 +446,12 @@
             }
         }
 
+        /// <summary>
+        /// Obtém um iterador para as unidades.
+        /// </summary>
+        /// <value>
+        /// O interador para as unidades.
+        /// </value>
         public IEnumerable<GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType>> Units
         {
             get

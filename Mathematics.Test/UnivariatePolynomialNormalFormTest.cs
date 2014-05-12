@@ -626,7 +626,6 @@ namespace Mathematics.Test
             var matrixAlgebra = new GeneralMatrixAlgebra<Fraction<int>>(
                 2,
                 new ArrayMatrixFactory<Fraction<int>>(),
-                fractionField,
                 fractionField);
             var actual = polynomial.Replace(matrix, matrixAlgebra);
             var expected = TestsHelper.ReadMatrix<Fraction<int>>(

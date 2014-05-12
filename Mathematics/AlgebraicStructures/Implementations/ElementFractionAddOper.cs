@@ -12,8 +12,16 @@
     public class ElementFractionAddOper<Coefftype>
         : IAdditionOperation<Coefftype, Fraction<Coefftype>, Fraction<Coefftype>>
     {
+        /// <summary>
+        /// O domínio responsável pelas operações sobre os coeficientes.
+        /// </summary>
         private IEuclidenDomain<Coefftype> domain;
 
+        /// <summary>
+        /// Cria uma instância de objectos do tipo <see cref="ElementFractionAddOper{CoeffType}"./>
+        /// </summary>
+        /// <param name="domain">O domínio responsável pelas operações sobre os coeficientes.</param>
+        /// <exception cref="ArgumentNullException">Caso o domínio passado seja nulo.</exception>
         public ElementFractionAddOper(IEuclidenDomain<Coefftype> domain)
         {
             if (domain == null)
@@ -32,6 +40,7 @@
         /// <param name="left">O coeficiente independente.</param>
         /// <param name="right">A fracção.</param>
         /// <returns>O resultado da soma.</returns>
+        /// <exception cref="ArgumentNullException">Caso algum dos argumentos seja nulo.</exception>
         public Fraction<Coefftype> Add(Coefftype left, Fraction<Coefftype> right)
         {
             if (left == null)

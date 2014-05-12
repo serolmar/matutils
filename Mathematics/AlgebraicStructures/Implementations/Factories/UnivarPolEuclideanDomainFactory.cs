@@ -5,6 +5,10 @@
     using System.Linq;
     using System.Text;
 
+    /// <summary>
+    /// Permite criar instâncias de domínios sobre polinómios.
+    /// </summary>
+    /// <typeparam name="CoeffType">O tipo dos coeficientes dos polinómios.</typeparam>
     public class UnivarPolEuclideanDomainFactory<CoeffType>
         : IUnivarPolDomainFactory<CoeffType>
     {

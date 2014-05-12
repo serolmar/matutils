@@ -5,6 +5,10 @@
     using System.Linq;
     using System.Text;
 
+    /// <summary>
+    /// Permite criar instâncias de anéis sobre polinómios.
+    /// </summary>
+    /// <typeparam name="CoeffType">O tipo dos coeficientes nos polinómios.</typeparam>
     public class UnivarPolynomRingFactory<CoeffType> 
         : IUnivarPolRingFactory<CoeffType>
     {

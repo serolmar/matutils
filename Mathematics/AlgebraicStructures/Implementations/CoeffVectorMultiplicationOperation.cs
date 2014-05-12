@@ -13,8 +13,14 @@
     public class CoeffVectorMultiplicationOperation<CoeffType, CoeffVectorType>
         : IMultiplicationOperation<CoeffType, IVector<CoeffVectorType>, IVector<CoeffVectorType>>
     {
+        /// <summary>
+        /// A fábrica que permite criar instâncias de vectores.
+        /// </summary>
         private IVectorFactory<CoeffVectorType> vectorFactory;
 
+        /// <summary>
+        /// O objecto responsável pela multiplicação dos coeficientes.
+        /// </summary>
         private IMultiplicationOperation<CoeffType, CoeffVectorType, CoeffVectorType> coeffsMultOperation;
 
         /// <summary>
@@ -22,6 +28,7 @@
         /// </summary>
         /// <param name="coeffsMultOperation">A operação de multiplicação entre os coeficientes.</param>
         /// <param name="vectorFactory">Uma fábrica que permita criar instâncias de vectores.</param>
+        /// <exception cref="ArgumentNullException">Caso ambos os argumentos sejam nulos.</exception>
         public CoeffVectorMultiplicationOperation(
             IMultiplicationOperation<CoeffType, CoeffVectorType, CoeffVectorType> coeffsMultOperation,
             IVectorFactory<CoeffVectorType> vectorFactory)
@@ -41,6 +48,13 @@
             }
         }
 
+        /// <summary>
+        /// Calcula o produto de um escalar por um vector.
+        /// </summary>
+        /// <param name="left">O coeficiente a ser multiplicado.</param>
+        /// <param name="right">O vector a ser multiplicado.</param>
+        /// <returns>O resultado da multiplicação.</returns>
+        /// <exception cref="ArgumentNullException">Caso um dos argumentos seja nulo.</exception>
         public IVector<CoeffVectorType> Multiply(CoeffType left, IVector<CoeffVectorType> right)
         {
             if (left == null)

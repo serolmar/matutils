@@ -6,6 +6,9 @@
     using System.Numerics;
     using System.Text;
 
+    /// <summary>
+    /// Permite criar instâncias de corpos modulares para inteiros de precisão arbitrária.
+    /// </summary>
     public class ModularBigIntFieldFactory : IModularFieldFactory<BigInteger>
     {
         /// <summary>

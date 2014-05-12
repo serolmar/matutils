@@ -5,6 +5,9 @@
     using System.Linq;
     using System.Text;
 
+    /// <summary>
+    /// Define um espaço normal sobre números de precisão dupla.
+    /// </summary>
     public class DoubleNormSpace : INormSpace<double,double>
     {
         /// <summary>

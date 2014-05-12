@@ -10,8 +10,16 @@
     /// </summary>
     public class FractionNearestInteger : INearest<Fraction<int>, Fraction<int>>
     {
+        /// <summary>
+        /// O domínio responsável pelas operações sobre os coeficientes.
+        /// </summary>
         private IntegerDomain fractionDomain;
 
+        /// <summary>
+        /// Cria uma instância de objectos do tipo <see cref="FractionNearestInteger"/>.
+        /// </summary>
+        /// <param name="domain">O domínio responsável pelas operações sobre os coeficientes.</param>
+        /// <exception cref="System.ArgumentNullException">CAso o domínio seja nulo.</exception>
         public FractionNearestInteger(IntegerDomain domain)
         {
             if (domain == null)
@@ -29,6 +37,7 @@
         /// </summary>
         /// <param name="source">A facção.</param>
         /// <returns>O valor inteiro.</returns>
+        /// <exception cref="ArgumentNullException">Caso o argumento seja nulo.</exception>
         public Fraction<int> GetNearest(Fraction<int> source)
         {
             if (source == null)

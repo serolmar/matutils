@@ -40,6 +40,7 @@
         /// <param name="left">O coeficiente.</param>
         /// <param name="right">A fracção.</param>
         /// <returns>A fracção resultante do produto do coeficiente pela fracção.</returns>
+        /// <exception cref="ArgumentNullException">Caso um dos argumentos seja nulo.</exception>
         public Fraction<CoeffType> Multiply(
             CoeffType left, 
             Fraction<CoeffType> right)

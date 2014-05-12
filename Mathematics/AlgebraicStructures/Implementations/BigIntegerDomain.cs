@@ -71,7 +71,7 @@
         /// <summary>
         /// Obtém a inversa aditiva de um número.
         /// </summary>
-        /// <param name="number">TO número.</param>
+        /// <param name="number">O número.</param>
         /// <returns>A inversa aditiva.</returns>
         public BigInteger AdditiveInverse(BigInteger number)
         {
@@ -89,7 +89,7 @@
         }
 
         /// <summary>
-        /// Determina se os objecto especificados são iguais.
+        /// Determina se os objectos especificados são iguais.
         /// </summary>
         /// <param name="x">O primeiro objecto do tipo <paramref name="T" /> a ser comparado.</param>
         /// <param name="y">O segundo objecto do tipo <paramref name="T" /> a ser comparado.</param>

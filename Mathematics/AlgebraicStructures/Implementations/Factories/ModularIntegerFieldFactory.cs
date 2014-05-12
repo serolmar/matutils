@@ -5,6 +5,9 @@
     using System.Linq;
     using System.Text;
 
+    /// <summary>
+    /// Permite criar instâncias de corpos modulares sobre inteiros.
+    /// </summary>
     public class ModularIntegerFieldFactory : IModularFieldFactory<int>
     {
         /// <summary>
