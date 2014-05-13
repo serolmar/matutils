@@ -33,7 +33,6 @@
                 dimension,
                 dimension,
                 matrixFactory,
-                coeffsField,
                 coeffsField);
         }
 

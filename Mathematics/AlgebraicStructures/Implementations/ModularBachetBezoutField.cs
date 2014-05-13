@@ -1,16 +1,41 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Mathematics
+﻿namespace Mathematics
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+
+    /// <summary>
+    /// Implementa as operações de corpo modular.
+    /// </summary>
+    /// <typeparam name="ObjectType">O tipo de objectos sobre os quais actua o corpo.</typeparam>
     public class ModularBachetBezoutField<ObjectType> : IField<ObjectType>
     {
+        /// <summary>
+        /// O módulo.
+        /// </summary>
         private ObjectType module;
 
+        /// <summary>
+        /// O algoritmo responsável pela determinação do inverso multiplicativo.
+        /// </summary>
         private IBachetBezoutAlgorithm<ObjectType> bachetBezoutAlgorithm;
 
+        /// <summary>
+        /// Cria instâncias de objectos do tipo <see cref="ModularBachetBezoutField{ObjectType}"/>.
+        /// </summary>
+        /// <remarks>
+        /// A determinação da inversa multiplicativa é efectuada por intermédio de algoritmos relacionados
+        /// com o algoritmo que permite determinar o máximo divisor comum. Neste caso, é necessário indicar
+        /// qual será o algoritmo responsável por essa operação.
+        /// </remarks>
+        /// <param name="module">O módulo.</param>
+        /// <param name="bachetBezoutAlgorithm">
+        /// O algoritmo responsável pela determinação da inversa multiplicativa.
+        /// </param>
+        /// <exception cref="System.ArgumentNullException">
+        /// Se pelo menos um dos argumentos for nulo.
+        /// </exception>
         public ModularBachetBezoutField(
             ObjectType module,
             IBachetBezoutAlgorithm<ObjectType> bachetBezoutAlgorithm)
@@ -30,6 +55,13 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Obtém ou atribui o valor do módulo.
+        /// </summary>
+        /// <value>
+        /// O módulo.
+        /// </value>
+        /// <exception cref="System.ArgumentNullException">Se o valor atribuído for nulo.</exception>
         public ObjectType Module
         {
             get
@@ -52,6 +84,9 @@ namespace Mathematics
         /// <summary>
         /// Obtém a unidade multiplicativa.
         /// </summary>
+        /// <value>
+        /// A unidade multiplicativa.
+        /// </value>
         public ObjectType MultiplicativeUnity
         {
             get
@@ -63,6 +98,9 @@ namespace Mathematics
         /// <summary>
         /// Obtém a unidade aditiva.
         /// </summary>
+        /// <value>
+        /// A unidade aditiva.
+        /// </value>
         public ObjectType AdditiveUnity
         {
             get

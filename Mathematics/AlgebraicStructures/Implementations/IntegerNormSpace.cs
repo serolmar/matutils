@@ -5,6 +5,9 @@
     using System.Linq;
     using System.Text;
 
+    /// <summary>
+    /// Implementa as operações de espaço normado sobre números inteiros.
+    /// </summary>
     public class IntegerNormSpace : INormSpace<int, int>
     {
         /// <summary>

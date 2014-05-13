@@ -5,6 +5,10 @@
     using System.Linq;
     using System.Text;
 
+    /// <summary>
+    /// Implementa as operações de adição sobre matrizes.
+    /// </summary>
+    /// <typeparam name="ObjectType">O tipo dos objectos que constituem as entradas das matrizes.</typeparam>
     public class MatrixAdditionOperation<ObjectType> :
         IAdditionOperation<IMatrix<ObjectType>, IMatrix<ObjectType>, IMatrix<ObjectType>>
     {
@@ -18,6 +22,14 @@
         /// </summary>
         protected IMatrixFactory<ObjectType> matrixFactory;
 
+        /// <summary>
+        /// Cria instâncias de objectos do tipo <see cref="MatrixAdditionOperation{ObjectType}"/>.
+        /// </summary>
+        /// <param name="matrixFactory">A fábrica responsável pela criação de instâncias de matrizes.</param>
+        /// <param name="additionOperation">O objecto responsável pela adição dos coeficientes.</param>
+        /// <exception cref="System.ArgumentNullException">
+        /// Se um dos argumentos for nulo.
+        /// </exception>
         public MatrixAdditionOperation(
             IMatrixFactory<ObjectType> matrixFactory,
             IAdditionOperation<ObjectType, ObjectType, ObjectType> additionOperation)
@@ -40,6 +52,9 @@
         /// <summary>
         /// Obtém o objecto responsável pela instanciação da matriz soma.
         /// </summary>
+        /// <value>
+        /// O objecto responsável pela instanciação da matriz soma.
+        /// </value>
         public IMatrixFactory<ObjectType> MatrixFactory
         {
             get
@@ -48,6 +63,22 @@
             }
         }
 
+        /// <summary>
+        /// Calcula a soma de duas matrizes.
+        /// </summary>
+        /// <remarks>
+        /// Duas matrizes podem ser somada no caso de possuirem as mesmas dimensões, isto é, no caso de
+        /// conterem o mesmo número de linhas e o mesmo número de colunas.
+        /// </remarks>
+        /// <param name="left">A primeira matriz.</param>
+        /// <param name="right">A segunda matriz.</param>
+        /// <returns>O resultado da soma.</returns>
+        /// <exception cref="System.ArgumentNullException">
+        /// Se pelo menos um dos argumentos for nulo.
+        /// </exception>
+        /// <exception cref="System.ArgumentException">
+        /// Se as dimensões da matriz não corresponderem.
+        /// </exception>
         public IMatrix<ObjectType> Add(IMatrix<ObjectType> left, IMatrix<ObjectType> right)
         {
             if (left == null)

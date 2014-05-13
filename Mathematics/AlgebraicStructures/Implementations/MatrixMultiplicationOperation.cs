@@ -5,6 +5,10 @@
     using System.Linq;
     using System.Text;
 
+    /// <summary>
+    /// Implementa a operação de multiplicaçõa de matrizes.
+    /// </summary>
+    /// <typeparam name="ObjectType">O tipo dos objectos que constituem as entradas das matrizes.</typeparam>
     public class MatrixMultiplicationOperation<ObjectType>
         : IMultiplicationOperation<IMatrix<ObjectType>, IMatrix<ObjectType>, IMatrix<ObjectType>>
     {
@@ -50,6 +54,9 @@
         /// <summary>
         /// Obtém o objecto responsável pela multiplicação das entradas da matriz.
         /// </summary>
+        /// <value>
+        /// O objecto responsável pela multiplicação das entradas da matriz.
+        /// </value>
         public IMultiplicationOperation<ObjectType, ObjectType, ObjectType> MultiplicationOperation
         {
             get
@@ -61,6 +68,9 @@
         /// <summary>
         /// Obtém o objecto responsável pela adição das entradas da matriz.
         /// </summary>
+        /// <remarks>
+        /// O objecto responsável pela adição das entradas da matriz.
+        /// </remarks>
         public IAdditionOperation<ObjectType, ObjectType, ObjectType> AdditionOperation
         {
             get
@@ -72,6 +82,9 @@
         /// <summary>
         /// Obtém o objecto responsável pela instanciação da matriz produto.
         /// </summary>
+        /// <value>
+        /// O objecto responsável pela instanciação da matriz produto.
+        /// </value>
         public IMatrixFactory<ObjectType> MatrixFactory
         {
             get
@@ -80,6 +93,20 @@
             }
         }
 
+        /// <summary>
+        /// Calcula o produto de duas matrizes.
+        /// </summary>
+        /// <remarks>
+        /// Uma matriz admite multiplicação com outra quando o número de linhas da primeira coincide com o número de
+        /// colunas da segunda.
+        /// </remarks>
+        /// <param name="left">A primeira matriz a ser multiplicada.</param>
+        /// <param name="right">A segunda matriz a ser multiplicada.</param>
+        /// <returns>O resultado do produto.</returns>
+        /// <exception cref="System.ArgumentNullException">
+        /// Se pelo menos um dos argumentos for nulo.
+        /// </exception>
+        /// <exception cref="System.ArgumentException">Se as dimenesões das matrizes não corresponderem.</exception>
         public IMatrix<ObjectType> Multiply(IMatrix<ObjectType> left, IMatrix<ObjectType> right)
         {
             if (left == null)

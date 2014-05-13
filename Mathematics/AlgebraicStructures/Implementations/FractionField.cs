@@ -211,7 +211,7 @@ namespace Mathematics
         }
 
         /// <summary>
-        /// Determina quando dois números decimais são iguais.
+        /// Determina quando duas fracções são iguais.
         /// </summary>
         /// <param name="x">A primeira fracção a ser comparada.</param>
         /// <param name="y">A segunda fracção a ser comparada.</param>

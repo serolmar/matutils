@@ -16,6 +16,9 @@ namespace Mathematics
         /// <summary>
         /// Obtém o corpo sobre o qual funciona o espaço vectorial.
         /// </summary>
+        /// <value>
+        /// O corpo sobre o qual funciona o espaço vectorial.
+        /// </value>
         IField<CoefficientType> Field { get; }
 
         /// <summary>

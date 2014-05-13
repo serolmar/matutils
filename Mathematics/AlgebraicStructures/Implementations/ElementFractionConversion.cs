@@ -44,6 +44,9 @@ namespace Mathematics
         /// <summary>
         /// Obtém o domínio responsável pelas operações sobre os coeficientes.
         /// </summary>
+        /// <value>
+        /// O domínio responsável pelas operações sobre os coeficientes.
+        /// </value>
         public IEuclidenDomain<ElementType> Domain
         {
             get

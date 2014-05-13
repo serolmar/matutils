@@ -16,8 +16,14 @@
     public class MetricMatrixVectorScalarProduct<CoeffType> 
         : IScalarProductSpace<IVector<CoeffType>, CoeffType>
     {
+        /// <summary>
+        /// O anel responsável pelas operações sobre os coeficientes.
+        /// </summary>
         private IRing<CoeffType> ring;
 
+        /// <summary>
+        /// A matriz que contém os coeficientes métricos.
+        /// </summary>
         private IMatrix<CoeffType> metricMatrix;
 
         /// <summary>
@@ -25,6 +31,19 @@
         /// </summary>
         private IComparer<CoeffType> comparer;
 
+        /// <summary>
+        /// Cria instâncias de objectos do tipo <see cref="MetricMatrixVectorScalarProduct{CoeffType}"/>.
+        /// </summary>
+        /// <param name="metricMatrix">A matriz dos coeficientes métricos.</param>
+        /// <param name="comparer">O comparador de coeficientes.</param>
+        /// <param name="ring">O anel responsável pelas operações sobre os coeficientes.</param>
+        /// <exception cref="System.ArgumentNullException">
+        /// Caso a matriz dos coeficientes métricos ou o anel responsável pelas operações sobre os coeficientes
+        /// sejam nulos.
+        /// </exception>
+        /// <exception cref="System.ArgumentException">
+        /// Se a matriz dos coeficientes métricos não for quadrada.
+        /// </exception>
         public MetricMatrixVectorScalarProduct(
             IMatrix<CoeffType> metricMatrix,
             IComparer<CoeffType> comparer, 
@@ -61,6 +80,9 @@
         /// <summary>
         /// Obtém o anel responsável pelas operações sobre as entradas dos vectores.
         /// </summary>
+        /// <value>
+        /// O anel responsável pelas operações sobre as entradas dos vectores.
+        /// </value>
         public IRing<CoeffType> Ring
         {
             get
@@ -72,6 +94,9 @@
         /// <summary>
         /// Obtém a matriz dos coeficientes métricos.
         /// </summary>
+        /// <value>
+        /// A matriz dos coeficientes métricos.
+        /// </value>
         public IMatrix<CoeffType> MetricMatrix
         {
             get

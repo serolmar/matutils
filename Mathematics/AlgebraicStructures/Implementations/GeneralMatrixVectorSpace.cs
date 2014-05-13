@@ -5,18 +5,32 @@
     using System.Linq;
     using System.Text;
 
+    /// <summary>
+    /// Define operações de espaço vectorial sobre um conjunto de coeficientes e de matrizes.
+    /// </summary>
+    /// <typeparam name="CoeffType">O tipo de coeficiente.</typeparam>
     public class GeneralMatrixVectorSpace<CoeffType>
         : GeneralMatrixGroup<CoeffType>, IVectorSpace<CoeffType, IMatrix<CoeffType>>
     {
+        /// <summary>
+        /// O corpo responsável pelas operações sobre os coeficientes.
+        /// </summary>
         private IField<CoeffType> scalarField;
 
+        /// <summary>
+        /// Cria instâncias de objectos do tipo <see cref="GeneralMatrixVectorSpace{CoeffType}"/>.
+        /// </summary>
+        /// <param name="lines">O número de linhas.</param>
+        /// <param name="columns">O número colunas.</param>
+        /// <param name="matrixFactory">A fábrica responsável pela criação de matrizes.</param>
+        /// <param name="scalarField">The scalar field.</param>
+        /// <exception cref="System.ArgumentNullException">scalarField</exception>
         public GeneralMatrixVectorSpace(
             int lines,
             int columns,
             IMatrixFactory<CoeffType> matrixFactory,
-            IGroup<CoeffType> coeffsGroup,
             IField<CoeffType> scalarField)
-            : base(lines, columns, matrixFactory, coeffsGroup)
+            : base(lines, columns, matrixFactory, scalarField)
         {
             if (scalarField == null)
             {
@@ -28,6 +42,12 @@
             }
         }
 
+        /// <summary>
+        /// Obtém o corpo sobre o qual funciona o espaço vectorial.
+        /// </summary>
+        /// <value>
+        /// O corpo sobre o qual funciona o espaço vectorial.
+        /// </value>
         public IField<CoeffType> Field
         {
             get
@@ -36,6 +56,17 @@
             }
         }
 
+        /// <summary>
+        /// Define a multiplicação do anel ou campo com o elemento do espaço vectorial.
+        /// </summary>
+        /// <param name="coefficientElement">O coeficiente.</param>
+        /// <param name="vectorSpaceElement">O vector.</param>
+        /// <returns>O vector resultante.</returns>
+        /// <exception cref="ArgumentNullException">Caso algum dos argumentos seja nulo.</exception>
+        /// <exception cref="MathematicsException">
+        /// Caso as dimensões da matriz não se coadunem com as especificadas
+        /// no espaço vectorial corrente.
+        /// </exception>
         public IMatrix<CoeffType> MultiplyScalar(
             CoeffType coefficientElement,
             IMatrix<CoeffType> vectorSpaceElement)
