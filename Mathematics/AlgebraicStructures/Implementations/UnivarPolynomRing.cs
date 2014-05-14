@@ -12,10 +12,21 @@ namespace Mathematics
     public class UnivarPolynomRing<CoeffType> :
         IRing<UnivariatePolynomialNormalForm<CoeffType>>
     {
+        /// <summary>
+        /// O anel responsável pelas operações sobre os coeficientes.
+        /// </summary>
         protected IRing<CoeffType> ring;
 
+        /// <summary>
+        /// O nome da variável dos polinómios que podems ser submetidos às operações.
+        /// </summary>
         protected string variableName;
 
+        /// <summary>
+        /// Cria instâncias de objectos do tipo <see cref="UnivarPolynomRing{}"/>
+        /// </summary>
+        /// <param name="variableName"></param>
+        /// <param name="ring"></param>
         public UnivarPolynomRing(string variableName, IRing<CoeffType> ring)
         {
             if (ring == null)
@@ -33,6 +44,12 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Obtém a unidade aditiva.
+        /// </summary>
+        /// <value>
+        /// A unidade aditiva.
+        /// </value>
         public virtual UnivariatePolynomialNormalForm<CoeffType> AdditiveUnity
         {
             get
@@ -41,6 +58,12 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Obtém a unidade multiplicativa.
+        /// </summary>
+        /// <value>
+        /// A unidade multiplicativa.
+        /// </value>
         public virtual UnivariatePolynomialNormalForm<CoeffType> MultiplicativeUnity
         {
             get
@@ -53,6 +76,11 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Obtém o inverso aditivo de um número.
+        /// </summary>
+        /// <param name="number">O número.</param>
+        /// <returns>O inverso aditivo do número.</returns>
         public virtual UnivariatePolynomialNormalForm<CoeffType> AdditiveInverse(
             UnivariatePolynomialNormalForm<CoeffType> number)
         {
@@ -66,6 +94,11 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Determina se um polinómio é uma unidade aditiva.
+        /// </summary>
+        /// <param name="value">O polinómio.</param>
+        /// <returns>Verdadeiro caso o polinómio seja uma unidade aditiva e falso caso contrário.</returns>
         public virtual bool IsAdditiveUnity(UnivariatePolynomialNormalForm<CoeffType> value)
         {
             if (value == null)
@@ -78,6 +111,13 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Calcula a soma de dois polinómios.
+        /// </summary>
+        /// <param name="left">O primeiro polinómio a ser adicionado.</param>
+        /// <param name="right">O segundo polinómio a ser adicionado.</param>
+        /// <returns>O resultado da adição.</returns>
+        /// <exception cref="ArgumentNullException">Se algums dos polinómios for nulo.</exception>
         public virtual UnivariatePolynomialNormalForm<CoeffType> Add(
             UnivariatePolynomialNormalForm<CoeffType> left, 
             UnivariatePolynomialNormalForm<CoeffType> right)
@@ -96,6 +136,14 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Determina se ambos os polinómios são iguais.
+        /// </summary>
+        /// <param name="x">O primeiro polinómio a ser comparado.</param>
+        /// <param name="y">O segundo polinómio a ser comparado.</param>
+        /// <returns>
+        /// Verdadeiro se ambos os polinómios forem iguais e falso caso contrário.
+        /// </returns>
         public virtual bool Equals(
             UnivariatePolynomialNormalForm<CoeffType> x, 
             UnivariatePolynomialNormalForm<CoeffType> y)
@@ -118,6 +166,13 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Obtém o código confuso de um polinómio.
+        /// </summary>
+        /// <param name="obj">O polinómio.</param>
+        /// <returns>
+        /// O código confuso do polinómio adequado à utilização em alguns algoritmos habituais.
+        /// </returns>
         public virtual int GetHashCode(UnivariatePolynomialNormalForm<CoeffType> obj)
         {
             if (obj == null)
@@ -130,6 +185,12 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Calcula o produto de dois polinómios.
+        /// </summary>
+        /// <param name="left">O primeiro polinómio a ser multiplicado.</param>
+        /// <param name="right">O segundo polinómio a ser multiplicado.</param>
+        /// <returns>O resultado da multiplicação.</returns>
         public virtual UnivariatePolynomialNormalForm<CoeffType> Multiply(
             UnivariatePolynomialNormalForm<CoeffType> left, 
             UnivariatePolynomialNormalForm<CoeffType> right)
@@ -148,6 +209,12 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Determina se o polinómio é uma unidade multiplicativa.
+        /// </summary>
+        /// <param name="value">O polinómio.</param>
+        /// <returns>Verdadeiro caso o polinómio seja uma unidade aditiva e falso caso contrário.</returns>
+        /// <exception cref="ArgumentNullException">Se o polinómio proporcionado for nulo.</exception>
         public virtual bool IsMultiplicativeUnity(UnivariatePolynomialNormalForm<CoeffType> value)
         {
             if (value == null)
@@ -160,6 +227,15 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Calcula a adição repetida de um polinómio.
+        /// </summary>
+        /// <remarks>
+        /// A adição repetida de um polinómio é rapidamente determinada com base na operação de multiplicação.
+        /// </remarks>
+        /// <param name="left">O polinómio a ser adicionado.</param>
+        /// <param name="right">O número de vezes que é realizada a adição.</param>
+        /// <returns>O resultado da adição repetida.</returns>
         public virtual UnivariatePolynomialNormalForm<CoeffType> AddRepeated(
             UnivariatePolynomialNormalForm<CoeffType> element, 
             int times)

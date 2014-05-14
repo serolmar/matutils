@@ -14,8 +14,14 @@
         UnivarPolynomRing<CoeffType>,
         IEuclidenDomain<UnivariatePolynomialNormalForm<CoeffType>>
     {
+        /// <summary>
+        /// O corpo responsável pelas operações sobre os coeficientes.
+        /// </summary>
         private IField<CoeffType> field;
 
+        /// <summary>
+        /// A unidade do polinómio na forma normal.
+        /// </summary>
         private UnivariatePolynomialNormalForm<CoeffType> unit;
 
         public UnivarPolynomEuclideanDomain(string variableName, IField<CoeffType> field)
@@ -32,6 +38,9 @@
         /// <summary>
         /// Obtém o corpo sobre os coeficientes do polinómio.
         /// </summary>
+        /// <value>
+        /// O corpo sobre os coeficientes do polinómio.
+        /// </value>
         public IField<CoeffType> Field
         {
             get
@@ -52,6 +61,12 @@
             }
         }
 
+        /// <summary>
+        /// Obtém o número de unidades.
+        /// </summary>
+        /// <value>
+        /// O número de unidades.
+        /// </value>
         public int UnitsCount
         {
             get
@@ -61,11 +76,28 @@
         }
 
         /// <summary>
+        /// Obtém um enumerador para as unidaades.
+        /// </summary>
+        /// <value>
+        /// O enumerador para as variáveis.
+        /// </value>
+        public IEnumerable<UnivariatePolynomialNormalForm<CoeffType>> Units
+        {
+            get
+            {
+                yield return this.unit;
+            }
+        }
+
+        /// <summary>
         /// Calcula o quociente entre dois polinómios.
         /// </summary>
         /// <param name="dividend">O dividendo.</param>
         /// <param name="divisor">O divisor.</param>
         /// <returns>O quociente.</returns>
+        /// <exception cref="ArgumentNullException">Se algum dos argumentos é nulo.</exception>
+        /// <exception cref="ArgumentException">Se as operações são realizadas sobre polinómios com variáveis diferentes.</exception>
+        /// <exception cref="DivideByZeroException">Se for passado um polinómio nulo como divisor.</exception>
         public UnivariatePolynomialNormalForm<CoeffType> Quo(
             UnivariatePolynomialNormalForm<CoeffType> dividend,
             UnivariatePolynomialNormalForm<CoeffType> divisor)
@@ -165,6 +197,9 @@
         /// <param name="dividend">O dividendo.</param>
         /// <param name="divisor">O divisor.</param>
         /// <returns>O resto.</returns>
+        /// <exception cref="ArgumentNullException">Se algum dos argumentos é nulo.</exception>
+        /// <exception cref="ArgumentException">Se as operações são realizadas sobre polinómios com variáveis diferentes.</exception>
+        /// <exception cref="DivideByZeroException">Se for passado um polinómio nulo como divisor.</exception>
         public UnivariatePolynomialNormalForm<CoeffType> Rem(
             UnivariatePolynomialNormalForm<CoeffType> dividend,
             UnivariatePolynomialNormalForm<CoeffType> divisor)
@@ -265,6 +300,9 @@
         /// <param name="dividend">O dividendo.</param>
         /// <param name="divisor">O divisor.</param>
         /// <returns>O quociente e o resto.</returns>
+        /// <exception cref="ArgumentNullException">Se algum dos argumentos é nulo.</exception>
+        /// <exception cref="ArgumentException">Se as operações são realizadas sobre polinómios com variáveis diferentes.</exception>
+        /// <exception cref="DivideByZeroException">Se for passado um polinómio nulo como divisor.</exception>
         public DomainResult<UnivariatePolynomialNormalForm<CoeffType>> GetQuotientAndRemainder(
             UnivariatePolynomialNormalForm<CoeffType> dividend,
             UnivariatePolynomialNormalForm<CoeffType> divisor)
@@ -372,6 +410,7 @@
         /// </summary>
         /// <param name="value">O polinómio do qual se pretende obter o grau.</param>
         /// <returns>O valor do grau.</returns>
+        /// <exception cref="ArgumentNullException">Se o polinómio for nulo.</exception>
         public uint Degree(UnivariatePolynomialNormalForm<CoeffType> value)
         {
             if (value == null)
@@ -381,14 +420,6 @@
             else
             {
                 return (uint)value.Degree;
-            }
-        }
-
-        public IEnumerable<UnivariatePolynomialNormalForm<CoeffType>> Units
-        {
-            get
-            {
-                yield return this.unit;
             }
         }
     }

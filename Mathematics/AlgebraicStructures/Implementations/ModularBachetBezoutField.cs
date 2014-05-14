@@ -110,7 +110,7 @@
         }
 
         /// <summary>
-        /// Obtém a redução do polinómio especificado relativamente ao módulo corrente.
+        /// Obtém a redução do objecto especificado relativamente ao módulo corrente.
         /// </summary>
         /// <param name="number">O polinómio a ser reduzido.</param>
         /// <returns>O polinómio reduzido.</returns>
@@ -127,6 +127,13 @@
             }
         }
 
+        /// <summary>
+        /// Determina a inversa multiplicativa de um objecto.
+        /// </summary>
+        /// <param name="number">O objecto.</param>
+        /// <returns>A inversa multiplicativa.</returns>
+        /// <exception cref="ArgumentNullException">Se o objecto proporcionado for nulo.</exception>
+        /// <exception cref="MathematicsException">Se o objecto não possuir inversa.</exception>
         public ObjectType MultiplicativeInverse(ObjectType number)
         {
             if (number == null)
@@ -155,6 +162,15 @@
             }
         }
 
+        /// <summary>
+        /// Calcula a adição modular repetida de um objecto.
+        /// </summary>
+        /// <remarks>
+        /// A adição modular repetida de um objecto pode ser rapidamente determinada com base em operações de multiplicação.
+        /// </remarks>
+        /// <param name="left">O número a ser adicionado.</param>
+        /// <param name="right">O número de vezes que é realizada a adição.</param>
+        /// <returns>O resultado da adição modular repetida.</returns>
         public ObjectType AddRepeated(ObjectType element, int times)
         {
             if (element == null)
@@ -170,6 +186,11 @@
             }
         }
 
+        /// <summary>
+        /// Obtém o inverso aditivo de um objecto.
+        /// </summary>
+        /// <param name="number">O objecto.</param>
+        /// <returns>O inverso aditivo do objecto.</returns>
         public ObjectType AdditiveInverse(ObjectType number)
         {
             if (number == null)
@@ -183,21 +204,47 @@
             }
         }
 
+        /// <summary>
+        /// Determina se um número é uma unidade aditiva.
+        /// </summary>
+        /// <param name="value">O objecto.</param>
+        /// <returns>Verdadeiro caso o objecto seja uma unidade aditiva e falso caso contrário.</returns>
         public bool IsAdditiveUnity(ObjectType value)
         {
             return this.bachetBezoutAlgorithm.Domain.IsAdditiveUnity(value);
         }
 
+        /// <summary>
+        /// Determina se ambos os objectos são iguais.
+        /// </summary>
+        /// <param name="x">O primeiro objecto a ser comparado.</param>
+        /// <param name="y">O segundo objecto a ser comparado.</param>
+        /// <returns>
+        /// Verdadeiro se ambos os objectos forem iguais e falso caso contrário.
+        /// </returns>
         public bool Equals(ObjectType x, ObjectType y)
         {
             return this.bachetBezoutAlgorithm.Domain.Equals(x, y);
         }
 
+        /// <summary>
+        /// Obtém o código confuso de um objecto.
+        /// </summary>
+        /// <param name="obj">O objecto.</param>
+        /// <returns>
+        /// O código confuso do objecto adequado à utilização em alguns algoritmos habituais.
+        /// </returns>
         public int GetHashCode(ObjectType obj)
         {
             return this.bachetBezoutAlgorithm.Domain.GetHashCode(obj);
         }
 
+        /// <summary>
+        /// Calcula a soma de dois objectos.
+        /// </summary>
+        /// <param name="left">O primeiro objecto a ser adicionado.</param>
+        /// <param name="right">O segundo objecto a ser adicionado.</param>
+        /// <returns>O resultado da adição.</returns>
         public ObjectType Add(ObjectType left, ObjectType right)
         {
             if (left == null)
@@ -218,11 +265,22 @@
             }
         }
 
+        /// <summary>
+        /// Determina se o número é uma unidade multiplicativa.
+        /// </summary>
+        /// <param name="value">O número.</param>
+        /// <returns>Verdadeiro caso o número seja uma unidade aditiva e falso caso contrário.</returns>
         public bool IsMultiplicativeUnity(ObjectType value)
         {
             return this.bachetBezoutAlgorithm.Domain.IsAdditiveUnity(value);
         }
 
+        /// <summary>
+        /// Calcula o produto de dois objectos.
+        /// </summary>
+        /// <param name="left">O primeiro objecto a ser multiplicado.</param>
+        /// <param name="right">O segundo objecto a ser multiplicado.</param>
+        /// <returns>O resultado da multiplicação.</returns>
         public ObjectType Multiply(ObjectType left, ObjectType right)
         {
             if (left == null)

@@ -68,7 +68,7 @@
         /// </summary>
         /// <param name="left">O primeiro número a ser multiplicado.</param>
         /// <param name="right">O segundo número a ser multiplicado.</param>
-        /// <returns>O resultado do produto.</returns>
+        /// <returns>O resultado da multiplicação.</returns>
         public int Multiply(int left, int right)
         {
             checked

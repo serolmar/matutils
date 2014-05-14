@@ -30,9 +30,13 @@
         }
 
         /// <summary>
-        /// Obtém o domínios dos coeficientes que implementa as operações necessárias à execução das
+        /// Obtém o domínio dos coeficientes que implementa as operações necessárias à execução das
         /// funções do pseudo-domínio polinomial corrente.
         /// </summary>
+        /// <value>
+        /// O domínio dos coeficientes que implementa as operações necessárias à execução das
+        /// funções do pseudo-domínio polinomial corrente.
+        /// </value>
         public IEuclidenDomain<CoeffType> CoeffsDomain
         {
             get
@@ -44,6 +48,9 @@
         /// <summary>
         /// Obtém o número de unidades quando encarado como um domínio de factorização única.
         /// </summary>
+        /// <value>
+        /// O  número de unidades quando encarado como um domínio de factorização única.
+        /// </value>
         public int UnitsCount
         {
             get
@@ -53,11 +60,37 @@
         }
 
         /// <summary>
+        /// Obtém as unidades quando encarado como um domínio da factorização única.
+        /// </summary>
+        /// <value>
+        /// As unidades.
+        /// </value>
+        public IEnumerable<UnivariatePolynomialNormalForm<CoeffType>> Units
+        {
+            get
+            {
+                foreach (var unit in this.coeffsDomain.Units)
+                {
+                    yield return new UnivariatePolynomialNormalForm<CoeffType>(
+                        unit,
+                        1,
+                        this.variableName,
+                        this.coeffsDomain);
+                }
+            }
+        }
+
+        /// <summary>
         /// Calcula o quociente da pseudo-divisão entre dois polinómios.
         /// </summary>
         /// <param name="dividend">O dividendo.</param>
         /// <param name="divisor">O divisor.</param>
         /// <returns>O quociente.</returns>
+        /// <exception cref="ArgumentNullException">Se algum dos argumentos for nulo.</exception>
+        /// <exception cref="ArgumentException">
+        /// Se algum dos polinómio contiver uma variável diferente da estipulada para o
+        /// domínio corrente.
+        /// </exception>
         public UnivariatePolynomialNormalForm<CoeffType> Quo(
             UnivariatePolynomialNormalForm<CoeffType> dividend,
             UnivariatePolynomialNormalForm<CoeffType> divisor)
@@ -160,6 +193,11 @@
         /// <param name="dividend">O dividendo.</param>
         /// <param name="divisor">O divisor.</param>
         /// <returns>O resto.</returns>
+        /// <exception cref="ArgumentNullException">Se algum dos argumentos for nulo.</exception>
+        /// <exception cref="ArgumentException">
+        /// Se algum dos polinómio contiver uma variável diferente da estipulada para o
+        /// domínio corrente.
+        /// </exception>
         public UnivariatePolynomialNormalForm<CoeffType> Rem(
             UnivariatePolynomialNormalForm<CoeffType> dividend,
             UnivariatePolynomialNormalForm<CoeffType> divisor)
@@ -263,6 +301,11 @@
         /// <param name="dividend">O dividendo.</param>
         /// <param name="divisor">O divisor.</param>
         /// <returns>O quociente e o resto.</returns>
+        /// <exception cref="ArgumentNullException">Se algum dos argumentos for nulo.</exception>
+        /// <exception cref="ArgumentException">
+        /// Se algum dos polinómio contiver uma variável diferente da estipulada para o
+        /// domínio corrente.
+        /// </exception>
         public DomainResult<UnivariatePolynomialNormalForm<CoeffType>> GetQuotientAndRemainder(
             UnivariatePolynomialNormalForm<CoeffType> dividend,
             UnivariatePolynomialNormalForm<CoeffType> divisor)
@@ -371,6 +414,7 @@
         /// </summary>
         /// <param name="value">O polinómio do qual se pretende obter o grau.</param>
         /// <returns>O valor do grau.</returns>
+        /// <exception cref="ArgumentNullException">Se o polinómio proporcionado for nulo.</exception>
         public uint Degree(UnivariatePolynomialNormalForm<CoeffType> value)
         {
             if (value == null)
@@ -380,24 +424,6 @@
             else
             {
                 return (uint)value.Degree;
-            }
-        }
-
-        /// <summary>
-        /// Obtém as unidades quando encarado como um domínio da factorização única.
-        /// </summary>
-        public IEnumerable<UnivariatePolynomialNormalForm<CoeffType>> Units
-        {
-            get
-            {
-                foreach (var unit in this.coeffsDomain.Units)
-                {
-                    yield return new UnivariatePolynomialNormalForm<CoeffType>(
-                        unit,
-                        1,
-                        this.variableName,
-                        this.coeffsDomain);
-                }
             }
         }
     }

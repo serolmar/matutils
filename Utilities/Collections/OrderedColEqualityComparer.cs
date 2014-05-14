@@ -5,6 +5,10 @@
     using System.Linq;
     using System.Text;
 
+    /// <summary>
+    /// Implementa um comparador de igualdade sobre colecções de elementos numa ordema arbitrária.
+    /// </summary>
+    /// <typeparam name="CoeffType">O tipo de objectos que constituem os elmentos das colecções.</typeparam>
     public class OrderedColEqualityComparer<CoeffType> : EqualityComparer<IEnumerable<CoeffType>>
     {
         private IEqualityComparer<CoeffType> coeffComparer;

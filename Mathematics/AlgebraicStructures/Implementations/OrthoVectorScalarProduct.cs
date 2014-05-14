@@ -8,6 +8,7 @@
     /// <summary>
     /// Aplica o produto escalar a dois vectores.
     /// </summary>
+    /// <typeparam name="CoeffType">O tipo de coeficientes que constituem as entradas do vector.</typeparam>
     public class OrthoVectorScalarProduct<CoeffType> : IScalarProductSpace<IVector<CoeffType>, CoeffType>
     {
         /// <summary>
@@ -20,6 +21,12 @@
         /// </summary>
         private IComparer<CoeffType> comparer;
 
+        /// <summary>
+        /// Cria instâncias de objectos do tipo <see cref="OrthoVectorScalarProduct{CoeffType}"/>
+        /// </summary>
+        /// <param name="comparer">O comparador de coeficientes.</param>
+        /// <param name="ring">O anel responsável pelas operações sobre os coeficientes.</param>
+        /// <exception cref="ArgumentNullException">Se algum dos coeficientes for nulo.</exception>
         public OrthoVectorScalarProduct(IComparer<CoeffType> comparer, IRing<CoeffType> ring)
         {
             if (ring == null)
@@ -43,6 +50,9 @@
         /// <summary>
         /// Obtém o anel responsável pelas operações sobre as entradas dos vectores.
         /// </summary>
+        /// <value>
+        /// O anel responsável pelas operações sobre as entradas dos vectores.
+        /// </value>
         public IRing<CoeffType> Ring
         {
             get

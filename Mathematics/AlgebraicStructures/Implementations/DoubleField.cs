@@ -54,7 +54,7 @@
         }
 
         /// <summary>
-        /// Permite efectuar adições repetidas de um número decimal.
+        /// Permite efectuar adições repetidas de um número decimal de precisão dupla.
         /// </summary>
         /// <param name="element">O número a ser adicionado.</param>
         /// <param name="times">O número de vezes que o número é adicionado.</param>
@@ -110,11 +110,11 @@
         }
 
         /// <summary>
-        /// Calcula a adição aritmética entre dois números.
+        /// Calcula a adição aritmética de dois números.
         /// </summary>
         /// <param name="left">O primeiro número.</param>
         /// <param name="right">O segundo número.</param>
-        /// <returns></returns>
+        /// <returns>O resultado da adição.</returns>
         public double Add(double left, double right)
         {
             return left + right;

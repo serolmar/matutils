@@ -5,6 +5,9 @@
     using System.Linq;
     using System.Text;
 
+    /// <summary>
+    /// Permite converter um polinómio para um inteiro.
+    /// </summary>
     public class UnivarPolynomNormalFormToIntegerConversion<CoeffsType> 
         : IConversion<int, UnivariatePolynomialNormalForm<CoeffsType>>
     {
@@ -23,6 +26,12 @@
         /// </summary>
         private string variableName;
 
+        /// <summary>
+        /// Cria instâncias de objectos do tipo <see cref="UnivarPolynomNormalFormToIntegerConversion{CoeffsType}"/>.
+        /// </summary>
+        /// <param name="variableName">O nome da variável dos polinómios sobre os quais se efectuam as operações.</param>
+        /// <param name="coeffsConversion">O conversor que permite converter inteiros em coeficientes.</param>
+        /// <param name="coeffsRing">O anel responsável pelas operações sobre os coeficientes.</param>
         public UnivarPolynomNormalFormToIntegerConversion(
             string variableName,
             IConversion<int, CoeffsType> coeffsConversion,
@@ -48,6 +57,11 @@
             }
         }
 
+        /// <summary>
+        /// Indica se é possível converter um polinómio para inteiro.
+        /// </summary>
+        /// <param name="objectToConvert">O polinómio em análise.</param>
+        /// <returns>Verdadeiro caso a conversão seja possível e falso caso contrário.</returns>
         public bool CanApplyDirectConversion(UnivariatePolynomialNormalForm<CoeffsType> objectToConvert)
         {
             if (objectToConvert == null)
@@ -65,11 +79,26 @@
             }
         }
 
+        /// <summary>
+        /// Indica se é possível converter um número inteiro para um polinómio.
+        /// </summary>
+        /// <remarks>
+        /// Esta conversão é sempre possível se for possível converter o inteiro num coeficiente.
+        /// </remarks>
+        /// <param name="objectToConvert">O número inteiro.</param>
+        /// <returns>Verdadeiro caso a conversão seja possível e falso caso contrário.</returns>
         public bool CanApplyInverseConversion(int objectToConvert)
         {
             return this.coeffsConversion.CanApplyInverseConversion(objectToConvert);
         }
 
+        /// <summary>
+        /// Obtém o resultado da conversão de um polinómio num inteiro.
+        /// </summary>
+        /// <param name="objectToConvert">O polinómio.</param>
+        /// <returns>O inteiro convertido.</returns>
+        /// <exception cref="ArgumentNullException">Se o polinómio proporcionado for nulo.</exception>
+        /// <exception cref="MathematicsException">Caso o polinómio não represente um valor inteiro.</exception>
         public int DirectConversion(UnivariatePolynomialNormalForm<CoeffsType> objectToConvert)
         {
             if (objectToConvert == null)
@@ -89,6 +118,11 @@
             }
         }
 
+        /// <summary>
+        /// Converte um número inteiro num polinómio.
+        /// </summary>
+        /// <param name="objectToConvert">O número inteiro.</param>
+        /// <returns>O polinómio.</returns>
         public UnivariatePolynomialNormalForm<CoeffsType> InverseConversion(int objectToConvert)
         {
             var value = this.coeffsConversion.InverseConversion(objectToConvert);

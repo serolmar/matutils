@@ -13,8 +13,14 @@
     public class OuterElementFractionConversion<OutElementType, FractionElementType>
         : IConversion<OutElementType, Fraction<FractionElementType>>
     {
+        /// <summary>
+        /// O domínio responsável pelas operações sobre os coeficientes das fracções.
+        /// </summary>
         protected IEuclidenDomain<FractionElementType> domain;
 
+        /// <summary>
+        /// O conversor responsável pela conversão entre os coeficientes das fracções e os elementos externos.
+        /// </summary>
         protected IConversion<OutElementType, FractionElementType> outTypeToFractionTypeConversion;
 
         public OuterElementFractionConversion(
@@ -36,6 +42,11 @@
             }
         }
 
+        /// <summary>
+        /// Indica se é possível converter o uma fracção para o tipo externo.
+        /// </summary>
+        /// <param name="objectToConvert">A fracção em análise.</param>
+        /// <returns>Verdadeiro caso a conversão seja possível e falso caso contrário.</returns>
         public bool CanApplyDirectConversion(Fraction<FractionElementType> objectToConvert)
         {
             if (objectToConvert == null)
@@ -57,6 +68,14 @@
             }
         }
 
+        /// <summary>
+        /// Indica se é possível converter um valor externo para uma fracção.
+        /// </summary>
+        /// <remarks>
+        /// Esta conversão é sempre possível se o valor externo puder ser convertido em coeficiente.
+        /// </remarks>
+        /// <param name="objectToConvert">O valor externo.</param>
+        /// <returns>Verdadeiro se a conversão for possível e falso caso contrário.</returns>
         public bool CanApplyInverseConversion(OutElementType objectToConvert)
         {
             if (objectToConvert == null)
@@ -69,6 +88,13 @@
             }
         }
 
+        /// <summary>
+        /// Obtém o resultado da conversão de uma fracção para um valor externo.
+        /// </summary>
+        /// <param name="objectToConvert">A fracção.</param>
+        /// <returns>O inteiro convertido.</returns>
+        /// <exception cref="ArgumentNullException">Se a fracção for nula.</exception>
+        /// <exception cref="MathematicsException">Caso o número de precisão dupla não represente um valor inteiro.</exception>
         public OutElementType DirectConversion(Fraction<FractionElementType> objectToConvert)
         {
             if (objectToConvert == null)
@@ -89,6 +115,12 @@
             }
         }
 
+        /// <summary>
+        /// Converte um valor inteiro externo para uma fracção.
+        /// </summary>
+        /// <param name="objectToConvert">O número externo a ser convertido.</param>
+        /// <returns>A fracção.</returns>
+        /// <exception cref="ArgumentNullException">Se o valor externo for nulo.</exception>
         public Fraction<FractionElementType> InverseConversion(OutElementType objectToConvert)
         {
             if (objectToConvert == null)

@@ -6,6 +6,9 @@
     using System.Text;
     using System.Numerics;
 
+    /// <summary>
+    /// Implementa as operações de corpo modular sobre números inteiros de precisão arbitrária.
+    /// </summary>
     public class ModularBigIntegerField : IModularField<BigInteger>
     {
         /// <summary>
@@ -18,6 +21,18 @@
         /// </summary>
         private LagrangeAlgorithm<BigInteger> inverseAlgorithm;
 
+        /// <summary>
+        /// Cria instâncias de objectos do tipo <see cref="ModularBigIntegerField"/>.
+        /// </summary>
+        /// <remarks>
+        /// A determinação da inversa multiplicativa é efectuada por intermédio de algoritmos relacionados
+        /// com o algoritmo que permite determinar o máximo divisor comum. Neste caso, é necessário indicar
+        /// qual será o algoritmo responsável por essa operação.
+        /// </remarks>
+        /// <param name="module">O módulo.</param>
+        /// <exception cref="System.ArgumentException">
+        /// Se o módulo for 0, 1, ou -1.
+        /// </exception>
         public ModularBigIntegerField(BigInteger module)
         {
             if (module == 0 || module == 1 || module == -1)
@@ -39,6 +54,10 @@
         /// Esta operação não é segura quando a classe se encontra a ser utilizada
         /// em várias fluxos paralelos de execução (threads).
         /// </remarks>
+        /// <value>
+        /// O valor do módulo no corpo aritmético.
+        /// </value>
+        /// <exception cref="System.ArgumentNullException">Se o valor atribuído for nulo.</exception>
         public BigInteger Module
         {
             get
@@ -58,6 +77,12 @@
             }
         }
 
+        /// <summary>
+        /// Obtém a unidade aditiva.
+        /// </summary>
+        /// <value>
+        /// A unidade aditiva.
+        /// </value>
         public BigInteger AdditiveUnity
         {
             get
@@ -66,6 +91,12 @@
             }
         }
 
+        /// <summary>
+        /// Obtém a unidade multiplicativa.
+        /// </summary>
+        /// <value>
+        /// A unidade multiplicativa.
+        /// </value>
         public BigInteger MultiplicativeUnity
         {
             get
@@ -90,6 +121,12 @@
             return innerNumber;
         }
 
+        /// <summary>
+        /// Permite determinar a inversa multiplicativa de um número.
+        /// </summary>
+        /// <param name="number">O número do qual se pretende obter a inversa multiplicativa.</param>
+        /// <returns>A inversa multiplicativa.</returns>
+        /// <exception cref="DivideByZeroException">Se o número passao for zero.</exception>
         public BigInteger MultiplicativeInverse(BigInteger number)
         {
             var innerNumber = number % module;
@@ -124,12 +161,23 @@
             }
         }
 
+        /// <summary>
+        /// Permite efectuar adições repetidas de um número.
+        /// </summary>
+        /// <param name="element">O número a ser adicionado.</param>
+        /// <param name="times">O número de vezes que o número é adicionado.</param>
+        /// <returns>O resultado da adição.</returns>
         public BigInteger AddRepeated(BigInteger element, int times)
         {
             var bitgntTimes = (BigInteger)times;
             return this.Multiply(element, bitgntTimes);
         }
 
+        /// <summary>
+        /// Permite determinar o simétrico de um número.
+        /// </summary>
+        /// <param name="number">O número.</param>
+        /// <returns>O simétrico.</returns>
         public BigInteger AdditiveInverse(BigInteger number)
         {
             var innerNumber = number % this.module;
@@ -141,11 +189,24 @@
             return this.module - innerNumber;
         }
 
+        /// <summary>
+        /// Determina se um valor é uma unidade aditivia.
+        /// </summary>
+        /// <param name="value">O valor.</param>
+        /// <returns>Verdadeiro caso o valor seja uma unidade aditiva e falso caso contrário.</returns>
         public bool IsAdditiveUnity(BigInteger value)
         {
             return value % module == 0;
         }
 
+        /// <summary>
+        /// Determina quando dois números modulares são iguais.
+        /// </summary>
+        /// <param name="x">O primeiro número modular a ser comparado.</param>
+        /// <param name="y">O segundo número modular a ser comparado.</param>
+        /// <returns>
+        /// Verdadeiro caso ambos os objectos sejam iguais e falso no caso contrário.
+        /// </returns>
         public bool Equals(BigInteger x, BigInteger y)
         {
             var innerX = x % this.module;
@@ -163,21 +224,45 @@
             return innerX == innerY;
         }
 
+        /// <summary>
+        /// Retorna um código confuso para a instância.
+        /// </summary>
+        /// <param name="obj">A instância.</param>
+        /// <returns>
+        /// Um código confuso para a instância que pode ser usado em vários algoritmos habituais.
+        /// </returns>
         public int GetHashCode(BigInteger obj)
         {
             return obj.GetHashCode();
         }
 
+        /// <summary>
+        /// Calcula a adição modular de dois números.
+        /// </summary>
+        /// <param name="left">O primeiro número.</param>
+        /// <param name="right">O segundo número.</param>
+        /// <returns>O resultado da adição.</returns>
         public BigInteger Add(BigInteger left, BigInteger right)
         {
             return (left + right) % this.module;
         }
 
+        /// <summary>
+        /// Determina se o valor é uma unidade multiplicativa.
+        /// </summary>
+        /// <param name="value">O valor.</param>
+        /// <returns>Verdadeiro caso o valor seja uma unidade multiplicativa e falso caso contrário.</returns>
         public bool IsMultiplicativeUnity(BigInteger value)
         {
             return value % module == 1;
         }
 
+        /// <summary>
+        /// Calcula o produto modular de dois números.
+        /// </summary>
+        /// <param name="left">O primeiro número.</param>
+        /// <param name="right">O segundo número.</param>
+        /// <returns>O resultado da multiplicação.</returns>
         public BigInteger Multiply(BigInteger left, BigInteger right)
         {
             return (left * right) % this.module;

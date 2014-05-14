@@ -6,16 +6,42 @@
     using System.Text;
     using Utilities.Collections;
 
+    /// <summary>
+    /// Implementa as operações de espaço vectorial.
+    /// </summary>
+    /// <typeparam name="CoeffType">O tipo dos objectos que constituem as entradas dos vectores.</typeparam>
     public class VectorSpace<CoeffType> : IVectorSpace<CoeffType, IVector<CoeffType>>
     {
+        /// <summary>
+        /// A dimensão dos vectores tratados pelo espaço actual.
+        /// </summary>
         private int dimension;
 
+        /// <summary>
+        /// O corpo responsável pelas operações sobre os coeficientes.
+        /// </summary>
         private IField<CoeffType> field;
 
+        /// <summary>
+        /// A fábrica responsável pela criação de instâncias de vectores.
+        /// </summary>
         private IVectorFactory<CoeffType> vectorFactory;
 
+        /// <summary>
+        /// O comparador de colecções independente da ordem.
+        /// </summary>
         private IEqualityComparer<IEnumerable<CoeffType>> orderedColComparer;
 
+        /// <summary>
+        /// Cria instâncias de objectos do tipo <see cref="VectorSpace{CoeffType}"/>.
+        /// </summary>
+        /// <param name="dimension">A dimensão dos vectoes tratados pelo espaço vectorial.</param>
+        /// <param name="vectorFactory">A fábrica responsável pela criação de vectores..</param>
+        /// <param name="field">O corpo responsável pelas operações sobre vectores.</param>
+        /// <exception cref="System.ArgumentNullException">
+        /// Se os argumentos "vectorFactory" ou "field" forem nulos.
+        /// </exception>
+        /// <exception cref="System.ArgumentOutOfRangeException">Se a dimensão for um número negativo.</exception>
         public VectorSpace(
             int dimension,
             IVectorFactory<CoeffType> vectorFactory,
@@ -45,6 +71,9 @@
         /// <summary>
         /// Obtém o corpo associado ao espaço vectorial.
         /// </summary>
+        /// <value>
+        /// O corpo associado ao espaço vectorial.
+        /// </value>
         public IField<CoeffType> Field
         {
             get
@@ -56,6 +85,9 @@
         /// <summary>
         /// Obtém o objecto responsável pela ciração de vectores durante as operações.
         /// </summary>
+        /// <value>
+        /// O objecto responsável pela ciração de vectores durante as operações.
+        /// </value>
         public IVectorFactory<CoeffType> VectorFactory
         {
             get
@@ -65,12 +97,32 @@
         }
 
         /// <summary>
+        /// Obtém a unidade aditiva.
+        /// </summary>
+        /// <value>
+        /// A unidade aditiva.
+        /// </value>
+        public IVector<CoeffType> AdditiveUnity
+        {
+            get
+            {
+                return new ZeroVector<CoeffType>(this.dimension, this.field);
+            }
+        }
+
+        /// <summary>
         /// Multiplica o vector por um escalar.
         /// </summary>
         /// <param name="coefficientElement">O escalar.</param>
         /// <param name="vectorSpaceElement">O vector.</param>
         /// <returns>O resultado da multiplicação.</returns>
-        public IVector<CoeffType> MultiplyScalar(CoeffType coefficientElement, IVector<CoeffType> vectorSpaceElement)
+        /// <exception cref="ArgumentNullException">Se um dos argumentos for nulo.</exception>
+        /// <exception cref="MathematicsException">
+        /// Se a dimensão do vector não coincidir com a dimensão
+        /// definda para o espaço vectorial corrente.</exception>
+        public IVector<CoeffType> MultiplyScalar(
+            CoeffType coefficientElement, 
+            IVector<CoeffType> vectorSpaceElement)
         {
             if (coefficientElement == null)
             {
@@ -96,6 +148,16 @@
             }
         }
 
+        /// <summary>
+        /// Determina a inversa aditiva de um vector.
+        /// </summary>
+        /// <param name="number">O vector.</param>
+        /// <returns></returns>
+        /// <exception cref="System.ArgumentNullException">Se o vector for nulo.</exception>
+        /// <exception cref="MathematicsException">
+        /// Se a dimensão do vector não coincidir com a dimensão definida para o espaço
+        /// vectorial.
+        /// </exception>
         public IVector<CoeffType> AdditiveInverse(IVector<CoeffType> number)
         {
             if (number == null)
@@ -118,14 +180,16 @@
             }
         }
 
-        public IVector<CoeffType> AdditiveUnity
-        {
-            get
-            {
-                return new ZeroVector<CoeffType>(this.dimension, this.field);
-            }
-        }
-
+        /// <summary>
+        /// Determina se o vector proporcionado é uma unidade aditiva.
+        /// </summary>
+        /// <param name="value">O vector.</param>
+        /// <returns>Verdadeiro caso o vector seja uma unidade aditiva e falso caso contrário.</returns>
+        /// <exception cref="System.ArgumentNullException">Se o vector for nulo.</exception>
+        /// <exception cref="MathematicsException">
+        /// Se a dimensão do vector não coincidir com a dimensão definida para o espaço
+        /// vectorial.
+        /// </exception>
         public bool IsAdditiveUnity(IVector<CoeffType> value)
         {
             if (value == null)
@@ -142,16 +206,42 @@
             }
         }
 
+        /// <summary>
+        /// Determina se ambos os vectores são iguais.
+        /// </summary>
+        /// <param name="x">O primeiro vector a ser comparado.</param>
+        /// <param name="y">O segundo vector a ser comparado.</param>
+        /// <returns>
+        /// Verdadeiro se ambos os vectores forem iguais e falso caso contrário.
+        /// </returns>
         public bool Equals(IVector<CoeffType> x, IVector<CoeffType> y)
         {
             return this.orderedColComparer.Equals(x, y);
         }
 
+        /// <summary>
+        /// Obtém o código confuso de um vector.
+        /// </summary>
+        /// <param name="obj">O vector.</param>
+        /// <returns>
+        /// O código confuso do vector adequado à utilização em alguns algoritmos habituais.
+        /// </returns>
         public int GetHashCode(IVector<CoeffType> obj)
         {
             return this.orderedColComparer.GetHashCode(obj);
         }
 
+        /// <summary>
+        /// Calcula a soma de dois vectores.
+        /// </summary>
+        /// <param name="left">O primeiro vector a ser adicionado.</param>
+        /// <param name="right">O segundo vector a ser adicionado.</param>
+        /// <returns>O resultado da adição.</returns>
+        /// <exception cref="ArgumentNullException">Se pelo menos um dos argumentos for nulo.</exception>
+        /// <exception cref="MathematicsException">
+        /// Se a dimensão do vector não coincidir com a dimensão definida para o espaço
+        /// vectorial.
+        /// </exception>
         public IVector<CoeffType> Add(IVector<CoeffType> left, IVector<CoeffType> right)
         {
             if (left == null)
