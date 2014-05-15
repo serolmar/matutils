@@ -1,10 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Mathematics
+﻿namespace Mathematics
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+
+    /// <summary>
+    /// Representa uma linha da matriz esparsa baseada em dicionários.
+    /// </summary>
+    /// <typeparam name="ObjectType">O tipo de objectos que constituem as entradas das matrizes.</typeparam>
     internal class SparseDictionaryMatrixLine<ObjectType> : ISparseMatrixLine<ObjectType>
     {
         /// <summary>
@@ -17,11 +21,26 @@ namespace Mathematics
         /// </summary>
         private Dictionary<int, ObjectType> matrixEntries = new Dictionary<int, ObjectType>();
 
+        /// <summary>
+        /// Cria instâncias de objectos do tipo <see cref="SparseDictionaryMatrixLine{ObjectType}"/>.
+        /// </summary>
+        /// <param name="owner">A matriz à qual pertence a linha..</param>
         public SparseDictionaryMatrixLine(SparseDictionaryMatrix<ObjectType> owner)
         {
             this.owner = owner;
         }
 
+        /// <summary>
+        /// Obtém ou atribui o valor da coluna especificada pelo índice.
+        /// </summary>
+        /// <value>
+        /// O valor.
+        /// </value>
+        /// <param name="index">O índice da linha.</param>
+        /// <returns>O valor.</returns>
+        /// <exception cref="System.ArgumentOutOfRangeException">
+        /// Se o índice for negativo ou não for inferior ao número de colunas na matriz.
+        /// </exception>
         public ObjectType this[int index]
         {
             get
@@ -72,6 +91,9 @@ namespace Mathematics
         /// <summary>
         /// Obtém o comprimento total da linha que iguala a dimensão da matriz.
         /// </summary>
+        /// <value>
+        /// O comrpimento total da linha que iguala a dimensão da matriz.
+        /// </value>
         public int Length
         {
             get
@@ -83,6 +105,9 @@ namespace Mathematics
         /// <summary>
         /// Obtém o número de entradas não nulas.
         /// </summary>
+        /// <value>
+        /// O número de entradas não nulas.
+        /// </value>
         public int NumberOfColumns
         {
             get
@@ -91,6 +116,12 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Obtém as entradas das matrizes.
+        /// </summary>
+        /// <value>
+        /// As entradas das matrizes.
+        /// </value>
         internal Dictionary<int, ObjectType> MatrixEntries
         {
             get
@@ -99,11 +130,19 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Obtém as colunas.
+        /// </summary>
+        /// <returns></returns>
         public IEnumerable<KeyValuePair<int, ObjectType>> GetColumns()
         {
             return this.matrixEntries;
         }
 
+        /// <summary>
+        /// Remove uma entrada da linha.
+        /// </summary>
+        /// <param name="columnIndex">O índice da coluna a remover.</param>
         public void Remove(int columnIndex)
         {
             this.matrixEntries.Remove(columnIndex);
@@ -138,11 +177,19 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Obtém um enumerador para todas as entradas da linha da matriz.
+        /// </summary>
+        /// <returns>O enumerador.</returns>
         public IEnumerator<KeyValuePair<int,ObjectType>> GetEnumerator()
         {
             return this.matrixEntries.GetEnumerator();
         }
 
+        /// <summary>
+        /// Obtém um enumerador não genérico para as entradas da linha da matriz.
+        /// </summary>
+        /// <returns>O enumerador não genérico.</returns>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
             return this.GetEnumerator();

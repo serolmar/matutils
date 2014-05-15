@@ -29,6 +29,15 @@
         private Dictionary<int, SparseDictionaryMatrixLine<ObjectType>> matrixLines =
             new Dictionary<int, SparseDictionaryMatrixLine<ObjectType>>();
 
+        /// <summary>
+        /// Cria instâncias e objectos do tipo <see cref="SparseDictionaryMatrix{ObjectType}"/>.
+        /// </summary>
+        /// <param name="lines">O número de linhas.</param>
+        /// <param name="columns">O número de colunas.</param>
+        /// <param name="defaultValue">O valor por defeito.</param>
+        /// <exception cref="System.ArgumentOutOfRangeException">
+        /// Se o número de linhas ou o número de colunas for negativo.
+        /// </exception>
         public SparseDictionaryMatrix(int lines, int columns, ObjectType defaultValue)
             : this(defaultValue)
         {
@@ -47,6 +56,14 @@
             }
         }
 
+        /// <summary>
+        /// Cria instâncias e objectos do tipo <see cref="SparseDictionaryMatrix{ObjectType}"/>.
+        /// </summary>
+        /// <param name="lines">O número de linhas.</param>
+        /// <param name="columns">O número de colunas.</param>
+        /// <exception cref="System.ArgumentOutOfRangeException">
+        /// Se o número de linhas ou o número de colunas for negativo.
+        /// </exception>
         public SparseDictionaryMatrix(int lines, int columns)
             : this(default(ObjectType))
         {
@@ -65,11 +82,25 @@
             }
         }
 
+        /// <summary>
+        /// Cria instâncias e objectos do tipo <see cref="SparseDictionaryMatrix{ObjectType}"/>.
+        /// </summary>
+        /// <param name="defaultValue">O valor por defeito.</param>
         public SparseDictionaryMatrix(ObjectType defaultValue)
         {
             this.defaultValue = defaultValue;
         }
 
+        /// <summary>
+        /// Obtém e atribui o valor da entrada especificada.
+        /// </summary>
+        /// <param name="line">A coordenada da linha onde a entrada se encontra.</param>
+        /// <param name="column">A coordenada da coluna onde a entrada se encontra.</param>
+        /// <returns>O valor da entrada.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// Se o número de linhas ou o número de colunas for negativo ou não for inferior ao tamanho
+        /// da dimensão respectiva.
+        /// </exception>
         public ObjectType this[int line, int column]
         {
             get
@@ -141,6 +172,9 @@
         /// </summary>
         /// <param name="line">O índice.</param>
         /// <returns>A linha caso exista.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// Se a linha especificada for negativa ou não for inferior ao número de linhas.
+        /// </exception>
         /// <exception cref="MathematicsException">Se a linha não existir.</exception>
         public ISparseMatrixLine<ObjectType> this[int line]
         {
@@ -165,6 +199,12 @@
             }
         }
 
+        /// <summary>
+        /// Obtém o valor por defeito.
+        /// </summary>
+        /// <value>
+        /// O valor por defeito.
+        /// </value>
         public ObjectType DefaultValue
         {
             get
@@ -176,6 +216,9 @@
         /// <summary>
         /// Obtém o número de linhas com entradas diferentes do valor por defeito.
         /// </summary>
+        /// <value>
+        /// O número de linhas com entradas diferentes do valor por defeito.
+        /// </value>
         public int NumberOfLines
         {
             get
@@ -189,6 +232,7 @@
         /// </summary>
         /// <param name="numberOfLines">O número de linhas a acrescentar.</param>
         /// <param name="numberOfColumns">O número de colunas a acrescentar.</param>
+        /// <exception cref="ArgumentException">Se o número de linhas for negativo.</exception>
         public void ExpandMatrix(int numberOfLines, int numberOfColumns)
         {
             if (numberOfLines < 0)
@@ -266,6 +310,10 @@
             return new LinesEnumerable<ObjectType>(this.matrixLines);
         }
 
+        /// <summary>
+        /// Remove a linha especificada pelo número.
+        /// </summary>
+        /// <param name="lineNumber">O número da linha a ser removida.</param>
         public void Remove(int lineNumber)
         {
             if (lineNumber >= 0)
@@ -274,6 +322,16 @@
             }
         }
 
+        /// <summary>
+        /// Obtém o número de linhas ou colunas da matriz.
+        /// </summary>
+        /// <param name="dimension">Zero caso seja pretendido o número de linhas e um caso seja pretendido
+        /// o número de colunas.
+        /// </param>
+        /// <returns>O número de entradas na respectiva dimensão.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// Se a dimensão for diferente de zero ou um.
+        /// </exception>
         public int GetLength(int dimension)
         {
             if (dimension == 0)
@@ -290,16 +348,39 @@
             }
         }
 
+        /// <summary>
+        /// Obtém a submatriz indicada no argumento.
+        /// </summary>
+        /// <param name="lines">As correnadas das linhas que constituem a submatriz.</param>
+        /// <param name="columns">As correnadas das colunas que constituem a submatriz.</param>
+        /// <returns>A submatriz procurada.</returns>
         public IMatrix<ObjectType> GetSubMatrix(int[] lines, int[] columns)
         {
             return new SubMatrix<ObjectType>(this, lines, columns);
         }
 
+        /// <summary>
+        /// Obtém a submatriz indicada no argumento considerado como sequência de inteiros.
+        /// </summary>
+        /// <param name="lines">As correnadas das linhas que constituem a submatriz.</param>
+        /// <param name="columns">As correnadas das colunas que constituem a submatriz.</param>
+        /// <returns>A submatriz procurada.</returns>
         public IMatrix<ObjectType> GetSubMatrix(IntegerSequence lines, IntegerSequence columns)
         {
             return new IntegerSequenceSubMatrix<ObjectType>(this, lines, columns);
         }
 
+        /// <summary>
+        /// Troca duas linhas da matriz.
+        /// </summary>
+        /// <remarks>
+        /// Se uma linha a trocar exceder o tamanho actual da matriz, esta é aumentada na proporção correcta.
+        /// </remarks>
+        /// <param name="i">A primeira linha a ser trocada.</param>
+        /// <param name="j">A segunda linha a ser trocada.</param>
+        /// <exception cref="IndexOutOfRangeException">
+        /// Se um dos números de linhas for negativo.
+        /// </exception>
         public void SwapLines(int i, int j)
         {
             if (i < 0)
@@ -373,9 +454,17 @@
             }
         }
 
+        /// <summary>
+        /// Troca duas colunas da matriz.
+        /// </summary>
+        /// <param name="i">A primeira coluna a ser trocada.</param>
+        /// <param name="j">A segunda coluna a ser trocada.</param>
+        /// <exception cref="IndexOutOfRangeException">
+        /// Se um dos números de colunas for negativo.
+        /// </exception>
         public void SwapColumns(int i, int j)
         {
-            if (i < 0 || i >= this.afterLastLine)
+            if (i < 0 || i >= this.afterLastColumn)
             {
                 throw new IndexOutOfRangeException("i");
             }
@@ -460,6 +549,9 @@
         /// </summary>
         /// <param name="line">A linha.</param>
         /// <returns>As colunas atribuídas.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// Se o número da linha for negativo ou for superior ao número da última linha.
+        /// </exception>
         public IEnumerable<KeyValuePair<int, ObjectType>> GetColumns(int line)
         {
             if (line < 0 || line >= this.afterLastLine)
@@ -480,6 +572,10 @@
             }
         }
 
+        /// <summary>
+        /// Obtém um enumerador genérico para a matriz.
+        /// </summary>
+        /// <returns>O enumeador genérico.</returns>
         public IEnumerator<ObjectType> GetEnumerator()
         {
             foreach (var lineKvp in this.matrixLines)
@@ -491,20 +587,39 @@
             }
         }
 
+        /// <summary>
+        /// Obtém um enumerador não genérico para a matriz.
+        /// </summary>
+        /// <returns>O enumeador não genérico.</returns>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
             return this.GetEnumerator();
         }
 
+        /// <summary>
+        /// Implementa um enumerador para todas as linhas.
+        /// </summary>
+        /// <typeparam name="T">O tipo de objectos que constituem as entradas das linhas.</typeparam>
         private class LinesEnumerable<T> : IEnumerable<KeyValuePair<int, ISparseMatrixLine<T>>>
         {
+            /// <summary>
+            /// O conjunto de linhas.
+            /// </summary>
             private Dictionary<int, SparseDictionaryMatrixLine<T>> lines;
 
+            /// <summary>
+            /// Cria uma instância de objectos do tipo <see cref="LinesEnumerable{T}"/>.
+            /// </summary>
+            /// <param name="lines">The lines.</param>
             public LinesEnumerable(Dictionary<int, SparseDictionaryMatrixLine<T>> lines)
             {
                 this.lines = lines;
             }
 
+            /// <summary>
+            /// Obtém um enemerador para as linhas da matriz.
+            /// </summary>
+            /// <returns>O enumerador para as linhas da matriz.</returns>
             public IEnumerator<KeyValuePair<int, ISparseMatrixLine<T>>> GetEnumerator()
             {
                 foreach (var line in this.lines)
@@ -513,6 +628,10 @@
                 }
             }
 
+            /// <summary>
+            /// Obtém o enumerador não genérico para as linhas da matriz.
+            /// </summary>
+            /// <returns>O enumerador não genérico para as linhas da matriz.</returns>
             System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
             {
                 return this.GetEnumerator();

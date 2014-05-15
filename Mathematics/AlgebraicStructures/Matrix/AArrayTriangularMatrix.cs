@@ -8,6 +8,7 @@
     /// <summary>
     /// Permite desenvolver uma matriz triangular.
     /// </summary>
+    /// <typeparam name="CoeffType">O tipo de coeficientes que constituem as entradas das matrizes.</typeparam>
     public abstract class AArrayTriangularMatrix<CoeffType> : ArrayMatrix<CoeffType>, ISquareMatrix<CoeffType>
     {
         /// <summary>
@@ -15,11 +16,20 @@
         /// </summary>
         protected CoeffType defaultValue;
 
+        /// <summary>
+        /// Cria instâncias de objectos do tipo <see cref="AArrayTriangularMatrix{CoeffType}"/>.
+        /// </summary>
+        /// <param name="dimension">A dimensão da matriz.</param>
         public AArrayTriangularMatrix(int dimension)
             : base(dimension, dimension)
         {
         }
 
+        /// <summary>
+        /// Cria instâncias de objectos do tipo <see cref="AArrayTriangularMatrix{CoeffType}"/>.
+        /// </summary>
+        /// <param name="dimension">A dimensão da matriz.</param>
+        /// <param name="defaultValue">O valor por defeito.</param>
         public AArrayTriangularMatrix(int dimension, CoeffType defaultValue)
             : base(dimension, dimension, defaultValue)
         {
@@ -56,11 +66,27 @@
             return true;
         }
 
+        /// <summary>
+        /// Função sobrecarregada da classe orignal.
+        /// </summary>
+        /// <param name="i">O índice de linha a ser trocada.</param>
+        /// <param name="j">O índice da linha a trocar.</param>
+        /// <exception cref="MathematicsException">
+        /// Não é possível trocar linhas de uma matriz triangular.
+        /// </exception>
         public override void SwapLines(int i, int j)
         {
             throw new MathematicsException("Can't swap lines in a triangular matrix.");
         }
 
+        /// <summary>
+        /// Função sobrecarregada da classe orignal.
+        /// </summary>
+        /// <param name="i">O índice de coluna a ser trocada.</param>
+        /// <param name="j">O índice da coluna a trocar.</param>
+        /// <exception cref="MathematicsException">
+        /// Não é possível trocar colunas de uma matriz triangular.
+        /// </exception>
         public override void SwapColumns(int i, int j)
         {
             throw new MathematicsException("Can't swap columns in a triangular matrix.");

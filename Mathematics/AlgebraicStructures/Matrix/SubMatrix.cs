@@ -13,12 +13,30 @@ namespace Mathematics
     /// <typeparam name="ObjectType">O tipo de elementos na matriz.</typeparam>
     internal class SubMatrix<ObjectType> : IMatrix<ObjectType>
     {
+        /// <summary>
+        /// A matriz original.
+        /// </summary>
         private IMatrix<ObjectType> matrix;
 
+        /// <summary>
+        /// As linhas que constituem a sub-matriz.
+        /// </summary>
         private int[] lines;
 
+        /// <summary>
+        /// As colunas que constituem a sub-matriz.
+        /// </summary>
         private int[] columns;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="SubMatrix{ObjectType}"/>.
+        /// </summary>
+        /// <param name="matrix">A matriz original.</param>
+        /// <param name="lines">As linhas que constituem a sub-matriz.</param>
+        /// <param name="columns">As colunas que constituem a sub-matriz.</param>
+        /// <exception cref="System.ArgumentException">
+        /// Se as linhas ou as colunas forem vectores nulos.
+        /// </exception>
         public SubMatrix(IMatrix<ObjectType> matrix, int[] lines, int[] columns)
         {
             if (lines == null || columns == null)
@@ -35,6 +53,22 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Obtém ou atribui o valor especificaod pelos índices.
+        /// </summary>
+        /// <remarks>
+        /// A atribuição de um valor implica a actualização da entrada respectiva na matriz original.
+        /// </remarks>
+        /// <value>
+        /// O valor.
+        /// </value>
+        /// <param name="line">O índice correspondente à linha.</param>
+        /// <param name="column">O índice correspondente à coluna.</param>
+        /// <returns></returns>
+        /// <exception cref="System.IndexOutOfRangeException">
+        /// Se o número da linha ou o número da coluna forem negativos ou não forem inferiores ao tamanho da
+        /// respectiva dimensão.
+        /// </exception>
         public ObjectType this[int line, int column]
         {
             get
@@ -69,6 +103,14 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Obtém o número de linhas ou colunas da matriz.
+        /// </summary>
+        /// <param name="dimension">Zero caso seja pretendido o número de linhas e um caso seja pretendido
+        /// o número de colunas.
+        /// </param>
+        /// <returns>O número de entradas na respectiva dimensão.</returns>
+        /// <exception cref="ArgumentException">Se o valor da dimensão diferir de zero ou um.</exception>
         public int GetLength(int dimension)
         {
             if (dimension == 0)
@@ -85,16 +127,36 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Obtém a submatriz indicada no argumento.
+        /// </summary>
+        /// <param name="lines">As correnadas das linhas que constituem a submatriz.</param>
+        /// <param name="columns">As correnadas das colunas que constituem a submatriz.</param>
+        /// <returns>A submatriz procurada.</returns>
         public IMatrix<ObjectType> GetSubMatrix(int[] lines, int[] columns)
         {
                 return new SubMatrix<ObjectType>(this, lines, columns);
         }
 
+        /// <summary>
+        /// Obtém a submatriz indicada no argumento considerado como sequência de inteiros.
+        /// </summary>
+        /// <param name="lines">As correnadas das linhas que constituem a submatriz.</param>
+        /// <param name="columns">As correnadas das colunas que constituem a submatriz.</param>
+        /// <returns>A submatriz procurada.</returns>
         public IMatrix<ObjectType> GetSubMatrix(IntegerSequence lines, IntegerSequence columns)
         {
             return new IntegerSequenceSubMatrix<ObjectType>(this, lines, columns);
         }
 
+        /// <summary>
+        /// Troca duas linhas da matriz.
+        /// </summary>
+        /// <param name="i">A primeira linha a ser trocada.</param>
+        /// <param name="j">A segunda linha a ser trocada.</param>
+        /// <exception cref="IndexOutOfRangeException">
+        /// Se o índice da linha ou da coluna for negativo ou não for inferior ao tamanho da dimensão respectiva.
+        /// </exception>
         public void SwapLines(int i, int j)
         {
             if (i < 0 || i > this.lines.Length)
@@ -113,6 +175,14 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Troca duas colunas da matriz.
+        /// </summary>
+        /// <param name="i">A primeira coluna a ser trocaada.</param>
+        /// <param name="j">A segunda coluna a ser trocada.</param>
+        /// <exception cref="IndexOutOfRangeException">
+        /// Se o índice da linha ou da coluna for negativo ou não for inferior ao tamanho da dimensão respectiva.
+        /// </exception>
         public void SwapColumns(int i, int j)
         {
             if (i < 0 || i > this.columns.Length)
@@ -131,6 +201,10 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Obtém o enumerador genérico para a matriz.
+        /// </summary>
+        /// <returns>O enumerador genérico.</returns>
         public IEnumerator<ObjectType> GetEnumerator()
         {
             for (int i = 0; i < this.lines.Length; ++i)
@@ -142,6 +216,10 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Constrói uma representação textual da matriz.
+        /// </summary>
+        /// <returns>A representação textual da matriz.</returns>
         public override string ToString()
         {
             var resultBuilder = new StringBuilder();
@@ -180,6 +258,10 @@ namespace Mathematics
             return resultBuilder.ToString();
         }
 
+        /// <summary>
+        /// Obtém o enumerador não genércio para a matriz.
+        /// </summary>
+        /// <returns>O enumerador não genérico.</returns>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
             return this.GetEnumerator();

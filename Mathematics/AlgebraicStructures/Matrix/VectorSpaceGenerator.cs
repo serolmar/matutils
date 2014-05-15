@@ -12,10 +12,23 @@
     /// <typeparam name="CoeffType">O tipo de valores do espaço.</typeparam>
     public class VectorSpaceGenerator<CoeffType> : IList<IVector<CoeffType>>
     {
+        /// <summary>
+        /// Os vectores que constituem a base do espaço vectorial.
+        /// </summary>
         private List<IVector<CoeffType>> basisVectors;
 
+        /// <summary>
+        /// O número de entradas dos vectores permitidos.
+        /// </summary>
         private int vectorSpaceDimension;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="VectorSpaceGenerator{CoeffType}"/>.
+        /// </summary>
+        /// <param name="vectorSpaceDimension">O número de entradas dos vectores permitidos.</param>
+        /// <exception cref="System.ArgumentOutOfRangeException">
+        /// Se o número de entradas dos vectores permitidos for negativo.
+        /// </exception>
         public VectorSpaceGenerator(int vectorSpaceDimension)
         {
             if (vectorSpaceDimension < 0)
@@ -29,6 +42,11 @@
             }
         }
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="VectorSpaceGenerator{CoeffType}"/>.
+        /// </summary>
+        /// <param name="vectorSpaceDimension">O número de entradas dos vectores permitidos.</param>
+        /// <param name="basisVectors">Uma lista inicial de vectores da base.</param>
         private VectorSpaceGenerator(
             int vectorSpaceDimension, 
             List<IVector<CoeffType>> basisVectors)
@@ -42,8 +60,13 @@
         /// <summary>
         /// Obtém e atribui os vectores da base na posição especificada pelo índice.
         /// </summary>
+        /// <value>O vector que se encontra na posição especificada.</value>
         /// <param name="index">O índice.</param>
         /// <returns>O vector que se encontra na posição especificada.</returns>
+        /// <exception cref="MathematicsException">
+        /// Se o espaço corrente for só de leitura ou as dimensões do vector não coincidirem com a dimensão
+        /// estabelecida para o espaço vectorial corrente.
+        /// </exception>
         public IVector<CoeffType> this[int index]
         {
             get
@@ -70,6 +93,9 @@
         /// <summary>
         /// Otbém o número de vectores na base.
         /// </summary>
+        /// <value>
+        /// O número de vectores na base.
+        /// </value>
         public int Count
         {
             get
@@ -81,6 +107,9 @@
         /// <summary>
         /// Obtém um valor que indica se a base é apenas de leitura.
         /// </summary>
+        /// <value>
+        /// O valor que indica se a base é apenas de leitura.
+        /// </value>
         public bool IsReadOnly
         {
             get
@@ -160,6 +189,13 @@
         /// </summary>
         /// <param name="index">O índice.</param>
         /// <param name="item">O vector.</param>
+        /// <exception cref="MathematicsException">
+        /// Se o espaço corrente for só de leitura ou a dimensão do vector não coincidor com
+        /// a dimensão permitida pelo espaço vectorial corrente.
+        /// </exception>
+        /// <exception cref="ArgumentNullException">
+        /// Se o item for nulo.
+        /// </exception>
         public void Insert(int index, IVector<CoeffType> item)
         {
             if (this.IsReadOnly)
@@ -185,9 +221,18 @@
         /// </summary>
         /// <param name="index">O índice.</param>
         /// <param name="collection">A colecção.</param>
+        /// <exception cref="ArgumentNullException">Se a colecção for nula.</exception>
+        /// <exception cref="MathematicsException">
+        /// Se o espaço corrente for só de leitura ou a dimensão do vector não coincidor com
+        /// a dimensão permitida pelo espaço vectorial corrente.
+        /// </exception>
         public void InsertRange(int index, IEnumerable<IVector<CoeffType>> collection)
         {
-            if (collection == null)
+            if (this.IsReadOnly)
+            {
+                throw new MathematicsException("The basis vector is readonly.");
+            }
+            else if (collection == null)
             {
                 throw new ArgumentNullException("collection");
             }
@@ -209,6 +254,7 @@
         /// Remove o vector que se encontra na posição especificada pelo índice.
         /// </summary>
         /// <param name="index">O índice.</param>
+        /// <exception cref="MathematicsException">Se o espaço corrente for só de leitura.</exception>
         public void RemoveAt(int index)
         {
             if (this.IsReadOnly)
@@ -225,6 +271,11 @@
         /// Adiciona um vector ao final da base.
         /// </summary>
         /// <param name="item">O vector a ser adicionado.</param>
+        /// <exception cref="MathematicsException">
+        /// Se o espaço corrente for só de leitura ou a dimensão do vector não coincidor com
+        /// a dimensão permitida pelo espaço vectorial corrente.
+        /// </exception>
+        /// <exception cref="ArgumentNullException">Se o item for nulo.</exception>
         public void Add(IVector<CoeffType> item)
         {
             if (this.IsReadOnly)
@@ -249,9 +300,18 @@
         /// Adiciona uma colecção de vectores ao final da base.
         /// </summary>
         /// <param name="collection">A colecção de vectores a ser adicionada.</param>
+        /// <exception cref="MathematicsException">
+        /// Se o espaço corrente for só de leitura ou a dimensão do vector não coincidor com
+        /// a dimensão permitida pelo espaço vectorial corrente.
+        /// </exception>
+        /// <exception cref="ArgumentNullException">Se a colecção for nula.</exception>
         public void AddRange(IEnumerable<IVector<CoeffType>> collection)
         {
-            if (collection == null)
+            if (this.IsReadOnly)
+            {
+                throw new MathematicsException("The basis vector is readonly.");
+            }
+            else if (collection == null)
             {
                 throw new ArgumentNullException("collection");
             }
@@ -272,6 +332,7 @@
         /// <summary>
         /// Remove todos os vectores da base.
         /// </summary>
+        /// <exception cref="MathematicsException">Se o espaço vectorial corrente for só de leitura.</exception>
         public void Clear()
         {
             if (this.IsReadOnly)
@@ -483,6 +544,7 @@
         /// </summary>
         /// <param name="item">O vector a ser removido.</param>
         /// <returns>Verdadeiro caso a operação seja bem sucedida e falso caso contrário.</returns>
+        /// <exception cref="MathematicsException">Se o espaço vectorial corrente for só de leitura.</exception>
         public bool Remove(IVector<CoeffType> item)
         {
             if (this.IsReadOnly)
@@ -500,6 +562,7 @@
         /// </summary>
         /// <param name="match">O predicado.</param>
         /// <returns>O número de vectores removidos.</returns>
+        /// <exception cref="MathematicsException">Se o espaço vectorial corrente for só de leitura.</exception>
         public int RemoveAll(Predicate<IVector<CoeffType>> match)
         {
             if (this.IsReadOnly)
@@ -517,6 +580,7 @@
         /// </summary>
         /// <param name="index">O índice.</param>
         /// <param name="count">O número de vectores.</param>
+        /// <exception cref="MathematicsException">Se o espaço vectorial corrente for só de leitura.</exception>
         public void RemoveRange(int index, int count)
         {
             if (this.IsReadOnly)
@@ -539,6 +603,10 @@
             return this.basisVectors.TrueForAll(match);
         }
 
+        /// <summary>
+        /// Obtém um enumerador para todos os vectores da base.
+        /// </summary>
+        /// <returns>O enumerador.</returns>
         public IEnumerator<IVector<CoeffType>> GetEnumerator()
         {
             return this.basisVectors.GetEnumerator();
@@ -553,6 +621,9 @@
         /// </summary>
         /// <param name="first">O índice da posição do primeiro vector.</param>
         /// <param name="second">O índice da posição do segundo vector.</param>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// Se algum dos índices for negativo ou não for inferior ao número de vectores na base.
+        /// </exception>
         public void SwapVectors(int first, int second)
         {
             if (first != second)
@@ -581,6 +652,7 @@
         /// <param name="vectorSpace">O espaço responsável pela multiplicação de um escalar com um vector.</param>
         /// <param name="scalarProduct">O produto escalar.</param>
         /// <returns>A base ortogonalizada.</returns>
+        /// <exception cref="ArgumentNullException">Se algum dos argumentos for nulo.</exception>
         public VectorSpaceGenerator<CoeffType> GetOrthogonalizedBase(
             IField<CoeffType> coefficientsField,
             IVectorSpace<CoeffType, IVector<CoeffType>> vectorSpace,
@@ -716,6 +788,10 @@
 
         #endregion Funções da Base
 
+        /// <summary>
+        /// Obtém um enumerador não genérico.
+        /// </summary>
+        /// <returns>O enumerador não genérico.</returns>
         IEnumerator IEnumerable.GetEnumerator()
         {
             return this.GetEnumerator();

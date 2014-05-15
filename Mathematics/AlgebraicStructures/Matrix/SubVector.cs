@@ -10,12 +10,25 @@
     /// <summary>
     /// Representa um sub-vector definido com base nos índices.
     /// </summary>
+    /// <typeparam name="CoeffType">O tipo de objectos que constituem as entradas dos vectores.</typeparam>
     internal class SubVector<CoeffType> : IVector<CoeffType>
     {
+        /// <summary>
+        /// O vector original.
+        /// </summary>
         private IVector<CoeffType> vector;
 
+        /// <summary>
+        /// Os índices que definem o sub-vector.
+        /// </summary>
         private int[] subVectorIndices;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="SubVector{CoeffType}"/>.
+        /// </summary>
+        /// <param name="vector">The vector.</param>
+        /// <param name="subVectorIndices">The sub vector indices.</param>
+        /// <exception cref="System.ArgumentNullException">subVectorIndices</exception>
         public SubVector(IVector<CoeffType> vector, int[] subVectorIndices)
         {
             if (subVectorIndices == null)
@@ -37,8 +50,12 @@
         /// <summary>
         /// Obtém e atribui a entrada do vector especificada pelo respectivo índice.
         /// </summary>
+        /// <value>A entrada do vector especificada pelo índice.</value>
         /// <param name="index">O índice que identifica a entrada do vector.</param>
         /// <returns>A entrada do vector.</returns>
+        /// <exception cref="IndexOutOfRangeException">
+        /// Se o índice for negativo ou não for inferior ao tamanho do vector.
+        /// </exception>
         public CoeffType this[int index]
         {
             get
@@ -68,6 +85,7 @@
         /// <summary>
         /// Otbém o tamanho do vector.
         /// </summary>
+        /// <value>O tamanho do vector.</value>
         public int Length
         {
             get
@@ -99,8 +117,12 @@
         /// <summary>
         /// Permite trocar dois elementos do sub-vector sem influenciar o vector original.
         /// </summary>
-        /// <param name="first"></param>
-        /// <param name="second"></param>
+        /// <param name="first">A primeira entrada a ser trocada.</param>
+        /// <param name="second">A segunda entrada a ser trocada.</param>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// Se o número da linha ou o número coluna for negativo ou não for inferior ao tamanho
+        /// da respectiva dimensão.
+        /// </exception>
         public void SwapElements(int first, int second)
         {
             if (first != second)
@@ -122,6 +144,12 @@
             }
         }
 
+        /// <summary>
+        /// Averigua se se trata de um vector nulo.
+        /// </summary>
+        /// <param name="monoid">O monóide responsável pela identificação do zero.</param>
+        /// <returns>Veradeiro caso o vector seja nulo e falso caso contrário.</returns>
+        /// <exception cref="ArgumentNullException">Se o argumento for nulo.</exception>
         public bool IsNull(IMonoid<CoeffType> monoid)
         {
             if (monoid == null)
@@ -142,6 +170,10 @@
             }
         }
 
+        /// <summary>
+        /// Obtém uma cópia do vector corrente.
+        /// </summary>
+        /// <returns>A cópia.</returns>
         public IVector<CoeffType> Clone()
         {
             var result = new SubVector<CoeffType>();
@@ -151,6 +183,10 @@
             return result;
         }
 
+        /// <summary>
+        /// Obtém o enumerador genérico para as entradas do vector.
+        /// </summary>
+        /// <returns>O enumerador genérico.</returns>
         public IEnumerator<CoeffType> GetEnumerator()
         {
             for (int i = 0; i < this.subVectorIndices.Length; ++i)
@@ -159,6 +195,10 @@
             }
         }
 
+        /// <summary>
+        /// Obtém o enumerador não genérico para as entradas do vector.
+        /// </summary>
+        /// <returns>O enumerador não genérico.</returns>
         IEnumerator IEnumerable.GetEnumerator()
         {
             return this.GetEnumerator();

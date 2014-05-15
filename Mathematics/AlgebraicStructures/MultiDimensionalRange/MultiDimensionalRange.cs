@@ -24,6 +24,10 @@
         /// </summary>
         private int[] configuration;
 
+        /// <summary>
+        /// Instancia uma classe do tipo <see cref="MultiDimensionalRange"/>, provendo a
+        /// respectiva configuração.
+        /// </summary>
         internal MultiDimensionalRange()
         {
         }
@@ -33,6 +37,7 @@
         /// respectiva configuração.
         /// </summary>
         /// <param name="dimensions">A configuração da matriz.</param>
+        /// <exception cref="ArgumentException">Se a colecção das dimensões for nula.</exception>
         public MultiDimensionalRange(IEnumerable<int> dimensions)
         {
             var p = 1;
@@ -52,6 +57,20 @@
             this.configuration = config.ToArray();
         }
 
+        /// <summary>
+        /// Obtém ou atribui o valor especificado pelo índice multidimensional.
+        /// </summary>
+        /// <value>
+        /// O valor.
+        /// </value>
+        /// <param name="multiDimensionalIndex">O índice multidimensional.</param>
+        /// <returns></returns>
+        /// <exception cref="System.ArgumentNullException">
+        /// Se o índice for nulo.
+        /// </exception>
+        /// <exception cref="System.IndexOutOfRangeException">
+        /// Se o índice se encontra fora dos limites da matriz multidimensional.
+        /// </exception>
         public T this[int[] multiDimensionalIndex]
         {
             get
@@ -89,6 +108,7 @@
         /// <summary>
         /// Obtém o número de dimensões da matriz multidimensional.
         /// </summary>
+        /// <value>O número de dimensões da matriz multidimensional.</value>
         public int Rank
         {
             get
@@ -97,6 +117,12 @@
             }
         }
 
+        /// <summary>
+        /// Obtém a configuração.
+        /// </summary>
+        /// <value>
+        /// A configuração.
+        /// </value>
         public IEnumerable<int> Configuration
         {
             get
@@ -105,6 +131,12 @@
             }
         }
 
+        /// <summary>
+        /// Obtém ou atribui os elementos internos.
+        /// </summary>
+        /// <value>
+        /// Os elementos internos.
+        /// </value>
         internal T[] InternalElements
         {
             get
@@ -117,6 +149,12 @@
             }
         }
 
+        /// <summary>
+        /// Obtém ou atribui a configuração interna.
+        /// </summary>
+        /// <value>
+        /// A configuração interna.
+        /// </value>
         internal int[] InnerConfiguration
         {
             get
@@ -129,6 +167,14 @@
             }
         }
 
+        /// <summary>
+        /// Obtém o tamanho associado a uma dimensão.
+        /// </summary>
+        /// <param name="dimension">A dimensão.</param>
+        /// <returns>O tamanho.</returns>
+        /// <exception cref="IndexOutOfRangeException">
+        /// Se a dimensão for negativa ou não for inferior ao número de dimensões.
+        /// </exception>
         public int GetLength(int dimension)
         {
             if (dimension < 0 || dimension >= this.configuration.Length)
@@ -139,8 +185,20 @@
             return this.configuration[dimension];
         }
 
+        /// <summary>
+        /// Determina a soma de duas matrizes multidimensionais.
+        /// </summary>
+        /// <param name="right">A matriz multidimensional a ser somada.</param>
+        /// <param name="semiGroup">O semi-grupo responsável pelas operações sobre os coeficientes.</param>
+        /// <returns>O resultado da soma.</returns>
+        /// <exception cref="ArgumentNullException">Se um dos argumentos for nulo.</exception>
         public MultiDimensionalRange<T> Sum(MultiDimensionalRange<T> right, ISemigroup<T> semiGroup)
         {
+            if (right == null)
+            {
+                throw new ArgumentNullException("right");
+            }
+
             if (semiGroup == null)
             {
                 throw new ArgumentNullException("Semi group structure is needed.");
@@ -168,8 +226,20 @@
             return result;
         }
 
+        /// <summary>
+        /// Determina o produto de duas matrizes multidimensionais.
+        /// </summary>
+        /// <param name="right">A matriz multidimensional a ser somada.</param>
+        /// <param name="multiplyable">O objeto responsável pelas operações sobre os coeficientes.</param>
+        /// <returns>O resultado do produto.</returns>
+        /// <exception cref="ArgumentNullException">Se um dos argumentos for nulo.</exception>
         public MultiDimensionalRange<T> Multiply(MultiDimensionalRange<T> right, IMultiplication<T> multiplyable)
         {
+            if (right == null)
+            {
+                throw new ArgumentNullException("right");
+            }
+
             if (multiplyable == null)
             {
                 throw new ArgumentNullException("A multiplyable structure is needed.");
@@ -219,8 +289,20 @@
             return result;
         }
 
+        /// <summary>
+        /// Determina a contracção da matriz corrente segundo os índices espcificados.
+        /// </summary>
+        /// <param name="contractionIndices">A matriz multidimensional a ser somada.</param>
+        /// <param name="semiGroup">O objeto responsável pelas operações sobre os coeficientes.</param>
+        /// <returns>O resultado do produto.</returns>
+        /// <exception cref="ArgumentNullException">Se um dos argumentos for nulo.</exception>
         public MultiDimensionalRange<T> Contract(int[] contractionIndices, ISemigroup<T> semiGroup)
         {
+            if (contractionIndices == null)
+            {
+                throw new ArgumentNullException("contractionIndices");
+            }
+
             if (semiGroup == null)
             {
                 throw new MathematicsException("Parameter semiGroup can't be null.");
@@ -316,11 +398,20 @@
             return result;
         }
 
+        /// <summary>
+        /// Obtém uma sub-matriz multidimensional.
+        /// </summary>
+        /// <param name="subRangeConfiguration">A configuração da sub-matriz multidimensional.</param>
+        /// <returns>A sub-matriz multidimensional.</returns>
         public IMultiDimensionalRange<T> GetSubMultiDimensionalRange(int[][] subRangeConfiguration)
         {
             return new SubMultiDimensionalRange<T>(this, subRangeConfiguration);
         }
 
+        /// <summary>
+        /// Obtém um enumerador genérico para a matriz multidimensional.
+        /// </summary>
+        /// <returns>O eumerador genérico.</returns>
         public IEnumerator<T> GetEnumerator()
         {
             for (int i = 0; i < this.elements.Length; ++i)
@@ -329,6 +420,10 @@
             }
         }
 
+        /// <summary>
+        /// Obtém uma representação textual da matriz multidimensional.
+        /// </summary>
+        /// <returns>A representação textual da matriz multidimensional.</returns>
         public override string ToString()
         {
             StringBuilder resultBuilder = new StringBuilder();
@@ -356,6 +451,7 @@
         }
 
         #region Private Methods
+
         private int Increment(int[] coords, int[] config, int[] advances)
         {
             for (int i = 0; i < coords.Length; ++i)
@@ -484,6 +580,7 @@
 
             return true;
         }
+
         #endregion
     }
 }

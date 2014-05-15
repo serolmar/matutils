@@ -7,6 +7,10 @@
     using System.Text;
     using Utilities.Collections;
 
+    /// <summary>
+    /// Implementa um vector cujo contentor consiste num vector do sistema.
+    /// </summary>
+    /// <typeparam name="CoeffType">O tipo de objectos que constituem as entradas do vector.</typeparam>
     public class ArrayVector<CoeffType> : IVector<CoeffType>
     {
         /// <summary>
@@ -14,6 +18,11 @@
         /// </summary>
         private CoeffType[] vectorEntries;
 
+        /// <summary>
+        /// Cria instâncias de objectos do tipo <see cref="ArrayVector{CoeffType}"/>.
+        /// </summary>
+        /// <param name="length">O comprimento do vector.</param>
+        /// <exception cref="ArgumentOutOfRangeException">Se o comprimento for negativo.</exception>
         public ArrayVector(int length)
         {
             if (length < 0)
@@ -26,6 +35,12 @@
             }
         }
 
+        /// <summary>
+        /// Cria instâncias de objectos do tipo <see cref="ArrayVector{CoeffType}"/>.
+        /// </summary>
+        /// <param name="length">O comprimento do vector.</param>
+        /// <param name="defaultValue">O valor por defeito.</param>
+        /// <exception cref="ArgumentOutOfRangeException">Se o comprimento for negativo.</exception>
         public ArrayVector(int length, CoeffType defaultValue)
         {
             if (length < 0)
@@ -69,8 +84,11 @@
         /// <summary>
         /// Obtém e atribui o valor da entrada especificada pelo índice respectivo.
         /// </summary>
-        /// <param name="index"></param>
-        /// <returns></returns>
+        /// <param name="index">O índice da entrada.</param>
+        /// <returns>O valor contido na posição especificada pelo índice.</returns>
+        /// <exception cref="IndexOutOfRangeException">
+        /// Se o índice for negativo ou não for inferior ao tamanho do vector.
+        /// </exception>
         public CoeffType this[int index]
         {
             get
@@ -100,6 +118,9 @@
         /// <summary>
         /// Obtém o tamanho do vector.
         /// </summary>
+        /// <value>
+        /// O tamanho do vector.
+        /// </value>
         public int Length
         {
             get
@@ -131,8 +152,11 @@
         /// <summary>
         /// Troca dois elementos do vector.
         /// </summary>
-        /// <param name="first">A posição do primeiro elmeneto.</param>
+        /// <param name="first">A posição do primeiro elemento.</param>
         /// <param name="second">A posição do segundo elemento.</param>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// Se algum dos índices for negativo ou não for inferior ao tamanho do vector.
+        /// </exception>
         public void SwapElements(int first, int second)
         {
             if (first != second)
@@ -154,6 +178,10 @@
             }
         }
 
+        /// <summary>
+        /// Obtém um enumerador para os elementos do vector.
+        /// </summary>
+        /// <returns>O enumerador para os elementos do vector.</returns>
         public IEnumerator<CoeffType> GetEnumerator()
         {
             for (int i = 0; i < this.vectorEntries.Length; ++i)
@@ -162,6 +190,12 @@
             }
         }
 
+        /// <summary>
+        /// Determina se o vector actual é zero relativamente a um monóide.
+        /// </summary>
+        /// <param name="monoid">O monóide.</param>
+        /// <returns>Verdadeiro caso o vector seja nulo e falso caso contrário.</returns>
+        /// <exception cref="ArgumentNullException">Se o monóide fornecido for nulo.</exception>
         public bool IsNull(IMonoid<CoeffType> monoid)
         {
             if (monoid == null)
@@ -182,6 +216,10 @@
             }
         }
 
+        /// <summary>
+        /// Constrói uma cópida do vector actual.
+        /// </summary>
+        /// <returns>A cópia do vector actual.</returns>
         public IVector<CoeffType> Clone()
         {
             var result = new ArrayVector<CoeffType>();
@@ -190,6 +228,10 @@
             return result;
         }
 
+        /// <summary>
+        /// Obtém uma representação textual do vector.
+        /// </summary>
+        /// <returns>A representação textual do vector.</returns>
         public override string ToString()
         {
             var resultBuilder = new StringBuilder();
@@ -208,6 +250,10 @@
             return resultBuilder.ToString();
         }
 
+        /// <summary>
+        /// Obtém o enumerador não genérico para os elementos do vector.
+        /// </summary>
+        /// <returns>O enumerador não genérico para os elementos do vector.</returns>
         IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
             return this.GetEnumerator();

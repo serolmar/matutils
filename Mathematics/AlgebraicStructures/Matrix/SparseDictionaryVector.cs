@@ -7,14 +7,33 @@
     using System.Text;
     using Utilities.Collections;
 
+    /// <summary>
+    /// Implementa um vector esparso baseado em dicionários.
+    /// </summary>
+    /// <typeparam name="CoeffType">O tipo de objectos que constituem as entradas dos vectores.</typeparam>
     public class SparseDictionaryVector<CoeffType> : IVector<CoeffType>
     {
+        /// <summary>
+        /// O valor por defeito.
+        /// </summary>
         private CoeffType defaultValue;
 
+        /// <summary>
+        /// O comprimento do vector.
+        /// </summary>
         private int length;
 
+        /// <summary>
+        /// O contentor para os elementos do vector.
+        /// </summary>
         private Dictionary<int, CoeffType> vectorEntries;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="SparseDictionaryVector{CoeffType}"/>.
+        /// </summary>
+        /// <param name="size">O tamanho do vector.</param>
+        /// <param name="defaultValue">O valor por defeito.</param>
+        /// <exception cref="System.ArgumentOutOfRangeException">Se o tamanho do vector for negativo.</exception>
         public SparseDictionaryVector(int size, CoeffType defaultValue)
         {
             if (size < 0)
@@ -29,6 +48,10 @@
             }
         }
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="SparseDictionaryVector{CoeffType}"/>.
+        /// </summary>
+        /// <param name="size">O tamanho do vector.</param>
         public SparseDictionaryVector(int size)
             : this(size, default(CoeffType))
         {
@@ -37,8 +60,13 @@
         /// <summary>
         /// Otbém e atribui o valor da entrada do vector especificada pelo respectivo índice.
         /// </summary>
+        /// <value>
+        /// O valor da entrada do vector especificada pelo índice.
+        /// </value>
         /// <param name="index">O índice.</param>
         /// <returns>O valor da entrada.</returns>
+        /// <exception cref="IndexOutOfRangeException">
+        /// Se o índice for negativo ou não for inferior ao número de elementos no vector.</exception>
         public CoeffType this[int index]
         {
             get
@@ -90,6 +118,9 @@
         /// <summary>
         /// Obtém o tamanho do vector.
         /// </summary>
+        /// <value>
+        /// O tamanho do vector.
+        /// </value>
         public int Length
         {
             get
@@ -101,6 +132,7 @@
         /// <summary>
         /// Obtém o valor por defeito associado ao vector.
         /// </summary>
+        /// <value>O valor por defeeito.</value>
         public CoeffType DefaultValue
         {
             get
@@ -113,6 +145,7 @@
         /// Expande o vector, acrescentando um número específico de entradas.
         /// </summary>
         /// <param name="entriesNumber">O número de entradas a acrescentar.</param>
+        /// <exception cref="ArgumentException">Se o argumento for um número negativo.</exception>
         private void Expand(int entriesNumber)
         {
             if (entriesNumber < 0)
@@ -148,8 +181,11 @@
         /// <summary>
         /// Troca dois elementos do vector.
         /// </summary>
-        /// <param name="first"></param>
-        /// <param name="second"></param>
+        /// <param name="first">O primeiro elemento a ser trocado.</param>
+        /// <param name="second">O segundo elemento a ser trocado.</param>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// Se algum dos argumentos for negativo ou não for inferior ao número de elementos no vector.
+        /// </exception>
         public void SwapElements(int first, int second)
         {
             if (first != second)
@@ -203,6 +239,12 @@
             return this.vectorEntries.ContainsKey(index);
         }
 
+        /// <summary>
+        /// Averigua se se trata de um vector nulo.
+        /// </summary>
+        /// <param name="monoid">O monóide responsável pela identificação do zero.</param>
+        /// <returns>Veradeiro caso o vector seja nulo e falso caso contrário.</returns>
+        /// <exception cref="ArgumentNullException">Se o argumento for nulo.</exception>
         public bool IsNull(IMonoid<CoeffType> monoid)
         {
             if (monoid == null)
@@ -240,6 +282,10 @@
             }
         }
 
+        /// <summary>
+        /// Obtém uma cópia do vector corrente.
+        /// </summary>
+        /// <returns>A cópia.</returns>
         public IVector<CoeffType> Clone()
         {
             var result = new SparseDictionaryVector<CoeffType>(this.length);
@@ -286,6 +332,10 @@
             }
         }
 
+        /// <summary>
+        /// Obtém o enumerador não genérico para o vector.
+        /// </summary>
+        /// <returns>O enumerador não genérico para o vector.</returns>
         IEnumerator IEnumerable.GetEnumerator()
         {
             return this.GetEnumerator();

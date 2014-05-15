@@ -11,6 +11,13 @@
     /// <typeparam name="ObjectType">O tipo de elementos contidos na matriz.</typeparam>
     public class ArraySquareMatrixFactory<ObjectType> : IMatrixFactory<ObjectType>
     {
+        /// <summary>
+        /// Cria uma matriz <see cref="ArraySquareMatrixFactory{ObjectType}"/> com o número de linhas e colunas especificado.
+        /// </summary>
+        /// <param name="lines">O número de linhas.</param>
+        /// <param name="columns">O número de colunas.</param>
+        /// <returns>A matriz.</returns>
+        /// <exception cref="MathematicsException">Se o número de linhas for diferente do número de colunas.</exception>
         public IMatrix<ObjectType> CreateMatrix(int lines, int columns)
         {
             if (lines != columns)
@@ -23,6 +30,14 @@
             }
         }
 
+        /// <summary>
+        /// Cria uma matriz <see cref="ArraySquareMatrixFactory{ObjectType}"/> com o número de linhas e colunas especificado.
+        /// </summary>
+        /// <param name="lines">O número de linhas.</param>
+        /// <param name="columns">O número de colunas.</param>
+        /// <param name="defaultValue">O valor por defeito.</param>
+        /// <returns>A matriz.</returns>
+        /// <exception cref="MathematicsException">Se o número de linhas for diferente do número de colunas.</exception>
         public IMatrix<ObjectType> CreateMatrix(int lines, int columns, ObjectType defaultValue)
         {
             if (lines != columns)

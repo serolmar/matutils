@@ -26,11 +26,23 @@
         /// </summary>
         private int columnsNumber;
 
+        /// <summary>
+        /// Cria instâncias de objectos do tipo <see cref="ArrayBitMatrix"/>.
+        /// </summary>
+        /// <param name="lines">O número de linhas da matriz.</param>
+        /// <param name="columns">O número de colunas da matriz.</param>
         public ArrayBitMatrix(int lines, int columns)
             : this(lines, columns, 0)
         {
         }
 
+        /// <summary>
+        /// Cria instâncias de objectos do tipo <see cref="ArrayBitMatrix"/>.
+        /// </summary>
+        /// <param name="lines">O número de linhas da matriz.</param>
+        /// <param name="columns">O número de colunas da matriz.</param>
+        /// <param name="defaultValue">O valor pode defeito.</param>
+        /// <exception cref="ArgumentException">Se o número de linhas ou de colunas for negativo.</exception>
         public ArrayBitMatrix(int lines, int columns, int defaultValue)
         {
             if (lines < 0)
@@ -53,6 +65,15 @@
             }
         }
 
+        /// <summary>
+        /// Obtém e atribui o valor da entrada especificada.
+        /// </summary>
+        /// <param name="line">A coordenada da linha onde a entrada se encontra.</param>
+        /// <param name="column">A coordenada da coluna onde a entrada se encontra.</param>
+        /// <returns>O valor da entrada.</returns>
+        /// <exception cref="IndexOutOfRangeException">
+        /// Se o índice da linha ou da coluna for inferior a zero não for inferior ao tamanho da dimensão.
+        /// </exception>
         public int this[int line, int column]
         {
             get
@@ -108,6 +129,16 @@
             }
         }
 
+        /// <summary>
+        /// Obtém o número de linhas ou colunas da matriz.
+        /// </summary>
+        /// <param name="dimension">Zero caso seja pretendido o número de linhas e um caso seja pretendido
+        /// o número de colunas.
+        /// </param>
+        /// <returns>O número de entradas na respectiva dimensão.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// Se a dimensão for inferior a zero ou não for inferior ao número de dimensões.
+        /// </exception>
         public int GetLength(int dimension)
         {
             if (dimension == 0)
@@ -124,16 +155,36 @@
             }
         }
 
+        /// <summary>
+        /// Obtém a submatriz indicada no argumento.
+        /// </summary>
+        /// <param name="lines">As correnadas das linhas que constituem a submatriz.</param>
+        /// <param name="columns">As correnadas das colunas que constituem a submatriz.</param>
+        /// <returns>A submatriz procurada.</returns>
         public IMatrix<int> GetSubMatrix(int[] lines, int[] columns)
         {
             return new SubMatrix<int>(this, lines, columns);
         }
 
+        /// <summary>
+        /// Obtém a submatriz indicada no argumento considerado como sequência de inteiros.
+        /// </summary>
+        /// <param name="lines">As correnadas das linhas que constituem a submatriz.</param>
+        /// <param name="columns">As correnadas das colunas que constituem a submatriz.</param>
+        /// <returns>A submatriz procurada.</returns>
         public IMatrix<int> GetSubMatrix(IntegerSequence lines, IntegerSequence columns)
         {
             return new IntegerSequenceSubMatrix<int>(this, lines, columns);
         }
 
+        /// <summary>
+        /// Troca duas linhas da matriz.
+        /// </summary>
+        /// <param name="i">A primeira linha a ser trocada.</param>
+        /// <param name="j">A segunda linha a ser trocada.</param>
+        /// <exception cref="IndexOutOfRangeException">
+        /// Se o índice de cada linha for inferior a zero não for inferior ao tamanho da dimensão.
+        /// </exception>
         public void SwapLines(int i, int j)
         {
             if (i < 0 || i > this.elementsList.Length)
@@ -152,6 +203,14 @@
             }
         }
 
+        /// <summary>
+        /// Troca duas colunas da matriz.
+        /// </summary>
+        /// <param name="i">A primeira coluna a ser trocaada.</param>
+        /// <param name="j">A segunda coluna a ser trocada.</param>
+        /// <exception cref="IndexOutOfRangeException">
+        /// Se o índice de cada coluna for inferior a zero não for inferior ao tamanho da dimensão.
+        /// </exception>
         public void SwapColumns(int i, int j)
         {
             if (i < 0 || i > this.columnsNumber)
@@ -224,6 +283,10 @@
         /// </remarks>
         /// <param name="right">A matriz a ser adicionada.</param>
         /// <returns>O resultado da soma de ambas as matrizes.</returns>
+        /// <exception cref="ArgumentNullException">Se a matriz a adicionar for nula.</exception>
+        /// <exception cref="ArgumentException">
+        /// Se as dimensões da matriz a adicionar não conicidirem com as dimensões da matriz corrente.
+        /// </exception>
         public ArrayBitMatrix AddModuloTwo(ArrayBitMatrix right)
         {
             if (right == null)
@@ -308,6 +371,10 @@
         /// </remarks>
         /// <param name="right">A matriz a ser adicionada.</param>
         /// <returns>O resultado da soma de ambas as matrizes.</returns>
+        /// <exception cref="ArgumentNullException">Se a matriz a multiplicar for nula.</exception>
+        /// <exception cref="MathematicsException">
+        /// Se o número de linhas da matriz corrente não coincidir com o número de colunas da matriz a multplicar.
+        /// </exception>
         public ArrayBitMatrix MultiplyModuloTwo(ArrayBitMatrix right)
         {
             if (right == null)
@@ -397,6 +464,10 @@
             }
         }
 
+        /// <summary>
+        /// Constrói uma representação textual da matriz.
+        /// </summary>
+        /// <returns>A representação textual da matriz.</returns>
         public override string ToString()
         {
             var resultBuilder = new StringBuilder();
@@ -451,6 +522,10 @@
             return resultBuilder.ToString();
         }
 
+        /// <summary>
+        /// Obtém o enumerador não genércio para a matriz.
+        /// </summary>
+        /// <returns>O enumerador não genérico.</returns>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
             return this.GetEnumerator();
