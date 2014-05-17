@@ -1,13 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Utilities.Collections;
-
-namespace Mathematics
+﻿namespace Mathematics
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using Utilities.Collections;
+
+    /// <summary>
+    /// Calcula o determinante de uma matriz com base na expansão em sub-matrizes.
+    /// </summary>
+    /// <typeparam name="ElementsType">O tipo de objectos que constituem as entradas das matrizes.</typeparam>
     public class ExpansionDeterminantCalculator<ElementsType> : ADeterminant<ElementsType>
     {
+        /// <summary>
+        /// O número de elementos utilizados na expansão.
+        /// </summary>
         private int expansionNumber = 1;
 
         /// <summary>
@@ -39,6 +46,11 @@ namespace Mathematics
             this.expansionNumber = expansionNumber;
         }
 
+        /// <summary>
+        /// Calcula o determinante da matriz.
+        /// </summary>
+        /// <param name="data">A matriz.</param>
+        /// <returns>O determinante.</returns>
         protected override ElementsType ComputeDeterminant(IMatrix<ElementsType> data)
         {
             if (data.GetLength(0) == 0)

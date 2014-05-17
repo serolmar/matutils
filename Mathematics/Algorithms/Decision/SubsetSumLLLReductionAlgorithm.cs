@@ -13,18 +13,49 @@
     public class SubsetSumLLLReductionAlgorithm<CoeffType, NearestCoeffFieldType>
         : IAlgorithm<CoeffType[], CoeffType, NearestCoeffFieldType, CoeffType[]>
     {
+        /// <summary>
+        /// O objecto responsável pela determinação do valor mais próximo.
+        /// </summary>
         IField<NearestCoeffFieldType> nearestField;
 
+        /// <summary>
+        /// O conversor entre objectos.
+        /// </summary>
         IConversion<CoeffType, NearestCoeffFieldType> converter;
 
+        /// <summary>
+        /// A fábrica responsável pela criação de vectores.
+        /// </summary>
         IVectorFactory<NearestCoeffFieldType> vectorFactory;
 
+        /// <summary>
+        /// O objecto responsável pelo produto escalar.
+        /// </summary>
         IScalarProductSpace<IVector<NearestCoeffFieldType>, NearestCoeffFieldType> scalarProd;
 
+        /// <summary>
+        /// O comparador de objectos que pertencem ao corpo.
+        /// </summary>
         IComparer<NearestCoeffFieldType> fieldComparer;
 
+        /// <summary>
+        /// O objecto responsável pela determinação dos valores mais próximos.
+        /// </summary>
         INearest<NearestCoeffFieldType, NearestCoeffFieldType> nearest;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo 
+        /// <see cref="SubsetSumLLLReductionAlgorithm{CoeffType, NearestCoeffFieldType}"/>.
+        /// </summary>
+        /// <param name="vectorFactory">A fábrica responsável pela criação de vectores.</param>
+        /// <param name="scalarProd">O objecto responsável pelos produtos escalares.</param>
+        /// <param name="nearest">O objecto responsável pela determinação dos valores mais próximos.</param>
+        /// <param name="fieldComparer">O comparador de objectos do corpo.</param>
+        /// <param name="converter">O conversor de objectos.</param>
+        /// <param name="nearestField">O objecto responsável pela determinação dos elementos mais próximos.</param>
+        /// <exception cref="System.ArgumentNullException">
+        /// Se algum dos argumentos for nulo.
+        /// </exception>
         public SubsetSumLLLReductionAlgorithm(
             IVectorFactory<NearestCoeffFieldType> vectorFactory,
             IScalarProductSpace<IVector<NearestCoeffFieldType>, NearestCoeffFieldType> scalarProd,
@@ -80,6 +111,7 @@
         /// <param name="sum">A soma a ser encontrada.</param>
         /// <param name="reductionCoeff">O coeficiente de redução.</param>
         /// <returns>O subconjunto do conjunto inicial cuja soma mais se aproxima do valor fornecido.</returns>
+        /// <exception cref="ArgumentNullException">Se algums dos argumentos for nulo.</exception>
         public CoeffType[] Run(
             CoeffType[] coefficientValues,
             CoeffType sum,
@@ -143,6 +175,12 @@
             }
         }
 
+        /// <summary>
+        /// Obtém a solução.
+        /// </summary>
+        /// <param name="coeffs">Os coeficientes.</param>
+        /// <param name="possibleSolutions">As soluções possíveis.</param>
+        /// <returns>A solução.</returns>
         private CoeffType[] GetSolution(
             CoeffType[] coeffs,
             IVector<NearestCoeffFieldType>[] possibleSolutions)

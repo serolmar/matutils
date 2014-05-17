@@ -18,14 +18,26 @@ namespace Mathematics
     /// <typeparam name="FieldType">O tipo do corpo que permite efectuar as operações sobre os elementos.</typeparam>
     public class CondensationDeterminantCalculator<ObjectType> : ADeterminant<ObjectType>
     {
+        /// <summary>
+        /// O domínio responsável pelas operações sobre os coeficientes.
+        /// </summary>
         private IEuclidenDomain<ObjectType> domain;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="CondensationDeterminantCalculator{ObjectType}"/>.
+        /// </summary>
+        /// <param name="domain">O domínio.</param>
         public CondensationDeterminantCalculator(IEuclidenDomain<ObjectType> domain)
             : base(domain)
         {
             this.domain = domain;
         }
 
+        /// <summary>
+        /// Calcula o determinante.
+        /// </summary>
+        /// <param name="data">A matriz.</param>
+        /// <returns>O valor do determinante.</returns>
         protected override ObjectType ComputeDeterminant(IMatrix<ObjectType> data)
         {
             var positiveResult = true;

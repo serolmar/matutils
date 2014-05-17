@@ -1,6 +1,4 @@
-﻿
-
-namespace Mathematics
+﻿namespace Mathematics
 {
     using System;
     using System.Collections.Generic;
@@ -15,6 +13,9 @@ namespace Mathematics
     /// </summary>
     public class HungarianMatchingAlgorithm : IAlgorithm<int[][], HungarianMatchingOutput>
     {
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="HungarianMatchingAlgorithm"/>.
+        /// </summary>
         public HungarianMatchingAlgorithm()
         {
         }
@@ -205,9 +206,11 @@ namespace Mathematics
         }
 
         /// <summary>
-        /// Initiates all variables.
+        /// Inicializa todas as variáveis.
         /// </summary>
-        /// <param name="affectations">The affectations matrix.</param>
+        /// <param name="affectations">A matriz das afectações.</param>
+        /// <exception cref="ArgumentNullException">Se as afectações forem nulas.</exception>
+        /// <exception cref="MathematicsException">Se não existirem elementos para afectar.</exception>
         public InsertionSortedCollection<int>[] Init(
             int[][] affectations,
             int[] results)
@@ -249,6 +252,10 @@ namespace Mathematics
             return innerAffectations;
         }
 
+        /// <summary>
+        /// Limpa os resultados.
+        /// </summary>
+        /// <param name="results">Os resultados a serem limpos.</param>
         private void ClearResults(int[] results)
         {
             for (int i = 0; i < results.Length; ++i)

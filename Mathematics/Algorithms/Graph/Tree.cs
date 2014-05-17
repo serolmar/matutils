@@ -1,18 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Mathematics
+﻿namespace Mathematics
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+
+    /// <summary>
+    /// Implementa uma árovre.
+    /// </summary>
+    /// <typeparam name="NodeObjectType">O tipo de objectos associados aos nós.</typeparam>
     public class Tree<NodeObjectType> : ITree<NodeObjectType>
     {
+        /// <summary>
+        /// O nó de raiz.
+        /// </summary>
         private TreeNode<NodeObjectType> rootNode;
 
         /// <summary>
         /// Instancia uma árvore proporcionando a raiz.
         /// </summary>
         /// <param name="rootNode">O nó raiz.</param>
+        /// <exception cref="ArgumentNullException">Se o nós de raiz for nulo.</exception>
         public Tree(NodeObjectType rootNode)
         {
             if (rootNode == null)
@@ -36,8 +44,9 @@ namespace Mathematics
         }
 
         /// <summary>
-        /// Obtém a raíz da árvore.
+        /// Obtém a raiz da árvore.
         /// </summary>
+        /// <value>A raiz.</value>
         public ITreeNode<NodeObjectType> RootNode
         {
             get
@@ -49,6 +58,7 @@ namespace Mathematics
         /// <summary>
         /// Obtém e atribui a raiz da árvore de acordo com o respectivo tipo.
         /// </summary>
+        /// <value>A raiz</value>
         internal TreeNode<NodeObjectType> InternalRootNode
         {
             get
@@ -108,12 +118,25 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Representa um par com nó e apontador.
+        /// </summary>
         private class NodePointerPair
         {
+            /// <summary>
+            /// O nó.
+            /// </summary>
             private TreeNode<NodeObjectType> node;
 
+            /// <summary>
+            /// O apontador.
+            /// </summary>
             private int pointer;
 
+            /// <summary>
+            /// Obtém e atribui o nó.
+            /// </summary>
+            /// <value>O nó.</value>
             public TreeNode<NodeObjectType> Node
             {
                 get
@@ -126,6 +149,10 @@ namespace Mathematics
                 }
             }
 
+            /// <summary>
+            /// Obtém e atribui o apontador.
+            /// </summary>
+            /// <value>O apontador.</value>
             public int Pointer
             {
                 get

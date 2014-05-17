@@ -1,10 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Mathematics
+﻿namespace Mathematics
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+
+    /// <summary>
+    /// Define um nó de uma árvore.
+    /// </summary>
+    /// <typeparam name="NodeObjectType">O tipo de objectos associados aos nós.</typeparam>
     public interface ITreeNode<NodeObjectType>
     {
         /// <summary>

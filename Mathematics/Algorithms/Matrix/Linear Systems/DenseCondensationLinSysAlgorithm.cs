@@ -8,6 +8,7 @@
     /// <summary>
     /// Algoritmo que permite resolver sistemas de equações com base no método de Gauss-Jordan.
     /// </summary>
+    /// <typeparam name="ElementType">O tipo de objectos que constituem os coeficientes.</typeparam>
     public class DenseCondensationLinSysAlgorithm<ElementType>
         : IAlgorithm<IMatrix<ElementType>, IMatrix<ElementType>, LinearSystemSolution<ElementType>>
     {
@@ -21,6 +22,11 @@
         /// </summary>
         IAlgorithm<IMatrix<ElementType>, IMatrix<ElementType>, bool> condensationAlgorithm;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="DenseCondensationLinSysAlgorithm{ElementType}"/>.
+        /// </summary>
+        /// <param name="field">O corpo responsável pelas operações sobre os coeficientes.</param>
+        /// <exception cref="System.ArgumentNullException">Se o corpo for nulo.</exception>
         public DenseCondensationLinSysAlgorithm(IField<ElementType> field)
         {
             if (field == null)

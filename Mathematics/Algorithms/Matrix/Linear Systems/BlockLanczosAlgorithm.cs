@@ -5,6 +5,12 @@
     using System.Linq;
     using System.Text;
 
+    /// <summary>
+    /// Implementa o algoritmo de Lanczos por blocos para sistemas de equações
+    /// simétricos.
+    /// </summary>
+    /// <typeparam name="ElementType">O tipo de objectos que constituem os coeficientes das equações.</typeparam>
+    /// <typeparam name="FieldType">O tipo de objecto que representa o corpo responsável pelas operações.</typeparam>
     public class BlockLanczosAlgorithm<ElementType, FieldType> :
         IAlgorithm<IMatrix<ElementType>, IVector<ElementType>, IMatrix<ElementType>>
         where FieldType : IField<ElementType>
@@ -14,12 +20,29 @@
         /// </summary>
         private FieldType field;
 
+        /// <summary>
+        /// A fábrica de matrizes.
+        /// </summary>
         private IMatrixFactory<ElementType> matrixFactory;
 
+        /// <summary>
+        /// O objecto responsável pela adição de matrizes.
+        /// </summary>
         private MatrixAdditionOperation<ElementType> additionOperation;
 
+        /// <summary>
+        /// O objecto responsável pela multiplicação de matrizes.
+        /// </summary>
         private MatrixMultiplicationOperation<ElementType> multiplicationOperation;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="BlockLanczosAlgorithm{ElementType, FieldType}"/>.
+        /// </summary>
+        /// <param name="matrixFactory">A fábrica responsável pela criação de matrizes.</param>
+        /// <param name="field">O corpo responsável pelas operações sobre os coeficientes.</param>
+        /// <exception cref="System.ArgumentNullException">
+        /// Se a fábrica de matrizes ou o corpo forem nulos.
+        /// </exception>
         public BlockLanczosAlgorithm(IMatrixFactory<ElementType> matrixFactory, FieldType field)
         {
             if (field == null)
@@ -47,6 +70,7 @@
         /// <summary>
         /// Obtém o corpo responsável pelas operações sobre as entradas.
         /// </summary>
+        /// <value>O corpo responsável pelas operações sobre os coeficientes.</value>
         public FieldType Field
         {
             get
@@ -58,6 +82,7 @@
         /// <summary>
         /// Obtém o objecto responsável pela criação das matrizes.
         /// </summary>
+        /// <value>O objecto responsável pela criação de matrizes.</value>
         public IMatrixFactory<ElementType> MatrixFactory
         {
             get

@@ -28,6 +28,7 @@
         /// <summary>
         /// Obtém e atribui o vector que contém a solução particular.
         /// </summary>
+        /// <value>O vector que contém a solução particular.</value>
         public IVector<ElementType> Vector
         {
             get
@@ -44,6 +45,7 @@
         /// Obtém uma base para o espaço vectorial definido pelas soluções do sistema homogéneo
         /// correspondente.
         /// </summary>
+        /// <value>A base.</value>
         public List<IVector<ElementType>> VectorSpaceBasis
         {
             get

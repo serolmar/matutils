@@ -21,6 +21,18 @@
         /// </summary>
         IAlgorithm<BigInteger, BigInteger, BigInteger> nthRootAlgorithm;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="BigIntPerfectPowerTestAlg"/>.
+        /// </summary>
+        /// <param name="nthRootAlgorithm">
+        /// O algoritmo que permite calcular a parte inteira de uma raiz de ordem n.
+        /// </param>
+        /// <param name="primeNumbersIteratorFactory">
+        /// A fábrica que permite criar enumeradores para números primos.
+        /// </param>
+        /// <exception cref="System.ArgumentNullException">
+        /// Se algum dos argumentos for nulo.
+        /// </exception>
         public BigIntPerfectPowerTestAlg(
             IAlgorithm<BigInteger, BigInteger, BigInteger> nthRootAlgorithm,
             IPrimeNumberIteratorFactory<BigInteger> primeNumbersIteratorFactory)

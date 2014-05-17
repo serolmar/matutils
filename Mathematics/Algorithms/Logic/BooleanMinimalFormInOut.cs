@@ -6,6 +6,9 @@
     using System.Linq;
     using System.Text;
 
+    /// <summary>
+    /// Representa um resultado do algoritmo <see cref="BooleanMinimalFormAlgorithm"/>.
+    /// </summary>
     public class BooleanMinimalFormInOut : IEnumerable<BooleanCombination>
     {
         /// <summary>
@@ -18,6 +21,9 @@
         /// </summary>
         private int maxCombinationsLength;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="BooleanMinimalFormInOut"/>.
+        /// </summary>
         public BooleanMinimalFormInOut()
         {
             this.combinationElements = new List<BooleanCombination>();
@@ -29,6 +35,9 @@
         /// </summary>
         /// <param name="index">O índice.</param>
         /// <returns>O valor que se encontra na posição especificada.</returns>
+        /// <exception cref="IndexOutOfRangeException">
+        /// Se o índice for negativo ou não for inferior ao número de elementos no conjunto de combinações.
+        /// </exception>
         public BooleanCombination this[int index]
         {
             get
@@ -47,6 +56,7 @@
         /// <summary>
         /// Obtém o número de combinações.
         /// </summary>
+        /// <value>O número de combinações.</value>
         public int Count
         {
             get
@@ -58,6 +68,7 @@
         /// <summary>
         /// Obtém o número máximo de combinações por elemento.
         /// </summary>
+        /// <value>O número máximo de combinações por elemento.</value>
         public int MaxCombinationsLength
         {
             get
@@ -72,6 +83,7 @@
         /// <param name="array">O vector de bits que representa uma entrada.</param>
         /// <param name="outputStatus">O estado de saída associado à entrada.</param>
         /// <returns>A representação interna.</returns>
+        /// <exception cref="ArgumentNullException">Se o vector de bits for nulo.</exception>
         public BooleanCombination Add(
             LogicCombinationBitArray array,
             EBooleanMinimalFormOutStatus outputStatus)

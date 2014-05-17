@@ -33,6 +33,17 @@
         /// </summary>
         private IComparer<FieldCoeffType> fieldCoeffTypeComparer;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo
+        /// <see cref="LLLBasisReductionAlgorithm{VectorType, FieldCoeffType, GroupCoeffType}"/>.
+        /// </summary>
+        /// <param name="fieldVectorSpace">O espaço vectorial associado ao corpo.</param>
+        /// <param name="scalarProd">O produto escalar.</param>
+        /// <param name="nearest">O objecto responsável pela determinação do valor inteiro mais próximo.</param>
+        /// <param name="fieldCoeffTypeComparer">O comparador de coeficientes.</param>
+        /// <exception cref="System.ArgumentNullException">
+        /// Se algum dos argumentos for nulo.
+        /// </exception>
         public LLLBasisReductionAlgorithm(
             IVectorSpace<FieldCoeffType, VectorType> fieldVectorSpace,
             IScalarProductSpace<VectorType, FieldCoeffType> scalarProd,
@@ -67,6 +78,7 @@
         /// <summary>
         /// O espaço vectorial responsável pelas operações sobre o vector.
         /// </summary>
+        /// <value>O espaço vectorial.</value>
         public IVectorSpace<FieldCoeffType, VectorType> FieldVectorSpace
         {
             get
@@ -76,8 +88,9 @@
         }
 
         /// <summary>
-        /// Obtém a melhor aproximação.
+        /// Obtém o objecto responsável pela obtenção da melhor aproximação.
         /// </summary>
+        /// <value>O objecto responsável pela obtenção da melhor aproximação.</value>
         public INearest<FieldCoeffType, FieldCoeffType> Nearest
         {
             get
@@ -89,6 +102,7 @@
         /// <summary>
         /// Obtém o objecto responsável pela determinação do produto escalar entre dois vectores.
         /// </summary>
+        /// <value>O objecto responsável pelo produto escalar.</value>
         public IScalarProductSpace<VectorType, FieldCoeffType> ScalarProduct
         {
             get
@@ -107,6 +121,7 @@
         /// <param name="data">O conjunto de vectores a serem reduzidos.</param>
         /// <param name="reductionCoeff">O coeficiente associado à redução entre 1/4 e 1, normalmente 3/4.</param>
         /// <returns>O conjunto reduzido.</returns>
+        /// <exception cref="ArgumentNullException">Se pelo menos um dos argumentos for nulo.</exception>
         public VectorType[] Run(
             VectorType[] data,
             FieldCoeffType reductionCoeff)

@@ -5,6 +5,11 @@
     using System.Linq;
     using System.Text;
 
+    /// <summary>
+    /// Implementa uma ligação de nós.
+    /// </summary>
+    /// <typeparam name="NodeType">O tipo de objectos que constituem os nós.</typeparam>
+    /// <typeparam name="EdgeValueType">O tipo de objectos associados às arestas.</typeparam>
     internal class LinkNodeTie<NodeType, EdgeValueType>
     {
         /// <summary>
@@ -20,6 +25,7 @@
         /// <summary>
         /// Otbém a areasta que liga ao vértice final.
         /// </summary>
+        /// <value>A aresta.</value>
         public Edge<NodeType, EdgeValueType> TieEdge
         {
             get
@@ -35,6 +41,7 @@
         /// <summary>
         /// Obtém o vértice final.
         /// </summary>
+        /// <value>O vértice final.</value>
         public LinkNode<NodeType, EdgeValueType> OtherNode
         {
             get

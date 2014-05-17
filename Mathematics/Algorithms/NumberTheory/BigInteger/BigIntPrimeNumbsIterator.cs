@@ -34,6 +34,14 @@
             InitClassFromResources();
         }
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="BigIntPrimeNumbsIterator"/>.
+        /// </summary>
+        /// <param name="upperLimit">O limite superior.</param>
+        /// <param name="squareRootAlgorithm">
+        /// O algoritmo que permite calcular a parte inteira de raízes quadradas.
+        /// </param>
+        /// <exception cref="System.ArgumentNullException">Se o algoritmo das raízes quadradas for nulo.</exception>
         public BigIntPrimeNumbsIterator(
             BigInteger upperLimit,
             IAlgorithm<BigInteger, BigInteger> squareRootAlgorithm)
@@ -52,6 +60,7 @@
         /// <summary>
         /// Obtém o limite superior associado ao iterador actual.
         /// </summary>
+        /// <value>O limite superior.</value>
         public BigInteger UpperLimit
         {
             get
@@ -119,6 +128,9 @@
             return resultList.ToArray();
         }
 
+        /// <summary>
+        /// Define um enumerador para os números primos.
+        /// </summary>
         private class BigIntPrimeNumbsEnumerator : IEnumerator<BigInteger>
         {
             /// <summary>
@@ -183,6 +195,15 @@
             /// </summary>
             private IAlgorithm<BigInteger, BigInteger> squareRootAlgorithm;
 
+            /// <summary>
+            /// Instancia um novo objecto do tipo <see cref="BigIntPrimeNumbsEnumerator"/>.
+            /// </summary>
+            /// <param name="upperLimit">O limite superior.</param>
+            /// <param name="firstPrimes">Os primeiros primos.</param>
+            /// <param name="differenceNumbers">A lista de diferenças entre os primeiros números primos.</param>
+            /// <param name="squareRootAlgorithm">
+            /// O algoritmo que permite calcular a parte inteira da raiz quadrada.
+            /// </param>
             public BigIntPrimeNumbsEnumerator(
                 BigInteger upperLimit, 
                 int[] firstPrimes,
@@ -201,6 +222,7 @@
             /// é retornado o valor unitário e se se encontrar após o final da colecção, é retornado
             /// o último número primo encontrado.
             /// </summary>
+            /// <value>O valor actual.</value>
             public BigInteger Current
             {
                 get
@@ -209,6 +231,10 @@
                 }
             }
 
+            /// <summary>
+            /// Obtém o objecto na posição actual do enumerador.
+            /// </summary>
+            /// <returns>O elemento da colecção apontado pelo enumerador.</returns>
             object System.Collections.IEnumerator.Current
             {
                 get
@@ -217,10 +243,19 @@
                 }
             }
 
+            /// <summary>
+            /// Descarta o enumerador.
+            /// </summary>
             public void Dispose()
             {
             }
 
+            /// <summary>
+            /// Avança o enumerador para o próximo elemento da colecção.
+            /// </summary>
+            /// <returns>
+            /// Verdadeiro caso o enumerador avance para o próximo elemento e falso caso esteja no final da colecção.
+            /// </returns>
             public bool MoveNext()
             {
                 if (this.currentPrime >= this.upperLimit)
@@ -318,6 +353,9 @@
                 }
             }
 
+            /// <summary>
+            /// Retorna o enumerador à sua posição inicial que se encontra antes do início da colecção.
+            /// </summary>
             public void Reset()
             {
                 this.sequenceNumber = BigInteger.One;

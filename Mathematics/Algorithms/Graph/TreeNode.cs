@@ -1,20 +1,42 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Mathematics
+﻿namespace Mathematics
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+
+    /// <summary>
+    /// Implementa um nó de uma árvore.
+    /// </summary>
+    /// <typeparam name="NodeObjectType">O tipo de objectos associados aos nós.</typeparam>
     public class TreeNode<NodeObjectType> : ITreeNode<NodeObjectType>
     {
+        /// <summary>
+        /// A árvore da qual o nó faz parte.
+        /// </summary>
         private Tree<NodeObjectType> owner;
 
+        /// <summary>
+        /// O objecto associado ao nó.
+        /// </summary>
         private NodeObjectType nodeObject;
 
+        /// <summary>
+        /// O nó do qual descende.
+        /// </summary>
         private TreeNode<NodeObjectType> parent;
 
+        /// <summary>
+        /// A lista de nós descendentes.
+        /// </summary>
         private List<TreeNode<NodeObjectType>> childs = new List<TreeNode<NodeObjectType>>();
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="TreeNode{NodeObjectType}"/>.
+        /// </summary>
+        /// <param name="nodeObject">O objecto associado ao nó.</param>
+        /// <param name="owner">A árvore da qual faz parte.</param>
+        /// <param name="parent">O nó do qual descende.</param>
         internal TreeNode(
             NodeObjectType nodeObject, 
             Tree<NodeObjectType> owner, 
@@ -28,6 +50,7 @@ namespace Mathematics
         /// <summary>
         /// Obtém o valor do nó.
         /// </summary>
+        /// <value>O valor do nó.</value>
         public NodeObjectType NodeObject
         {
             get
@@ -40,6 +63,10 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Obtém o número de nós descendentes.
+        /// </summary>
+        /// <value>O número de nós descendentes.</value>
         public int Count
         {
             get
@@ -51,6 +78,7 @@ namespace Mathematics
         /// <summary>
         /// Obtém os nós filho.
         /// </summary>
+        /// <value>Os nós descendentes.</value>
         public IEnumerable<ITreeNode<NodeObjectType>> Childs
         {
             get
@@ -62,6 +90,7 @@ namespace Mathematics
         /// <summary>
         /// Obtém o nó precedente e nulo caso o nó actual seja a raiz.
         /// </summary>
+        /// <value>O nó precedente.</value>
         public ITreeNode<NodeObjectType> Parent
         {
             get
@@ -70,6 +99,10 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Obtém e atribui o nó precedente.
+        /// </summary>
+        /// <value>O nó precedente.</value>
         internal TreeNode<NodeObjectType> InternalParent
         {
             get
@@ -82,6 +115,10 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Obtém e atribui a árvore da qual faz parte.
+        /// </summary>
+        /// <value>A árvore.</value>
         internal Tree<NodeObjectType> Owner
         {
             get
@@ -94,6 +131,10 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Obtém a lista de nós descendentes.
+        /// </summary>
+        /// <value>A lista de nós descendentes.</value>
         internal List<TreeNode<NodeObjectType>> ChildsList
         {
             get
@@ -102,6 +143,14 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Obtém o nó descendente especificado pelo índice.
+        /// </summary>
+        /// <param name="position">O índice.</param>
+        /// <returns>O nó.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// Se o índice for negativo ou não for inferior ao número de nós descendentes.
+        /// </exception>
         public ITreeNode<NodeObjectType> ChildAt(int position)
         {
             if (position < 0 || position >= this.childs.Count)
@@ -119,6 +168,7 @@ namespace Mathematics
         /// </summary>
         /// <param name="child">O valor a ser adicionado.</param>
         /// <returns>O nó que contém o valor.</returns>
+        /// <exception cref="ArgumentNullException">Se o argumento for nulo.</exception>
         public ITreeNode<NodeObjectType> Add(NodeObjectType child)
         {
             if (child == null)
@@ -152,6 +202,10 @@ namespace Mathematics
         /// <param name="node">O nó.</param>
         /// <param name="insertPosition">A posição a inserir no conjunto dos filhos.</param>
         /// <returns>O nó movido.</returns>
+        /// <exception cref="ArgumentException">Se o nó interno for nulo.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// Se a posição for negativa ou for superior ao número de descendentes.
+        /// </exception>
         public ITreeNode<NodeObjectType> MoveNode(
             ITreeNode<NodeObjectType> node,
             int insertPosition)
@@ -186,6 +240,10 @@ namespace Mathematics
         /// <param name="node">O nó a ser copiado.</param>
         /// <param name="insertPosition">A posição a inserir.</param>
         /// <returns>O nó copiado.</returns>
+        /// <exception cref="ArgumentException">Se o nó for nulo.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// Se a posição for negativa ou for superior ao número de descendentes.
+        /// </exception>
         public ITreeNode<NodeObjectType> CopyNode(
             ITreeNode<NodeObjectType> node,
             int insertPosition)
@@ -226,6 +284,10 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Obtém uma representação textual do nó.
+        /// </summary>
+        /// <returns>A representação textual.</returns>
         public override string ToString()
         {
             if (this.nodeObject == null)
@@ -238,6 +300,10 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Adiciona um nó à lista de nós descendentes.
+        /// </summary>
+        /// <param name="node">O nó a adicionar.</param>
         internal void Add(TreeNode<NodeObjectType> node)
         {
             this.childs.Add(node);

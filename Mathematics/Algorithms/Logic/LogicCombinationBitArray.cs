@@ -15,16 +15,34 @@
         /// </summary>
         public const int ByteSize = 8;
 
+        /// <summary>
+        /// As máscaras.
+        /// </summary>
         private static uint[] masks;
 
+        /// <summary>
+        /// O tamanho de uma variável inteira.
+        /// </summary>
         private static int integerSize;
 
+        /// <summary>
+        /// Metade do tamanho de uma variável inteira.
+        /// </summary>
         private static int semiIntegerSize;
 
+        /// <summary>
+        /// O comprimento do vector lógico.
+        /// </summary>
         private int length;
 
+        /// <summary>
+        /// O contentor do vector lógico.
+        /// </summary>
         private uint[] values;
 
+        /// <summary>
+        /// Inicializa a classe <see cref="LogicCombinationBitArray"/>.
+        /// </summary>
         static LogicCombinationBitArray()
         {
             integerSize = sizeof(int) << 3;
@@ -32,6 +50,11 @@
             InitializeMasks(integerSize);
         }
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="LogicCombinationBitArray"/>.
+        /// </summary>
+        /// <param name="length">O tamanho do vector.</param>
+        /// <exception cref="System.ArgumentOutOfRangeException">Se o tamanho for negativo.</exception>
         public LogicCombinationBitArray(int length)
         {
             if (length < 0)
@@ -52,6 +75,12 @@
             }
         }
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="LogicCombinationBitArray"/>.
+        /// </summary>
+        /// <param name="length">O tamanho.</param>
+        /// <param name="defaultValue">O valor por defeito.</param>
+        /// <exception cref="System.ArgumentOutOfRangeException">Se o tamanho for negativo.</exception>
         public LogicCombinationBitArray(int length, EBooleanMinimalFormOutStatus defaultValue)
         {
             if (length < 0)
@@ -88,10 +117,12 @@
 
 
         /// <summary>
-        /// Obtém o valor lógico na entrada especificada pelo índice.
+        /// Obtém e atribui o valor lógico na entrada especificada pelo índice.
         /// </summary>
+        /// <value>O valor lógico.</value>
         /// <param name="index">O índice.</param>
         /// <returns>O valor lógico.</returns>
+        /// <exception cref="IndexOutOfRangeException">Se o índice não se encontrar nos limites do vector.</exception>
         public EBooleanMinimalFormOutStatus this[int index]
         {
             get
@@ -129,6 +160,7 @@
         /// <summary>
         /// Obtém o tamanho da combinação lógica.
         /// </summary>
+        /// <value>O tamanho.</value>
         public int Length
         {
             get
@@ -141,6 +173,7 @@
         /// Atribui o valor especificado a todas as entradas da combinação.
         /// </summary>
         /// <param name="status">O valor a ser atribuído.</param>
+        /// <exception cref="MathematicsException">Se o argumento contiver um valor não suportado.</exception>
         public void SetAll(EBooleanMinimalFormOutStatus status)
         {
             if (status == EBooleanMinimalFormOutStatus.DONT_CARE)
@@ -267,6 +300,7 @@
         /// </summary>
         /// <param name="status">O valor a ser contado.</param>
         /// <returns>O número de elementos com o valor esepcificado.</returns>
+        /// <exception cref="MathematicsException">Se o argumento contiver um valor não suportado.</exception>
         public int CountElementsWithValue(EBooleanMinimalFormOutStatus status)
         {
             if (status == EBooleanMinimalFormOutStatus.DONT_CARE)

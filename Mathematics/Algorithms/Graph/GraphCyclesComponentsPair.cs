@@ -21,6 +21,11 @@
         /// </summary>
         private List<List<IGraph<VertexType, EdgeValueType>>> cyclesPerComponent;
 
+        /// <summary>
+        /// Instancia um novo obejcto do tipo <see cref="GraphCyclesComponentsPair{VertexType, EdgeValueType}"/>.
+        /// </summary>
+        /// <param name="components">A lista de componentes.</param>
+        /// <param name="cyclesPerComponent">O conjunto de ciclos por componente.</param>
         public GraphCyclesComponentsPair(
             List<IGraph<VertexType, EdgeValueType>> components,
             List<List<IGraph<VertexType, EdgeValueType>>> cyclesPerComponent)
@@ -32,6 +37,7 @@
         /// <summary>
         /// Obtém a lista de componentes.
         /// </summary>
+        /// <value>A lista de componentes.</value>
         public ReadOnlyCollection<IGraph<VertexType, EdgeValueType>> Components
         {
             get
@@ -43,6 +49,7 @@
         /// <summary>
         /// Obtém a lista de ciclos simples distribuídos por componente.
         /// </summary>
+        /// <value>A lista de ciclos.</value>
         public ReadOnlyCollection<ReadOnlyCollection<IGraph<VertexType, EdgeValueType>>> CyclesPerComponent
         {
             get

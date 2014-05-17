@@ -32,6 +32,7 @@
         /// </summary>
         /// <param name="data">O argumento.</param>
         /// <returns>O logaritmo do número.</returns>
+        /// <exception cref="ArgumentException">Se o número for negativo.</exception>
         public BigInteger Run(BigInteger data)
         {
             if (data <= 0)

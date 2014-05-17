@@ -1,14 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Mathematics
+﻿namespace Mathematics
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+
+    /// <summary>
+    /// Aplica o algoritmo de Lagrange para determinar os coeficientes associados à identidade
+    /// de Bachet-Bézout.
+    /// </summary>
+    /// <typeparam name="T">O tipo de objectos que constituem os coeficientes.</typeparam>
     public class LagrangeAlgorithm<T> : IBachetBezoutAlgorithm<T>
     {
+        /// <summary>
+        /// O domínio.
+        /// </summary>
         private IEuclidenDomain<T> domain;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="LagrangeAlgorithm{T}"/>.
+        /// </summary>
+        /// <param name="domain">O domónio responsável pelas operações sobre os coeficientes.</param>
+        /// <exception cref="System.ArgumentNullException">Se o domínio for nulo.</exception>
         public LagrangeAlgorithm(IEuclidenDomain<T> domain)
         {
             if (domain == null)
@@ -24,6 +37,7 @@ namespace Mathematics
         /// <summary>
         /// Obtém o domínio inerente ao algoritmo corrente.
         /// </summary>
+        /// <value>O domínio.</value>
         public IEuclidenDomain<T> Domain
         {
             get
@@ -32,6 +46,15 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Executa o algoritmo sobre dois valores.
+        /// </summary>
+        /// <param name="first">O primeiro valor.</param>
+        /// <param name="second">O segundo valor.</param>
+        /// <returns>O resultado composto com os vários parâmetros.</returns>
+        /// <exception cref="System.ArgumentNullException">
+        /// Se algum dos argumentos for nulo.
+        /// </exception>
         public BacheBezoutResult<T> Run(T first, T second)
         {
             if (first == null)

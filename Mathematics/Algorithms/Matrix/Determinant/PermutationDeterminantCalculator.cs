@@ -19,12 +19,22 @@ namespace Mathematics
         /// </summary>
         private bool fixLines;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="PermutationDeterminantCalculator{ElementsType}"/>.
+        /// </summary>
+        /// <param name="ring">O anel responsável pelas operações sobre as entradas.</param>
+        /// <param name="fixLines">Se for verdadeiro, faz a expansão por linhas senão faz por colunas.</param>
         public PermutationDeterminantCalculator(IRing<ElementsType> ring, bool fixLines = true)
             : base(ring)
         {
             this.fixLines = fixLines;
         }
 
+        /// <summary>
+        /// Calcula o determinante da matriz.
+        /// </summary>
+        /// <param name="data">A matriz.</param>
+        /// <returns>O determinante.</returns>
         protected override ElementsType ComputeDeterminant(IMatrix<ElementsType> data)
         {
             var swapPermutationsAffector = new SwapPermutationsGenerator(data.GetLength(0));
@@ -63,6 +73,12 @@ namespace Mathematics
             return result;
         }
 
+        /// <summary>
+        /// Calcula o produto dos termos por colunas.
+        /// </summary>
+        /// <param name="columns">As colunas.</param>
+        /// <param name="data">A matriz.</param>
+        /// <returns>O produto dos termos.</returns>
         private ElementsType GetProductByColumns(int[] columns, IMatrix<ElementsType> data)
         {
             var result = this.ring.MultiplicativeUnity;
@@ -84,6 +100,12 @@ namespace Mathematics
             return result;
         }
 
+        /// <summary>
+        /// Calcula o produto dos termos por linhas.
+        /// </summary>
+        /// <param name="lines">As linhas.</param>
+        /// <param name="data">A matriz.</param>
+        /// <returns>O produto dos termos.</returns>
         private ElementsType GetProductByLines(int[] lines, IMatrix<ElementsType> data)
         {
             var result = this.ring.MultiplicativeUnity;

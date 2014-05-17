@@ -18,6 +18,7 @@
         /// </summary>
         /// <param name="data">A lista de combinações lógicas de entrada.</param>
         /// <returns>O resultado minimal.</returns>
+        /// <exception cref="ArgumentNullException">Se o argumento for nulo.</exception>
         public BooleanMinimalFormInOut Run(BooleanMinimalFormInOut data)
         {
             if (data == null)
@@ -444,11 +445,18 @@
             /// </summary>
             private LogicCombinationBitArray lineCombination;
 
+            /// <summary>
+            /// Instancia um novo objecto do tipo <see cref="ImplicantLine"/>.
+            /// </summary>
             public ImplicantLine()
             {
                 this.tableTuples = new List<int>();
             }
 
+            /// <summary>
+            /// Obtém uma tabela de tuplos.
+            /// </summary>
+            /// <value>A tabela de tuplos.</value>
             public List<int> TableTuples
             {
                 get
@@ -457,6 +465,10 @@
                 }
             }
 
+            /// <summary>
+            /// Obtém uma combinação lógica.
+            /// </summary>
+            /// <value>A combinação lógica.</value>
             public LogicCombinationBitArray LineCombination
             {
                 get
@@ -512,10 +524,17 @@
             /// </summary>
             private BitArray line;
 
+            /// <summary>
+            /// Instancia um novo objecto do tipo <see cref="CoverLine"/>.
+            /// </summary>
             public CoverLine()
             {
             }
 
+            /// <summary>
+            /// Obtém e atribui um implicanete primo.
+            /// </summary>
+            /// <value>O implicante primo.</value>
             public LogicCombinationBitArray PrimeImplicant
             {
                 get
@@ -528,6 +547,10 @@
                 }
             }
 
+            /// <summary>
+            /// Obtém e atribui uma linha.
+            /// </summary>
+            /// <value>A linha.</value>
             public BitArray Line
             {
                 get

@@ -25,10 +25,20 @@ namespace Mathematics
         /// </summary>
         private IEqualityComparer<VertexType> vertexEqualityComparer;
 
+        /// <summary>
+        /// Mapeia cada vértice às arestas adjacentes.
+        /// </summary>
         private Dictionary<VertexType, List<Edge<VertexType, EdgeValueType>>> vertices;
 
+        /// <summary>
+        /// O contentor das arestas.
+        /// </summary>
         private List<Edge<VertexType, EdgeValueType>> edges;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="EdgeListGraph{VertexType, EdgeValueType}"/>.
+        /// </summary>
+        /// <param name="directed">Verdadeiro caso o grafo seja directo e falso caso contrário.</param>
         public EdgeListGraph(bool directed = false)
         {
             this.edges = new List<Edge<VertexType, EdgeValueType>>();
@@ -36,6 +46,11 @@ namespace Mathematics
             this.directed = directed;
         }
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="EdgeListGraph{VertexType, EdgeValueType}"/>.
+        /// </summary>
+        /// <param name="vertexEqualityComparer">O comparador de vértices.</param>
+        /// <param name="directed">Verdadeiro caso o grafo seja dirigido e falso caso contrário.</param>
         public EdgeListGraph(IEqualityComparer<VertexType> vertexEqualityComparer, bool directed = false)
         {
             this.edges = new List<Edge<VertexType, EdgeValueType>>();
@@ -47,6 +62,9 @@ namespace Mathematics
         /// <summary>
         /// Obtém um enumerador para o conjunto de vértices.
         /// </summary>
+        /// <value>
+        /// O enumerador.
+        /// </value>
         public IEnumerable<VertexType> Vertices
         {
             get
@@ -61,6 +79,9 @@ namespace Mathematics
         /// <summary>
         /// Obtém um enumerador para o conjunto de arestas.
         /// </summary>
+        /// <value>
+        /// O enumerador.
+        /// </value>
         public IEnumerable<IEdge<VertexType, EdgeValueType>> Edges
         {
             get
@@ -72,6 +93,9 @@ namespace Mathematics
         /// <summary>
         /// Obtém um valor indicando se o grafo é dirigido.
         /// </summary>
+        /// <value>
+        /// Verdadeiro se o grafo for dirigido e falso caso contrário.
+        /// </value>
         public bool Directed
         {
             get
@@ -83,6 +107,9 @@ namespace Mathematics
         /// <summary>
         /// Obtém o comparador de vértices associado ao grafo.
         /// </summary>
+        /// <value>
+        /// O comparador.
+        /// </value>
         internal IEqualityComparer<VertexType> VertexEqualityComparer
         {
             get
@@ -94,6 +121,9 @@ namespace Mathematics
         /// <summary>
         /// Obtém o dicionário que contém os vértices e as arestas que daí saem.
         /// </summary>
+        /// <value>
+        /// O dicionário.
+        /// </value>
         internal Dictionary<VertexType, List<Edge<VertexType, EdgeValueType>>> VerticesDictionary
         {
             get
@@ -105,6 +135,9 @@ namespace Mathematics
         /// <summary>
         /// Obtém a lista de arestas.
         /// </summary>
+        /// <value>
+        /// A lista de arestas.
+        /// </value>
         internal List<Edge<VertexType, EdgeValueType>> EdgesList
         {
             get
@@ -170,6 +203,8 @@ namespace Mathematics
         /// Adiciona um vértice ao grafo.
         /// </summary>
         /// <param name="vertex">O vértice.</param>
+        /// <exception cref="ArgumentNullException">Se o vértice for nulo.</exception>
+        /// <exception cref="MathematicsException">Se o vértice já existe.</exception>
         public void AddVertex(VertexType vertex)
         {
             if (vertex == null)
@@ -192,6 +227,7 @@ namespace Mathematics
         /// <param name="initialVertex">O vértice inicial.</param>
         /// <param name="finalVertex">O vértice final.</param>
         /// <param name="value">O valor associado à aresta.</param>
+        /// <exception cref="ArgumentNullException">Se algum dos vértices for nulo.</exception>
         public void AddEdge(VertexType initialVertex, VertexType finalVertex, EdgeValueType value)
         {
             if (initialVertex == null)

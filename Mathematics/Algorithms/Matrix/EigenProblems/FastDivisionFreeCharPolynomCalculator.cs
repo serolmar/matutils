@@ -15,10 +15,23 @@
     public class FastDivisionFreeCharPolynomCalculator<ElementType>
         : IAlgorithm<ISquareMatrix<ElementType>, UnivariatePolynomialNormalForm<ElementType>>
     {
+        /// <summary>
+        /// O nome da variável.
+        /// </summary>
         protected string variableName;
 
+        /// <summary>
+        /// O anel responsável pelas operações sobre os coeficientes.
+        /// </summary>
         protected IRing<ElementType> ring;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="FastDivisionFreeCharPolynomCalculator{ElementType}"/>.
+        /// </summary>
+        /// <param name="variableName">O nome da variável.</param>
+        /// <param name="ring">O anel responsável pelas operações sobre as entradas das matrizes.</param>
+        /// <exception cref="System.ArgumentNullException">Se o anel for nulo.</exception>
+        /// <exception cref="System.ArgumentException">Se a variável for nula ou vazia.</exception>
         public FastDivisionFreeCharPolynomCalculator(string variableName, IRing<ElementType> ring)
         {
             if (ring == null)
@@ -158,6 +171,15 @@
             }
         }
 
+        /// <summary>
+        /// Calcula as entradas da matriz de multiplicação.
+        /// </summary>
+        /// <param name="data">A matriz.</param>
+        /// <param name="diagonalElement">O elemento na diagonal.</param>
+        /// <param name="subMatrixSequence">A sequência que define a sub-matriz.</param>
+        /// <param name="singleValueSequence">A sequência que define o valor.</param>
+        /// <param name="multiplicator">O objecto responsável pela multiplicação de matrizes.</param>
+        /// <param name="multiplicationMatrix">A matriz que comporta o resultado da multiplicação.</param>
         private void FillMultiplicationMatrix(
             IMatrix<ElementType> data,
             ElementType diagonalElement,

@@ -31,12 +31,23 @@
         /// </summary>
         private IAlgorithm<int, int> squareRootAlgorithm;
 
+        /// <summary>
+        /// Inicializa a classe <see cref="IntPrimeNumbersIterator"/>.
+        /// </summary>
         static IntPrimeNumbersIterator()
         {
             // Otbém os números primos e as diferenças a partir dos recursos.
             InitClassFromResources();
         }
 
+        /// <summary>
+        /// IInstancia um novo objecto do tipo <see cref="IntPrimeNumbersIterator"/>.
+        /// </summary>
+        /// <param name="upperLimit">O limite superior.</param>
+        /// <param name="squareRootAlgorithm">
+        /// O algoritmo responsável pela determinação da parte inteira de raízes quadradas.
+        /// </param>
+        /// <exception cref="System.ArgumentNullException">Se o algoritmo das raízes quadradas for nulo.</exception>
         public IntPrimeNumbersIterator(int upperLimit, IAlgorithm<int, int> squareRootAlgorithm)
         {
             if (squareRootAlgorithm == null)
@@ -53,6 +64,7 @@
         /// <summary>
         /// Obtém o limite superior associado ao iterador actual.
         /// </summary>
+        /// <value>O limite superior.</value>
         public int UpperLimit
         {
             get
@@ -120,6 +132,9 @@
             return resultList.ToArray();
         }
 
+        /// <summary>
+        /// Um enumerador para números primos.
+        /// </summary>
         private class PrimeNumbsEnumerator : IEnumerator<int>
         {
             /// <summary>
@@ -184,6 +199,13 @@
             /// </summary>
             private IAlgorithm<int, int> squareRootAlgorithm;
 
+            /// <summary>
+            /// Initializes a new instance of the <see cref="PrimeNumbsEnumerator"/> class.
+            /// </summary>
+            /// <param name="upperLimit">The upper limit.</param>
+            /// <param name="firstPrimes">The first primes.</param>
+            /// <param name="differenceNumbers">The difference numbers.</param>
+            /// <param name="squareRootAlgorithm">The square root algorithm.</param>
             public PrimeNumbsEnumerator(
                 int upperLimit, 
                 int[] firstPrimes,
@@ -202,6 +224,7 @@
             /// é retornado o valor unitário e se se encontrar após o final da colecção, é retornado
             /// o último número primo encontrado.
             /// </summary>
+            /// <value>O valor actual.</value>
             public int Current
             {
                 get
@@ -210,6 +233,10 @@
                 }
             }
 
+            /// <summary>
+            /// Obtém o elemento da colecção na posição apontada pelo enumerador.
+            /// </summary>
+            /// <returns>O elemento da colecção apontado pelo enumerador.</returns>
             object IEnumerator.Current
             {
                 get
@@ -218,10 +245,20 @@
                 }
             }
 
+            /// <summary>
+            /// Descarta o enumerador.
+            /// </summary>
             public void Dispose()
             {
             }
 
+            /// <summary>
+            /// Avança o enumerador para o próximo elemento da colecção.
+            /// </summary>
+            /// <returns>
+            /// Verdadeiro se o enumerador for avançado para o próximo elemento e falso caso se encontre 
+            /// no fim da colecção.
+            /// </returns>
             public bool MoveNext()
             {
                 if (this.currentPrime >= this.upperLimit)
@@ -319,6 +356,9 @@
                 }
             }
 
+            /// <summary>
+            /// Retorna o enumerador para a sua posição inicial que se encontra antes do início da colecção.
+            /// </summary>
             public void Reset()
             {
                 this.sequenceNumber = 1;

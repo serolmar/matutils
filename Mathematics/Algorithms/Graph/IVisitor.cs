@@ -1,10 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Mathematics
+﻿namespace Mathematics
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+
+    /// <summary>
+    /// Define os objectos capazes de realizar uma visita a uma árvore.
+    /// </summary>
+    /// <typeparam name="ObjectType">O tipo de objectos associados aos nós.</typeparam>
     public interface IVisitor<in ObjectType>
     {
         /// <summary>

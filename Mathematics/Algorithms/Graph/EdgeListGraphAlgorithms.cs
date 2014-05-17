@@ -1,10 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Mathematics
+﻿namespace Mathematics
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+
+    /// <summary>
+    /// Implementa um conjunto de algoritmos sobre os grafos definidos como listas de arestas.
+    /// </summary>
+    /// <typeparam name="VertexType">O tipo de objectos que constituem os vértices.</typeparam>
+    /// <typeparam name="EdgeValueType">O tipo de objectos associados às arestas.</typeparam>
     internal class EdgeListGraphAlgorithms<VertexType, EdgeValueType> : IGraphAlgorithms<VertexType, EdgeValueType>
     {
         /// <summary>
@@ -12,6 +17,10 @@ namespace Mathematics
         /// </summary>
         private EdgeListGraph<VertexType, EdgeValueType> graph;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="EdgeListGraphAlgorithms{VertexType, EdgeValueType}"/>.
+        /// </summary>
+        /// <param name="graph">O grafo..</param>
         public EdgeListGraphAlgorithms(EdgeListGraph<VertexType, EdgeValueType> graph)
         {
             this.graph = graph;
@@ -374,6 +383,9 @@ namespace Mathematics
         /// <param name="valueComparer">O comparador de valores.</param>
         /// <param name="monoid">O monóide responsável pelas operações.</param>
         /// <returns>A árvore.</returns>
+        /// <exception cref="ArgumentNullException">
+        /// Se o monóide, a função ou o vértice inicial forem nulos.
+        /// </exception>
         public ITree<VertexValuePair<VertexType, OuterType>> GetMinimumSpanningTree<OuterType>(
             VertexType startVertex,
             Func<IEdge<VertexType, EdgeValueType>, OuterType> edgeValueFunction,

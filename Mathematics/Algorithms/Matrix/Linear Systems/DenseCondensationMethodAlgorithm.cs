@@ -17,6 +17,11 @@
         /// </summary>
         IField<ElementType> field;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="DenseCondensationMethodAlgorithm{ElementType}"/>.
+        /// </summary>
+        /// <param name="field">O corpo responsável pelas operações sobre os coeficientes.</param>
+        /// <exception cref="System.ArgumentNullException">Se o corpo for nulo.</exception>
         public DenseCondensationMethodAlgorithm(IField<ElementType> field)
         {
             if (field == null)
@@ -39,6 +44,10 @@
         /// <param name="linearSystemMatrix">A matriz de coeficientes.</param>
         /// <param name="independentVector">A matriz dependente.</param>
         /// <returns>Verdadeiro caso tenha sido realizada alguma operação e falso caso contrário.</returns>
+        /// <exception cref="ArgumentNullException">Se pelo menos um dos argumentos for nulo.</exception>
+        /// <exception cref="MathematicsException">
+        /// Se o número de linhas da matriz não conicidir com o tamanho do vector.
+        /// </exception>
         public bool Run(
             IMatrix<ElementType> initialMatrix,
             IMatrix<ElementType> finalMatrix)

@@ -31,6 +31,7 @@
         /// <summary>
         /// Obtém o vértice da árvore de pesquisa mínima.
         /// </summary>
+        /// <value>O vértice.</value>
         public VertexType Vertex
         {
             get
@@ -46,6 +47,7 @@
         /// <summary>
         /// Obtém o valor da árvore de pesquisa mínima.
         /// </summary>
+        /// <value>O valor.</value>
         public ValueType Value
         {
             get

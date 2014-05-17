@@ -23,8 +23,13 @@
         /// <summary>
         /// Permite criar uma instância da classe responsável pela determinação de potência perfeita.
         /// </summary>
-        /// <param name="primeNumbersIteratorFactory">A fábrica para instanciar o iterador sobre números primos.</param>
-        /// <param name="binaryIntegerPartLogAlg">O algoritmo que permite calcular a parte inteira do logaritmo.</param>
+        /// <param name="primeNumbersIteratorFactory">
+        /// A fábrica para instanciar o iterador sobre números primos.
+        /// </param>
+        /// <param name="binaryIntegerPartLogAlg">
+        /// O algoritmo que permite calcular a parte inteira do logaritmo.
+        /// </param>
+        /// <exception cref="ArgumentNullException">Se a fábrica for nula.</exception>
         public IntPerfectPowerTestAlg(
             IPrimeNumberIteratorFactory<int> primeNumbersIteratorFactory)
         {

@@ -26,6 +26,14 @@
         /// </summary>
         IComparer<CostType> comparer;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="IntegerMinWeightTdecomposition{CostType}"/>.
+        /// </summary>
+        /// <param name="comparer">O comparador de coeficientes.</param>
+        /// <param name="ring">O anel responsável pelas operações sobre os coeficientes.</param>
+        /// <exception cref="System.ArgumentNullException">
+        /// Se algums dos argumentos for nulo.
+        /// </exception>
         public IntegerMinWeightTdecomposition(IComparer<CostType> comparer, IRing<CostType> ring)
         {
             if (ring == null)
@@ -46,6 +54,7 @@
         /// <summary>
         /// Obtém o anel responsável pelas operações.
         /// </summary>
+        /// <value>O anel responsável pelas operações.</value>
         public IRing<CostType> Ring
         {
             get
@@ -57,6 +66,7 @@
         /// <summary>
         /// Obtém o comparador de custos.
         /// </summary>
+        /// <value>O comparador de custos.</value>
         public IComparer<CostType> Comparer
         {
             get
@@ -72,6 +82,7 @@
         /// <param name="n">O número a ser decomposto.</param>
         /// <param name="matrix">A matriz dos custos.</param>
         /// <returns>A decomposição caso exista e nulo caso contrário.</returns>
+        /// <exception cref="ArgumentNullException">Se a matriz for nula.</exception>
         public IntMinWeightTdecompResult<CostType> Run(
             int n,
             List<List<CostType>> matrix)
@@ -213,6 +224,7 @@
         /// <param name="n">O número a ser decomposto.</param>
         /// <param name="matrix">A matriz dos custos.</param>
         /// <returns>A decomposição caso exista e nulo caso contrário.</returns>
+        /// <exception cref="ArgumentNullException">Se a matriz for nula.</exception>
         public IntMinWeightTdecompResult<CostType> Run(
             int n, 
             ITabularItem matrix)
@@ -445,12 +457,27 @@
             return result;
         }
 
+        /// <summary>
+        /// Define um par com um vértice e um custo.
+        /// </summary>
         private class VertexCostPair
         {
+            /// <summary>
+            /// O vértice.
+            /// </summary>
             private int vertex;
 
+            /// <summary>
+            /// O custo.
+            /// </summary>
             private CostType cost;
 
+            /// <summary>
+            /// Obtém o vértice.
+            /// </summary>
+            /// <value>
+            /// O vértice.
+            /// </value>
             public int Vertex
             {
                 get
@@ -463,6 +490,12 @@
                 }
             }
 
+            /// <summary>
+            /// Obtém o custo.
+            /// </summary>
+            /// <value>
+            /// O custo.
+            /// </value>
             public CostType Cost
             {
                 get
@@ -475,6 +508,10 @@
                 }
             }
 
+            /// <summary>
+            /// Obtém uma representação textual do par que contém um vértice e um custo.
+            /// </summary>
+            /// <returns>A representação textual.</returns>
             public override string ToString()
             {
                 return string.Format("{0}:{1}", this.vertex, this.cost);

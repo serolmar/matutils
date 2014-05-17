@@ -17,12 +17,29 @@
         /// </summary>
         private FieldType field;
 
+        /// <summary>
+        /// A fábrica responsável pela criação de matrizes.
+        /// </summary>
         private IMatrixFactory<ElementType> matrixFactory;
 
+        /// <summary>
+        /// O objecto resopnsável pela soma de matrizes.
+        /// </summary>
         private MatrixAdditionOperation<ElementType> additionOperation;
 
+        /// <summary>
+        /// O objecto responsável pela multiplicação de matrizes.
+        /// </summary>
         private MatrixMultiplicationOperation<ElementType> multiplicationOperation;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="SequentialLanczosAlgorithm{ElementType, FieldType}"/>.
+        /// </summary>
+        /// <param name="matrixFactory">A fábrica responsável pela criação de matrizes.</param>
+        /// <param name="field">O corpo responsável pelas operações sobre os coeficientes.</param>
+        /// <exception cref="System.ArgumentNullException">
+        /// Se algum dos argumentos for nulo.
+        /// </exception>
         public SequentialLanczosAlgorithm(IMatrixFactory<ElementType> matrixFactory, FieldType field)
         {
             if (field == null)
@@ -50,6 +67,7 @@
         /// <summary>
         /// Obtém o corpo responsável pelas operações sobre as entradas.
         /// </summary>
+        /// <value>O corpo.</value>
         public FieldType Field
         {
             get
@@ -61,6 +79,7 @@
         /// <summary>
         /// Obtém o objecto responsável pela criação das matrizes.
         /// </summary>
+        /// <value>O objecto responsável pela criação de matrizes.</value>
         public IMatrixFactory<ElementType> MatrixFactory
         {
             get
@@ -81,6 +100,10 @@
         /// <param name="linearSystemMatrix">A matriz de entrada.</param>
         /// <param name="independentVector">O vector independente.</param>
         /// <returns>A solução do sistema.</returns>
+        /// <exception cref="ArgumentNullException">Se algums dos argumentos for nulo.</exception>
+        /// <exception cref="MathematicsException">
+        /// Se o número de colunas da matriz de sistema e o tamano do vector independente não coincidirem.
+        /// </exception>
         public IMatrix<ElementType> Run(
             ISquareMatrix<ElementType> linearSystemMatrix, 
             IMatrix<ElementType> independentVector)
@@ -101,7 +124,8 @@
                 var innerIndependentVector = independentVector;
                 if (linearSystemColumns != independentVectorLines)
                 {
-                    throw new MathematicsException("The number of linear system matrix columns must be equal to the number of independent vector lines.");
+                    throw new MathematicsException(
+                        "The number of linear system matrix columns must be equal to the number of independent vector lines.");
                 }
                 else
                 {

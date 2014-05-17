@@ -1,10 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Mathematics
+﻿namespace Mathematics
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+
+    /// <summary>
+    /// Representa a aresta de um grafo.
+    /// </summary>
+    /// <typeparam name="VertexType">O tipo de objectos associados aos vértices.</typeparam>
+    /// <typeparam name="EdgeValueType">O tipo de objectos associado às arestas.</typeparam>
     class Edge<VertexType, EdgeValueType> : IEdge<VertexType, EdgeValueType>
     {
         /// <summary>
@@ -37,6 +42,7 @@ namespace Mathematics
         /// <summary>
         /// Obtém o vértice inicial.
         /// </summary>
+        /// <value>O vértice inicial.</value>
         public VertexType InitialVertex
         {
             get
@@ -48,6 +54,7 @@ namespace Mathematics
         /// <summary>
         /// Obtém o vértice final.
         /// </summary>
+        /// <value>O vérticie final.</value>
         public VertexType FinalVertex
         {
             get
@@ -59,6 +66,7 @@ namespace Mathematics
         /// <summary>
         /// Obtém o objecto associado à aresta.
         /// </summary>
+        /// <value>O objecto na aresta.</value>
         public EdgeValueType Value
         {
             get

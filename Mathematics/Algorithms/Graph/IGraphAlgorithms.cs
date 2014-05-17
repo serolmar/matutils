@@ -1,10 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Mathematics
+﻿namespace Mathematics
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+
+    /// <summary>
+    /// Define um conjunto de algoritmos sobre os grafos.
+    /// </summary>
+    /// <typeparam name="VertexType">O tipo de objectos que constituem os vértices.</typeparam>
+    /// <typeparam name="EdgeValueType">O tipo de objectos associados às arestas.</typeparam>
     public interface IGraphAlgorithms<VertexType, EdgeValueType>
     {
         /// <summary>

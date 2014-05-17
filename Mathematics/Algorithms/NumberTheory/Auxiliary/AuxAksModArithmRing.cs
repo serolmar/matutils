@@ -15,6 +15,13 @@
         /// </summary>
         private int powerModule;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="AuxAksModArithmRing{CoeffType}"/>.
+        /// </summary>
+        /// <param name="powerModule">O módulo segundo o qual são realizadas as simplificações de potência.</param>
+        /// <param name="variableName">O nome da variável.</param>
+        /// <param name="ring">O anel responsável pelas operações sobre os coeficientes.</param>
+        /// <exception cref="System.ArgumentException">Se o módulo potência for inferior a um.</exception>
         public AuxAksModArithmRing(int powerModule, string variableName, IRing<CoeffType> ring)
             : base(variableName, ring)
         {
@@ -31,6 +38,7 @@
         /// <summary>
         /// Obtém e atribui o módulo segundo o qual são feitas as simplificações de potenciação.
         /// </summary>
+        /// <value>O módulo.</value>
         public int PowerModule
         {
             get
@@ -50,6 +58,15 @@
             }
         }
 
+        /// <summary>
+        /// Multiplica dois polinómio.
+        /// </summary>
+        /// <param name="left">O primeiro polinómio a ser multiplicado.</param>
+        /// <param name="right">O segundo polinómio a ser multiplicado.</param>
+        /// <returns>O resultado da multiplicação.</returns>
+        /// <exception cref="System.ArgumentNullException">
+        /// Se pelo menos um dos argumentos for nulo.
+        /// </exception>
         public override UnivariatePolynomialNormalForm<CoeffType> Multiply(
             UnivariatePolynomialNormalForm<CoeffType> left,
             UnivariatePolynomialNormalForm<CoeffType> right)
@@ -87,6 +104,7 @@
         /// </summary>
         /// <param name="element">O polinómio a ser reduzido.</param>
         /// <returns>O polinómio reduzido correspondente.</returns>
+        /// <exception cref="ArgumentNullException">Se o polinómio for nulo.</exception>
         public UnivariatePolynomialNormalForm<CoeffType> GetReduced(
             UnivariatePolynomialNormalForm<CoeffType> element)
         {

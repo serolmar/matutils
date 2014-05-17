@@ -1,10 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Mathematics
+﻿namespace Mathematics
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+
+    /// <summary>
+    /// Implementa um nó de ligação auxiliar.
+    /// </summary>
+    /// <typeparam name="NodeType">O tipo de objectos que constituem os nós.</typeparam>
+    /// <typeparam name="EdgeValueType">O tipo de objectos associados às arestas.</typeparam>
     internal class LinkNode<NodeType, EdgeValueType>
     {
         /// <summary>
@@ -25,6 +30,7 @@ namespace Mathematics
         /// <summary>
         /// Obtém o nó.
         /// </summary>
+        /// <value>O nó.</value>
         public NodeType Node
         {
             get
@@ -40,6 +46,7 @@ namespace Mathematics
         /// <summary>
         /// Obtém a lista de arestas conectadas ao vértice inicial.
         /// </summary>
+        /// <value>A lista de arestas.</value>
         public List<Edge<NodeType, EdgeValueType>> ConnectedEdges
         {
             get
@@ -51,6 +58,7 @@ namespace Mathematics
         /// <summary>
         /// Obtém o próximo elemento e a aresta que lhe deu origem.
         /// </summary>
+        /// <value>O próximo elemento e a aresta.</value>
         public LinkNodeTie<NodeType, EdgeValueType> Link
         {
             get
