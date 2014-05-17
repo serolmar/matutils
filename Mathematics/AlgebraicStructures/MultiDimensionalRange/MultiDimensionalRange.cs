@@ -452,6 +452,13 @@
 
         #region Private Methods
 
+        /// <summary>
+        /// Incrementa um conjunto de coordenadas retornando o valor onde a coordenada é aumentada.
+        /// </summary>
+        /// <param name="coords">As coordenadas.</param>
+        /// <param name="config">O vector de configuração.</param>
+        /// <param name="advances">O vector que contém os apontadores asociados às coordenadas.</param>
+        /// <returns>O valor do apontador caso exista aumento e -1 caso contrário.</returns>
         private int Increment(int[] coords, int[] config, int[] advances)
         {
             for (int i = 0; i < coords.Length; ++i)
@@ -470,6 +477,14 @@
             return -1;
         }
 
+        /// <summary>
+        /// Permite determinar a posição linear correspondente a um vector de coordenadas.
+        /// </summary>
+        /// <param name="coords">O vector de coordenadas.</param>
+        /// <returns>A posição linear.</returns>
+        /// <exception cref="IndexOutOfRangeException">
+        /// Se as coordenadas tiverem um excesso de dimensões ou 
+        /// existir alguma coordenada negativa ou que não seja inferior ao respectivo tamanho da dimensão.</exception>
         private int ComputeLinearPosition(int[] coords)
         {
             if (coords.Length > this.configuration.Length)
@@ -493,6 +508,11 @@
             return result;
         }
 
+        /// <summary>
+        /// Determina o vector de coordenadas associado a uma posição especificada.
+        /// </summary>
+        /// <param name="pos">A posição.</param>
+        /// <returns>O vector de coordenadas.</returns>
         private int[] ComputeCoordsFromPosition(int pos)
         {
             var result = new int[this.configuration.Length];
@@ -506,11 +526,19 @@
             return result;
         }
 
+        /// <summary>
+        /// Avalia se é possível contrair um alcance multidimensional.
+        /// </summary>
+        /// <param name="conversionIndices">Os índices de contracção.</param>
+        /// <exception cref="System.ArgumentNullException">Se o vector de índices de conversão for nulo.</exception>
+        /// <exception cref="MathematicsException">
+        /// Se o vector de índices não definir uma contracção válida.
+        /// </exception>
         private void CheckConversion(int[] conversionIndices)
         {
             if (conversionIndices == null)
             {
-                throw new ArgumentNullException();
+                throw new ArgumentNullException("conversionIndices");
             }
 
             if (conversionIndices.Length < 2)
@@ -553,11 +581,20 @@
             }
         }
 
+        /// <summary>
+        /// Obtém um enumerador não genérico para o alcance.
+        /// </summary>
+        /// <returns>O enumerador não genérico.</returns>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
             return this.GetEnumerator();
         }
 
+        /// <summary>
+        /// Verifica se o conjunto de dimensões é válido para um alcance.
+        /// </summary>
+        /// <param name="dimension">As dimensões a serem verificadas.</param>
+        /// <returns>Verdadeiro caso as dimensões sejam válidas e falso caso contrário.</returns>
         private bool CheckDimension(int[] dimension)
         {
             if (dimension == null)

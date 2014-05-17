@@ -6,6 +6,10 @@ using Utilities;
 
 namespace Mathematics
 {
+    /// <summary>
+    /// Implementa um leitor de polinómios univariáveis.
+    /// </summary>
+    /// <typeparam name="CoeffType">O tipo de objectos que constituem os coeficientes dos polinómios univariáveis.</typeparam>
     class SimpleUnivarPolynomNormalFormReader<CoeffType> :
         IParse<ParseUnivarPolynomNormalFormItem<CoeffType>, string, string>
     {
@@ -29,6 +33,13 @@ namespace Mathematics
         /// </summary>
         private IRing<CoeffType> coeffRing;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="SimpleUnivarPolynomNormalFormReader{CoeffType}"/>.
+        /// </summary>
+        /// <param name="coeffParser">O leitor de coeficientes.</param>
+        /// <param name="coeffRing">O anel responsável pelas operações sobre os coeficientes.</param>
+        /// <param name="variableName">O nome da variável.</param>
+        /// <exception cref="MathematicsException">Se um leitor de coeficientes não for providenciado.</exception>
         public SimpleUnivarPolynomNormalFormReader(
             IParse<CoeffType, string, string> coeffParser, 
             IRing<CoeffType> coeffRing,

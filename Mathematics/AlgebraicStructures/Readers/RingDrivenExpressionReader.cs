@@ -6,6 +6,11 @@
     using System.Text;
     using Utilities;
 
+    /// <summary>
+    /// Implementa um leitor de expressões com base num anel.
+    /// </summary>
+    /// <typeparam name="ObjectType">O tipo de objectos reconhecidos.</typeparam>
+    /// <typeparam name="InputReader">O leitor de valores.</typeparam>
     public class RingDrivenExpressionReader<ObjectType, InputReader>
     {
         /// <summary>
@@ -39,6 +44,9 @@
         /// <param name="objectParser">O objecto responsável pela leitura de cada elemento.</param>
         /// <param name="ring">O anel responsável pelas operações sobre os elementos.</param>
         /// <param name="integerNumber">O objecto responsável pelas operações sobre o grau.</param>
+        /// <exception cref="MathematicsException">
+        /// Se o leitor de objectos ou o anel não forem providenciados.
+        /// </exception>
         public RingDrivenExpressionReader(
             IParse<ObjectType, string, string> objectParser, 
             IRing<ObjectType> ring,
@@ -64,6 +72,8 @@
         /// Obtém e atribui o anel responsável pelas operações sobre o leitor aquando
         /// da sua leitura.
         /// </summary>
+        /// <value>O anel responsável pelas operações sobre o leitor aquando da sua leitura.</value>
+        /// <exception cref="MathematicsException">Se o anel providenciado for nulo.</exception>
         public IRing<ObjectType> Ring
         {
             get
@@ -168,6 +178,7 @@
         /// </remarks>
         /// <param name="openDelimiter">O delimitador de abertura.</param>
         /// <param name="closeDelimiter">O delimitador de fecho.</param>
+        /// <exception cref="ArgumentException">Se algum dos argumentos é nulo ou vazio.</exception>
         public void RegisterExpressionDelimiterTypes(string openDelimiter, string closeDelimiter)
         {
             if (string.IsNullOrWhiteSpace(openDelimiter))
@@ -278,11 +289,12 @@
         }
 
         /// <summary>
-        /// Divide dois elementos.
+        /// Divide dois elementos, não sendo suportada por se tratar da leitura baseada num anel.
         /// </summary>
         /// <param name="left">O primeiro elemento.</param>
         /// <param name="right">O segundo elemento.</param>
         /// <returns>O elemento resultante.</returns>
+        /// <exception cref="MathematicsException">Sempre.</exception>
         protected virtual ObjectType Divide(
             ObjectType left,
             ObjectType right)
@@ -307,6 +319,9 @@
         /// <param name="left">O elemento.</param>
         /// <param name="right">O expoente.</param>
         /// <returns>O resultado da potência.</returns>
+        /// <exception cref="MathematicsException">
+        /// Se nenhum objecto responsável pelas operações sobre inteiros foi providenciado.
+        /// </exception>
         protected virtual ObjectType Power(
             ObjectType left,
             ObjectType right)

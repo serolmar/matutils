@@ -5,6 +5,9 @@ using System.Text;
 
 namespace Mathematics
 {
+    /// <summary>
+    /// Enumera os valores possíveis para uma leitura polinomial.
+    /// </summary>
     public enum EParsePolynomialValueType
     {
         /// <summary>

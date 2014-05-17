@@ -28,6 +28,14 @@
         {
         }
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="ComplexNumber{ObjectType}"/>.
+        /// </summary>
+        /// <param name="realPart">A parte real.</param>
+        /// <param name="imaginaryPart">A parte imaginária.</param>
+        /// <exception cref="System.ArgumentNullException">
+        /// Se algum dos argumentos for nulo.
+        /// </exception>
         public ComplexNumber(ObjectType realPart, ObjectType imaginaryPart)
         {
             if (realPart == null)
@@ -48,6 +56,7 @@
         /// <summary>
         /// Obtém a parte real do número complexo.
         /// </summary>
+        /// <value>A parte real do número complexo.</value>
         public ObjectType RealPart
         {
             get
@@ -63,6 +72,7 @@
         /// <summary>
         /// Obtém a parte imaginária do número complexo.
         /// </summary>
+        /// <value>A parte imaginária do número complexo.</value>
         public ObjectType ImaginaryPart
         {
             get
@@ -80,6 +90,7 @@
         /// </summary>
         /// <param name="monoid">O monóide responsável pelas operações.</param>
         /// <returns>Verdadeiro caso o número seja zero e falso caso contrário.</returns>
+        /// <exception cref="ArgumentNullException">Se o monóide for nulo.</exception>
         public bool IsZero(IMonoid<ObjectType> monoid)
         {
             if (monoid == null)
@@ -98,6 +109,7 @@
         /// </summary>
         /// <param name="ring">O anel responsável pelas operações sobre os coeficientes.</param>
         /// <returns>Verdadeiro caso o número complexo seja unitário e falso caso contrário.</returns>
+        /// <exception cref="ArgumentNullException">Se o anel for nulo.</exception>
         public bool IsOne(IRing<ObjectType> ring)
         {
             if (ring == null)
@@ -117,6 +129,7 @@
         /// <param name="right">O outro número complexo.</param>
         /// <param name="ring">O anel responsável pelas operações.</param>
         /// <returns>O resultado da soma.</returns>
+        /// <exception cref="ArgumentNullException">Se algum dos argumentos for nulo.</exception>
         public ComplexNumber<ObjectType> Add(ComplexNumber<ObjectType> right, IRing<ObjectType> ring)
         {
             if (ring == null)
@@ -142,6 +155,7 @@
         /// <param name="right">O outro número complexo.</param>
         /// <param name="ring">O anel responsável pelas operações.</param>
         /// <returns>O resultado da diferença.</returns>
+        /// <exception cref="ArgumentNullException">Se algum dos argumentos for nulo.</exception>
         public ComplexNumber<ObjectType> Subtract(ComplexNumber<ObjectType> right, IRing<ObjectType> ring)
         {
             if (ring == null)
@@ -167,6 +181,7 @@
         /// <param name="right">O outro número complexo.</param>
         /// <param name="ring">O anel responsável pelas operações.</param>
         /// <returns>O resultado do produto.</returns>
+        /// <exception cref="ArgumentNullException">Se algum dos argumentos for nulo.</exception>
         public ComplexNumber<ObjectType> Multiply(ComplexNumber<ObjectType> right, IRing<ObjectType> ring)
         {
             if (ring == null)
@@ -196,6 +211,8 @@
         /// <param name="right">O número a ser dividido.</param>
         /// <param name="field">O corpo responsável pelas operações.</param>
         /// <returns>O resultado da divisão.</returns>
+        /// <exception cref="ArgumentNullException">Se algum dos argumentos for nulo.</exception>
+        /// <exception cref="DivideByZeroException">Se ocorrer uma divisão por zero.</exception>
         public ComplexNumber<ObjectType> Divide(ComplexNumber<ObjectType> right, IField<ObjectType> field)
         {
             if (field == null)
@@ -244,6 +261,7 @@
         /// </summary>
         /// <param name="group">O grupo responsável pelas operações.</param>
         /// <returns>O complexo conjugado do número actual.</returns>
+        /// <exception cref="ArgumentNullException">Se o grupo for nulo.</exception>
         public ComplexNumber<ObjectType> Conjugate(IGroup<ObjectType> group)
         {
             if (group == null)
@@ -259,6 +277,10 @@
             }
         }
 
+        /// <summary>
+        /// Obtém um representação textual do número complexo.
+        /// </summary>
+        /// <returns>A representação textual do número complexo.</returns>
         public override string ToString()
         {
             return string.Format("[{0}] + (i)[{1}]", this.realPart, this.imaginaryPart);

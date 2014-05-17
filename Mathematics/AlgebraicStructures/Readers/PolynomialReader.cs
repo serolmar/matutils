@@ -8,6 +8,11 @@
     using Algorithms;
     using Utilities;
 
+    /// <summary>
+    /// Implementa um leitor de polinómios.
+    /// </summary>
+    /// <typeparam name="T">O tipo de objectos que constituem os coeficientes.</typeparam>
+    /// <typeparam name="InputReader">O tipo dos leitores de objectos.</typeparam>
     public class PolynomialReader<T, InputReader>
     {
         /// <summary>
@@ -35,6 +40,14 @@
         /// </summary>
         private IConversion<int, T> conversion;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="PolynomialReader{T, InputReader}"/>.
+        /// </summary>
+        /// <param name="coeffParser">O leitor de coeficientes.</param>
+        /// <param name="ring">O anel responsável pelas operações sobre os coeficientes.</param>
+        /// <exception cref="MathematicsException">
+        /// Se o anel ou o leitor de coeficientes não for providenciado.
+        /// </exception>
         public PolynomialReader(IParse<T, string, string> coeffParser, IRing<T> ring)
         {
             if (coeffParser == null)
@@ -74,6 +87,7 @@
         /// <param name="errors">A lista de errros encontrados.</param>
         /// <param name="resultPolynomial">O polinómio lido.</param>
         /// <returns>Verdadeiro caso a leitura seja bem sucedida e falso caso contrário.</returns>
+        /// <exception cref="ArgumentNullException">Se o leitor de símbolos ou  conversor forem nulos.</exception>
         public bool TryParsePolynomial(
             MementoSymbolReader<InputReader, string, string> polynomialReader,
             IConversion<int, T> conversion,
@@ -369,6 +383,9 @@
         /// <param name="left">O primeiro polinómio.</param>
         /// <param name="right">O segundo polinómio.</param>
         /// <returns>O polinómio resultante.</returns>
+        /// <exception cref="MathematicsException">
+        /// Se a operação falhar por vários motivos.
+        /// </exception>
         protected virtual ParsePolynomialItem<T> Divide(ParsePolynomialItem<T> left, ParsePolynomialItem<T> right)
         {
             var result = new ParsePolynomialItem<T>();
@@ -561,6 +578,7 @@
         /// <param name="left">O polinómio.</param>
         /// <param name="right">O expoente.</param>
         /// <returns>O resultado da potência.</returns>
+        /// <exception cref="MathematicsException">Se a operação falhar por vários motivos.</exception>
         protected virtual ParsePolynomialItem<T> Power(ParsePolynomialItem<T> left, ParsePolynomialItem<T> right)
         {
             var result = new ParsePolynomialItem<T>();

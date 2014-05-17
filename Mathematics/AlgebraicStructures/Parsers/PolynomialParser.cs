@@ -6,6 +6,10 @@
     using System.Text;
     using Utilities;
 
+    /// <summary>
+    /// Implementa um leitor de polinómios.
+    /// </summary>
+    /// <typeparam name="CoeffType">O tipo de objectos que constitem os coeficientes dos polinómios.</typeparam>
     class PolynomialParser<CoeffType> : IParse<Polynomial<CoeffType>, string, string>
     {
         /// <summary>
@@ -28,6 +32,12 @@
         /// </summary>
         private IConversion<int, CoeffType> conversion;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="PolynomialParser{CoeffType}"/>.
+        /// </summary>
+        /// <param name="elementsParser">O leitor de coeficientes.</param>
+        /// <param name="conversion">O objecto responsável pela conversão entre coeficientes e inteiros.</param>
+        /// <param name="ring">O anel responsável pelas operações sobre os coeficientes.</param>
         public PolynomialParser(
             IParse<CoeffType, string, string> elementsParser, 
             IConversion<int, CoeffType> conversion,
@@ -56,6 +66,12 @@
             }
         }
 
+        /// <summary>
+        /// Experimenta a leitura de um polinómio a partir de uma lista de símbolos.
+        /// </summary>
+        /// <param name="symbolListToParse">A lista de símbolos.</param>
+        /// <param name="value">O valor que irá receber a leitura.</param>
+        /// <returns>Verdadeiro caso a leitura seja bem-sucedida e falso caso contrário.</returns>
         public bool TryParse(ISymbol<string, string>[] symbolListToParse, out Polynomial<CoeffType> value)
         {
             var arrayReader = new ArraySymbolReader<string, string>(symbolListToParse, "eof");

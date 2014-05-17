@@ -8,6 +8,11 @@
     using Mathematics.Algorithms;
     using Utilities;
 
+    /// <summary>
+    /// Implementa um leitor de polinómio univariáveis na forma normal.
+    /// </summary>
+    /// <typeparam name="T">O tipo dos objectos que constituem os coeficientes.</typeparam>
+    /// <typeparam name="InputReader">O leitor de valores.</typeparam>
     public class UnivariatePolynomialReader<T, InputReader>
     {
         /// <summary>
@@ -40,6 +45,9 @@
         /// </summary>
         private IntegerDomain integerRing = new IntegerDomain();
 
+        /// <summary>
+        /// O anel responsável pelas operações sobre os polinómios.
+        /// </summary>
         private UnivarPolynomRing<T> univarPolRing;
 
         /// <summary>
@@ -47,6 +55,16 @@
         /// </summary>
         private IConversion<int, T> conversion;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="UnivariatePolynomialReader{T, InputReader}"/>.
+        /// </summary>
+        /// <param name="variable">A variável.</param>
+        /// <param name="coeffParser">O leitor de coeficientes.</param>
+        /// <param name="ring">O anel responsável pelas operações sobre os coeficientes.</param>
+        /// <exception cref="System.ArgumentException">Se a variável for nula ou vazia.</exception>
+        /// <exception cref="MathematicsException">
+        /// Se o anel ou o leitor de coeficientes não forem providenciados.
+        /// </exception>
         public UnivariatePolynomialReader(string variable, IParse<T, string, string> coeffParser, IRing<T> ring)
         {
             if (string.IsNullOrWhiteSpace(variable))
@@ -74,6 +92,7 @@
         /// Obtém e atribui o anel responsável pelas operações sobre o polinómio aquando
         /// da sua leitura.
         /// </summary>
+        /// <value>O anel responsável pelas operações sobre o polinómio.</value>
         public IRing<T> Ring
         {
             get
@@ -116,6 +135,7 @@
         /// <param name="errors">A lista de errros encontrados.</param>
         /// <param name="resultPolynomial">O polinómio lido.</param>
         /// <returns>Verdadeiro caso a leitura seja bem sucedida e falso caso contrário.</returns>
+        /// <exception cref="ArgumentNullException">Se o leitor de polinómios ou o conversor forem nulos.</exception>
         public bool TryParsePolynomial(
             MementoSymbolReader<InputReader, string, string> polynomialReader,
             IConversion<int, T> conversion,
@@ -233,6 +253,7 @@
         /// </remarks>
         /// <param name="openDelimiter">O delimitador de abertura.</param>
         /// <param name="closeDelimiter">O delimitador de fecho.</param>
+        /// <exception cref="ArgumentException">Se algum dos argumentos for nulo ou vazio.</exception>
         public void RegisterExpressionDelimiterTypes(string openDelimiter, string closeDelimiter)
         {
             if (string.IsNullOrWhiteSpace(openDelimiter))
@@ -499,6 +520,7 @@
         /// <param name="left">O primeiro polinómio.</param>
         /// <param name="right">O segundo polinómio.</param>
         /// <returns>O polinómio resultante.</returns>
+        /// <exception cref="MathematicsException">Se a operação falhar.</exception>
         protected virtual ParseUnivarPolynomNormalFormItem<T> Divide(
             ParseUnivarPolynomNormalFormItem<T> left,
             ParseUnivarPolynomNormalFormItem<T> right)
@@ -696,6 +718,7 @@
         /// <param name="left">O polinómio.</param>
         /// <param name="right">O expoente.</param>
         /// <returns>O resultado da potência.</returns>
+        /// <exception cref="MathematicsException">Se a operação falhar.</exception>
         protected virtual ParseUnivarPolynomNormalFormItem<T> Power(
             ParseUnivarPolynomNormalFormItem<T> left,
             ParseUnivarPolynomNormalFormItem<T> right)

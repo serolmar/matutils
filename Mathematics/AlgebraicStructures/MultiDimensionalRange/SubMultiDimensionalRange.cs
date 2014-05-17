@@ -6,12 +6,38 @@ using Utilities.Collections;
 
 namespace Mathematics
 {
+    /// <summary>
+    /// Define um sub-alcance multidimensional-
+    /// </summary>
+    /// <typeparam name="ObjectType">O tipo de objectos que constituem as entradas dos alcances.</typeparam>
     internal class SubMultiDimensionalRange<ObjectType> : IMultiDimensionalRange<ObjectType>
     {
+        /// <summary>
+        /// O alcance multidimensional.
+        /// </summary>
         private IMultiDimensionalRange<ObjectType> multiDimensionalRange;
 
+        /// <summary>
+        /// O conjunto de vectores que definem o sub-alcance multidimensional.
+        /// </summary>
         private int[][] subMultiDimensionalRangeDefinition;
 
+        /// <summary>
+        /// Instancia um novo objecto do tiop <see cref="SubMultiDimensionalRange{ObjectType}"/>.
+        /// </summary>
+        /// <param name="multiDimensionalRange">O alcance multidimensional original.</param>
+        /// <param name="subMultiDimensionalRangeDefinition">
+        /// Os índices que definem o sub-alcance multidimensional.
+        /// </param>
+        /// <exception cref="System.ArgumentNullException">
+        /// Se o vector dos índices que definem o sub-alcance multidimensional for nulo.
+        /// </exception>
+        /// <exception cref="System.ArgumentException">
+        /// Se o vector de índices for inválido.
+        /// </exception>
+        /// <exception cref="System.IndexOutOfRangeException">
+        /// Se algum índice no vector for negativo ou não for inferior ao tamanho da respectiva dimensão.
+        /// </exception>
         public SubMultiDimensionalRange(
             IMultiDimensionalRange<ObjectType> multiDimensionalRange,
             int[][] subMultiDimensionalRangeDefinition)
@@ -59,6 +85,23 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Obtém ou atribui a entrada especificada pelas coordenadas.
+        /// </summary>
+        /// <value>
+        /// O valor da entrada.
+        /// </value>
+        /// <param name="coords">As coordenadas.</param>
+        /// <returns>O valor da entrada.</returns>
+        /// <exception cref="System.ArgumentNullException">
+        /// Se o vector de coordenadas for nulo.
+        /// </exception>
+        /// <exception cref="System.ArgumentException">
+        /// Se as coordenadas não forem válidas para o alcance.
+        /// </exception>
+        /// <exception cref="System.IndexOutOfRangeException">
+        /// Se algum índice no vector for negativo ou não for inferior ao tamanho da respectiva dimensão.
+        /// </exception>
         public ObjectType this[int[] coords]
         {
             get
@@ -123,6 +166,12 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Obtém o número de dimensões do alcance.
+        /// </summary>
+        /// <value>
+        /// O número de dimensões do alcance.
+        /// </value>
         public int Rank
         {
             get
@@ -131,6 +180,14 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Obtém o tamanho associado a uma dimensão do alcance.
+        /// </summary>
+        /// <param name="dimension">A dimensão.</param>
+        /// <returns>O tamanho associado à dimensão.</returns>
+        /// <exception cref="System.IndexOutOfRangeException">
+        /// Se a dimensão for negativa ou não for inferior ao número de dimensões do alcance.
+        /// </exception>
         public int GetLength(int dimension)
         {
             if (dimension < 0 || dimension >= this.subMultiDimensionalRangeDefinition.Length)
@@ -143,11 +200,20 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Obtém um sub-alcance multidimensional.
+        /// </summary>
+        /// <param name="subRangeConfiguration">O vector de índices que define o sub-alcance multidimensional.</param>
+        /// <returns>O sub-alcance multidimensional.</returns>
         public IMultiDimensionalRange<ObjectType> GetSubMultiDimensionalRange(int[][] subRangeConfiguration)
         {
             return new SubMultiDimensionalRange<ObjectType>(this, subRangeConfiguration);
         }
 
+        /// <summary>
+        /// Obtém um enumerador para todas as entradas do alcance multidimensional.
+        /// </summary>
+        /// <returns>O enumerador.</returns>
         public IEnumerator<ObjectType> GetEnumerator()
         {
             var multiDimLength = this.subMultiDimensionalRangeDefinition.Length;
@@ -183,6 +249,10 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Define um representação textual do alcance multidimensional.
+        /// </summary>
+        /// <returns>A representação textual do alcance multidimensional.</returns>
         public override string ToString()
         {
             var resultBuilder = new StringBuilder();
@@ -234,6 +304,10 @@ namespace Mathematics
             return resultBuilder.ToString();
         }
 
+        /// <summary>
+        /// Obtém um enumerador não genérico para todas as entradas do alcance multidimensional.
+        /// </summary>
+        /// <returns>O enumerador não genérico para todas as entradas do alcance multidimensional.</returns>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
             return this.GetEnumerator();

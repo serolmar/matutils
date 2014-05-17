@@ -7,12 +7,32 @@
     using System.Text;
     using Utilities;
 
+    /// <summary>
+    /// Implementa um leitor de matrizes.
+    /// </summary>
+    /// <typeparam name="T">O tipo dos objectos que constituem as entradas dos alcances multidimensionais.</typeparam>
+    /// <typeparam name="SymbValue">O tipo dos objectos que costituem os valores dos símbolos.</typeparam>
+    /// <typeparam name="SymbType">Os tipos de objectos que constituem os tipos de símbolos.</typeparam>
+    /// <typeparam name="InputReader">O tipo do leitor de entrada..</typeparam>
     public class ConfigMatrixReader<T, SymbValue, SymbType, InputReader>
     {
+        /// <summary>
+        /// O leitor de alcances multidimensionais.
+        /// </summary>
         private ARangeReader<T, SymbValue, SymbType, InputReader> rangeReader;
 
+        /// <summary>
+        /// A fábrica responsável pela criação de matrizes.
+        /// </summary>
         private IMatrixFactory<T> matrixFactory;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="ConfigMatrixReader{T, SymbValue, SymbType, InputReader}"/>.
+        /// </summary>
+        /// <param name="lines">O número de linhas.</param>
+        /// <param name="columns">O número de colunas.</param>
+        /// <param name="matrixFactory">A fábrica responsável pela criação de matrizes.</param>
+        /// <exception cref="System.ArgumentNullException">Se a fábrica de matrizes for nula.</exception>
         public ConfigMatrixReader(int lines, int columns, IMatrixFactory<T> matrixFactory)
         {
             if (matrixFactory == null)
@@ -27,6 +47,12 @@
             }
         }
 
+        /// <summary>
+        /// Obtém e atribui o tipo de símbolo que representa um separador de objectos.
+        /// </summary>
+        /// <value>
+        /// O tipo de separador.
+        /// </value>
         public SymbType SeparatorSymbType
         {
             get
@@ -54,6 +80,14 @@
             return this.TryParseMatrix(reader, parser, null, out matrix);
         }
 
+        /// <summary>
+        /// Tenta ler a matriz a partir de um leitor de símbolos estabelecendo um valor por defeito.
+        /// </summary>
+        /// <param name="reader">O leitor de símbolos.</param>
+        /// <param name="parser">O interpretador da matriz.</param>
+        /// <param name="defaultValue">O valor por defeito.</param>
+        /// <param name="matrix">Estabelece a matriz lida.</param>
+        /// <returns>Verdadeiro caso a operação seja bem sucedida e falso caso contrário.</returns>
         public bool TryParseMatrix(
             MementoSymbolReader<InputReader, SymbValue, SymbType> reader,
             IParse<T, SymbValue, SymbType> parser,
@@ -63,6 +97,15 @@
             return this.TryParseMatrix(reader, parser, null, defaultValue, out matrix);
         }
 
+        /// <summary>
+        /// Tenta ler a matriz a partir de um leitor de símbolos estabelecendo um valor por defeito.
+        /// </summary>
+        /// <param name="reader">O leitor de símbolos.</param>
+        /// <param name="parser">O interpretador da matriz.</param>
+        /// <param name="errors">Os erros da leitura.</param>
+        /// <param name="defaultValue">O valor por defeito.</param>
+        /// <param name="matrix">Estabelece a matriz lida.</param>
+        /// <returns>Verdadeiro caso a operação seja bem sucedida e falso caso contrário.</returns>
         public bool TryParseMatrix(
             MementoSymbolReader<InputReader, SymbValue, SymbType> reader,
             IParse<T, SymbValue, SymbType> parser,
@@ -104,6 +147,14 @@
             }
         }
 
+        /// <summary>
+        /// Tenta ler a matriz a partir de um leitor de símbolos.
+        /// </summary>
+        /// <param name="reader">O leitor de símbolos.</param>
+        /// <param name="parser">O interpretador da matriz.</param>
+        /// <param name="errors">Os erros da leitura.</param>
+        /// <param name="matrix">Estabelece a matriz lida.</param>
+        /// <returns>Verdadeiro caso a operação seja bem sucedida e falso caso contrário.</returns>
         public bool TryParseMatrix(
             MementoSymbolReader<InputReader, SymbValue, SymbType> reader,
             IParse<T, SymbValue, SymbType> parser,
@@ -144,26 +195,47 @@
             }
         }
 
+        /// <summary>
+        /// Mapeia um símbolo interno de fecho a um símbolo de abertura.
+        /// </summary>
+        /// <param name="openSymbolType">O tipo de símbolo que representa um delimitador de abertura.</param>
+        /// <param name="closeSymbType">O tipo de símbolo que representa um delimitador de fecho.</param>
         public void MapInternalDelimiters(SymbType openSymbolType, SymbType closeSymbType)
         {
             this.rangeReader.MapInternalDelimiters(openSymbolType, closeSymbType);
         }
 
+        /// <summary>
+        /// Mapeia um símbolo externo de fecho a um símbolo de abertura.
+        /// </summary>
+        /// <param name="openSymbolType">O tipo de símbolo que representa um delimitador de abertura.</param>
+        /// <param name="closeSymbType">O tipo de símbolo que representa um delimitador de fecho.</param>
         public void MapExternalDelimiters(SymbType openSymbType, SymbType closeSymbType)
         {
             this.rangeReader.MapExternalDelimiters(openSymbType, closeSymbType);
         }
 
+        /// <summary>
+        /// Marca um tipo de símbolo como sendo vazio.
+        /// </summary>
+        /// <param name="symbolType">O tipo de símbolo.</param>
         public void AddBlanckSymbolType(SymbType symbolType)
         {
             this.rangeReader.AddBlanckSymbolType(symbolType);
         }
 
+        /// <summary>
+        /// Remove o tipo de símbolo especificado da lista de símbolos vazios.
+        /// </summary>
+        /// <param name="symbolType">O tipo de símbolo.</param>
         public void RemoveBlanckSymbolType(SymbType symbolType)
         {
             this.rangeReader.RemoveBlanckSymbolType(symbolType);
         }
 
+        /// <summary>
+        /// Desmarca todos os símbolos vazios.
+        /// </summary>
         public void ClearBlanckSymbols()
         {
             this.rangeReader.ClearBlanckSymbols();

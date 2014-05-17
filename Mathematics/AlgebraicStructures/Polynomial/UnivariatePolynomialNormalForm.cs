@@ -18,14 +18,28 @@ namespace Mathematics
     /// <typeparam name="RingType">O tipo de dados do anel responsável pelas respectivas operações.</typeparam>
     public class UnivariatePolynomialNormalForm<CoeffType> : IEnumerable<KeyValuePair<int, CoeffType>>
     {
+        /// <summary>
+        /// O contentor dos termos.
+        /// </summary>
         private SortedList<int, CoeffType> terms;
 
+        /// <summary>
+        /// A variável.
+        /// </summary>
         private string variableName;
 
+        /// <summary>
+        /// Inibe a instanciação de objectos do tipo <see cref="UnivariatePolynomialNormalForm{CoeffType}"/>.
+        /// </summary>
         private UnivariatePolynomialNormalForm()
         {
         }
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="UnivariatePolynomialNormalForm{CoeffType}"/>.
+        /// </summary>
+        /// <param name="variable">A variável.</param>
+        /// <exception cref="System.ArgumentException">Se a variável for nula ou vazia.</exception>
         public UnivariatePolynomialNormalForm(string variable)
         {
             if (string.IsNullOrWhiteSpace(variable))
@@ -41,6 +55,15 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="UnivariatePolynomialNormalForm{CoeffType}"/>.
+        /// </summary>
+        /// <param name="coeff">O coeficiente.</param>
+        /// <param name="variable">A variável.</param>
+        /// <param name="degree">O grau.</param>
+        /// <param name="monoid">O monóide responsável pelas operações sobre os coficientes.</param>
+        /// <exception cref="ArgumentNullException">Se o coeficiente ou o monómio forem nulos.</exception>
+        /// <exception cref="ArgumentException">Se o grau for negativo.</exception>
         public UnivariatePolynomialNormalForm(
             CoeffType coeff,
             int degree,
@@ -66,14 +89,25 @@ namespace Mathematics
             }
         }
 
-
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="UnivariatePolynomialNormalForm{CoeffType}"/>.
+        /// </summary>
+        /// <param name="terms">Um dicionário que mapeia os graus aos respectivos coeficientes.</param>
+        /// <param name="variable">A variável.</param>
+        /// <param name="ring">O anel responsável pelas operações sobre os coficientes.</param>
+        /// <exception cref="ArgumentNullException">Se o coeficiente ou o anel forem nulos.</exception>
+        /// <exception cref="ArgumentException">Se algum grau for negativo.</exception>
         public UnivariatePolynomialNormalForm(
             IDictionary<int, CoeffType> terms,
             string variable,
             IRing<CoeffType> ring)
             : this(variable)
         {
-            if (terms == null)
+            if (ring == null)
+            {
+                throw new ArgumentNullException("ring");
+            }
+            else if (terms == null)
             {
                 throw new ArgumentNullException("terms");
             }
@@ -95,7 +129,8 @@ namespace Mathematics
 
         /// <summary>
         /// Obtém o nome da variável.
-        /// </summary>
+        /// </summary>O nome da variável.
+        /// <value></value>
         public string VariableName
         {
             get
@@ -107,6 +142,7 @@ namespace Mathematics
         /// <summary>
         /// Obtém um valor que indica se se trata de um monómio.
         /// </summary>
+        /// <value>Verdadeiro caso o polinómio seja um monómio e falso caso contrário.</value>
         public bool IsMonomial
         {
             get
@@ -118,6 +154,7 @@ namespace Mathematics
         /// <summary>
         /// Obtém um valor que verifica se o polinómio é nulo.
         /// </summary>
+        /// <value>Verdadeiro caso o polinómio seja zero e falso caso contrário.</value>
         public bool IsZero
         {
             get
@@ -129,6 +166,7 @@ namespace Mathematics
         /// <summary>
         /// Obtém um valor que indica se o polinómio contém apenas um valor.
         /// </summary>
+        /// <value>Verdadeiro caso o polinómio seja um valor e falso caso contrário.</value>
         public bool IsValue
         {
             get
@@ -156,6 +194,7 @@ namespace Mathematics
         /// <summary>
         /// Obtém o grau do polinómio.
         /// </summary>
+        /// <value>O grau do polinómio.</value>
         public int Degree
         {
             get
@@ -174,9 +213,22 @@ namespace Mathematics
         }
 
         /// <summary>
+        /// Obtém o conjunto de termos que constituem o polinómio.
+        /// </summary>
+        /// <value>O conjunto de termos que constituem o polinómio.</value>
+        internal SortedList<int, CoeffType> Terms
+        {
+            get
+            {
+                return this.terms;
+            }
+        }
+
+        /// <summary>
         /// Obtém um valor que indica se o polinómio é unitário.
         /// </summary>
         /// <param name="monoid">O monóide responsável pelas operações.</param>
+        /// <exception cref="ArgumentNullException">Se o monóide for nulo.</exception>
         public bool IsUnity(IRing<CoeffType> monoid)
         {
             if (monoid == null)
@@ -217,21 +269,12 @@ namespace Mathematics
         }
 
         /// <summary>
-        /// Obtém o conjunto de termos que constituem o polinómio.
-        /// </summary>
-        internal SortedList<int, CoeffType> Terms
-        {
-            get
-            {
-                return this.terms;
-            }
-        }
-
-        /// <summary>
         /// Obtém o polinómio como sendo um valor.
         /// </summary>
         /// <param name="monoid">O monóide responsável pelas operações.</param>
         /// <returns>O polinómio.</returns>
+        /// <exception cref="ArgumentNullException">Se o monóide for nulo.</exception>
+        /// <exception cref="MathematicsException">Se o polinómio não for um valor.</exception>
         public CoeffType GetAsValue(IMonoid<CoeffType> monoid)
         {
             if (monoid == null)
@@ -300,6 +343,7 @@ namespace Mathematics
         /// </summary>
         /// <param name="monoid">O monóide responsável pela determinação da unidade aditiva.</param>
         /// <returns>O coeficiente.</returns>
+        /// <exception cref="ArgumentNullException">Se o monóide for nulo.</exception>
         public CoeffType GetLeadingCoefficient(IMonoid<CoeffType> monoid)
         {
             if (monoid == null)
@@ -339,6 +383,7 @@ namespace Mathematics
         /// </summary>
         /// <param name="monoid">O monóide responsável pela determinação da unidade aditiva.</param>
         /// <returns>O coeficiente.</returns>
+        /// <exception cref="ArgumentNullException">Se o monóide for nulo.</exception>
         public CoeffType GetTailCoefficient(IMonoid<CoeffType> monoid)
         {
             if (monoid == null)
@@ -360,6 +405,7 @@ namespace Mathematics
         /// </summary>
         /// <param name="monoid">O anel responsável pelas operações.</param>
         /// <returns>A derivada.</returns>
+        /// <exception cref="ArgumentNullException">Se o anel for nulo.</exception>
         public UnivariatePolynomialNormalForm<CoeffType> GetPolynomialDerivative(IRing<CoeffType> ring)
         {
             if (ring == null)
@@ -395,6 +441,10 @@ namespace Mathematics
         /// </remarks>
         /// <param name="domain">O domínio responsável pelas operações sobre os coeficientes.</param>
         /// <returns>O vector com a soma das potências.</returns>
+        /// <exception cref="ArgumentNullException">Se o anel for nulo.</exception>
+        /// <exception cref="MathematicsException">
+        /// Se o polinómio contiver coeficientes que não estejam no domínio especificado.
+        /// </exception>
         public IVector<CoeffType> GetRootPowerSums(IEuclidenDomain<CoeffType> domain)
         {
             if (domain == null)
@@ -431,7 +481,8 @@ namespace Mathematics
                                 }
                                 else
                                 {
-                                    throw new MathematicsException("The current polynomial may have roots whose values are outside of the provided domain.");
+                                    throw new MathematicsException(
+                                        "The current polynomial may have coefficients whose values are outside of the provided domain.");
                                 }
                             }
 
@@ -493,7 +544,8 @@ namespace Mathematics
                         }
                         else
                         {
-                            throw new MathematicsException("The current polynomial may have roots whose values are outside of the provided domain.");
+                            throw new MathematicsException(
+                                "The current polynomial may have coefficients whose values are outside of the provided domain.");
                         }
                     }
                     else
@@ -514,6 +566,7 @@ namespace Mathematics
         /// <param name="field">O corpo responsável pelas operações.</param>
         /// <param name="vectorFactory">A fábrica responsável pela instanciação de vectores.</param>
         /// <returns>O vector com o valor da soma das potências.</returns>
+        /// <exception cref="ArgumentNullException">Se algum dos argumentos for nulo.</exception>
         public IVector<CoeffType> GetRootPowerSums(
             IField<CoeffType> field, 
             IVectorFactory<CoeffType> vectorFactory)
@@ -614,7 +667,9 @@ namespace Mathematics
         /// O número de potências que se pretende calcular, o qual pode ser superior
         /// ao grau do polinómio.</param>
         /// <param name="field">O corpo responsável pelas operações.</param>
+        /// <param name="vectorFactory">A fábrica responsável pela criação de vectores.</param>
         /// <returns>O vector com o valor da soma das potências.</returns>
+        /// <exception cref="ArgumentNullException">Se o corpo ou a fábrica de vectores forem nulos.</exception>
         public IVector<CoeffType> GetRootPowerSums(
             int number,
             IField<CoeffType> field,
@@ -720,17 +775,24 @@ namespace Mathematics
         /// <param name="right">O outro polinómio.</param>
         /// <param name="monoid">O monóide responsável pelas operações.</param>
         /// <returns>A soma.</returns>
+        /// <exception cref="ArgumentNullException">Se algum dos argumentos for nulo.</exception>
+        /// <exception cref="MathematicsException">Se as variáveis não coincidirem.</exception>
         public UnivariatePolynomialNormalForm<CoeffType> Add(
             UnivariatePolynomialNormalForm<CoeffType> right,
             IMonoid<CoeffType> monoid)
         {
-            if (right == null)
+            if (monoid == null)
+            {
+                throw new ArgumentNullException("monoid");
+            }
+            else if (right == null)
             {
                 throw new ArgumentNullException("right");
             }
             else if (right.variableName != this.variableName)
             {
-                throw new MathematicsException("Can't multiply two univariate polynomials with different variable names.");
+                throw new MathematicsException(
+                    "Can't multiply two univariate polynomials with different variable names.");
             }
             else
             {
@@ -784,6 +846,7 @@ namespace Mathematics
         /// <param name="degree">O grau do coeficiente.</param>
         /// <param name="monoid">O monóide responsável pelas operações.</param>
         /// <returns>A soma.</returns>
+        /// <exception cref="ArgumentNullException">Se o o coeficiente ou o monóide forem nulos.</exception>
         public UnivariatePolynomialNormalForm<CoeffType> Add(
             CoeffType coeff,
             int degree,
@@ -830,6 +893,8 @@ namespace Mathematics
         /// <param name="right">O outro polinómio.</param>
         /// <param name="group">O grupo responsável pelas operações.</param>
         /// <returns>A diferença.</returns>
+        /// <exception cref="ArgumentNullException">Se algum dos argumentos for nulo.</exception>
+        /// <exception cref="MathematicsException">Se as variáveis não coincidirem.</exception>
         public UnivariatePolynomialNormalForm<CoeffType> Subtract(
             UnivariatePolynomialNormalForm<CoeffType> right,
             IGroup<CoeffType> group)
@@ -844,7 +909,8 @@ namespace Mathematics
             }
             else if (right.variableName != this.variableName)
             {
-                throw new MathematicsException("Can't multiply two univariate polynomials with different variable names.");
+                throw new MathematicsException(
+                    "Can't multiply two univariate polynomials with different variable names.");
             }
             else
             {
@@ -900,7 +966,11 @@ namespace Mathematics
         /// <param name="degree">O grau.</param>
         /// <param name="group">O grupo responsável pelas operações.</param>
         /// <returns>A diferença.</returns>
-        public UnivariatePolynomialNormalForm<CoeffType> Subtract(CoeffType coeff, int degree, IGroup<CoeffType> group)
+        /// <exception cref="ArgumentNullException">Se o grupo o o coeficiente forem nulos.</exception>
+        public UnivariatePolynomialNormalForm<CoeffType> Subtract(
+            CoeffType coeff, 
+            int degree, 
+            IGroup<CoeffType> group)
         {
             if (group == null)
             {
@@ -943,6 +1013,8 @@ namespace Mathematics
         /// <param name="right">O outro polinómio.</param>
         /// <param name="ring">O anel responsável pelas operações.</param>
         /// <returns>O produto.</returns>
+        /// <exception cref="ArgumentNullException">Se algum dos argumentos for nulo.</exception>
+        /// <exception cref="MathematicsException">Se as variáveis não coincidirem.</exception>
         public UnivariatePolynomialNormalForm<CoeffType> Multiply(
             UnivariatePolynomialNormalForm<CoeffType> right,
             IRing<CoeffType> ring)
@@ -957,7 +1029,8 @@ namespace Mathematics
             }
             else if (right.variableName != this.variableName)
             {
-                throw new MathematicsException("Can't multiply two univariate polynomials with different variable names.");
+                throw new MathematicsException(
+                    "Can't multiply two univariate polynomials with different variable names.");
             }
             else
             {
@@ -1007,6 +1080,7 @@ namespace Mathematics
         /// <param name="coeff">O coeficiente a ser multiplicado.</param>
         /// <param name="ring">O anel responsável pelas operações.</param>
         /// <returns>O produto.</returns>
+        /// <exception cref="ArgumentNullException">Se algum dos argumentos for nulo.</exception>
         public UnivariatePolynomialNormalForm<CoeffType> Multiply(CoeffType coeff, IRing<CoeffType> ring)
         {
             if (ring == null)
@@ -1039,6 +1113,7 @@ namespace Mathematics
         /// </summary>
         /// <param name="group">O grupo responsável pela determinação da inversa.</param>
         /// <returns>O polinómio simétrico do actual.</returns>
+        /// <exception cref="ArgumentNullException">Se o grupo for nulo.</exception>
         public UnivariatePolynomialNormalForm<CoeffType> GetSymmetric(IGroup<CoeffType> group)
         {
             var result = new UnivariatePolynomialNormalForm<CoeffType>();
@@ -1058,6 +1133,7 @@ namespace Mathematics
         /// <param name="coeff">O coeficiente.</param>
         /// <param name="ring">O anel responsável pelas operações.</param>
         /// <returns>O resultado.</returns>
+        /// <exception cref="ArgumentNullException">Se algum dos argumentos for nulo.</exception>
         public CoeffType Replace(CoeffType coeff, IRing<CoeffType> ring)
         {
             if (ring == null)
@@ -1104,6 +1180,7 @@ namespace Mathematics
         /// <param name="additionOperation">O objecto responsável pelas operações sobre os coeficientes.</param>
         /// <param name="multiplicatioOperation">O anel responsável pelas operações sobre os valores de saída.</param>
         /// <returns>O resultado calculado.</returns>
+        /// <exception cref="ArgumentNullException">Se algum dos argumentos for nulo.</exception>
         public ResultType Replace<ResultType>(
             ResultType value,
             IAdditionOperation<CoeffType, ResultType, ResultType> additionOperation,
@@ -1155,6 +1232,7 @@ namespace Mathematics
         /// <param name="value">O valor do elemento.</param>
         /// <param name="algebra">A álgebra.</param>
         /// <returns>O resultado da substituição.</returns>
+        /// <exception cref="ArgumentNullException">Se algum dos argumentos for nulo.</exception>
         public ResultType Replace<ResultType>(ResultType value, IAlgebra<CoeffType, ResultType> algebra)
         {
             if (algebra == null)
@@ -1201,6 +1279,7 @@ namespace Mathematics
         /// </summary>
         /// <param name="variableName">O nome da variável.</param>
         /// <returns>O polinómio com a variável substituída.</returns>
+        /// <exception cref="ArgumentException">Se a variável for nula ou vazia.</exception>
         public UnivariatePolynomialNormalForm<CoeffType> Replace(string variableName)
         {
             if (string.IsNullOrWhiteSpace(variableName))
@@ -1226,6 +1305,7 @@ namespace Mathematics
         /// </summary>
         /// <param name="other">O polinómio a substituir.</param>
         /// <returns>O resultado da substituição.</returns>
+        /// <exception cref="ArgumentNullException">Se algum dos argumentos for nulo.</exception>
         public UnivariatePolynomialNormalForm<CoeffType> Replace(
             UnivariatePolynomialNormalForm<CoeffType> other,
             IRing<CoeffType> ring)
@@ -1272,6 +1352,13 @@ namespace Mathematics
 
         #endregion Operações
 
+        /// <summary>
+        /// Determina se o polinómio proporcionado é igual ao corrente.
+        /// </summary>
+        /// <param name="other">O polinómio a ser comparado.</param>
+        /// <param name="coeffsEqualityComparer">O comparador de coeficientes.</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException">Se o comparador de coeficientes for nulo.</exception>
         public bool Equals(
             UnivariatePolynomialNormalForm<CoeffType> other,
             IEqualityComparer<CoeffType> coeffsEqualityComparer)
@@ -1310,6 +1397,12 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Permite obter o código confuso de um polinómio.
+        /// </summary>
+        /// <param name="coeffsEqualityComparer">O comparador de coeficientes.</param>
+        /// <returns>O código confuso que pode ser usado em alguns algoritmos.</returns>
+        /// <exception cref="ArgumentNullException">Se o comparador de coeficientes for nulo.</exception>
         public int GetHashCode(IEqualityComparer<CoeffType> coeffsEqualityComparer)
         {
             if (coeffsEqualityComparer == null)
@@ -1329,6 +1422,11 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Determina se o objecto proporcionado é igual à instância corrente.
+        /// </summary>
+        /// <param name="obj">O objecto.</param>
+        /// <returns>Verdadeiro caso o objecto seja igual e falso caso contrário.</returns>
         public override bool Equals(object obj)
         {
             var innerObj = obj as UnivariatePolynomialNormalForm<CoeffType>;
@@ -1372,6 +1470,10 @@ namespace Mathematics
             return true;
         }
 
+        /// <summary>
+        /// Obtém o código confuso para a instância corrente.
+        /// </summary>
+        /// <returns>O código confuso que pode ser usado em alguns algoritmos.</returns>
         public override int GetHashCode()
         {
             var result = this.variableName.GetHashCode();
@@ -1457,6 +1559,7 @@ namespace Mathematics
         /// <param name="coeff">O coeficiente que serve de quociente.</param>
         /// <param name="domain">O domínio responsável pelas operações.</param>
         /// <returns>O polinómio cujos coeficientes são o resultado do quociente respectivo.</returns>
+        /// <exception cref="ArgumentNullException">Se algum dos argumentos for nulo.</exception>
         public UnivariatePolynomialNormalForm<CoeffType> ApplyQuo(CoeffType coeff, IEuclidenDomain<CoeffType> domain)
         {
             if (coeff == null)
@@ -1490,6 +1593,7 @@ namespace Mathematics
         /// <param name="coeff">O coeficiente que serve de quociente.</param>
         /// <param name="domain">O domínio responsável pelas operações.</param>
         /// <returns>O polinómio cujos coeficientes são o resultado do resto respectivo.</returns>
+        /// <exception cref="ArgumentNullException">Se algum dos argumentos for nulo.</exception>
         public UnivariatePolynomialNormalForm<CoeffType> ApplyRem(CoeffType coeff, IEuclidenDomain<CoeffType> domain)
         {
             if (coeff == null)
@@ -1523,6 +1627,7 @@ namespace Mathematics
         /// <param name="func">A função a ser aplicada.</param>
         /// <param name="monoid">O monóide que irá permitir eliminar os elementos nulos.</param>
         /// <returns>O polinómio.</returns>
+        /// <exception cref="ArgumentNullException">Se algum dos argumentos for nulo.</exception>
         public UnivariatePolynomialNormalForm<CoeffType> ApplyFunction(
             Func<CoeffType, CoeffType> func,
             IMonoid<CoeffType> monoid)
@@ -1556,6 +1661,7 @@ namespace Mathematics
         /// </summary>
         /// <param name="domain">O domínio responsável pelas operações.</param>
         /// <returns>O conteúdo do polinómio.</returns>
+        /// <exception cref="ArgumentNullException">Se o domínio for nulo.</exception>
         public CoeffType GetContent(IEuclidenDomain<CoeffType> domain)
         {
             if (domain == null)
@@ -1588,7 +1694,10 @@ namespace Mathematics
         /// aditiva.
         /// </param>
         /// <returns>O polinómio resultante da substituição.</returns>
-        public UnivariatePolynomialNormalForm<CoeffType> ReplaceLeadingCoeff(CoeffType coeff, IMonoid<CoeffType> monoid)
+        /// <exception cref="ArgumentNullException">Se algum dos argumentos for nulo.</exception>
+        public UnivariatePolynomialNormalForm<CoeffType> ReplaceLeadingCoeff(
+            CoeffType coeff, 
+            IMonoid<CoeffType> monoid)
         {
             if (coeff == null)
             {

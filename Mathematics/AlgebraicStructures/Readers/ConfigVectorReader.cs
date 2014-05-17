@@ -16,10 +16,23 @@
     /// <typeparam name="InputReader">O leitor para os dados de entrada.</typeparam>
     public class ConfigVectorReader<T, SymbValue, SymbType, InputReader>
     {
+        /// <summary>
+        /// O leitor de alcances multidimensionais.
+        /// </summary>
         private ARangeReader<T, SymbValue, SymbType, InputReader> rangeReader;
 
+        /// <summary>
+        /// A fábrica responsável pela criação de vectores.
+        /// </summary>
         private IVectorFactory<T> vectorFactory;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="ConfigVectorReader{T, SymbValue, SymbType, InputReader}"/>.
+        /// </summary>
+        /// <param name="lines">O número de linhas.</param>
+        /// <param name="columns">O número de colunas.</param>
+        /// <param name="matrixFactory">A fábrica responsável pela criação de vectores.</param>
+        /// <exception cref="System.ArgumentNullException">Se a fábrica de vectores for nula.</exception>
         public ConfigVectorReader(int lines, IVectorFactory<T> vectorFactory)
         {
             if (vectorFactory == null)
@@ -34,6 +47,12 @@
             }
         }
 
+        /// <summary>
+        /// Obtém e atribui o tipo de símbolo que representa um separador de objectos.
+        /// </summary>
+        /// <value>
+        /// O tipo de separador.
+        /// </value>
         public SymbType SeparatorSymbType
         {
             get
@@ -46,6 +65,13 @@
             }
         }
 
+        /// <summary>
+        /// Tenta ler o vector a partir de um leitor de símbolos.
+        /// </summary>
+        /// <param name="reader">O leitor de símbolos.</param>
+        /// <param name="parser">O interpretador do vector.</param>
+        /// <param name="vector">Estabelece vector lido.</param>
+        /// <returns>Verdadeiro caso a operação seja bem sucedida e falso caso contrário.</returns>
         public bool TryParseVector(
             MementoSymbolReader<InputReader, SymbValue, SymbType> reader,
             IParse<T, SymbValue, SymbType> parser,
@@ -54,6 +80,14 @@
             return this.TryParseVector(reader, parser, null, out vector);
         }
 
+        /// <summary>
+        /// Tenta ler o vector a partir de um leitor de símbolos.
+        /// </summary>
+        /// <param name="reader">O leitor de símbolos.</param>
+        /// <param name="parser">O interpretador do vector.</param>
+        /// <param name="errors">A lista de erros.</param>
+        /// <param name="vector">Estabelece o vector lido.</param>
+        /// <returns>Verdadeiro caso a operação seja bem sucedida e falso caso contrário.</returns>
         public bool TryParseVector(
             MementoSymbolReader<InputReader, SymbValue, SymbType> reader,
             IParse<T, SymbValue, SymbType> parser,
@@ -93,31 +127,58 @@
             }
         }
 
+        /// <summary>
+        /// Mapeia um símbolo interno de fecho a um símbolo de abertura.
+        /// </summary>
+        /// <param name="openSymbolType">O tipo de símbolo que representa um delimitador de abertura.</param>
+        /// <param name="closeSymbType">O tipo de símbolo que representa um delimitador de fecho.</param>
         public void MapInternalDelimiters(SymbType openSymbolType, SymbType closeSymbType)
         {
             this.rangeReader.MapInternalDelimiters(openSymbolType, closeSymbType);
         }
 
+        /// <summary>
+        /// Mapeia um símbolo externo de fecho a um símbolo de abertura.
+        /// </summary>
+        /// <param name="openSymbolType">O tipo de símbolo que representa um delimitador de abertura.</param>
+        /// <param name="closeSymbType">O tipo de símbolo que representa um delimitador de fecho.</param>
         public void MapExternalDelimiters(SymbType openSymbType, SymbType closeSymbType)
         {
             this.rangeReader.MapExternalDelimiters(openSymbType, closeSymbType);
         }
 
+        /// <summary>
+        /// Marca um tipo de símbolo como sendo vazio.
+        /// </summary>
+        /// <param name="symbolType">O tipo de símbolo.</param>
         public void AddBlanckSymbolType(SymbType symbolType)
         {
             this.rangeReader.AddBlanckSymbolType(symbolType);
         }
 
+        /// <summary>
+        /// Remove o tipo de símbolo especificado da lista de símbolos vazios.
+        /// </summary>
+        /// <param name="symbolType">O tipo de símbolo.</param>
         public void RemoveBlanckSymbolType(SymbType symbolType)
         {
             this.rangeReader.RemoveBlanckSymbolType(symbolType);
         }
 
+        /// <summary>
+        /// Desmarca todos os símbolos vazios.
+        /// </summary>
         public void ClearBlanckSymbols()
         {
             this.rangeReader.ClearBlanckSymbols();
         }
 
+        /// <summary>
+        /// Constrói o vector após a leitura.
+        /// </summary>
+        /// <param name="vector">O vector.</param>
+        /// <param name="lines">O número de linhas lidas.</param>
+        /// <param name="elements">A lista dos elementos.</param>
         private void SetupResultVector(IVector<T> vector, int lines, ReadOnlyCollection<T> elements)
         {
             var currentLine = -1;

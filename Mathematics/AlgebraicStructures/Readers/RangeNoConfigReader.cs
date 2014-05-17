@@ -1,44 +1,75 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Utilities;
-using System.Collections.ObjectModel;
-
-namespace Mathematics
+﻿namespace Mathematics
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using Utilities;
+    using System.Collections.ObjectModel;
+
+    /// <summary>
+    /// Implementa um leitor de alcances multidimensionais no qual não está definida a configuração pretendida.
+    /// </summary>
+    /// <typeparam name="T">O tipo dos objectos que constituem as entradas dos alcances multidimensionais.</typeparam>
+    /// <typeparam name="SymbValue">O tipo dos objectos que costituem os valores dos símbolos.</typeparam>
+    /// <typeparam name="SymbType">Os tipos de objectos que constituem os tipos de símbolos.</typeparam>
+    /// <typeparam name="InputReader">O tipo do leitor de entrada..</typeparam>
     public class RangeNoConfigReader<T, SymbValue, SymbType, InputReader> : ARangeReader<T, SymbValue, SymbType, InputReader>
     {
         /// <summary>
-        /// The element parser.
+        /// O leitor de elementos.
         /// </summary>
         private IParse<T, SymbValue, SymbType> parser;
 
+        /// <summary>
+        /// A configuração actual.
+        /// </summary>
         private List<int> currentReadedConfiguration = new List<int>();
 
+        /// <summary>
+        /// O contentor para os elementos lidos.
+        /// </summary>
         private List<T> readedElements;
 
+        /// <summary>
+        /// A configuração final.
+        /// </summary>
         private List<int> finalConfiguration = new List<int>();
 
+        /// <summary>
+        /// O nível no qual se encontra o leitor.
+        /// </summary>
         private int level;
 
+        /// <summary>
+        /// A pilha de operadores.
+        /// </summary>
         private Stack<SymbType> opsStack = new Stack<SymbType>();
 
+        /// <summary>
+        /// A pilha de memorizadores.
+        /// </summary>
         private Stack<RangeReaderMementoManager> mementoStack = new Stack<RangeReaderMementoManager>();
 
+        /// <summary>
+        /// A lista de estados definidos no leitor.
+        /// </summary>
         private List<IState<SymbValue, SymbType>> stateList = new List<IState<SymbValue, SymbType>>();
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="RangeNoConfigReader{T, SymbValue, SymbType, InputReader}"/>.
+        /// </summary>
         public RangeNoConfigReader()
         {
             this.InitStates();
         }
 
         /// <summary>
-        /// Parses the reader without having the configuration defined.
+        /// Efectua leitura do alcance multidimensional.
         /// </summary>
-        /// <param name="range">The range.</param>
-        /// <param name="reader">The reader.</param>
-        /// <returns>The result.</returns>
+        /// <param name="reader">O leitor de símbolos.</param>
+        /// <param name="parser">O leitor de objectos.</param>
+        /// <exception cref="ArgumentNullException">Se algum dos argumentos for nulo.</exception>
         protected override void InnerReadRangeValues(
             MementoSymbolReader<InputReader, SymbValue, SymbType> reader,
             IParse<T, SymbValue, SymbType> parser)
@@ -61,27 +92,45 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Obtém a configuração após uma leitura.
+        /// </summary>
+        /// <returns>A configuração.</returns>
         protected override IEnumerable<int> GetFinalCofiguration()
         {
             return this.finalConfiguration;
         }
 
+        /// <summary>
+        /// Obtém os elmentos lidos após a leitura.
+        /// </summary>
+        /// <returns>Os elementos lidos.</returns>
         protected override ReadOnlyCollection<T> GetElements()
         {
             return this.readedElements.AsReadOnly();
         }
 
+        /// <summary>
+        /// Inicia a máquina de estado responsável por realizar a leitura.
+        /// </summary>
+        /// <param name="reader">O leitor de símbolos.</param>
         private void RunStateMchine(MementoSymbolReader<InputReader, SymbValue, SymbType> reader)
         {
             var stateMchine = new StateMachine<SymbValue, SymbType>(stateList[0], stateList[1]);
             stateMchine.RunMachine(reader);
         }
 
+        /// <summary>
+        /// Remete o leitor ao estado inicial.
+        /// </summary>
         private void Reset()
         {
             this.opsStack.Clear();
         }
 
+        /// <summary>
+        /// Inicializa os estados da máquina de estados.
+        /// </summary>
         private void InitStates()
         {
             this.stateList.Clear();
@@ -95,6 +144,11 @@ namespace Mathematics
             this.stateList.Add(new DelegateStateImplementation<SymbValue, SymbType>(7, "after start", this.AfterStartTransition));
         }
 
+        /// <summary>
+        /// Define a transição inicial.
+        /// </summary>
+        /// <param name="reader">O leitor de símbolos.</param>
+        /// <returns>O próximo estado da máquina de estados.</returns>
         private IState<SymbValue, SymbType> StartTransition(ISymbolReader<SymbValue, SymbType> reader)
         {
             if (reader.IsAtEOF())
@@ -125,11 +179,21 @@ namespace Mathematics
 
         }
 
+        /// <summary>
+        /// Define a transição final.
+        /// </summary>
+        /// <param name="reader">O leitor de símbolos.</param>
+        /// <returns>O próximo estado da máquina de estados.</returns>
         private IState<SymbValue, SymbType> EndTransition(ISymbolReader<SymbValue, SymbType> reader)
         {
             return null;
         }
 
+        /// <summary>
+        /// Define a transição de sequência.
+        /// </summary>
+        /// <param name="reader">O leitor de símbolos.</param>
+        /// <returns>O próximo estado da máquina de estados.</returns>
         private IState<SymbValue, SymbType> SequenceTransition(ISymbolReader<SymbValue, SymbType> reader)
         {
             if (reader.IsAtEOF())
@@ -179,6 +243,11 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Define a transição de elemento.
+        /// </summary>
+        /// <param name="reader">O leitor de símbolos.</param>
+        /// <returns>O próximo estado da máquina de estados.</returns>
         private IState<SymbValue, SymbType> ElementTransition(ISymbolReader<SymbValue, SymbType> reader)
         {
             if (reader.IsAtEOF())
@@ -328,6 +397,11 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Define a transição no interior de delimitadores externos.
+        /// </summary>
+        /// <param name="reader">O leitor de símbolos.</param>
+        /// <returns>O próximo estado da máquina de estados.</returns>
         private IState<SymbValue, SymbType> InsideElementDelimitersTransition(ISymbolReader<SymbValue, SymbType> reader)
         {
             if (reader.IsAtEOF())
@@ -375,6 +449,11 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Define a transição de operador.
+        /// </summary>
+        /// <param name="reader">O leitor de símbolos.</param>
+        /// <returns>O próximo estado da máquina de estados.</returns>
         private IState<SymbValue, SymbType> OperatorTransition(ISymbolReader<SymbValue, SymbType> reader)
         {
             if (reader.IsAtEOF())
@@ -511,6 +590,11 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Define a transição de resumo de sequência.
+        /// </summary>
+        /// <param name="reader">O leitor de símbolos.</param>
+        /// <returns>O próximo estado da máquina de estados.</returns>
         private IState<SymbValue, SymbType> ResumeSequenceTransition(ISymbolReader<SymbValue, SymbType> reader)
         {
             if (reader.IsAtEOF())
@@ -577,6 +661,11 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Define a transição de após início.
+        /// </summary>
+        /// <param name="reader">O leitor de símbolos.</param>
+        /// <returns>O próximo estado da máquina de estados.</returns>
         private IState<SymbValue, SymbType> AfterStartTransition(ISymbolReader<SymbValue, SymbType> reader)
         {
             if (reader.IsAtEOF())
@@ -658,6 +747,10 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Ignora todos os símbolos vazios consecutivos.
+        /// </summary>
+        /// <param name="reader">O leitor de símbolos.</param>
         private void IgnoreVoids(ISymbolReader<SymbValue, SymbType> reader)
         {
             var symbol = reader.Peek();

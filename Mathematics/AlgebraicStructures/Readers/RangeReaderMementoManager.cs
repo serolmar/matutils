@@ -12,12 +12,27 @@ namespace Mathematics
     /// </summary>
     class RangeReaderMementoManager
     {
+        /// <summary>
+        /// O memorizador.
+        /// </summary>
         private IMemento memento;
 
+        /// <summary>
+        /// O nível.
+        /// </summary>
         private int level;
 
+        /// <summary>
+        /// O número de elementos lidos.
+        /// </summary>
         private int currentReadedElements;
 
+        /// <summary>
+        /// Obtém ou atribui o memorizador.
+        /// </summary>
+        /// <value>
+        /// O memorizador.
+        /// </value>
         public IMemento Memento
         {
             get
@@ -30,6 +45,12 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Obtém ou atribui o nível.
+        /// </summary>
+        /// <value>
+        /// O nível.
+        /// </value>
         public int Level
         {
             get
@@ -42,6 +63,12 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Obtém ou atribui o número de elementos lidos.
+        /// </summary>
+        /// <value>
+        /// O número de elementos lidos.
+        /// </value>
         public int CurrentReadedElements
         {
             get

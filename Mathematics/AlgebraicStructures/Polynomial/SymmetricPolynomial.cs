@@ -36,6 +36,9 @@ namespace Mathematics.AlgebraicStructures.Polynomial
         /// </summary>
         private Dictionary<Dictionary<int, int>, T> polynomialTerms;
 
+        /// <summary>
+        /// Inibe a instanciação por defeito de objectos do tipo <see cref="SymmetricPolynomial{T}"/>.
+        /// </summary>
         private SymmetricPolynomial()
         {
             this.polynomialTerms = new Dictionary<Dictionary<int, int>, T>(this.degreeComparer);
@@ -45,6 +48,8 @@ namespace Mathematics.AlgebraicStructures.Polynomial
         /// Permite construir um polinómio simétrico nulo com base numa lista de variáveis.
         /// </summary>
         /// <param name="variables">A lista de variáveis.</param>
+        /// <exception cref="ArgumentException">
+        /// Se a lista de variáveis for nula ou vazia ou existirem variáveis repetidas.</exception>
         public SymmetricPolynomial(List<string> variables)
         {
             if (variables == null || variables.Count == 0)
@@ -82,6 +87,13 @@ namespace Mathematics.AlgebraicStructures.Polynomial
         /// <param name="variables">A lista de variáveis.</param>
         /// <param name="elementarySymmIndex">O índice do polinómio simétrico elemnetar.</param>
         /// <param name="monoid">O monóide responsável pelas operações sobre os coeficientes.</param>
+        /// <exception cref="IndexOutOfRangeException">
+        /// Se o índice para as funções simétricas elementares não definir nenhuma destas funções.
+        /// </exception>
+        /// <exception cref="ArgumentNullException">
+        /// Se o coeficiente ou o monóide forem nulos.
+        /// </exception>
+        /// <exception cref="ArgumentException">Se existirem variáveis repetidas.</exception>
         public SymmetricPolynomial(
             T coefficient, 
             List<string> variables, 
@@ -155,6 +167,10 @@ namespace Mathematics.AlgebraicStructures.Polynomial
         /// <param name="degree">A lista dos graus.</param>
         /// <param name="coeff">O coeficientes multiplicativo do monómio simétrico.</param>
         /// <param name="monoid">O anel responsável pela determinação da nulidade dos coeficientes.</param>
+        /// <exception cref="ArgumentNullException">
+        /// Se o coeficiente ou o monóide forem nulos.
+        /// </exception>
+        /// <exception cref="ArgumentException">Se existirem variáveis repetidas.</exception>
         public SymmetricPolynomial(List<string> variables, List<int> degree, T coeff, IMonoid<T> monoid)
             : this(variables)
         {
@@ -208,6 +224,12 @@ namespace Mathematics.AlgebraicStructures.Polynomial
         /// <param name="degree">O dicionário que contém a contagem dos graus.</param>
         /// <param name="coeff">O coeficiente multiplicativo.</param>
         /// <param name="monoid">O monóide responsável pela determinação da nulidade dos coeficientes.</param>
+        /// <exception cref="ArgumentNullException">
+        /// Se o coeficiente ou o monóide forem nulos.
+        /// </exception>
+        /// <exception cref="ArgumentException">
+        /// Se existirem variáveis repetidas ou se algum grau for negativo.
+        /// </exception>
         public SymmetricPolynomial(List<string> variables, Dictionary<int, int> degree, T coeff, IMonoid<T> monoid)
             : this(variables)
         {
@@ -270,6 +292,7 @@ namespace Mathematics.AlgebraicStructures.Polynomial
         /// <summary>
         /// Obtém a lista de variáveis.
         /// </summary>
+        /// <value>A lista de variáveis.</value>
         public ReadOnlyCollection<string> Variables
         {
             get
@@ -284,6 +307,8 @@ namespace Mathematics.AlgebraicStructures.Polynomial
         /// <param name="right">O polinómio proporcionado.</param>
         /// <param name="monoid">O monóide responsável pelas operações.</param>
         /// <returns>A soma de ambos os polinómios.</returns>
+        /// <exception cref="ArgumentNullException">Se pelo menos um dos argumentos for nulo.</exception>
+        /// <exception cref="ArgumentException">Se as variáveis não conicidirem.</exception>
         public SymmetricPolynomial<T> Add(SymmetricPolynomial<T> right, IMonoid<T> monoid)
         {
             if (monoid == null)
@@ -300,7 +325,8 @@ namespace Mathematics.AlgebraicStructures.Polynomial
             {
                 if (!right.variables.Any(v => v == variable))
                 {
-                    throw new ArgumentException("The polynomials must have the same variables in order to be added.");
+                    throw new ArgumentException(
+                        "The polynomials must have the same variables in order to be added.");
                 }
             }
 
@@ -341,6 +367,8 @@ namespace Mathematics.AlgebraicStructures.Polynomial
         /// <param name="right">O polinómio proporcionado.</param>
         /// <param name="group">O grupo responsável pelas operações.</param>
         /// <returns>A diferença entre ambos os polinómios.</returns>
+        /// <exception cref="ArgumentNullException">Se pelo menos um dos argumentos for nulo.</exception>
+        /// <exception cref="ArgumentException">Se as variáveis não conicidirem.</exception>
         public SymmetricPolynomial<T> Subtract(SymmetricPolynomial<T> right, IGroup<T> group)
         {
             if (group == null)
@@ -357,7 +385,8 @@ namespace Mathematics.AlgebraicStructures.Polynomial
             {
                 if (!right.variables.Any(v => v == variable))
                 {
-                    throw new ArgumentException("The polynomials must have the same variables in order to be added.");
+                    throw new ArgumentException(
+                        "The polynomials must have the same variables in order to be added.");
                 }
             }
 
@@ -399,6 +428,8 @@ namespace Mathematics.AlgebraicStructures.Polynomial
         /// <param name="right">O polinómio proporcionado.</param>
         /// <param name="ring">O anel responsável pelas operações.</param>
         /// <returns>O produto de ambos os polinómios.</returns>
+        /// <exception cref="ArgumentNullException">Se pelo menos um dos argumentos for nulo.</exception>
+        /// <exception cref="ArgumentException">Se as variáveis não conicidirem.</exception>
         public SymmetricPolynomial<T> Multiply(SymmetricPolynomial<T> right, IRing<T> ring)
         {
             if (ring == null)
@@ -459,14 +490,19 @@ namespace Mathematics.AlgebraicStructures.Polynomial
         }
 
         /// <summary>
-        /// Obtém a representação do polinómio simétrico como combinação polinomial dos polinómios simétricos elementares.
+        /// Obtém a representação do polinómio simétrico como combinação polinomial dos polinómios simétricos 
+        /// elementares.
         /// </summary>
         /// <param name="elementarySymmetricVarDefs">
-        /// Um dicionário que permite mapear entre o n-ésimo polinómios simétrico e o seu nome, caso a primeira entrada do tuplo
-        /// se encontre a falso e o seu valor caso esta se encontre a verdadeiro.
+        /// Um dicionário que permite mapear entre o n-ésimo polinómios simétrico e o seu nome, caso a primeira 
+        /// entrada do tuplo se encontre a falso e o seu valor caso esta se encontre a verdadeiro.
         /// </param>
         /// <param name="ring">O anel responsável pelas operações.</param>
-        /// <returns>A respresentação polinomial do polinómio simétrico como combinação dos polinómios simétricos elementares.</returns>
+        /// <returns>
+        /// A respresentação polinomial do polinómio simétrico como combinação dos polinómios simétricos elementares.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">Se pelo menos um dos argumentos for nulo.</exception>
+        /// <exception cref="MathematicsException">Caso algum erro interno tenha ocorrido.</exception>
         public Polynomial<T> GetElementarySymmetricRepresentation(
             Dictionary<int, Tuple<bool, string, T>> elementarySymmetricVarDefs,
             IRing<T> ring)
@@ -474,6 +510,11 @@ namespace Mathematics.AlgebraicStructures.Polynomial
             if (ring == null)
             {
                 throw new ArgumentNullException("ring");
+            }
+
+            if (elementarySymmetricVarDefs == null)
+            {
+                throw new ArgumentNullException("elementarySymmetricVarDefs");
             }
 
             var symmetricTermsStack = new Stack<Dictionary<Dictionary<int, int>, T>>();

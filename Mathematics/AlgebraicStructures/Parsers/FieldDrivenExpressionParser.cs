@@ -19,6 +19,13 @@
     public class FieldDrivenExpressionParser<ObjectType>
         : RingDrivenExpressionParser<ObjectType>
     {
+        /// <summary>
+        /// Instancia uma novo objecto do tipo <see cref="FieldDrivenExpressionParser{ObjectType}"/>.
+        /// </summary>
+        /// <param name="elementsParser">O leitor dos valores.</param>
+        /// <param name="field">O corpo responsável pelas operações sobre os valores.</param>
+        /// <param name="integerNumber">O objecto responsável pelas operações sobre os representantes de inteiros.</param>
+        /// <exception cref="ArgumentNullException">Se o leitor dos valores ou o corpo responsável pelas suas operações forem nulos.</exception>
         public FieldDrivenExpressionParser(
             IParse<ObjectType, string, string> elementsParser,
             IField<ObjectType> field,

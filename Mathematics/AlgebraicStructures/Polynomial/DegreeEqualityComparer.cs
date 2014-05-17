@@ -5,12 +5,29 @@ using System.Text;
 
 namespace Mathematics
 {
+    /// <summary>
+    /// Implementa um comparador de graus representados como uma lista de inteiros.
+    /// </summary>
     class DegreeEqualityComparer : EqualityComparer<IEnumerable<int>>
     {
+        /// <summary>
+        /// O número primo usado na obtenção do código confuso.
+        /// </summary>
         private const int primeMultiplier = 31;
 
+        /// <summary>
+        /// O código confuso de uma colecção de inteiros.
+        /// </summary>
         private const int emptyEnumerableHash = 0x2D2816FE;
 
+        /// <summary>
+        /// Determina se duas listas de graus são iguais.
+        /// </summary>
+        /// <param name="x">A primeira lista a ser comparada.</param>
+        /// <param name="y">A segunda lista a ser comparada..</param>
+        /// <returns>
+        /// Verdadeiro se as listas forem iguais e falso caso contrário.
+        /// </returns>
         public override bool Equals(IEnumerable<int> x, IEnumerable<int> y)
         {
             if (x == y)
@@ -74,6 +91,13 @@ namespace Mathematics
             return true;
         }
 
+        /// <summary>
+        /// Obtém um código confuso para a instância especificada.
+        /// </summary>
+        /// <param name="obj">A instância do objecto.</param>
+        /// <returns>
+        /// Um código confuso para a instância.
+        /// </returns>
         public override int GetHashCode(IEnumerable<int> obj)
         {
             if (obj == null)

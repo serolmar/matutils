@@ -6,6 +6,10 @@
     using System.Text;
     using Utilities;
 
+    /// <summary>
+    /// Implementa um leitor de polinómios.
+    /// </summary>
+    /// <typeparam name="CoeffType">O tipo de objectos que constituem os coeficientes dos polinómios.</typeparam>
     internal class SimplePolynomialReader<CoeffType> :
         IParse<ParsePolynomialItem<CoeffType>, string, string>
     {
@@ -24,6 +28,12 @@
         /// </summary>
         private IRing<CoeffType> coeffRing;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="SimplePolynomialReader{CoeffType}"/>.
+        /// </summary>
+        /// <param name="coeffParser">O leitor de coeficientes.</param>
+        /// <param name="coeffRing">O anel responsável pelas operações sobre os coeficientes.</param>
+        /// <exception cref="MathematicsException">Se o leitor de coeficientes não for fornecido.</exception>
         public SimplePolynomialReader(IParse<CoeffType, string, string> coeffParser, IRing<CoeffType> coeffRing)
         {
             if (coeffParser == null)

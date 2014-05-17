@@ -17,33 +17,78 @@
     /// <typeparam name="T">O tipo dos coeficientes no polinómio.</typeparam>
     public class Polynomial<T>
     {
+        /// <summary>
+        /// O número primo que auxilia na obtenção de um código confuso.
+        /// </summary>
         private const int primeMultiplier = 53;
 
+        /// <summary>
+        /// O comparador de graus.
+        /// </summary>
         private DegreeEqualityComparer degreeComparer = new DegreeEqualityComparer();
 
+        /// <summary>
+        /// A lista vazia.
+        /// </summary>
         private List<int> emptyDegree = new List<int>();
 
+        /// <summary>
+        /// O contentor dos coeficientes e graus.
+        /// </summary>
         private Dictionary<List<int>, T> coeffsMap;
 
+        /// <summary>
+        /// O contentor das variáveis.
+        /// </summary>
         private List<PolynomialGeneralVariable<T>> variables = new List<PolynomialGeneralVariable<T>>();
 
         #region Construtores
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="Polynomial{T}"/>.
+        /// </summary>
         public Polynomial()
         {
             this.coeffsMap = new Dictionary<List<int>, T>(this.degreeComparer);
         }
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="Polynomial{T}"/>.
+        /// </summary>
+        /// <param name="coeff">O coeficiente.</param>
+        /// <param name="coefficientRing">O anel responsável pelas operações sobre os coeficientes.</param>
+        /// <exception cref="System.ArgumentNullException">Se pelo menos um argumento for nulo.</exception>
         public Polynomial(T coeff, IRing<T> coefficientRing)
             : this()
         {
-            var list = new List<int>();
-            if (!coefficientRing.IsAdditiveUnity(coeff))
+            if (coefficientRing == null)
             {
-                this.coeffsMap.Add(list, coeff);
+                throw new ArgumentNullException("coeffcientRing");
+            }
+            else if (coeff == null)
+            {
+                throw new ArgumentNullException("coeff");
+            }
+            else
+            {
+                var list = new List<int>();
+                if (!coefficientRing.IsAdditiveUnity(coeff))
+                {
+                    this.coeffsMap.Add(list, coeff);
+                }
             }
         }
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="Polynomial{T}"/>.
+        /// </summary>
+        /// <param name="coeff">O coeficiente.</param>
+        /// <param name="degree">O grau.</param>
+        /// <param name="coefficientRing">O anel responsável pelas operações sobre os coeficientes.</param>
+        /// <exception cref="System.ArgumentNullException">Se o coeficiente ou o anel forem nulos.</exception>
+        /// <exception cref="MathematicsException">
+        /// Se o grau for negativo ou a variável for nula ou vazia.
+        /// </exception>
         public Polynomial(T coeff, int degree, string var, IRing<T> coefficientRing)
             : this()
         {
@@ -70,15 +115,39 @@
             }
         }
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="Polynomial{T}"/>.
+        /// </summary>
+        /// <param name="coeff">O coeficiente.</param>
+        /// <param name="degree">O grau.</param>
+        /// <param name="vars">A lista de variáveis.</param>
+        /// <param name="coefficientRing">O anel responsável pelas operações sobre os coeficientes.</param>
+        /// <exception cref="System.ArgumentNullException">
+        /// Se o coeficiente, a lista da variáveis ou o anel forem nulos.
+        /// </exception>
+        /// <exception cref="MathematicsException">
+        /// Se o número de graus não coincidir com o número de variáveis ou se existir algum grau negativo para alguma
+        /// variável não nula e não vazia.
+        /// </exception>
         public Polynomial(T coeff,
             IEnumerable<int> degree,
             IEnumerable<string> vars,
             IRing<T> coefficientRing)
             : this()
         {
+            if (coefficientRing == null)
+            {
+                throw new ArgumentNullException("coefficientRing");
+            }
+
             if (coeff == null)
             {
-                throw new MathematicsException("Coef can't be null.");
+                throw new ArgumentNullException("Coef can't be null.");
+            }
+
+            if (vars == null)
+            {
+                throw new ArgumentNullException("vars");
             }
 
             var list = new List<int>();
@@ -127,6 +196,12 @@
             }
         }
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="Polynomial{T}"/>.
+        /// </summary>
+        /// <param name="coeff">O coeficiente.</param>
+        /// <param name="var">A variável.</param>
+        /// <param name="coefficientRing">O anel responsável pelas operações sobre os coeficientes.</param>
         public Polynomial(T coeff, string var, IRing<T> coefficientRing)
             : this(coeff, 1, var, coefficientRing)
         {
@@ -134,6 +209,12 @@
 
         #endregion Construtores
 
+        /// <summary>
+        /// Obtém um valor que indica se o polinómio é um coeficiente.
+        /// </summary>
+        /// <value>
+        /// Verdadeiro caso o polinómio seja um coeficiente e falso caso contrário.
+        /// </value>
         public bool IsValue
         {
             get
@@ -156,6 +237,12 @@
             }
         }
 
+        /// <summary>
+        /// Obtém um valor que indica se o polinómio é um monómio.
+        /// </summary>
+        /// <value>
+        /// Verdadeiro caso o polinómio seja um monómio e falso caso contrário.
+        /// </value>
         public bool IsMonomial
         {
             get
@@ -164,6 +251,10 @@
             }
         }
 
+        /// <summary>
+        /// Obtém um cópia do polinómio corrente.
+        /// </summary>
+        /// <returns>A cópia.</returns>
         public Polynomial<T> Clone()
         {
             var res = new Polynomial<T>();
@@ -183,6 +274,13 @@
             return res;
         }
 
+        /// <summary>
+        /// Obtém o polinómio como sendo um valor.
+        /// </summary>
+        /// <param name="coefficientRing">O anel responsável pelas operações sobre os coficientes.</param>
+        /// <returns></returns>
+        /// <exception cref="System.ArgumentNullException">Se o anel for nulo.</exception>
+        /// <exception cref="MathematicsException">Se o polinómio não for um valor.</exception>
         public T GetAsValue(IRing<T> coefficientRing)
         {
             if (coefficientRing == null)
@@ -203,6 +301,12 @@
             }
         }
 
+        /// <summary>
+        /// Obtém o polinómio como sendo uma variável.
+        /// </summary>
+        /// <param name="coefficientRing">O anel responsável pelas operações sobre os coeficientes.</param>
+        /// <returns>A variável.</returns>
+        /// <exception cref="MathematicsException">Se o polinómio não constituir uma variável.</exception>
         public string GetAsVariable(IRing<T> coefficientRing)
         {
             if (this.IsVariable(coefficientRing))
@@ -220,6 +324,12 @@
             throw new MathematicsException("Can't convert polynomial to a name.");
         }
 
+        /// <summary>
+        /// Determina se o polinómio corrente é uma variável.
+        /// </summary>
+        /// <param name="coefficientRing">O anel responsável pelas operações sobre os coeficientes.</param>
+        /// <returns>Verdadeiro caso o polinómio seja uma variável e falso caso contrário.</returns>
+        /// <exception cref="System.ArgumentNullException">Se o anel for nulo.</exception>
         public bool IsVariable(IRing<T> coefficientRing)
         {
             if (coefficientRing == null)
@@ -319,8 +429,19 @@
         /// <param name="right">O outro polinómio.</param>
         /// <param name="monoid">O monóide responsável pelas operações.</param>
         /// <returns>O resultado da soma.</returns>
+        /// <exception cref="ArgumentNullException">Se pelo meno um dos argumentos for nulo.</exception>
         public Polynomial<T> Add(Polynomial<T> right, IMonoid<T> monoid)
         {
+            if (monoid == null)
+            {
+                throw new ArgumentNullException("monoid");
+            }
+
+            if (right == null)
+            {
+                throw new ArgumentNullException("right");
+            }
+
             var result = new Polynomial<T>();
             var variableDic = new Dictionary<PolynomialGeneralVariable<T>, Tuple<int, int, int>>();
             var appendResultVars = new List<PolynomialGeneralVariable<T>>();
@@ -468,6 +589,7 @@
         /// <param name="coeff">O coefieciente a ser adicionado.</param>
         /// <param name="monoid">O monóide responsável pelas operações.</param>
         /// <returns>O resultado da adição.</returns>
+        /// <exception cref="ArgumentNullException">Se pelo meno um dos argumentos for nulo.</exception>
         public Polynomial<T> Add(T coeff, IMonoid<T> monoid)
         {
             if (monoid == null)
@@ -513,11 +635,16 @@
         /// <param name="right">O outro polinómio.</param>
         /// <param name="group">O grupo responsável pelas operações.</param>
         /// <returns>O resultado da diferença.</returns>
+        /// <exception cref="ArgumentNullException">Se pelo meno um dos argumentos for nulo.</exception>
         public Polynomial<T> Subtract(Polynomial<T> right, IGroup<T> group)
         {
             if (group == null)
             {
                 throw new ArgumentNullException("group");
+            }
+            else if (right == null)
+            {
+                throw new ArgumentNullException("right");
             }
             else
             {
@@ -663,6 +790,7 @@
         /// <param name="coeff">O coefieciente a ser subtraído.</param>
         /// <param name="group">O grupo responsável pelas operações.</param>
         /// <returns>O resultado da subtracção.</returns>
+        /// <exception cref="ArgumentNullException">Se pelo meno um dos argumentos for nulo.</exception>
         public Polynomial<T> Subtract(T coeff, IGroup<T> group)
         {
             if (group == null)
@@ -708,11 +836,16 @@
         /// <param name="right">O outro polinómio.</param>
         /// <param name="ring">O anel responsável pelas operações.</param>
         /// <returns>O resultado do produto.</returns>
+        /// <exception cref="ArgumentNullException">Se pelo meno um dos argumentos for nulo.</exception>
         public Polynomial<T> Multiply(Polynomial<T> right, IRing<T> ring)
         {
             if (ring == null)
             {
                 throw new ArgumentNullException("ring");
+            }
+            else if (right == null)
+            {
+                throw new ArgumentNullException("right");
             }
             else
             {
@@ -849,6 +982,7 @@
         /// <param name="coeff">A constante.</param>
         /// <param name="ring">O anel responsável pelas operações.</param>
         /// <returns>O produto.</returns>
+        /// <exception cref="ArgumentNullException">Se pelo meno um dos argumentos for nulo.</exception>
         public Polynomial<T> Multiply(T coeff, IRing<T> ring)
         {
             if (ring == null)
@@ -882,6 +1016,7 @@
         /// </summary>
         /// <param name="ring">O grupo responsável pelas operações.</param>
         /// <returns>O polinómio simétrico.</returns>
+        /// <exception cref="ArgumentNullException">Se po grupo for nulo.</exception>
         public Polynomial<T> GetSymmetric(IGroup<T> group)
         {
             if (group == null)
@@ -911,6 +1046,8 @@
         /// <param name="exponent">O expoente.</param>
         /// <param name="ring">O anel responsável pelas operações.</param>
         /// <returns>O resultado da potência.</returns>
+        /// <exception cref="ArgumentNullException">Se o anel for nulo.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Se o expoente for um número negativo.</exception>
         public Polynomial<T> Power(int exponent, IRing<T> ring)
         {
             if (ring == null)
@@ -972,130 +1109,159 @@
             }
         }
 
+        /// <summary>
+        /// Substitui as variáveis pelos valores mapeados e efectua algumas simplificações.
+        /// </summary>
+        /// <param name="replace">O mapeamento das variáveis aos respectivos valores.</param>
+        /// <param name="ring">O anel responsável pelas operações sobre os coeficientes.</param>
+        /// <returns>O resultado da substituição.</returns>
+        /// <exception cref="ArgumentNullException">Se pelo meno um dos argumentos for nulo.</exception>
         public Polynomial<T> Replace(Dictionary<string, T> replace, IRing<T> ring)
         {
-            var result = new Polynomial<T>();
-            var mapPositionToVariableCoefficient = new Dictionary<int, T>();
-            var mapPositionToMonomial = new Dictionary<int, Polynomial<T>>();
-            for (int i = 0; i < this.variables.Count; ++i)
+            if (ring == null)
             {
-                var variable = this.variables[i];
-                if (variable.IsVariable)
-                {
-                    var variableName = variable.GetVariable();
-                    if (replace.ContainsKey(variableName))
-                    {
-                        mapPositionToVariableCoefficient.Add(i, replace[variableName]);
-                    }
-                    else
-                    {
-                        result.variables.Add(variable.Clone());
-                    }
-                }
-                else if (variable.IsPolynomial)
-                {
-                    var replacedPol = variable.GetPolynomial().Replace(replace, ring);
-                    if (replacedPol.IsValue)
-                    {
-                        mapPositionToVariableCoefficient.Add(i, replacedPol.GetAsValue(ring));
-                    }
-                    else if (replacedPol.coeffsMap.Count == 1)
-                    {
-                        mapPositionToMonomial.Add(i, replacedPol);
-                    }
-                    else
-                    {
-                        result.variables.Add(new PolynomialGeneralVariable<T>(replacedPol));
-                    }
-                }
+                throw new ArgumentNullException("ring");
             }
-
-            foreach (var kvp in this.coeffsMap)
+            else if (replace == null)
             {
-                var updateDegree = new List<int>();
-                var coeff = kvp.Value;
-                for (int i = 0; i < kvp.Key.Count; ++i)
+                throw new ArgumentNullException("replace");
+            }
+            else
+            {
+                var result = new Polynomial<T>();
+                var mapPositionToVariableCoefficient = new Dictionary<int, T>();
+                var mapPositionToMonomial = new Dictionary<int, Polynomial<T>>();
+                for (int i = 0; i < this.variables.Count; ++i)
                 {
-                    var degree = kvp.Key[i];
-                    if (mapPositionToVariableCoefficient.ContainsKey(i) && degree != 0)
+                    var variable = this.variables[i];
+                    if (variable.IsVariable)
                     {
-                        var replaceCoeff = MathFunctions.Power(
-                            mapPositionToVariableCoefficient[i],
-                            degree,
-                            ring);
-                        coeff = ring.Multiply(coeff, replaceCoeff);
-
-                    }
-                    else if (mapPositionToMonomial.ContainsKey(i) && degree != 0)
-                    {
-                        var monomial = mapPositionToMonomial[i];
-                        var monomialCoeff = monomial.coeffsMap.First().Value;
-                        var monomialDegree = monomial.coeffsMap.First().Key;
-
-                        monomialCoeff = MathFunctions.Power(monomialCoeff, degree, ring);
-                        coeff = ring.Multiply(coeff, monomialCoeff);
-                        var multipliedDegree = new List<int>();
-                        for (int j = 0; j < monomialDegree.Count; ++j)
+                        var variableName = variable.GetVariable();
+                        if (replace.ContainsKey(variableName))
                         {
-                            multipliedDegree.Add(monomialDegree[j] * degree);
+                            mapPositionToVariableCoefficient.Add(i, replace[variableName]);
                         }
-
-                        foreach (var item in monomial.variables)
+                        else
                         {
-                            if (!result.variables.Contains(item))
-                            {
-                                result.variables.Add(item.Clone());
-                            }
+                            result.variables.Add(variable.Clone());
                         }
-
-                        monomialDegree = result.GetDegreeFromRightPol(multipliedDegree, monomial);
-                        updateDegree = this.GetDegreeSum(updateDegree, monomialDegree);
                     }
-                    else
+                    else if (variable.IsPolynomial)
                     {
-                        var index = result.variables.IndexOf(this.variables[i]);
-                        if (index != -1 && degree != 0)
+                        var replacedPol = variable.GetPolynomial().Replace(replace, ring);
+                        if (replacedPol.IsValue)
                         {
-                            while (updateDegree.Count <= index)
+                            mapPositionToVariableCoefficient.Add(i, replacedPol.GetAsValue(ring));
+                        }
+                        else if (replacedPol.coeffsMap.Count == 1)
+                        {
+                            mapPositionToMonomial.Add(i, replacedPol);
+                        }
+                        else
+                        {
+                            result.variables.Add(new PolynomialGeneralVariable<T>(replacedPol));
+                        }
+                    }
+                }
+
+                foreach (var kvp in this.coeffsMap)
+                {
+                    var updateDegree = new List<int>();
+                    var coeff = kvp.Value;
+                    for (int i = 0; i < kvp.Key.Count; ++i)
+                    {
+                        var degree = kvp.Key[i];
+                        if (mapPositionToVariableCoefficient.ContainsKey(i) && degree != 0)
+                        {
+                            var replaceCoeff = MathFunctions.Power(
+                                mapPositionToVariableCoefficient[i],
+                                degree,
+                                ring);
+                            coeff = ring.Multiply(coeff, replaceCoeff);
+
+                        }
+                        else if (mapPositionToMonomial.ContainsKey(i) && degree != 0)
+                        {
+                            var monomial = mapPositionToMonomial[i];
+                            var monomialCoeff = monomial.coeffsMap.First().Value;
+                            var monomialDegree = monomial.coeffsMap.First().Key;
+
+                            monomialCoeff = MathFunctions.Power(monomialCoeff, degree, ring);
+                            coeff = ring.Multiply(coeff, monomialCoeff);
+                            var multipliedDegree = new List<int>();
+                            for (int j = 0; j < monomialDegree.Count; ++j)
                             {
-                                updateDegree.Add(0);
+                                multipliedDegree.Add(monomialDegree[j] * degree);
                             }
 
-                            updateDegree[index] += degree;
+                            foreach (var item in monomial.variables)
+                            {
+                                if (!result.variables.Contains(item))
+                                {
+                                    result.variables.Add(item.Clone());
+                                }
+                            }
+
+                            monomialDegree = result.GetDegreeFromRightPol(multipliedDegree, monomial);
+                            updateDegree = this.GetDegreeSum(updateDegree, monomialDegree);
+                        }
+                        else
+                        {
+                            var index = result.variables.IndexOf(this.variables[i]);
+                            if (index != -1 && degree != 0)
+                            {
+                                while (updateDegree.Count <= index)
+                                {
+                                    updateDegree.Add(0);
+                                }
+
+                                updateDegree[index] += degree;
+                            }
+                        }
+                    }
+
+                    if (result.coeffsMap.ContainsKey(updateDegree))
+                    {
+                        var existingCoeff = result.coeffsMap[updateDegree];
+                        existingCoeff = ring.Add(existingCoeff, coeff);
+                        if (ring.IsAdditiveUnity(existingCoeff))
+                        {
+                            result.coeffsMap.Remove(updateDegree);
+                        }
+                        else
+                        {
+                            result.coeffsMap[updateDegree] = existingCoeff;
+                        }
+                    }
+                    else
+                    {
+                        if (!ring.IsAdditiveUnity(coeff))
+                        {
+                            result.coeffsMap.Add(updateDegree, coeff);
                         }
                     }
                 }
 
-                if (result.coeffsMap.ContainsKey(updateDegree))
-                {
-                    var existingCoeff = result.coeffsMap[updateDegree];
-                    existingCoeff = ring.Add(existingCoeff, coeff);
-                    if (ring.IsAdditiveUnity(existingCoeff))
-                    {
-                        result.coeffsMap.Remove(updateDegree);
-                    }
-                    else
-                    {
-                        result.coeffsMap[updateDegree] = existingCoeff;
-                    }
-                }
-                else
-                {
-                    if (!ring.IsAdditiveUnity(coeff))
-                    {
-                        result.coeffsMap.Add(updateDegree, coeff);
-                    }
-                }
+                return result;
             }
-
-            return result;
         }
 
+        /// <summary>
+        /// Substitui as variáveis por polinómios e efectua algumas simplificações.
+        /// </summary>
+        /// <param name="replace">O mapeamento das variáveis aos polinómios.</param>
+        /// <param name="ring">O anel responsável pelas operações sobre os coeficientes.</param>
+        /// <returns>O resultado da substituição.</returns>
+        /// <exception cref="ArgumentNullException">Se pelo meno um dos argumentos for nulo.</exception>
         public Polynomial<T> Replace(Dictionary<string, Polynomial<T>> replace, IRing<T> ring)
         {
             if (ring == null)
             {
                 throw new ArgumentNullException("ring");
+            }
+            else if (replace == null)
+            {
+                throw new ArgumentNullException("replace");
             }
             else
             {
@@ -1230,6 +1396,12 @@
             }
         }
 
+        /// <summary>
+        /// Obtém o polinómio corrente na forma expandida.
+        /// </summary>
+        /// <param name="ring">O anel responsável pelas operações sobre os coeficientes.</param>
+        /// <returns>O polinómio expandido.</returns>
+        /// <exception cref="ArgumentNullException">Se o anel for nulo.</exception>
         public Polynomial<T> GetExpanded(IRing<T> ring)
         {
             if (ring == null)
@@ -1275,6 +1447,13 @@
 
         #endregion Operações
 
+        /// <summary>
+        /// Determina se o objecto especificado é igual à instância corrente.
+        /// </summary>
+        /// <param name="obj">O objecto a ser comparado.</param>
+        /// <returns>
+        /// Veradeiro se o objecto for igual e falso caso contrário.
+        /// </returns>
         public override bool Equals(object obj)
         {
             if (obj == null)
@@ -1325,6 +1504,12 @@
             return true;
         }
 
+        /// <summary>
+        /// Retorna um código confuso para a instância corrente.
+        /// </summary>
+        /// <returns>
+        /// O código confuso da instância corrente que pode ser utilizado em vários algoritmos.
+        /// </returns>
         public override int GetHashCode()
         {
             var emptyHash = 0;
@@ -1337,6 +1522,10 @@
             return emptyHash;
         }
 
+        /// <summary>
+        /// Obtém uma representação textual do polinómio.
+        /// </summary>
+        /// <returns>A representação textual do polinómio.</returns>
         public override string ToString()
         {
             if (this.coeffsMap.Count == 0)
@@ -1407,6 +1596,7 @@
         /// <param name="leftDegree">The left degree.</param>
         /// <param name="right">The right polynomial.</param>
         /// <returns>The macthed right degree or null if match can't be attained.</returns>
+        /// <exception cref="MathematicsException">Se acontecer algum erro imprevisto.</exception>
         private List<int> GetDegreeFromRightPol(List<int> leftDegree, Polynomial<T> right)
         {
             var res = new int[this.variables.Count];
@@ -1483,6 +1673,12 @@
             return res;
         }
 
+        /// <summary>
+        /// Ontém o produto do polinómio especificado pelo polinómio corrente mantendo o resultado
+        /// em forma expandida.
+        /// </summary>
+        /// <param name="right">O polinómio a ser multiplicado.</param>
+        /// <param name="ring">O anel responsável pelas operações sobre os coeficientes.</param>
         private void MultiplyExpanded(Polynomial<T> right, IRing<T> ring)
         {
             foreach (var variable in right.variables)
@@ -1572,6 +1768,13 @@
             this.coeffsMap = newMappedCoeffs;
         }
 
+        /// <summary>
+        /// Determina uma potência do polinómio.
+        /// </summary>
+        /// <param name="pol">O polinómio.</param>
+        /// <param name="exponent">O expoente.</param>
+        /// <param name="ring">O anel responsável pelas operações sobre os coeficientes.</param>
+        /// <returns>O resultado da potência.</returns>
         private Polynomial<T> Power(Polynomial<T> pol, int exponent, IRing<T> ring)
         {
             if (exponent == 0)
@@ -1602,6 +1805,12 @@
             }
         }
 
+        /// <summary>
+        /// Obtém a soma de duas listas de graus.
+        /// </summary>
+        /// <param name="first">A primeira lista a ser somada.</param>
+        /// <param name="second">A segunda lista a ser somada.</param>
+        /// <returns>O resultado da soma.</returns>
         private List<int> GetDegreeSum(List<int> first, List<int> second)
         {
             var result = new List<int>();

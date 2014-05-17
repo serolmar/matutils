@@ -6,6 +6,10 @@
     using System.Text;
     using Utilities;
 
+    /// <summary>
+    /// Implementa um leitor de matrizes multidimensionais.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class MultiDimensionalRangeParser<T> : 
         IParse<MultiDimensionalRange<T>, string, string>
     {
@@ -19,6 +23,11 @@
         /// </summary>
         private IParse<T, string, string> elementsParser;
 
+        /// <summary>
+        /// Istancia um novo objecto do tipo <see cref="MultiDimensionalRangeParser{T}"/>.
+        /// </summary>
+        /// <param name="elementsParser">O leitor de elementos.</param>
+        /// <exception cref="ArgumentNullException">Se o leitor de elementos for nulo.</exception>
         public MultiDimensionalRangeParser(IParse<T,string,string> elementsParser)
         {
             if (elementsParser == null)
@@ -33,6 +42,12 @@
             }
         }
 
+        /// <summary>
+        /// Experimenta a leitura da matriz multidimensiona.
+        /// </summary>
+        /// <param name="symbolListToParse">A lista de símbolos que contém uma representação da matriz.</param>
+        /// <param name="value">Recebe a leitura da matriz.</param>
+        /// <returns>Verdadeiro caso a leitura seja bem-sucedida e falso caso contrário.</returns>
         public bool TryParse(ISymbol<string, string>[] symbolListToParse, out MultiDimensionalRange<T> value)
         {
             var arrayReader = new ArraySymbolReader<string, string>(symbolListToParse, "eof");

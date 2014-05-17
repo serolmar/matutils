@@ -14,8 +14,6 @@
     /// define todas as operações de anel.
     /// </example>
     /// <typeparam name="ObjectType">O tipo de valor a ser lido.</typeparam>
-    /// <typeparam name="SymbValue">O tipo de valor associado ao símbolo.</typeparam>
-    /// <typeparam name="SymbType">O tipo de dados associado ao tipo de símbolo.</typeparam>
     public class RingDrivenExpressionParser<ObjectType>
         : IParse<ObjectType, string, string>
     {
@@ -24,10 +22,19 @@
         /// </summary>
         protected RingDrivenExpressionReader<ObjectType, ISymbol<string, string>[]> expressionReader;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="RingDrivenExpressionParser{ObjectType}"/>.
+        /// </summary>
         protected RingDrivenExpressionParser()
         {
         }
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="RingDrivenExpressionParser{ObjectType}"/>.
+        /// </summary>
+        /// <param name="elementsParser">O leitor de valores.</param>
+        /// <param name="ring">O anel responsável pela leitura dos valores.</param>
+        /// <param name="integerNumber">O objecto responsável pelas operações sobre representantes de números inteiros.</param>
         public RingDrivenExpressionParser(
             IParse<ObjectType, string, string> elementsParser,
             IRing<ObjectType> ring,

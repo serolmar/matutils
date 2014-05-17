@@ -5,6 +5,10 @@ using System.Text;
 
 namespace Mathematics
 {
+    /// <summary>
+    /// Um item relativo à leitura de um polinómio univariável.
+    /// </summary>
+    /// <typeparam name="CoeffType">O tiop de coeficientes do polinómio.</typeparam>
     public class ParseUnivarPolynomNormalFormItem<CoeffType>
     {
         /// <summary>
@@ -27,6 +31,9 @@ namespace Mathematics
         /// </summary>
         private EParsePolynomialValueType valueType = EParsePolynomialValueType.INTEGER;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="ParseUnivarPolynomNormalFormItem{CoeffType}"./>
+        /// </summary>
         public ParseUnivarPolynomNormalFormItem()
         {
         }
@@ -34,13 +41,15 @@ namespace Mathematics
         /// <summary>
         /// Obtém o valor polinomial caso seja aplicável.
         /// </summary>
+        /// <value>O valor polinomial.</value>
+        /// <exception cref="MathematicsException">Se o item retornado não representar um polinómio.</exception>
         public UnivariatePolynomialNormalForm<CoeffType> Polynomial
         {
             get
             {
                 if (this.valueType != EParsePolynomialValueType.POLYNOMIAL)
                 {
-                    throw new MathematicsException("Value is an integer.");
+                    throw new MathematicsException("Value isn't a polynomial.");
                 }
                 else
                 {
@@ -57,13 +66,15 @@ namespace Mathematics
         /// <summary>
         /// Obtém o coeficiente.
         /// </summary>
+        /// <value>O coeficiente.</value>
+        /// <exception cref="MathematicsException">Se o item retornado não representar um coeficiente.</exception>
         public CoeffType Coeff
         {
             get
             {
                 if (this.valueType != EParsePolynomialValueType.COEFFICIENT)
                 {
-                    throw new MathematicsException("Value is an integer.");
+                    throw new MathematicsException("Value isn't a coefficient.");
                 }
                 else
                 {
@@ -80,13 +91,15 @@ namespace Mathematics
         /// <summary>
         /// Obtém o valor inteiro caso seja aplicável.
         /// </summary>
+        /// <value>O valor inteiro.</value>
+        /// <exception cref="MathematicsException">Se o item retornado não representar um inteiro.</exception>
         public int Degree
         {
             get
             {
                 if (this.valueType != EParsePolynomialValueType.INTEGER)
                 {
-                    throw new MathematicsException("Value is a polynomial.");
+                    throw new MathematicsException("Value isn't an integer.");
                 }
                 else
                 {
@@ -103,6 +116,7 @@ namespace Mathematics
         /// <summary>
         /// Obtém o tipo de valor.
         /// </summary>
+        /// <value>O tipo de valor.</value>
         public EParsePolynomialValueType ValueType
         {
             get

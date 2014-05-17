@@ -37,6 +37,7 @@ namespace Mathematics
         /// <summary>
         /// Obtém o valor calculado do numerador.
         /// </summary>
+        /// <value>O valor calculado do numerador.</value>
         public int Numerator
         {
             get
@@ -48,6 +49,7 @@ namespace Mathematics
         /// <summary>
         /// Obtém o valor calculado do denominador.
         /// </summary>
+        /// <value>O valor calculado do denominador.</value>
         public int Denominator
         {
             get
@@ -88,6 +90,7 @@ namespace Mathematics
         /// Multiplica o denominador pelo valor correspondente.
         /// </summary>
         /// <param name="factorialValue">O valor.</param>
+        /// <exception cref="ArgumentException">Se o número for zero.</exception>
         public void NumeratorNumberMultiply(int number)
         {
             if (number == 0)
@@ -104,6 +107,7 @@ namespace Mathematics
         /// Multiplica o denominador pelo valor correspondente.
         /// </summary>
         /// <param name="factorialValue">O valor.</param>
+        /// <exception cref="ArgumentException">Se o número for zero.</exception>
         public void DenominatorNumberMultiply(int number)
         {
             if (number == 0)
@@ -184,6 +188,7 @@ namespace Mathematics
         /// <param name="main">O termo a ser multiplicado.</param>
         /// <param name="subsidiary">O termo a ser dividido.</param>
         /// <param name="factorialValue">O valor do factorial a ser multiplicado.</param>
+        /// <exception cref="ArgumentOutOfRangeException">Se o valor do factorial for negativo.</exception>
         private void Multiply(Dictionary<int, int> main,
             Dictionary<int, int> subsidiary,
             int factorialValue)

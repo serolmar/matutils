@@ -6,6 +6,10 @@
     using System.Text;
     using Utilities;
 
+    /// <summary>
+    /// Implementa um leitor de polinómios univariáveis.
+    /// </summary>
+    /// <typeparam name="CoeffType">O tipo de obejctos que constituem os coeficientes dos polinómios.</typeparam>
     public class UnivarPolNormalFormParser<CoeffType> 
         : IParse<UnivariatePolynomialNormalForm<CoeffType>, string, string>
     {
@@ -19,6 +23,13 @@
         /// </summary>
         private IConversion<int, CoeffType> conversion;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="UnivarPolNormalFormParser{CoeffType} "/>.
+        /// </summary>
+        /// <param name="variable">O nome da variável associada ao polinómio.</param>
+        /// <param name="conversion">O objecto responsável pela conversão entre coeficientes e inteiros.</param>
+        /// <param name="elementsParser">O leitor de coeficientes.</param>
+        /// <param name="ring">O anel responsável pelas operações sobre os coeficientes.</param>
         public UnivarPolNormalFormParser(
             string variable, 
             IConversion<int, CoeffType> conversion,
@@ -51,6 +62,12 @@
             }
         }
 
+        /// <summary>
+        /// Experimenta a leitura de um polinómio univariável a partir de uma lista de símbolos.
+        /// </summary>
+        /// <param name="symbolListToParse">A lista de símbolos.</param>
+        /// <param name="value">O valor que receberá o polinómio lido.</param>
+        /// <returns>Verdadeiro caso a leitura seja bem-sucedida e falso caso contrário.</returns>
         public bool TryParse(
             ISymbol<string, string>[] symbolListToParse, 
             out UnivariatePolynomialNormalForm<CoeffType> value)

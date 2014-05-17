@@ -6,6 +6,11 @@
     using System.Text;
     using Utilities;
 
+    /// <summary>
+    /// Implementa um leitor de elementos com base num corpo.
+    /// </summary>
+    /// <typeparam name="ObjectType">O tipo de obejctos que constituem os elementos.</typeparam>
+    /// <typeparam name="InputType">O tipo de leitor de objectos representativos.</typeparam>
     public class FieldDrivenExpressionReader<ObjectType, InputType>
         : RingDrivenExpressionReader<ObjectType, InputType>
     {

@@ -1,11 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Mathematics.Algorithms;
-
-namespace Mathematics
+﻿namespace Mathematics
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using Mathematics.Algorithms;
+
+    /// <summary>
+    /// Representa uma fracção.
+    /// </summary>
+    /// <typeparam name="T">O tipo dos objectos que constituem os coeficientes das fracções.</typeparam>
     public class Fraction<T>
     {
         /// <summary>
@@ -18,6 +22,11 @@ namespace Mathematics
         /// </summary>
         private T denominator;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="Fraction{T}"/>.
+        /// </summary>
+        /// <param name="domain">O domínio responsável pelas operações sobre os coeficientes.</param>
+        /// <exception cref="System.ArgumentNullException">Se o domínio for nulo.</exception>
         public Fraction(IEuclidenDomain<T> domain)
         {
             if (domain == null)
@@ -31,6 +40,15 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="Fraction{T}"/>.
+        /// </summary>
+        /// <param name="numerator">O numerador da fracção.</param>
+        /// <param name="denominator">O denominador da fracção.</param>
+        /// <param name="domain">O domínio responsável pelas operações sobre os coeficientes.</param>
+        /// <exception cref="System.ArgumentNullException">Se o domínio for nulo.</exception>
+        /// <exception cref="ArgumentNullException">Se algum dos argumentos for nulo.</exception>
+        /// <exception cref="ArgumentException">Se o denominador for zero.</exception>
         public Fraction(T numerator, T denominator, IEuclidenDomain<T> domain)
         {
             if (numerator == null)
@@ -65,6 +83,7 @@ namespace Mathematics
         /// <summary>
         /// Obtém o numerador.
         /// </summary>
+        /// <value>O numerador.</value>
         public T Numerator
         {
             get
@@ -76,6 +95,7 @@ namespace Mathematics
         /// <summary>
         /// Obtém o denominador.
         /// </summary>
+        /// <value>O denominador.</value>
         public T Denominator
         {
             get
@@ -88,6 +108,7 @@ namespace Mathematics
         /// Obtém a parte inteira da fracção.
         /// </summary>
         /// <param name="domain">O domínio responsável pelas operações sobre os coeficientes.</param>
+        /// <exception cref="ArgumentNullException">Se o domínio for nulo.</exception>
         public T IntegralPart(IEuclidenDomain<T> domain)
         {
             if (domain == null)
@@ -104,6 +125,7 @@ namespace Mathematics
         /// Obtém o que resta da fracção quando lhe é extraída a sua parte inteira.
         /// </summary>
         /// <param name="domain">O domínio responsável pelas operações sobre os coeficientes.</param>
+        /// <exception cref="ArgumentNullException">Se o domínio for nulo.</exception>
         public Fraction<T> FractionalPart(IEuclidenDomain<T> domain)
         {
             if (domain == null)
@@ -121,6 +143,7 @@ namespace Mathematics
         /// Obtém a decomposição da fracção em parte inteira e fracionária na mesma função.
         /// </summary>
         /// <param name="domain">O domínio responsável pelas operações sobre os coeficientes.</param>
+        /// <exception cref="ArgumentNullException">Se o domínio for nulo.</exception>
         public FractionDecompositionResult<T> FractionDecomposition(IEuclidenDomain<T> domain)
         {
             if (domain == null)
@@ -143,6 +166,7 @@ namespace Mathematics
         /// <param name="right">A fracção especificada.</param>
         /// <param name="domain">O domínio responsável pelas operações sobre os coeficientes.</param>
         /// <returns>O resultado da soma.</returns>
+        /// <exception cref="ArgumentNullException">Se algum dos argumentos for nulo.</exception>
         public Fraction<T> Add(Fraction<T> right, IEuclidenDomain<T> domain)
         {
             if (domain == null)
@@ -172,6 +196,7 @@ namespace Mathematics
         /// <param name="coeff">O coeficiente independente.</param>
         /// <param name="domain">O domínio responsável pelas operações sobre os coeficientes.</param>
         /// <returns>O resultado da soma.</returns>
+        /// <exception cref="ArgumentNullException">Se algum dos argumentos for nulo.</exception>
         public Fraction<T> Add(T coeff, IEuclidenDomain<T> domain)
         {
             if (domain == null)
@@ -196,6 +221,7 @@ namespace Mathematics
         /// <param name="right">A fracção especificada.</param>
         /// <param name="domain">O domínio responsável pelas operações sobre os coeficientes.</param>
         /// <returns>O resultado da subtracção.</returns>
+        /// <exception cref="ArgumentNullException">Se algum dos argumentos for nulo.</exception>
         public Fraction<T> Subtract(Fraction<T> right, IEuclidenDomain<T> domain)
         {
             if (domain == null)
@@ -228,6 +254,7 @@ namespace Mathematics
         /// <param name="coeff">O coeficiente independente.</param>
         /// <param name="domain">O domínio responsável pelas operações sobre os coeficientes.</param>
         /// <returns>O resultado da soma.</returns>
+        /// <exception cref="ArgumentNullException">Se algum dos argumentos for nulo.</exception>
         public Fraction<T> Subtract(T coeff, IEuclidenDomain<T> domain)
         {
             if (domain == null)
@@ -253,6 +280,7 @@ namespace Mathematics
         /// <param name="right">A fracção especificada.</param>
         /// <param name="domain">O domínio responsável pelas operações sobre os coeficientes.</param>
         /// <returns>O resultado do produto.</returns>
+        /// <exception cref="ArgumentNullException">Se algum dos argumentos for nulo.</exception>
         public Fraction<T> Multiply(Fraction<T> right, IEuclidenDomain<T> domain)
         {
             if (domain == null)
@@ -302,6 +330,7 @@ namespace Mathematics
         /// <param name="coeff">O coeficiente independente.</param>
         /// <param name="domain">O domínio responsável pelas operações sobre os coeficientes.</param>
         /// <returns>O resultado do produto.</returns>
+        /// <exception cref="ArgumentNullException">Se algum dos argumentos for nulo.</exception>
         public Fraction<T> Multiply(T coeff, IEuclidenDomain<T> domain)
         {
             if (domain == null)
@@ -347,6 +376,7 @@ namespace Mathematics
         /// <param name="right">A fracção especificada.</param>
         /// <param name="domain">O domínio responsável pelas operações sobre os coeficientes.</param>
         /// <returns>O resultado do quociente.</returns>
+        /// <exception cref="ArgumentNullException">Se algum dos argumentos for nulo.</exception>
         public Fraction<T> Divide(Fraction<T> right, IEuclidenDomain<T> domain)
         {
             if (domain == null)
@@ -393,6 +423,7 @@ namespace Mathematics
         /// <param name="coeff">O coeficiente.</param>
         /// <param name="domain">O domínio responsável pelas operações sobre os coeficientes.</param>
         /// <returns>O resultado do quociente.</returns>
+        /// <exception cref="ArgumentNullException">Se algum dos argumentos for nulo.</exception>
         public Fraction<T> Divide(T coeff, IEuclidenDomain<T> domain)
         {
             if (domain == null)
@@ -434,6 +465,7 @@ namespace Mathematics
         /// </summary>
         /// <param name="domain">O domínio responsável pelas operações sobre os coeficientes.</param>
         /// <returns>A inversa.</returns>
+        /// <exception cref="ArgumentNullException">Se o domínio for nulo.</exception>
         public Fraction<T> GetInverse(IEuclidenDomain<T> domain)
         {
             if (domain == null)
@@ -455,6 +487,7 @@ namespace Mathematics
         /// </summary>
         /// <param name="domain">O domínio responsável pelas operações sobre os coeficientes.</param>
         /// <returns>A fracção simétrica.</returns>
+        /// <exception cref="ArgumentNullException">Se o domínio for nulo.</exception>
         public Fraction<T> GetSymmetric(IEuclidenDomain<T> domain)
         {
             if (domain == null)
@@ -468,6 +501,10 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Obtém um representação textual da fracção.
+        /// </summary>
+        /// <returns>A representação textual.</returns>
         public override string ToString()
         {
             return string.Format("({0})/({1})", this.numerator, this.denominator);

@@ -1,15 +1,30 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Utilities;
-
-namespace Mathematics
+﻿namespace Mathematics
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using Utilities;
+
+    /// <summary>
+    /// Implementa um leitor de alcances multidimensionais.
+    /// </summary>
+    /// <typeparam name="T">O tipo dos objectos que constituem as entradas dos alcances multidimensionais.</typeparam>
+    /// <typeparam name="SymbValue">O tipo dos objectos que costituem os valores dos símbolos.</typeparam>
+    /// <typeparam name="SymbType">Os tipos de objectos que constituem os tipos de símbolos.</typeparam>
+    /// <typeparam name="InputReader">O tipo do leitor de entrada..</typeparam>
     public class MultiDimensionalRangeReader<T, SymbValue, SymbType, InputReader>
     {
+        /// <summary>
+        /// O leitor de alcances multidimensionais.
+        /// </summary>
         private ARangeReader<T, SymbValue, SymbType, InputReader> rangeReader;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="MultiDimensionalRangeReader{T, SymbValue, SymbType, InputReader}"/>.
+        /// </summary>
+        /// <param name="rangeReader">O leitor de alcances multidimensionais.</param>
+        /// <exception cref="ArgumentNullException">Se o leitor de alcances multidimensionais for nulo.</exception>
         public MultiDimensionalRangeReader(ARangeReader<T, SymbValue, SymbType, InputReader> rangeReader)
         {
             if (rangeReader == null)
@@ -22,6 +37,13 @@ namespace Mathematics
             }
         }
 
+        /// <summary>
+        /// Tenta ler o alcance multidimensional a partir de um leitor de símbolos.
+        /// </summary>
+        /// <param name="reader">O leitor de símbolos.</param>
+        /// <param name="parser">O interpretador do alcance multidimensional.</param>
+        /// <param name="result">Estabelece o alcance multidimensional lido.</param>
+        /// <returns>Verdadeiro caso a operação seja bem sucedida e falso caso contrário.</returns>
         public bool TryParseRange(
             MementoSymbolReader<InputReader, SymbValue, SymbType> reader,
             IParse<T, SymbValue, SymbType> parser,
@@ -30,6 +52,14 @@ namespace Mathematics
             return this.TryParseRange(reader, parser, null, out result);
         }
 
+        /// <summary>
+        /// Tenta ler o alcance multidimensional a partir de um leitor de símbolos.
+        /// </summary>
+        /// <param name="reader">O leitor de símbolos.</param>
+        /// <param name="parser">O interpretador do alcance multidimensional.</param>
+        /// <param name="errors">As mensagens de erro.</param>
+        /// <param name="result">Estabelece o alcance multidimensional lido.</param>
+        /// <returns>Verdadeiro caso a operação seja bem sucedida e falso caso contrário.</returns>
         public bool TryParseRange(
             MementoSymbolReader<InputReader, SymbValue, SymbType> reader,
             IParse<T, SymbValue, SymbType> parser,

@@ -9,6 +9,7 @@
     /// <summary>
     /// Representa um leitor de itens como sendo fracções.
     /// </summary>
+    /// <typeparam name="ElementType">O tipo de objectos que constituem os coeficientes das fracções.</typeparam>
     public class ElementFractionParser<ElementType> : IParse<Fraction<ElementType>, string, string>
     {
         /// <summary>
@@ -21,6 +22,12 @@
         /// </summary>
         protected IParse<ElementType, string, string> elementParser;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="ElementFractionParser{ElementType}"/>.
+        /// </summary>
+        /// <param name="elementParser">O leitor de coficientes.</param>
+        /// <param name="domain">O domínio responsável pelas operações sobre os coeficientes.</param>
+        /// <exception cref="ArgumentNullException">Se algum dos argumentos for nulo.</exception>
         public ElementFractionParser(
             IParse<ElementType, string, string> elementParser, 
             IEuclidenDomain<ElementType> domain)
@@ -40,6 +47,10 @@
             }
         }
 
+        /// <summary>
+        /// Otém o domínio responsável pelas operações sobre os coeficientes.
+        /// </summary>
+        /// <value>O domínio responsável pelas operações sobre os coeficientes.</value>
         public IEuclidenDomain<ElementType> Domain
         {
             get
@@ -48,6 +59,10 @@
             }
         }
 
+        /// <summary>
+        /// Obtém o leitor dos objectos.
+        /// </summary>
+        /// <value>O leitor dos objectos.</value>
         public IParse<ElementType, string, string> SimpleObjectParser
         {
             get
@@ -56,6 +71,12 @@
             }
         }
 
+        /// <summary>
+        /// Experimenta a leitura da fracção.
+        /// </summary>
+        /// <param name="symbolListToParse">A lista de símbolos a partir da qual a leitura é realizada.</param>
+        /// <param name="value">Recebe o resultado da leitura.</param>
+        /// <returns>Veradeiro caso a leitura seja bem-sucedida e falso caso contrário.</returns>
         public bool TryParse(ISymbol<string, string>[] symbolListToParse, out Fraction<ElementType> value)
         {
             value = null;
