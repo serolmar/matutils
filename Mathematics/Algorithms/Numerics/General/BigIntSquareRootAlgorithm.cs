@@ -14,6 +14,12 @@
     /// </remarks>
     public class BigIntSquareRootAlgorithm : IAlgorithm<BigInteger, BigInteger>
     {
+        /// <summary>
+        /// Calcula a parte inteira da raiz quadrada de um número.
+        /// </summary>
+        /// <param name="data">O número.</param>
+        /// <returns>A parte inteira da raiz quadrada do número.</returns>
+        /// <exception cref="ArgumentException">Se o número for negativo.</exception>
         public BigInteger Run(BigInteger data)
         {
             if (data < 0)

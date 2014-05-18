@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Mathematics.Algorithms
+﻿namespace Mathematics.Algorithms
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+
     /// <summary>
     /// Revised simplex method using <see cref="double"/> as variable type. 
     /// The function run will alter all input variable status.
@@ -12,18 +12,65 @@ namespace Mathematics.Algorithms
     public class RevisedSimplexWithDoubles
     {
         #region Fields
+
+        /// <summary>
+        /// As variáveis não báscias.
+        /// </summary>
         private int[] nonBasicVariables;
+
+        /// <summary>
+        /// As variáveis básicas.
+        /// </summary>
         private int[] basicVariables;
+
+        /// <summary>
+        /// O vector que contém a função objectivo.
+        /// </summary>
         private double[] objectiveFunctionVector;
+
+        /// <summary>
+        /// A matriz que contém os coeficientes das restrições.
+        /// </summary>
         private double[,] constraintsMatrix;
+
+        /// <summary>
+        /// O vector que contém os termos independentes das restrições.
+        /// </summary>
         private double[] constraintsVector;
+
+        /// <summary>
+        /// A matriz que contém a inversa da base.
+        /// </summary>
         private double[,] inverseBasisMatrix;
+
+        /// <summary>
+        /// O vector de coeficientes associados às variáveis de folga.
+        /// </summary>
         private double[] slackVariablesInObjectiveFunction;
+
+        /// <summary>
+        /// Valor que indica se o algoritmo já foi executado.
+        /// </summary>
         private bool hasRunned = false;
+
+        /// <summary>
+        /// Mantém o melhor custo encontrado.
+        /// </summary>
         private double bestCost;
+
+        /// <summary>
+        /// Vector das soluções.
+        /// </summary>
         private double[] solution;
+
         #endregion
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="RevisedSimplexWithDoubles"/>.
+        /// </summary>
+        /// <param name="objectiveVector">O vector com a função objectivo.</param>
+        /// <param name="constraintsVector">O vector que contém os termos independentes das restrições.</param>
+        /// <param name="constraintsMatrix">A matriz das restrições.</param>
         public RevisedSimplexWithDoubles(
             double[] objectiveVector,
             double[] constraintsVector,
@@ -34,6 +81,13 @@ namespace Mathematics.Algorithms
             this.InitializeVariables(objectiveVector, constraintsVector, constraintsMatrix);
         }
 
+        /// <summary>
+        /// Obtém o melhor custo encontrado.
+        /// </summary>
+        /// <value>
+        /// O melhor custo.
+        /// </value>
+        /// <exception cref="System.Exception">Se o algoritmo não foi executado.</exception>
         public double BestCost
         {
             get
@@ -47,6 +101,18 @@ namespace Mathematics.Algorithms
             }
         }
 
+        /// <summary>
+        /// Obtém a solução o índice especificado.
+        /// </summary>
+        /// <value>
+        /// O valor da solução definido pelo índice.
+        /// </value>
+        /// <param name="solutionIndex">O índice da solução.</param>
+        /// <returns>O valor da solução associado ao índice.</returns>
+        /// <exception cref="System.Exception">Se o algoritmo não foi executado.</exception>
+        /// <exception cref="System.ArgumentOutOfRangeException">
+        /// Se o índice for negativo ou não for inferior ao número de variáveis não básicas.
+        /// </exception>
         public double this[int solutionIndex]
         {
             get
@@ -65,6 +131,12 @@ namespace Mathematics.Algorithms
             }
         }
 
+        /// <summary>
+        /// Obtém o tamanho do vector de solução.
+        /// </summary>
+        /// <value>
+        /// O tamanho.
+        /// </value>
         public int SolutionVariablesLength
         {
             get
@@ -73,6 +145,9 @@ namespace Mathematics.Algorithms
             }
         }
 
+        /// <summary>
+        /// Executa o algoritmo do simplex.
+        /// </summary>
         public void Run()
         {
             bool state = true;
@@ -299,6 +374,19 @@ namespace Mathematics.Algorithms
             this.hasRunned = true;
         }
 
+        /// <summary>
+        /// Valida os argumentos de entrada.
+        /// </summary>
+        /// <param name="objectiveVector">O vector com a função objectivo.</param>
+        /// <param name="constraintsVector">O vector que contém os termos independentes das restrições.</param>
+        /// <param name="constraintsMatrix">A matriz das restrições.</param>
+        /// <exception cref="System.ArgumentNullException">
+        /// Se algum dos argumentos for nulo.
+        /// </exception>
+        /// <exception cref="System.Exception">
+        /// Se o número de linhas e colunas da matriz das restrições não coincidirem com o tamanho do vector
+        /// de coeficientes independentes.
+        /// </exception>
         private void ValidateArguments(
             double[] objectiveVector,
             double[] constraintsVector,
@@ -330,6 +418,12 @@ namespace Mathematics.Algorithms
             }
         }
 
+        /// <summary>
+        /// Inicializa as variáveis.
+        /// </summary>
+        /// <param name="objectiveVector">O vector com a função objectivo.</param>
+        /// <param name="constraintsVector">O vector que contém os termos independentes das restrições.</param>
+        /// <param name="constraintsMatrix">A matriz das restrições.</param>
         private void InitializeVariables(double[] objectiveVector,
             double[] constraintsVector,
             double[,] constraintsMatrix)

@@ -5,17 +5,57 @@
     using System.Linq;
     using System.Text;
 
+    /// <summary>
+    /// Permite resolver o problema do transporte.
+    /// </summary>
     public class TransportationProblemDouble
     {
+        /// <summary>
+        /// A quantidade da oferta.
+        /// </summary>
         private int supplyNumber;
+
+        /// <summary>
+        /// A quantidade da procura.
+        /// </summary>
         private int demandNumber;
+
+        /// <summary>
+        /// O vector com os valores das ofertas.
+        /// </summary>
         private int[] supply;
+
+        /// <summary>
+        /// O vector com os valores das procuras.
+        /// </summary>
         private int[] demand;
+
+        /// <summary>
+        /// A matriz com o custo do transporte.
+        /// </summary>
         double[,] transportationCost;
+
+        /// <summary>
+        /// A matriz resultado.
+        /// </summary>
         private int[,] resultMatrix;
+
+        /// <summary>
+        /// O vector auxiliar u.
+        /// </summary>
         private double[] u;
+
+        /// <summary>
+        /// O vector auxiliar v.
+        /// </summary>
         private double[] v;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="TransportationProblemDouble"/>.
+        /// </summary>
+        /// <param name="supply">Os valores da oferta.</param>
+        /// <param name="demand">Os valores da procura.</param>
+        /// <param name="transportationCost">O custo do transporte.</param>
         public TransportationProblemDouble(int[] supply, int[] demand, double[,] transportationCost)
         {
             this.CheckSupplyAndDemand(supply, demand);
@@ -27,6 +67,12 @@
             this.InitVariables();
         }
 
+        /// <summary>
+        /// Obtém o valor da função objectivo.
+        /// </summary>
+        /// <value>
+        /// O valor.
+        /// </value>
         public double ObjectiveFunctionValue
         {
             get
@@ -47,6 +93,12 @@
             }
         }
 
+        /// <summary>
+        /// Obtém os resultados.
+        /// </summary>
+        /// <value>
+        /// Os resultados.
+        /// </value>
         public int[,] Results
         {
             get
@@ -67,6 +119,9 @@
             }
         }
 
+        /// <summary>
+        /// Executa o algoritmo.
+        /// </summary>
         public void Run()
         {
             this.ApplyRussels();
@@ -77,6 +132,9 @@
             }
         }
 
+        /// <summary>
+        /// Inicializa as variáveis.
+        /// </summary>
         private void InitVariables()
         {
             this.resultMatrix = new int[this.supplyNumber, this.demandNumber];
@@ -92,6 +150,9 @@
             this.v = new double[this.demandNumber];
         }
 
+        /// <summary>
+        /// Aplica a inicialização do tipo de norte-oeste.
+        /// </summary>
         private void ApplyNorthWest()
         {
             int i = 0;
@@ -115,6 +176,9 @@
             }
         }
 
+        /// <summary>
+        /// Aplica a inicialização de Vogels.
+        /// </summary>
         private void ApplyVorgels()
         {
             bool[] isRowEliminated = new bool[supplyNumber];
@@ -388,6 +452,9 @@
             }
         }
 
+        /// <summary>
+        /// Aplica a incialização de Russels.
+        /// </summary>
         private void ApplyRussels()
         {
             TransportationMaxDoubleNumberField[] largestRowsCosts = new TransportationMaxDoubleNumberField[supplyNumber];
@@ -545,6 +612,9 @@
             }  //While
         }
 
+        /// <summary>
+        /// Calcula valores delta.
+        /// </summary>
         private void ComputeDeltaVectors()
         {
             bool isToComputeLine = true;
@@ -607,9 +677,9 @@
         }
 
         /// <summary>
-        /// Choses the line to start delta vectors computations.
+        /// Escolhe a linha para iniciar as computações dos deltas.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>O índice da linha de início.</returns>
         private int ChooseStartLine()
         {
             int chosenLine = -1;
@@ -644,6 +714,11 @@
             return chosenLine;
         }
 
+        /// <summary>
+        /// Aplica a acção em cadeia.
+        /// </summary>
+        /// <returns>Verdadeiro caso uma alteração tenha sido processada e falso caso contrário.</returns>
+        /// <exception cref="MathematicsException">Em caso de erro interno.</exception>
         private bool ChainReaction()
         {
             double minimumCost = 0;
@@ -762,6 +837,10 @@
             throw new MathematicsException("An error occured while processing chain reacion.");
         }
 
+        /// <summary>
+        /// Auxilia a acçáo em cadeia.
+        /// </summary>
+        /// <param name="startNode">O nó de início.</param>
         private void InnerChainReaction(TransportationMatrixTreeNode startNode)
         {
             var currentNode = startNode.Next;
@@ -803,6 +882,14 @@
             resultMatrix[startNode.Line, startNode.Column] = minimumAllocation;
         }
 
+        /// <summary>
+        /// Verifica a integridade dos dados da oferta e da procura.
+        /// </summary>
+        /// <param name="supply">A oferta.</param>
+        /// <param name="demand">A procura.</param>
+        /// <exception cref="MathematicsException">
+        /// Se a soma da oferta não coincidir com a soma da procura.
+        /// </exception>
         private void CheckSupplyAndDemand(int[] supply, int[] demand)
         {
             int supplySum = 0;

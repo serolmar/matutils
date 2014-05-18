@@ -37,6 +37,7 @@
         /// </summary>
         /// <param name="modularFieldFactory">O objecto responsável pelas operações modulares.</param>
         /// <param name="integerDomain">O objecto responsável pelas operações sobre números inteiros.</param>
+        /// <exception cref="ArgumentNullException">Se pelo menos um dos argumentos for nulo.</exception>
         public PollardRhoAlgorithm(
             IModularFieldFactory<NumberType> modularFieldFactory,
             IIntegerNumber<NumberType> integerNumber)
@@ -58,6 +59,14 @@
             }
         }
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="PollardRhoAlgorithm{NumberType}"/>.
+        /// </summary>
+        /// <param name="testPolynomials">Uma lista de polinómios de teste.</param>
+        /// <param name="modularFieldFactory">
+        /// A fábrica responsável por objectos capazes de realizarem operações modulares.
+        /// </param>
+        /// <param name="integerNumber">O objecto respons+avel pelas operações sobre os números inteiros.</param>
         public PollardRhoAlgorithm(
             List<UnivariatePolynomialNormalForm<NumberType>> testPolynomials,
             IModularFieldFactory<NumberType> modularFieldFactory,
@@ -77,6 +86,7 @@
         /// <summary>
         /// Obtém e atribui o valor inicial para o algoritmo.
         /// </summary>
+        /// <value>O valor.</value>
         public NumberType StartValue
         {
             get
@@ -99,6 +109,7 @@
         /// </remarks>
         /// <param name="number">O número especificado.</param>
         /// <returns>A decomposição do produto.</returns>
+        /// <exception cref="MathematicsException">Se o número for zero.</exception>
         public Tuple<NumberType, NumberType> Run(NumberType number)
         {
             var innerNumber = this.integerNumber.GetNorm(number);
@@ -167,6 +178,8 @@
         /// máximo divisor comum.
         /// </param>
         /// <returns>A decomposição do número em factores.</returns>
+        /// <exception cref="ArgumentException">Se o número de blocos não for positivo.</exception>
+        /// <exception cref="MathematicsException">Se o número proporcionado for zero.</exception>
         public Tuple<NumberType, NumberType> Run(NumberType number, NumberType block)
         {
             var innerNumber = this.integerNumber.GetNorm(number);

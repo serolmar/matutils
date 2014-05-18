@@ -15,8 +15,21 @@
         /// </summary>
         private IIntegerNumber<NumberType> integerNumber;
 
+        /// <summary>
+        /// O algoritmo responsável pela obtenção da parte inteira da raiz quadrada de um número.
+        /// </summary>
         IAlgorithm<NumberType, NumberType> integerSquareRootAlgorithm;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="NaiveIntegerFactorizationAlgorithm{NumberType}"/>.
+        /// </summary>
+        /// <param name="integerSquareRootAlgorithm">
+        /// O algoritmo responsável pela determinação da parte inteira de uma raiz quadrada de um número.
+        /// </param>
+        /// <param name="integerNumber">O objecto responsável pelas operações sobre os números inteiros.</param>
+        /// <exception cref="System.ArgumentNullException">
+        /// Se pelo menos um dos argumentos for nulo.
+        /// </exception>
         public NaiveIntegerFactorizationAlgorithm(
             IAlgorithm<NumberType, NumberType> integerSquareRootAlgorithm, 
             IIntegerNumber<NumberType> integerNumber)
@@ -41,6 +54,8 @@
         /// </summary>
         /// <param name="data">O número a ser factorizado.</param>
         /// <returns>Os factores primos afectos do respectivo grau.</returns>
+        /// <exception cref="ArgumentNullException">Se o número for nulo.</exception>
+        /// <exception cref="ArgumentException">Se o número for zero.</exception>
         public Dictionary<NumberType, int> Run(NumberType data)
         {
             if (data == null)

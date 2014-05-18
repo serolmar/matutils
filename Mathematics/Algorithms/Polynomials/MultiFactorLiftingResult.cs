@@ -25,6 +25,12 @@
         /// </summary>
         private CoeffType liftingPrimePower;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="MultiFactorLiftingResult{CoeffType}"/>.
+        /// </summary>
+        /// <param name="polynom">O polinómio.</param>
+        /// <param name="factors">O conjunto de factores.</param>
+        /// <param name="liftingPrimePower">O primo módulo o qual os factores foram elevados.</param>
         internal MultiFactorLiftingResult(
             UnivariatePolynomialNormalForm<CoeffType> polynom,
             IList<UnivariatePolynomialNormalForm<CoeffType>> factors,
@@ -38,6 +44,7 @@
         /// <summary>
         /// Obtém o polinómio.
         /// </summary>
+        /// <value>O polinómio.</value>
         public UnivariatePolynomialNormalForm<CoeffType> Polynom
         {
             get
@@ -49,6 +56,7 @@
         /// <summary>
         /// Obtém o conjunto de factores sendo todos mónicos com excepção de, possivelmente, o primeiro.
         /// </summary>
+        /// <value>O conjunto de factores.</value>
         public IList<UnivariatePolynomialNormalForm<CoeffType>> Factors
         {
             get
@@ -60,6 +68,7 @@
         /// <summary>
         /// Obtém o primo módulo o qual os factores foram elevados.
         /// </summary>
+        /// <value>O primo.</value>
         public CoeffType LiftingPrimePower
         {
             get

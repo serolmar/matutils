@@ -25,6 +25,16 @@
         /// </summary>
         private IAlgorithm<IMatrix<CoeffType>, IMatrix<CoeffType>, LinearSystemSolution<CoeffType>> linearSystemSolver;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="FiniteFieldPolFactorizationAlgorithm{CoeffType}"/>.
+        /// </summary>
+        /// <param name="linearSystemSolver">
+        /// O objecto responsável pela resolução de um sistema de equações lineares.
+        /// </param>
+        /// <param name="integerNumber">O ojecto responsável pelas operações sobre os números inteiros.</param>
+        /// <exception cref="System.ArgumentNullException">
+        /// Se algum dos argumentos for nulo.
+        /// </exception>
         public FiniteFieldPolFactorizationAlgorithm(
             IAlgorithm<IMatrix<CoeffType>, IMatrix<CoeffType>, LinearSystemSolution<CoeffType>> linearSystemSolver,
             IIntegerNumber<CoeffType> integerNumber)

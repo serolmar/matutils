@@ -31,6 +31,12 @@
         /// </summary>
         private List<UnivariatePolynomialNormalForm<CoeffType>> nonIntegerFactors;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="SearchFactorizationResult{CoeffType}"/>.
+        /// </summary>
+        /// <param name="mainPolynomial">O polinómio principal.</param>
+        /// <param name="integerFactors">O conjunto de subfactores com coeficientes inteiros.</param>
+        /// <param name="nonIntegerFactors">O conjunto de factores com coeficientes não inteiros.</param>
         internal SearchFactorizationResult(
             UnivariatePolynomialNormalForm<CoeffType> mainPolynomial,
             List<UnivariatePolynomialNormalForm<CoeffType>> integerFactors,
@@ -44,6 +50,7 @@
         /// <summary>
         /// O polinómio do qual se procurar uma factorização.
         /// </summary>
+        /// <value>O polinómio.</value>
         public UnivariatePolynomialNormalForm<CoeffType> MainPolynomial
         {
             get
@@ -55,6 +62,7 @@
         /// <summary>
         /// O conjunto de subfactores inteiros do factor para o qual se conhece a respectiva factorização.
         /// </summary>
+        /// <value>Os factores com coeficientes inteiros.</value>
         public IList<UnivariatePolynomialNormalForm<CoeffType>> IntegerFactors
         {
             get
@@ -66,6 +74,7 @@
         /// <summary>
         /// O conjunto de subfactores modulares do factor que não foi decomposto.
         /// </summary>
+        /// <value>O conjunto de factores com coeficientes não inteiros.</value>
         public IList<UnivariatePolynomialNormalForm<CoeffType>> NonIntegerFactors
         {
             get

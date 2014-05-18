@@ -33,6 +33,12 @@
         {
         }
 
+        /// <summary>
+        /// Instancia um objecto do tipo <see cref="SquareRoot{ObjectType}"/>.
+        /// </summary>
+        /// <param name="integerPart">A parte inteira da raiz qaudrada.</param>
+        /// <param name="rootNumberFactorization">A facotorização do número inteiro.</param>
+        /// <param name="multipliable">O objecto responsável pela multiplicação dos números.</param>
         public SquareRoot(
             ObjectType integerPart,
             Dictionary<ObjectType, int> rootNumberFactorization,
@@ -42,6 +48,14 @@
             this.ComputeRootNumber(multipliable);
         }
 
+        /// <summary>
+        /// Instancia um objecto do tipo <see cref="SquareRoot{ObjectType}"/>.
+        /// </summary>
+        /// <param name="integerPart">A parte inteira da raiz qaudrada.</param>
+        /// <param name="rootNumber">O número na raiz.</param>
+        /// <param name="factorizationAlg">O algoritmo responsável pela factorização.</param>
+        /// <param name="multipliable">O objecto responsável pela multiplicação dos números.</param>
+        /// <exception cref="System.ArgumentNullException">Se o algorimo da factorização for nulo.</exception>
         public SquareRoot(
             ObjectType integerPart,
             ObjectType rootNumber,
@@ -60,6 +74,15 @@
             }
         }
 
+        /// <summary>
+        /// Instancia um objecto do tipo <see cref="SquareRoot{ObjectType}"/>.
+        /// </summary>
+        /// <param name="integerPart">A parte inteira da raiz qaudrada.</param>
+        /// <param name="rootNumber">The root number.</param>
+        /// <param name="rootNumber">O número na raiz.</param>
+        /// <param name="factorizationAlg">O algoritmo responsável pela factorização.</param>
+        /// <param name="multipliable">O objecto responsável pela multiplicação dos números.</param>
+        /// <param name="comparer">O comparador de números.</param>
         public SquareRoot(
             ObjectType integerPart,
             ObjectType rootNumber,
@@ -79,6 +102,7 @@
         /// <summary>
         /// Obtém o valor correspondente à parte inteira.
         /// </summary>
+        /// <value>A parte inteira.</value>
         public ObjectType IntegerPart
         {
             get
@@ -90,6 +114,7 @@
         /// <summary>
         /// Obtém o valor que se encontra no interior da raiz.
         /// </summary>
+        /// <value>O valor da raiz.</value>
         public ObjectType RootNumber
         {
             get
@@ -104,40 +129,52 @@
         /// <param name="right">A outra raiz.</param>
         /// <param name="multipliable">O objecto responsável pelas multiplicações.</param>
         /// <returns>O resultado do produto.</returns>
+        /// <exception cref="ArgumentNullException">Se algum dos argumentos for nulo.</exception>
         public SquareRoot<ObjectType> Multiply(
             SquareRoot<ObjectType> right,
             IMultiplication<ObjectType> multipliable)
         {
-            var result = new SquareRoot<ObjectType>();
-            result.integerPart = multipliable.Multiply(this.integerPart, right.integerPart);
-            result.rootNumberFactorization = new Dictionary<ObjectType, int>(
-                this.rootNumberFactorization.Comparer);
-            var temporaryFactorization = new Dictionary<ObjectType, int>(this.rootNumberFactorization.Comparer);
-            foreach (var kvp in right.rootNumberFactorization)
+            if (right == null)
             {
-                temporaryFactorization.Add(kvp.Key, kvp.Value);
+                throw new ArgumentNullException("right");
             }
-
-            foreach (var kvp in this.rootNumberFactorization)
+            else if (multipliable == null)
             {
-                if (temporaryFactorization.ContainsKey(kvp.Key))
+                throw new ArgumentNullException("multipliable");
+            }
+            else
+            {
+                var result = new SquareRoot<ObjectType>();
+                result.integerPart = multipliable.Multiply(this.integerPart, right.integerPart);
+                result.rootNumberFactorization = new Dictionary<ObjectType, int>(
+                    this.rootNumberFactorization.Comparer);
+                var temporaryFactorization = new Dictionary<ObjectType, int>(this.rootNumberFactorization.Comparer);
+                foreach (var kvp in right.rootNumberFactorization)
                 {
-                    result.integerPart = multipliable.Multiply(result.integerPart, kvp.Key);
-                    temporaryFactorization.Remove(kvp.Key);
+                    temporaryFactorization.Add(kvp.Key, kvp.Value);
                 }
-                else
+
+                foreach (var kvp in this.rootNumberFactorization)
                 {
-                    result.rootNumberFactorization.Add(kvp.Key, 1);
+                    if (temporaryFactorization.ContainsKey(kvp.Key))
+                    {
+                        result.integerPart = multipliable.Multiply(result.integerPart, kvp.Key);
+                        temporaryFactorization.Remove(kvp.Key);
+                    }
+                    else
+                    {
+                        result.rootNumberFactorization.Add(kvp.Key, 1);
+                    }
                 }
-            }
 
-            foreach (var kvp in temporaryFactorization)
-            {
-                result.rootNumberFactorization.Add(kvp.Key, kvp.Value);
-            }
+                foreach (var kvp in temporaryFactorization)
+                {
+                    result.rootNumberFactorization.Add(kvp.Key, kvp.Value);
+                }
 
-            this.ComputeRootNumber(multipliable);
-            return result;
+                this.ComputeRootNumber(multipliable);
+                return result;
+            }
         }
 
         /// <summary>
@@ -145,6 +182,7 @@
         /// </summary>
         /// <param name="integerPart">A parte inteira da raiz.</param>
         /// <param name="rootNumberFactorization">A factorização do radicando.</param>
+        /// <exception cref="ArgumentNullException">Se algum dos argumentos for nulo.</exception>
         private void SetupParameters(
             ObjectType integerPart,
             Dictionary<ObjectType, int> rootNumberFactorization,
@@ -185,10 +223,13 @@
         /// <summary>
         /// Establece os parâmetros internos com base nos argumentos externos.
         /// </summary>
-        /// <param name="integerPart">A parte inteira da raiz.</param>
-        /// <param name="rootNumber">O valor do radicando na fase anterior ao processamento.</param>
-        /// <param name="factorizationAlg">O algoritmo responsável pela factorização do radicando.</param>
-        /// <param name="multipliable"></param>
+        /// <param name="integerPart">A parte inteira da raiz qaudrada.</param>
+        /// <param name="rootNumber">The root number.</param>
+        /// <param name="rootNumber">O número na raiz.</param>
+        /// <param name="factorizationAlg">O algoritmo responsável pela factorização.</param>
+        /// <param name="multipliable">O objecto responsável pela multiplicação dos números.</param>
+        /// <param name="comparer">O comparador de números.</param>
+        /// <exception cref="ArgumentNullException">Se algum dos argumentos for nulo.</exception>
         private void SetupParameters(
             ObjectType integerPart,
             ObjectType rootNumber,

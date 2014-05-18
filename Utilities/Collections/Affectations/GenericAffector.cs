@@ -5,23 +5,30 @@ using System.Text;
 
 namespace Utilities.Collections
 {
+    /// <summary>
+    /// Implementa um afectador genérico que permite resolver vários tipos de problemas.
+    /// </summary>
     public abstract class GenericAffector : FastAfector
     {
+        /// <summary>
+        /// O número de afectações possíveis por índice.
+        /// </summary>
         private int[] numberOfPossibleAffectationsByIndice = null;
 
         /// <summary>
-        /// Instantiates a new instance of the <see cref="GenericAffector"/> class.
+        /// Instancia um novo objecto do tipo <see cref="GenericAffector"/>.
         /// </summary>
-        /// <param name="count">The number of elements to permute or combine.</param>
+        /// <param name="count">O número de elementos a permutar ou combinar.</param>
         public GenericAffector(int count) : this(count, count)
         {
         }
 
         /// <summary>
-        /// Instantiates a new instance of the <see cref="GenericAffector"/> class.
+        /// Instancia um novo objecto do tipo <see cref="GenericAffector"/>.
         /// </summary>
-        /// <param name="count">The number of elements to permute or combine.</param>
-        /// <param name="numberOfPlaces">The number of elements to be combine. For exemple, to permute p elements from a set of n.</param>
+        /// <param name="count">O número de elementos a permutar ou combinar.</param>
+        /// <param name="numberOfPlaces">O número de lugares para as permutações ou combinações.</param>
+        /// <exception cref="ArgumentException">Se os argumentos não se encontrarem dentro dos limites.</exception>
         public GenericAffector(int count, int numberOfPlaces)
         {
             if (count <= 0)
@@ -39,17 +46,23 @@ namespace Utilities.Collections
         }
 
         /// <summary>
-        /// Instantiates a new instance of the <see cref="GenericAffector"/> class.
+        /// Instancia um novo objecto do tipo <see cref="GenericAffector"/>.
         /// </summary>
-        /// <param name="count">The number of elements to permute or combine.</param>
-        /// <param name="numberOfPlaces">The number of elements to be combined. For exemple, to permute p elements from a set of n.</param>
-        /// <param name="possibleAffectionsByIndice">An array containing how many times a specific element can be repeated during the affectation.</param>
+        /// <param name="count">O número de elementos a permutar ou combinar.</param>
+        /// <param name="numberOfPlaces">O número de lugares para as permutações ou combinações.</param>
+        /// <param name="possibleAffectionsByIndice">
+        /// Um vector que contém o número de vezes que um índice pode ser afectado.
+        /// </param>
+        /// <exception cref="ArgumentException">
+        /// Se os argumentos não coincidirem em termos de número de afectações.
+        /// </exception>
         public GenericAffector(int count, int numberOfPlaces, ICollection<int> possibleAffectionsByIndice)
             : this(count, numberOfPlaces)
         {
             if (possibleAffectionsByIndice.Count != count)
             {
-                throw new ArgumentException("Parameter possibleAffectionsByIndice must have a number of elements given by count.");
+                throw new ArgumentException(
+                    "Parameter possibleAffectionsByIndice must have a number of elements given by count.");
             }
 
             this.numberOfPossibleAffectationsByIndice = new int[possibleAffectionsByIndice.Count];
@@ -58,21 +71,33 @@ namespace Utilities.Collections
             {
                 if (item < 0)
                 {
-                    throw new ArgumentException("Every element in parameter possibleAffectationsByIndices must be greater than zero.");
+                    throw new ArgumentException(
+                        "Every element in parameter possibleAffectationsByIndices must be greater than zero.");
                 }
             }
 
             possibleAffectionsByIndice.CopyTo(this.numberOfPossibleAffectationsByIndice, 0);
         }
 
-        //public override IEnumerator<int[]> GetEnumerator();
-
+        /// <summary>
+        /// Implementa um enumerador para um afectador genérico.
+        /// </summary>
         public abstract class GenericAffectorEnumerator : FastAffectorEnumerator
         {
+            /// <summary>
+            /// O afectador.
+            /// </summary>
             private GenericAffector currentAffector;
 
+            /// <summary>
+            /// Os índices afectados.
+            /// </summary>
             protected int[] affectedIndices;
 
+            /// <summary>
+            /// Instancia um novo objecto do tipo <see cref="GenericAffectorEnumerator"/>.
+            /// </summary>
+            /// <param name="affector">O afectador.</param>
             public GenericAffectorEnumerator(GenericAffector affector)
                 : base(affector)
             {
@@ -82,6 +107,10 @@ namespace Utilities.Collections
                 Array.Clear(this.affectedIndices, 0, this.thisFastAffector.NumberOfPlaces);
             }
 
+            /// <summary>
+            /// Verifica se o elemento corrente constitui ou não uma repetição.
+            /// </summary>
+            /// <returns>Verdadeiro caso existam repetições e falso caso contrário.</returns>
             protected override bool VerifyRepetitions()
             {
                 int indexBeingAffected = this.currentAffectationIndices[this.currentPointer];
@@ -105,16 +134,26 @@ namespace Utilities.Collections
                 return true;
             }
 
+            /// <summary>
+            /// Verifica a validade da afectação actual.
+            /// </summary>
+            /// <returns>Verdadeiro caso a afectação seja vaálida e falso caso contrário.</returns>
             protected override bool CheckForCurrAffectIndicesValidity()
             {
                 return this.currentAffectationIndices[this.currentPointer] != this.thisFastAffector.Count;
             }
 
+            /// <summary>
+            /// Incrementa o contador para a verificação de repetições.
+            /// </summary>
             protected override void IncrementAffectations()
             {
                 ++this.affectedIndices[this.currentAffectationIndices[this.currentPointer]];
             }
 
+            /// <summary>
+            /// Decremente o contador para verificação de repetições.
+            /// </summary>
             protected override void DecrementAffectations()
             {
                 --this.affectedIndices[this.currentAffectationIndices[this.currentPointer]];

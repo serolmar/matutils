@@ -14,8 +14,16 @@
         int,
         MultiFactorLiftingResult<CoeffType>>
     {
+        /// <summary>
+        /// O algoritmo responsável pela elevação linear.
+        /// </summary>
         private ILinearLiftAlgorithm<CoeffType> linearLiftAlg;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="MultiFactorLiftAlgorithm{CoeffType}"/>.
+        /// </summary>
+        /// <param name="linearLiftAlg">O algoritmo responsável pela elevação linear.</param>
+        /// <exception cref="System.ArgumentNullException">Se o argumento for nulo.</exception>
         public MultiFactorLiftAlgorithm(ILinearLiftAlgorithm<CoeffType> linearLiftAlg)
         {
             if (linearLiftAlg == null)

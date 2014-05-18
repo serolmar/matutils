@@ -27,6 +27,7 @@
         /// <param name="second">O segundo polinómio.</param>
         /// <param name="domain">O domínio responsável pelas operações sobre os coeficientes.</param>
         /// <returns>O polinómio que constitui o último sub-resultante.</returns>
+        /// <exception cref="ArgumentNullException">Se algum dos argumentos for nulo.</exception>
         public UnivariatePolynomialNormalForm<CoeffType> Run(
             UnivariatePolynomialNormalForm<CoeffType> first,
             UnivariatePolynomialNormalForm<CoeffType> second,

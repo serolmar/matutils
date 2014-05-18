@@ -21,6 +21,14 @@
         /// </summary>
         private ObjectType value;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="Congruence{ObjectType}"/>.
+        /// </summary>
+        /// <param name="modulus">O módulo da congruência.</param>
+        /// <param name="congruence">O valor da congruência.</param>
+        /// <exception cref="System.ArgumentNullException">
+        /// Se pelo menos um dos argumentos for nulo.
+        /// </exception>
         public Congruence(ObjectType modulus, ObjectType congruence)
         {
             if (modulus == null)
@@ -38,6 +46,13 @@
             }
         }
 
+        /// <summary>
+        /// Obtém ou atribui o valor do módulo.
+        /// </summary>
+        /// <value>
+        /// O valor do módulo.
+        /// </value>
+        /// <exception cref="MathematicsException">Se o valor do módulo for nulo.</exception>
         public ObjectType Modulus
         {
             get
@@ -57,6 +72,13 @@
             }
         }
 
+        /// <summary>
+        /// Obtém ou atribui o valor da congruência.
+        /// </summary>
+        /// <value>
+        /// O valor da congruência.
+        /// </value>
+        /// <exception cref="MathematicsException">Se o valor da congruência for nulo.</exception>
         public ObjectType Value
         {
             get
@@ -81,6 +103,7 @@
         /// </summary>
         /// <param name="domain">O domínio.</param>
         /// <returns>A congruência reduzida.</returns>
+        /// <exception cref="ArgumentNullException">Se o domínio for nulo.</exception>
         public Congruence<ObjectType> GetReduced(IEuclidenDomain<ObjectType> domain)
         {
             if (domain == null)
@@ -94,6 +117,10 @@
             }
         }
 
+        /// <summary>
+        /// Constrói uma representação textual da congruência.
+        /// </summary>
+        /// <returns>A representação textual da congruência.</returns>
         public override string ToString()
         {
             return string.Format("{0} mod {1}", this.value, this.modulus);

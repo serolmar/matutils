@@ -27,6 +27,19 @@
         /// </summary>
         private IModularFieldFactory<T> modularFieldFactory;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="LinearLiftAlgorithm{T}"/>.
+        /// </summary>
+        /// <param name="modularFieldFactory">
+        /// A fábrica responsável pela criação de objectos capazes de realizar operações modulares.
+        /// </param>
+        /// <param name="polynomialDomainFactory">
+        /// A fábrica responsável pela criação de domínios capazes de realizar operações sobre polinómios.
+        /// </param>
+        /// <param name="integerNumber">A classe responsável pelas operações sobre os inteiros.</param>
+        /// <exception cref="System.ArgumentNullException">
+        /// Se algum dos argumentos for nulo.
+        /// </exception>
         public LinearLiftAlgorithm(
             IModularFieldFactory<T> modularFieldFactory,
             IUnivarPolDomainFactory<T> polynomialDomainFactory,
@@ -55,6 +68,7 @@
         /// <summary>
         /// Obtém a classe responsável pelas operações sobre os números inteiros.
         /// </summary>
+        /// <value>O objecto responsável pelas operações sobre os números inteiros.</value>
         public IIntegerNumber<T> IntegerNumber
         {
             get
@@ -66,6 +80,9 @@
         /// <summary>
         /// Obtém a classe responsável pela obtenção de instâncias de um domínio polinomial.
         /// </summary>
+        /// <value>
+        /// A fábrica responsável pela criação de objectos capazes de realizar operações sobre polinómios.
+        /// </value>
         public IUnivarPolDomainFactory<T> PolynomialDomainFactory
         {
             get
@@ -77,6 +94,9 @@
         /// <summary>
         /// Obtém a classe responsável pela obtenção de instâncias de um corpo modular.
         /// </summary>
+        /// <value>
+        /// A fábrica responsável pela criação de objectos capazes de realizar operações modulares.
+        /// </value>
         public IModularFieldFactory<T> ModularFieldFactory
         {
             get
@@ -95,6 +115,9 @@
         /// <param name="status">Contém os dados de entrada.</param>
         /// <param name="modulusLimit">O limite superior exculsivo para o módulo m'.</param>
         /// <returns>Verdadeiro caso seja executada alguma iteração e falso caso contrário.</returns>
+        /// <exception cref="ArgumentNullException">
+        /// Se os dados de entrada forem passados com um apontador nulo.
+        /// </exception>
         public bool Run(
             LinearLiftingStatus<T> status,
             int iterationsNumber)
@@ -190,17 +213,14 @@
         /// <param name="polynomialDomain">O domínio polinomial.</param>
         /// <param name="modularField">O corpo modular.</param>
         /// <returns>Verdadeiro caso se verifique alguma inicialização e falso caso contrário.</returns>
+        /// <exception cref="ArgumentNullException">Se o estado for nulo.</exception>
         private bool Initialize(
             LinearLiftingStatus<T> status,
             IEuclidenDomain<UnivariatePolynomialNormalForm<T>> polynomialDomain,
             IModularField<T> modularField)
         {
             var result = false;
-            if (status == null)
-            {
-                throw new ArgumentNullException("status");
-            }
-            else if (status.NotInitialized)
+            if (status.NotInitialized)
             {
                 var leadingCoeff = status.W1Factor.GetLeadingCoefficient(modularField);
                 if (modularField.IsMultiplicativeUnity(leadingCoeff))

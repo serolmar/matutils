@@ -23,6 +23,16 @@
         /// </summary>
         private IModularFieldFactory<CoeffType> modularFieldFactory;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="SearchFactorizationAlgorithm{CoeffType}"/>.
+        /// </summary>
+        /// <param name="modularFieldFactory">
+        /// A fábrica responsável pela criação de objectos capazes de realizar operações modulares.
+        /// </param>
+        /// <param name="integerNumber">O objecto responsável pelas operações sobre números inteiros.</param>
+        /// <exception cref="System.ArgumentNullException">
+        /// Se algum dos argumentos for nulo.
+        /// </exception>
         public SearchFactorizationAlgorithm(
             IModularFieldFactory<CoeffType> modularFieldFactory,
             IIntegerNumber<CoeffType> integerNumber)
@@ -51,6 +61,8 @@
         /// </param>
         /// <param name="combinationsNumber">O número máximo de combinações a testar.</param>
         /// <returns>A lista de factores irredutíveis.</returns>
+        /// <exception cref="ArgumentNullException">Se a factorização ou o valor de teste forem nulos.</exception>
+        /// <exception cref="ArgumentException">Se não forem providenciadas quaisquer combinações.</exception>
         public SearchFactorizationResult<CoeffType> Run(
             MultiFactorLiftingResult<CoeffType> liftedFactorization,
             CoeffType testValue,
@@ -59,6 +71,10 @@
             if (liftedFactorization == null)
             {
                 throw new ArgumentNullException("liftedFactorization");
+            }
+            else if (testValue == null)
+            {
+                throw new ArgumentNullException("testValue");
             }
             else if (combinationsNumber <= 0)
             {

@@ -11,8 +11,18 @@
     /// <typeparam name="NumberType">O tipo de número inteiro.</typeparam>
     public class GenericIntegerNthRootAlgorithm<NumberType> : IAlgorithm<NumberType, NumberType, NumberType>
     {
+        /// <summary>
+        /// O objecto responsável pelas operações sobre os inteiros.
+        /// </summary>
         IIntegerNumber<NumberType> integerNumber;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="GenericIntegerNthRootAlgorithm{NumberType}"/>.
+        /// </summary>
+        /// <param name="integerNumber">O objecto responsável pelas operações sobre os inteiros.</param>
+        /// <exception cref="System.ArgumentNullException">
+        /// Se o objecto responsável pelas operações sobre os inteiros for nulo.
+        /// </exception>
         public GenericIntegerNthRootAlgorithm(IIntegerNumber<NumberType> integerNumber)
         {
             if (integerNumber == null)
@@ -31,6 +41,10 @@
         /// <param name="index">O índice de raiz.</param>
         /// <param name="number">O número.</param>
         /// <returns>A raiz de ordem especificada de um número.</returns>
+        /// <exception cref="ArgumentException">O o índice da raiz não for positivo.</exception>
+        /// <exception cref="MathematicsException">
+        /// Se o índice da raiz for par e o número for negativo.
+        /// </exception>
         public NumberType Run(NumberType index, NumberType number)
         {
             if (this.integerNumber.Compare(index, this.integerNumber.AdditiveUnity) <= 0)
@@ -52,7 +66,8 @@
                 if (this.integerNumber.IsAdditiveUnity(rem) &&
                     this.integerNumber.Compare(number, this.integerNumber.AdditiveUnity) < 0)
                 {
-                    throw new MathematicsException("When root index is even then the number must be non-negative.");
+                    throw new MathematicsException(
+                        "When root index is even then the number must be non-negative.");
                 }
                 else
                 {

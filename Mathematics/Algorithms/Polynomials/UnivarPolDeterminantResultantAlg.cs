@@ -14,10 +14,21 @@
         UnivariatePolynomialNormalForm<CoeffType>,
         CoeffType>
     {
+        /// <summary>
+        /// O anel reponsável pelas operações sobre os coeficientes.
+        /// </summary>
         private IRing<CoeffType> ring;
 
+        /// <summary>
+        /// O algoritmo responsável pelo cáclculo de determinantes.
+        /// </summary>
         IAlgorithm<ISquareMatrix<CoeffType>, UnivariatePolynomialNormalForm<CoeffType>> determinantAlg;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="UnivarPolDeterminantResultantAlg{CoeffType}"/>.
+        /// </summary>
+        /// <param name="ring">O anel responsável pelas operações sobre os coeficientes.</param>
+        /// <exception cref="System.ArgumentNullException">Se o anel for nulo.</exception>
         public UnivarPolDeterminantResultantAlg(IRing<CoeffType> ring)
         {
             if (ring == null)
@@ -39,6 +50,7 @@
         /// <param name="first">O primeiro polinómio.</param>
         /// <param name="second">O segundo polinómio.</param>
         /// <returns>O valor do resultante.</returns>
+        /// <exception cref="ArgumentNullException">Se algum dos argumentos for nulo.</exception>
         public CoeffType Run(
             UnivariatePolynomialNormalForm<CoeffType> first,
             UnivariatePolynomialNormalForm<CoeffType> second)

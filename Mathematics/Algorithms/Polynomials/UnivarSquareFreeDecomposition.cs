@@ -15,13 +15,20 @@
         IField<CoeffType>,
         SquareFreeFactorizationResult<CoeffType, CoeffType>>
     {
+        /// <summary>
+        /// Aplica o algoritmo de factorização livre de quadrados a um polinómio.
+        /// </summary>
+        /// <param name="data">O polinómio.</param>
+        /// <param name="field">O corpos responsável pelas operações sobre os coeficientes.</param>
+        /// <returns>O resultado da factorização livre de quadrados.</returns>
+        /// <exception cref="System.ArgumentNullException">Caso algum dos argumentos seja nulo.</exception>
         public SquareFreeFactorizationResult<CoeffType, CoeffType> Run(
             UnivariatePolynomialNormalForm<CoeffType> data,
             IField<CoeffType> field)
         {
             if (field == null)
             {
-                throw new ArgumentException("field");
+                throw new ArgumentNullException("field");
             }
             else if (data == null)
             {
@@ -116,6 +123,14 @@
             }
         }
 
+        /// <summary>
+        /// Calcula o máximo divisor comum entre dois polinómios.
+        /// </summary>
+        /// <param name="first">O primeiro polinómio.</param>
+        /// <param name="second">O segundo polinómio.</param>
+        /// <param name="polynomDomain">O domínio responsável pelas operações sobre os polinómios.</param>
+        /// <param name="field">O corpo responsável pelas operações sobre os coeficientes.</param>
+        /// <returns>O máximo divisor comum.</returns>
         private UnivariatePolynomialNormalForm<CoeffType> GreatCommonDivisor(
             UnivariatePolynomialNormalForm<CoeffType> first,
             UnivariatePolynomialNormalForm<CoeffType> second,

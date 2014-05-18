@@ -15,6 +15,7 @@
         /// </summary>
         /// <param name="number">O número.</param>
         /// <returns>O resultado da sua raiz inteira.</returns>
+        /// <exception cref="ArgumentException">Se o número for negativo.</exception>
         public int Run(int number)
         {
             if (number < 0)

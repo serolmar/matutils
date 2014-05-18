@@ -42,24 +42,41 @@
         /// </summary>
         private BigInteger number;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="BigDecimalNumber"/>.
+        /// </summary>
+        /// <param name="number">O número.</param>
         public BigDecimalNumber(int number)
         {
             this.exponent = 0;
             this.number = number;
         }
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="BigDecimalNumber"/>.
+        /// </summary>
+        /// <param name="number">O número.</param>
         public BigDecimalNumber(long number)
         {
             this.exponent = 0;
             this.number = number;
         }
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="BigDecimalNumber"/>.
+        /// </summary>
+        /// <param name="number">O número.</param>
         public BigDecimalNumber(BigInteger number)
         {
             this.exponent = 0;
             this.number = number;
         }
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="BigDecimalNumber"/>.
+        /// </summary>
+        /// <param name="number">O número.</param>
+        /// <param name="mantissaBitsPrecision">A precisão do número em bits.</param>
         public BigDecimalNumber(double number, int mantissaBitsPrecision = 64)
         {
             var innerNumber = number;
@@ -106,6 +123,11 @@
             this.exponent = -currentExponent;
         }
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="BigDecimalNumber"/>.
+        /// </summary>
+        /// <param name="number">O número.</param>
+        /// <param name="mantissaBitsPrecision">A precisão do número em bits.</param>
         public BigDecimalNumber(float number, int mantissaBitsPrecision = 32)
         {
             var innerNumber = number;
@@ -152,6 +174,11 @@
             this.exponent = -currentExponent;
         }
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="BigDecimalNumber"/>.
+        /// </summary>
+        /// <param name="number">O número.</param>
+        /// <param name="mantissaBitsPrecision">A precisão do número em bits.</param>
         public BigDecimalNumber(decimal number, int mantissaBitsPrecision = 128)
         {
             var innerNumber = number;
@@ -198,6 +225,11 @@
             this.exponent = -currentExponent;
         }
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="BigDecimalNumber"/>.
+        /// </summary>
+        /// <param name="number">O número.</param>
+        /// <param name="exponent">O expoente.</param>
         internal BigDecimalNumber(BigInteger number, int exponent)
         {
             this.number = number;
@@ -207,8 +239,9 @@
         #region Propriedades Públicas
 
         /// <summary>
-        /// O número zero.
+        /// Obtém o número zero.
         /// </summary>
+        /// <value>O número zero.</value>
         public static BigDecimalNumber Zero
         {
             get
@@ -218,8 +251,9 @@
         }
 
         /// <summary>
-        /// O número um.
+        /// Obtém o número um.
         /// </summary>
+        /// <value>O número um.</value>
         public static BigDecimalNumber One
         {
             get
@@ -229,8 +263,9 @@
         }
 
         /// <summary>
-        /// O número -1.
+        /// Obtém número -1.
         /// </summary>
+        /// <value>O número -1.</value>
         public static BigDecimalNumber MinusOne
         {
             get
@@ -240,8 +275,9 @@
         }
 
         /// <summary>
-        /// Permite obter o número inteiro.
+        /// Permite obter o número inteiro afecto pela potência.
         /// </summary>
+        /// <value>O número inteiro afecto pela potência.</value>
         public BigInteger Number
         {
             get
@@ -257,6 +293,7 @@
         /// <summary>
         /// Obtém a potência negativa de dois ao qual o número se encontra multiplicado.
         /// </summary>
+        /// <value>A potência.</value>
         public int Exponent
         {
             get
@@ -535,6 +572,7 @@
         /// <param name="right">O segundo número a ser dividido.</param>
         /// <param name="maxPrecision">O valor da precisão máxima para a divisão.</param>
         /// <returns>O resultdao da divisão.</returns>
+        /// <exception cref="DivideByZeroException">Se ocorrer alguma divisão por zero.</exception>
         public static BigDecimalNumber Divide(
             BigDecimalNumber left,
             BigDecimalNumber right,
@@ -646,6 +684,7 @@
         /// </summary>
         /// <param name="precision">A precisão binária que deverá ser considerada.</param>
         /// <returns>A representação actual.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">Se o valor da precisão for negativo.</exception>
         public string ToString(int precision)
         {
             if (precision <= 0)
@@ -658,6 +697,13 @@
             }
         }
 
+        /// <summary>
+        /// Determina se o objecto proporcionado é igual à instância corrente.
+        /// </summary>
+        /// <param name="obj">O objecto.</param>
+        /// <returns>
+        /// Verdadeiro caso o objecto seja igual e falso caso contrário.
+        /// </returns>
         public override bool Equals(object obj)
         {
             if (obj == null)
@@ -675,6 +721,12 @@
             }
         }
 
+        /// <summary>
+        /// Retorna um código confuso para a instância corrente.
+        /// </summary>
+        /// <returns>
+        /// O código confuso da instância corrente utilizado em alguns algoritmos.
+        /// </returns>
         public override int GetHashCode()
         {
             return this.number.GetHashCode() ^ this.exponent.GetHashCode();

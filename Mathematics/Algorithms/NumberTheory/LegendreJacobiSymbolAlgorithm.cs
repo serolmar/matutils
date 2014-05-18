@@ -5,6 +5,10 @@
     using System.Linq;
     using System.Text;
 
+    /// <summary>
+    /// Permite calcular o símbolo de Legendre e Jacobi.
+    /// </summary>
+    /// <typeparam name="NumberType">O tipo de objectos que constituem números.</typeparam>
     public class LegendreJacobiSymbolAlgorithm<NumberType> : IAlgorithm<NumberType, NumberType, NumberType>
     {
         /// <summary>
@@ -12,6 +16,13 @@
         /// </summary>
         private IIntegerNumber<NumberType> integerNumber;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="LegendreJacobiSymbolAlgorithm{NumberType}"/>.
+        /// </summary>
+        /// <param name="integerNumber">O objecto responsável pelas operações sobre os números inteiros.</param>
+        /// <exception cref="System.ArgumentNullException">
+        /// Se o objecto responsável pelas operações sobre os números inteiros for nulo.
+        /// </exception>
         public LegendreJacobiSymbolAlgorithm(IIntegerNumber<NumberType> integerNumber)
         {
             if (integerNumber == null)
@@ -30,6 +41,7 @@
         /// <param name="topSymbolValue">O valor superior do símbolo.</param>
         /// <param name="bottomSymbolValue">O valor inferior do símbolo.</param>
         /// <returns>O valor numérico do símbolo.</returns>
+        /// <exception cref="ArgumentException">Se o valor inferior do símbolo for nulo.</exception>
         public NumberType Run(NumberType topSymbolValue, NumberType bottomSymbolValue)
         {
             if (this.integerNumber.IsAdditiveUnity(bottomSymbolValue))

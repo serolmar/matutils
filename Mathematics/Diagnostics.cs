@@ -17,6 +17,7 @@
         /// <param name="value">O valor a ser analisado.</param>
         /// <param name="group">Permite configurar o número de bits que serão agrupados.</param>
         /// <returns>A representação textual.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">Se o valor do grupo for negativo.</exception>
         public static string GetBits(uint value, int group)
         {
             if (group < 0)

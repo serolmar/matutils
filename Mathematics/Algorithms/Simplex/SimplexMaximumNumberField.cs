@@ -5,6 +5,10 @@
     using System.Linq;
     using System.Text;
 
+    /// <summary>
+    /// Representa um número com parte finita e parte infinita.
+    /// </summary>
+    /// <typeparam name="CostType">O tipo de objectos que constituem o custo.</typeparam>
     public class SimplexMaximumNumberField<CostType>
     {
         /// <summary>
@@ -17,10 +21,18 @@
         /// </summary>
         private CostType bigPart;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="SimplexMaximumNumberField{CostType}"/>.
+        /// </summary>
         public SimplexMaximumNumberField()
         {
         }
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="SimplexMaximumNumberField{CostType}"/>.
+        /// </summary>
+        /// <param name="finitePart">A parte finita.</param>
+        /// <param name="bigPart">A parte infinita.</param>
         public SimplexMaximumNumberField(CostType finitePart, CostType bigPart)
         {
             this.finitePart = finitePart;
@@ -30,6 +42,7 @@
         /// <summary>
         /// Obtém e atribui a parte finita do número.
         /// </summary>
+        /// <value>A parte finita.</value>
         public CostType FinitePart
         {
             get
@@ -45,6 +58,7 @@
         /// <summary>
         /// Obtém e atribui a parte infinita do número.
         /// </summary>
+        /// <value>A parte infinita.</value>
         public CostType BigPart
         {
             get

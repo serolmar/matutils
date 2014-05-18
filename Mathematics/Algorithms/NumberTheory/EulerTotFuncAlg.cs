@@ -34,6 +34,7 @@
         /// primos.
         /// </param>
         /// <param name="integerNumber">O objecto responsável pelas operações sobre inteiros.</param>
+        /// <exception cref="ArgumentNullException">Se pelo menos um dos argumentos for nulo.</exception>
         public EulerTotFuncAlg(
             IAlgorithm<NumberType, NumberType> squareRootAlgorithm,
             IPrimeNumberIteratorFactory<NumberType> primeNumberFactory,
@@ -62,8 +63,11 @@
         /// <summary>
         /// Determina a quantidade de números primos inferiores ou iguais ao módulo do valor especificado.
         /// </summary>
+        /// <remarks>A função está obsoleta.</remarks>
         /// <param name="data">O valor a ser analisado.</param>
         /// <returns>A quantidade de números primos nestas condições.</returns>
+        /// <exception cref="ArgumentNullException">Se o valor for nulo.</exception>
+        [Obsolete("This function doesn't work as expected.", true)]
         public NumberType Run_Old(NumberType data)
         {
             // TODO: Acelerar o processo eliminando o iterador para números primos. O teste de
@@ -133,6 +137,7 @@
         /// </summary>
         /// <param name="data">O valor a ser analisado.</param>
         /// <returns>A quantidade de números primos nestas condições.</returns>
+        /// <exception cref="ArgumentNullException">Se o valor for nulo.</exception>
         public NumberType Run(NumberType data)
         {
             if (data == null)

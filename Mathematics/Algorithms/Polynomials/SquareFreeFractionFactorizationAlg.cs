@@ -24,6 +24,13 @@
         /// </summary>
         private IField<Fraction<CoeffType>> fractionField;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="SquareFreeFractionFactorizationAlg{CoeffType}"/>.
+        /// </summary>
+        /// <param name="integerNumber">O objecto responsável pelas operações sobre números inteiros.</param>
+        /// <exception cref="System.ArgumentNullException">
+        /// Se o argumento for nulo.
+        /// </exception>
         public SquareFreeFractionFactorizationAlg(
             IIntegerNumber<CoeffType> integerNumber)
         {
@@ -43,6 +50,9 @@
         /// </summary>
         /// <param name="polynomial">O polinómio de entrada.</param>
         /// <returns>A factorização livre de quadrados.</returns>
+        /// <exception cref="System.ArgumentNullException">
+        /// Se o argumento for nulo.
+        /// </exception>
         public SquareFreeFactorizationResult<Fraction<CoeffType>, CoeffType> Run(
             UnivariatePolynomialNormalForm<Fraction<CoeffType>> polynomial)
         {
@@ -230,6 +240,13 @@
             }
         }
 
+        /// <summary>
+        /// Calcula o máximo divisor comum entre dois polinómios.
+        /// </summary>
+        /// <param name="first">O primeiro polinómio.</param>
+        /// <param name="second">O segundo polinómio.</param>
+        /// <param name="polynomDomain">O domínio responsável pelas operações sobre os polinómios.</param>
+        /// <returns>O máximo divisor comum.</returns>
         private UnivariatePolynomialNormalForm<Fraction<CoeffType>> GreatCommonDivisor(
             UnivariatePolynomialNormalForm<Fraction<CoeffType>> first,
             UnivariatePolynomialNormalForm<Fraction<CoeffType>> second,

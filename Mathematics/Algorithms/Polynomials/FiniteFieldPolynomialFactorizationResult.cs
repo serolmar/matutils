@@ -24,21 +24,28 @@
         /// <summary>
         /// O polinómio a ser factorizado.
         /// </summary>
-        private UnivariatePolynomialNormalForm<CoeffType> factoredPolynomial;
+        private UnivariatePolynomialNormalForm<CoeffType> factoringPolynomial;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="FiniteFieldPolynomialFactorizationResult{CoeffType}"/>.
+        /// </summary>
+        /// <param name="indepdendentCoeff">O coeficiente principal do polinómio a factorizar.</param>
+        /// <param name="factors">O conjunto de factores.</param>
+        /// <param name="factoringPolynomial">O polinómio a ser factorizado.</param>
         public FiniteFieldPolynomialFactorizationResult(
             CoeffType indepdendentCoeff,
             List<UnivariatePolynomialNormalForm<CoeffType>> factors,
-            UnivariatePolynomialNormalForm<CoeffType> factoredPolynomial)
+            UnivariatePolynomialNormalForm<CoeffType> factoringPolynomial)
         {
             this.factors = factors;
             this.indepdendentCoeff = indepdendentCoeff;
-            this.factoredPolynomial = factoredPolynomial;
+            this.factoringPolynomial = factoringPolynomial;
         }
 
         /// <summary>
         /// Obtém o coeficiente independente - coeficiente principal do polinómio a factorizar.
         /// </summary>
+        /// <value>O coeficiente.</value>
         public CoeffType IndependentCoeff
         {
             get
@@ -50,6 +57,9 @@
         /// <summary>
         /// Obtém a lista de factores mónicos.
         /// </summary>
+        /// <value>
+        /// A lista de factores.
+        /// </value>
         public IList<UnivariatePolynomialNormalForm<CoeffType>> Factors
         {
             get
@@ -61,11 +71,12 @@
         /// <summary>
         /// Obtém o polinómio a ser factorizado.
         /// </summary>
-        public UnivariatePolynomialNormalForm<CoeffType> FactoredPolynomial
+        /// <value>O polinómio a ser factorizado.</value>
+        public UnivariatePolynomialNormalForm<CoeffType> FactoringPolynomial
         {
             get
             {
-                return this.factoredPolynomial;
+                return this.factoringPolynomial;
             }
         }
     }

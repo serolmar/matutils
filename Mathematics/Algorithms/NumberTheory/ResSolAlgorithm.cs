@@ -11,18 +11,32 @@
     /// </summary>
     public class ResSolAlgorithm<NumberType> : IAlgorithm<NumberType, NumberType, List<NumberType>>
     {
+        /// <summary>
+        /// O algoritmo responsaável pelo cálculo do símbolo de Legendre-Jacobi.
+        /// </summary>
         private IAlgorithm<NumberType, NumberType, NumberType> legendreJacobiSymAlg;
 
+        /// <summary>
+        /// A fábrica responsável pela criação de objectos capazes de efectuarem operações modulares.
+        /// </summary>
         private IModularFieldFactory<NumberType> modularFieldFactory;
 
+        /// <summary>
+        /// O objecto responsável pelas operações sobre números inteiros.
+        /// </summary>
         private IIntegerNumber<NumberType> integerNumber;
 
         /// <summary>
         /// Instancia um objecto do tipo <see cref="ResSolAlgorithm"/>.
         /// </summary>
-        /// <param name="modularFieldFactory">A fábrica responsável pela criação dos objectos responsáveis pelas operações modulares.</param>
+        /// <param name="modularFieldFactory">
+        /// A fábrica responsável pela criação dos objectos responsáveis pelas operações modulares.
+        /// </param>
         /// <param name="integerNumber">O objecto responsável pelas operações sobre inteiros.</param>
-        public ResSolAlgorithm(IModularFieldFactory<NumberType> modularFieldFactory, IIntegerNumber<NumberType> integerNumber)
+        /// <exception cref="ArgumentNullException">Se pelo menos um dos argumentos for nulo.</exception>
+        public ResSolAlgorithm(
+            IModularFieldFactory<NumberType> modularFieldFactory, 
+            IIntegerNumber<NumberType> integerNumber)
         {
             if (integerNumber == null)
             {
@@ -50,6 +64,9 @@
         /// <param name="number">O número.</param>
         /// <param name="primeModule">O número primo que servirá de módulo.</param>
         /// <returns>A lista com os dois resíduos.</returns>
+        /// <exception cref="ArgumentException">
+        /// Se o módulo não for superior a dois, se o módulo for par ou se a solução não existir.
+        /// </exception>
         public List<NumberType> Run(NumberType number, NumberType primeModule)
         {
             var two = this.integerNumber.MapFrom(2);

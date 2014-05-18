@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Utilities.Collections
+﻿namespace Utilities.Collections
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+
     /// <summary>
-    /// Afector that has built-in the capability of decide if there are repeated objects.
+    /// Implementa um afectador capaz de decidir se existem repetições.
     /// </summary>
     public abstract class FastAfector : IEnumerable<int[]>
     {
@@ -20,6 +20,12 @@ namespace Utilities.Collections
         /// </summary>
         protected int numberOfPlaces;
 
+        /// <summary>
+        /// Obtém o número máximo de elementos.
+        /// </summary>
+        /// <value>
+        /// O número máximo de elementos.
+        /// </value>
         public int Count
         {
             get
@@ -28,6 +34,12 @@ namespace Utilities.Collections
             }
         }
 
+        /// <summary>
+        /// Obtém o número de lugares.
+        /// </summary>
+        /// <value>
+        /// O número e lugares.
+        /// </value>
         public int NumberOfPlaces
         {
             get
@@ -36,43 +48,97 @@ namespace Utilities.Collections
             }
         }
 
+        /// <summary>
+        /// Obtém um enumerador para o afectador.
+        /// </summary>
+        /// <returns>O enumerador.</returns>
         public abstract IEnumerator<int[]> GetEnumerator();
 
+        /// <summary>
+        /// Obtém um enumerador não genérico para o afectador.
+        /// </summary>
+        /// <returns>O enumerador não genérico.</returns>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
             return this.GetEnumerator();
         }
 
+        /// <summary>
+        /// Implementa um enumerador para o afectador.
+        /// </summary>
         public abstract class FastAffectorEnumerator : IEnumerator<int[]>
         {
+            /// <summary>
+            /// O afectador.
+            /// </summary>
             protected FastAfector thisFastAffector;
+
+            /// <summary>
+            /// Os índices de afecetação.
+            /// </summary>
             protected int[] currentAffectationIndices;
+
+            /// <summary>
+            /// Valor que indica se o afectador se encontra antes do início.
+            /// </summary>
             protected bool isBeforeStart = true;
+
+            /// <summary>
+            /// Valor que indica se o afectador se encontra após o final.
+            /// </summary>
             protected bool isAfterEnd = false;
 
+            /// <summary>
+            /// O apontador actual.
+            /// </summary>
             protected int currentPointer = 0;
+
+            /// <summary>
+            /// O estado no qual se encontra o afectador.
+            /// </summary>
             private int state = 0;
 
+            /// <summary>
+            /// Instancia um novo oobjecto do tipo <see cref="FastAffectorEnumerator"/>.
+            /// </summary>
+            /// <param name="affector">O afectador.</param>
             public FastAffectorEnumerator(FastAfector affector)
             {
                 this.thisFastAffector = affector;
             }
 
+            /// <summary>
+            /// Obtém o elemento da colecção especificado pelo enumerador.
+            /// </summary>
+            /// <returns>O elemento da colecção especificado pelo enumerador.</returns>
             public int[] Current
             {
                 get { return this.GetCurrent(); }
             }
 
+            /// <summary>
+            /// Descarta o enumerador.
+            /// </summary>
             public void Dispose()
             {
                 this.thisFastAffector = null;
             }
 
+            /// <summary>
+            /// Obtém o elemento da colecção especificado pelo enumerador.
+            /// </summary>
+            /// <returns>O elemento da colecção especificado pelo enumerador.</returns>
             object System.Collections.IEnumerator.Current
             {
                 get { return this.Current; }
             }
 
+            /// <summary>
+            /// Avaça o enumerador para o próximo elemento da colecção.
+            /// </summary>
+            /// <returns>
+            /// Verdadeiro caso o enumerador avance e falso caso este se encontre no final da colecção.
+            /// </returns>
             public bool MoveNext()
             {
                 if (this.isBeforeStart)
@@ -93,6 +159,9 @@ namespace Utilities.Collections
                 }
             }
 
+            /// <summary>
+            /// Inicializa o enumerador.
+            /// </summary>
             public void Reset()
             {
                 this.isAfterEnd = false;
@@ -101,6 +170,10 @@ namespace Utilities.Collections
                 this.state = 0;
             }
 
+            /// <summary>
+            /// Avança para o próximo estado.
+            /// </summary>
+            /// <returns>Verdadeiro caso o avanço se efectue e falso caso contrário.</returns>
             protected bool AdvanceState()
             {
                 bool go = true;
@@ -155,41 +228,56 @@ namespace Utilities.Collections
                 return true;
             }
 
+            /// <summary>
+            /// Verifica a validade da afectação actual.
+            /// </summary>
+            /// <returns>Verdadeiro caso a afectação seja vaálida e falso caso contrário.</returns>
             protected abstract bool CheckForCurrAffectIndicesValidity();
 
             /// <summary>
-            /// Verify if current inserted is repeated or not. This function may be used to check if some of the affectation indices can repeat according to a specified
-            /// compatibility condition. Example: 1 and 3 may be both affected to the same position.
+            /// Verifica se o elemento corrente constitui ou não uma repetição.
             /// </summary>
-            /// <returns>True if there are over repetitions and false otherwise.</returns>
+            /// <returns>Verdadeiro caso existam repetições e falso caso contrário.</returns>
             protected abstract bool VerifyRepetitions();
 
             /// <summary>
-            /// Increments the counter for repetition verification.
+            /// Incrementa o contador para a verificação de repetições.
             /// </summary>
             protected abstract void IncrementAffectations();
 
             /// <summary>
-            /// Decrements the counter for repetition verification.
+            /// Decremente o contador para verificação de repetições.
             /// </summary>
             protected abstract void DecrementAffectations();
 
             /// <summary>
-            /// Reset the current index.
+            /// Inicializa o índice actual.
             /// </summary>
             protected abstract void ResetPointedIndex();
 
             /// <summary>
-            /// Increment the current index.
+            /// Incremente o índice actual.
             /// </summary>
-            /// <returns>True if current can be incremented and false otherwise.</returns>
+            /// <returns>Verdadeiro se o índice pode ser incrementado e falso caso contrário.</returns>
             protected abstract bool IncrementCurrent();
 
+            /// <summary>
+            /// Obtém a afectação actual.
+            /// </summary>
+            /// <returns>A afectação.</returns>
+            /// <exception cref="CollectionsException">
+            /// Se o enumerador se encontra antes do início ou após o final da colecção.
+            /// </exception>
             protected virtual int[] GetCurrent()
             {
-                if (isBeforeStart)
+                if (this.isBeforeStart)
                 {
-                    throw new Exception("Enumerator is in \"IsBeforeStart\" status.");
+                    throw new CollectionsException("Enumerator is in \"IsBeforeStart\" status.");
+                }
+
+                if (this.isAfterEnd)
+                {
+                    throw new CollectionsException("Enumerator is in \"IsAfterEnd\" status.");
                 }
 
                 //int[] result = new int[this.currentAffectationIndices.Length];

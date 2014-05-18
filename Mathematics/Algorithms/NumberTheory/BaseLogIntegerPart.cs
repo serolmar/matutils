@@ -10,12 +10,16 @@
     /// </summary>
     public class BaseLogIntegerPart<NumberType> : IAlgorithm<NumberType, NumberType, NumberType>
     {
+        /// <summary>
+        /// O domínio resposnável pelas operações sobre inteiros.
+        /// </summary>
         IIntegerNumber<NumberType> integerDomain;
 
         /// <summary>
         /// Instancia o objecto responsável pelo cálculo da parte inteira do logaritmo binário de um número.
         /// </summary>
         /// <param name="integerDomain">O objecto responsável pelas operações sobre inteiros.</param>
+        /// <exception cref="ArgumentNullException">Se o domínio for nulo.</exception>
         public BaseLogIntegerPart(IIntegerNumber<NumberType> integerDomain)
         {
             if (integerDomain == null)
@@ -34,6 +38,7 @@
         /// <param name="baseNumber">A base do logaritmo.</param>
         /// <param name="data">O número.</param>
         /// <returns>A parte inteira do logaritmo binário.</returns>
+        /// <exception cref="ArgumentException">Se p+elo menos um dos argumentos for nulo.</exception>
         public NumberType Run(NumberType baseNumber, NumberType data)
         {
             if (this.integerDomain.Compare(baseNumber, this.integerDomain.MultiplicativeUnity) < 0)

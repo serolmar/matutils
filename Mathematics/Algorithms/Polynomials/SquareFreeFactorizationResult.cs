@@ -23,6 +23,13 @@
         /// </summary>
         private Dictionary<int, UnivariatePolynomialNormalForm<OutputPolCoeffType>> factors;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo
+        /// <see cref="SquareFreeFactorizationResult{InputPolCoeffType, OutputPolCoeffType}"/>.
+        /// </summary>
+        /// <param name="independentCoeff">O coeficiente independente.</param>
+        /// <param name="factors">Os factores.</param>
+        /// <exception cref="System.ArgumentNullException">Se o coeficiente independente for nulo.</exception>
         public SquareFreeFactorizationResult(
             InputPolCoeffType independentCoeff,
             Dictionary<int, UnivariatePolynomialNormalForm<OutputPolCoeffType>> factors)
@@ -46,6 +53,7 @@
         /// <summary>
         /// Obtém o coeficiente independente.
         /// </summary>
+        /// <value>O coeficiente independente.</value>
         public InputPolCoeffType IndependentCoeff
         {
             get
@@ -57,6 +65,7 @@
         /// <summary>
         /// Obtém os factores seleccionados por grau.
         /// </summary>
+        /// <value>O conjunto de factores.</value>
         public Dictionary<int, UnivariatePolynomialNormalForm<OutputPolCoeffType>> Factors
         {
             get

@@ -31,6 +31,15 @@
         /// </summary>
         private CoeffType liftFactorizationModule;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="MultiFactorLiftingStatus{CoeffType}"/>.
+        /// </summary>
+        /// <param name="polynom">O polinómio.</param>
+        /// <param name="factorization">A lista de factores módulo um número primo.</param>
+        /// <param name="liftFactorizationModule">O número primo que constitui o módulo.</param>
+        /// <exception cref="System.ArgumentNullException">
+        /// Se algum dos argumentos for nulo.
+        /// </exception>
         public MultiFactorLiftingStatus(
             UnivariatePolynomialNormalForm<CoeffType> polynom,
             FiniteFieldPolynomialFactorizationResult<CoeffType> factorization,
@@ -63,6 +72,7 @@
         /// <summary>
         /// Obtém o polinómio sobre o qual pretendemos executar o levantamento.
         /// </summary>
+        /// <value>O polinómio.</value>
         public UnivariatePolynomialNormalForm<CoeffType> Polynom
         {
             get
@@ -78,6 +88,7 @@
         /// <summary>
         /// Mantém a lista de factores módulo um número primo.
         /// </summary>
+        /// <value>Os factores.</value>
         public FiniteFieldPolynomialFactorizationResult<CoeffType> Factorization
         {
             get
@@ -89,6 +100,7 @@
         /// <summary>
         /// Obtém e atribui o módulo associado à solução actual.
         /// </summary>
+        /// <value>O módulo.</value>
         public CoeffType LiftedFactorizationModule
         {
             get

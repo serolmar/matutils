@@ -91,6 +91,7 @@
         /// primos limitados por um determinado valor.
         /// </param>
         /// <param name="logarithmAlgorithm">O objecto responsável pelo cálculo do logaritmo.</param>
+        /// <exception cref="ArgumentNullException">Se algum dos argumentos for nulo.</exception>
         public IntegerPolynomialFactorizationAlgorithm(
             IIntegerNumber<CoeffType> integerNumber,
             IModularFieldFactory<CoeffType> modularSymmetricFactory,

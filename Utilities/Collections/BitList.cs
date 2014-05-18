@@ -5,9 +5,13 @@
     using System.Collections.Generic;
     using System.Text;
 
+    /// <summary>
+    /// Implementa uma lista de bits.
+    /// </summary>
     public class BitList : IList<int>, IEquatable<BitList>, IComparable<BitList>
     {
         #region fields
+
         /// <summary>
         /// Número de bits contidos num byte.
         /// </summary>
@@ -35,18 +39,30 @@
 
         #endregion
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="BitList"/>.
+        /// </summary>
         public BitList()
         {
             this.elements = new List<ulong>();
             InitMask();
         }
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="BitList"/>.
+        /// </summary>
+        /// <param name="capacity">A capcidade.</param>
         public BitList(int capacity)
         {
             this.Reserve(capacity);
             this.InitMask();
         }
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="BitList"/>.
+        /// </summary>
+        /// <param name="numberOfBits">O número de bits.</param>
+        /// <param name="set">Valor por defeito.</param>
         public BitList(int numberOfBits, bool set)
         {
             Reserve(numberOfBits);
@@ -57,6 +73,13 @@
 
         #region IList<int> Members
 
+        /// <summary>
+        /// Determina o índice do primeiro valor igual ao argumento.
+        /// </summary>
+        /// <param name="item">O valor a ser procurado.</param>
+        /// <returns>
+        /// O índice do valor.
+        /// </returns>
         public int IndexOf(int item)
         {
             int result = -1;
@@ -68,6 +91,14 @@
             return result;
         }
 
+        /// <summary>
+        /// Inserte um valor no índice especificado.
+        /// </summary>
+        /// <param name="index">O índice.</param>
+        /// <param name="item">O valor..</param>
+        /// <exception cref="System.ArgumentOutOfRangeException">
+        /// Se o índice não se encontrar nos limites da colecção.
+        /// </exception>
         public void Insert(int index, int item)
         {
             if (index < 0 || index > countBits)
@@ -108,6 +139,13 @@
             }
         }
 
+        /// <summary>
+        /// Remove o objecto que se encontra no índice especificado.
+        /// </summary>
+        /// <param name="index">O índice.</param>
+        ///<exception cref="System.ArgumentOutOfRangeException">
+        /// Se o índice não se encontrar nos limites da colecção.
+        /// </exception>
         public void RemoveAt(int index)
         {
             if (index < 0 || index >= countBits)
@@ -143,6 +181,9 @@
         /// </summary>
         /// <param name="index">O índice da posição na lista.</param>
         /// <returns>O bit que se encontra na posição.</returns>
+        /// <exception cref="System.ArgumentOutOfRangeException">
+        /// Se o índice não se encontrar nos limites da colecção.
+        /// </exception>
         public int this[int index]
         {
             get

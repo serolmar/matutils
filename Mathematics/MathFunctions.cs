@@ -18,6 +18,9 @@
         /// <param name="pow">O expoente.</param>
         /// <param name="multiplier">A classe que define o produto sobre o valor.</param>
         /// <returns>A potência do valor.</returns>
+        /// <exception cref="MathematicsException">
+        /// Se o multiplicador for nulo ou o expoente for negativo.
+        /// </exception>
         public static T Power<T, D>(T val, int pow, D multiplier)
             where D : IMultiplication<T>
         {
@@ -66,6 +69,9 @@
         /// <param name="pow">O expoente.</param>
         /// <param name="multiplier">A classe que define o produto sobre o valor.</param>
         /// <returns>A potência do valor.</returns>
+        /// <exception cref="MathematicsException">
+        /// Se o multiplicador for nulo ou o expoente for negativo.
+        /// </exception>
         public static T Power<T, D>(T val, long pow, D multiplier)
             where D : IMultiplication<T>
         {
@@ -114,6 +120,9 @@
         /// <param name="pow">O expoente.</param>
         /// <param name="multiplier">A classe que define o produto sobre o valor.</param>
         /// <returns>A potência do valor.</returns>
+        /// <exception cref="MathematicsException">
+        /// Se o multiplicador for nulo ou o expoente for negativo.
+        /// </exception>
         public static T Power<T, D>(T val, BigInteger pow, D multiplier)
             where D : IMultiplication<T>
         {
@@ -162,12 +171,19 @@
         /// <param name="pow">O expoente.</param>
         /// <param name="integerNumber">A classe que define as operações sobre números inteiros.</param>
         /// <returns>A potência do valor.</returns>
+        /// <exception cref="MathematicsException">
+        /// Se o domínio ou o objecto que define operações sobre os inteiros forem nulos ou o expoente for negativo.
+        /// </exception>
         public static T Power<T, Deg, D>(T val, Deg pow, D domain, IIntegerNumber<Deg> integerNumber)
             where D : IMultiplication<T>
         {
             if (integerNumber == null)
             {
                 throw new MathematicsException("Parameter integerNumber can't be null.");
+            }
+            else if (domain == null)
+            {
+                throw new MathematicsException("Parameter domain can't be null.");
             }
             else if (integerNumber.Compare(pow, integerNumber.AdditiveUnity) < 0)
             {
@@ -214,6 +230,9 @@
         /// <param name="pow">O expoente.</param>
         /// <param name="monoid">A classe que define a soma sobre o valor.</param>
         /// <returns>A potência do valor.</returns>
+        /// <exception cref="MathematicsException">
+        /// Se o multiplicador for nulo ou o expoente for negativo.
+        /// </exception>
         public static T AddPower<T, D>(T val, int pow, D monoid)
             where D : IMonoid<T>
         {
@@ -263,6 +282,9 @@
         /// <param name="pow">O expoente.</param>
         /// <param name="monoid">A classe que define a soma sobre o valor.</param>
         /// <returns>A potência do valor.</returns>
+        /// <exception cref="MathematicsException">
+        /// Se o multiplicador for nulo ou o expoente for negativo.
+        /// </exception>
         public static T AddPower<T, D>(T val, long pow, D monoid)
             where D : IMonoid<T>
         {
@@ -311,6 +333,9 @@
         /// <param name="pow">O expoente.</param>
         /// <param name="monoid">A classe que define a soma sobre o valor.</param>
         /// <returns>A potência do valor.</returns>
+        /// <exception cref="MathematicsException">
+        /// Se o multiplicador for nulo ou o expoente for negativo.
+        /// </exception>
         public static T AddPower<T, D>(T val, BigInteger pow, D monoid)
             where D : IMonoid<T>
         {
@@ -361,6 +386,10 @@
         /// <param name="monoid">A classe que define a soma sobre o valor.</param>
         /// <param name="degreeIntegerNumber">O objecto responsável pelas operaçóes sobre o grau.</param>
         /// <returns>A potência do valor.</returns>
+        /// <exception cref="MathematicsException">
+        /// Se o monóide ou o objecto responsável pelas operações sobre inteiros forem nulos ou o expoente 
+        /// for negativo.
+        /// </exception>
         public static T AddPower<T, Deg, D>(
             T val,
             Deg pow,
@@ -374,7 +403,7 @@
             }
             else if (degreeIntegerNumber == null)
             {
-                throw new ArgumentNullException("degreeIntegerNumber");
+                throw new MathematicsException("Parameter degreeIntegerNumber can't be null.");
             }
             else if (degreeIntegerNumber.Compare(pow, degreeIntegerNumber.AdditiveUnity) < 0)
             {
@@ -425,6 +454,8 @@
         /// <param name="secondValue">O segunda valor para calcular o máximo divisor comum.</param>
         /// <param name="euclideanDomain">O domínio euclideano.</param>
         /// <returns>O máximo divisor comum entre os dois valores.</returns>
+        /// <exception cref="ArgumentNullException">Se algum dos argumentos for nulo.</exception>
+        /// <exception cref="ArgumentException">Se o primeiro valor ou o segundo forem zero.</exception>
         public static T GreatCommonDivisor<T, D>(T firstValue, T secondValue, D euclideanDomain)
             where D : IEuclidenDomain<T>
         {
@@ -499,6 +530,7 @@
         /// </remarks>
         /// <param name="bitArray">O vector de bits.</param>
         /// <returns>O número de bits ligados.</returns>
+        /// <exception cref="ArgumentNullException">Se o vector de bits for nulo.</exception>
         public static int CountSettedBits(BitArray bitArray)
         {
             if (bitArray == null)

@@ -47,6 +47,11 @@
         /// </summary>
         private IEuclidenDomain<ObjectType> domain;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="ChineseRemainderAlgorithm{ObjectType}"/>.
+        /// </summary>
+        /// <param name="numberOfTasks">O número de tarefas de execução paralela usadas no processamento.</param>
+        /// <exception cref="System.ArgumentOutOfRangeException">Se o número de tarefas for não positivo.</exception>
         public ChineseRemainderAlgorithm(int numberOfTasks = 1)
         {
             if (numberOfTasks <= 0)
@@ -89,6 +94,10 @@
         /// <param name="congruences">A lista de congruências.</param>
         /// <param name="domain">O domínio.</param>
         /// <returns>A solução do problema caso exista e nulo caso contrário.</returns>
+        /// <exception cref="MathematicsException">
+        /// Se o algoritmo já se encontrar em execução ou não forem providenciadas quaisquer congruências.
+        /// </exception>
+        /// <exception cref="ArgumentNullException">Se o domínio for nulo.</exception>
         public Congruence<ObjectType> Run(
             List<Congruence<ObjectType>> congruences,
             IEuclidenDomain<ObjectType> domain)
@@ -236,6 +245,7 @@
         /// <param name="congruences">As congruências.</param>
         /// <param name="domain">O domínio.</param>
         /// <returns>Verdadeiro caso o problema possa ter uma solução e falso caso contrário.</returns>
+        /// <exception cref="MathematicsException">Se alguma congruência for zero.</exception>
         private bool SetupCongruences(
             List<Congruence<ObjectType>> congruences,
             IEuclidenDomain<ObjectType> domain)

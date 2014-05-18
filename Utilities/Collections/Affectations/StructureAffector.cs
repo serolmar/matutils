@@ -11,9 +11,22 @@ namespace Utilities.Collections
     /// </summary>
     public class StructureAffector : FastAfector
     {
+        /// <summary>
+        /// A matriz das afectações.
+        /// </summary>
         protected int[][] affectorMatrix;
+
+        /// <summary>
+        /// Número de possíveis afectações por índice.
+        /// </summary>
         private Dictionary<int, int> numberOfPossibleAffectationsByIndice;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="StructureAffector"/>.
+        /// </summary>
+        /// <param name="affectorStructure">A matriz de afectação.</param>
+        /// <exception cref="System.ArgumentNullException">Se a matriz de afectação for nula.</exception>
+        /// <exception cref="System.ArgumentException">Se a matriz de afectação for vazia.</exception>
         public StructureAffector(ICollection<ICollection<int>> affectorStructure)
         {
             if (affectorStructure == null)
@@ -50,7 +63,18 @@ namespace Utilities.Collections
             this.numberOfPlaces = this.affectorMatrix.Length;
         }
 
-        public StructureAffector(ICollection<ICollection<int>> affectorStructure, Dictionary<int, int> possibleAffectionsByIndice) : this(affectorStructure)
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="StructureAffector"/>.
+        /// </summary>
+        /// <param name="affectorStructure">A matriz de afectação.</param>
+        /// <param name="possibleAffectionsByIndice">O número de afectações por índice.</param>
+        /// <exception cref="System.ArgumentException">
+        /// Se algum número de afectaçoes por índice não for positivo.
+        /// </exception>
+        public StructureAffector(
+            ICollection<ICollection<int>> affectorStructure, 
+            Dictionary<int, int> possibleAffectionsByIndice) : 
+            this(affectorStructure)
         {
             if (possibleAffectionsByIndice != null)
             {
@@ -69,32 +93,62 @@ namespace Utilities.Collections
             }
         }
 
+        /// <summary>
+        /// Obtém um enumerador para o afectador.
+        /// </summary>
+        /// <returns>
+        /// O enumerador.
+        /// </returns>
         public override IEnumerator<int[]> GetEnumerator()
         {
             return new StructureAffectorEnumerator(this);
         }
 
+        /// <summary>
+        /// Implementa um enumerador para o afectador.
+        /// </summary>
         public class StructureAffectorEnumerator : FastAffectorEnumerator
         {
-            //private int[] pointerByIndice;
+            /// <summary>
+            /// Os índices afectados.
+            /// </summary>
             private Dictionary<int, int> affectedIndices = new Dictionary<int, int>();
 
+            /// <summary>
+            /// Instancia um novo objecto do tipo <see cref="StructureAffectorEnumerator"/>.
+            /// </summary>
+            /// <param name="structureAffector">O afectador.</param>
             public StructureAffectorEnumerator(StructureAffector structureAffector) : base(structureAffector)
             {
                 this.currentAffectationIndices = new int[structureAffector.NumberOfPlaces];
             }
 
+            /// <summary>
+            /// Inicializa o índice actual.
+            /// </summary>
             protected override void ResetPointedIndex()
             {
                 this.currentAffectationIndices[this.currentPointer] = 0;
             }
 
+            /// <summary>
+            /// Verifica a validade da afectação actual.
+            /// </summary>
+            /// <returns>
+            /// Verdadeiro caso a afectação seja vaálida e falso caso contrário.
+            /// </returns>
             protected override bool CheckForCurrAffectIndicesValidity()
             {
                 StructureAffector affector = this.thisFastAffector as StructureAffector;
                 return this.currentAffectationIndices[this.currentPointer] != affector.affectorMatrix[this.currentPointer].Length;
             }
 
+            /// <summary>
+            /// Verifica se o elemento corrente constitui ou não uma repetição.
+            /// </summary>
+            /// <returns>
+            /// Verdadeiro caso existam repetições e falso caso contrário.
+            /// </returns>
             protected override bool VerifyRepetitions()
             {
                 StructureAffector affector = this.thisFastAffector as StructureAffector;
@@ -134,6 +188,12 @@ namespace Utilities.Collections
                 return true;
             }
 
+            /// <summary>
+            /// Incremente o índice actual.
+            /// </summary>
+            /// <returns>
+            /// Verdadeiro se o índice pode ser incrementado e falso caso contrário.
+            /// </returns>
             protected override bool IncrementCurrent()
             {
                 StructureAffector affector = this.thisFastAffector as StructureAffector;
@@ -142,6 +202,9 @@ namespace Utilities.Collections
                 return true;
             }
 
+            /// <summary>
+            /// Incrementa o contador para a verificação de repetições.
+            /// </summary>
             protected override void IncrementAffectations()
             {
                 StructureAffector affector = this.thisFastAffector as StructureAffector;
@@ -155,6 +218,9 @@ namespace Utilities.Collections
                 }
             }
 
+            /// <summary>
+            /// Decremente o contador para verificação de repetições.
+            /// </summary>
             protected override void DecrementAffectations()
             {
                 StructureAffector affector = this.thisFastAffector as StructureAffector;
@@ -164,13 +230,28 @@ namespace Utilities.Collections
                 }
             }
 
+            /// <summary>
+            /// Obtém a afectação actual.
+            /// </summary>
+            /// <returns>
+            /// A afectação.
+            /// </returns>
+            /// <exception cref="System.Exception">
+            /// Se o enumerador se encontrar antes do início ao após o final da colecção.
+            /// </exception>
             protected override int[] GetCurrent()
             {
                 StructureAffector affector = this.thisFastAffector as StructureAffector;
-                if (isBeforeStart)
+                if (this.isBeforeStart)
                 {
-                    throw new Exception("Enumerator is in \"IsBeforeStart\" status.");
+                    throw new CollectionsException("Enumerator is in \"IsBeforeStart\" status.");
                 }
+
+                if (this.isAfterEnd)
+                {
+                    throw new CollectionsException("Enumerator is in \"IsAfterEnd\" status.");
+                }
+
                 int[] result = new int[this.currentAffectationIndices.Length];
                 for (int i = 0; i < this.currentAffectationIndices.Length; ++i)
                 {

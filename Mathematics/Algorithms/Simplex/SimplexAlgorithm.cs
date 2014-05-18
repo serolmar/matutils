@@ -29,6 +29,14 @@
         /// </summary>
         private IComparer<CoeffType> coeffsComparer;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="SimplexAlgorithm{CoeffType}"/>.
+        /// </summary>
+        /// <param name="coeffsComparer">O comparador de coeficientes.</param>
+        /// <param name="coeffsField">O corpo responsável pelas operações sobre os coeficientes.</param>
+        /// <exception cref="System.ArgumentNullException">
+        /// Se algum dos argumentos for nulo.
+        /// </exception>
         public SimplexAlgorithm(IComparer<CoeffType> coeffsComparer, IField<CoeffType> coeffsField)
         {
             if (coeffsField == null)
@@ -49,6 +57,7 @@
         /// <summary>
         /// Obtém o objecto responsável pelas operações sobre os coeficientes.
         /// </summary>
+        /// <value>O objecto responsável pelas operações sobres os coeficientes.</value>
         public IField<CoeffType> CoeffsField
         {
             get
@@ -60,6 +69,7 @@
         /// <summary>
         /// Obtém o comparador de coeficientes.
         /// </summary>
+        /// <value>O comparador de coeficientes.</value>
         public IComparer<CoeffType> CoeffsComparer
         {
             get
@@ -73,6 +83,9 @@
         /// </summary>
         /// <param name="data">Os dados de entrada.</param>
         /// <returns>O resultado da execução.</returns>
+        /// <exception cref="ArgumentNullException">
+        /// Se os dados de entrada forem passados com um apontador nulo.
+        /// </exception>
         public SimplexOutput<CoeffType> Run(SimplexInput<CoeffType, CoeffType> data)
         {
             if (data == null)
@@ -138,6 +151,9 @@
         /// </summary>
         /// <param name="data">Os dados de entrada.</param>
         /// <returns>O resultado da execução.</returns>
+        /// <exception cref="ArgumentNullException">
+        /// Se os dados de entrada forem passados com um apontador nulo.
+        /// </exception>
         public SimplexOutput<CoeffType> Run(SimplexInput<CoeffType, SimplexMaximumNumberField<CoeffType>> data)
         {
             if (data == null)

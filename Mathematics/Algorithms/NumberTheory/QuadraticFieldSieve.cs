@@ -42,6 +42,22 @@
         /// </summary>
         private ModularIntegerField field;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="QuadraticFieldSieve{NumberType}"/>.
+        /// </summary>
+        /// <param name="integerSquareRootAlgorithm">
+        /// O objecto responsável pelo cálculo da parte inteira da raiz quadrada de um número.
+        /// </param>
+        /// <param name="modularFieldFactory">
+        /// A fábrica responsável pela criação de objectos capazes de efectuar operações modulares.
+        /// </param>
+        /// <param name="primesIteratorFactory">
+        /// A fábrica responsável pela criação de enumeradores para números primos.
+        /// </param>
+        /// <param name="integerNumber">O objecto responsável pelas operações sobre os números inteiros.</param>
+        /// <exception cref="System.ArgumentNullException">
+        /// Se pelo menos um dos argumentos for nulo.
+        /// </exception>
         public QuadraticFieldSieve(
             IAlgorithm<NumberType, NumberType> integerSquareRootAlgorithm,
             IModularFieldFactory<NumberType> modularFieldFactory,
@@ -83,6 +99,10 @@
         /// <param name="factorBase">O limite máximo para os números primos da base.</param>
         /// <param name="sieveInterval">O intervalo sobre os quais são crivados os números.</param>
         /// <returns>A decomposição do número especificado num produto de dois factores.</returns>
+        /// <exception cref="ArgumentException">
+        /// Se o limite for inferior a dois ou o intervalo for inferior a um.
+        /// </exception>
+        /// <exception cref="MathematicsException">Se o número for zero.</exception>
         public Tuple<NumberType, NumberType> Run(NumberType data, int factorBase, int sieveInterval)
         {
             var innerData = this.integerNumber.GetNorm(data);

@@ -74,6 +74,16 @@
         /// </summary>
         private bool foundSolution;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="LinearLiftingStatus{CoeffType}"/>.
+        /// </summary>
+        /// <param name="polynom">O polinómio.</param>
+        /// <param name="firstFactor">O primeiro factor.</param>
+        /// <param name="secondFactor">O segundo factor.</param>
+        /// <param name="liftFactorizationModule">O módulo para a elevação.</param>
+        /// <exception cref="System.ArgumentNullException">
+        /// Se algum dos argumentos for nulo.
+        /// </exception>
         public LinearLiftingStatus(
             UnivariatePolynomialNormalForm<CoeffType> polynom,
             UnivariatePolynomialNormalForm<CoeffType> firstFactor,
@@ -107,6 +117,14 @@
             }
         }
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="LinearLiftingStatus{CoeffType}"/>.
+        /// </summary>
+        /// <param name="polynom">O polinómio.</param>
+        /// <param name="liftFactorizationModule">O módulo para a elevação.</param>
+        /// <exception cref="System.ArgumentNullException">
+        /// Se algum dos argumentos for nulo.
+        /// </exception>
         internal LinearLiftingStatus(
             UnivariatePolynomialNormalForm<CoeffType> polynom,
             CoeffType liftFactorizationModule)
@@ -120,6 +138,7 @@
         /// <summary>
         /// Obtém o polinómio sobre o qual pretendemos executar o levantamento.
         /// </summary>
+        /// <value>O polinómio.</value>
         public UnivariatePolynomialNormalForm<CoeffType> Polynom
         {
             get
@@ -135,6 +154,7 @@
         /// <summary>
         /// Obtém o valor de u1(x).
         /// </summary>
+        /// <value>O valor.</value>
         public UnivariatePolynomialNormalForm<CoeffType> U1Factor
         {
             get
@@ -150,6 +170,7 @@
         /// <summary>
         /// Obtém o valor de w1(x).
         /// </summary>
+        /// <value>O valor.</value>
         public UnivariatePolynomialNormalForm<CoeffType> W1Factor
         {
             get
@@ -165,6 +186,7 @@
         /// <summary>
         /// Obtém o valor que indica se os factores correspondem a uma solução real.
         /// </summary>
+        /// <value>Verdadeiro caso os factores correpondam a uma solução real e falso caso contrário.</value>
         public bool FoundSolution
         {
             get
@@ -180,6 +202,7 @@
         /// <summary>
         /// Obtém e atribui o módulo associado à solução actual.
         /// </summary>
+        /// <value>O módulo.</value>
         public CoeffType LiftedFactorizationModule
         {
             get
@@ -195,6 +218,7 @@
         /// <summary>
         /// Obtém o valor de e(x).
         /// </summary>
+        /// <value>O valor.</value>
         internal UnivariatePolynomialNormalForm<CoeffType> EPol
         {
             get
@@ -210,6 +234,7 @@
         /// <summary>
         /// Obtém o valor de s(x).
         /// </summary>
+        /// <value>O valor.</value>
         internal UnivariatePolynomialNormalForm<CoeffType> SPol
         {
             get
@@ -225,6 +250,7 @@
         /// <summary>
         /// Obtém o valor de t(x).
         /// </summary>
+        /// <value>O valor.</value>
         internal UnivariatePolynomialNormalForm<CoeffType> TPol
         {
             get
@@ -240,6 +266,7 @@
         /// <summary>
         /// Obtém o valor de u(x).
         /// </summary>
+        /// <value>O valor.</value>
         public UnivariatePolynomialNormalForm<CoeffType> UFactor
         {
             get
@@ -255,6 +282,7 @@
         /// <summary>
         /// Obtém o valor de w(x).
         /// </summary>
+        /// <value>O valor.</value>
         public UnivariatePolynomialNormalForm<CoeffType> WFactor
         {
             get
@@ -270,6 +298,7 @@
         /// <summary>
         /// Obtém e atribui o valor que indica se o objecto já foi inicializado.
         /// </summary>
+        /// <value>Verdadeiro caso o objecto já tenha sido inicializado e falso caso contrário.</value>
         internal bool NotInitialized
         {
             get
@@ -285,6 +314,7 @@
         /// <summary>
         /// O módulo inicializado que permite controlar as iterações.
         /// </summary>
+        /// <value>O módulo.</value>
         internal CoeffType InitializedFactorizationModulus
         {
             get
@@ -297,6 +327,10 @@
             }
         }
 
+        /// <summary>
+        /// Constrói uma representação textual do estado.
+        /// </summary>
+        /// <returns>A representação textual.</returns>
         public override string ToString()
         {
             return this.polynom.ToString();

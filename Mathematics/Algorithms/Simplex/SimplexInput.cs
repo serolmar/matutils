@@ -54,6 +54,10 @@
         /// <param name="cost">O custo.</param>
         /// <param name="constraintsMatrix">A matriz das restrições.</param>
         /// <param name="constraintsVector">O vector das restrições.</param>
+        /// <exception cref="ArgumentNullException">Se algum dos argumentos for nulo.</exception>
+        /// <exception cref="ArgumentException">
+        /// Se as dimensões dos argumentos não definirem correctamente um problema.
+        /// </exception>
         public SimplexInput(
             int[] basicVariables,
             int[] nonBasicVariables,
@@ -90,15 +94,18 @@
             {
                 if (constraintsMatrix.GetLength(0) != constraintsVector.Length)
                 {
-                    throw new ArgumentException("Constraints matrix must have the same number of lines as constraints vector.");
+                    throw new ArgumentException(
+                        "Constraints matrix must have the same number of lines as constraints vector.");
                 }
                 else if (nonBasicVariables.Length != constraintsMatrix.GetLength(1))
                 {
-                    throw new ArgumentException("The number of variables must be equal to the number of columns in constraints matrix.");
+                    throw new ArgumentException(
+                        "The number of variables must be equal to the number of columns in constraints matrix.");
                 }
                 else if (nonBasicVariables.Length != objectiveFunction.Length)
                 {
-                    throw new ArgumentException("The number of non basic variables must be equal to the number of coefficients in objective funcion.");
+                    throw new ArgumentException(
+                        "The number of non basic variables must be equal to the number of coefficients in objective funcion.");
                 }
 
                 this.basicVariables = basicVariables;
@@ -113,6 +120,7 @@
         /// <summary>
         /// Obtém as variáveis básicas.
         /// </summary>
+        /// <value>As variávei básicas.</value>
         public int[] BasicVariables
         {
             get
@@ -124,6 +132,7 @@
         /// <summary>
         /// Obtém as variáveis não básicas.
         /// </summary>
+        /// <value>As variáveis não básicas.</value>
         public int[] NonBasicVariables
         {
             get
@@ -135,6 +144,7 @@
         /// <summary>
         /// Obtém a função objectivo.
         /// </summary>
+        /// <value>A função objectivo.</value>
         public IVector<ObjectiveCoeffType> ObjectiveFunction
         {
             get
@@ -146,6 +156,7 @@
         /// <summary>
         /// Obtém e atribui o custo actual.
         /// </summary>
+        /// <value>O custo.</value>
         public ObjectiveCoeffType Cost
         {
             get
@@ -168,6 +179,7 @@
         /// <summary>
         /// Obtém a matriz das restrições.
         /// </summary>
+        /// <value>A martiz das restrições.</value>
         public IMatrix<ConstraintsType> ConstraintsMatrix
         {
             get
@@ -179,6 +191,7 @@
         /// <summary>
         /// Obtém o vector das restrições.
         /// </summary>
+        /// <value>O vector dos coeficientes independentes das restrições.</value>
         public IVector<ConstraintsType> ConstraintsVector
         {
             get

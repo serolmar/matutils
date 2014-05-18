@@ -15,6 +15,7 @@
         /// </summary>
         /// <param name="data">O número.</param>
         /// <returns>A raiz quadrada inteira.</returns>
+        /// <exception cref="ArgumentException">Se o número for negativo.</exception>
         public int Run(int data)
         {
             if (data < 0)

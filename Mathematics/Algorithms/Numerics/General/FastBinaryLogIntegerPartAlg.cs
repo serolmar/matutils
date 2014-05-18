@@ -15,6 +15,7 @@
         /// </summary>
         /// <param name="data">O número.</param>
         /// <returns>A parte inteira do logaritmo.</returns>
+        /// <exception cref="ArgumentException">Se o número não for positivo.</exception>
         public int Run(int data)
         {
             if (data <= 0)
