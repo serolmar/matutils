@@ -5,15 +5,29 @@
     using System.Linq;
     using System.Text;
 
+    /// <summary>
+    /// Implementa um comparador de igualdade sobre colecções de elementos numa ordema arbitrária.
+    /// </summary>
+    /// <typeparam name="CoeffType">O tipo de objectos que constituem os elmentos das colecções.</typeparam>
     public class UnorderedColEqualityComparer<CoeffType> : EqualityComparer<IEnumerable<CoeffType>>
     {
+        /// <summary>
+        /// O comparador de coeficientes.
+        /// </summary>
         private IEqualityComparer<CoeffType> coeffComparer;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="UnorderedColEqualityComparer{CoeffType}"/>.
+        /// </summary>
         public UnorderedColEqualityComparer()
         {
             this.coeffComparer = EqualityComparer<CoeffType>.Default;
         }
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="UnorderedColEqualityComparer{CoeffType}"/>.
+        /// </summary>
+        /// <param name="coeffComparer">O comparador de coeficientes.</param>
         public UnorderedColEqualityComparer(IEqualityComparer<CoeffType> coeffComparer)
         {
             if (coeffComparer == null)
@@ -26,6 +40,14 @@
             }
         }
 
+        /// <summary>
+        /// Determina se dois objectos são iguais.
+        /// </summary>
+        /// <param name="x">O primeiro objecto a ser comparado.</param>
+        /// <param name="y">O segundo objecto a ser comparado.</param>
+        /// <returns>
+        /// Verdadeiro se os objetos forem iguais e falso caso contrário.
+        /// </returns>
         public override bool Equals(IEnumerable<CoeffType> x, IEnumerable<CoeffType> y)
         {
             if (ReferenceEquals(x, y))
@@ -67,6 +89,13 @@
             }
         }
 
+        /// <summary>
+        /// Retorna um código confuso para o objecto.
+        /// </summary>
+        /// <param name="obj">O objecto.</param>
+        /// <returns>
+        /// Um código confuso para o objecto utilizado em alguns algoritmos.
+        /// </returns>
         public override int GetHashCode(IEnumerable<CoeffType> obj)
         {
             if (obj == null)

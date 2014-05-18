@@ -242,6 +242,13 @@
             this.countBits = 0;
         }
 
+        /// <summary>
+        /// Determina se a colecção contém o valor especificado.
+        /// </summary>
+        /// <param name="item">O objecto a ser localizado na colecção.</param>
+        /// <returns>
+        /// Verdadeiro se a colecção contiver o valor especificado e falso caso contrário.
+        /// </returns>
         public bool Contains(int item)
         {
             if (item == 0)
@@ -277,17 +284,21 @@
         /// </summary>
         /// <param name="array">O vector de inteiros.</param>
         /// <param name="arrayIndex">O índice do vector de destino a partir do qual é iniciada a cópia.</param>
+        /// <exception cref="ArgumentNullException">Se o vector for nulo.</exception>
+        /// <exception cref="ArgumentException">Se o tamanho do vector não for suficiente.</exception>
         public void CopyTo(int[] array, int arrayIndex)
         {
             if (array == null)
             {
-                throw new ArgumentNullException("Value cannot be null." + Environment.NewLine + "Parameter name: dest");
+                throw new ArgumentNullException(
+                    "Value cannot be null." + Environment.NewLine + "Parameter name: dest");
             }
 
             int numberOfOperations = countBits + arrayIndex;
             if (numberOfOperations > array.Length)
             {
-                throw new ArgumentException("Destination array was not long enough. Check destIndex and length, and the array's lower bounds.");
+                throw new ArgumentException(
+                    "Destination array was not long enough. Check destIndex and length, and the array's lower bounds.");
             }
 
             int bitPointer = 0;
@@ -311,6 +322,8 @@
         /// </summary>
         /// <param name="array">O vector de bits.</param>
         /// <param name="arrayIndex">O índice do vector de destino a partir do qual é iniciada a cópia.</param>
+        /// <exception cref="ArgumentNullException">Se o vector for nulo.</exception>
+        /// <exception cref="ArgumentException">Se o tamanho do vector não for suficiente.</exception>
         public void CopyTo(BitArray array, int arrayIndex)
         {
             if (array == null)
@@ -345,6 +358,10 @@
             }
         }
 
+        /// <summary>
+        /// Obtém o número de elementos contidos na colecção.
+        /// </summary>
+        /// <returns>O número de elementos contidos na colecção..</returns>
         public int Count
         {
             get
@@ -353,11 +370,22 @@
             }
         }
 
+        /// <summary>
+        /// Obtém um valor que indica se a colecção é apenas de leitura.
+        /// </summary>
+        /// <returns>Sempre falso.</returns>
         public bool IsReadOnly
         {
             get { return false; }
         }
 
+        /// <summary>
+        /// Remove a primeira ocorreência do item especificado.
+        /// </summary>
+        /// <param name="item">O objecto a ser removido.</param>
+        /// <returns>
+        /// Verdadeiro caso o objecto seja removido com sucesso e falso caso contrário.
+        /// </returns>
         public bool Remove(int item)
         {
             if (countBits <= 0)
@@ -411,6 +439,12 @@
 
         #region IEnumerable<int> Members
 
+        /// <summary>
+        /// Retorna um numerador que intera ao longo da colecção.
+        /// </summary>
+        /// <returns>
+        /// O enumerador.
+        /// </returns>
         public IEnumerator<int> GetEnumerator()
         {
             return new Enumerator(ref this.elements, ref this.countBits, bitNumber, maskPositionBits);
@@ -420,6 +454,10 @@
 
         #region IEnumerable Members
 
+        /// <summary>
+        /// Obtém o enumerador não genérico.
+        /// </summary>
+        /// <returns>O enumerador.</returns>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
             return this.GetEnumerator();
@@ -429,11 +467,24 @@
 
         #region Override members
 
+        /// <summary>
+        /// Constrói uma respresentação textual da instância corrente.
+        /// </summary>
+        /// <returns>
+        /// A representação textual.
+        /// </returns>
         public override string ToString()
         {
             return "[" + GetBitsFromLongArray(elements.ToArray(), countBits) + "]";
         }
 
+        /// <summary>
+        /// Determina se o objecto especificado é igual à instância corrente.
+        /// </summary>
+        /// <param name="obj">O objecto.</param>
+        /// <returns>
+        /// Verdadeiro caso o objecto seja igual e falso caso contrário.
+        /// </returns>
         public override bool Equals(object obj)
         {
             if (object.ReferenceEquals(this, obj))
@@ -451,6 +502,12 @@
             }
         }
 
+        /// <summary>
+        /// Retorna um código confuso para a instância.
+        /// </summary>
+        /// <returns>
+        /// O código confuso útil em alguns algoritmos.
+        /// </returns>
         public override int GetHashCode()
         {
             var result = 19UL;
@@ -481,6 +538,7 @@
         /// Adiciona um conjunto de bits à lista.
         /// </summary>
         /// <param name="range">O conjunto de bits a ser adicionado.</param>
+        /// <exception cref="ArgumentNullException">Se o conjunto de bits for nulo.</exception>
         public void AddRange(BitList range)
         {
             if (range == null)
@@ -514,6 +572,10 @@
         /// </summary>
         /// <param name="bitsArray">O vector de longos.</param>
         /// <param name="bitsNumber">O número de bits a serem adicionados.</param>
+        /// <exception cref="ArgumentNullException">Se o conjunto de bits for nulo.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// Se o número de bits for negativo ou não for inferior ao número de bits no conjunto.
+        /// </exception>
         public void AddRange(ulong[] bitsArray, int bitsNumber)
         {
             if (bitsArray == null)
@@ -551,6 +613,9 @@
         /// </summary>
         /// <param name="index">O índice de inserção.</param>
         /// <param name="range">O conjunto de bits a ser inserido.</param>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// Se o índice for negativo ou não for inferior ao número de bits no conjunto.
+        /// </exception>
         public void InsertRange(int index, BitList range)
         {
             if (index < 0 || index > countBits)
@@ -565,49 +630,67 @@
             this.countBits = tempBitList.countBits;
         }
 
-        //public void InsertRangeOtherVersion(int index, BitList range)
-        //{
-        //    if (index < 0 || index > countBits)
-        //    {
-        //        throw new ArgumentOutOfRangeException("Index must be within the bounds of the List." +
-        //        Environment.NewLine + "Parameter name: index");
-        //    }
-        //    if (range.countBits == 0)
-        //    {
-        //        return;
-        //    }
-        //    int indexQuo = index / countBits;
-        //    int indexRem = index % countBits;
-        //    int indexPointer = 0;
-        //    int variablePointer = 0;
-        //    if (indexRem == 0)
-        //    {
-        //        while (indexPointer < range.countBits)
-        //        {
-        //            this.elements.Insert(indexQuo++, range.elements[variablePointer]);
-        //            ++variablePointer;
-        //            indexRem += bitNumber;
-        //            indexPointer += bitNumber;
-        //        }
-        //    }
-        //    else
-        //    {
-        //        ulong indexVariableResidue = (~(maskPositionBits[indexRem] - 1) & this.elements[indexQuo]) >> indexRem;
-        //        ulong temp = (~(maskPositionBits[bitNumber - indexRem] - 1) & range.elements[0]) << indexRem;
-        //        this.elements[indexQuo] = temp | (this.elements[indexQuo] & (maskPositionBits[indexRem] - 1));
+        /// <summary>
+        /// Insere uma lista de bits a partir de uma determinada posição - obsoleta.
+        /// </summary>
+        /// <param name="index">O índice de inserção.</param>
+        /// <param name="range">O conjunto de bits a ser inserido.</param>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// Se o índice for negativo ou não for inferior ao número de bits no conjunto.
+        /// </exception>
+        [Obsolete("Versão não funcional", true)]
+        public void InsertRangeOtherVersion(int index, BitList range)
+        {
+            if (index < 0 || index > countBits)
+            {
+                throw new ArgumentOutOfRangeException("Index must be within the bounds of the List." +
+                Environment.NewLine + "Parameter name: index");
+            }
+            if (range.countBits == 0)
+            {
+                return;
+            }
+            int indexQuo = index / countBits;
+            int indexRem = index % countBits;
+            int indexPointer = 0;
+            int variablePointer = 0;
+            if (indexRem == 0)
+            {
+                while (indexPointer < range.countBits)
+                {
+                    this.elements.Insert(indexQuo++, range.elements[variablePointer]);
+                    ++variablePointer;
+                    indexRem += bitNumber;
+                    indexPointer += bitNumber;
+                }
+            }
+            else
+            {
+                ulong indexVariableResidue = (~(maskPositionBits[indexRem] - 1) & this.elements[indexQuo]) >> indexRem;
+                ulong temp = (~(maskPositionBits[bitNumber - indexRem] - 1) & range.elements[0]) << indexRem;
+                this.elements[indexQuo] = temp | (this.elements[indexQuo] & (maskPositionBits[indexRem] - 1));
 
-        //        while (indexPointer < range.countBits)
-        //        {
-        //            this.elements.Insert(indexQuo++, range.elements[variablePointer]);
+                while (indexPointer < range.countBits)
+                {
+                    this.elements.Insert(indexQuo++, range.elements[variablePointer]);
 
-        //            ++variablePointer;
-        //            indexRem += bitNumber;
-        //            indexPointer += bitNumber;
-        //        }
-        //    }
-        //    this.countBits += range.countBits;
-        //}
+                    ++variablePointer;
+                    indexRem += bitNumber;
+                    indexPointer += bitNumber;
+                }
+            }
+            this.countBits += range.countBits;
+        }
 
+        /// <summary>
+        /// Retorna uma sub-lista de bits.
+        /// </summary>
+        /// <param name="startIndex">O índice de início.</param>
+        /// <param name="numberOfBits">O número de bits da sub-lista.</param>
+        /// <returns>A sub-lista.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// Se o índice de início não se encontrar nos limites da lista.
+        /// </exception>
         public BitList GetSubBitList(int startIndex, int numberOfBits)
         {
             if (startIndex + numberOfBits > this.countBits)
@@ -616,8 +699,10 @@
             }
             if (numberOfBits < 0)
             {
-                throw new ArgumentOutOfRangeException("Start index must be inside the size of bit list and number of bits must be non negative.");
+                throw new ArgumentOutOfRangeException(
+                    "Start index must be inside the size of bit list and number of bits must be non negative.");
             }
+
             return GetUnckeckedSubBitList(startIndex, numberOfBits);
         }
 
@@ -684,8 +769,8 @@
         /// <summary>
         /// Permite verificar se duas listas são iguais.
         /// </summary>
-        /// <param name="other"></param>
-        /// <returns></returns>
+        /// <param name="other">A outra lista.</param>
+        /// <returns>Verdadeiro se a lista for igual e falso caso contrário.</returns>
         public bool Equals(BitList other)
         {
             if (other == null)
@@ -736,7 +821,10 @@
         /// A lista "1001" representa o número 9 que é menor do que "1010" que representa o número 10.
         /// </example>
         /// <param name="other">A lista a ser comparada.</param>
-        /// <returns>Os valores 1, 0, -1 caso a lista actual seja maior, igual ou menor do que a lista especificada, respectivamente.</returns>
+        /// <returns>Os valores 1, 0, -1 caso a lista actual seja maior, igual ou menor do que a 
+        /// lista especificada, respectivamente.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">Se a lista for nula.</exception>
         public int CompareTo(BitList other)
         {
             if (other == null)
@@ -894,6 +982,7 @@
         /// </summary>
         /// <param name="other">A lista de entrada.</param>
         /// <returns>O resultado da operação.</returns>
+        /// <exception cref="ArgumentNullException">Se a lista for nula.</exception>
         public BitList BitListOr(BitList other)
         {
             if (other == null)
@@ -934,6 +1023,7 @@
         /// </summary>
         /// <param name="other">A lista de entrada.</param>
         /// <returns>O resultado da operação.</returns>
+        /// <exception cref="ArgumentNullException">Se a lista for nula.</exception>
         public BitList BitListAnd(BitList other)
         {
             if (other == null)
@@ -974,6 +1064,7 @@
         /// </summary>
         /// <param name="other">A lista de entrada.</param>
         /// <returns>O resultado da operação.</returns>
+        /// <exception cref="ArgumentNullException">Se a lista for nula.</exception>
         public BitList BitListXor(BitList other)
         {
             if (other == null)
@@ -1013,6 +1104,7 @@
         /// Aplica o operador "negação" aos "bits" da lista actual.
         /// </summary>
         /// <returns>O resultado da operação.</returns>
+        /// <exception cref="ArgumentNullException">Se a lista for nula.</exception>
         public BitList BitListNot()
         {
             var result = new BitList();
@@ -1048,6 +1140,7 @@
         /// </summary>
         /// <param name="binaryText">A sequência de 0 e 1.</param>
         /// <returns>A lista de bits.</returns>
+        /// <exception cref="UtilitiesException">Se a sequência contiver texto inválido.</exception>
         public static BitList ReadBinary(string binaryText)
         {
             var result = new BitList();
@@ -1081,6 +1174,7 @@
         /// </summary>
         /// <param name="numericText">O texto que representa um número inteiro positivo.</param>
         /// <returns>A lista.</returns>
+        /// <exception cref="UtilitiesException">Se o texto for inválido.</exception>
         public static BitList ReadNumeric(string numericText)
         {
             var result = new BitList();
@@ -1306,6 +1400,7 @@
             {
                 return "Bit overflow";
             }
+
             StringBuilder resultBuilder = new StringBuilder();
             for (long i = 0; i < countBits; ++i)
             {
@@ -1388,6 +1483,9 @@
 
         #endregion Funções Privadas
 
+        /// <summary>
+        /// Implementa um enumerador para a lista.
+        /// </summary>
         private class Enumerator : IEnumerator<int>
         {
             #region fields
@@ -1396,6 +1494,9 @@
             /// </summary>
             int bitNumber;
 
+            /// <summary>
+            /// A máscara para cada posição de um inteiro.
+            /// </summary>
             ulong[] maskPositionBits;
 
             /// <summary>
@@ -1422,8 +1523,16 @@
             /// Apontador geral.
             /// </summary>
             int elementPointer;
+
             #endregion
 
+            /// <summary>
+            /// Instancia um novo objecto do tipo <see cref="Enumerator"/>.
+            /// </summary>
+            /// <param name="elements">O contentor da lista.</param>
+            /// <param name="countBits">O número de bits na lista.</param>
+            /// <param name="bitNumber">O número de bits na variável.</param>
+            /// <param name="maskPositionBits">A máscara para cad posição num inteiro.</param>
             public Enumerator(ref List<ulong> elements, ref int countBits, int bitNumber, ulong[] maskPositionBits)
             {
                 this.elements = elements;
@@ -1437,6 +1546,10 @@
 
             #region IEnumerator<int> Members
 
+            /// <summary>
+            /// Obtém o elemento da colecção apontado pelo enumerador.
+            /// </summary>
+            /// <returns>O elemento da colecção apontado pelo enumerador..</returns>
             public int Current
             {
                 get
@@ -1453,6 +1566,9 @@
 
             #region IDisposable Members
 
+            /// <summary>
+            /// Descarta o enumerador.
+            /// </summary>
             public void Dispose()
             {
                 this.elements = null;
@@ -1462,6 +1578,10 @@
 
             #region IEnumerator Members
 
+            /// <summary>
+            /// Obtém o elemento da colecção apontado pelo enumerador.
+            /// </summary>
+            /// <returns>O elemento da colecção apontado pelo enumerador..</returns>
             object System.Collections.IEnumerator.Current
             {
                 get
@@ -1474,6 +1594,12 @@
                 }
             }
 
+            /// <summary>
+            /// Avança o enumerador para o próximo elemento da colecção.
+            /// </summary>
+            /// <returns>
+            /// Verdadeiro caso o enumerador avanve e falos caso se encontre no final da colecção.
+            /// </returns>
             public bool MoveNext()
             {
                 ++elementPointer;
@@ -1490,12 +1616,16 @@
                 return true;
             }
 
+            /// <summary>
+            /// Inicializa o enumerador.
+            /// </summary>
             public void Reset()
             {
                 elementPointer = -1;
                 bitPointer = -1;
                 variablePointer = 0;
             }
+
             #endregion
         }
     }

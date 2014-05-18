@@ -1,10 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Utilities.Collections
+﻿namespace Utilities.Collections
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+
+    /// <summary>
+    /// Implementa uma sequência de inteiros.
+    /// </summary>
     public class IntegerSequence : ICollection<int>, IIndexed<int, int>
     {
         /// <summary>
@@ -17,15 +20,33 @@ namespace Utilities.Collections
         /// </summary>
         private bool isReadonly = false;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="IntegerSequence"/>.
+        /// </summary>
         public IntegerSequence()
         {
         }
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="IntegerSequence"/>.
+        /// </summary>
+        /// <param name="isReadonly">Um valor que indica se a colecção é só de leitura.</param>
         protected IntegerSequence(bool isReadonly)
         {
             this.isReadonly = isReadonly;
         }
 
+        /// <summary>
+        /// Obtém o valor no índice especificado.
+        /// </summary>
+        /// <value>
+        /// O valor.
+        /// </value>
+        /// <param name="index">O índice.</param>
+        /// <returns></returns>
+        /// <exception cref="System.ArgumentOutOfRangeException">
+        /// Se o índice não se encontrar nos limites da sequeência.
+        /// </exception>
         public int this[int index]
         {
             get
@@ -61,6 +82,10 @@ namespace Utilities.Collections
             }
         }
 
+        /// <summary>
+        /// Obtém o número de elementos na sequência.
+        /// </summary>
+        /// <returns>O número de elementos na sequência.</returns>
         public int Count
         {
             get
@@ -76,6 +101,10 @@ namespace Utilities.Collections
             }
         }
 
+        /// <summary>
+        /// Obtém um valor que identifica se a sequência é só de leitura.
+        /// </summary>
+        /// <returns>Verdadeiro se a sequência for só de leitura e falso caso contrário.</returns>
         public bool IsReadOnly
         {
             get
@@ -84,11 +113,16 @@ namespace Utilities.Collections
             }
         }
 
+        /// <summary>
+        /// Adiciona um item à colecção.
+        /// </summary>
+        /// <param name="item">O objecto a ser adicionado.</param>
+        /// <exception cref="CollectionsException">Se a colecção for só de leitura.</exception>
         public void Add(int item)
         {
             if (this.isReadonly)
             {
-                throw new Exception("Can't edit readonly collections.");
+                throw new CollectionsException("Can't edit readonly collections.");
             }
             else if (this.sequenceElements.Count == 0)
             {
@@ -117,6 +151,18 @@ namespace Utilities.Collections
             }
         }
 
+        /// <summary>
+        /// Adicionar um conjunto de itens à colecção definido por um número inicial e um número final.
+        /// </summary>
+        /// <remarks>
+        /// A adição é inclusiva.
+        /// </remarks>
+        /// <param name="start">O número inicial.</param>
+        /// <param name="end">O número final.</param>
+        /// <exception cref="CollectionsException">Se a colecção for só de leitura.</exception>
+        /// <exception cref="System.ArgumentException">
+        /// Se o número inicial for superior ao número final.
+        /// </exception>
         public void Add(int start, int end)
         {
             if (this.isReadonly)
@@ -155,11 +201,17 @@ namespace Utilities.Collections
             }
         }
 
+        /// <summary>
+        /// Adiciona uma sequência de inteiros.
+        /// </summary>
+        /// <param name="sequence">A sequência.</param>
+        /// <exception cref="CollectionsException">Se a colecção for só de leitura.</exception>
+        /// <exception cref="ArgumentNullException">Se a sequência for nula.</exception>
         public void Add(IntegerSequence sequence)
         {
             if (this.isReadonly)
             {
-                throw new Exception("Can't edit readonly collections.");
+                throw new CollectionsException("Can't edit readonly collections.");
             }
             else if (sequence == null)
             {
@@ -174,11 +226,15 @@ namespace Utilities.Collections
             }
         }
 
+        /// <summary>
+        /// Remove todos os itens da colecção.
+        /// </summary>
+        /// <exception cref="CollectionsException">A sequência é só de leitura.</exception>
         public void Clear()
         {
             if (this.isReadonly)
             {
-                throw new Exception("Can't edit readonly collections.");
+                throw new CollectionsException("Can't edit readonly collections.");
             }
             else
             {
@@ -186,12 +242,29 @@ namespace Utilities.Collections
             }
         }
 
+        /// <summary>
+        /// Verifica se o item está contido na colecção.
+        /// </summary>
+        /// <param name="item">O item.</param>
+        /// <returns>Verdadeiro caso o item se encontre na colecção e falso caso contrário.</returns>
         public bool Contains(int item)
         {
             var itemClass = this.ClassifyItem(item);
             return itemClass.Item1 == itemClass.Item2;
         }
 
+        /// <summary>
+        /// Copia os itens para um vector.
+        /// </summary>
+        /// <param name="array">O vector.</param>
+        /// <param name="arrayIndex">O índice do vector onde inciar a cópia.</param>
+        /// <exception cref="System.ArgumentNullException">Se o vector for nulo.</exception>
+        /// <exception cref="System.ArgumentOutOfRangeException">
+        /// Se o índice se encontrar fora dos limites do vector.
+        /// </exception>
+        /// <exception cref="System.ArgumentException">
+        /// Se não for possível efectuar a cópia devido às dimensões do vector.
+        /// </exception>
         public void CopyTo(int[] array, int arrayIndex)
         {
             if (array == null)
@@ -220,11 +293,19 @@ namespace Utilities.Collections
             }
         }
 
+        /// <summary>
+        /// Remove a primeira ocorrência do item.
+        /// </summary>
+        /// <param name="item">O objecto a ser removido.</param>
+        /// <returns>
+        /// Verdadeiro se a remoção for bem-sucedida e falso caso contrário.
+        /// </returns>
+        /// <exception cref="CollectionsException">Se a colecção for só de leitura.</exception>
         public bool Remove(int item)
         {
             if (this.isReadonly)
             {
-                throw new Exception("Can't edit readonly collections.");
+                throw new CollectionsException("Can't edit readonly collections.");
             }
             else
             {
@@ -242,11 +323,18 @@ namespace Utilities.Collections
             return false;
         }
 
+        /// <summary>
+        /// Remove um intervalo de valores da sequência definido por um valor inicial e um final.
+        /// </summary>
+        /// <param name="startItem">O número inicial.</param>
+        /// <param name="endItem">O número final.</param>
+        /// <returns>Verdadeiro se a remoção for bem-sucedida e falso caso contrário.</returns>
+        /// <exception cref="CollectionsException">Se a colecção for só de leitura.</exception>
         public bool Remove(int startItem, int endItem)
         {
             if (this.isReadonly)
             {
-                throw new Exception("Can't edit readonly collections.");
+                throw new CollectionsException("Can't edit readonly collections.");
             }
             else if (endItem < startItem)
             {
@@ -332,6 +420,10 @@ namespace Utilities.Collections
             }
         }
 
+        /// <summary>
+        /// Obtém um enumerador para a sequência.
+        /// </summary>
+        /// <returns>O enumerador.</returns>
         public IEnumerator<int> GetEnumerator()
         {
             for (int i = 0; i < this.sequenceElements.Count; ++i)
@@ -596,6 +688,10 @@ namespace Utilities.Collections
             return result;
         }
 
+        /// <summary>
+        /// Obtém um enumerador para a sequência.
+        /// </summary>
+        /// <returns>O enumerador.</returns>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
             return this.GetEnumerator();

@@ -1,58 +1,80 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Utilities.Collections
+﻿namespace Utilities.Collections
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+
     /// <summary>
-    /// Represents a collection where the elements are sorted relatively to a specified order.
+    /// Representa uma colecção onde os elementos são mantidos de forma ordenada.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public class InsertionSortedCollection<T> : IEnumerable<T>
     {
+        /// <summary>
+        /// O contentor.
+        /// </summary>
         private List<T> elements = new List<T>();
+
+        /// <summary>
+        /// O comparador.
+        /// </summary>
         private IComparer<T> comparer = null;
+
+        /// <summary>
+        /// Valor que indica se os valores repetidos são ignorados.
+        /// </summary>
         private bool ignoreRepetaed = false;
 
         /// <summary>
-        /// Instantiates a new instance of the InsertionSortedCollection class.
+        /// Instancia uma nova instância da classe <see cref="InsertionSortedCollection{T}"/>.
         /// </summary>
-        /// <param name="comparer">The comparer that specifies the ordering.</param>
+        /// <param name="comparer">O comparador que especifica a ordem.</param>
         public InsertionSortedCollection(IComparer<T> comparer)
         {
             if (comparer == null)
             {
-                throw new ArgumentException("Argument comparer can not be null.");
+                this.comparer = Comparer<T>.Default;
             }
-            this.comparer = comparer;
+            else
+            {
+                this.comparer = comparer;
+            }
         }
 
         /// <summary>
-        /// Instantiates a new instance of the InsertionSortedCollection class.
+        /// Instancia uma nova instância da classe <see cref="InsertionSortedCollection{T}"/>.
         /// </summary>
         /// <param name="comparer">The comparer that specifies the ordering.</param>
+        /// <param name="ignoreRepeated">Valor que indica se são para serem ignorados os valores repetidos.</param>
         public InsertionSortedCollection(IComparer<T> comparer, bool ignoreRepeated)
         {
             if (comparer == null)
             {
-                throw new ArgumentException("Argument comparer can not be null.");
+                this.comparer = Comparer<T>.Default;
             }
-            this.comparer = comparer;
+            else
+            {
+                this.comparer = comparer;
+            }
+
             this.ignoreRepetaed = ignoreRepeated;
         }
 
         /// <summary>
-        /// Gets the number of inserted elements.
+        /// Obtém o número de elementos inseridos.
         /// </summary>
+        /// <value>O número de elementos inseridos.</value>
         public int Count
         {
             get { return this.elements.Count; }
         }
 
         /// <summary>
-        /// Gets the first element in the ordered set.
+        /// Obtém o primeiro elemento do conjunto.
         /// </summary>
+        /// <value>O elemento.</value>
+        /// <exception cref="CollectionsException">Se a colecção se encontrar vazia.</exception>
         public T First
         {
             get
@@ -62,13 +84,15 @@ namespace Utilities.Collections
                     return this.elements[0];
                 }
 
-                throw new Exception("Empty set.");
+                throw new CollectionsException("Empty set.");
             }
         }
 
         /// <summary>
-        /// Gets the last element in the ordered set.
+        /// Obtém o último elemento do conjunto.
         /// </summary>
+        /// <value>O elemento.</value>
+        /// <exception cref="CollectionsException">Se a colecção se encontrar vazia.</exception>
         public T Last
         {
             get
@@ -78,7 +102,7 @@ namespace Utilities.Collections
                     return this.elements[this.elements.Count - 1];
                 }
 
-                throw new Exception("Empty set.");
+                throw new CollectionsException("Empty set.");
             }
         }
 
@@ -107,6 +131,7 @@ namespace Utilities.Collections
         /// Insere um conjunto de elementos ordenados na colecção.
         /// </summary>
         /// <param name="elementsToInsert">Os elementos a serem inseridos.</param>
+        /// <exception cref="ArgumentNullException">Se o conjunto de elementso for nulo.</exception>
         public void InsertSortRange(InsertionSortedCollection<T> elementsToInsert)
         {
             if (elementsToInsert == null)
@@ -122,6 +147,11 @@ namespace Utilities.Collections
             }
         }
 
+        /// <summary>
+        /// Insere um conjunto de elementos dado por um enumerador na colecção.
+        /// </summary>
+        /// <param name="elementsToInsert">Os elementos a serem inseridos.</param>
+        /// <exception cref="ArgumentNullException">Se o conjunto de elementso for nulo.</exception>
         public void InsertSortEnum(IEnumerable<T> elementsToInsert)
         {
             if (elementsToInsert == null)
@@ -153,9 +183,9 @@ namespace Utilities.Collections
         }
 
         /// <summary>
-        /// Removes the element considering the ordering.
+        /// Remove um elemento considerando a ordem.
         /// </summary>
-        /// <param name="objectToRemove">The element to remove.</param>
+        /// <param name="objectToRemove">O elemento a ser removido.</param>
         public void RemoveElement(T objectToRemove)
         {
             int index = this.FindPosition(objectToRemove);
@@ -167,7 +197,7 @@ namespace Utilities.Collections
         }
 
         /// <summary>
-        /// Clears all elements.
+        /// Limpa a colecção.
         /// </summary>
         public void Clear()
         {
@@ -175,20 +205,19 @@ namespace Utilities.Collections
         }
 
         /// <summary>
-        /// Returns an array containing a copy of the elements collection.
+        /// Retorna um vector com os elementos da colecção.
         /// </summary>
-        /// <returns>The array.</returns>
+        /// <returns>O vector.</returns>
         public T[] ToArray()
         {
             return this.elements.ToArray();
         }
 
         /// <summary>
-        /// Gets an enumerator for all values that are considered as equal
-        /// to the specified argument.
+        /// Obtém um enumerador para todos os elementos da colecção que são iguais ao elemento dadao.
         /// </summary>
-        /// <param name="objectToFind">The argument.</param>
-        /// <returns>An enumerator to equal values.</returns>
+        /// <param name="objectToFind">O elemento a comparar.</param>
+        /// <returns>Um enumerador para os valores iguais.</returns>
         public IEnumerator<T> GetEqualsTo(T objectToFind)
         {
             int index = this.FindPosition(objectToFind);
@@ -305,10 +334,10 @@ namespace Utilities.Collections
         }
 
         /// <summary>
-        /// Finds the position where element should be. It takes a complexity time of order O(log(n)).
+        /// Encontra a posição onde o elemento especificado se encontra.
         /// </summary>
-        /// <param name="objectToInsert">The object to check.</param>
-        /// <returns>The index of element position in collection container.</returns>
+        /// <param name="objectToInsert">O elemento a ser procurado.</param>
+        /// <returns>O índice da posição onde o elemento se encontra.</returns>
         private int FindPosition(T objectToInsert)
         {
             if (elements.Count == 0)
@@ -367,27 +396,54 @@ namespace Utilities.Collections
             return -1;
         }
 
+        /// <summary>
+        /// Obtém um enumerador não genérico para a colecção.
+        /// </summary>
+        /// <returns>O enumerador.</returns>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
             return this.GetEnumerator();
         }
     }
 
+    /// <summary>
+    /// Implementa um comparador lexicográfico de colecções.
+    /// </summary>
+    /// <typeparam name="T">O tipo de elementos na colecção a comparar.</typeparam>
     public class LexicographicalComparer<T> : IComparer<ICollection<T>>
     {
+        /// <summary>
+        /// O comparador de elementos.
+        /// </summary>
         private IComparer<T> comparer;
 
+        /// <summary>
+        /// Instancia uma nova instância da classe <see cref="LexicographicalComparer{T}"/>.
+        /// </summary>
+        /// <param name="comparer">O comparador de elementos.</param>
         public LexicographicalComparer(IComparer<T> comparer)
         {
             if (comparer == null)
             {
-                throw new ArgumentException("Argument comparer can not be null.");
+                this.comparer = Comparer<T>.Default;
             }
-            this.comparer = comparer;
+            else
+            {
+                this.comparer = comparer;
+            }
         }
 
         #region IComparer<ICollection<T>> Members
 
+        /// <summary>
+        /// Compara dois objectos e retorna um valor que indica se um é menor, maior ou igual a outro.
+        /// </summary>
+        /// <param name="x">O primeiro objecto a ser comparado.</param>
+        /// <param name="y">O segundo objecto a ser comparado.</param>
+        /// <returns>
+        /// O valor 1 se o primeiro for maior do que o segundo, 0 se ambos forem iguais e -1 se o primeiro for
+        /// menor do que o segundo.
+        /// </returns>
         public int Compare(ICollection<T> x, ICollection<T> y)
         {
             IEnumerator<T> xEnum = x.GetEnumerator();
