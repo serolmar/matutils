@@ -115,6 +115,7 @@
             {
                 throw new Exception("Reader has already been started.");
             }
+
             CharRange range = new CharRange(charOne, charTwo);
             if (!range.IsEmptyRange() && !type.Equals(string.Empty))
             {

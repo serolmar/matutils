@@ -31,6 +31,11 @@
         /// </summary>
         private NewValueType newValue;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="UpdateEventArgs{OldValueType, NewValueType}"/>.
+        /// </summary>
+        /// <param name="oldValue">O valor antigo.</param>
+        /// <param name="newValue">O novo valor.</param>
         public UpdateEventArgs(OldValueType oldValue, NewValueType newValue)
         {
             this.oldValue = oldValue;
@@ -40,6 +45,7 @@
         /// <summary>
         /// Obtém o valor antigo.
         /// </summary>
+        /// <value>O valor antigo.</value>
         public OldValueType OldValue
         {
             get
@@ -51,6 +57,7 @@
         /// <summary>
         /// Obtém o novo valor.
         /// </summary>
+        /// <value>O novo valor.</value>
         public NewValueType NewValue
         {
             get

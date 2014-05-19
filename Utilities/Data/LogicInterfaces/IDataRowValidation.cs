@@ -5,6 +5,10 @@
     using System.Linq;
     using System.Text;
 
+    /// <summary>
+    /// Define uma validação por linha.
+    /// </summary>
+    /// <typeparam name="ObjectType">O tipo de objectos que fazem parte da validação.</typeparam>
     public interface IDataRowValidation<ObjectType>
     {
         /// <summary>

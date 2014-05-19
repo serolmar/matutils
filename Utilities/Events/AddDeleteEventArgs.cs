@@ -24,6 +24,10 @@
         /// </summary>
         private T addedOrRemovedObject;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="AddDeleteEventArgs{T}"/>.
+        /// </summary>
+        /// <param name="addedOrRemovedObject">O objecto a ser adicionado ou removido.</param>
         public AddDeleteEventArgs(T addedOrRemovedObject)
         {
             this.addedOrRemovedObject = addedOrRemovedObject;
@@ -32,6 +36,7 @@
         /// <summary>
         /// Obtém o objecto adicionado ou removido.
         /// </summary>
+        /// <value>O objecto.</value>
         public T AddedOrRemovedObject
         {
             get

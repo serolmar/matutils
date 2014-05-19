@@ -5,26 +5,33 @@
     using System.Linq;
     using System.Text;
 
+    /// <summary>
+    /// Define uma célula.
+    /// </summary>
     public interface ITabularCell
     {
         /// <summary>
         /// Obtém o número da linha.
         /// </summary>
+        /// <value>O número da linha.</value>
         int RowNumber { get; }
 
         /// <summary>
         /// Obtém o número da coluna.
         /// </summary>
+        /// <value>O número da coluna.</value>
         int ColumnNumber { get; }
 
         /// <summary>
         /// Obtém o valor que indica se o conteúdo da célula é nulo ou um valor textual vazio.
         /// </summary>
+        /// <value>Verdadeiro caso a célula seja vazia e falso caso contrário.</value>
         bool NullOrEmpty { get; }
 
         /// <summary>
         /// Obtém o tipo de valor do conteúdo da célula.
         /// </summary>
+        /// <value>O tipo do valor.</value>
         Type ValueType { get; }
 
         /// <summary>

@@ -29,6 +29,11 @@
         /// </summary>
         private T objectToInsert;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="InsertEventArgs{T}"/>.
+        /// </summary>
+        /// <param name="insertionPosition">A posição de inserção.</param>
+        /// <param name="objectToInsert">O objecto a ser inserido.</param>
         public InsertEventArgs(int insertionPosition, T objectToInsert)
         {
             this.insertionPosition = insertionPosition;
@@ -38,6 +43,7 @@
         /// <summary>
         /// Obtém a posição onde o objecto será introduzido.
         /// </summary>
+        /// <value>A posição de inserção.</value>
         public int InsertionPosition
         {
             get
@@ -49,6 +55,7 @@
         /// <summary>
         /// Obtém o objecto a ser introduzido.
         /// </summary>
+        /// <value>O objecto.</value>
         public T ObjectToInsert
         {
             get

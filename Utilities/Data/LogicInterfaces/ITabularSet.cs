@@ -6,6 +6,9 @@
     using System.Text;
     using Utilities.Collections;
 
+    /// <summary>
+    /// Define um conjunto de tabelas.
+    /// </summary>
     public interface ITabularSet : 
         IIndexed<int, ITabularRow>, 
         IIndexed<string, ITabularRow>,

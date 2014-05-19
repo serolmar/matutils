@@ -5,6 +5,10 @@
     using System.Linq;
     using System.Text;
 
+    /// <summary>
+    /// Permite adicionar linhas a uma tabela.
+    /// </summary>
+    /// <typeparam name="ElementType">O tipo de objetos que constituem as entradas da tabela.</typeparam>
     public class TabularItemAdder<ElementType>
         : IDataParseAdder<ITabularItem, ElementType>
     {

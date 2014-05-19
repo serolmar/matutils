@@ -7,6 +7,13 @@
     using System.Text;
     using Utilities;
 
+    /// <summary>
+    /// Implementa um leitor de ficheiros CSV.
+    /// </summary>
+    /// <typeparam name="MatrixType">O tipo de objectos que constituem as tabelas.</typeparam>
+    /// <typeparam name="ElementsType">O tipo de objects que cosntituem as entradas das tabelas.</typeparam>
+    /// <typeparam name="SymbValue">O tipo do valor dos símbolos.</typeparam>
+    /// <typeparam name="SymbType">O tipo dos objectos que constituem as classificações dos símbolos.</typeparam>
     public class CsvFileParser<MatrixType, ElementsType, SymbValue, SymbType>
     {
         /// <summary>
@@ -81,6 +88,13 @@
         /// </summary>
         private List<ISymbol<SymbValue, SymbType>> currentSymbolValues = new List<ISymbol<SymbValue, SymbType>>();
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="CsvFileParser{MatrixType, ElementsType, SymbValue, SymbType}"/>.
+        /// </summary>
+        /// <param name="lineSeparator">O tipo de símbolo que representa o separador de linhas.</param>
+        /// <param name="columnSeparator">O tipo de símbolo que representa o separador de colunas. </param>
+        /// <param name="provider">O provedor de leitores de valores.</param>
+        /// <exception cref="ArgumentNullException">Se o provedor for nulo.</exception>
         public CsvFileParser(
             SymbType lineSeparator,
             SymbType columnSeparator,
@@ -104,6 +118,7 @@
         /// </summary>
         /// <param name="openDelimiter">O delimitador de abertura.</param>
         /// <param name="closeDelimiter">O delimitador de fecho.</param>
+        /// <exception cref="ArgumentException">Se pelo menos um argumento for nulo.</exception>
         public void MapDelimiters(SymbType openDelimiter, SymbType closeDelimiter)
         {
             if (openDelimiter == null)
@@ -177,6 +192,7 @@
         /// Adiciona um tipo de símbolo que deverá ser ignorado durante a leitura.
         /// </summary>
         /// <param name="ignoreType">O tipo de símbolo a ser ignorado.</param>
+        /// <exception cref="ArgumentNullException">Se o argumento for nulo.</exception>
         public void AddIgnoreType(SymbType ignoreType)
         {
             if (ignoreType == null)
@@ -206,6 +222,14 @@
             this.ignoreSymbolTypes.Clear();
         }
 
+        /// <summary>
+        /// Realiza a leitura da tabela.
+        /// </summary>
+        /// <param name="reader">O leitor a partir do qual são lidos os símbolos.</param>
+        /// <param name="matrix">A matriz.</param>
+        /// <param name="adder">O objecto responsável pela adição de linhas à matriz.</param>
+        /// <exception cref="ArgumentNullException">Se pelo menos um dos argumentos for nulo.</exception>
+        /// <exception cref="UtilitiesDataException">Se o leitor actual for nulo.</exception>
         public void Parse(
             ISymbolReader<SymbValue, SymbType> reader,
             MatrixType matrix,
@@ -265,6 +289,12 @@
             this.states.Add(new DelegateStateImplementation<SymbValue, SymbType>(3, "delimiters", this.InsideDelimitersTransition));
         }
 
+        /// <summary>
+        /// A função correspondente à transição inicial.
+        /// </summary>
+        /// <param name="reader">O leitor de símbolos.</param>
+        /// <returns>O próximo estado.</returns>
+        /// <exception cref="UtilitiesDataException">Se a leitura falhar no estado corrente.</exception>
         private IState<SymbValue, SymbType> StartTransition(IObjectReader<ISymbol<SymbValue, SymbType>> reader)
         {
             if (reader.IsAtEOF())
@@ -324,11 +354,22 @@
             }
         }
 
+        /// <summary>
+        /// A função correspondente à transição final.
+        /// </summary>
+        /// <param name="reader">O leitor de símbolos.</param>
+        /// <returns>O próximo estado.</returns>
         private IState<SymbValue, SymbType> EndTransition(IObjectReader<ISymbol<SymbValue, SymbType>> reader)
         {
             return null;
         }
 
+        /// <summary>
+        /// A função correspondente à transição de leitura.
+        /// </summary>
+        /// <param name="reader">O leitor de símbolos.</param>
+        /// <returns>O próximo estado.</returns>
+        /// <exception cref="UtilitiesDataException">Se a leitura falhar no estado corrente.</exception>
         private IState<SymbValue, SymbType> ReadingTransition(IObjectReader<ISymbol<SymbValue, SymbType>> reader)
         {
             if (reader.IsAtEOF())
@@ -441,6 +482,12 @@
             }
         }
 
+        /// <summary>
+        /// A função correspondente à transição correspondente ao ponto interno aos delimitadores.
+        /// </summary>
+        /// <param name="reader">O leitor de símbolos.</param>
+        /// <returns>O próximo estado.</returns>
+        /// <exception cref="UtilitiesDataException">Se a leitura falhar no estado corrente.</exception>
         private IState<SymbValue, SymbType> InsideDelimitersTransition(IObjectReader<ISymbol<SymbValue, SymbType>> reader)
         {
             var symbolsStack = new Stack<SymbType>();

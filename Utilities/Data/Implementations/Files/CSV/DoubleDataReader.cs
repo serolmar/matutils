@@ -5,8 +5,15 @@
     using System.Linq;
     using System.Text;
 
+    /// <summary>
+    /// Implementa um leitor de números de precisão dupla.
+    /// </summary>
     public class DoubleDataReader : IDataReader<string>
     {
+        /// <summary>
+        /// Obtém o tipo dos objetos lidos.
+        /// </summary>
+        /// <value>O tipo <see cref="System.double"/>.</value>
         public Type ObjectType
         {
             get
@@ -15,6 +22,12 @@
             }
         }
 
+        /// <summary>
+        /// Tenta fazer a leitura do objecto.
+        /// </summary>
+        /// <param name="text">O texto.</param>
+        /// <param name="value">O valor que irá conter a leitura.</param>
+        /// <returns>Verdadeiro caso a leitura seja bem-sucedida e falso caso contrário.</returns>
         public bool TryRead(string text, out object value)
         {
             var innerValue = 0.0;

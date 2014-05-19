@@ -5,11 +5,17 @@
     using System.Linq;
     using System.Text;
 
+    /// <summary>
+    /// Define uma validaçã de células.
+    /// </summary>
+    /// <typeparam name="ColumnType">O tipo de objecto que representa as colunas que identificam as células.</typeparam>
+    /// <typeparam name="ObjectType">O tipo de objectos que constituem os elementos das células.</typeparam>
     public interface IDataValidation<out ColumnType, in ObjectType>
     {
         /// <summary>
-        /// Obtém o índice das colunas que estarão envolvidas na validação.
+        /// Obtém os índices das colunas que estarão envolvidas na validação.
         /// </summary>
+        /// <value>Os índices das colunas.</value>
         IEnumerable<ColumnType> Columns { get; }
 
         /// <summary>

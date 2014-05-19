@@ -5,6 +5,10 @@
     using System.Linq;
     using System.Text;
 
+    /// <summary>
+    /// Define um provedor de leitores.
+    /// </summary>
+    /// <typeparam name="ReaderType">O tipo de objectos que constituem os leitores providenciados.</typeparam>
     public interface IDataReaderProvider<ReaderType>
     {
         /// <summary>

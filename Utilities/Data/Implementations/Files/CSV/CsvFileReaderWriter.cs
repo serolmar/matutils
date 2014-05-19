@@ -8,6 +8,9 @@
     using System.Numerics;
     using System.Text;
 
+    /// <summary>
+    /// Implementa um leitor e escritor de ficheiros CSV.
+    /// </summary>
     public class CsvFileReaderWriter
     {
         /// <summary>
@@ -30,15 +33,28 @@
         /// </summary>
         private IDataReaderProvider<IDataReader<string>> dataReaderProvider;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="CsvFileReaderWriter"/>.
+        /// </summary>
         public CsvFileReaderWriter()
         {
         }
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="CsvFileReaderWriter"/>.
+        /// </summary>
+        /// <param name="dataReaderProvider">O provedor de leitores de objectos.</param>
         public CsvFileReaderWriter(IDataReaderProvider<IDataReader<string>> dataReaderProvider)
         {
             this.dataReaderProvider = dataReaderProvider;
         }
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="CsvFileReaderWriter"/>.
+        /// </summary>
+        /// <param name="lineSeparatorChar">O carácter que representa o separador de linhas.</param>
+        /// <param name="columnSeparatorChar">O carácter que representa o separador de colunas.</param>
+        /// <exception cref="UtilitiesDataException">Se os carácteres separadores forem letras ou dígitos.</exception>
         public CsvFileReaderWriter(char lineSeparatorChar, char columnSeparatorChar)
         {
             if (char.IsLetterOrDigit(lineSeparatorChar))
@@ -56,6 +72,12 @@
             }
         }
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="CsvFileReaderWriter"/>.
+        /// </summary>
+        /// <param name="lineSeparatorChar">O carácter que representa o separador de linhas.</param>
+        /// <param name="columnSeparatorChar">O carácter que representa o separador de colunas.</param>
+        /// <param name="dataReaderProvider">O provedor de leitores de objectos.</param>
         public CsvFileReaderWriter(
             char lineSeparatorChar,
             char columnSeparatorChar,
@@ -65,6 +87,12 @@
             this.dataReaderProvider = dataReaderProvider;
         }
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="CsvFileReaderWriter"/>.
+        /// </summary>
+        /// <param name="lineSeparatorChar">O carácter que representa o separador de linhas.</param>
+        /// <param name="columnSeparatorChar">O carácter que representa o separador de colunas.</param>
+        /// <param name="cultureInfo">As informações da cultura na leitura dos números.</param>
         public CsvFileReaderWriter(
             char lineSeparatorChar,
             char columnSeparatorChar,
@@ -80,6 +108,7 @@
         /// <summary>
         /// Atribui e obtém o carácter que serve de separador das linhas do csv.
         /// </summary>
+        /// <value>O carácter.</value>
         public char LineSeparatorChar
         {
             get
@@ -102,6 +131,7 @@
         /// <summary>
         /// Atribui e obtém o carácter que serve de separador das colunas do csv.
         /// </summary>
+        /// <value>O carácter.</value>
         public char ColumnSeparatorChar
         {
             get
@@ -137,11 +167,12 @@
         /// <param name="tabularItem">O item tabular a ser lido.</param>
         /// <param name="stream">O leitor de informação.</param>
         /// <param name="encoding">A codificação.</param>
+        /// <exception cref="ArgumentNullException">Se o leitor de informação for nulo.</exception>
         public void Read(ITabularItem tabularItem, Stream stream, Encoding encoding)
         {
             if (stream == null)
             {
-                throw new ArgumentException("stream");
+                throw new ArgumentNullException("stream");
             }
             else
             {
@@ -161,6 +192,7 @@
         /// </summary>
         /// <param name="tabularItem">O item tabular.</param>
         /// <param name="reader">O leitor.</param>
+        /// <exception cref="ArgumentNullException">Se algum dos argumentos for nulo.</exception>
         public void Read(ITabularItem tabularItem, TextReader reader)
         {
             if (reader == null)
@@ -200,6 +232,7 @@
         /// <param name="stream">O controlo da cadeia de escrita do csv.</param>
         /// <param name="tabularItem">O item tabular.</param>
         /// <param name="encoding">A codificação de escrita.</param>
+        /// <exception cref="ArgumentNullException">Se o leitor ou ou item forem nulos.</exception>
         public void Write(Stream stream, ITabularItem tabularItem, Encoding encoding)
         {
             if (stream == null)
@@ -222,6 +255,7 @@
         /// </summary>
         /// <param name="writer">O contentor.</param>
         /// <param name="tabularItem">O item tabular.</param>
+        /// <exception cref="ArgumentNullException">Se algum dos argumentos for nulo.</exception>
         public void Write(TextWriter writer, ITabularItem tabularItem)
         {
             if (writer == null)
@@ -333,6 +367,7 @@
         /// <param name="result">O resultado da leitura.</param>
         /// <param name="reader">O leitor de texto.</param>
         /// <param name="dataReaderProvider">O contentor de leitores.</param>
+        /// <exception cref="UtilitiesDataException">Se a leitura falhar.</exception>
         private void ReadCsv(
             ITabularItem result,
             TextReader reader,

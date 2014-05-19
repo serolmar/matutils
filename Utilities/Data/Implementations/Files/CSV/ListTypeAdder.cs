@@ -5,6 +5,10 @@
     using System.Linq;
     using System.Text;
 
+    /// <summary>
+    /// Implementa uma interaface capaz de adicionar um item a uma lista de listas.
+    /// </summary>
+    /// <typeparam name="ElementsType">O tipo de objectos que constituem as entradas das listas.</typeparam>
     public class ListTypeAdder<ElementsType> 
         : IDataParseAdder<List<List<ElementsType>>, ElementsType>
     {

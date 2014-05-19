@@ -5,6 +5,10 @@
     using System.Linq;
     using System.Text;
 
+    /// <summary>
+    /// Implementa um fornecedor de leitor de tabelas a partir de CSV.
+    /// </summary>
+    /// <typeparam name="ReaderType">O tipo do leitor.</typeparam>
     public class DataReaderProvider<ReaderType> : IDataReaderProvider<ReaderType>
     {
         /// <summary>
@@ -24,6 +28,10 @@
         private Dictionary<Tuple<int, int>, ReaderType> cellDataReaders =
             new Dictionary<Tuple<int, int>, ReaderType>();
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="DataReaderProvider{ReaderType}"/>.
+        /// </summary>
+        /// <param name="mainDataReader">O leitor.</param>
         public DataReaderProvider(ReaderType mainDataReader)
         {
             if (mainDataReader == null)
@@ -36,6 +44,11 @@
             }
         }
 
+        /// <summary>
+        /// Obtém ou atribui o leitor.
+        /// </summary>
+        /// <value>O leitor.</value>
+        /// <exception cref="UtilitiesDataException">Se o valor atribuído for nulo.</exception>
         public ReaderType MainDataReader
         {
             get
@@ -60,6 +73,8 @@
         /// </summary>
         /// <param name="columnNumber">O número da coluna.</param>
         /// <param name="dataReader">O leitor.</param>
+        /// <exception cref="IndexOutOfRangeException">Se o número da coluna for negativo.</exception>
+        /// <exception cref="ArgumentNullException">Se o leitor for nulo.</exception>
         public void RegisterDataReader(int columnNumber, ReaderType dataReader)
         {
             if (columnNumber < 0)
@@ -107,6 +122,8 @@
         /// <param name="rowNumber">O número da linha que contém a célula.</param>
         /// <param name="columnNumber">O número da coluna que contém a célula.</param>
         /// <param name="dataReader">O leitor a ser associado.</param>
+        /// <exception cref="IndexOutOfRangeException">Se o número da linha ou o número da coluna forem negativos.</exception>
+        /// <exception cref="ArgumentNullException">Se o leitor for nulo.</exception>
         public void RegisterDataReader(
             int rowNumber,
             int columnNumber,

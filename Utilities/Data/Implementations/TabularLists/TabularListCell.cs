@@ -5,6 +5,9 @@
     using System.Linq;
     using System.Text;
 
+    /// <summary>
+    /// Implementa uma célula de uma tabela.
+    /// </summary>
     internal class TabularListCell : ITabularCell
     {
         /// <summary>
@@ -22,6 +25,12 @@
         /// </summary>
         private int columnNumber;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="TabularListCell"/>.
+        /// </summary>
+        /// <param name="rowNumber">O número da linha.</param>
+        /// <param name="columnNumber">O número da coluna.</param>
+        /// <param name="parent">A linha à qual pertence a célula.</param>
         public TabularListCell(int rowNumber, int columnNumber, TabularListsItem parent)
         {
             this.rowNumber = rowNumber;
@@ -29,6 +38,10 @@
             this.parent = parent;
         }
 
+        /// <summary>
+        /// Obtém ou atribui a linha à qual pertence a célula.
+        /// </summary>
+        /// <value>A linha.</value>
         public TabularListsItem Parent
         {
             get
@@ -41,6 +54,10 @@
             }
         }
 
+        /// <summary>
+        /// Obtém e atribui o número da linha.
+        /// </summary>
+        /// <value>O número da linha.</value>
         public int RowNumber
         {
             get
@@ -53,6 +70,10 @@
             }
         }
 
+        /// <summary>
+        /// Obtém e atribui o número da coluna.
+        /// </summary>
+        /// <value>O número da coluna.</value>
         public int ColumnNumber
         {
             get
@@ -65,6 +86,10 @@
             }
         }
 
+        /// <summary>
+        /// Obtém um valor que indica se a célula é nula ou vazia.
+        /// </summary>
+        /// <value>Verdadeiro caso a célula se encontre nula ou vazia e falso caso contrário.</value>
         public bool NullOrEmpty
         {
             get
@@ -85,6 +110,10 @@
             }
         }
 
+        /// <summary>
+        /// Obtém o tipo de dados contidos na célula.
+        /// </summary>
+        /// <value>O tipo de dados.</value>
         public Type ValueType
         {
             get
@@ -92,7 +121,7 @@
                 var value = this.parent.GetCellValue(this.rowNumber, this.columnNumber);
                 if (value == null)
                 {
-                    throw new UtilitiesDataException("Can't infer type from null value.");
+                    return typeof(object);
                 }
                 else
                 {
@@ -101,11 +130,22 @@
             }
         }
 
+        /// <summary>
+        /// Atribui o valor à célula.
+        /// </summary>
+        /// <typeparam name="T">O tipo de dados do valor.</typeparam>
+        /// <param name="value">O valor.</param>
         public void SetCellValue<T>(T value)
         {
             this.parent.SetValue(this.rowNumber, this.columnNumber, value);
         }
 
+        /// <summary>
+        /// Obtém o valor da célula.
+        /// </summary>
+        /// <typeparam name="T">O tipo de dados do valor.</typeparam>
+        /// <returns>O valor.</returns>
+        /// <exception cref="UtilitiesDataException">Se o valor da célula não for convertível no tipo proporcionado.</exception>
         public T GetCellValue<T>()
         {
             var value = this.parent.GetCellValue(this.rowNumber, this.columnNumber);
@@ -135,6 +175,10 @@
             }
         }
 
+        /// <summary>
+        /// Obtém o conteúdo da célula como sendo texto.
+        /// </summary>
+        /// <returns>O conteúdo da célula.</returns>
         public string GetAsText()
         {
             var value = this.parent.GetCellValue(this.rowNumber, this.columnNumber);

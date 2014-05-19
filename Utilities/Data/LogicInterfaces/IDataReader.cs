@@ -5,11 +5,16 @@
     using System.Linq;
     using System.Text;
 
+    /// <summary>
+    /// Define um leitor de objectos gerais a partir de objectos particulares.
+    /// </summary>
+    /// <typeparam name="ConversionType">O tipo dos objectos particulares.</typeparam>
     public interface IDataReader<in ConversionType>
     {
         /// <summary>
         /// Obtém o tipo do objecto proporcionado pelo leitor.
         /// </summary>
+        /// <value>O tipo do objecto.</value>
         Type ObjectType { get; }
 
         /// <summary>

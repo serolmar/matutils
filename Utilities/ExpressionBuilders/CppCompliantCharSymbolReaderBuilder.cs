@@ -7,13 +7,29 @@
     using System.Text;
     using Utilities;
 
+    /// <summary>
+    /// Define um construtor de leitores.
+    /// </summary>
     public interface ReaderBuilder
     {
+        /// <summary>
+        /// Constrói um leitor de símbolos a partir de um leitor de texto.
+        /// </summary>
+        /// <param name="input">O leitor de texto.</param>
+        /// <returns>O leitor de símbolos.</returns>
         SymbolReader<TextReader,string, string> BuildReader(TextReader input);
     }
 
+    /// <summary>
+    /// Implementa um construtor de leitores de símbolos onde estes estão de acordo com a linguagem C++.
+    /// </summary>
     class CppCompliantCharSymbolReaderBuilder : ReaderBuilder
     {
+        /// <summary>
+        /// Constrói o leitor de símbolos a partir de um leitor de texto.
+        /// </summary>
+        /// <param name="input">O leitor de texto.</param>
+        /// <returns>O leitor de símbolos.</returns>
         public SymbolReader<TextReader,string, string> BuildReader(TextReader input)
         {
             CharSymbolReader<string> result = new CharSymbolReader<string>(input);
@@ -61,6 +77,11 @@
             return result;
         }
 
+        /// <summary>
+        /// Função que permite decidir se o carácter é uma letra ou um algarismo.
+        /// </summary>
+        /// <param name="c">O carácter.</param>
+        /// <returns>O tipo do carácter.</returns>
         private string DeciderFunction(char c)
         {
             if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) return "alpha";

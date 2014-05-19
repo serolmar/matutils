@@ -20,12 +20,22 @@
         /// </summary>
         protected List<IDataValidation<int, object>> dataCellValidations;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="TabularListsItem"/>.
+        /// </summary>
         public TabularListsItem()
         {
             this.elements = new List<List<object>>();
             this.dataCellValidations = new List<IDataValidation<int, object>>();
         }
 
+        /// <summary>
+        /// Obtém a linha especificada pelo índice.
+        /// </summary>
+        /// <value>A linha.</value>
+        /// <param name="index">O índice.</param>
+        /// <returns>A linha.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">Se o índice for negativo.</exception>
         public ITabularRow this[int index]
         {
             get
@@ -41,6 +51,10 @@
             }
         }
 
+        /// <summary>
+        /// Obtém e atribui o número de linhas na tabela.
+        /// </summary>
+        /// <value>O número de linhas.</value>
         public int Count
         {
             get
@@ -50,6 +64,13 @@
         }
 
         #region Validações
+
+        /// <summary>
+        /// Adiciona uma validação À tabela.
+        /// </summary>
+        /// <param name="validation">A validação.</param>
+        /// <exception cref="ArgumentNullException">Se a validação for nula.</exception>
+        /// <exception cref="UtilitiesDataException">Se a validação falhar para os dados existentes.</exception>
         public void AddValidation(IDataValidation<int, object> validation)
         {
             if (validation == null)
@@ -72,6 +93,10 @@
             }
         }
 
+        /// <summary>
+        /// Remove a validação.
+        /// </summary>
+        /// <param name="validation">A validação.</param>
         public void RemoveValidation(IDataValidation<int, object> validation)
         {
             if (validation != null)
@@ -80,6 +105,9 @@
             }
         }
 
+        /// <summary>
+        /// Elimina todas as validações.
+        /// </summary>
         public void ClearValidations()
         {
             this.dataCellValidations.Clear();
@@ -87,6 +115,15 @@
         #endregion Validações
 
         #region Funções do item tabular
+
+        /// <summary>
+        /// Atribui um valor na posição especificada.
+        /// </summary>
+        /// <typeparam name="ElementType">O tipo de objecto que constitui o valor.</typeparam>
+        /// <param name="rowNumber">O número da linha.</param>
+        /// <param name="cellNumber">O número da coluna.</param>
+        /// <param name="value">O valor.</param>
+        /// <exception cref="ArgumentOutOfRangeException">Se a linha ou a coluna forem negativos.</exception>
         public void SetValue<ElementType>(int rowNumber, int cellNumber, ElementType value)
         {
             if (rowNumber < 0)
@@ -252,6 +289,12 @@
             return result;
         }
 
+        /// <summary>
+        /// Adiciona uma linha definda por uma colecção de elementos.
+        /// </summary>
+        /// <typeparam name="ElementType">O tipo de objectos que constituem os elementos.</typeparam>
+        /// <param name="elements">Os elementos.</param>
+        /// <exception cref="UtilitiesDataException">Se alguma validação falhar para a linha.</exception>
         public void Add<ElementType>(IEnumerable<ElementType> elements)
         {
             var elementsToAdd = new List<object>();
@@ -285,6 +328,12 @@
             }
         }
 
+        /// <summary>
+        /// Adiciona uma linha especificada por mapeamentos entre colunas e valores.
+        /// </summary>
+        /// <typeparam name="ElementType">O tipo de objectos que constituem os elementos.</typeparam>
+        /// <param name="elements">O conjunto de mapeamentos.</param>
+        /// <exception cref="UtilitiesDataException">Se alguma validação falhar no processo.</exception>
         public void Add<ElementType>(IEnumerable<KeyValuePair<int, ElementType>> elements)
         {
             var elementsToAdd = new SortedDictionary<int, object>();
@@ -345,6 +394,12 @@
             }
         }
 
+        /// <summary>
+        /// Adiciona um conjunto de linhas especificadas por vários valores.
+        /// </summary>
+        /// <typeparam name="ElementType">O tipo de objectos que constituem os elementos.</typeparam>
+        /// <param name="elements">O conjunto de colecções de elementos.</param>
+        /// <exception cref="UtilitiesDataException">Se alguma validação falhar no processo.</exception>
         public void AddRange<ElementType>(IEnumerable<IEnumerable<ElementType>> elements)
         {
             var elementsToAdd = new List<List<object>>();
@@ -385,6 +440,12 @@
             }
         }
 
+        /// <summary>
+        /// Adiciona um conjunto de linhas especificadas por vários mapeamentos entre coluna e valor.
+        /// </summary>
+        /// <typeparam name="ElementType">O tipo de objectos que constituem os elementos.</typeparam>
+        /// <param name="elements">O conjunto de colecções de elementos mapeados.</param>
+        /// <exception cref="UtilitiesDataException">Se alguma validação falhar no processo.</exception>
         public void AddRange<ElementType>(IEnumerable<IEnumerable<KeyValuePair<int, ElementType>>> elements)
         {
             var elementsDictionary = new List<SortedDictionary<int, object>>();
@@ -444,6 +505,14 @@
             }
         }
 
+        /// <summary>
+        /// Insere uma linha especificada por mapeamentos entre colunas e valores no índice especificado.
+        /// </summary>
+        /// <typeparam name="ElementType">O tipo de objectos que constituem os elementos.</typeparam>
+        /// <param name="elements">O conjunto de mapeamentos.</param>
+        /// <param name="index">O índice.</param>
+        /// <exception cref="ArgumentOutOfRangeException">Se o índice for negativo.</exception>
+        /// <exception cref="UtilitiesDataException">Se alguma validação falhar no processo.</exception>
         public void Insert<ElementType>(int index, IEnumerable<ElementType> elements)
         {
             if (index < 0)
@@ -489,6 +558,14 @@
             }
         }
 
+        /// <summary>
+        /// Insere uma linha especificada por mapeamentos entre colunas e valores no índice especificado.
+        /// </summary>
+        /// <typeparam name="ElementType">O tipo de objectos que constituem os elementos.</typeparam>
+        /// <param name="index">O índice.</param>
+        /// <param name="elements">O conjunto de mapeamentos.</param>
+        /// <exception cref="ArgumentOutOfRangeException">Se o índice for negativo.</exception>
+        /// <exception cref="UtilitiesDataException">Se alguma validação falhar no processo.</exception>
         public void Insert<ElementType>(int index, IEnumerable<KeyValuePair<int, ElementType>> elements)
         {
             if (index < 0)
@@ -549,6 +626,14 @@
             }
         }
 
+        /// <summary>
+        /// Adiciona um conjunto de linhas especificadas por vários valores no índice especificado.
+        /// </summary>
+        /// <param name="index">O índice.</param>
+        /// <typeparam name="ElementType">O tipo de objectos que constituem os elementos.</typeparam>
+        /// <param name="elements">O conjunto de colecções de elementos.</param>
+        /// <exception cref="ArgumentOutOfRangeException">Se o índice for negativo.</exception>
+        /// <exception cref="UtilitiesDataException">Se alguma validação falhar no processo.</exception>
         public void InsertRange<ElementType>(int index, IEnumerable<IEnumerable<ElementType>> elements)
         {
             if (index < 0)
@@ -596,6 +681,14 @@
             }
         }
 
+        /// <summary>
+        /// Adiciona um conjunto de linhas especificadas por vários mapeamentos entre coluna e valor no índice especificado..
+        /// </summary>
+        /// <param name="index">O índice.</param>
+        /// <typeparam name="ElementType">O tipo de objectos que constituem os elementos.</typeparam>
+        /// <param name="elements">O conjunto de colecções de elementos mapeados.</param>
+        /// <exception cref="ArgumentOutOfRangeException">Se o índice for negativo.</exception>
+        /// <exception cref="UtilitiesDataException">Se alguma validação falhar no processo.</exception>
         public void InsertRange<ElementType>(
             int index,
             IEnumerable<IEnumerable<KeyValuePair<int, ElementType>>> elements)
@@ -659,6 +752,10 @@
             }
         }
 
+        /// <summary>
+        /// Remove a linha com o índice especificado.
+        /// </summary>
+        /// <param name="rowIndex">O índice da linha.</param>
         public void RemoveRow(int rowIndex)
         {
             if (rowIndex >= 0 && rowIndex < this.elements.Count)
@@ -679,6 +776,11 @@
             }
         }
 
+        /// <summary>
+        /// Remove a linha que satisfaz alguma expressão.
+        /// </summary>
+        /// <param name="expression">A expressão.</param>
+        /// <returns>A linha a remover.</returns>
         public int RemoveWhere(Func<ITabularRow, bool> expression)
         {
             var removedLines = 0;
@@ -716,6 +818,12 @@
             return removedLines;
         }
 
+        /// <summary>
+        /// Obtém o valor não genérico da célula.
+        /// </summary>
+        /// <param name="rowNumber">O número da linha.</param>
+        /// <param name="cellNumber">O número da coluna.</param>
+        /// <returns>O valor da célula.</returns>
         public object GetCellValue(int rowNumber, int cellNumber)
         {
             if (rowNumber >= this.elements.Count)
@@ -736,6 +844,11 @@
             }
         }
 
+        /// <summary>
+        /// Obtém o número de células na linha especificada.
+        /// </summary>
+        /// <param name="rowNumber">O índice da linha.</param>
+        /// <returns>O número de células na linha.</returns>
         public int GetRowCount(int rowNumber)
         {
             if (rowNumber < 0 || rowNumber > this.elements.Count)
@@ -749,6 +862,10 @@
         }
         #endregion Funções do item tabular
 
+        /// <summary>
+        /// Obtém um enumerador para a tabela.
+        /// </summary>
+        /// <returns>O enumerador.</returns>
         public IEnumerator<ITabularRow> GetEnumerator()
         {
             for (int i = 0; i < this.elements.Count; ++i)
@@ -757,6 +874,10 @@
             }
         }
 
+        /// <summary>
+        /// Constrói uma representação textual da tabela.
+        /// </summary>
+        /// <returns>A representação textual.</returns>
         public override string ToString()
         {
             var resultBuilder = new StringBuilder();
@@ -793,6 +914,13 @@
             return resultBuilder.ToString();
         }
 
+        /// <summary>
+        /// Atribui o valor a uma célula.
+        /// </summary>
+        /// <typeparam name="ElementType">O tipo de objecto a ser atribuído.</typeparam>
+        /// <param name="rowNumber">O número da linha.</param>
+        /// <param name="cellNumber">O número da coluna.</param>
+        /// <param name="value">O valor.</param>
         private void SetCellValue<ElementType>(int rowNumber, int cellNumber, ElementType value)
         {
             for (int i = this.elements.Count; i <= rowNumber; ++i)
@@ -839,63 +967,141 @@
             }
         }
 
+        /// <summary>
+        /// Obtém um enumerador não genérico para a tabela.
+        /// </summary>
+        /// <returns>O enumerador.</returns>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
             return this.GetEnumerator();
         }
 
         #region Eventos associados ao item
+
+        /// <summary>
+        /// Ocorre antes do valor da célula ser alterado.
+        /// </summary>
         public event UpdateEventHandler<ITabularCell, object> BeforeSetEvent;
 
+        /// <summary>
+        /// Ocorre depois do valor da célula ser alterado.
+        /// </summary>
         public event UpdateEventHandler<ITabularCell, object> AfterSetEvent;
 
+        /// <summary>
+        /// Ocorrea antes de uma célula ser actualizada.
+        /// </summary>
         public event UpdateEventHandler<List<List<ITabularCell>>, List<object>> BeforeUpdateEvent;
 
+        /// <summary>
+        /// Ocorre depois de uma célula ser actualizada.
+        /// </summary>
         public event UpdateEventHandler<List<List<ITabularCell>>, List<object>> AfterUpdateEvent;
 
+        /// <summary>
+        /// Ocorre antes da adição de uma linha.
+        /// </summary>
         public event AddDeleteEventHandler<IEnumerable<object>> BeforeAddEvent;
 
+        /// <summary>
+        /// Ocorre depois da adição de uma linha.
+        /// </summary>
         public event AddDeleteEventHandler<IEnumerable<object>> AfterAddEvent;
 
+        /// <summary>
+        /// Ocorre antes da adição de um mapeamento coluna - valor.
+        /// </summary>
         public event AddDeleteEventHandler<IEnumerable<KeyValuePair<int, object>>> BeforeAddKeyedValuesEvent;
 
+        /// <summary>
+        /// Ocorre depois da adição de um mapeamento coluna - valor.
+        /// </summary>
+        public event AddDeleteEventHandler<IEnumerable<KeyValuePair<int, object>>> AfterAddKeyedValuesEvent;
+
+        /// <summary>
+        /// Ocorre antes da adição de várias linhas.
+        /// </summary>
         public event AddDeleteEventHandler<IEnumerable<IEnumerable<object>>> BeforeAddRangeEvent;
 
+        /// <summary>
+        /// Ocorre depois da adição de várias linhas.
+        /// </summary>
         public event AddDeleteEventHandler<IEnumerable<IEnumerable<object>>> AfterAddRangeEvent;
 
+        /// <summary>
+        /// Ocorre antes da adição de vários mapeamentos coluna - valor.
+        /// </summary>
         public event AddDeleteEventHandler<IEnumerable<IEnumerable<KeyValuePair<int, object>>>>
             BeforeKeyedValuesAddRangeEvent;
 
+        /// <summary>
+        /// Ocorre depois da adição de vários mapeamentos coluna - valor.
+        /// </summary>
         public event AddDeleteEventHandler<IEnumerable<IEnumerable<KeyValuePair<int, object>>>>
             AfterKeyedValuesAddRangeEvent;
 
-        public event AddDeleteEventHandler<IEnumerable<KeyValuePair<int, object>>> AfterAddKeyedValuesEvent;
-
+        /// <summary>
+        /// Ocorre antes da inserção de uma linha.
+        /// </summary>
         public event InsertEventHandler<IEnumerable<object>> BeforeInsertEvent;
 
+        /// <summary>
+        /// Ocorre depois da inserção de uma linha.
+        /// </summary>
         public event InsertEventHandler<IEnumerable<object>> AfterInsertEvent;
 
+        /// <summary>
+        /// Ocorre antes da inserção de um mapeamento coluna - valor.
+        /// </summary>
         public event InsertEventHandler<IEnumerable<KeyValuePair<int, object>>> BeforeKeyedValuesInsertEvent;
 
+        /// <summary>
+        /// Ocorre depois de um mapeamento coluna - valor.
+        /// </summary>
         public event InsertEventHandler<IEnumerable<KeyValuePair<int, object>>> AfterKeyedValuesInsertEvent;
 
+        /// <summary>
+        /// Ocorre antes da inserção de várias linhas.
+        /// </summary>
         public event InsertEventHandler<IEnumerable<IEnumerable<object>>> BeforeInsertRangeEvent;
 
+        /// <summary>
+        /// Ocorre depois da inserção de várias linhas.
+        /// </summary>
         public event InsertEventHandler<IEnumerable<IEnumerable<object>>> AfterInsertRangeEvent;
 
+        /// <summary>
+        /// Ocorre antes da inserção de vários mapeamentos coluna - valor.
+        /// </summary>
         public event InsertEventHandler<IEnumerable<IEnumerable<KeyValuePair<int, object>>>>
             BeforeKeyedValuesInsertRangeEvent;
 
+        /// <summary>
+        /// Ocorre depois da inserção de várias mapeamentos coluna - valor.
+        /// </summary>
         public event InsertEventHandler<IEnumerable<IEnumerable<KeyValuePair<int, object>>>>
             AfterKeyedValuesInsertRangeEvent;
 
+        /// <summary>
+        /// Ocorre antes da remoção de uma linha.
+        /// </summary>
         public event AddDeleteEventHandler<ITabularRow> BeforeDeleteEvent;
 
+        /// <summary>
+        /// Ocorre depois da remoção de uma linha.
+        /// </summary>
         public event AddDeleteEventHandler<ITabularRow> AfterDeleteEvent;
 
+        /// <summary>
+        /// Ocorre antes da remoção de várias linhas.
+        /// </summary>
         public event AddDeleteEventHandler<IEnumerable<ITabularRow>> BeforeDeleteRange;
 
+        /// <summary>
+        /// Ocorre depois da remoção de várias linhas.
+        /// </summary>
         public event AddDeleteEventHandler<IEnumerable<ITabularRow>> AfterDeleteRange;
+
         #endregion Eventos associados ao item
     }
 }

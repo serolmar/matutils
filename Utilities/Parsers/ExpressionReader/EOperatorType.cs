@@ -5,6 +5,9 @@
     using System.Linq;
     using System.Text;
 
+    /// <summary>
+    /// Define os vários tipos de operadores.
+    /// </summary>
     enum EOperatorType
     {
         /// <summary>
