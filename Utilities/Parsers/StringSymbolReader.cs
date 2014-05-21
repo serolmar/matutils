@@ -7,14 +7,44 @@
     using System.Text;
     using Utilities;
 
+    /// <summary>
+    /// Implementa um leitor de símbolos a partir de um leitor de carácteres.
+    /// </summary>
+    /// <remarks>
+    /// O leitor de símbolos permite identificar algumas sequências de carácteres que ocorrem
+    /// com frequência na linguagem C++.
+    /// </remarks>
     public class StringSymbolReader : MementoSymbolReader<CharSymbolReader<string>,string, string>
     {
+        /// <summary>
+        /// O tipo de símbolo correspondente ao final do ficheiro.
+        /// </summary>
         private static string endOfFile = "eof";
 
+        /// <summary>
+        /// O símbolo actual.
+        /// </summary>
         private ISymbol<string,string> currentSymbol = new StringSymbol<string>();
+
+        /// <summary>
+        /// O conjunto de estados.
+        /// </summary>
         private List<IState<string, string>> stateList = new List<IState<string, string>>();
+
+        /// <summary>
+        /// Um mapeamento de texto para tipos de símbolos.
+        /// </summary>
         private Dictionary<string, string> keyWords = new Dictionary<string, string>();
+
+        /// <summary>
+        /// Valor que indica se os número negativos são lidos com o sinal.
+        /// </summary>
         private bool readNegativeNumbers = true;
+
+        /// <summary>
+        /// Valor que indica se os símbolos consecutivos marcados como vazios são para considerar como 
+        /// um único símbolo.
+        /// </summary>
         private bool joinBlancks = true;
 
         /// <summary>
@@ -54,38 +84,54 @@
             stateList.Add(new DelegateDrivenState<string, string>(16, "end", this.EndTransition));
         }
 
+        /// <summary>
+        /// Lê o próximo símbolo sem avançar o cursor.
+        /// </summary>
+        /// <returns>O símbolo.</returns>
         public override ISymbol<string,string> Peek()
         {
             if (!this.started)
             {
                 this.started = true;
             }
+
             if (this.bufferPointer == this.symbolBuffer.Count)
             {
                 this.AddNextSymbolFromStream();
             }
+
             StringSymbol<string> result = new StringSymbol<string>()
             {
                 SymbolType = this.symbolBuffer[this.bufferPointer].SymbolType,
                 SymbolValue = this.symbolBuffer[this.bufferPointer].SymbolValue
             };
+
             return result;
         }
 
+        /// <summary>
+        /// Lê o próximo símbolo avançando o cursor.
+        /// </summary>
+        /// <returns>O símbolo.</returns>
         public override ISymbol<string,string> Get()
         {
             if (!this.started)
             {
                 this.started = true;
             }
+
             ISymbol<string,string> result = this.Peek();
             if (this.bufferPointer < this.symbolBuffer.Count)
             {
                 ++this.bufferPointer;
             }
+
             return result;
         }
 
+        /// <summary>
+        /// Retrocede o cursor.
+        /// </summary>
         public override void UnGet()
         {
             if (this.bufferPointer > 0)
@@ -94,11 +140,21 @@
             }
         }
 
+        /// <summary>
+        /// Indica se o leitor encontrou o final de ficheiro.
+        /// </summary>
+        /// <returns>Verdadeiro caso o leitor tenha encontrado o final de ficheiro e falso caso contrário.</returns>
         public override bool IsAtEOF()
         {
             return this.Peek().SymbolType.Equals(StringSymbolReader.endOfFile);
         }
 
+        /// <summary>
+        /// Indica se o símbolo constitui um final de ficheiro.
+        /// </summary>
+        /// <param name="symbol">O símbolo.</param>
+        /// <returns>Verdadeiro caso o símbolo seja um final de ficheiro e falso caso contrário.</returns>
+        /// <exception cref="ArgumentNullException">O símbolo.</exception>
         public override bool IsAtEOFSymbol(ISymbol<string, string> symbol)
         {
             if (symbol == null)
@@ -111,6 +167,11 @@
             }
         }
 
+        /// <summary>
+        /// Reserva um tipo de símbolo para uma palavra.
+        /// </summary>
+        /// <param name="key">A palavra.</param>
+        /// <param name="type">O tipo de símbolo.</param>
         public void RegisterKeyWordType(string key, string type)
         {
             if (this.keyWords.ContainsKey(key))
@@ -123,6 +184,9 @@
             }
         }
 
+        /// <summary>
+        /// Lê o próximo símbolo do leitor de carácters.
+        /// </summary>
         private void AddNextSymbolFromStream()
         {
             this.currentSymbol = new StringSymbol<string>() { SymbolType = string.Empty, SymbolValue = string.Empty };
@@ -137,6 +201,12 @@
         }
 
         #region transition functions
+
+        /// <summary>
+        /// Define a função de transição inicial.
+        /// </summary>
+        /// <param name="reader">O leitor de carácteres.</param>
+        /// <returns>O próximo estado.</returns>
         private IState<string, string> StartTransition(IObjectReader<ISymbol<string, string>> reader)
         {
             ISymbol<string,string> peeked = reader.Peek();
@@ -192,6 +262,11 @@
             return this.stateList[16];
         }
 
+        /// <summary>
+        /// Define a função de transição de texto.
+        /// </summary>
+        /// <param name="reader">O leitor de carácteres.</param>
+        /// <returns>O próximo estado.</returns>
         private IState<string, string> StringTransition(IObjectReader<ISymbol<string, string>> reader)
         {
             ISymbol<string, string> symbol = reader.Get();
@@ -215,6 +290,11 @@
             return this.stateList[16];
         }
 
+        /// <summary>
+        /// Define a função de transição de número.
+        /// </summary>
+        /// <param name="reader">O leitor de carácteres.</param>
+        /// <returns>O próximo estado.</returns>
         private IState<string, string> NumberTransition(IObjectReader<ISymbol<string, string>> reader)
         {
             ISymbol<string, string> symbol = reader.Get();
@@ -249,6 +329,11 @@
             return this.stateList[16];
         }
 
+        /// <summary>
+        /// Define a função de transição de igual.
+        /// </summary>
+        /// <param name="reader">O leitor de carácteres.</param>
+        /// <returns>O próximo estado.</returns>
         private IState<string, string> EqualTransition(IObjectReader<ISymbol<string, string>> reader)
         {
             ISymbol<string, string> symbol = reader.Get();
@@ -302,6 +387,11 @@
             return this.stateList[16];
         }
 
+        /// <summary>
+        /// Define a função de transição de maior.
+        /// </summary>
+        /// <param name="reader">O leitor de carácteres.</param>
+        /// <returns>O próximo estado.</returns>
         private IState<string, string> GreaterTransition(IObjectReader<ISymbol<string, string>> reader)
         {
             ISymbol<string, string> symbol = reader.Get();
@@ -332,6 +422,11 @@
             return this.stateList[16];
         }
 
+        /// <summary>
+        /// Define a função de transição de menor.
+        /// </summary>
+        /// <param name="reader">O leitor de carácteres.</param>
+        /// <returns>O próximo estado.</returns>
         private IState<string, string> LesserTransition(IObjectReader<ISymbol<string, string>> reader)
         {
             ISymbol<string, string> symbol = reader.Get();
@@ -362,6 +457,11 @@
             return this.stateList[16];
         }
 
+        /// <summary>
+        /// Define a função de transição de ou lógico.
+        /// </summary>
+        /// <param name="reader">O leitor de carácteres.</param>
+        /// <returns>O próximo estado.</returns>
         private IState<string, string> OrTransition(IObjectReader<ISymbol<string, string>> reader)
         {
             ISymbol<string, string> symbol = reader.Get();
@@ -387,6 +487,11 @@
             return this.stateList[16];
         }
 
+        /// <summary>
+        /// Define a função de transição de e lógico.
+        /// </summary>
+        /// <param name="reader">O leitor de carácteres.</param>
+        /// <returns>O próximo estado.</returns>
         private IState<string, string> AndTransition(IObjectReader<ISymbol<string, string>> reader)
         {
             ISymbol<string, string> symbol = reader.Get();
@@ -412,6 +517,11 @@
             return this.stateList[16];
         }
 
+        /// <summary>
+        /// Define a função de transição de dois pontos.
+        /// </summary>
+        /// <param name="reader">O leitor de carácteres.</param>
+        /// <returns>O próximo estado.</returns>
         private IState<string,string> ColonTransition(IObjectReader<ISymbol<string, string>> reader)
         {
             ISymbol<string, string> symbol = reader.Get();
@@ -433,6 +543,11 @@
             return this.stateList[16];
         }
 
+        /// <summary>
+        /// Define a função de transição de mais.
+        /// </summary>
+        /// <param name="reader">O leitor de carácteres.</param>
+        /// <returns>O próximo estado.</returns>
         private IState<string, string> PlusTransition(IObjectReader<ISymbol<string, string>> reader)
         {
             ISymbol<string, string> symbol = reader.Get();
@@ -458,6 +573,11 @@
             return this.stateList[16];
         }
 
+        /// <summary>
+        /// Define a função de transição de menos.
+        /// </summary>
+        /// <param name="reader">O leitor de carácteres.</param>
+        /// <returns>O próximo estado.</returns>
         private IState<string, string> MinusTransition(IObjectReader<ISymbol<string, string>> reader)
         {
             ISymbol<string, string> symbol = reader.Get();
@@ -518,6 +638,11 @@
             return this.stateList[16];
         }
 
+        /// <summary>
+        /// Define a função de transição de vezes.
+        /// </summary>
+        /// <param name="reader">O leitor de carácteres.</param>
+        /// <returns>O próximo estado.</returns>
         private IState<string, string> TimesTransition(IObjectReader<ISymbol<string, string>> reader)
         {
             ISymbol<string, string> symbol = reader.Get();
@@ -543,6 +668,11 @@
             return this.stateList[16];
         }
 
+        /// <summary>
+        /// Define a função de transição de dividir.
+        /// </summary>
+        /// <param name="reader">O leitor de carácteres.</param>
+        /// <returns>O próximo estado.</returns>
         private IState<string, string> OverTransition(IObjectReader<ISymbol<string, string>> reader)
         {
             ISymbol<string, string> symbol = reader.Get();
@@ -556,6 +686,11 @@
             return this.stateList[16];
         }
 
+        /// <summary>
+        /// Define a função de transição de ponto.
+        /// </summary>
+        /// <param name="reader">O leitor de carácteres.</param>
+        /// <returns>O próximo estado.</returns>
         private IState<string, string> PointTransition(IObjectReader<ISymbol<string, string>> reader)
         {
             ISymbol<string, string> symbol = reader.Get();
@@ -597,6 +732,11 @@
             return this.stateList[16];
         }
 
+        /// <summary>
+        /// Define a função de transição de vazios.
+        /// </summary>
+        /// <param name="reader">O leitor de carácteres.</param>
+        /// <returns>O próximo estado.</returns>
         private IState<string, string> BlanckTransition(IObjectReader<ISymbol<string, string>> reader)
         {
             ISymbol<string, string> symbol = reader.Get();
@@ -619,6 +759,11 @@
             return this.stateList[16];
         }
 
+        /// <summary>
+        /// Define a função de transição de exponencial.
+        /// </summary>
+        /// <param name="reader">O leitor de carácteres.</param>
+        /// <returns>O próximo estado.</returns>
         private IState<string, string> ExponentialTransition(IObjectReader<ISymbol<string, string>> reader)
         {
             ISymbol<string, string> symbol = reader.Get();
@@ -661,6 +806,11 @@
             return this.stateList[16];
         }
 
+        /// <summary>
+        /// Define a função de transição final.
+        /// </summary>
+        /// <param name="reader">O leitor de carácteres.</param>
+        /// <returns>Nulo.</returns>
         private IState<string, string> EndTransition(IObjectReader<ISymbol<string, string>> reader)
         {
             return null;
@@ -668,6 +818,11 @@
 
         #endregion
 
+        /// <summary>
+        /// Determina o tipo de símbolo a partir de um número.
+        /// </summary>
+        /// <param name="number">O número.</param>
+        /// <returns>O tipo de símbolo.</returns>
         private string GetTypeFromNumberRepresentation(string number)
         {
             if (number.Contains('.'))

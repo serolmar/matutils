@@ -5,26 +5,37 @@ using System.Text;
 
 namespace Utilities
 {
-    public abstract class MementoSymbolReader<InputReader, TSymbVal, TSymbType> : SymbolReader<InputReader, TSymbVal, TSymbType>, IMementoOriginator
+    /// <summary>
+    /// Implementa um leitor de símbolos com capacidade de memorização.
+    /// </summary>
+    /// <typeparam name="InputReader">O leitor de valores.</typeparam>
+    /// <typeparam name="TSymbVal">O tipo de objectos que constituem os valores dos símbolos.</typeparam>
+    /// <typeparam name="TSymbType">O tipo de objectos que constituem os tipos dos símbolos.</typeparam>
+    public abstract class MementoSymbolReader<InputReader, TSymbVal, TSymbType> 
+        : SymbolReader<InputReader, TSymbVal, TSymbType>, IMementoOriginator
     {
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="MementoSymbolReader"/>.
+        /// </summary>
+        /// <param name="inputTextStream">O leitor de dados.</param>
         public MementoSymbolReader(InputReader inputTextStream)
             : base(inputTextStream)
         {
         }
 
         /// <summary>
-        /// Saves the originator to a memento object.
+        /// Guarda o estado da instância corrente no memorizador.
         /// </summary>
-        /// <returns>The memento.</returns>
+        /// <returns>O memorizador.</returns>
         public IMemento SaveToMemento()
         {
             return new Memento(this.bufferPointer);
         }
 
         /// <summary>
-        /// Restores the originator to the specified memento.
+        /// Retorna a instância corrente ao estado especificado pelo memorizador.
         /// </summary>
-        /// <param name="memento">The restoring memento.</param>
+        /// <param name="memento">O memorizador.</param>
         public void RestoreToMemento(IMemento memento)
         {
             if (memento == null)
@@ -42,7 +53,7 @@ namespace Utilities
         }
 
         /// <summary>
-        /// The char symbol reader mement.0.
+        /// O memorizador do estado relacionado com o leitor.
         /// </summary>
         protected class Memento : IMemento
         {
@@ -51,6 +62,9 @@ namespace Utilities
             /// </summary>
             private int mementoState = 0;
 
+            /// <summary>
+            /// Valor que indica se o memorizador foi descartado.
+            /// </summary>
             private bool disposed = false;
 
             /// <summary>
@@ -63,8 +77,10 @@ namespace Utilities
             }
 
             /// <summary>
-            /// Gets the memento state.
+            /// Obtém o estado do mermorizador.
             /// </summary>
+            /// <value>O estado do mermorizador.</value>
+            /// <exception cref="InvalidOperationException">Se o memorizador foi descartado.</exception>
             public int State
             {
                 get
@@ -78,6 +94,11 @@ namespace Utilities
                 }
             }
 
+            /// <summary>
+            /// Obtém um valor que indica se o memorizador consome recursos.
+            /// </summary>
+            /// <value>Verdadeiro se o memorizador consumir muitos recursos e falso caso contrário.</value>
+            /// <exception cref="InvalidOperationException">Se o memorizador foi descartado.</exception>
             public bool IsHeavyMemento
             {
                 get
@@ -91,6 +112,9 @@ namespace Utilities
                 }
             }
 
+            /// <summary>
+            /// Descarta o memorizador.
+            /// </summary>
             public void Dispose()
             {
                 this.disposed = true;

@@ -5,8 +5,17 @@
     using System.Linq;
     using System.Text;
 
+    /// <summary>
+    /// Implementa um leitor de valores inteiros.
+    /// </summary>
     public class IntegerParser<SymbType> : IParse<int, string, SymbType>, IParse<object, string, SymbType>
     {
+        /// <summary>
+        /// Tenta efectuar a leitura.
+        /// </summary>
+        /// <param name="symbolListToParse">A lista de símbolos a ler.</param>
+        /// <param name="value">O valor que contém a leitura.</param>
+        /// <returns>Verdadeiro caso a leitura seja bem-sucedida e falso caso contrário.</returns>
         public bool TryParse(ISymbol<string, SymbType>[] symbolListToParse, out int value)
         {
             if (symbolListToParse.Length > 1)
@@ -21,6 +30,12 @@
             }
         }
 
+        /// <summary>
+        /// Tenta efectuar a leitura.
+        /// </summary>
+        /// <param name="symbolListToParse">A lista de símbolos a ler.</param>
+        /// <param name="value">O valor que contém a leitura.</param>
+        /// <returns>Verdadeiro caso a leitura seja bem-sucedida e falso caso contrário.</returns>
         public bool TryParse(ISymbol<string, SymbType>[] symbolListToParse, out object value)
         {
             var temp = default(int);

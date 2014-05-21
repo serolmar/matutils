@@ -6,17 +6,34 @@
     using System.Linq;
     using System.Text;
 
+    /// <summary>
+    /// Implementa um leitor de expressões que definem decimais.
+    /// </summary>
     public class DecimalParser<SymbType> : IParse<decimal, string, SymbType>, IParse<object, string, SymbType>
     {
+        /// <summary>
+        /// O estilo do número.
+        /// </summary>
         private NumberStyles numberStyles;
 
+        /// <summary>
+        /// O provedor de formatos.
+        /// </summary>
         private IFormatProvider formatProvider;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="DecimalParser{SymbType}"/>.
+        /// </summary
         public DecimalParser()
             : this(NumberStyles.Number, CultureInfo.InvariantCulture.NumberFormat)
         {
         }
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="DecimalParser{SymbType}"/>.
+        /// </summary
+        /// <param name="numberStyles">Os estilos do número.</param>
+        /// <param name="formatProvider">O provedor de formatos.</param>
         public DecimalParser(NumberStyles numberStyles, IFormatProvider formatProvider)
         {
             if (formatProvider == null)
@@ -28,6 +45,12 @@
             this.formatProvider = formatProvider;
         }
 
+        /// <summary>
+        /// Tenta efectuar a leitura.
+        /// </summary>
+        /// <param name="symbolListToParse">A lista de símbolos a ler.</param>
+        /// <param name="value">O valor que contém a leitura.</param>
+        /// <returns>Verdadeiro caso a leitura seja bem-sucedida e falso caso contrário.</returns>
         public bool TryParse(ISymbol<string, SymbType>[] symbolListToParse, out decimal value)
         {
             if (symbolListToParse.Length > 1)
@@ -45,6 +68,12 @@
             }
         }
 
+        /// <summary>
+        /// Tenta efectuar a leitura.
+        /// </summary>
+        /// <param name="symbolListToParse">A lista de símbolos a ler.</param>
+        /// <param name="value">O valor que contém a leitura.</param>
+        /// <returns>Verdadeiro caso a leitura seja bem-sucedida e falso caso contrário.</returns>
         public bool TryParse(ISymbol<string, SymbType>[] symbolListToParse, out object value)
         {
             var temp = default(decimal);

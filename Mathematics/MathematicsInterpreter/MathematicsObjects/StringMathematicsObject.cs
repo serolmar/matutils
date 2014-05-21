@@ -1,20 +1,33 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Globalization;
-
-namespace Mathematics.MathematicsInterpreter
+﻿namespace Mathematics.MathematicsInterpreter
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using System.Globalization;
+
+    /// <summary>
+    /// Representa um valor textual.
+    /// </summary>
     class StringMathematicsObject : AMathematicsObject
     {
+        /// <summary>
+        /// O valor textual.
+        /// </summary>
         private string value;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="StringMathematicsObject"/>.
+        /// </summary>
         public StringMathematicsObject()
             : base(EMathematicsType.STRING_VALUE, false)
         {
         }
 
+        /// <summary>
+        /// Obtém ou atribui o valor.
+        /// </summary>
+        /// <value>O valor.</value>
         public string Value
         {
             get
@@ -27,6 +40,13 @@ namespace Mathematics.MathematicsInterpreter
             }
         }
 
+        /// <summary>
+        /// Determina se é possível converter a instância corrente no tipo especificado.
+        /// </summary>
+        /// <param name="mathematicsType">O tipo.</param>
+        /// <returns>
+        /// Verdadeiro caso seja possível converter a instância e falso caso contrário.
+        /// </returns>
         public override bool CanConvertTo(EMathematicsType mathematicsType)
         {
             if (mathematicsType == EMathematicsType.STRING_VALUE)
@@ -95,6 +115,14 @@ namespace Mathematics.MathematicsInterpreter
             return false;
         }
 
+        /// <summary>
+        /// Obtém um objecto que resulta da conversão da instância corrente.
+        /// </summary>
+        /// <param name="mathematicsType">O tipo de objecto no qual se pretende converter.</param>
+        /// <returns>
+        /// O objecto convertido.
+        /// </returns>
+        /// <exception cref="ExpressionInterpreterException"></exception>
         public override AMathematicsObject ConvertTo(EMathematicsType mathematicsType)
         {
             if (mathematicsType == EMathematicsType.STRING_VALUE)

@@ -8,6 +8,11 @@
 
     public class CharSymbolReader<SymbType> : MementoSymbolReader<TextReader, string, SymbType>
     {
+        /// <summary>
+        /// Define o delegado que permite incluir funções de classificação de carácteres.
+        /// </summary>
+        /// <param name="c">O caráter a ser classificado.</param>
+        /// <returns>O tipo de símbolo associado ao carácter.</returns>
         public delegate SymbType TypeOfReadedChar(char c);
 
         /// <summary>
@@ -20,11 +25,32 @@
         /// </summary>
         private SymbType endOfFileType;
 
+        /// <summary>
+        /// Função que permite atribuir um tipo de símbolo a um carácter.
+        /// </summary>
         private TypeOfReadedChar deciderFunction = null;
 
+        /// <summary>
+        /// Um mapeamento entre carácteres e respectivos tipos de símbolos.
+        /// </summary>
         private Dictionary<char, SymbType> charTypes = new Dictionary<char, SymbType>();
+
+        /// <summary>
+        /// Uma lista de limites de carácteres e os seus tipos de símbolos.
+        /// </summary>
         List<StructRangeType<SymbType>> registeredRanges = new List<StructRangeType<SymbType>>();
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="CharSymbolReader{SymbType}"/>.
+        /// </summary>
+        /// <param name="inputReader">O leitor de texto.</param>
+        public CharSymbolReader(TextReader inputReader) : base(inputReader) { }
+
+        /// <summary>
+        /// Obtém ou atribui a função que permite classificar carácteres.
+        /// </summary>
+        /// <value>A função que permite classificar carácteres.</value>
+        /// <exception cref="UtilitiesException">Se o leitor tiver sido inicializado.</exception>
         public TypeOfReadedChar DeciderFunction
         {
             get
@@ -35,12 +61,22 @@
             {
                 if (this.started)
                 {
-                    throw new Exception("Reader has already been started.");
+                    throw new UtilitiesException("Reader has already been started.");
                 }
-                this.deciderFunction = value;
+                else
+                {
+                    this.deciderFunction = value;
+                }
             }
         }
 
+        /// <summary>
+        /// Obtém ou atribui os tipo de símbolo que é atribuído aos carácteres não classificados.
+        /// </summary>
+        /// <value>O tipo de símbolo.</value>
+        /// <exception cref="UtilitiesException">
+        /// Se o valor a atribuir for nulo ou se o leitor tiver sido iniciado.
+        /// </exception>
         public SymbType GenericType
         {
             get
@@ -51,7 +87,11 @@
             {
                 if (value == null)
                 {
-                    throw new UtilitiesDataException("Type can't be null.");
+                    throw new UtilitiesException("Type can't be null.");
+                }
+                else if (this.started)
+                {
+                    throw new UtilitiesException("Reader has already been started.");
                 }
                 else
                 {
@@ -60,6 +100,13 @@
             }
         }
 
+        /// <summary>
+        /// Obtém ou atribui o tipo de símbolo correspondente ao final de ficheiro.
+        /// </summary>
+        /// <value>O tipo de símbolo.</value>
+        /// <exception cref="UtilitiesException">
+        /// Se o valor a atribuir for nulo ou se o leitor tiver sido iniciado.
+        /// </exception>
         public SymbType EndOfFileType
         {
             get
@@ -70,7 +117,11 @@
             {
                 if (value == null)
                 {
-                    throw new UtilitiesDataException("Type can't be null.");
+                    throw new UtilitiesException("Type can't be null.");
+                }
+                else if (this.started)
+                {
+                    throw new UtilitiesException("Reader has already been started.");
                 }
                 else
                 {
@@ -79,15 +130,19 @@
             }
         }
 
-        public CharSymbolReader(TextReader inputReader) : base(inputReader) { }
-
+        /// <summary>
+        /// Regista um carácter com um determinado tipo de símbolo.
+        /// </summary>
+        /// <param name="charToRegister">O carácter.</param>
+        /// <param name="typeOfChar">O tipo do símbolo.</param>
+        /// <exception cref="UtilitiesException">Se o leitor foi iniciado.</exception>
         public void RegisterCharType(char charToRegister, SymbType typeOfChar)
         {
             if (this.started)
             {
-                throw new Exception("Reader has already been started.");
+                throw new UtilitiesException("Reader has already been started.");
             }
-            if (charTypes.ContainsKey(charToRegister))
+            else if (charTypes.ContainsKey(charToRegister))
             {
                 this.charTypes[charToRegister] = typeOfChar;
             }
@@ -97,48 +152,74 @@
             }
         }
 
+        /// <summary>
+        /// Elimina o registo do carácter desassociando-o do seu tipo de símbolo.
+        /// </summary>
+        /// <param name="charToRegister">O carácter a eliminar.</param>
+        /// <exception cref="UtilitiesException">Se o leitor foi iniciado.</exception>
         public void UnRegisterCharType(char charToRegister)
         {
             if (this.started)
             {
-                throw new Exception("Reader has already been started.");
+                throw new UtilitiesException("Reader has already been started.");
             }
-            if (this.charTypes.ContainsKey(charToRegister))
+            else if (this.charTypes.ContainsKey(charToRegister))
             {
                 this.charTypes.Remove(charToRegister);
             }
         }
 
+        /// <summary>
+        /// Regista um intervalo de carácteres com o mesmo tipo de símbolo.
+        /// </summary>
+        /// <param name="charOne">O carácter que define uma extremidade do intervalo.</param>
+        /// <param name="charTwo">O carácter que define a outra extremidade do intervalo.</param>
+        /// <param name="type">O tipo de símbolo.</param>
+        /// <exception cref="UtilitiesException">Se o leitor foi iniciado.</exception>
         public void RegisterCharRangeType(char charOne, char charTwo, SymbType type)
         {
             if (this.started)
             {
-                throw new Exception("Reader has already been started.");
+                throw new UtilitiesException("Reader has already been started.");
             }
-
-            CharRange range = new CharRange(charOne, charTwo);
-            if (!range.IsEmptyRange() && !type.Equals(string.Empty))
+            else
             {
-                this.registeredRanges.Add(new StructRangeType<SymbType>() { Range = range, Type = type });
+                CharRange range = new CharRange(charOne, charTwo);
+                if (!range.IsEmptyRange() && !type.Equals(string.Empty))
+                {
+                    this.registeredRanges.Add(new StructRangeType<SymbType>() { Range = range, Type = type });
+                }
             }
         }
 
+        /// <summary>
+        /// Elmina todos os registos de carácteres.
+        /// </summary>
+        /// <exception cref="UtilitiesException">Se o leitor foi iniciado.</exception>
         public void UnRegisterAll()
         {
             if (this.started)
             {
-                throw new Exception("Reader has already been started.");
+                throw new UtilitiesException("Reader has already been started.");
             }
-            this.charTypes.Clear();
-            this.registeredRanges.Clear();
+            else
+            {
+                this.charTypes.Clear();
+                this.registeredRanges.Clear();
+            }
         }
 
+        /// <summary>
+        /// Lê o próximo símbolo sem avançar o cursor.
+        /// </summary>
+        /// <returns>O símbolo.</returns>
         public override ISymbol<string, SymbType> Peek()
         {
             if (!this.started)
             {
                 this.started = true;
             }
+
             if (this.bufferPointer == this.symbolBuffer.Count)
             {
                 this.AddNextSymbolFromStream();
@@ -173,6 +254,10 @@
         //    }
         //}
 
+        /// <summary>
+        /// Lê o próximo símbolo avançando o cursor.
+        /// </summary>
+        /// <returns>O símbolo.</returns>
         public override ISymbol<string,SymbType> Get()
         {
             if (!this.started)
@@ -192,6 +277,9 @@
             return result;
         }
 
+        /// <summary>
+        /// Retrocede o cursor.
+        /// </summary>
         public override void UnGet()
         {
             if (bufferPointer > 0)
@@ -200,11 +288,21 @@
             }
         }
 
+        /// <summary>
+        /// Indica se o leitor encontrou o final de ficheiro.
+        /// </summary>
+        /// <returns>Verdadeiro caso o leitor tenha encontrado o final de ficheiro e falso caso contrário.</returns>
         public override bool IsAtEOF()
         {
             return this.Peek().SymbolType.Equals(this.endOfFileType);
         }
 
+        /// <summary>
+        /// Indica se o símbolo constitui um final de ficheiro.
+        /// </summary>
+        /// <param name="symbol">O símbolo.</param>
+        /// <returns>Verdadeiro caso o símbolo seja um final de ficheiro e falso caso contrário.</returns>
+        /// <exception cref="ArgumentNullException">Se o símbolo for nulo.</exception>
         public override bool IsAtEOFSymbol(ISymbol<string, SymbType> symbol)
         {
             if (symbol == null)
@@ -256,6 +354,11 @@
             this.symbolBuffer.Add(result);
         }
 
+        /// <summary>
+        /// Obtém o tipo a partir do conjunto de intervalos.
+        /// </summary>
+        /// <param name="c">O carácter.</param>
+        /// <returns>O tipo de símbolo reultante.</returns>
         private SymbType GetCharTypeFromRanges(int c)
         {
             var result = default(SymbType);
@@ -270,36 +373,80 @@
             return result;
         }
 
+        /// <summary>
+        /// Deinie um intervalo.
+        /// </summary>
         private class CharRange
         {
+            /// <summary>
+            /// O carácter de início.
+            /// </summary>
             private int startChar;
+
+            /// <summary>
+            /// O carácter de fim.
+            /// </summary>
             private int endChar;
 
+            /// <summary>
+            /// Instancia um novo objecto do tipo <see cref="CharRange"/>.
+            /// </summary>
             public CharRange()
             {
                 this.SetEmpty();
             }
 
+            /// <summary>
+            /// Instancia um novo objecto do tipo <see cref="CharRange"/>.
+            /// </summary>
+            /// <param name="charOne">O primeiro carácter.</param>
+            /// <param name="charTwo">O segundo carácter.</param>
             public CharRange(int charOne, int charTwo)
             {
                 this.SetRange(charOne, charTwo);
             }
 
+            /// <summary>
+            /// Obtém o primeiro carácter.
+            /// </summary>
+            /// <value>
+            /// O primeiro carácter.
+            /// </value>
             public int StartChar
             {
-                get { return startChar; }
+                get { 
+                    return startChar; }
             }
 
+            /// <summary>
+            /// Obtém o segundo carácter.
+            /// </summary>
+            /// <value>
+            /// O segundo carácter.
+            /// </value>
             public int EndChar
             {
-                get { return endChar; }
+                get { 
+                    return endChar; }
             }
 
+            /// <summary>
+            /// Obtém o tamanho do intervalo.
+            /// </summary>
+            /// <value>
+            /// O tamanho do intervalo.
+            /// </value>
             public int Length
             {
-                get { return (int)this.endChar - (int)this.startChar + 1; }
+                get { 
+                    return (int)this.endChar - (int)this.startChar + 1; }
             }
 
+            /// <summary>
+            /// Estabelece os valores do intevalo.
+            /// </summary>
+            /// <param name="charOne">O primeiro carácter.</param>
+            /// <param name="charTwo">O segundo carácter.</param>
             public void SetRange(int charOne, int charTwo)
             {
                 if (charOne < charTwo)
@@ -314,32 +461,61 @@
                 }
             }
 
+            /// <summary>
+            /// Estabelece o intervalo vazio.
+            /// </summary>
             public void SetEmpty()
             {
                 this.startChar = -1;
                 this.endChar = -1;
             }
 
+            /// <summary>
+            /// Determina se o carácter pertence ao intervalo.
+            /// </summary>
+            /// <param name="c">O carácter.</param>
+            /// <returns>Verdadeiro caso o carácter pertença ao intervalo e falos caso contrário.</returns>
             public bool HasChar(int c)
             {
                 return c >= this.startChar && c <= this.endChar;
             }
 
+            /// <summary>
+            /// Determina se o intervalo é vazio.
+            /// </summary>
+            /// <returns>Veradeiro caso o intervalo seja vazio e falso caso contrário.</returns>
             public bool IsEmptyRange()
             {
                 return this.startChar < 0 || this.endChar < 0;
             }
 
+            /// <summary>
+            /// Vericia se o intervalo contém outro intervalo.
+            /// </summary>
+            /// <param name="otherCharRange">O intervalo a ser analisado.</param>
+            /// <returns>Verdadeiro caso o intervalo contenha o outro e falso caso contrário.</returns>
             public bool Contains(CharRange otherCharRange)
             {
                 return this.HasChar(otherCharRange.startChar) && this.HasChar(otherCharRange.endChar);
             }
 
+            /// <summary>
+            /// Verifica se o intervalo corrente está contido em outro intervalo.
+            /// </summary>
+            /// <param name="otherCharRange">O intervalo a ser analisado.</param>
+            /// <returns>
+            /// Verdadeiro se o intervalo corrente contém o outro intervalo e falso caso contrário.
+            /// </returns>
             public bool IsContained(CharRange otherCharRange)
             {
                 return otherCharRange.HasChar(this.startChar) && otherCharRange.HasChar(this.endChar);
             }
 
+            /// <summary>
+            /// Retorna a intersecção do intervalo corrente com outro intervalo.
+            /// </summary>
+            /// <param name="otherCharRange">O intervalo.</param>
+            /// <returns>A intersecção.</returns>
             public CharRange Intersection(CharRange otherCharRange)
             {
                 CharRange result = new CharRange();
@@ -370,6 +546,13 @@
                 return result;
             }
 
+            /// <summary>
+            /// Determina se o objecto é igual à instância corrente.
+            /// </summary>
+            /// <param name="obj">O objecto.</param>
+            /// <returns>
+            /// Verdadeiro se o objecto for igual à instância corrente e falso caso contrário.
+            /// </returns>
             public override bool Equals(object obj)
             {
                 CharRange rightHandSide = obj as CharRange;
@@ -377,27 +560,54 @@
                 {
                     return false;
                 }
+
                 return this.startChar.Equals(rightHandSide.startChar) && this.endChar.Equals(rightHandSide.endChar);
             }
 
+            /// <summary>
+            /// Retorna um código confuso para a instância corrente.
+            /// </summary>
+            /// <returns>
+            /// O código confuso para a instância corrente que pode ser utilizado em alguns algoritmos.
+            /// </returns>
             public override int GetHashCode()
             {
                 return this.startChar ^ this.endChar;
             }
 
+            /// <summary>
+            /// Constrói uma representação textual da instância corrente.
+            /// </summary>
+            /// <returns>A representação textual.</returns>
             public override string ToString()
             {
                 if (this.IsEmptyRange())
                 {
                     return "Range(empty)";
                 }
+
                 return string.Format("Range({0},{1})", this.startChar, this.endChar);
             }
         }
 
+        /// <summary>
+        /// Estrutura que permite mapear o interavalo ao seu tipo.
+        /// </summary>
+        /// <typeparam name="Symb">O tipo dos objectos que constituem os tipos de símbolos.</typeparam>
         private struct StructRangeType<Symb>
         {
+            /// <summary>
+            /// Obtém ou atribui o intervalo.
+            /// </summary>
+            /// <value>O interavalo.</value>
             public CharRange Range { get; set; }
+
+            /// <summary>
+            /// Obtém ou atribui o tipo de símbolo.
+            /// </summary>
+            /// <value>
+            /// O tipo de símbolo.
+            /// </value>
             public Symb Type { get; set; }
         }
     }

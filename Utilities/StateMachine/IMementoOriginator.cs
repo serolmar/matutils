@@ -5,6 +5,9 @@
     using System.Linq;
     using System.Text;
 
+    /// <summary>
+    /// Define uma entidade capaz de memorizar o seu estado num memorizador.
+    /// </summary>
     interface IMementoOriginator
     {
         /// <summary>

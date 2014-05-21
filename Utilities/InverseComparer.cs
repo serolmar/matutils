@@ -16,11 +16,15 @@
         /// </summary>
         private IComparer<CoeffType> coeffsComparer;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="InverseComparer{CoeffType}"/>.
+        /// </summary>
+        /// <param name="coeffsComparer">O comparador de coeficientes.</param>
         public InverseComparer(IComparer<CoeffType> coeffsComparer)
         {
             if (coeffsComparer == null)
             {
-                throw new ArgumentNullException("coeffsComparer");
+                this.coeffsComparer = Comparer<CoeffType>.Default;
             }
             else
             {

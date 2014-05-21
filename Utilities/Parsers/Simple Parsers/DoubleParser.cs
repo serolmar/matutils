@@ -6,17 +6,34 @@
     using System.Linq;
     using System.Text;
 
+    /// <summary>
+    /// Implementa um leitor de valores de precisão dupla.
+    /// </summary>
     public class DoubleParser<SymbType> : IParse<double, string, SymbType>, IParse<object, string, SymbType>
     {
+        /// <summary>
+        /// O estilo dos números.
+        /// </summary>
         private NumberStyles numberStyles;
 
+        /// <summary>
+        /// O provedor de formatos.
+        /// </summary>
         private IFormatProvider formatProvider;
 
+        /// <summary>
+        /// Instancia um novo objeto do tipo <see cref="DoubleParser{SymbType}"/>.
+        /// </summary>
         public DoubleParser()
             : this(NumberStyles.Number, CultureInfo.InvariantCulture.NumberFormat)
         {
         }
 
+        /// <summary>
+        /// Instancia um novo objeto do tipo <see cref="DoubleParser{SymbType}"/>.
+        /// </summary>
+        /// <param name="numberStyles">Os estilos dos números.</param>
+        /// <param name="formatProvider">O provedor de formatos.</param>
         public DoubleParser(NumberStyles numberStyles, IFormatProvider formatProvider)
         {
             if (formatProvider == null)
@@ -28,6 +45,12 @@
             this.formatProvider = formatProvider;
         }
 
+        /// <summary>
+        /// Tenta efectuar a leitura.
+        /// </summary>
+        /// <param name="symbolListToParse">A lista de símbolos a ler.</param>
+        /// <param name="value">O valor que contém a leitura.</param>
+        /// <returns>Verdadeiro caso a leitura seja bem-sucedida e falso caso contrário.</returns>
         public bool TryParse(ISymbol<string, SymbType>[] symbolListToParse, out double value)
         {
             if (symbolListToParse.Length > 1)
@@ -45,6 +68,12 @@
             }
         }
 
+        /// <summary>
+        /// Tenta efectuar a leitura.
+        /// </summary>
+        /// <param name="symbolListToParse">A lista de símbolos a ler.</param>
+        /// <param name="value">O valor que contém a leitura.</param>
+        /// <returns>Verdadeiro caso a leitura seja bem-sucedida e falso caso contrário.</returns>
         public bool TryParse(ISymbol<string, SymbType>[] symbolListToParse, out object value)
         {
             var temp = default(double);

@@ -8,6 +8,8 @@
     /// <summary>
     /// Permite a leitura organizada a partir de um vector de símbolos.
     /// </summary>
+    /// <typeparam name="TSymbVal">O tipo de objectos que constituem os valores.</typeparam>
+    /// <typeparam name="TSymbType">O tipo de objectos que constituem os tipos de símbolos.</typeparam>
     public class ArraySymbolReader<TSymbVal, TSymbType> : MementoSymbolReader<ISymbol<TSymbVal, TSymbType>[], TSymbVal, TSymbType>
     {
         /// <summary>
@@ -15,6 +17,11 @@
         /// </summary>
         private TSymbType endOfFileSymbolType;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="ArraySymbolReader{TSymbVal, TSymbType}"/>.
+        /// </summary>
+        /// <param name="arrayOfSymbols">O vector de símbolos.</param>
+        /// <param name="endOfFileSymbolType">O tipo de símbolo que corresponde ao final do ficheiro.</param>
         public ArraySymbolReader(ISymbol<TSymbVal, TSymbType>[] arrayOfSymbols, TSymbType endOfFileSymbolType)
             : base(arrayOfSymbols)
         {
@@ -23,6 +30,10 @@
             this.endOfFileSymbolType = endOfFileSymbolType;
         }
 
+        /// <summary>
+        /// Obtém o próximo símbolo mas não avança o cursor.
+        /// </summary>
+        /// <returns>O símbolo.</returns>
         public override ISymbol<TSymbVal, TSymbType> Peek()
         {
             var nextPointer = this.bufferPointer + 1;
@@ -36,6 +47,10 @@
             }
         }
 
+        /// <summary>
+        /// Lê o próximo símbolo avançando o cursor.
+        /// </summary>
+        /// <returns>O símbolo lido.</returns>
         public override ISymbol<TSymbVal, TSymbType> Get()
         {
             if (this.bufferPointer < this.symbolBuffer.Count)
@@ -56,6 +71,9 @@
             }
         }
 
+        /// <summary>
+        /// Retrocede o cursor.
+        /// </summary>
         public override void UnGet()
         {
             if (this.bufferPointer > -1)
@@ -64,11 +82,20 @@
             }
         }
 
+        /// <summary>
+        /// Obtém um valor que indica se o leitor se encontra no final.
+        /// </summary>
+        /// <returns>Verdadeiro caso o leitor se encontre no final e falso caso contrário.</returns>
         public override bool IsAtEOF()
         {
             return this.bufferPointer >= this.symbolBuffer.Count - 1;
         }
 
+        /// <summary>
+        /// Obtém um valor que indica se o símbolo proporcionado correspode ao fim de ficheiro.
+        /// </summary>
+        /// <param name="symbol">O símbolo a ser verificado.</param>
+        /// <returns>Verdadeiro caso o símbolo seja final de ficheiro e falso caso contrário.</returns>
         public override bool IsAtEOFSymbol(ISymbol<TSymbVal, TSymbType> symbol)
         {
             if (symbol == null)
@@ -81,12 +108,27 @@
             }
         }
 
+        /// <summary>
+        /// Impelmenta um símbolo lido de um vector de símbolos.
+        /// </summary>
         private class ArraySymbol : ISymbol<TSymbVal, TSymbType>
         {
+            /// <summary>
+            /// O valor do símbolo.
+            /// </summary>
             private TSymbVal symbolValue;
 
+            /// <summary>
+            /// O tipo do símbolo.
+            /// </summary>
             private TSymbType symbolType;
 
+            /// <summary>
+            /// Obtém ou atribui o valor do símbolo.
+            /// </summary>
+            /// <value>
+            /// O valor do símbolo.
+            /// </value>
             public TSymbVal SymbolValue
             {
                 get
@@ -99,6 +141,12 @@
                 }
             }
 
+            /// <summary>
+            /// Obtém ou atribui o tipo de símbolo.
+            /// </summary>
+            /// <value>
+            /// O tipo de símbolo.
+            /// </value>
             public TSymbType SymbolType
             {
                 get

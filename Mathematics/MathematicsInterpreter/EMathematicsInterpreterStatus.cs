@@ -1,10 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Mathematics.MathematicsInterpreter
+﻿namespace Mathematics.MathematicsInterpreter
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+
+    /// <summary>
+    /// Enumera todos os estados do interpretador.
+    /// </summary>
     public enum EMathematicsInterpreterStatus
     {
         /// <summary>

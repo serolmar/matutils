@@ -1,10 +1,4 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="ELambdaExpressionWordType.cs" company="">
-// TODO: Update copyright text.
-// </copyright>
-// -----------------------------------------------------------------------
-
-namespace Utilities.Lambda
+﻿namespace Utilities.Lambda
 {
     using System;
     using System.Collections.Generic;

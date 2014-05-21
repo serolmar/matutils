@@ -1,17 +1,33 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Mathematics.MathematicsInterpreter
+﻿namespace Mathematics.MathematicsInterpreter
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+
+    /// <summary>
+    /// Representa um nome.
+    /// </summary>
     class NameMathematicsObject : AMathematicsObject
     {
+        /// <summary>
+        /// O mediador.
+        /// </summary>
         private MathematicsInterpreterMediator mediator;
 
+        /// <summary>
+        /// O nome.
+        /// </summary>
         private string name;
 
-        public NameMathematicsObject(string name, MathematicsInterpreterMediator mediator) : base(EMathematicsType.NAME, false)
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="NameMathematicsObject"/>.
+        /// </summary>
+        /// <param name="name">O nome.</param>
+        /// <param name="mediator">O mediador.</param>
+        /// <exception cref="ExpressionInterpreterException">Se o nome for nulo ou vazio.</exception>
+        public NameMathematicsObject(string name, MathematicsInterpreterMediator mediator) 
+            : base(EMathematicsType.NAME, false)
         {
             if (string.IsNullOrWhiteSpace(name))
             {
@@ -22,6 +38,12 @@ namespace Mathematics.MathematicsInterpreter
             this.mediator = mediator;
         }
 
+        /// <summary>
+        /// Obtém o tipo do objecto.
+        /// </summary>
+        /// <value>
+        /// O tipo do objecto.
+        /// </value>
         public override EMathematicsType MathematicsType
         {
             get
@@ -30,6 +52,12 @@ namespace Mathematics.MathematicsInterpreter
             }
         }
 
+        /// <summary>
+        /// Obtém o nome.
+        /// </summary>
+        /// <value>
+        /// O nome.
+        /// </value>
         public string Name
         {
             get
@@ -38,6 +66,12 @@ namespace Mathematics.MathematicsInterpreter
             }
         }
 
+        /// <summary>
+        /// Obt+em o valor associado ao nome.
+        /// </summary>
+        /// <value>
+        /// O valor.
+        /// </value>
         public AMathematicsObject Value
         {
             get
@@ -54,6 +88,13 @@ namespace Mathematics.MathematicsInterpreter
             }
         }
 
+        /// <summary>
+        /// Determina se é possível converter a instância corrente no tipo especificado.
+        /// </summary>
+        /// <param name="mathematicsType">O tipo.</param>
+        /// <returns>
+        /// Verdadeiro caso seja possível converter a instância e falso caso contrário.
+        /// </returns>
         public override bool CanConvertTo(EMathematicsType mathematicsType)
         {
             if (mathematicsType == EMathematicsType.NAME || mathematicsType == EMathematicsType.POLYNOMIAL)
@@ -66,6 +107,15 @@ namespace Mathematics.MathematicsInterpreter
             }
         }
 
+        /// <summary>
+        /// Obtém um objecto que resulta da conversão da instância corrente.
+        /// </summary>
+        /// <param name="mathematicsType">O tipo de objecto no qual se pretende converter.</param>
+        /// <returns>
+        /// O objecto convertido.
+        /// </returns>
+        /// <exception cref="System.NotImplementedException"></exception>
+        /// <exception cref="ExpressionInterpreterException"></exception>
         public override AMathematicsObject ConvertTo(EMathematicsType mathematicsType)
         {
             if (mathematicsType == EMathematicsType.NAME)
@@ -83,9 +133,9 @@ namespace Mathematics.MathematicsInterpreter
         }
 
         /// <summary>
-        /// Gets a string representation of name object.
+        /// Constrói uma representação textual da instância corrente.
         /// </summary>
-        /// <returns>The name object.</returns>
+        /// <returns>A representação textual.</returns>
         public override string ToString()
         {
             return this.name;

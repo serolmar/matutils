@@ -1,61 +1,70 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using Utilities;
-
-namespace Mathematics.MathematicsInterpreter
+﻿namespace Mathematics.MathematicsInterpreter
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+    using System.Text;
+    using Utilities;
+
+    /// <summary>
+    /// Implementa um interpretador.
+    /// </summary>
     public class MathematicsInterpreter
     {
+        /// <summary>
+        /// O conjunto de símbolos vazios.
+        /// </summary>
         private static string[] voids = new[] { "space", "new_line", "tab", "carriage_return" };
 
         /// <summary>
-        /// The expression reader.
+        /// O leitor de expressões.
         /// </summary>
         private ExpressionReader<AMathematicsObject, string, string> expressionReader;
 
         /// <summary>
-        /// The mathematis interpreter mediator.
+        /// O mediador do interpretador.
         /// </summary>
         private MathematicsInterpreterMediator mediator;
 
         /// <summary>
-        /// The list of available states.
+        /// A lista dos estados disponíveis.
         /// </summary>
         private List<IState<string, string>> stateList = new List<IState<string, string>>();
 
         /// <summary>
-        /// The current state.
+        /// O estado actual.
         /// </summary>
         private IState<string, string> currentState;
 
         /// <summary>
-        /// The stack with the scope definition.
+        /// A pilha com a definição dos escopos.
         /// </summary>
         private Stack<ScopeDefinition> scopeDefinitionStack = new Stack<ScopeDefinition>();
 
         /// <summary>
-        /// The stack with the parenthesis.
+        /// A pilha com os parêntesis.
         /// </summary>
         private Stack<string> openParenthesisStack = new Stack<string>();
 
         /// <summary>
-        /// Maintains the current item readed.
+        /// O último item lido.
         /// </summary>
         private string currentItem;
 
         /// <summary>
-        /// Maintains the current result.
+        /// O resultado actual.
         /// </summary>
         private MathematicsInterpreterResult currentResult;
 
         /// <summary>
-        /// Maintains a reference for the last expression result.
+        /// Referência para o último resultad.
         /// </summary>
         private AMathematicsObject lastExpressionResult;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="MathematicsInterpreter"/>.
+        /// </summary>
         public MathematicsInterpreter()
         {
             this.currentResult = new MathematicsInterpreterResult();
@@ -65,6 +74,12 @@ namespace Mathematics.MathematicsInterpreter
             this.Reset();
         }
 
+        /// <summary>
+        /// Interpreta os valores obtidos com o leitor.
+        /// </summary>
+        /// <param name="reader">O leitor.</param>
+        /// <param name="outputWriter">O objecto responsável pela escrita dos resultados.</param>
+        /// <returns>O resultado da interpretação.</returns>
         public MathematicsInterpreterResult Interpret(TextReader reader, TextWriter outputWriter)
         {
             var symbolReader = this.PrepareSymbolReader(reader);
@@ -73,6 +88,9 @@ namespace Mathematics.MathematicsInterpreter
             return this.currentResult;
         }
 
+        /// <summary>
+        /// Reinicia o interpretador.
+        /// </summary>
         public void Reset()
         {
             this.currentState = this.stateList[0];
@@ -81,6 +99,10 @@ namespace Mathematics.MathematicsInterpreter
             this.scopeDefinitionStack.Push(new ScopeDefinition() { ScopeType = EScopeType.MAIN });
         }
 
+        /// <summary>
+        /// Prepara o leitor de expressões para lidar com o maior número de objectos possível.
+        /// </summary>
+        /// <returns>O leitor de expressões.</returns>
         private ExpressionReader<AMathematicsObject, string, string> PrepareExpressionReader()
         {
             var result = new ExpressionReader<AMathematicsObject, string, string>(new MathematicsObjectParser(this.mediator));
@@ -114,6 +136,11 @@ namespace Mathematics.MathematicsInterpreter
             return result;
         }
 
+        /// <summary>
+        /// Perpara o leitor de símbolos a partir de um leitor de texto.
+        /// </summary>
+        /// <param name="reader">O leitor de texto.</param>
+        /// <returns>O leitor de símbolos.</returns>
         private StringSymbolReader PrepareSymbolReader(TextReader reader)
         {
             var result = new StringSymbolReader(reader, false);
@@ -126,6 +153,9 @@ namespace Mathematics.MathematicsInterpreter
             return result;
         }
 
+        /// <summary>
+        /// Inicializa todos os estados.
+        /// </summary>
         private void InitStates()
         {
             this.stateList.Add(new DelegateDrivenState<string, string>(1, "Start", this.StartTransition));
@@ -142,6 +172,10 @@ namespace Mathematics.MathematicsInterpreter
             this.stateList.Add(new DelegateDrivenState<string, string>(12, "InsideNonExecutingScope", this.InsideNonExecutingScope));
         }
 
+        /// <summary>
+        /// Ignora todos os símbolos vazios consecutivos.
+        /// </summary>
+        /// <param name="symbolReader">O leito de símbolos.</param>
         private void IgnoreVoids(ISymbolReader<string, string> symbolReader)
         {
             ISymbol<string, string> symbol = symbolReader.Peek();
@@ -152,6 +186,11 @@ namespace Mathematics.MathematicsInterpreter
             }
         }
 
+        /// <summary>
+        /// Escreve o erro e sai.
+        /// </summary>
+        /// <param name="message">O erro.</param>
+        /// <returns>O estado de saída.</returns>
         private IState<string, string> SetupErrorAndQuit(string message)
         {
             this.currentResult.InterpreterMessageStatus = EMathematicsInterpreterStatus.ERROR;
@@ -161,6 +200,14 @@ namespace Mathematics.MathematicsInterpreter
         }
 
         #region Mathematics Interpreter Operator
+
+        /// <summary>
+        /// Aplica o operador de atribuição.
+        /// </summary>
+        /// <param name="leftVariable">O primeiro argumento.</param>
+        /// <param name="rightValue">O segundo argumento.</param>
+        /// <returns>O resultado da aplicação do operador.</returns>
+        /// <exception cref="ExpressionInterpreterException">Se a aplicação do operador falhar.</exception>
         private AMathematicsObject Assign(AMathematicsObject leftVariable, AMathematicsObject rightValue)
         {
             if (leftVariable.MathematicsType != EMathematicsType.NAME)
@@ -173,73 +220,166 @@ namespace Mathematics.MathematicsInterpreter
             }
         }
 
+        /// <summary>
+        /// Aplica o operador de adição.
+        /// </summary>
+        /// <param name="leftVariable">O primeiro argumento.</param>
+        /// <param name="rightValue">O segundo argumento.</param>
+        /// <returns>O resultado da aplicação do operador.</returns>
+        /// <exception cref="ExpressionInterpreterException">Se a aplicação do operador falhar.</exception>
         private AMathematicsObject Add(AMathematicsObject leftValue, AMathematicsObject rightValue)
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Aplica o operador de subtracção.
+        /// </summary>
+        /// <param name="leftVariable">O primeiro argumento.</param>
+        /// <param name="rightValue">O segundo argumento.</param>
+        /// <returns>O resultado da aplicação do operador.</returns>
+        /// <exception cref="ExpressionInterpreterException">Se a aplicação do operador falhar.</exception>
         private AMathematicsObject Subtract(AMathematicsObject leftValue, AMathematicsObject rightValue)
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Aplica o operador de multiplicação.
+        /// </summary>
+        /// <param name="leftVariable">O primeiro argumento.</param>
+        /// <param name="rightValue">O segundo argumento.</param>
+        /// <returns>O resultado da aplicação do operador.</returns>
+        /// <exception cref="ExpressionInterpreterException">Se a aplicação do operador falhar.</exception>
         private AMathematicsObject Multiply(AMathematicsObject leftValue, AMathematicsObject rightValue)
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Aplica o operador de divisão.
+        /// </summary>
+        /// <param name="leftVariable">O primeiro argumento.</param>
+        /// <param name="rightValue">O segundo argumento.</param>
+        /// <returns>O resultado da aplicação do operador.</returns>
+        /// <exception cref="ExpressionInterpreterException">Se a aplicação do operador falhar.</exception>
         private AMathematicsObject Divide(AMathematicsObject leftValue, AMathematicsObject rightValue)
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Aplica o operador de exponenciação.
+        /// </summary>
+        /// <param name="leftVariable">O primeiro argumento.</param>
+        /// <param name="rightValue">O segundo argumento.</param>
+        /// <returns>O resultado da aplicação do operador.</returns>
+        /// <exception cref="ExpressionInterpreterException">Se a aplicação do operador falhar.</exception>
         private AMathematicsObject Exponentiate(AMathematicsObject leftValue, AMathematicsObject rightValue)
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Aplica o operador de obter simétrico.
+        /// </summary>
+        /// <param name="leftVariable">O primeiro argumento.</param>
+        /// <param name="rightValue">O segundo argumento.</param>
+        /// <returns>O resultado da aplicação do operador.</returns>
+        /// <exception cref="ExpressionInterpreterException">Se a aplicação do operador falhar.</exception>
         private AMathematicsObject Symmetric(AMathematicsObject value)
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Aplica o operador de comparação de igualdade.
+        /// </summary>
+        /// <param name="leftVariable">O primeiro argumento.</param>
+        /// <param name="rightValue">O segundo argumento.</param>
+        /// <returns>O resultado da aplicação do operador.</returns>
+        /// <exception cref="ExpressionInterpreterException">Se a aplicação do operador falhar.</exception>
         private AMathematicsObject AreEqual(AMathematicsObject leftVariable, AMathematicsObject rightValue)
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Aplica o operador de comparação de superioridade.
+        /// </summary>
+        /// <param name="leftVariable">O primeiro argumento.</param>
+        /// <param name="rightValue">O segundo argumento.</param>
+        /// <returns>O resultado da aplicação do operador.</returns>
+        /// <exception cref="ExpressionInterpreterException">Se a aplicação do operador falhar.</exception>
         private AMathematicsObject GreaterThan(AMathematicsObject leftVariable, AMathematicsObject rightValue)
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Aplica o operador de comoparação de superioridade ou igualdade.
+        /// </summary>
+        /// <param name="leftVariable">O primeiro argumento.</param>
+        /// <param name="rightValue">O segundo argumento.</param>
+        /// <returns>O resultado da aplicação do operador.</returns>
+        /// <exception cref="ExpressionInterpreterException">Se a aplicação do operador falhar.</exception>
         private AMathematicsObject GreaterOrEqualThan(AMathematicsObject leftVariable, AMathematicsObject rightValue)
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Aplica o operador de comparação de inferioridade.
+        /// </summary>
+        /// <param name="leftVariable">O primeiro argumento.</param>
+        /// <param name="rightValue">O segundo argumento.</param>
+        /// <returns>O resultado da aplicação do operador.</returns>
+        /// <exception cref="ExpressionInterpreterException">Se a aplicação do operador falhar.</exception>
         private AMathematicsObject LesserThan(AMathematicsObject leftVariable, AMathematicsObject rightValue)
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Aplica o operador de comparaçáo de inferioridade ou igualdade.
+        /// </summary>
+        /// <param name="leftVariable">O primeiro argumento.</param>
+        /// <param name="rightValue">O segundo argumento.</param>
+        /// <returns>O resultado da aplicação do operador.</returns>
+        /// <exception cref="ExpressionInterpreterException">Se a aplicação do operador falhar.</exception>
         private AMathematicsObject LesserOrEqualThan(AMathematicsObject leftVariable, AMathematicsObject rightValue)
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Aplica o operador de disjunção lógica.
+        /// </summary>
+        /// <param name="leftVariable">O primeiro argumento.</param>
+        /// <param name="rightValue">O segundo argumento.</param>
+        /// <returns>O resultado da aplicação do operador.</returns>
+        /// <exception cref="ExpressionInterpreterException">Se a aplicação do operador falhar.</exception>
         private AMathematicsObject LogicalDisjunction(AMathematicsObject leftVariable, AMathematicsObject rightValue)
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Aplica o operador de conjunção lógica.
+        /// </summary>
+        /// <param name="leftVariable">O primeiro argumento.</param>
+        /// <param name="rightValue">O segundo argumento.</param>
+        /// <returns>O resultado da aplicação do operador.</returns>
+        /// <exception cref="ExpressionInterpreterException">Se a aplicação do operador falhar.</exception>
         private AMathematicsObject LogicalConjunction(AMathematicsObject leftVariable, AMathematicsObject rightValue)
         {
             throw new NotImplementedException();
         }
+
         #endregion Mathematics Interpreter Operator
 
         #region State Transition Functions
+
         /// <summary>
         /// Função de transição inicial - estado 0.
         /// </summary>
@@ -397,20 +537,20 @@ namespace Mathematics.MathematicsInterpreter
         }
 
         /// <summary>
-        /// End transition function - state 1.
+        /// Função de transição final - estado 1.
         /// </summary>
-        /// <param name="reader">The symbol reader.</param>
-        /// <returns>The next state.</returns>
+        /// <param name="reader">O leitor de símbolos.</param>
+        /// <returns>Nulo.</returns>
         private IState<string, string> EndTransition(ISymbolReader<string, string> reader)
         {
             return null;
         }
 
         /// <summary>
-        /// While transition function - state 2.
+        /// Função de transição "enquanto" - estado 2.
         /// </summary>
-        /// <param name="reader">The symbol reader.</param>
-        /// <returns>The next state.</returns>
+        /// <param name="reader">O leitor de símbolos.</param>
+        /// <returns>O próximo estado.</returns>
         private IState<string, string> WhileTransition(ISymbolReader<string, string> reader)
         {
             this.IgnoreVoids(reader);
@@ -467,30 +607,30 @@ namespace Mathematics.MathematicsInterpreter
         }
 
         /// <summary>
-        /// If transition function - state 3.
+        /// Função de transição "se" - estado 3.
         /// </summary>
-        /// <param name="reader">The symbol reader.</param>
-        /// <returns>The next state.</returns>
+        /// <param name="reader">O leitor de símbolos.</param>
+        /// <returns>O próximo estado.</returns>
         private IState<string, string> IfTransition(ISymbolReader<string, string> reader)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// Else transition function - state 4.
+        /// Função de transição "então" - estado 4.
         /// </summary>
-        /// <param name="reader">The symbol reader.</param>
-        /// <returns>The next state.</returns>
+        /// <param name="reader">O leitor de símbolos.</param>
+        /// <returns>O próximo estado.</returns>
         private IState<string, string> ElseTransition(ISymbolReader<string, string> reader)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// While and If transition function - state 5.
+        /// Função de transição "enquanto se" - estado 5.
         /// </summary>
-        /// <param name="reader">The symbol reader.</param>
-        /// <returns>The next state.</returns>
+        /// <param name="reader">O leitor de símbolos.</param>
+        /// <returns>O próximo estado.</returns>
         private IState<string, string> WhileIfConditionTransition(ISymbolReader<string, string> reader)
         {
             this.IgnoreVoids(reader);
@@ -512,49 +652,50 @@ namespace Mathematics.MathematicsInterpreter
         }
 
         /// <summary>
-        /// For transition function - state 6.
+        /// Função de transição "para" - estado 6.
         /// </summary>
-        /// <param name="reader">The symbol reader.</param>
-        /// <returns>The next state.</returns>
+        /// <param name="reader">O leitor de símbolos.</param>
+        /// <returns>O próximo estado.</returns>
         private IState<string, string> ForTransition(ISymbolReader<string, string> reader)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// First For transition function - state 7.
+        /// Função de transição "para - continuação" - estado 7.
         /// </summary>
-        /// <param name="reader">The symbol reader.</param>
-        /// <returns>The next state.</returns>
+        /// <param name="reader">O leitor de símbolos.</param>
+        /// <returns>O próximo estado.</returns>
         private IState<string, string> FirstForConditionTransition(ISymbolReader<string, string> reader)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// Second For transition function - state 8.
+        /// Função de transição "para - continuação" - estado 8.
         /// </summary>
-        /// <param name="reader">The symbol reader.</param>
-        /// <returns>The next state.</returns>
+        /// <param name="reader">O leitor de símbolos.</param>
+        /// <returns>O próximo estado.</returns>
         private IState<string, string> SecondForConditionTransition(ISymbolReader<string, string> reader)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// Third For transition function - state 9.
+        /// Função de transição "para - continuação" - estado 9.
         /// </summary>
-        /// <param name="reader">The symbol reader.</param>
-        /// <returns>The next state.</returns>
+        /// <param name="reader">O leitor de símbolos.</param>
+        /// <returns>O próximo estado.</returns>
         private IState<string, string> ThirdForConditionTransition(ISymbolReader<string, string> reader)
         {
             throw new NotImplementedException();
         }
+
         /// <summary>
-        /// End transition function - state 10.
+        /// Função de transição "enquanto se interior" - estado 10.
         /// </summary>
-        /// <param name="reader">The symbol reader.</param>
-        /// <returns>The next state.</returns>
+        /// <param name="reader">O leitor de símbolos.</param>
+        /// <returns>O próximo estado.</returns>
         private IState<string, string> InsideWhileIfConditionTransition(ISymbolReader<string, string> reader)
         {
             var readed = reader.Get();
@@ -645,14 +786,15 @@ namespace Mathematics.MathematicsInterpreter
         }
 
         /// <summary>
-        /// Inside non executing scope transition function - state 11.
+        /// Função de transição "interior de um escopo na cláusula não executada" - estado 11.
         /// </summary>
-        /// <param name="reader">The symbol reader.</param>
-        /// <returns>The next state.</returns>
+        /// <param name="reader">O leitor de símbolos.</param>
+        /// <returns>O próximo estado.</returns>
         private IState<string, string> InsideNonExecutingScope(ISymbolReader<string, string> reader)
         {
             throw new NotImplementedException();
         }
+
         #endregion State Transition Functions
     }
 }
