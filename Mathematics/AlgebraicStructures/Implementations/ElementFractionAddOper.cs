@@ -18,7 +18,7 @@
         private IEuclidenDomain<Coefftype> domain;
 
         /// <summary>
-        /// Cria uma instância de objectos do tipo <see cref="ElementFractionAddOper{CoeffType}"./>
+        /// Cria uma instância de objectos do tipo <see cref="ElementFractionAddOper{CoeffType}"/>.
         /// </summary>
         /// <param name="domain">O domínio responsável pelas operações sobre os coeficientes.</param>
         /// <exception cref="ArgumentNullException">Caso o domínio passado seja nulo.</exception>

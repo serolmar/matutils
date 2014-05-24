@@ -87,7 +87,7 @@
         /// <value>
         /// O melhor custo.
         /// </value>
-        /// <exception cref="System.Exception">Se o algoritmo não foi executado.</exception>
+        /// <exception cref="Exception">Se o algoritmo não foi executado.</exception>
         public double BestCost
         {
             get
@@ -109,8 +109,8 @@
         /// </value>
         /// <param name="solutionIndex">O índice da solução.</param>
         /// <returns>O valor da solução associado ao índice.</returns>
-        /// <exception cref="System.Exception">Se o algoritmo não foi executado.</exception>
-        /// <exception cref="System.ArgumentOutOfRangeException">
+        /// <exception cref="Exception">Se o algoritmo não foi executado.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">
         /// Se o índice for negativo ou não for inferior ao número de variáveis não básicas.
         /// </exception>
         public double this[int solutionIndex]
@@ -380,10 +380,10 @@
         /// <param name="objectiveVector">O vector com a função objectivo.</param>
         /// <param name="constraintsVector">O vector que contém os termos independentes das restrições.</param>
         /// <param name="constraintsMatrix">A matriz das restrições.</param>
-        /// <exception cref="System.ArgumentNullException">
+        /// <exception cref="ArgumentNullException">
         /// Se algum dos argumentos for nulo.
         /// </exception>
-        /// <exception cref="System.Exception">
+        /// <exception cref="Exception">
         /// Se o número de linhas e colunas da matriz das restrições não coincidirem com o tamanho do vector
         /// de coeficientes independentes.
         /// </exception>

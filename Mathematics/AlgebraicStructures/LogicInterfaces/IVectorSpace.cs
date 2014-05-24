@@ -8,7 +8,6 @@ namespace Mathematics
     /// <summary>
     /// Implementa a multiplicação entre um escalar e um elemento de um espaço vectorial.
     /// </summary>
-    /// <remarks>
     /// <typeparam name="CoefficientType">O tipo de coeficientes.</typeparam>
     /// <typeparam name="VectorSpaceType">O tipo do vector.</typeparam>
     public interface IVectorSpace<CoefficientType, VectorSpaceType> : IGroup<VectorSpaceType>

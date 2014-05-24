@@ -29,8 +29,8 @@
         /// <summary>
         /// Cria instâncias de objectos do tipo <see cref="BitMatrix"/>.
         /// </summary>
-        /// <param name="lines">O número de linhas da matriz.</param>
-        /// <param name="columns">O número de colunas da matriz.</param>
+        /// <param name="line">O número de linhas da matriz.</param>
+        /// <param name="column">O número de colunas da matriz.</param>
         public BitMatrix(int line, int column)
         {
             if (line < 0)
@@ -57,8 +57,8 @@
         /// <summary>
         /// Cria instâncias de objectos do tipo <see cref="BitMatrix"/>.
         /// </summary>
-        /// <param name="lines">O número de linhas da matriz.</param>
-        /// <param name="columns">O número de colunas da matriz.</param>
+        /// <param name="line">O número de linhas da matriz.</param>
+        /// <param name="column">O número de colunas da matriz.</param>
         /// <param name="defaultValue">O valor pode defeito.</param>
         /// <exception cref="ArgumentOutOfRangeException">Se o número de linhas ou de colunas for negativo.</exception>
         public BitMatrix(int line, int column, int defaultValue)
@@ -163,7 +163,7 @@
             }
         }
 
-        // <summary>
+        /// <summary>
         /// Obtém o número de linhas ou colunas da matriz.
         /// </summary>
         /// <param name="dimension">Zero caso seja pretendido o número de linhas e um caso seja pretendido

@@ -32,7 +32,7 @@
         /// O objecto responsável pela resolução de um sistema de equações lineares.
         /// </param>
         /// <param name="integerNumber">O ojecto responsável pelas operações sobre os números inteiros.</param>
-        /// <exception cref="System.ArgumentNullException">
+        /// <exception cref="ArgumentNullException">
         /// Se algum dos argumentos for nulo.
         /// </exception>
         public FiniteFieldPolFactorizationAlgorithm(
@@ -163,7 +163,6 @@
         /// <param name="result">O contentor dos factores sucessivamente processados.</param>
         /// <param name="integerModule">O objecto responsável pelas operações sobre inteiros.</param>
         /// <param name="polynomField">O objecto responsável pelas operações sobre os polinómios.</param>
-        /// <param name="module">O objecto responsável pelas operações sobre os polinómios módulo outro polinómio.</param>
         /// <param name="inverseAlgorithm">O algoritmo inverso.</param>
         /// <returns></returns>
         List<UnivariatePolynomialNormalForm<CoeffType>> Process(

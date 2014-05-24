@@ -21,7 +21,7 @@
         /// <param name="data">O polinómio.</param>
         /// <param name="field">O corpos responsável pelas operações sobre os coeficientes.</param>
         /// <returns>O resultado da factorização livre de quadrados.</returns>
-        /// <exception cref="System.ArgumentNullException">Caso algum dos argumentos seja nulo.</exception>
+        /// <exception cref="ArgumentNullException">Caso algum dos argumentos seja nulo.</exception>
         public SquareFreeFactorizationResult<CoeffType, CoeffType> Run(
             UnivariatePolynomialNormalForm<CoeffType> data,
             IField<CoeffType> field)

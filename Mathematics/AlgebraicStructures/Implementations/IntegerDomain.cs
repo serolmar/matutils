@@ -8,7 +8,7 @@
 
     /// <summary>
     /// Permite representar as operações sobre o subconjunto dos números inteiros representáveis por uma
-    /// variável do tipo <see cref="System.int"/>.
+    /// variável do tipo <see cref="int"/>.
     /// </summary>
     public class IntegerDomain : IIntegerNumber<int>
     {
@@ -219,7 +219,7 @@
         /// </summary>
         /// <param name="number">O número.</param>
         /// <returns>O predecessor.</returns>
-        /// <exception cref="System.ArgumentException">Se o número proporcionado for o menor possível.</exception>
+        /// <exception cref="ArgumentException">Se o número proporcionado for o menor possível.</exception>
         public int Predecessor(int number)
         {
             if (number == int.MinValue)
@@ -240,7 +240,7 @@
         /// </summary>
         /// <param name="number">O número.</param>
         /// <returns>O sucessor do número.</returns>
-        /// <exception cref="System.ArgumentException">Se o número proporcionado for o maior possível.</exception>
+        /// <exception cref="ArgumentException">Se o número proporcionado for o maior possível.</exception>
         public int Successor(int number)
         {
             if (number == int.MaxValue)

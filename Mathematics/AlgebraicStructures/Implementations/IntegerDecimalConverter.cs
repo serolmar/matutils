@@ -6,8 +6,8 @@
     using System.Text;
 
     /// <summary>
-    /// Define uma conversão entre um número inteiro <see cref="System.int"/> e um número 
-    /// decimal <see cref="System.double"/>.
+    /// Define uma conversão entre um número inteiro e um número 
+    /// decimal <see cref="double"/>.
     /// </summary>
     public class IntegerDecimalConverter : IConversion<int, decimal>
     {

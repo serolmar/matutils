@@ -47,7 +47,7 @@
         /// <param name="squareRootAlgorithm">
         /// O algoritmo responsável pela determinação da parte inteira de raízes quadradas.
         /// </param>
-        /// <exception cref="System.ArgumentNullException">Se o algoritmo das raízes quadradas for nulo.</exception>
+        /// <exception cref="ArgumentNullException">Se o algoritmo das raízes quadradas for nulo.</exception>
         public IntPrimeNumbersIterator(int upperLimit, IAlgorithm<int, int> squareRootAlgorithm)
         {
             if (squareRootAlgorithm == null)

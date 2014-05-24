@@ -30,7 +30,7 @@
         /// O objecto responsável pelas operações de multiplicação dos coeficientes
         /// da fracções.
         /// </param>
-        /// <exception cref="System.ArgumentNullException">
+        /// <exception cref="ArgumentNullException">
         /// Caso o objecto responsável pelas multiplicações seja nulo.
         /// </exception>
         public FractionComparer(IComparer<CoeffType> comparer, IMultiplication<CoeffType> multipliable)

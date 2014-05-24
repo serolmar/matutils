@@ -33,7 +33,7 @@
         /// </summary>
         /// <param name="realPart">A parte real.</param>
         /// <param name="imaginaryPart">A parte imaginária.</param>
-        /// <exception cref="System.ArgumentNullException">
+        /// <exception cref="ArgumentNullException">
         /// Se algum dos argumentos for nulo.
         /// </exception>
         public ComplexNumber(ObjectType realPart, ObjectType imaginaryPart)

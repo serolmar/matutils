@@ -30,7 +30,7 @@
         /// <param name="dimension">A dimensão das matrizes que poderão ser operadas.</param>
         /// <param name="matrixFactory">A fábrica responsável pela instância das matrizes resultantes.</param>
         /// <param name="coeffsRing">O anel responsável pelas operações sobre os coeficientes.</param>
-        /// <exception cref="System.ArgumentNullException">Caso algum dos argumentos seja nulo.</exception>
+        /// <exception cref="ArgumentNullException">Caso algum dos argumentos seja nulo.</exception>
         public GeneralMatrixRing(
             int dimension,
             IMatrixFactory<CoeffType> matrixFactory,
@@ -81,7 +81,7 @@
         /// </summary>
         /// <param name="value">A matriz a ser analisada.</param>
         /// <returns>Verdadeiro caso a matriz seja uma unidade aditiva e falso caso contrário.</returns>
-        /// <exception cref="System.ArgumentNullException">Caso o argumento seja nulo.</exception>
+        /// <exception cref="ArgumentNullException">Caso o argumento seja nulo.</exception>
         /// <exception cref="MathematicsException">
         /// Se a matriz proporcionada não contiver as dimensões definidas para o anel corrente.
         /// </exception>
@@ -147,7 +147,7 @@
         /// <param name="left">A primeira matriz a ser multiplicada.</param>
         /// <param name="right">A segunda matriz a ser multiplicada.</param>
         /// <returns>O resultado do produto das matrizes.</returns>
-        /// <exception cref="System.ArgumentNullException">
+        /// <exception cref="ArgumentNullException">
         /// Se cada uma das matrizes for nula.
         /// </exception>
         /// <exception cref="MathematicsException">

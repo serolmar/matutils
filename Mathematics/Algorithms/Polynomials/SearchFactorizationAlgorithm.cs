@@ -30,7 +30,7 @@
         /// A fábrica responsável pela criação de objectos capazes de realizar operações modulares.
         /// </param>
         /// <param name="integerNumber">O objecto responsável pelas operações sobre números inteiros.</param>
-        /// <exception cref="System.ArgumentNullException">
+        /// <exception cref="ArgumentNullException">
         /// Se algum dos argumentos for nulo.
         /// </exception>
         public SearchFactorizationAlgorithm(

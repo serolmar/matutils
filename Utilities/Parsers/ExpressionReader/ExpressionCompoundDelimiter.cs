@@ -9,6 +9,7 @@
     /// Compõe do delimitador com a operação que representa.
     /// </summary>
     /// <typeparam name="ObjType">O tipo de objecto a ser lido.</typeparam>
+    /// <typeparam name="SymbType">O tipo dos objectos que constituem os tipos de símbolos.</typeparam>
     public class ExpressionCompoundDelimiter<ObjType, SymbType>
     {
         /// <summary>

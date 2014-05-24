@@ -32,7 +32,7 @@ namespace Mathematics
         private EParsePolynomialValueType valueType = EParsePolynomialValueType.INTEGER;
 
         /// <summary>
-        /// Instancia um novo objecto do tipo <see cref="ParseUnivarPolynomNormalFormItem{CoeffType}"./>
+        /// Instancia um novo objecto do tipo <see cref="ParseUnivarPolynomNormalFormItem{CoeffType}"/>.
         /// </summary>
         public ParseUnivarPolynomNormalFormItem()
         {

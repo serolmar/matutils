@@ -21,7 +21,7 @@
         /// <param name="powerModule">O módulo segundo o qual são realizadas as simplificações de potência.</param>
         /// <param name="variableName">O nome da variável.</param>
         /// <param name="ring">O anel responsável pelas operações sobre os coeficientes.</param>
-        /// <exception cref="System.ArgumentException">Se o módulo potência for inferior a um.</exception>
+        /// <exception cref="ArgumentException">Se o módulo potência for inferior a um.</exception>
         public AuxAksModArithmRing(int powerModule, string variableName, IRing<CoeffType> ring)
             : base(variableName, ring)
         {
@@ -64,7 +64,7 @@
         /// <param name="left">O primeiro polinómio a ser multiplicado.</param>
         /// <param name="right">O segundo polinómio a ser multiplicado.</param>
         /// <returns>O resultado da multiplicação.</returns>
-        /// <exception cref="System.ArgumentNullException">
+        /// <exception cref="ArgumentNullException">
         /// Se pelo menos um dos argumentos for nulo.
         /// </exception>
         public override UnivariatePolynomialNormalForm<CoeffType> Multiply(

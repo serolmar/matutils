@@ -21,7 +21,7 @@
         /// Instancia um novo objecto do tipo <see cref="UnivarPolynomNormalFormEqualityComparer{CoeffType}"/>.
         /// </summary>
         /// <param name="coeffsComparer">O comparador de coeficientes.</param>
-        /// <exception cref="System.ArgumentNullException">Se o comparador de coeficientes for nulo.</exception>
+        /// <exception cref="ArgumentNullException">Se o comparador de coeficientes for nulo.</exception>
         public UnivarPolynomNormalFormEqualityComparer(IEqualityComparer<CoeffType> coeffsComparer)
         {
             if (coeffsComparer == null)

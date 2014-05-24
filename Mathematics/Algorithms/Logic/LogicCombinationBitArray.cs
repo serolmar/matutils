@@ -54,7 +54,7 @@
         /// Instancia um novo objecto do tipo <see cref="LogicCombinationBitArray"/>.
         /// </summary>
         /// <param name="length">O tamanho do vector.</param>
-        /// <exception cref="System.ArgumentOutOfRangeException">Se o tamanho for negativo.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Se o tamanho for negativo.</exception>
         public LogicCombinationBitArray(int length)
         {
             if (length < 0)
@@ -80,7 +80,7 @@
         /// </summary>
         /// <param name="length">O tamanho.</param>
         /// <param name="defaultValue">O valor por defeito.</param>
-        /// <exception cref="System.ArgumentOutOfRangeException">Se o tamanho for negativo.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Se o tamanho for negativo.</exception>
         public LogicCombinationBitArray(int length, EBooleanMinimalFormOutStatus defaultValue)
         {
             if (length < 0)

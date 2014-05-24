@@ -7,6 +7,9 @@
     using System.Numerics;
     using System.Text;
 
+    /// <summary>
+    /// Implementa um conjunto de funções matemáticas genéricas.
+    /// </summary>
     public static class MathFunctions
     {
         /// <summary>
@@ -166,9 +169,11 @@
         /// Obtém a potência de um valor.
         /// </summary>
         /// <typeparam name="T">O tipo do valor.</typeparam>
+        /// <typeparam name="Deg">O tipo de classe que define os graus.</typeparam>
         /// <typeparam name="D">O tipo da classe que define a multiplicação.</typeparam>
         /// <param name="val">O valor.</param>
         /// <param name="pow">O expoente.</param>
+        /// <param name="domain">O domínio responsável pelas operações sobre os valores.</param>
         /// <param name="integerNumber">A classe que define as operações sobre números inteiros.</param>
         /// <returns>A potência do valor.</returns>
         /// <exception cref="MathematicsException">

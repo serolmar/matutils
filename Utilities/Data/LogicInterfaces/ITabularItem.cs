@@ -6,6 +6,13 @@
     using System.Text;
     using Utilities.Collections;
 
+    /// <summary>
+    /// Implementa um item tabular.
+    /// </summary>
+    /// <remarks>
+    /// Um item tabular pode ser uma tabela em memória, uma tabela oriunda de uma base-de-dados
+    /// ou até algum objecto que cujo comportamente se assemelhe ao de uma tabela.
+    /// </remarks>
     public interface ITabularItem
         : IIndexed<int, ITabularRow>, 
         ITabularItemEvent,

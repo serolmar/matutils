@@ -13,7 +13,7 @@
         /// <summary>
         /// O tipo de obejecto a ser lido.
         /// </summary>
-        /// <value>O tipo <see cref="System.int"/>.</value>
+        /// <value>O tipo <see cref="int"/>.</value>
         public Type ObjectType
         {
             get

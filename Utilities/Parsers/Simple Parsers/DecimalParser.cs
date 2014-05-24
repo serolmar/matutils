@@ -23,7 +23,7 @@
 
         /// <summary>
         /// Instancia um novo objecto do tipo <see cref="DecimalParser{SymbType}"/>.
-        /// </summary
+        /// </summary>
         public DecimalParser()
             : this(NumberStyles.Number, CultureInfo.InvariantCulture.NumberFormat)
         {
@@ -31,7 +31,7 @@
 
         /// <summary>
         /// Instancia um novo objecto do tipo <see cref="DecimalParser{SymbType}"/>.
-        /// </summary
+        /// </summary>
         /// <param name="numberStyles">Os estilos do número.</param>
         /// <param name="formatProvider">O provedor de formatos.</param>
         public DecimalParser(NumberStyles numberStyles, IFormatProvider formatProvider)

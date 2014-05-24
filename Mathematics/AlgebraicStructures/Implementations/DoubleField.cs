@@ -7,7 +7,7 @@
 
     /// <summary>
     /// Proporciona as funções de corpo sobre números decimais de precisão dupla.
-    /// Ver também <see cref="System.double"/>.
+    /// Ver também <see cref="double"/>.
     /// </summary>
     public class DoubleField : IField<double>
     {

@@ -29,7 +29,7 @@
         /// </summary>
         /// <param name="logicInput">A combinação lógica de entrada.</param>
         /// <param name="logicOutput">The logic output.</param>
-        /// <exception cref="System.ArgumentNullException">logicInput</exception>
+        /// <exception cref="ArgumentNullException">logicInput</exception>
         internal BooleanCombination(LogicCombinationBitArray logicInput, EBooleanMinimalFormOutStatus logicOutput)
         {
             if (logicInput == null)

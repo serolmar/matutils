@@ -19,7 +19,7 @@
         /// Instancia um novo objecto do tipo <see cref="SwapPermutationsGenerator"/>.
         /// </summary>
         /// <param name="elementsNumber">O número de elementos.</param>
-        /// <exception cref="System.IndexOutOfRangeException">
+        /// <exception cref="IndexOutOfRangeException">
         /// Se o número de elementos a permutar não for positivo.
         /// </exception>
         public SwapPermutationsGenerator(int elementsNumber)

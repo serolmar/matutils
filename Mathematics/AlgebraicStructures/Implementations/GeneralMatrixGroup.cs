@@ -43,8 +43,8 @@
         /// <param name="columns">O número de colunas.</param>
         /// <param name="matrixFactory">A fábrica responsável pela criação de instâncias de matrizes.</param>
         /// <param name="coeffsGroup">O grupo responsável pelas operações sobre as entradas das matrizes.</param>
-        /// <exception cref="System.ArgumentException">Se o número de linhas ou de colunas for negativo.</exception>
-        /// <exception cref="System.ArgumentNullException">
+        /// <exception cref="ArgumentException">Se o número de linhas ou de colunas for negativo.</exception>
+        /// <exception cref="ArgumentNullException">
         /// Se forem nulos os argumentos "matrixFactory" e "coeffsGroup".
         /// </exception>
         public GeneralMatrixGroup(
@@ -140,7 +140,7 @@
         /// </summary>
         /// <param name="number">A matriz.</param>
         /// <returns>A inversa aditiva.</returns>
-        /// <exception cref="System.ArgumentNullException">Caso o argumento seja nulo.</exception>
+        /// <exception cref="ArgumentNullException">Caso o argumento seja nulo.</exception>
         /// <exception cref="MathematicsException">
         /// Se o número de linhas ou colunas da matriz proporcionada não estiver de acordo com o número de linhas
         /// e colunas aceites pelo grupo actual, respectivamente.
@@ -185,7 +185,7 @@
         /// </summary>
         /// <param name="value">O valor.</param>
         /// <returns></returns>
-        /// <exception cref="System.ArgumentNullException">Caso o valor seja nulo.</exception>
+        /// <exception cref="ArgumentNullException">Caso o valor seja nulo.</exception>
         /// <exception cref="MathematicsException">
         /// Se o número de linhas ou colunas da matriz proporcionada não estiver de acordo com o número de linhas
         /// e colunas aceites pelo grupo actual, respectivamente.
@@ -231,7 +231,7 @@
         /// <param name="left">A primeira matriz a ser adicionada.</param>
         /// <param name="right">A segunda matriz a ser adicionada.</param>
         /// <returns>A soma das matrizes.</returns>
-        /// <exception cref="System.ArgumentNullException">
+        /// <exception cref="ArgumentNullException">
         /// Se algum dos argumentos for nulo.
         /// </exception>
         /// <exception cref="MathematicsException">

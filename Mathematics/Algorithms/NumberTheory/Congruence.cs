@@ -26,7 +26,7 @@
         /// </summary>
         /// <param name="modulus">O módulo da congruência.</param>
         /// <param name="congruence">O valor da congruência.</param>
-        /// <exception cref="System.ArgumentNullException">
+        /// <exception cref="ArgumentNullException">
         /// Se pelo menos um dos argumentos for nulo.
         /// </exception>
         public Congruence(ObjectType modulus, ObjectType congruence)

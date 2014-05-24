@@ -9,7 +9,6 @@
     /// <summary>
     /// Implementa um leitor de valores inteiros de precisão arbitrária.
     /// </summary>
-    /// <remarks>
     public class BigIntegerParser<SymbType> : IParse<BigInteger, string, SymbType>, IParse<object, string, SymbType>
     {
         /// <summary>

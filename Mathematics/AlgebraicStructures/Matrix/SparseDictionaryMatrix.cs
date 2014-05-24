@@ -6,6 +6,10 @@
     using System.Text;
     using Utilities.Collections;
 
+    /// <summary>
+    /// Implementa uma matriz esparsa com base em dicionários.
+    /// </summary>
+    /// <typeparam name="ObjectType">O tipo de objectos que constituem os argumentos.</typeparam>
     public class SparseDictionaryMatrix<ObjectType> : ISparseMatrix<ObjectType>
     {
         /// <summary>
@@ -35,7 +39,7 @@
         /// <param name="lines">O número de linhas.</param>
         /// <param name="columns">O número de colunas.</param>
         /// <param name="defaultValue">O valor por defeito.</param>
-        /// <exception cref="System.ArgumentOutOfRangeException">
+        /// <exception cref="ArgumentOutOfRangeException">
         /// Se o número de linhas ou o número de colunas for negativo.
         /// </exception>
         public SparseDictionaryMatrix(int lines, int columns, ObjectType defaultValue)
@@ -61,7 +65,7 @@
         /// </summary>
         /// <param name="lines">O número de linhas.</param>
         /// <param name="columns">O número de colunas.</param>
-        /// <exception cref="System.ArgumentOutOfRangeException">
+        /// <exception cref="ArgumentOutOfRangeException">
         /// Se o número de linhas ou o número de colunas for negativo.
         /// </exception>
         public SparseDictionaryMatrix(int lines, int columns)

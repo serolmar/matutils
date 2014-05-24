@@ -47,7 +47,7 @@
         /// <summary>
         /// Instancia um novo objecto do tipo <see cref="PolynomialGeneralVariable{T}"/>.
         /// </summary>
-        /// <param name="variable">O polinómio.</param>
+        /// <param name="polynomial">O polinómio.</param>
         /// <exception cref="MathematicsException">Se a o polinómio for nulo.</exception>
         public PolynomialGeneralVariable(Polynomial<T> polynomial)
         {

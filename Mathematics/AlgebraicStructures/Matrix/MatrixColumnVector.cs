@@ -28,7 +28,7 @@
         /// </summary>
         /// <param name="columnNumber">O número da coluna.</param>
         /// <param name="matrix">A matriz da qual se considera a coluna como sendo vector.</param>
-        /// <exception cref="System.ArgumentOutOfRangeException">Se a matriz for nula.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Se a matriz for nula.</exception>
         public MatrixColumnVector(int columnNumber, IMatrix<CoeffType> matrix)
         {
             if (columnNumber < 0)

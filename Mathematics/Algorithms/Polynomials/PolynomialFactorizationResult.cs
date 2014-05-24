@@ -36,7 +36,7 @@
         /// </summary>
         /// <param name="independentCoeff">O coeficiente independente.</param>
         /// <param name="factors">A lista de factores.</param>
-        /// <exception cref="System.ArgumentNullException">Se o coeficiente independente for nulo.</exception>
+        /// <exception cref="ArgumentNullException">Se o coeficiente independente for nulo.</exception>
         public PolynomialFactorizationResult(
             InputPolCoeffType independentCoeff,
             Dictionary<int, List<UnivariatePolynomialNormalForm<OutputPolCoeffType>>> factors)

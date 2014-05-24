@@ -134,6 +134,7 @@
         /// Na literatura surge frequentemente representado por r.
         /// </summary>
         /// <param name="data">O número a ser avaliado.</param>
+        /// <param name="log">O valor do logaritmo.</param>
         /// <returns>O valor de r.</returns>
         private int EvaluateLimitValue(int data, double log)
         {

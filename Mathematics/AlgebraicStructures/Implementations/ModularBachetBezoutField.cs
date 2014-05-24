@@ -33,7 +33,7 @@
         /// <param name="bachetBezoutAlgorithm">
         /// O algoritmo responsável pela determinação da inversa multiplicativa.
         /// </param>
-        /// <exception cref="System.ArgumentNullException">
+        /// <exception cref="ArgumentNullException">
         /// Se pelo menos um dos argumentos for nulo.
         /// </exception>
         public ModularBachetBezoutField(
@@ -61,7 +61,7 @@
         /// <value>
         /// O módulo.
         /// </value>
-        /// <exception cref="System.ArgumentNullException">Se o valor atribuído for nulo.</exception>
+        /// <exception cref="ArgumentNullException">Se o valor atribuído for nulo.</exception>
         public ObjectType Module
         {
             get
@@ -168,8 +168,8 @@
         /// <remarks>
         /// A adição modular repetida de um objecto pode ser rapidamente determinada com base em operações de multiplicação.
         /// </remarks>
-        /// <param name="left">O número a ser adicionado.</param>
-        /// <param name="right">O número de vezes que é realizada a adição.</param>
+        /// <param name="element">O número a ser adicionado.</param>
+        /// <param name="times">O número de vezes que é realizada a adição.</param>
         /// <returns>O resultado da adição modular repetida.</returns>
         public ObjectType AddRepeated(ObjectType element, int times)
         {

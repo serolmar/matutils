@@ -15,7 +15,6 @@ namespace Mathematics
     /// objecto sobre o qual actua, passando a ser necessária uma réplica do mesmo em memória.
     /// </remarks>
     /// <typeparam name="ObjectType">O tipo de objeto a ser processado.</typeparam>
-    /// <typeparam name="FieldType">O tipo do corpo que permite efectuar as operações sobre os elementos.</typeparam>
     public class CondensationDeterminantCalculator<ObjectType> : ADeterminant<ObjectType>
     {
         /// <summary>

@@ -28,7 +28,7 @@
         /// </summary>
         /// <param name="vector">The vector.</param>
         /// <param name="subVectorIndices">The sub vector indices.</param>
-        /// <exception cref="System.ArgumentNullException">subVectorIndices</exception>
+        /// <exception cref="ArgumentNullException">subVectorIndices</exception>
         public SubVector(IVector<CoeffType> vector, int[] subVectorIndices)
         {
             if (subVectorIndices == null)

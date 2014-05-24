@@ -13,6 +13,7 @@ namespace Utilities
     /// A symbol contains the symbol value and its type.
     /// </remarks>
     /// <typeparam name="TSymbVal">The symbol value type.</typeparam>
+    /// <typeparam name="TSymbType">O tipo de objectos que constituem os tipos dos símbolos.</typeparam>
     public interface ISymbol<TSymbVal, TSymbType>
     {
         /// <summary>

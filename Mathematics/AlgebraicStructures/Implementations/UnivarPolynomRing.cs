@@ -23,10 +23,10 @@ namespace Mathematics
         protected string variableName;
 
         /// <summary>
-        /// Cria instâncias de objectos do tipo <see cref="UnivarPolynomRing{}"/>
+        /// Cria instâncias de objectos do tipo <see cref="UnivarPolynomRing{CoeffType}"/>
         /// </summary>
-        /// <param name="variableName"></param>
-        /// <param name="ring"></param>
+        /// <param name="variableName">O nome da variável.</param>
+        /// <param name="ring">O anel responsável pelas operações sobre os coeficientes.</param>
         public UnivarPolynomRing(string variableName, IRing<CoeffType> ring)
         {
             if (ring == null)
@@ -233,8 +233,8 @@ namespace Mathematics
         /// <remarks>
         /// A adição repetida de um polinómio é rapidamente determinada com base na operação de multiplicação.
         /// </remarks>
-        /// <param name="left">O polinómio a ser adicionado.</param>
-        /// <param name="right">O número de vezes que é realizada a adição.</param>
+        /// <param name="element">O polinómio a ser adicionado.</param>
+        /// <param name="times">O número de vezes que é realizada a adição.</param>
         /// <returns>O resultado da adição repetida.</returns>
         public virtual UnivariatePolynomialNormalForm<CoeffType> AddRepeated(
             UnivariatePolynomialNormalForm<CoeffType> element, 

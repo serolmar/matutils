@@ -30,9 +30,8 @@
         /// Instancia um novo objecto do tipo <see cref="ConfigVectorReader{T, SymbValue, SymbType, InputReader}"/>.
         /// </summary>
         /// <param name="lines">O número de linhas.</param>
-        /// <param name="columns">O número de colunas.</param>
-        /// <param name="matrixFactory">A fábrica responsável pela criação de vectores.</param>
-        /// <exception cref="System.ArgumentNullException">Se a fábrica de vectores for nula.</exception>
+        /// <param name="vectorFactory">A fábrica responsável pela criação de vectores.</param>
+        /// <exception cref="ArgumentNullException">Se a fábrica de vectores for nula.</exception>
         public ConfigVectorReader(int lines, IVectorFactory<T> vectorFactory)
         {
             if (vectorFactory == null)
@@ -140,7 +139,7 @@
         /// <summary>
         /// Mapeia um símbolo externo de fecho a um símbolo de abertura.
         /// </summary>
-        /// <param name="openSymbolType">O tipo de símbolo que representa um delimitador de abertura.</param>
+        /// <param name="openSymbType">O tipo de símbolo que representa um delimitador de abertura.</param>
         /// <param name="closeSymbType">O tipo de símbolo que representa um delimitador de fecho.</param>
         public void MapExternalDelimiters(SymbType openSymbType, SymbType closeSymbType)
         {

@@ -27,7 +27,7 @@
         /// </summary>
         /// <param name="matrixFactory">A fábrica responsável pela criação de instâncias de matrizes.</param>
         /// <param name="additionOperation">O objecto responsável pela adição dos coeficientes.</param>
-        /// <exception cref="System.ArgumentNullException">
+        /// <exception cref="ArgumentNullException">
         /// Se um dos argumentos for nulo.
         /// </exception>
         public MatrixAdditionOperation(
@@ -73,10 +73,10 @@
         /// <param name="left">A primeira matriz.</param>
         /// <param name="right">A segunda matriz.</param>
         /// <returns>O resultado da soma.</returns>
-        /// <exception cref="System.ArgumentNullException">
+        /// <exception cref="ArgumentNullException">
         /// Se pelo menos um dos argumentos for nulo.
         /// </exception>
-        /// <exception cref="System.ArgumentException">
+        /// <exception cref="ArgumentException">
         /// Se as dimensões da matriz não corresponderem.
         /// </exception>
         public IMatrix<ObjectType> Add(IMatrix<ObjectType> left, IMatrix<ObjectType> right)

@@ -17,7 +17,6 @@ namespace Mathematics.AlgebraicStructures.Polynomial
     /// como polinómios habituais.
     /// </remarks>
     /// <typeparam name="T">O tipo de coeficiente no polinómio.</typeparam>
-    /// <typeparam name="R">O anel que permite adicionar e multiplicar os respectivos coeficientes</typeparam>
     public class SymmetricPolynomial<T>
     {
         /// <summary>
@@ -680,6 +679,7 @@ namespace Mathematics.AlgebraicStructures.Polynomial
         /// Um dicionário que permite mapear entre o n-ésimo polinómios simétrico e o seu nome, caso a primeira entrada do tuplo
         /// se encontre a falso e o seu valor caso esta se encontre a verdadeiro.
         /// </param>
+        /// <param name="ring">O anel responsável pelas operações sobre os coeficientes.</param>
         /// <returns>A representação polinomial.</returns>
         private Polynomial<T> GetElementarySymmetricMonomialRepresentation(
             Dictionary<int, int> monomialDegree,
@@ -820,7 +820,6 @@ namespace Mathematics.AlgebraicStructures.Polynomial
         /// especificado pelo índice.
         /// </summary>
         /// <param name="degree">O grau do polinómio a dividir.</param>
-        /// <param name="elementarySymmetricIndex">O índice do polinómio simétrico elementar.</param>
         /// <returns>O resultado da divisão.</returns>
         private Dictionary<int, int> GetDivisor(Dictionary<int, int> degree)
         {

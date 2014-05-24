@@ -32,7 +32,7 @@
         /// <param name="lines">O número de linhas.</param>
         /// <param name="columns">O número de colunas.</param>
         /// <param name="matrixFactory">A fábrica responsável pela criação de matrizes.</param>
-        /// <exception cref="System.ArgumentNullException">Se a fábrica de matrizes for nula.</exception>
+        /// <exception cref="ArgumentNullException">Se a fábrica de matrizes for nula.</exception>
         public ConfigMatrixReader(int lines, int columns, IMatrixFactory<T> matrixFactory)
         {
             if (matrixFactory == null)
@@ -208,7 +208,7 @@
         /// <summary>
         /// Mapeia um símbolo externo de fecho a um símbolo de abertura.
         /// </summary>
-        /// <param name="openSymbolType">O tipo de símbolo que representa um delimitador de abertura.</param>
+        /// <param name="openSymbType">O tipo de símbolo que representa um delimitador de abertura.</param>
         /// <param name="closeSymbType">O tipo de símbolo que representa um delimitador de fecho.</param>
         public void MapExternalDelimiters(SymbType openSymbType, SymbType closeSymbType)
         {

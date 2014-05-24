@@ -91,8 +91,8 @@
         /// <summary>
         /// Determina se os objectos especificados são iguais.
         /// </summary>
-        /// <param name="x">O primeiro objecto do tipo <paramref name="T" /> a ser comparado.</param>
-        /// <param name="y">O segundo objecto do tipo <paramref name="T" /> a ser comparado.</param>
+        /// <param name="x">O primeiro objecto a ser comparado.</param>
+        /// <param name="y">O segundo objecto a ser comparado.</param>
         /// <returns>
         /// Verdadeiro caso os objectos sejam iguais e falso caso contrário.
         /// </returns>
@@ -188,7 +188,6 @@
 
         /// <summary>
         /// Obtém o grau do valor encarado como elemento de um domínio euclideano.
-        /// Ver também <see cref="IEuclideanDomain"/>.
         /// </summary>
         /// <param name="value">O valor.</param>
         /// <returns>O grau do valor.</returns>

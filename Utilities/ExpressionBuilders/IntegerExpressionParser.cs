@@ -132,8 +132,8 @@
         /// <summary>
         /// Efectua a operação de resto da divisão.
         /// </summary>
-        /// <param name="i">O primeiro argumento.</param>
-        /// <param name="j">O segundo argumento.</param>
+        /// <param name="dividend">O primeiro argumento.</param>
+        /// <param name="divisor">O segundo argumento.</param>
         /// <returns>O resultado da operação.</returns>
         private int Remainder(int dividend, int divisor)
         {
@@ -143,8 +143,8 @@
         /// <summary>
         /// Efectua a operação de potência.
         /// </summary>
-        /// <param name="i">O primeiro argumento.</param>
-        /// <param name="j">O segundo argumento.</param>
+        /// <param name="value">O primeiro argumento.</param>
+        /// <param name="exponent">O segundo argumento.</param>
         /// <returns>O resultado da operação.</returns>
         /// <exception cref="UtilitiesException">Se o expoente for negativo.</exception>
         private int Power(int value, int exponent)

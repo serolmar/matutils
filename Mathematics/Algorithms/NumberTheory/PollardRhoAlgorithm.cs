@@ -36,7 +36,7 @@
         /// Permite criar uma instância dum objecto responsável pela obtenção de factores de um número.
         /// </summary>
         /// <param name="modularFieldFactory">O objecto responsável pelas operações modulares.</param>
-        /// <param name="integerDomain">O objecto responsável pelas operações sobre números inteiros.</param>
+        /// <param name="integerNumber">O objecto responsável pelas operações sobre números inteiros.</param>
         /// <exception cref="ArgumentNullException">Se pelo menos um dos argumentos for nulo.</exception>
         public PollardRhoAlgorithm(
             IModularFieldFactory<NumberType> modularFieldFactory,

@@ -26,7 +26,7 @@
         /// Instancia um novo objecto do tipo <see cref="DenseCondensationLinSysAlgorithm{ElementType}"/>.
         /// </summary>
         /// <param name="field">O corpo responsável pelas operações sobre os coeficientes.</param>
-        /// <exception cref="System.ArgumentNullException">Se o corpo for nulo.</exception>
+        /// <exception cref="ArgumentNullException">Se o corpo for nulo.</exception>
         public DenseCondensationLinSysAlgorithm(IField<ElementType> field)
         {
             if (field == null)

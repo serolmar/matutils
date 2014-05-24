@@ -53,7 +53,7 @@
         /// <param name="fieldComparer">O comparador de objectos do corpo.</param>
         /// <param name="converter">O conversor de objectos.</param>
         /// <param name="nearestField">O objecto responsável pela determinação dos elementos mais próximos.</param>
-        /// <exception cref="System.ArgumentNullException">
+        /// <exception cref="ArgumentNullException">
         /// Se algum dos argumentos for nulo.
         /// </exception>
         public SubsetSumLLLReductionAlgorithm(
@@ -104,7 +104,7 @@
         /// </summary>
         /// <remarks>
         /// Dado um conjunto de valores A={a[1], a[2], a[3], ...}, encontrar um subconjunto B contido em A,
-        /// B={a[b1], a[b2], ...} de tal forma que a sua soma a[b1]+a[b2]+... seja igual a <see cref="sum"/>.
+        /// B={a[b1], a[b2], ...} de tal forma que a sua soma a[b1]+a[b2]+... seja menor ou igual que o valor.
         /// O algoritmo implementado recorre à redução LLL.
         /// </remarks>
         /// <param name="coefficientValues">O conjunto de valores.</param>

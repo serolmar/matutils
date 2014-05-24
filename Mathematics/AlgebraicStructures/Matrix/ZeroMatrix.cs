@@ -33,8 +33,8 @@
         /// <param name="lines">O número de linhas da matriz.</param>
         /// <param name="columns">O número de colunas da matriz.</param>
         /// <param name="monoid">O monóide responsável pelas operações sobre os coeficientes.</param>
-        /// <exception cref="System.ArgumentNullException">Se o monóide for nulo.</exception>
-        /// <exception cref="System.ArgumentException">
+        /// <exception cref="ArgumentNullException">Se o monóide for nulo.</exception>
+        /// <exception cref="ArgumentException">
         /// Se o número de linhas ou o número de colunas for negativo.
         /// </exception>
         public ZeroMatrix(int lines, int columns, IMonoid<ElementType> monoid)
@@ -72,7 +72,7 @@
         /// <param name="line">O número da linha.</param>
         /// <param name="column">O número da coluna.</param>
         /// <returns></returns>
-        /// <exception cref="System.IndexOutOfRangeException">
+        /// <exception cref="IndexOutOfRangeException">
         /// Se o número da linha ou o número da coluna for negativo ou não for inferior ao tamanho da dimensão
         /// respectiva.
         /// </exception>

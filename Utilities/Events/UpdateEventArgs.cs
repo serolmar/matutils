@@ -8,7 +8,9 @@
     /// <summary>
     /// O delegado responsável pela âncora de um evento de actualização a uma função.
     /// </summary>
-    /// <typeparam name="T">O tipo de dados do valor.</typeparam>
+    /// <typeparam name="NewValueType">O tipo de dados do valor novo.</typeparam>
+    /// <typeparam name="OldValueType">O tipo de dados do valor antigo.</typeparam>
+    /// <param name="sender">O objecto responsável pelo envio do evento.</param>
     /// <param name="eventArgs">Os argumentos do evento.</param>
     public delegate void UpdateEventHandler<OldValueType, NewValueType>(
     object sender,

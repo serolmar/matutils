@@ -11,7 +11,6 @@
     /// divisões. Implementa o algoritmo de Berkowitz.
     /// </summary>
     /// <typeparam name="ElementType">O tipo das entradas da matriz.</typeparam>
-    /// <typeparam name="RingType">O anel responsável pelas operações.</typeparam>
     public class FastDivisionFreeCharPolynomCalculator<ElementType>
         : IAlgorithm<ISquareMatrix<ElementType>, UnivariatePolynomialNormalForm<ElementType>>
     {
@@ -30,8 +29,8 @@
         /// </summary>
         /// <param name="variableName">O nome da variável.</param>
         /// <param name="ring">O anel responsável pelas operações sobre as entradas das matrizes.</param>
-        /// <exception cref="System.ArgumentNullException">Se o anel for nulo.</exception>
-        /// <exception cref="System.ArgumentException">Se a variável for nula ou vazia.</exception>
+        /// <exception cref="ArgumentNullException">Se o anel for nulo.</exception>
+        /// <exception cref="ArgumentException">Se a variável for nula ou vazia.</exception>
         public FastDivisionFreeCharPolynomCalculator(string variableName, IRing<ElementType> ring)
         {
             if (ring == null)

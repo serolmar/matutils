@@ -8,7 +8,7 @@
 
     /// <summary>
     /// Permite representar as operações sobre o subconjunto dos números inteiros representáveis por uma
-    /// variável do tipo <see cref="System.long"/>.
+    /// variável do tipo <see cref="long"/>.
     /// </summary>
     public class LongDomain : IIntegerNumber<long>
     {
@@ -219,7 +219,7 @@
         /// </summary>
         /// <param name="number">O número.</param>
         /// <returns>O predecessor.</returns>
-        /// <exception cref="System.ArgumentException">Se o número proporcionado for o menor possível.</exception>
+        /// <exception cref="ArgumentException">Se o número proporcionado for o menor possível.</exception>
         public long Predecessor(long number)
         {
             if (number == int.MinValue)
@@ -240,7 +240,7 @@
         /// </summary>
         /// <param name="number">O número.</param>
         /// <returns>O sucessor do número.</returns>
-        /// <exception cref="System.ArgumentException">Se o número proporcionado for o maior possível.</exception>
+        /// <exception cref="ArgumentException">Se o número proporcionado for o maior possível.</exception>
         public long Successor(long number)
         {
             if (number == long.MaxValue)

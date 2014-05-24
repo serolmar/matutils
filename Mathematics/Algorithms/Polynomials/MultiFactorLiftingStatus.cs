@@ -37,7 +37,7 @@
         /// <param name="polynom">O polinómio.</param>
         /// <param name="factorization">A lista de factores módulo um número primo.</param>
         /// <param name="liftFactorizationModule">O número primo que constitui o módulo.</param>
-        /// <exception cref="System.ArgumentNullException">
+        /// <exception cref="ArgumentNullException">
         /// Se algum dos argumentos for nulo.
         /// </exception>
         public MultiFactorLiftingStatus(

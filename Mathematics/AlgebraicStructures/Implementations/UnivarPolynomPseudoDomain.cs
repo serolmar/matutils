@@ -19,8 +19,16 @@
         : UnivarPolynomRing<CoeffType>,
         IEuclidenDomain<UnivariatePolynomialNormalForm<CoeffType>>
     {
+        /// <summary>
+        /// O domínio responsável pelas operações sobre os coeficientes.
+        /// </summary>
         private IEuclidenDomain<CoeffType> coeffsDomain;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="UnivarPolynomPseudoDomain{CoeffType}"/>.
+        /// </summary>
+        /// <param name="variableName">O nome da variável.</param>
+        /// <param name="coeffsDomain">O domínio responsável pelas operações sobre os coeficientes.</param>
         public UnivarPolynomPseudoDomain(
             string variableName,
             IEuclidenDomain<CoeffType> coeffsDomain)

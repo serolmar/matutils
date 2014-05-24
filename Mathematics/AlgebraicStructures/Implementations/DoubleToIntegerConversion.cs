@@ -6,8 +6,8 @@
     using System.Text;
 
     /// <summary>
-    /// Permite converter de um número de precisão dupla <see cref="System.double"/> para um inteiro 
-    /// <see cref="System.int"/>.
+    /// Permite converter de um número de precisão dupla para um inteiro 
+    /// <see cref="int"/>.
     /// </summary>
     public class DoubleToIntegerConversion : IConversion<int, double>
     {

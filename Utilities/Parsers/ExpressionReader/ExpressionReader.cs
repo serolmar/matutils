@@ -99,7 +99,7 @@
         private List<string> errorMessages = new List<string>();
 
         /// <summary>
-        /// Instancia um novo objecto do tipo <see cref="ExpressionReader"/>.
+        /// Instancia um novo objecto do tipo <see cref="ExpressionReader{ObjType, SymbValue, SymbType}"/>.
         /// </summary>
         /// <param name="parser">O leitor responsável pela leitura de elementos.</param>
         public ExpressionReader(IParse<ObjType, SymbValue, SymbType> parser)
@@ -324,10 +324,14 @@
         /// </summary>
         /// <param name="openDelimiter">O delimitador de abertura.</param>
         /// <param name="closeDelimiter">O delimitador de fecho.</param>
+        /// <param name="delimOp">O operador associado ao delimitador.</param>
         /// <exception cref="ExpressionReaderException">
         /// Se o delimitador se encontra a ser utilizado em outros cenários.
         /// </exception>
-        public void RegisterExpressionDelimiterTypes(SymbType openDelimiter, SymbType closeDelimiter, UnaryOperator<ObjType> unaryOp)
+        public void RegisterExpressionDelimiterTypes(
+            SymbType openDelimiter, 
+            SymbType closeDelimiter, 
+            UnaryOperator<ObjType> delimOp)
         {
             if (this.externalDelimitersTypes.ContainsKey(openDelimiter))
             {
@@ -335,7 +339,7 @@
                     "The specified expression open delimiter was already setup for an external open delimiter.");
             }
 
-            ExpressionCompoundDelimiter<ObjType, SymbType> compound = new ExpressionCompoundDelimiter<ObjType, SymbType>() { DelimiterType = closeDelimiter, DelimiterOperator = unaryOp };
+            ExpressionCompoundDelimiter<ObjType, SymbType> compound = new ExpressionCompoundDelimiter<ObjType, SymbType>() { DelimiterType = closeDelimiter, DelimiterOperator = delimOp };
             if (this.expressionDelimitersTypes.ContainsKey(openDelimiter))
             {
                 if (!this.expressionDelimitersTypes[openDelimiter].Contains(compound))
@@ -527,7 +531,7 @@
         /// Determina se um operador é mapeado por um delimitador externo de abertura.
         /// </summary>
         /// <param name="operatorTypeToMatch">O operador.</param>
-        /// <param name="openDelimiterType">O delimitador externo de abertura.</param>
+        /// <param name="openExternalDelimiterType">O delimitador externo de abertura.</param>
         /// <returns>Verdadeiro caso o mapeamento exista e falso caso contrário.</returns>
         private bool MapOpenExternalDelimiterType(SymbType operatorTypeToMatch, SymbType openExternalDelimiterType)
         {
@@ -650,7 +654,7 @@
         /// Inovca o operador unário.
         /// </summary>
         /// <param name="operatorType">O tipo do operador.</param>
-        /// <param name="left">O argumento.</param>
+        /// <param name="obj">O argumento.</param>
         /// <returns>O resultado da operação.</returns>
         private ObjType InvokeUnaryOperator(SymbType operatorType, ObjType obj)
         {
@@ -660,7 +664,6 @@
         /// <summary>
         /// Avalia os elementos contidos na pilha.
         /// </summary>
-        /// <param name="closeDelimiterType">O delimitador de fecho anterior à chamada.</param>
         /// <param name="precedence">A precedência de paragem.</param>
         /// <param name="ignorePrecedence">Recebe um valor verdadeiro caso seja para avaliar enquanto existirem
         /// elementos na pilha.

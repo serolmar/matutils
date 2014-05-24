@@ -137,8 +137,8 @@
         /// <summary>
         /// A função responsável pela operação potência.
         /// </summary>
-        /// <param name="i">O primeiro argumento.</param>
-        /// <param name="j">O segundo argumento.</param>
+        /// <param name="value">O primeiro argumento.</param>
+        /// <param name="exponent">O segundo argumento.</param>
         /// <returns>O resultado da operação.</returns>
         private double Power(double value, double exponent)
         {

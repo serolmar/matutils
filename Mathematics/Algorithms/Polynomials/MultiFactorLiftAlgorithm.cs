@@ -23,7 +23,7 @@
         /// Instancia um novo objecto do tipo <see cref="MultiFactorLiftAlgorithm{CoeffType}"/>.
         /// </summary>
         /// <param name="linearLiftAlg">O algoritmo responsável pela elevação linear.</param>
-        /// <exception cref="System.ArgumentNullException">Se o argumento for nulo.</exception>
+        /// <exception cref="ArgumentNullException">Se o argumento for nulo.</exception>
         public MultiFactorLiftAlgorithm(ILinearLiftAlgorithm<CoeffType> linearLiftAlg)
         {
             if (linearLiftAlg == null)
@@ -211,6 +211,7 @@
         /// Obtém a solução a partir da árvore de factores.
         /// </summary>
         /// <param name="tree">A árvore de factores.</param>
+        /// <param name="mainDomain">O domínio responsável pelas operações sobre os coeficientes.</param>
         /// <returns>A solução.</returns>
         private List<UnivariatePolynomialNormalForm<CoeffType>> GetSolutionFromTree(
             Tree<LinearLiftingStatus<CoeffType>> tree,

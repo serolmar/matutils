@@ -14,8 +14,7 @@ namespace Mathematics
     /// O modo de funcionamento deste tipo de polinómios é em tudo semelhante ao dos polinómios gerais diferindo
     /// apenas em questões de desempenho.
     /// </remarks>
-    /// <typeparam name="ObjectType">O tipo de dados dos coeficientes.</typeparam>
-    /// <typeparam name="RingType">O tipo de dados do anel responsável pelas respectivas operações.</typeparam>
+    /// <typeparam name="CoeffType">O tipo de dados dos coeficientes.</typeparam>
     public class UnivariatePolynomialNormalForm<CoeffType> : IEnumerable<KeyValuePair<int, CoeffType>>
     {
         /// <summary>
@@ -39,7 +38,7 @@ namespace Mathematics
         /// Instancia um novo objecto do tipo <see cref="UnivariatePolynomialNormalForm{CoeffType}"/>.
         /// </summary>
         /// <param name="variable">A variável.</param>
-        /// <exception cref="System.ArgumentException">Se a variável for nula ou vazia.</exception>
+        /// <exception cref="ArgumentException">Se a variável for nula ou vazia.</exception>
         public UnivariatePolynomialNormalForm(string variable)
         {
             if (string.IsNullOrWhiteSpace(variable))
@@ -403,7 +402,7 @@ namespace Mathematics
         /// <summary>
         /// Obtém a derivada do polinómio corrente.
         /// </summary>
-        /// <param name="monoid">O anel responsável pelas operações.</param>
+        /// <param name="ring">O anel responsável pelas operações.</param>
         /// <returns>A derivada.</returns>
         /// <exception cref="ArgumentNullException">Se o anel for nulo.</exception>
         public UnivariatePolynomialNormalForm<CoeffType> GetPolynomialDerivative(IRing<CoeffType> ring)
@@ -832,7 +831,8 @@ namespace Mathematics
         /// <summary>
         /// Obtém a soma do polinómio corrente com um termo constante.
         /// </summary>
-        /// <param name="right">O termo constante.</param>
+        /// <param name="coeff">O termo constante.</param>
+        /// <param name="monoid">O monóide responsável pelas operações sobre os coeficientes.</param>
         /// <returns>A soma.</returns>
         public UnivariatePolynomialNormalForm<CoeffType> Add(CoeffType coeff, IMonoid<CoeffType> monoid)
         {
@@ -842,7 +842,7 @@ namespace Mathematics
         /// <summary>
         /// Obtém a soma do polinómio corrente com um monómio.
         /// </summary>
-        /// <param name="right">Os elementos do monómio.</param>
+        /// <param name="coeff">Os elementos do monómio.</param>
         /// <param name="degree">O grau do coeficiente.</param>
         /// <param name="monoid">O monóide responsável pelas operações.</param>
         /// <returns>A soma.</returns>
@@ -950,7 +950,6 @@ namespace Mathematics
         /// <summary>
         /// Obtém a diferença entre o polinómio corrente e um termo constante.
         /// </summary>
-        /// <param name="right">O termo constante.</param>
         /// <param name="coeff">O coeficiente a ser strubtraído.</param>
         /// <param name="group">O grupo responsável pelas operações.</param>
         /// <returns>A diferença.</returns>
@@ -1076,7 +1075,6 @@ namespace Mathematics
         /// <summary>
         /// Obtém produto do polinómio corrente com um termo constante.
         /// </summary>
-        /// <param name="right">O termo constante.</param>
         /// <param name="coeff">O coeficiente a ser multiplicado.</param>
         /// <param name="ring">O anel responsável pelas operações.</param>
         /// <returns>O produto.</returns>
@@ -1178,7 +1176,7 @@ namespace Mathematics
         /// <typeparam name="ResultType">O tipo de dados a ser substituído e do resultado.</typeparam>
         /// <param name="value">O valor.</param>
         /// <param name="additionOperation">O objecto responsável pelas operações sobre os coeficientes.</param>
-        /// <param name="multiplicatioOperation">O anel responsável pelas operações sobre os valores de saída.</param>
+        /// <param name="ring">O anel responsável pelas operações sobre os valores de saída.</param>
         /// <returns>O resultado calculado.</returns>
         /// <exception cref="ArgumentNullException">Se algum dos argumentos for nulo.</exception>
         public ResultType Replace<ResultType>(
@@ -1304,6 +1302,7 @@ namespace Mathematics
         /// Substitui a variável pelo polinómio especificado e calcula o resultado.
         /// </summary>
         /// <param name="other">O polinómio a substituir.</param>
+        /// <param name="ring">O anel responsável pelas operações sobre os coeficientes.</param>
         /// <returns>O resultado da substituição.</returns>
         /// <exception cref="ArgumentNullException">Se algum dos argumentos for nulo.</exception>
         public UnivariatePolynomialNormalForm<CoeffType> Replace(

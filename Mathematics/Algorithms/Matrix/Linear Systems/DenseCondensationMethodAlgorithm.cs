@@ -21,7 +21,7 @@
         /// Instancia um novo objecto do tipo <see cref="DenseCondensationMethodAlgorithm{ElementType}"/>.
         /// </summary>
         /// <param name="field">O corpo responsável pelas operações sobre os coeficientes.</param>
-        /// <exception cref="System.ArgumentNullException">Se o corpo for nulo.</exception>
+        /// <exception cref="ArgumentNullException">Se o corpo for nulo.</exception>
         public DenseCondensationMethodAlgorithm(IField<ElementType> field)
         {
             if (field == null)
@@ -41,8 +41,8 @@
         /// As matrizes de entrada serão alteradas. No final, a matriz inicial é condensada e as mesmas operações
         /// são efectuadas sobre todas as linhas da segunda matriz.
         /// </remarks>
-        /// <param name="linearSystemMatrix">A matriz de coeficientes.</param>
-        /// <param name="independentVector">A matriz dependente.</param>
+        /// <param name="initialMatrix">A matriz de coeficientes.</param>
+        /// <param name="finalMatrix">A matriz dependente.</param>
         /// <returns>Verdadeiro caso tenha sido realizada alguma operação e falso caso contrário.</returns>
         /// <exception cref="ArgumentNullException">Se pelo menos um dos argumentos for nulo.</exception>
         /// <exception cref="MathematicsException">

@@ -13,7 +13,7 @@
         /// <summary>
         /// Obtém o tipo dos objetos lidos.
         /// </summary>
-        /// <value>O tipo <see cref="System.double"/>.</value>
+        /// <value>O tipo de dados.</value>
         public Type ObjectType
         {
             get

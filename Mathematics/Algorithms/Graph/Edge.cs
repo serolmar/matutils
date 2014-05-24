@@ -32,6 +32,7 @@
         /// </summary>
         /// <param name="initialVertex">O vértice inicial.</param>
         /// <param name="finalVertex">O vértice final.</param>
+        /// <param name="value">O valor associado.</param>
         public Edge(VertexType initialVertex, VertexType finalVertex, EdgeValueType value)
         {
             this.initialVertex = initialVertex;

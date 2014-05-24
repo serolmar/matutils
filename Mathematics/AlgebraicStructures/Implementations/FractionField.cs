@@ -6,7 +6,7 @@ using System.Text;
 namespace Mathematics
 {
     /// <summary>
-    /// Permite aplicar as operações de corpo sobre objectos do tipo <see cref="FractionField[T}" />.
+    /// Permite aplicar as operações de corpo sobre objectos do tipo <see cref="FractionField{T}" />.
     /// </summary>
     /// <typeparam name="T">O tipo dos coeficientes das fracções.</typeparam>
     public class FractionField<T> : ElementFractionConversion<T>, IField<Fraction<T>>, IConversion<T, Fraction<T>>
@@ -73,7 +73,7 @@ namespace Mathematics
         /// </summary>
         /// <param name="number">A fracção.</param>
         /// <returns>A inversa multiplicativa da fracção.</returns>
-        /// <exception cref="System.ArgumentNullException">Caso a fracção proporcionada seja nula.</exception>
+        /// <exception cref="ArgumentNullException">Caso a fracção proporcionada seja nula.</exception>
         public Fraction<T> MultiplicativeInverse(Fraction<T> number)
         {
             if (number == null)
@@ -91,7 +91,7 @@ namespace Mathematics
         /// </summary>
         /// <param name="number">A fracção.</param>
         /// <returns>A inversa multiplicativa.</returns>
-        /// <exception cref="System.ArgumentNullException">Caso a fracção proporcionada seja nula.</exception>
+        /// <exception cref="ArgumentNullException">Caso a fracção proporcionada seja nula.</exception>
         public Fraction<T> AdditiveInverse(Fraction<T> number)
         {
             if (number == null)
@@ -109,7 +109,7 @@ namespace Mathematics
         /// </summary>
         /// <param name="value">A fracção a ser analisada.</param>
         /// <returns>Verdadeiro caso a fracção seja uma unidade aditiva e falso caso contrário.</returns>
-        /// <exception cref="System.ArgumentNullException">Caso o valor passado seja nulo.</exception>
+        /// <exception cref="ArgumentNullException">Caso o valor passado seja nulo.</exception>
         public bool IsAdditiveUnity(Fraction<T> value)
         {
             if (value == null)
@@ -128,7 +128,7 @@ namespace Mathematics
         /// <param name="left">A primeira fracção a ser adicionada.</param>
         /// <param name="right">A segunda fracção a ser adicionada.</param>
         /// <returns>O resultado da adição.</returns>
-        /// <exception cref="System.ArgumentNullException">
+        /// <exception cref="ArgumentNullException">
         /// Caso ambos os argumentos sejam nulos.
         /// </exception>
         public Fraction<T> Add(Fraction<T> left, Fraction<T> right)
@@ -153,7 +153,7 @@ namespace Mathematics
         /// <param name="left">O primeiro número a ser multiplicado.</param>
         /// <param name="right">O segundo número a ser multiplicado.</param>
         /// <returns>O resultado do produto.</returns>
-        /// <exception cref="System.ArgumentNullException">
+        /// <exception cref="ArgumentNullException">
         /// Caso um dos argumentos seja nulo.
         /// </exception>
         public Fraction<T> Multiply(Fraction<T> left, Fraction<T> right)
@@ -177,7 +177,7 @@ namespace Mathematics
         /// </summary>
         /// <param name="value">A fracção.</param>
         /// <returns>Verdadeiro caso a fracção seja uma unidade multiplicativa e falso caso contrário.</returns>
-        /// <exception cref="System.ArgumentNullException">Caso o valor seja nulo.</exception>
+        /// <exception cref="ArgumentNullException">Caso o valor seja nulo.</exception>
         public bool IsMultiplicativeUnity(Fraction<T> value)
         {
             if (value == null)

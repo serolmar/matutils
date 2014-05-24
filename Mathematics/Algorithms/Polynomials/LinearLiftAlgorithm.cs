@@ -37,7 +37,7 @@
         /// A fábrica responsável pela criação de domínios capazes de realizar operações sobre polinómios.
         /// </param>
         /// <param name="integerNumber">A classe responsável pelas operações sobre os inteiros.</param>
-        /// <exception cref="System.ArgumentNullException">
+        /// <exception cref="ArgumentNullException">
         /// Se algum dos argumentos for nulo.
         /// </exception>
         public LinearLiftAlgorithm(
@@ -113,7 +113,7 @@
         /// Caso estes não sejam iniciados convenientemente, os resultados obtidos poderão não estar correctos.
         /// </remarks>
         /// <param name="status">Contém os dados de entrada.</param>
-        /// <param name="modulusLimit">O limite superior exculsivo para o módulo m'.</param>
+        /// <param name="iterationsNumber">O número de iterações.</param>
         /// <returns>Verdadeiro caso seja executada alguma iteração e falso caso contrário.</returns>
         /// <exception cref="ArgumentNullException">
         /// Se os dados de entrada forem passados com um apontador nulo.

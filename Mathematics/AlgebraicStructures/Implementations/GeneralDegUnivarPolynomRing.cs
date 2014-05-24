@@ -42,10 +42,10 @@
         /// <param name="variableName">O nome da variável.</param>
         /// <param name="ring">O anel responsável pelas operações sobre os coeficientes.</param>
         /// <param name="integerNumber">O objecto responsável pelas operações sobre os graus.</param>
-        /// <exception cref="System.ArgumentNullException">
+        /// <exception cref="ArgumentNullException">
         /// Se algum dos argumentos form nulo.
         /// </exception>
-        /// <exception cref="System.ArgumentException">Se a variável for vazia.</exception>
+        /// <exception cref="ArgumentException">Se a variável for vazia.</exception>
         public GeneralDegUnivarPolynomRing(
             string variableName, 
             IRing<CoeffType> ring,
@@ -110,7 +110,7 @@
         /// </summary>
         /// <param name="number">O polinómio.</param>
         /// <returns>O inverso aditivo.</returns>
-        /// <exception cref="System.ArgumentNullException">Caso o argumento seja nulo.</exception>
+        /// <exception cref="ArgumentNullException">Caso o argumento seja nulo.</exception>
         public virtual GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType> AdditiveInverse(
             GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType> number)
         {
@@ -129,7 +129,7 @@
         /// </summary>
         /// <param name="value">O polinómio a ser analisado.</param>
         /// <returns>Veradeiro caso o polinómio seja uma unidade aditiva e falso caso contrário.</returns>
-        /// <exception cref="System.ArgumentNullException">Se o arugmento for nulo.</exception>
+        /// <exception cref="ArgumentNullException">Se o arugmento for nulo.</exception>
         public virtual bool IsAdditiveUnity(GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType> value)
         {
             if (value == null)
@@ -148,7 +148,7 @@
         /// <param name="left">O primeiro polinómio a ser adicionado.</param>
         /// <param name="right">O segundo polinómio a ser adicionado.</param>
         /// <returns>O resultado da soma dos dois polinómios.</returns>
-        /// <exception cref="System.ArgumentNullException">
+        /// <exception cref="ArgumentNullException">
         /// Se pelo menos um dos argumentos for nulo.
         /// </exception>
         public virtual GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType> Add(
@@ -224,7 +224,7 @@
         /// <param name="left">O primeiro polinómio geral a ser multiplicado.</param>
         /// <param name="right">O segundo polinómio geral a ser multiplicado.</param>
         /// <returns>O resultado do produto dos polinómios.</returns>
-        /// <exception cref="System.ArgumentNullException">
+        /// <exception cref="ArgumentNullException">
         /// Se pelo menos um dos argumentos for nulo.
         /// </exception>
         public virtual GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType> Multiply(
@@ -250,7 +250,7 @@
         /// </summary>
         /// <param name="value">O polinómio a ser analisado.</param>
         /// <returns>Verdadeiro caso o polinómios seja uma unidade multiplicativa e falso caso contrário.</returns>
-        /// <exception cref="System.ArgumentNullException">Se o argumento for nulo.</exception>
+        /// <exception cref="ArgumentNullException">Se o argumento for nulo.</exception>
         public virtual bool IsMultiplicativeUnity(GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType> value)
         {
             if (value == null)
@@ -269,7 +269,7 @@
         /// <param name="element">O polinómio a ser somado.</param>
         /// <param name="times">O número de vezes que a soma é aplicada.</param>
         /// <returns>O resultado da soma repetida.</returns>
-        /// <exception cref="System.ArgumentNullException">Se o argumento for nulo.</exception>
+        /// <exception cref="ArgumentNullException">Se o argumento for nulo.</exception>
         public virtual GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType> AddRepeated(
             GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType> element, 
             int times)

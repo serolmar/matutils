@@ -30,7 +30,7 @@
         /// <param name="primeNumbersIteratorFactory">
         /// A fábrica que permite criar enumeradores para números primos.
         /// </param>
-        /// <exception cref="System.ArgumentNullException">
+        /// <exception cref="ArgumentNullException">
         /// Se algum dos argumentos for nulo.
         /// </exception>
         public BigIntPerfectPowerTestAlg(

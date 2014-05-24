@@ -56,7 +56,7 @@
         /// </summary>
         /// <param name="objectToConvert">O objecto a ser convertido.</param>
         /// <returns>O resultado da conversão.</returns>
-        /// <exception cref="System.ArgumentNullException">Caso o objecto passado seja nulo.</exception>
+        /// <exception cref="ArgumentNullException">Caso o objecto passado seja nulo.</exception>
         public ElementType DirectConversion(ElementType objectToConvert)
         {
             if (objectToConvert == null)
@@ -74,7 +74,7 @@
         /// </summary>
         /// <param name="objectToConvert">O objecto a ser convertido.</param>
         /// <returns>O resultado da conversão.</returns>
-        /// <exception cref="System.ArgumentNullException">Caso o objecto passado seja nulo.</exception>
+        /// <exception cref="ArgumentNullException">Caso o objecto passado seja nulo.</exception>
         public ElementType InverseConversion(ElementType objectToConvert)
         {
             if (objectToConvert == null)

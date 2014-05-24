@@ -29,7 +29,7 @@
         /// </summary>
         /// <param name="independentCoeff">O coeficiente independente.</param>
         /// <param name="factors">Os factores.</param>
-        /// <exception cref="System.ArgumentNullException">Se o coeficiente independente for nulo.</exception>
+        /// <exception cref="ArgumentNullException">Se o coeficiente independente for nulo.</exception>
         public SquareFreeFactorizationResult(
             InputPolCoeffType independentCoeff,
             Dictionary<int, UnivariatePolynomialNormalForm<OutputPolCoeffType>> factors)

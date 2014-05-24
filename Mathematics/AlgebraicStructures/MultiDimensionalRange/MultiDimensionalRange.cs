@@ -25,7 +25,7 @@
         private int[] configuration;
 
         /// <summary>
-        /// Instancia uma classe do tipo <see cref="MultiDimensionalRange"/>, provendo a
+        /// Instancia uma classe do tipo <see cref="MultiDimensionalRange{T}"/>, provendo a
         /// respectiva configuração.
         /// </summary>
         internal MultiDimensionalRange()
@@ -33,7 +33,7 @@
         }
 
         /// <summary>
-        /// Instancia uma classe do tipo <see cref="MultiDimensionalRange"/>, provendo a
+        /// Instancia uma classe do tipo <see cref="MultiDimensionalRange{T}"/>, provendo a
         /// respectiva configuração.
         /// </summary>
         /// <param name="dimensions">A configuração da matriz.</param>
@@ -65,10 +65,10 @@
         /// </value>
         /// <param name="multiDimensionalIndex">O índice multidimensional.</param>
         /// <returns></returns>
-        /// <exception cref="System.ArgumentNullException">
+        /// <exception cref="ArgumentNullException">
         /// Se o índice for nulo.
         /// </exception>
-        /// <exception cref="System.IndexOutOfRangeException">
+        /// <exception cref="IndexOutOfRangeException">
         /// Se o índice se encontra fora dos limites da matriz multidimensional.
         /// </exception>
         public T this[int[] multiDimensionalIndex]
@@ -530,7 +530,7 @@
         /// Avalia se é possível contrair um alcance multidimensional.
         /// </summary>
         /// <param name="conversionIndices">Os índices de contracção.</param>
-        /// <exception cref="System.ArgumentNullException">Se o vector de índices de conversão for nulo.</exception>
+        /// <exception cref="ArgumentNullException">Se o vector de índices de conversão for nulo.</exception>
         /// <exception cref="MathematicsException">
         /// Se o vector de índices não definir uma contracção válida.
         /// </exception>

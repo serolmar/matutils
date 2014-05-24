@@ -19,6 +19,12 @@
         /// </summary>
         private IField<ObjectType> field;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="FieldDrivenExpressionReader{ObjectType, InputType}"/>.
+        /// </summary>
+        /// <param name="objectParser">O leitor de objectos.</param>
+        /// <param name="field">O corpo.</param>
+        /// <param name="integerNumber">O número inteiro.</param>
         public FieldDrivenExpressionReader(
             IParse<ObjectType, string, string> objectParser,
             IField<ObjectType> field,

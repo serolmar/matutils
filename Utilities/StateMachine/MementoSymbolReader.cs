@@ -15,7 +15,7 @@ namespace Utilities
         : SymbolReader<InputReader, TSymbVal, TSymbType>, IMementoOriginator
     {
         /// <summary>
-        /// Instancia um novo objecto do tipo <see cref="MementoSymbolReader"/>.
+        /// Instancia um novo objecto do tipo <see cref="MementoSymbolReader{InputReader, TSymbVal, TSymbType}"/>.
         /// </summary>
         /// <param name="inputTextStream">O leitor de dados.</param>
         public MementoSymbolReader(InputReader inputTextStream)

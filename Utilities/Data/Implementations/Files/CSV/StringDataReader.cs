@@ -13,7 +13,7 @@
         /// <summary>
         /// O tipo dos objectos lidos.
         /// </summary>
-        /// <value>O tipo <see cref="System.string"/>.</value>
+        /// <value>O tipo dos objectos.</value>
         public Type ObjectType
         {
             get

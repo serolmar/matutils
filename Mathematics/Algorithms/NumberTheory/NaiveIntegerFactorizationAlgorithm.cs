@@ -27,7 +27,7 @@
         /// O algoritmo responsável pela determinação da parte inteira de uma raiz quadrada de um número.
         /// </param>
         /// <param name="integerNumber">O objecto responsável pelas operações sobre os números inteiros.</param>
-        /// <exception cref="System.ArgumentNullException">
+        /// <exception cref="ArgumentNullException">
         /// Se pelo menos um dos argumentos for nulo.
         /// </exception>
         public NaiveIntegerFactorizationAlgorithm(

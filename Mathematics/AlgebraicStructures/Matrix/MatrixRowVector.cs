@@ -28,7 +28,7 @@
         /// </summary>
         /// <param name="lineNumber">O número da linha.</param>
         /// <param name="matrix">A matriz da qual é extraída a linha como sendo um vector.</param>
-        /// <exception cref="System.ArgumentOutOfRangeException">Se a matriz for nula.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Se a matriz for nula.</exception>
         public MatrixRowVector(int lineNumber, IMatrix<CoeffType> matrix)
         {
             if (lineNumber < 0)

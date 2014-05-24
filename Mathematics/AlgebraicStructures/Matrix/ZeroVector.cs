@@ -28,8 +28,8 @@
         /// </summary>
         /// <param name="length">O tamanho do vector.</param>
         /// <param name="monoid">O monóide responsável pelas operações sobre os coeficientes.</param>
-        /// <exception cref="System.ArgumentNullException">Se o monóide for nulo.</exception>
-        /// <exception cref="System.ArgumentException">Se o comprimento do vector for negativo.</exception>
+        /// <exception cref="ArgumentNullException">Se o monóide for nulo.</exception>
+        /// <exception cref="ArgumentException">Se o comprimento do vector for negativo.</exception>
         public ZeroVector(int length, IMonoid<CoeffType> monoid)
         {
             if (monoid == null)
@@ -98,6 +98,11 @@
             return new SubVector<CoeffType>(this, indices);
         }
 
+        /// <summary>
+        /// Obtém o sub-vector especificado pelo conjunto de índices.
+        /// </summary>
+        /// <param name="indices">Os índices que especificam o sub-vector.</param>
+        /// <returns>O sub-vector.</returns>
         public IVector<CoeffType> GetSubVector(IntegerSequence indices)
         {
             return new IntegerSequenceSubVector<CoeffType>(this, indices);

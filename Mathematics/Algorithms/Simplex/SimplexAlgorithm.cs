@@ -34,7 +34,7 @@
         /// </summary>
         /// <param name="coeffsComparer">O comparador de coeficientes.</param>
         /// <param name="coeffsField">O corpo responsável pelas operações sobre os coeficientes.</param>
-        /// <exception cref="System.ArgumentNullException">
+        /// <exception cref="ArgumentNullException">
         /// Se algum dos argumentos for nulo.
         /// </exception>
         public SimplexAlgorithm(IComparer<CoeffType> coeffsComparer, IField<CoeffType> coeffsField)
@@ -462,6 +462,7 @@
         /// </summary>
         /// <param name="enteringVariable">A variável de entrada.</param>
         /// <param name="leavingVariable">a variável de saída.</param>
+        /// <param name="basicVariables">O conjunto de variáveis básicas.</param>
         /// <param name="nonBasicVariables">O conjunto de variáveis não-básicas.</param>
         /// <param name="currentCost">O custo actual.</param>
         /// <param name="objective">A função objectivo.</param>
@@ -519,6 +520,7 @@
         /// </summary>
         /// <param name="enteringVariable">A variável de entrada.</param>
         /// <param name="leavingVariable">a variável de saída.</param>
+        /// <param name="basicVariables">O conjunto de variáveis básicas.</param>
         /// <param name="nonBasicVariables">O conjunto de variáveis não-básicas.</param>
         /// <param name="currentCost">O custo actual.</param>
         /// <param name="objective">A função objectivo.</param>

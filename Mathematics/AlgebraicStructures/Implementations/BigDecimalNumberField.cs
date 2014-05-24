@@ -166,8 +166,8 @@
         /// <summary>
         /// Determina quando dois números decimais são iguais.
         /// </summary>
-        /// <param name="x">O primeiro objecto do tipo <paramref name="T" /> a ser comparado.</param>
-        /// <param name="y">O segundo objecto do tipo <paramref name="T" /> a ser comparado.</param>
+        /// <param name="x">O primeiro objecto a ser comparado.</param>
+        /// <param name="y">O segundo objecto a ser comparado.</param>
         /// <returns>
         /// Verdadeiro caso ambos os objectos sejam iguais e falso no caso contrário.
         /// </returns>
@@ -221,11 +221,11 @@
         }
 
         /// <summary>
-        /// Retorna um valor do tipo <see cref="System.String" /> que representa a instância.
+        /// Retorna um valor do tipo <see cref="String" /> que representa a instância.
         /// </summary>
         /// <param name="number">O número.</param>
         /// <returns>
-        /// Um valor do tipo <see cref="System.String" /> que representa a instância.
+        /// Um valor do tipo <see cref="String" /> que representa a instância.
         /// </returns>
         public string ToString(BigDecimalNumber number)
         {

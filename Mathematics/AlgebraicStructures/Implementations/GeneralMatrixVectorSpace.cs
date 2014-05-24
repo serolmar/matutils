@@ -24,7 +24,7 @@
         /// <param name="columns">O número colunas.</param>
         /// <param name="matrixFactory">A fábrica responsável pela criação de matrizes.</param>
         /// <param name="scalarField">The scalar field.</param>
-        /// <exception cref="System.ArgumentNullException">scalarField</exception>
+        /// <exception cref="ArgumentNullException">scalarField</exception>
         public GeneralMatrixVectorSpace(
             int lines,
             int columns,

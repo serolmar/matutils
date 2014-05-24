@@ -31,7 +31,7 @@
         /// </summary>
         /// <param name="comparer">O comparador de coeficientes.</param>
         /// <param name="ring">O anel responsável pelas operações sobre os coeficientes.</param>
-        /// <exception cref="System.ArgumentNullException">
+        /// <exception cref="ArgumentNullException">
         /// Se algums dos argumentos for nulo.
         /// </exception>
         public IntegerMinWeightTdecomposition(IComparer<CostType> comparer, IRing<CostType> ring)

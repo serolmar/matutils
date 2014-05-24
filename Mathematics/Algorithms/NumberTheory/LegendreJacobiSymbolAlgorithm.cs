@@ -20,7 +20,7 @@
         /// Instancia um novo objecto do tipo <see cref="LegendreJacobiSymbolAlgorithm{NumberType}"/>.
         /// </summary>
         /// <param name="integerNumber">O objecto responsável pelas operações sobre os números inteiros.</param>
-        /// <exception cref="System.ArgumentNullException">
+        /// <exception cref="ArgumentNullException">
         /// Se o objecto responsável pelas operações sobre os números inteiros for nulo.
         /// </exception>
         public LegendreJacobiSymbolAlgorithm(IIntegerNumber<NumberType> integerNumber)

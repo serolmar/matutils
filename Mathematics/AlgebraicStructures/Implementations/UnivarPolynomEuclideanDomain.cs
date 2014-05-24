@@ -24,6 +24,11 @@
         /// </summary>
         private UnivariatePolynomialNormalForm<CoeffType> unit;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="UnivarPolynomEuclideanDomain{CoeffType}"/>.
+        /// </summary>
+        /// <param name="variableName">O nome da variável.</param>
+        /// <param name="field">O corpos responsável pelas operações sobre os coeficientes.</param>
         public UnivarPolynomEuclideanDomain(string variableName, IField<CoeffType> field)
             : base(variableName, field)
         {

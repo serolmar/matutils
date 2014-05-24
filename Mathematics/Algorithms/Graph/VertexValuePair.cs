@@ -22,6 +22,11 @@
         /// </summary>
         ValueType value;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="VertexValuePair{VertexType, ValueType}"/>.
+        /// </summary>
+        /// <param name="vertex">O vértice.</param>
+        /// <param name="value">O valor.</param>
         public VertexValuePair(VertexType vertex, ValueType value)
         {
             this.vertex = vertex;

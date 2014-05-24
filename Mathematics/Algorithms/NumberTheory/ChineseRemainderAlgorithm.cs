@@ -51,7 +51,7 @@
         /// Instancia um novo objecto do tipo <see cref="ChineseRemainderAlgorithm{ObjectType}"/>.
         /// </summary>
         /// <param name="numberOfTasks">O número de tarefas de execução paralela usadas no processamento.</param>
-        /// <exception cref="System.ArgumentOutOfRangeException">Se o número de tarefas for não positivo.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Se o número de tarefas for não positivo.</exception>
         public ChineseRemainderAlgorithm(int numberOfTasks = 1)
         {
             if (numberOfTasks <= 0)

@@ -10,7 +10,7 @@
     /// <summary>
     /// Implementa um leitor de valores verdadeiro ou falso com base numa expressão lógica.
     /// </summary>
-    /// <remarks>Um exemplo de expressão válida: "true || ~ false && true".</remarks>
+    /// <remarks>Um exemplo de expressão válida: "true || ~ false &amp;&amp; true".</remarks>
     public class BoolExpressionParser : IParse<bool, string, string>
     {
         /// <summary>

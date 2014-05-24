@@ -33,7 +33,7 @@
         /// <param name="coeffNormSpace">O objecto que define uma norma sobre os coeficientes.</param>
         /// <param name="coeffsComparer">O comprador de coeficientes.</param>
         /// <param name="domain">O domínio responsável pelas operações sobre os coeficientes.</param>
-        /// <exception cref="System.ArgumentNullException">
+        /// <exception cref="ArgumentNullException">
         /// Caso algum dos argumentos seja nulo.
         /// </exception>
         public FractionNormSpace(

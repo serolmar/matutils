@@ -38,7 +38,7 @@
         /// </value>
         /// <param name="index">O índice da linha.</param>
         /// <returns>O valor.</returns>
-        /// <exception cref="System.ArgumentOutOfRangeException">
+        /// <exception cref="ArgumentOutOfRangeException">
         /// Se o índice for negativo ou não for inferior ao número de colunas na matriz.
         /// </exception>
         public ObjectType this[int index]

@@ -43,8 +43,8 @@ namespace Mathematics
         /// <summary>
         /// Cria instâncias de objectos do tipo <see cref="ArrayMatrix{ObjectType}"/>.
         /// </summary>
-        /// <param name="numberOfLines">O número de linhas.</param>
-        /// <param name="numberOfColumns">O número de colunas.</param>
+        /// <param name="line">O número de linhas.</param>
+        /// <param name="column">O número de colunas.</param>
         /// <exception cref="ArgumentOutOfRangeException">Se o número de linhas ou colunas for negativo.</exception>
         public ArrayMatrix(int line, int column)
         {
@@ -65,8 +65,8 @@ namespace Mathematics
         /// <summary>
         /// Cria instâncias de objectos do tipo <see cref="ArrayMatrix{ObjectType}"/>.
         /// </summary>
-        /// <param name="numberOfLines">O número de linhas.</param>
-        /// <param name="numberOfColumns">O número de colunas.</param>
+        /// <param name="line">O número de linhas.</param>
+        /// <param name="column">O número de colunas.</param>
         /// <param name="defaultValue">O valor por defeito.</param>
         /// <exception cref="ArgumentOutOfRangeException">Se o número de linhas ou colunas for negativo.</exception>
         public ArrayMatrix(int line, int column, ObjectType defaultValue)

@@ -17,6 +17,11 @@
         /// </summary>
         private IMatrix<ObjectType> matrix;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="TransposeMatrix{ObjectType}"/>.
+        /// </summary>
+        /// <param name="matrix">A matriz.</param>
+        /// <exception cref="ArgumentNullException">Se a matriz for nula.</exception>
         public TransposeMatrix(IMatrix<ObjectType> matrix)
         {
             if (matrix == null)
@@ -38,7 +43,7 @@
         /// <param name="line">O número da linha.</param>
         /// <param name="column">O número da coluna.</param>
         /// <returns>O valor.</returns>
-        /// <exception cref="System.ArgumentOutOfRangeException">
+        /// <exception cref="ArgumentOutOfRangeException">
         /// Se o número da linha ou o número da coluna for negativo ou não for inferior ao tamanho
         /// da respectiva dimensão.
         /// </exception>

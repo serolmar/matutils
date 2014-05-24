@@ -5,6 +5,9 @@
     using System.Linq;
     using System.Text;
 
+    /// <summary>
+    /// Implementa uma série de funções auxiliares.
+    /// </summary>
     public static class Utils
     {
         /// <summary>

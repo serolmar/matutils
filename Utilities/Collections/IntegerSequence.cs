@@ -44,7 +44,7 @@
         /// </value>
         /// <param name="index">O índice.</param>
         /// <returns></returns>
-        /// <exception cref="System.ArgumentOutOfRangeException">
+        /// <exception cref="ArgumentOutOfRangeException">
         /// Se o índice não se encontrar nos limites da sequeência.
         /// </exception>
         public int this[int index]
@@ -160,7 +160,7 @@
         /// <param name="start">O número inicial.</param>
         /// <param name="end">O número final.</param>
         /// <exception cref="CollectionsException">Se a colecção for só de leitura.</exception>
-        /// <exception cref="System.ArgumentException">
+        /// <exception cref="ArgumentException">
         /// Se o número inicial for superior ao número final.
         /// </exception>
         public void Add(int start, int end)
@@ -258,11 +258,11 @@
         /// </summary>
         /// <param name="array">O vector.</param>
         /// <param name="arrayIndex">O índice do vector onde inciar a cópia.</param>
-        /// <exception cref="System.ArgumentNullException">Se o vector for nulo.</exception>
-        /// <exception cref="System.ArgumentOutOfRangeException">
+        /// <exception cref="ArgumentNullException">Se o vector for nulo.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">
         /// Se o índice se encontrar fora dos limites do vector.
         /// </exception>
-        /// <exception cref="System.ArgumentException">
+        /// <exception cref="ArgumentException">
         /// Se não for possível efectuar a cópia devido às dimensões do vector.
         /// </exception>
         public void CopyTo(int[] array, int arrayIndex)

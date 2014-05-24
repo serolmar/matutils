@@ -12,8 +12,6 @@
     /// Um possível exemplo consite na determinação do inteiro que se encontra mais próximo de uma fracção ou
     /// de um decimal.
     /// </remarks>
-    /// <typeparam name="SourceType">O tipo da fonte.</typeparam>
-    /// <typeparam name="TargetType">O tipo do alvo.</typeparam>
     public class DecimalNearestInteger : INearest<Decimal, Decimal>
     {
         /// <summary>

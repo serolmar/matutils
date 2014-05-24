@@ -20,7 +20,7 @@
         /// Instancia um novo objecto do tipo <see cref="ADeterminant{ElementsType}"/>.
         /// </summary>
         /// <param name="ring">O anel responsável pelas operações sobre os coeficientes.</param>
-        /// <exception cref="System.ArgumentNullException">Se o anel for nulo.</exception>
+        /// <exception cref="ArgumentNullException">Se o anel for nulo.</exception>
         public ADeterminant(IRing<ElementsType> ring)
         {
             if (ring == null)

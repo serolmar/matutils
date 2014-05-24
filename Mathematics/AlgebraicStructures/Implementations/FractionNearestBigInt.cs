@@ -21,7 +21,7 @@
         /// Cria uma instância de objectos do tipo <see cref="FractionNearestBigInt"/>.
         /// </summary>
         /// <param name="domain">O domínio responsável pelas operações sobre os coeficientes.</param>
-        /// <exception cref="System.ArgumentNullException">Caso o domínio seja nulo.</exception>
+        /// <exception cref="ArgumentNullException">Caso o domínio seja nulo.</exception>
         public FractionNearestBigInt(IEuclidenDomain<BigInteger> domain)
         {
             if (domain == null)

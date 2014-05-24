@@ -5,6 +5,10 @@
     using System.Linq;
     using System.Text;
 
+    /// <summary>
+    /// Define um grupo sobre matrizes.
+    /// </summary>
+    /// <typeparam name="CoeffType">O tipo dos objectos que constituem os coeficientes.</typeparam>
     public interface IMatrixGroup<CoeffType> : IGroup<IMatrix<CoeffType>>
     {
         /// <summary>

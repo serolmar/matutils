@@ -42,7 +42,7 @@
         /// <param name="stateID">O identificador do estado.</param>
         /// <param name="description">A descrição do estado.</param>
         /// <param name="nextStateDelegate">O delegado responsável pela transição.</param>
-        /// <<exception cref="ArgumentNullException">Se o estado responsável pela próxima transição for nulo.</exception>
+        /// <exception cref="ArgumentNullException">Se o estado responsável pela próxima transição for nulo.</exception>
         public DelegateDrivenState(
             int stateID, 
             string description, 

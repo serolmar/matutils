@@ -8,7 +8,7 @@
     /// <summary>
     /// Representa um matriz triangular superior.
     /// </summary>
-    /// <typeparam name="ObjectType">O tipo de objectos que constituem as entradas das matrizes.</typeparam>
+    /// <typeparam name="CoeffType">O tipo de objectos que constituem as entradas das matrizes.</typeparam>
     public class ArrayTriangUpperMatrix<CoeffType> : AArrayTriangularMatrix<CoeffType>
     {
         /// <summary>

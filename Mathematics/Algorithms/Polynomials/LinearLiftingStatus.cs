@@ -81,7 +81,7 @@
         /// <param name="firstFactor">O primeiro factor.</param>
         /// <param name="secondFactor">O segundo factor.</param>
         /// <param name="liftFactorizationModule">O módulo para a elevação.</param>
-        /// <exception cref="System.ArgumentNullException">
+        /// <exception cref="ArgumentNullException">
         /// Se algum dos argumentos for nulo.
         /// </exception>
         public LinearLiftingStatus(
@@ -122,7 +122,7 @@
         /// </summary>
         /// <param name="polynom">O polinómio.</param>
         /// <param name="liftFactorizationModule">O módulo para a elevação.</param>
-        /// <exception cref="System.ArgumentNullException">
+        /// <exception cref="ArgumentNullException">
         /// Se algum dos argumentos for nulo.
         /// </exception>
         internal LinearLiftingStatus(

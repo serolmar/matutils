@@ -55,7 +55,7 @@
         /// <param name="rootNumber">O número na raiz.</param>
         /// <param name="factorizationAlg">O algoritmo responsável pela factorização.</param>
         /// <param name="multipliable">O objecto responsável pela multiplicação dos números.</param>
-        /// <exception cref="System.ArgumentNullException">Se o algorimo da factorização for nulo.</exception>
+        /// <exception cref="ArgumentNullException">Se o algorimo da factorização for nulo.</exception>
         public SquareRoot(
             ObjectType integerPart,
             ObjectType rootNumber,
@@ -79,7 +79,6 @@
         /// </summary>
         /// <param name="integerPart">A parte inteira da raiz qaudrada.</param>
         /// <param name="rootNumber">The root number.</param>
-        /// <param name="rootNumber">O número na raiz.</param>
         /// <param name="factorizationAlg">O algoritmo responsável pela factorização.</param>
         /// <param name="multipliable">O objecto responsável pela multiplicação dos números.</param>
         /// <param name="comparer">O comparador de números.</param>
@@ -182,6 +181,7 @@
         /// </summary>
         /// <param name="integerPart">A parte inteira da raiz.</param>
         /// <param name="rootNumberFactorization">A factorização do radicando.</param>
+        /// <param name="multipliable">O objecto responsável pela multiplicação de coeficientes.</param>
         /// <exception cref="ArgumentNullException">Se algum dos argumentos for nulo.</exception>
         private void SetupParameters(
             ObjectType integerPart,
@@ -225,7 +225,6 @@
         /// </summary>
         /// <param name="integerPart">A parte inteira da raiz qaudrada.</param>
         /// <param name="rootNumber">The root number.</param>
-        /// <param name="rootNumber">O número na raiz.</param>
         /// <param name="factorizationAlg">O algoritmo responsável pela factorização.</param>
         /// <param name="multipliable">O objecto responsável pela multiplicação dos números.</param>
         /// <param name="comparer">O comparador de números.</param>

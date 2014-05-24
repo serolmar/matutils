@@ -20,7 +20,7 @@
         /// Instancia um novo objecto do tipo <see cref="BcdCodeGenerator"/>.
         /// </summary>
         /// <param name="bcdSize">O tamanho dos códigos BCD.</param>
-        /// <exception cref="System.ArgumentOutOfRangeException">
+        /// <exception cref="ArgumentOutOfRangeException">
         /// Se o tamanho dos códigos BCD for negativo.
         /// </exception>
         public BcdCodeGenerator(int bcdSize)

@@ -61,7 +61,7 @@
         /// <param name="variable">A variável.</param>
         /// <param name="coeffParser">O leitor de coeficientes.</param>
         /// <param name="ring">O anel responsável pelas operações sobre os coeficientes.</param>
-        /// <exception cref="System.ArgumentException">Se a variável for nula ou vazia.</exception>
+        /// <exception cref="ArgumentException">Se a variável for nula ou vazia.</exception>
         /// <exception cref="MathematicsException">
         /// Se o anel ou o leitor de coeficientes não forem providenciados.
         /// </exception>
@@ -130,7 +130,7 @@
         /// <summary>
         /// Efectua a leitura de um polinómio.
         /// </summary>
-        /// <param name="polynomial">A cadeia de carácteres que contém o polinómimo.</param>
+        /// <param name="polynomialReader">A cadeia de carácteres que contém o polinómimo.</param>
         /// <param name="conversion">O conversor entre o tipo de coeficiente e um inteiro.</param>
         /// <param name="errors">A lista de errros encontrados.</param>
         /// <param name="resultPolynomial">O polinómio lido.</param>

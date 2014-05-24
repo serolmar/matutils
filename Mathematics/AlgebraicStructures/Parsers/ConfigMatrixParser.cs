@@ -6,6 +6,11 @@
     using System.Text;
     using Utilities;
 
+    /// <summary>
+    /// Implementa um leitor de matrizes cuja configuração dimensional é previamente
+    /// estabelecida.
+    /// </summary>
+    /// <typeparam name="T">O tipo de objectos que constituem os coeficientes.</typeparam>
     public class ConfigMatrixParser<T> :
         IParse<IMatrix<T>, string, string>
     {
@@ -15,7 +20,6 @@
         /// <remarks>
         /// O leitor actual efectua leituras de matrizes cujas dimensões são conhecidas.
         /// </remarks>
-        /// <typeparam name="T"
         private ConfigMatrixReader<T, string, string, ISymbol<string, string>[]> arrayMatrixReader;
 
         /// <summary>
@@ -40,7 +44,7 @@
         }
 
         /// <summary>
-        /// Instancia um novo objecto do tipo <see cref="ConfigMatrixReader{T, string, string, ISymbol<string, string>[]}"/>.
+        /// Instancia um novo objecto que permite efectuar a leitura de matrizes.
         /// </summary>
         /// <param name="elementsParser">O leitor responsável pela leitura de cada obecto.</param>
         /// <param name="numberOfLines">O úmero de linhas da matriz.</param>

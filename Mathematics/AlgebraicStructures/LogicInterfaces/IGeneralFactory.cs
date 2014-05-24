@@ -11,6 +11,10 @@ namespace Mathematics
     /// <typeparam name="ObjectType">O tipo de objecto.</typeparam>
     public interface IGeneralFactory<out ObjectType>
     {
+        /// <summary>
+        /// Cria um objecto do tipo especificado.
+        /// </summary>
+        /// <returns>O objecto.</returns>
         ObjectType Create();
     }
 
@@ -21,6 +25,11 @@ namespace Mathematics
     /// <typeparam name="ObjectType">O tipo do objecto a ser criado.</typeparam>
     public interface IGeneralFactory<in ArgType, out ObjectType>
     {
+        /// <summary>
+        /// Cria um objecto do tipo especificado.
+        /// </summary>
+        /// <param name="argument">O argumento.</param>
+        /// <returns>O objecto.</returns>
         ObjectType Create(ArgType argument);
     }
 
@@ -32,6 +41,12 @@ namespace Mathematics
     /// <typeparam name="ObjectType">O tipo do objecto.</typeparam>
     public interface IGeneralFactory<in FirstArgType, in SecondArgType, out ObjectType>
     {
+        /// <summary>
+        /// Cria um objecto do tipo especificado.
+        /// </summary>
+        /// <param name="firstArgument">O primeiro argumento.</param>
+        /// <param name="secondArgument">O segundo argumento.</param>
+        /// <returns>O objecto.</returns>
         ObjectType Create(FirstArgType firstArgument, SecondArgType secondArgument);
     }
 
@@ -44,6 +59,13 @@ namespace Mathematics
     /// <typeparam name="ObjectType">O tipo do objecto a ser criado.</typeparam>
     public interface IGeneralFactory<in FirstArgType, in SecondArgType, in ThirdArgType, out ObjectType>
     {
+        /// <summary>
+        /// Cria um objecto do tipo especificado.
+        /// </summary>
+        /// <param name="firstArgument">O primeiro argumento.</param>
+        /// <param name="secondArgument">O segundo argumento.</param>
+        /// <param name="thridArgument">O terceiro argumento.</param>
+        /// <returns>O objecto.</returns>
         ObjectType Create(FirstArgType firstArgument, SecondArgType secondArgument, ThirdArgType thridArgument);
     }
 }

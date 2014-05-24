@@ -147,7 +147,7 @@ namespace Mathematics
         /// </summary>
         /// <param name="objectToConvert">O coeficiente a ser convertido.</param>
         /// <returns>A fracção que permite representar o coeficiente.</returns>
-        /// <exception cref="System.ArgumentNullException">Caso o objecto passado seja nulo.</exception>
+        /// <exception cref="ArgumentNullException">Caso o objecto passado seja nulo.</exception>
         public Fraction<ElementType> InverseConversion(ElementType objectToConvert)
         {
             if (objectToConvert == null)

@@ -27,6 +27,9 @@ namespace Mathematics
         /// </summary>
         private Dictionary<int, int> denomimatorFactors;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="IntegerFactorialFraction"/>.
+        /// </summary>
         public IntegerFactorialFraction()
         {
             this.integerEuclideanDomain = new IntegerDomain();
@@ -89,7 +92,7 @@ namespace Mathematics
         /// <summary>
         /// Multiplica o denominador pelo valor correspondente.
         /// </summary>
-        /// <param name="factorialValue">O valor.</param>
+        /// <param name="number">O valor.</param>
         /// <exception cref="ArgumentException">Se o número for zero.</exception>
         public void NumeratorNumberMultiply(int number)
         {
@@ -106,7 +109,7 @@ namespace Mathematics
         /// <summary>
         /// Multiplica o denominador pelo valor correspondente.
         /// </summary>
-        /// <param name="factorialValue">O valor.</param>
+        /// <param name="number">O valor.</param>
         /// <exception cref="ArgumentException">Se o número for zero.</exception>
         public void DenominatorNumberMultiply(int number)
         {

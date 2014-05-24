@@ -23,6 +23,17 @@
         /// </summary>
         protected IConversion<OutElementType, FractionElementType> outTypeToFractionTypeConversion;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo
+        /// <see cref="OuterElementFractionConversion{OutElementType, FractionElementType}"/>.
+        /// </summary>
+        /// <param name="outTypeToFractionTypeConversion">
+        /// O objecto do tipo correspondente aos elementos externos.
+        /// </param>
+        /// <param name="domain">O domínio.</param>
+        /// <exception cref="ArgumentNullException">
+        /// Se algum dos argumentos for nulo.
+        /// </exception>
         public OuterElementFractionConversion(
             IConversion<OutElementType, FractionElementType> outTypeToFractionTypeConversion,
             IEuclidenDomain<FractionElementType> domain)

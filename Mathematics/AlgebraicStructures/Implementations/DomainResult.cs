@@ -24,7 +24,7 @@
         private ObjectType remainder;
 
         /// <summary>
-        /// Cria uma instância de um objecto do tipo <see cref="DomainResult{ObjectType}."/>
+        /// Cria uma instância de um objecto do tipo <see cref="DomainResult{ObjectType}"/>.
         /// </summary>
         /// <param name="quotient">O quociente.</param>
         /// <param name="remainder">O resto.</param>

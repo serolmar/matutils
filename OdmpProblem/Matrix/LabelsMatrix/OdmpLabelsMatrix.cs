@@ -149,8 +149,9 @@
         /// <returns>Verdadeiro caso a referência de cobertura cubra a referência que poderá ser coberta.</returns>
         private bool Covers(Label coveringLabel, Label coveredLabel)
         {
-            return (coveringLabel.MBits.BitListOr(coveredLabel.MBits) == coveringLabel.MBits) &&
-                    (coveringLabel.MtdBits.BitListOr(coveringLabel.MtdBits) == coveringLabel.MtdBits);
+            return (coveringLabel.MBits.BitListOr(coveredLabel.MBits) == coveringLabel.MBits &&
+                    coveringLabel.MtdBits.BitListOr(coveredLabel.MtdBits) == coveringLabel.MtdBits &&
+                    coveringLabel.TmBits.BitListOr(coveredLabel.TmBits) == coveringLabel.TmBits);
         }
     }
 }

@@ -31,8 +31,6 @@
         /// <summary>
         /// Instancia um novo objecto do tipo <see cref="GeneralMapper{ObjectSetType, TargetSetType}"/>.
         /// </summary>
-        /// <param name="objectsEqualityComparer">O comparador para os objectos do conjunto de partida.</param>
-        /// <param name="targetsEqualityComparer">O comparador para os objectos do conjunto de chegada.</param>
         public GeneralMapper()
         {
             this.mappObjectToTarget = new Dictionary<ObjectSetType, List<TargetSetType>>();
@@ -42,6 +40,8 @@
         /// <summary>
         /// Instancia um novo objecto do tipo <see cref="GeneralMapper{ObjectSetType, TargetSetType}"/>.
         /// </summary>
+        /// <param name="objectsEqualityComparer">O comparador para os objectos do conjunto de partida.</param>
+        /// <param name="targetsEqualityComparer">O comparador para os objectos do conjunto de chegada.</param>
         public GeneralMapper(
             IEqualityComparer<ObjectSetType> objectsEqualityComparer,
             IEqualityComparer<TargetSetType> targetsEqualityComparer)
@@ -147,7 +147,7 @@
         /// <summary>
         /// Determina o conjunto de objectos do conjunto de partida que estão mapeados pelo objecto especificado.
         /// </summary>
-        /// <param name="obj">O objecto..</param>
+        /// <param name="target">O objecto..</param>
         /// <returns>O conjunto de objectos mapeados.</returns>
         public ReadOnlyCollection<ObjectSetType> ObjectFor(TargetSetType target)
         {
@@ -173,11 +173,11 @@
         /// <summary>
         /// Determina se um objecto se encontra no conjunto de chegada.
         /// </summary>
-        /// <param name="obj">O objecto.</param>
+        /// <param name="target">O objecto.</param>
         /// <returns>Verdadeiro caso o objecto se encontre no conjunto de chegada e falso caso contrário.</returns>
-        public bool ContainsTarget(TargetSetType tar)
+        public bool ContainsTarget(TargetSetType target)
         {
-            return this.mappTargetToObject.ContainsKey(tar);
+            return this.mappTargetToObject.ContainsKey(target);
         }
     }
 }

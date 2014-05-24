@@ -42,7 +42,7 @@
         /// <param name="unitaryDegree">O grau unitário.</param>
         /// <param name="degreeMonoid">O monóide responsável pelas operações sobre os graus.</param>
         /// <param name="numberRing">O anel responsável pelas operações sobre os números.</param>
-        /// <exception cref="System.ArgumentNullException">
+        /// <exception cref="ArgumentNullException">
         /// Se pelo menos um dos argumentos for nulo.
         /// </exception>
         public DecompositionFactorizationAlgorithm(

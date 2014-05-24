@@ -38,10 +38,10 @@
         /// <param name="dimension">A dimensão dos vectoes tratados pelo espaço vectorial.</param>
         /// <param name="vectorFactory">A fábrica responsável pela criação de vectores..</param>
         /// <param name="field">O corpo responsável pelas operações sobre vectores.</param>
-        /// <exception cref="System.ArgumentNullException">
+        /// <exception cref="ArgumentNullException">
         /// Se os argumentos "vectorFactory" ou "field" forem nulos.
         /// </exception>
-        /// <exception cref="System.ArgumentOutOfRangeException">Se a dimensão for um número negativo.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Se a dimensão for um número negativo.</exception>
         public VectorSpace(
             int dimension,
             IVectorFactory<CoeffType> vectorFactory,
@@ -153,7 +153,7 @@
         /// </summary>
         /// <param name="number">O vector.</param>
         /// <returns></returns>
-        /// <exception cref="System.ArgumentNullException">Se o vector for nulo.</exception>
+        /// <exception cref="ArgumentNullException">Se o vector for nulo.</exception>
         /// <exception cref="MathematicsException">
         /// Se a dimensão do vector não coincidir com a dimensão definida para o espaço
         /// vectorial.
@@ -185,7 +185,7 @@
         /// </summary>
         /// <param name="value">O vector.</param>
         /// <returns>Verdadeiro caso o vector seja uma unidade aditiva e falso caso contrário.</returns>
-        /// <exception cref="System.ArgumentNullException">Se o vector for nulo.</exception>
+        /// <exception cref="ArgumentNullException">Se o vector for nulo.</exception>
         /// <exception cref="MathematicsException">
         /// Se a dimensão do vector não coincidir com a dimensão definida para o espaço
         /// vectorial.

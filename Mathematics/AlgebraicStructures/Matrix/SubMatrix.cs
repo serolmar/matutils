@@ -34,7 +34,7 @@ namespace Mathematics
         /// <param name="matrix">A matriz original.</param>
         /// <param name="lines">As linhas que constituem a sub-matriz.</param>
         /// <param name="columns">As colunas que constituem a sub-matriz.</param>
-        /// <exception cref="System.ArgumentException">
+        /// <exception cref="ArgumentException">
         /// Se as linhas ou as colunas forem vectores nulos.
         /// </exception>
         public SubMatrix(IMatrix<ObjectType> matrix, int[] lines, int[] columns)
@@ -65,7 +65,7 @@ namespace Mathematics
         /// <param name="line">O índice correspondente à linha.</param>
         /// <param name="column">O índice correspondente à coluna.</param>
         /// <returns></returns>
-        /// <exception cref="System.IndexOutOfRangeException">
+        /// <exception cref="IndexOutOfRangeException">
         /// Se o número da linha ou o número da coluna forem negativos ou não forem inferiores ao tamanho da
         /// respectiva dimensão.
         /// </exception>

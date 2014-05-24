@@ -8,8 +8,8 @@
     /// <summary>
     /// Implementa um estado cujas transições são definidas por um delegado.
     /// </summary>
-    /// <typeparam name="TSymbVal">O tipo de objectos que constituem os valores dos símbolos.</typeparam>
-    /// <typeparam name="TSymbType">O tipo de objectos que constituem os tipos dos símbolos.</typeparam>
+    /// <typeparam name="SymbolValue">O tipo de objectos que constituem os valores dos símbolos.</typeparam>
+    /// <typeparam name="SymbolType">O tipo de objectos que constituem os tipos dos símbolos.</typeparam>
     public class DelegateStateImplementation<SymbolValue, SymbolType> : IState<SymbolValue, SymbolType>
     {
         /// <summary>

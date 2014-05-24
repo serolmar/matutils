@@ -48,7 +48,7 @@ namespace Mathematics
         /// O valor -1 caso o primeiro termo seja inferior ao segundo, 0 caso sejam iguais e 1 caso o primeiro
         /// termos seja superior ao segundo.
         /// </returns>
-        /// <exception cref="System.ArgumentNullException">
+        /// <exception cref="ArgumentNullException">
         /// Se pelo menos um dos arugmentos for nulo.
         /// </exception>
         public override int Compare(

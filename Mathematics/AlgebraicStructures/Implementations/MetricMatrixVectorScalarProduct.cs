@@ -37,11 +37,11 @@
         /// <param name="metricMatrix">A matriz dos coeficientes métricos.</param>
         /// <param name="comparer">O comparador de coeficientes.</param>
         /// <param name="ring">O anel responsável pelas operações sobre os coeficientes.</param>
-        /// <exception cref="System.ArgumentNullException">
+        /// <exception cref="ArgumentNullException">
         /// Caso a matriz dos coeficientes métricos ou o anel responsável pelas operações sobre os coeficientes
         /// sejam nulos.
         /// </exception>
-        /// <exception cref="System.ArgumentException">
+        /// <exception cref="ArgumentException">
         /// Se a matriz dos coeficientes métricos não for quadrada.
         /// </exception>
         public MetricMatrixVectorScalarProduct(

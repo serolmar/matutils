@@ -5,6 +5,9 @@
     using System.Linq;
     using System.Text;
 
+    /// <summary>
+    /// Define um evento que pode ser associado a um item tabular.
+    /// </summary>
     public interface ITabularItemEvent
     {
         /// <summary>

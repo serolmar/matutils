@@ -21,7 +21,7 @@
         /// Instancia um novo objecto do tipo <see cref="LagrangeAlgorithm{T}"/>.
         /// </summary>
         /// <param name="domain">O domónio responsável pelas operações sobre os coeficientes.</param>
-        /// <exception cref="System.ArgumentNullException">Se o domínio for nulo.</exception>
+        /// <exception cref="ArgumentNullException">Se o domínio for nulo.</exception>
         public LagrangeAlgorithm(IEuclidenDomain<T> domain)
         {
             if (domain == null)
@@ -52,7 +52,7 @@
         /// <param name="first">O primeiro valor.</param>
         /// <param name="second">O segundo valor.</param>
         /// <returns>O resultado composto com os vários parâmetros.</returns>
-        /// <exception cref="System.ArgumentNullException">
+        /// <exception cref="ArgumentNullException">
         /// Se algum dos argumentos for nulo.
         /// </exception>
         public BacheBezoutResult<T> Run(T first, T second)

@@ -29,13 +29,13 @@ namespace Mathematics
         /// <param name="subMultiDimensionalRangeDefinition">
         /// Os índices que definem o sub-alcance multidimensional.
         /// </param>
-        /// <exception cref="System.ArgumentNullException">
+        /// <exception cref="ArgumentNullException">
         /// Se o vector dos índices que definem o sub-alcance multidimensional for nulo.
         /// </exception>
-        /// <exception cref="System.ArgumentException">
+        /// <exception cref="ArgumentException">
         /// Se o vector de índices for inválido.
         /// </exception>
-        /// <exception cref="System.IndexOutOfRangeException">
+        /// <exception cref="IndexOutOfRangeException">
         /// Se algum índice no vector for negativo ou não for inferior ao tamanho da respectiva dimensão.
         /// </exception>
         public SubMultiDimensionalRange(
@@ -93,13 +93,13 @@ namespace Mathematics
         /// </value>
         /// <param name="coords">As coordenadas.</param>
         /// <returns>O valor da entrada.</returns>
-        /// <exception cref="System.ArgumentNullException">
+        /// <exception cref="ArgumentNullException">
         /// Se o vector de coordenadas for nulo.
         /// </exception>
-        /// <exception cref="System.ArgumentException">
+        /// <exception cref="ArgumentException">
         /// Se as coordenadas não forem válidas para o alcance.
         /// </exception>
-        /// <exception cref="System.IndexOutOfRangeException">
+        /// <exception cref="IndexOutOfRangeException">
         /// Se algum índice no vector for negativo ou não for inferior ao tamanho da respectiva dimensão.
         /// </exception>
         public ObjectType this[int[] coords]
@@ -185,7 +185,7 @@ namespace Mathematics
         /// </summary>
         /// <param name="dimension">A dimensão.</param>
         /// <returns>O tamanho associado à dimensão.</returns>
-        /// <exception cref="System.IndexOutOfRangeException">
+        /// <exception cref="IndexOutOfRangeException">
         /// Se a dimensão for negativa ou não for inferior ao número de dimensões do alcance.
         /// </exception>
         public int GetLength(int dimension)

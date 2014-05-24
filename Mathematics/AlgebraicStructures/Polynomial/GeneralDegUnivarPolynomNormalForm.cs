@@ -34,7 +34,7 @@
         /// Instancia um novo objecto do tipo <see cref="GeneralDegUnivarPolynomNormalForm{CoeffType, DegreeType}"/>.
         /// </summary>
         /// <param name="degreeNumber">O objecto responsável pelas operações sobre os graus.</param>
-        /// <exception cref="System.ArgumentNullException">Se o argumento for nulo.</exception>
+        /// <exception cref="ArgumentNullException">Se o argumento for nulo.</exception>
         private GeneralDegUnivarPolynomNormalForm(IIntegerNumber<DegreeType> degreeNumber)
         {
             if (degreeNumber == null)
@@ -52,7 +52,7 @@
         /// </summary>
         /// <param name="variable">A variável assoiada ao polinómio.</param>
         /// <param name="degreeNumber">O objecto responsável pelas operações sobre os graus.</param>
-        /// <exception cref="System.ArgumentNullException">Se a variável for nula ou vazia.</exception>
+        /// <exception cref="ArgumentNullException">Se a variável for nula ou vazia.</exception>
         public GeneralDegUnivarPolynomNormalForm(string variable, IIntegerNumber<DegreeType> degreeNumber)
             : this(degreeNumber)
         {
@@ -77,7 +77,7 @@
         /// <param name="variable">A variável assoiada ao polinómio.</param>
         /// <param name="monoid">O monóide responsável pelas operações sobre os coeficientes.</param>
         /// <param name="degreeNumber">O objecto responsável pelas operações sobre os graus.</param>
-        /// <exception cref="System.ArgumentNullException">Se o monóide ou o coeficiente forem nulos.</exception>
+        /// <exception cref="ArgumentNullException">Se o monóide ou o coeficiente forem nulos.</exception>
         /// <exception cref="ArgumentException">Se o grau for negativo.</exception>
         public GeneralDegUnivarPolynomNormalForm(
             CoeffType coeff,
@@ -112,7 +112,7 @@
         /// <param name="variable">A variável assoiada ao polinómio.</param>
         /// <param name="ring">O anel reponsável pelas operações sobre os coeficientes.</param>
         /// <param name="degreeNumber">O objecto responsável pelas operações sobre os graus.</param>
-        /// <exception cref="System.ArgumentNullException">Se o anel ou o conjunto de termos forem nulos.</exception>
+        /// <exception cref="ArgumentNullException">Se o anel ou o conjunto de termos forem nulos.</exception>
         /// <exception cref="ArgumentException">Se o grau for negativo.</exception>
         public GeneralDegUnivarPolynomNormalForm(
             IDictionary<DegreeType, CoeffType> terms,
@@ -416,7 +416,7 @@
         /// <summary>
         /// Obtém a derivada formal do polinómio corrente.
         /// </summary>
-        /// <param name="monoid">O anel responsável pelas operações.</param>
+        /// <param name="ring">O anel responsável pelas operações.</param>
         /// <returns>A derivada.</returns>
         /// <exception cref="ArgumentNullException">Se o anel for nulo.</exception>
         public GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType> GetPolynomialDerivative(
@@ -620,7 +620,8 @@
         /// <summary>
         /// Obtém a soma do polinómio corrente com um termo constante.
         /// </summary>
-        /// <param name="right">O termo constante.</param>
+        /// <param name="coeff">O termo constante.</param>
+        /// <param name="monoid">O monóide responsável pelas operações sobre os coeficientes.</param>
         /// <returns>A soma.</returns>
         public GeneralDegUnivarPolynomNormalForm<CoeffType, DegreeType> Add(
             CoeffType coeff,
@@ -632,7 +633,7 @@
         /// <summary>
         /// Obtém a soma do polinómio corrente com um monómio.
         /// </summary>
-        /// <param name="right">Os elementos do monómio.</param>
+        /// <param name="coeff">Os elementos do monómio.</param>
         /// <param name="degree">O grau do coeficiente.</param>
         /// <param name="monoid">O monóide responsável pelas operações.</param>
         /// <returns>A soma.</returns>
@@ -746,7 +747,6 @@
         /// <summary>
         /// Obtém a diferença entre o polinómio corrente e um termo constante.
         /// </summary>
-        /// <param name="right">O termo constante.</param>
         /// <param name="coeff">O coeficiente a ser strubtraído.</param>
         /// <param name="group">O grupo responsável pelas operações.</param>
         /// <returns>A diferença.</returns>
@@ -880,7 +880,6 @@
         /// <summary>
         /// Obtém produto do polinómio corrente com um termo constante.
         /// </summary>
-        /// <param name="right">O termo constante.</param>
         /// <param name="coeff">O coeficiente a ser multiplicado.</param>
         /// <param name="ring">O anel responsável pelas operações.</param>
         /// <returns>O produto.</returns>
@@ -1073,6 +1072,7 @@
         /// Substitui a variável pelo polinómio especificado e calcula o resultado.
         /// </summary>
         /// <param name="other">O polinómio a substituir.</param>
+        /// <param name="ring">O anel responsável pelas operações sobre os coeficientes.</param>
         /// <param name="integerNumber">O número inteiro.</param>
         /// <returns>O resultado da substituição.</returns>
         /// <exception cref="ArgumentNullException">Se pelo menos um dos argumentos for nulo.</exception>

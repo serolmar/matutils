@@ -20,7 +20,7 @@
         /// Instancia um novo objecto do tipo <see cref="GenericIntegerNthRootAlgorithm{NumberType}"/>.
         /// </summary>
         /// <param name="integerNumber">O objecto responsável pelas operações sobre os inteiros.</param>
-        /// <exception cref="System.ArgumentNullException">
+        /// <exception cref="ArgumentNullException">
         /// Se o objecto responsável pelas operações sobre os inteiros for nulo.
         /// </exception>
         public GenericIntegerNthRootAlgorithm(IIntegerNumber<NumberType> integerNumber)

@@ -26,7 +26,7 @@
         /// Instancia um novo objecto do tipo <see cref="Fraction{T}"/>.
         /// </summary>
         /// <param name="domain">O domínio responsável pelas operações sobre os coeficientes.</param>
-        /// <exception cref="System.ArgumentNullException">Se o domínio for nulo.</exception>
+        /// <exception cref="ArgumentNullException">Se o domínio for nulo.</exception>
         public Fraction(IEuclidenDomain<T> domain)
         {
             if (domain == null)
@@ -46,7 +46,7 @@
         /// <param name="numerator">O numerador da fracção.</param>
         /// <param name="denominator">O denominador da fracção.</param>
         /// <param name="domain">O domínio responsável pelas operações sobre os coeficientes.</param>
-        /// <exception cref="System.ArgumentNullException">Se o domínio for nulo.</exception>
+        /// <exception cref="ArgumentNullException">Se o domínio for nulo.</exception>
         /// <exception cref="ArgumentNullException">Se algum dos argumentos for nulo.</exception>
         /// <exception cref="ArgumentException">Se o denominador for zero.</exception>
         public Fraction(T numerator, T denominator, IEuclidenDomain<T> domain)

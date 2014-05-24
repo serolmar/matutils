@@ -6,6 +6,10 @@
     using System.Linq;
     using System.Text;
 
+    /// <summary>
+    /// Implementa um leitor que permite a caracterização de carácters.
+    /// </summary>
+    /// <typeparam name="SymbType">O tipo dos objectos que constituem os símbolos.</typeparam>
     public class CharSymbolReader<SymbType> : MementoSymbolReader<TextReader, string, SymbType>
     {
         /// <summary>

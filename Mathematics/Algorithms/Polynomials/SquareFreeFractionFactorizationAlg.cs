@@ -28,7 +28,7 @@
         /// Instancia um novo objecto do tipo <see cref="SquareFreeFractionFactorizationAlg{CoeffType}"/>.
         /// </summary>
         /// <param name="integerNumber">O objecto responsável pelas operações sobre números inteiros.</param>
-        /// <exception cref="System.ArgumentNullException">
+        /// <exception cref="ArgumentNullException">
         /// Se o argumento for nulo.
         /// </exception>
         public SquareFreeFractionFactorizationAlg(
@@ -50,7 +50,7 @@
         /// </summary>
         /// <param name="polynomial">O polinómio de entrada.</param>
         /// <returns>A factorização livre de quadrados.</returns>
-        /// <exception cref="System.ArgumentNullException">
+        /// <exception cref="ArgumentNullException">
         /// Se o argumento for nulo.
         /// </exception>
         public SquareFreeFactorizationResult<Fraction<CoeffType>, CoeffType> Run(

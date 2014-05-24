@@ -25,8 +25,8 @@ namespace Utilities.Collections
         /// Instancia um novo objecto do tipo <see cref="StructureAffector"/>.
         /// </summary>
         /// <param name="affectorStructure">A matriz de afectação.</param>
-        /// <exception cref="System.ArgumentNullException">Se a matriz de afectação for nula.</exception>
-        /// <exception cref="System.ArgumentException">Se a matriz de afectação for vazia.</exception>
+        /// <exception cref="ArgumentNullException">Se a matriz de afectação for nula.</exception>
+        /// <exception cref="ArgumentException">Se a matriz de afectação for vazia.</exception>
         public StructureAffector(ICollection<ICollection<int>> affectorStructure)
         {
             if (affectorStructure == null)
@@ -68,7 +68,7 @@ namespace Utilities.Collections
         /// </summary>
         /// <param name="affectorStructure">A matriz de afectação.</param>
         /// <param name="possibleAffectionsByIndice">O número de afectações por índice.</param>
-        /// <exception cref="System.ArgumentException">
+        /// <exception cref="ArgumentException">
         /// Se algum número de afectaçoes por índice não for positivo.
         /// </exception>
         public StructureAffector(
@@ -236,7 +236,7 @@ namespace Utilities.Collections
             /// <returns>
             /// A afectação.
             /// </returns>
-            /// <exception cref="System.Exception">
+            /// <exception cref="Exception">
             /// Se o enumerador se encontrar antes do início ao após o final da colecção.
             /// </exception>
             protected override int[] GetCurrent()

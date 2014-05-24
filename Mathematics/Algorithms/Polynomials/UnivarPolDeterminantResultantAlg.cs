@@ -28,7 +28,7 @@
         /// Instancia um novo objecto do tipo <see cref="UnivarPolDeterminantResultantAlg{CoeffType}"/>.
         /// </summary>
         /// <param name="ring">O anel responsável pelas operações sobre os coeficientes.</param>
-        /// <exception cref="System.ArgumentNullException">Se o anel for nulo.</exception>
+        /// <exception cref="ArgumentNullException">Se o anel for nulo.</exception>
         public UnivarPolDeterminantResultantAlg(IRing<CoeffType> ring)
         {
             if (ring == null)

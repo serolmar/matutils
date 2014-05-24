@@ -41,7 +41,7 @@
         /// <param name="scalarProd">O produto escalar.</param>
         /// <param name="nearest">O objecto responsável pela determinação do valor inteiro mais próximo.</param>
         /// <param name="fieldCoeffTypeComparer">O comparador de coeficientes.</param>
-        /// <exception cref="System.ArgumentNullException">
+        /// <exception cref="ArgumentNullException">
         /// Se algum dos argumentos for nulo.
         /// </exception>
         public LLLBasisReductionAlgorithm(

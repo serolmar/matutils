@@ -248,7 +248,7 @@ namespace Mathematics
         /// <summary>
         /// Mapeia um símbolo externo de fecho a um símbolo de abertura.
         /// </summary>
-        /// <param name="openSymbolType">O tipo de símbolo que representa um delimitador de abertura.</param>
+        /// <param name="openSymbType">O tipo de símbolo que representa um delimitador de abertura.</param>
         /// <param name="closeSymbType">O tipo de símbolo que representa um delimitador de fecho.</param>
         /// <exception cref="ExpressionReaderException">
         /// Se algum dos tipos de símbolos proporcionados forem marcados como símbolo vazio.

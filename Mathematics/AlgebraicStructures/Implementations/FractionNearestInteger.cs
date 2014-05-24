@@ -19,7 +19,7 @@
         /// Cria uma instância de objectos do tipo <see cref="FractionNearestInteger"/>.
         /// </summary>
         /// <param name="domain">O domínio responsável pelas operações sobre os coeficientes.</param>
-        /// <exception cref="System.ArgumentNullException">CAso o domínio seja nulo.</exception>
+        /// <exception cref="ArgumentNullException">CAso o domínio seja nulo.</exception>
         public FractionNearestInteger(IntegerDomain domain)
         {
             if (domain == null)

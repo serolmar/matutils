@@ -116,17 +116,17 @@
         DOUBLE_COLON=20,
 
         /// <summary>
-        /// &
+        /// &amp;
         /// </summary>
         BITWISE_AND=21,
 
         /// <summary>
-        /// &&
+        /// &amp;&amp;
         /// </summary>
         DOUBLE_AND=22,
 
         /// <summary>
-        /// &=
+        /// &amp;&amp;=
         /// </summary>
         AND_EQUAL=23,
 
@@ -176,7 +176,7 @@
         DOUBLE_GREAT=32,
 
         /// <summary>
-        /// &gt;&gt&;gt;
+        /// &gt;&gt;&gt;
         /// </summary>
         TRIPLE_GREAT=33,
 

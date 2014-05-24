@@ -27,7 +27,7 @@
         private IIntegerNumber<NumberType> integerNumber;
 
         /// <summary>
-        /// Instancia um objecto do tipo <see cref="ResSolAlgorithm"/>.
+        /// Instancia um objecto do tipo <see cref="ResSolAlgorithm{NumberType}"/>.
         /// </summary>
         /// <param name="modularFieldFactory">
         /// A fábrica responsável pela criação dos objectos responsáveis pelas operações modulares.

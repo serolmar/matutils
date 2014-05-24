@@ -26,7 +26,7 @@
         /// Instancia um novo objecto do tipo <see cref="VectorSpaceGenerator{CoeffType}"/>.
         /// </summary>
         /// <param name="vectorSpaceDimension">O número de entradas dos vectores permitidos.</param>
-        /// <exception cref="System.ArgumentOutOfRangeException">
+        /// <exception cref="ArgumentOutOfRangeException">
         /// Se o número de entradas dos vectores permitidos for negativo.
         /// </exception>
         public VectorSpaceGenerator(int vectorSpaceDimension)

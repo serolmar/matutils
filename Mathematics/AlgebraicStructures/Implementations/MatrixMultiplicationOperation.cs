@@ -27,6 +27,15 @@
         /// </summary>
         IMatrixFactory<ObjectType> matrixFactory;
 
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="MatrixMultiplicationOperation{ObjectType}"/>.
+        /// </summary>
+        /// <param name="matrixFactory">A fábrica responsável pela criação de matrizes.</param>
+        /// <param name="additionOperation">O objecto responsável pela soma de coeficientes.</param>
+        /// <param name="multiplicationOperation">O objecto responsável pelo produto dos coeficientes.</param>
+        /// <exception cref="ArgumentNullException">
+        /// Se algum dos argumentos for nulo.
+        /// </exception>
         public MatrixMultiplicationOperation(IMatrixFactory<ObjectType> matrixFactory,
             IAdditionOperation<ObjectType, ObjectType, ObjectType> additionOperation,
             IMultiplicationOperation<ObjectType, ObjectType, ObjectType> multiplicationOperation)
@@ -103,10 +112,10 @@
         /// <param name="left">A primeira matriz a ser multiplicada.</param>
         /// <param name="right">A segunda matriz a ser multiplicada.</param>
         /// <returns>O resultado do produto.</returns>
-        /// <exception cref="System.ArgumentNullException">
+        /// <exception cref="ArgumentNullException">
         /// Se pelo menos um dos argumentos for nulo.
         /// </exception>
-        /// <exception cref="System.ArgumentException">Se as dimenesões das matrizes não corresponderem.</exception>
+        /// <exception cref="ArgumentException">Se as dimenesões das matrizes não corresponderem.</exception>
         public IMatrix<ObjectType> Multiply(IMatrix<ObjectType> left, IMatrix<ObjectType> right)
         {
             if (left == null)

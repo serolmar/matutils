@@ -57,7 +57,7 @@
         /// </summary>
         /// <param name="coeff">O coeficiente.</param>
         /// <param name="coefficientRing">O anel responsável pelas operações sobre os coeficientes.</param>
-        /// <exception cref="System.ArgumentNullException">Se pelo menos um argumento for nulo.</exception>
+        /// <exception cref="ArgumentNullException">Se pelo menos um argumento for nulo.</exception>
         public Polynomial(T coeff, IRing<T> coefficientRing)
             : this()
         {
@@ -84,8 +84,9 @@
         /// </summary>
         /// <param name="coeff">O coeficiente.</param>
         /// <param name="degree">O grau.</param>
+        /// <param name="var">O nome da variável.</param>
         /// <param name="coefficientRing">O anel responsável pelas operações sobre os coeficientes.</param>
-        /// <exception cref="System.ArgumentNullException">Se o coeficiente ou o anel forem nulos.</exception>
+        /// <exception cref="ArgumentNullException">Se o coeficiente ou o anel forem nulos.</exception>
         /// <exception cref="MathematicsException">
         /// Se o grau for negativo ou a variável for nula ou vazia.
         /// </exception>
@@ -122,7 +123,7 @@
         /// <param name="degree">O grau.</param>
         /// <param name="vars">A lista de variáveis.</param>
         /// <param name="coefficientRing">O anel responsável pelas operações sobre os coeficientes.</param>
-        /// <exception cref="System.ArgumentNullException">
+        /// <exception cref="ArgumentNullException">
         /// Se o coeficiente, a lista da variáveis ou o anel forem nulos.
         /// </exception>
         /// <exception cref="MathematicsException">
@@ -279,7 +280,7 @@
         /// </summary>
         /// <param name="coefficientRing">O anel responsável pelas operações sobre os coficientes.</param>
         /// <returns></returns>
-        /// <exception cref="System.ArgumentNullException">Se o anel for nulo.</exception>
+        /// <exception cref="ArgumentNullException">Se o anel for nulo.</exception>
         /// <exception cref="MathematicsException">Se o polinómio não for um valor.</exception>
         public T GetAsValue(IRing<T> coefficientRing)
         {
@@ -329,7 +330,7 @@
         /// </summary>
         /// <param name="coefficientRing">O anel responsável pelas operações sobre os coeficientes.</param>
         /// <returns>Verdadeiro caso o polinómio seja uma variável e falso caso contrário.</returns>
-        /// <exception cref="System.ArgumentNullException">Se o anel for nulo.</exception>
+        /// <exception cref="ArgumentNullException">Se o anel for nulo.</exception>
         public bool IsVariable(IRing<T> coefficientRing)
         {
             if (coefficientRing == null)
@@ -1014,7 +1015,7 @@
         /// <summary>
         /// Obtém o polinómio simétrico.
         /// </summary>
-        /// <param name="ring">O grupo responsável pelas operações.</param>
+        /// <param name="group">O grupo responsável pelas operações.</param>
         /// <returns>O polinómio simétrico.</returns>
         /// <exception cref="ArgumentNullException">Se po grupo for nulo.</exception>
         public Polynomial<T> GetSymmetric(IGroup<T> group)

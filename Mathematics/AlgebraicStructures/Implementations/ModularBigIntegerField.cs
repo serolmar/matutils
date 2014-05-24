@@ -30,7 +30,7 @@
         /// qual será o algoritmo responsável por essa operação.
         /// </remarks>
         /// <param name="module">O módulo.</param>
-        /// <exception cref="System.ArgumentException">
+        /// <exception cref="ArgumentException">
         /// Se o módulo for 0, 1, ou -1.
         /// </exception>
         public ModularBigIntegerField(BigInteger module)
@@ -57,7 +57,7 @@
         /// <value>
         /// O valor do módulo no corpo aritmético.
         /// </value>
-        /// <exception cref="System.ArgumentNullException">Se o valor atribuído for nulo.</exception>
+        /// <exception cref="ArgumentNullException">Se o valor atribuído for nulo.</exception>
         public BigInteger Module
         {
             get

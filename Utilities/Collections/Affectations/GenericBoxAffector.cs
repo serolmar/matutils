@@ -12,12 +12,15 @@ namespace Utilities.Collections
     /// </summary>
     public abstract class GenericBoxAffector : FastAfector
     {
+        /// <summary>
+        /// Contém a contagem dos elementos em cada compartimento.
+        /// </summary>
         protected int[] elementsCount;
 
         /// <summary>
         /// Inicializa uma nova instância da classe <see cref="GenericBoxAffector"/>.
         /// </summary>
-        /// <param name="elements">O número de repetições admissíveis.</param>
+        /// <param name="elementsCount">O número de repetições admissíveis.</param>
         /// <exception cref="ArgumentNullException">
         /// Se o número de repetições for proporcionado por um apontador nulo.
         /// </exception>

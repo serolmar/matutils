@@ -37,7 +37,7 @@
         /// </summary>
         /// <param name="matrixFactory">A fábrica responsável pela criação de matrizes.</param>
         /// <param name="field">O corpo responsável pelas operações sobre os coeficientes.</param>
-        /// <exception cref="System.ArgumentNullException">
+        /// <exception cref="ArgumentNullException">
         /// Se algum dos argumentos for nulo.
         /// </exception>
         public SequentialLanczosAlgorithm(IMatrixFactory<ElementType> matrixFactory, FieldType field)

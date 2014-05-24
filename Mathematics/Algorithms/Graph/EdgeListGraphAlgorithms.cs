@@ -498,7 +498,8 @@
         /// <summary>
         /// Obtém o ciclo definido por uma lista ligada.
         /// </summary>
-        /// <param name="newLinkNode">Um nó da lista.</param>
+        /// <param name="newLinkNode">O próximo nó da lista.</param>
+        /// <param name="currentLinkNode">O nó actual.</param>
         /// <param name="directed">Indica se o grafo em questão é dirigido.</param>
         /// <returns>O ciclo.</returns>
         private EdgeListGraph<VertexType, EdgeValueType> GetCycleFromLink(

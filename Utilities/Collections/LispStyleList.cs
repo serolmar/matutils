@@ -102,7 +102,7 @@
         /// </value>
         /// <param name="index">O índice.</param>
         /// <returns></returns>
-        /// <exception cref="System.ArgumentOutOfRangeException">
+        /// <exception cref="ArgumentOutOfRangeException">
         /// Se o índice não se encontrar nos limites da lista.
         /// </exception>
         public LispStyleList<T> this[int index]
@@ -254,7 +254,7 @@
         }
 
         /// <summary>
-        /// Gets a <see cref="IListStyleParser"/> parser for list style list using
+        /// Gets a <see cref="ILispStyleListParser{T}"/> parser for list style list using
         /// the parenthesis as the default delimiters.
         /// </summary>
         /// <param name="parserForT">The parser for list objects.</param>
@@ -265,7 +265,7 @@
         }
 
         /// <summary>
-        /// Gets a <see cref="IListStyleParser"/> parser for list style list using
+        /// Gets a <see cref="ILispStyleListParser{T}"/> parser for list style list using
         /// the specified delimiters types.
         /// </summary>
         /// <param name="parserForT">The parser for list objects.</param>
@@ -425,7 +425,7 @@
             IEnumerator<LispStyleList<R>.ElementList<R>> enumerator;
 
             /// <summary>
-            /// Instancia um novo objecto do tipo <see cref="LispStyleEnumerator`1"/>.
+            /// Instancia um novo objecto do tipo <see cref="LispStyleEnumerator{R}"/>.
             /// </summary>
             /// <param name="elements">Os elementos.</param>
             public LispStyleEnumerator(List<LispStyleList<R>.ElementList<R>> elements)
@@ -504,7 +504,7 @@
             private LispDelimiterType delimiters;
 
             /// <summary>
-            /// Instancia um novo objecto do tipo <see cref="LispStyleParser`1"/>.
+            /// Instancia um novo objecto do tipo <see cref="LispStyleParser{R}"/>.
             /// </summary>
             /// <param name="parserForT">O leitor de elementos.</param>
             public LispStyleParser(IParse<R, string, string> parserForT)
@@ -513,7 +513,7 @@
             }
 
             /// <summary>
-            /// Instancia um novo objecto do tipo <see cref="LispStyleParser`1"/>..
+            /// Instancia um novo objecto do tipo <see cref="LispStyleParser{R}"/>..
             /// </summary>
             /// <param name="parserForT">O leitor de elementos.</param>
             /// <param name="type">O tipo de delimitador.</param>
@@ -561,7 +561,7 @@
             /// <param name="strToParse">O texto a ler.</param>
             /// <param name="value">O valor para onde a lista será lida.</param>
             /// <returns>Verdadeiro se a leitura for bem-sucedida e falso caso contrário.</returns>
-            /// <exception cref="System.FormatException">
+            /// <exception cref="FormatException">
             /// Se o texto contiver erros.
             /// </exception>
             /// <exception cref="CollectionsException">Em caso de erro interno.</exception>
@@ -710,7 +710,7 @@
                 private IParse<Q, string, string> parserForT;
 
                 /// <summary>
-                /// Instancia um novo objecto do tipo <see cref="ElementParser`1"/>.
+                /// Instancia um novo objecto do tipo <see cref="ElementParser{Q}"/>.
                 /// </summary>
                 /// <param name="parser">O leitor de elementos.</param>
                 public ElementParser(IParse<Q, string, string> parser)
@@ -757,6 +757,11 @@
     /// <typeparam name="T">O tipo de objectos contidos na lista.</typeparam>
     public interface ILispStyleListParser<T> : IParse<LispStyleList<T>, string, string>
     {
+        /// <summary>
+        /// Regista o tipo de símbolo associado ao delimitador.
+        /// </summary>
+        /// <param name="openDelimiterType">O tipo de símbolo que representa o delimitador de abertura.</param>
+        /// <param name="closeDelimiterType">O tipo de símbolo que representa o delimtador de fecho.</param>
         void RegisterValueDelimiterType(string openDelimiterType, string closeDelimiterType);
     }
 }

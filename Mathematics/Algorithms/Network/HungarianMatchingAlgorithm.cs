@@ -209,6 +209,7 @@
         /// Inicializa todas as variáveis.
         /// </summary>
         /// <param name="affectations">A matriz das afectações.</param>
+        /// <param name="results">O vector que contém os resultados.</param>
         /// <exception cref="ArgumentNullException">Se as afectações forem nulas.</exception>
         /// <exception cref="MathematicsException">Se não existirem elementos para afectar.</exception>
         public InsertionSortedCollection<int>[] Init(

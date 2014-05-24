@@ -54,7 +54,8 @@
         /// Efectua a leitura de um termo polinomial.
         /// </summary>
         /// <param name="symbolListToParse">A lista de símbolos para leitura.</param>
-        /// <returns>O polinómio requerido.</returns>
+        /// <param name="pol">A variável que recebe o polinómio lido.</param>
+        /// <returns>Verdadeiro caso a leitura seja bem-sucedida e falso caso contrário.</returns>
         public bool TryParse(ISymbol<string, string>[] symbolListToParse, out ParsePolynomialItem<CoeffType> pol)
         {
             pol = null;

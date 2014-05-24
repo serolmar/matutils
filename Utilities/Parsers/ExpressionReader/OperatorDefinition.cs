@@ -12,12 +12,12 @@
     class OperatorDefinition<SymbType>
     {
         /// <summary>
-        /// Instancia um novo objecto do tipo <see cref="OperatorDefinition"/>.
+        /// Instancia um novo objecto do tipo <see cref="OperatorDefinition{SymbType}"/>.
         /// </summary>
         public OperatorDefinition() { }
 
         /// <summary>
-        /// Instancia um novo objecto do tipo <see cref="OperatorDefinition"/>.
+        /// Instancia um novo objecto do tipo <see cref="OperatorDefinition{SymbType}"/>.
         /// </summary>
         /// <param name="symbol">O símbolo.</param>
         /// <param name="operatorType">O tipo de operador.( ver <see cref="EOperatorType"/>).</param>

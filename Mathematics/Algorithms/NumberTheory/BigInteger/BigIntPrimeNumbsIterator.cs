@@ -6,6 +6,9 @@
     using System.Numerics;
     using System.Text;
 
+    /// <summary>
+    /// Implementa um iterador para números primos.
+    /// </summary>
     public class BigIntPrimeNumbsIterator : IEnumerable<BigInteger>
     {
         /// <summary>
@@ -41,7 +44,7 @@
         /// <param name="squareRootAlgorithm">
         /// O algoritmo que permite calcular a parte inteira de raízes quadradas.
         /// </param>
-        /// <exception cref="System.ArgumentNullException">Se o algoritmo das raízes quadradas for nulo.</exception>
+        /// <exception cref="ArgumentNullException">Se o algoritmo das raízes quadradas for nulo.</exception>
         public BigIntPrimeNumbsIterator(
             BigInteger upperLimit,
             IAlgorithm<BigInteger, BigInteger> squareRootAlgorithm)

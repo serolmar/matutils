@@ -55,7 +55,7 @@
         /// A fábrica responsável pela criação de enumeradores para números primos.
         /// </param>
         /// <param name="integerNumber">O objecto responsável pelas operações sobre os números inteiros.</param>
-        /// <exception cref="System.ArgumentNullException">
+        /// <exception cref="ArgumentNullException">
         /// Se pelo menos um dos argumentos for nulo.
         /// </exception>
         public QuadraticFieldSieve(
@@ -174,7 +174,6 @@
         /// </summary>
         /// <param name="solution">A solução do sistema modular.</param>
         /// <param name="matrixList">A matriz.</param>
-        /// <param name="innerDataModularField">O corpo responsável pelas operações de multiplicação.</param>
         /// <param name="primesList">A lista dos números primos da base.</param>
         /// <param name="innerData">O número que está a ser factorizado.</param>
         /// <returns>Os factores.</returns>

@@ -21,7 +21,7 @@
         /// Inicializa uma instância da classe <see cref="CoeffFractionMultiplicationOperation{CoeffType}"/>.
         /// </summary>
         /// <param name="domain">O domínio reponsável pelas operações de simplificação das fracções.</param>
-        /// <exception cref="System.ArgumentNullException">domain</exception>
+        /// <exception cref="ArgumentNullException">domain</exception>
         public CoeffFractionMultiplicationOperation(IEuclidenDomain<CoeffType> domain)
         {
             if (domain == null)

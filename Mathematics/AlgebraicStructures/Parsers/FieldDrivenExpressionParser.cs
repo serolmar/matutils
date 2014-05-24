@@ -14,8 +14,6 @@
     /// define todas as operações de anel.
     /// </example>
     /// <typeparam name="ObjectType">O tipo de valor a ser lido.</typeparam>
-    /// <typeparam name="SymbValue">O tipo de valor associado ao símbolo.</typeparam>
-    /// <typeparam name="SymbType">O tipo de dados associado ao tipo de símbolo.</typeparam>
     public class FieldDrivenExpressionParser<ObjectType>
         : RingDrivenExpressionParser<ObjectType>
     {

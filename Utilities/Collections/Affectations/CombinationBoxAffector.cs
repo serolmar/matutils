@@ -13,7 +13,7 @@
         /// <summary>
         /// Inicializa uma nova instância da classe <see cref="GenericBoxAffector"/>.
         /// </summary>
-        /// <param name="elements">O número de repetições admissíveis.</param>
+        /// <param name="elementsCount">O número de repetições admissíveis por compartimento.</param>
         public CombinationBoxAffector(int[] elementsCount)
             : base(elementsCount)
         {

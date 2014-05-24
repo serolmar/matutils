@@ -6,6 +6,10 @@
     using System.Text;
     using Utilities.Collections;
 
+    /// <summary>
+    /// Representa ma matriz identidade.
+    /// </summary>
+    /// <typeparam name="ElementType">O tipo de objectos que consituem os argumentos.</typeparam>
     public class IdentityMatrix<ElementType> : IMatrix<ElementType>
     {
         /// <summary>

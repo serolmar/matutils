@@ -33,11 +33,8 @@
         /// com o algoritmo que permite determinar o máximo divisor comum. Neste caso, é necessário indicar
         /// qual será o algoritmo responsável por essa operação.
         /// </remarks>
-        /// <param name="module">O módulo.</param>
-        /// <param name="bachetBezoutAlgorithm">
-        /// O algoritmo responsável pela determinação da inversa multiplicativa.
-        /// </param>
-        /// <exception cref="System.ArgumentException">
+        /// <param name="modulus">O módulo.</param>
+        /// <exception cref="ArgumentException">
         /// Se o módulo for 0, 1 ou -1.
         /// </exception>
         public ModularSymmetricIntField(int modulus)

@@ -33,7 +33,7 @@
         /// </summary>
         /// <param name="size">O tamanho do vector.</param>
         /// <param name="defaultValue">O valor por defeito.</param>
-        /// <exception cref="System.ArgumentOutOfRangeException">Se o tamanho do vector for negativo.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Se o tamanho do vector for negativo.</exception>
         public SparseDictionaryVector(int size, CoeffType defaultValue)
         {
             if (size < 0)

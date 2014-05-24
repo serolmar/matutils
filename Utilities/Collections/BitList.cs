@@ -96,7 +96,7 @@
         /// </summary>
         /// <param name="index">O índice.</param>
         /// <param name="item">O valor..</param>
-        /// <exception cref="System.ArgumentOutOfRangeException">
+        /// <exception cref="ArgumentOutOfRangeException">
         /// Se o índice não se encontrar nos limites da colecção.
         /// </exception>
         public void Insert(int index, int item)
@@ -143,7 +143,7 @@
         /// Remove o objecto que se encontra no índice especificado.
         /// </summary>
         /// <param name="index">O índice.</param>
-        ///<exception cref="System.ArgumentOutOfRangeException">
+        ///<exception cref="ArgumentOutOfRangeException">
         /// Se o índice não se encontrar nos limites da colecção.
         /// </exception>
         public void RemoveAt(int index)
@@ -181,7 +181,7 @@
         /// </summary>
         /// <param name="index">O índice da posição na lista.</param>
         /// <returns>O bit que se encontra na posição.</returns>
-        /// <exception cref="System.ArgumentOutOfRangeException">
+        /// <exception cref="ArgumentOutOfRangeException">
         /// Se o índice não se encontrar nos limites da colecção.
         /// </exception>
         public int this[int index]
