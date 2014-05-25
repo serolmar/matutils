@@ -9,6 +9,7 @@
     /// Implementa o algoritmo de Tonelli-Shanks que permite resolver, quando possível,
     /// a congruência x^2 = a (mod p) onde p é um número primo.
     /// </summary>
+    /// <typeparam name="NumberType">O tipo de objectos que constituem os números.</typeparam>
     public class ResSolAlgorithm<NumberType> : IAlgorithm<NumberType, NumberType, List<NumberType>>
     {
         /// <summary>

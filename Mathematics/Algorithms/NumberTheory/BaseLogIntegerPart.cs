@@ -8,6 +8,7 @@
     /// <summary>
     /// Permite calcular a parte inteira do logaritmo numa base inteira arbitrária de um número.
     /// </summary>
+    /// <typeparam name="NumberType">O tipo de objectos que constituem os números.</typeparam>
     public class BaseLogIntegerPart<NumberType> : IAlgorithm<NumberType, NumberType, NumberType>
     {
         /// <summary>

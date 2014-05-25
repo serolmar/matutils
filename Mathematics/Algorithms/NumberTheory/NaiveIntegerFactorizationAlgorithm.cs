@@ -8,6 +8,7 @@
     /// <summary>
     /// Implementa o algoritmo mais simples para factorizar um número.
     /// </summary>
+    /// <typeparam name="NumberType">O tipo de objectos que constituem os números.</typeparam>
     public class NaiveIntegerFactorizationAlgorithm<NumberType> : IAlgorithm<NumberType, Dictionary<NumberType, int>>
     {
         /// <summary>

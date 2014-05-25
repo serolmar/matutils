@@ -223,7 +223,7 @@
         /// <summary>
         /// Aplica o operador de adição.
         /// </summary>
-        /// <param name="leftVariable">O primeiro argumento.</param>
+        /// <param name="leftValue">O primeiro argumento.</param>
         /// <param name="rightValue">O segundo argumento.</param>
         /// <returns>O resultado da aplicação do operador.</returns>
         /// <exception cref="ExpressionInterpreterException">Se a aplicação do operador falhar.</exception>
@@ -235,7 +235,7 @@
         /// <summary>
         /// Aplica o operador de subtracção.
         /// </summary>
-        /// <param name="leftVariable">O primeiro argumento.</param>
+        /// <param name="leftValue">O primeiro argumento.</param>
         /// <param name="rightValue">O segundo argumento.</param>
         /// <returns>O resultado da aplicação do operador.</returns>
         /// <exception cref="ExpressionInterpreterException">Se a aplicação do operador falhar.</exception>
@@ -247,7 +247,7 @@
         /// <summary>
         /// Aplica o operador de multiplicação.
         /// </summary>
-        /// <param name="leftVariable">O primeiro argumento.</param>
+        /// <param name="leftValue">O primeiro argumento.</param>
         /// <param name="rightValue">O segundo argumento.</param>
         /// <returns>O resultado da aplicação do operador.</returns>
         /// <exception cref="ExpressionInterpreterException">Se a aplicação do operador falhar.</exception>
@@ -259,7 +259,7 @@
         /// <summary>
         /// Aplica o operador de divisão.
         /// </summary>
-        /// <param name="leftVariable">O primeiro argumento.</param>
+        /// <param name="leftValue">O primeiro argumento.</param>
         /// <param name="rightValue">O segundo argumento.</param>
         /// <returns>O resultado da aplicação do operador.</returns>
         /// <exception cref="ExpressionInterpreterException">Se a aplicação do operador falhar.</exception>
@@ -271,7 +271,7 @@
         /// <summary>
         /// Aplica o operador de exponenciação.
         /// </summary>
-        /// <param name="leftVariable">O primeiro argumento.</param>
+        /// <param name="leftValue">O primeiro argumento.</param>
         /// <param name="rightValue">O segundo argumento.</param>
         /// <returns>O resultado da aplicação do operador.</returns>
         /// <exception cref="ExpressionInterpreterException">Se a aplicação do operador falhar.</exception>
@@ -283,8 +283,7 @@
         /// <summary>
         /// Aplica o operador de obter simétrico.
         /// </summary>
-        /// <param name="leftVariable">O primeiro argumento.</param>
-        /// <param name="rightValue">O segundo argumento.</param>
+        /// <param name="value">O argumento.</param>
         /// <returns>O resultado da aplicação do operador.</returns>
         /// <exception cref="ExpressionInterpreterException">Se a aplicação do operador falhar.</exception>
         private AMathematicsObject Symmetric(AMathematicsObject value)

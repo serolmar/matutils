@@ -9,6 +9,7 @@
     /// <summary>
     /// Permite aplicar o teorema dos restos chinês a um conjunto de números.
     /// </summary>
+    /// <typeparam name="ObjectType">O tipo de objectos que constituem os números.</typeparam>
     public class ChineseRemainderAlgorithm<ObjectType>
         : IAlgorithm<List<Congruence<ObjectType>>, IEuclidenDomain<ObjectType>, Congruence<ObjectType>>
     {

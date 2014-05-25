@@ -8,6 +8,7 @@
     /// <summary>
     /// Implementa o algoritmo rho de Pollard para factorizar um número.
     /// </summary>
+    /// <typeparam name="NumberType">O tipo de objectos que constituem os números.</typeparam>
     public class PollardRhoAlgorithm<NumberType> :
         IAlgorithm<NumberType, Tuple<NumberType, NumberType>>,
         IAlgorithm<NumberType, NumberType, Tuple<NumberType, NumberType>>

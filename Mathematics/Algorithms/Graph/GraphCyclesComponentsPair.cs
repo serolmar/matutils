@@ -9,6 +9,8 @@
     /// <summary>
     /// Mantém um par de componentes conexas e respectivos ciclos classificados por componente.
     /// </summary>
+    /// <typeparam name="VertexType">O tipo de objectos que constituem os vértices.</typeparam>
+    /// <typeparam name="EdgeValueType">O tipo de objectos associados às arestas.</typeparam>
     public class GraphCyclesComponentsPair<VertexType, EdgeValueType>
     {
         /// <summary>

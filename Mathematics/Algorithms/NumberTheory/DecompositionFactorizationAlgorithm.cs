@@ -9,6 +9,8 @@
     /// Obtém a factorização de um número aplicando sucessivamente um outro algoritmo
     /// que permita obter os respectivos factores.
     /// </summary>
+    /// <typeparam name="NumberType">O tipo de objectos que constituem os números.</typeparam>
+    /// <typeparam name="DegreeType">O tipo de objectos que constituem os graus.</typeparam>
     public class DecompositionFactorizationAlgorithm<NumberType, DegreeType> 
         : IAlgorithm<NumberType, Dictionary<NumberType, DegreeType>>
     {

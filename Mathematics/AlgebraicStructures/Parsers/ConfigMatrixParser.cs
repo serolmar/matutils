@@ -116,8 +116,8 @@
         /// Qualquer sequência que se encontre entre delimitadores externos é passada para os leitores
         /// de objectos mesmo que contenham separadores ou delimitadores internos.
         /// </remarks>
-        /// <param name="openSymbType"></param>
-        /// <param name="closeSymbType"></param>
+        /// <param name="openSymbType">O tipo de símbolo que representa o delimitador de abertura.</param>
+        /// <param name="closeSymbType">O tipo de símbolo que representa o delimitador de fecho.</param>
         public void MapExternalDelimiters(string openSymbType, string closeSymbType)
         {
             this.arrayMatrixReader.MapExternalDelimiters(openSymbType, closeSymbType);

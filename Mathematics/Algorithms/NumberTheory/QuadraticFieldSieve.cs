@@ -9,6 +9,7 @@
     /// Implemneta o crivo sobre corpos quadráticos para determinar uma factorização para
     /// qualquer número.
     /// </summary>
+    /// <typeparam name="NumberType">O tipo de objectos que constituem os números.</typeparam>
     public class QuadraticFieldSieve<NumberType> : IAlgorithm<NumberType, int, int, Tuple<NumberType, NumberType>>
     {
         /// <summary>

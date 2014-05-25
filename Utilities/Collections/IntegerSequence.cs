@@ -459,6 +459,40 @@
         }
 
         /// <summary>
+        /// Obtém o primeiro elemento da sequência.
+        /// </summary>
+        /// <returns>O primeiro elemento da sequência.</returns>
+        public int GetFirstElement()
+        {
+            if (this.sequenceElements.Count == 0)
+            {
+                throw new CollectionsException("Integer sequence is empty.");
+            }
+            else
+            {
+                var element = this.sequenceElements[0];
+                return element.Item1;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o último elemento da sequência.
+        /// </summary>
+        /// <returns>O último elemento da sequência.</returns>
+        public int GetLastElement()
+        {
+            if (this.sequenceElements.Count == 0)
+            {
+                throw new CollectionsException("Integer sequence is empty.");
+            }
+            else
+            {
+                var element = this.sequenceElements[this.sequenceElements.Count - 1];
+                return element.Item2;
+            }
+        }
+
+        /// <summary>
         /// Classifica o item como sendo parte de um limite ou do seu exterior.
         /// </summary>
         /// <param name="item">O item a ser classificado.</param>

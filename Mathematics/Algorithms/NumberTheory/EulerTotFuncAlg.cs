@@ -8,6 +8,7 @@
     /// <summary>
     /// Implementa um algoritmo que permite determinar o valor da função phi de Euler.
     /// </summary>
+    /// <typeparam name="NumberType">O tipo de objectos que constituem os números.</typeparam>
     public class EulerTotFuncAlg<NumberType> : IAlgorithm<NumberType, NumberType>
     {
         /// <summary>

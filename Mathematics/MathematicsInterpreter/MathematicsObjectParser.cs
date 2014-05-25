@@ -37,9 +37,11 @@
         /// Tenta fazer a leitura.
         /// </summary>
         /// <param name="symbolListToParse">O vector de símbolos a ser lido.</param>
-        /// <param name="value">O valor que contém a leitura.</param>
+        /// <param name="mathematicsObject">O valor que contém a leitura.</param>
         /// <returns>Verdadeiro se a leitura for bem-sucedida e falso caso contrário.</returns>
-        public bool TryParse(ISymbol<string, string>[] symbolListToParse, out AMathematicsObject mathematicsObject)
+        public bool TryParse(
+            ISymbol<string, string>[] symbolListToParse, 
+            out AMathematicsObject mathematicsObject)
         {
             var valueReader = new StringReader(symbolListToParse[0].SymbolValue);
             var symbolReader = new StringSymbolReader(valueReader, true);
