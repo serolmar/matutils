@@ -8,6 +8,7 @@
     /// <summary>
     /// Implementa um leitor de valores inteiros.
     /// </summary>
+    /// <typeparam name="SymbType">O tipos dos objectos que constituem os tipos de símbolos.</typeparam>
     public class IntegerParser<SymbType> : IParse<int, string, SymbType>, IParse<object, string, SymbType>
     {
         /// <summary>

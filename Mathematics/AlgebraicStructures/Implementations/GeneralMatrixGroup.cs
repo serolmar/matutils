@@ -184,7 +184,7 @@
         /// Determina se o valor especificado é uma unidade aditiva.
         /// </summary>
         /// <param name="value">O valor.</param>
-        /// <returns></returns>
+        /// <returns>Verdadeiro caso o argumento seja uma unidade aditiva e falso caso contrário.</returns>
         /// <exception cref="ArgumentNullException">Caso o valor seja nulo.</exception>
         /// <exception cref="MathematicsException">
         /// Se o número de linhas ou colunas da matriz proporcionada não estiver de acordo com o número de linhas

@@ -1,4 +1,4 @@
-﻿namespace Mathematics.AlgebraicStructures.Matrix
+﻿namespace Mathematics
 {
     using System;
     using System.Collections;

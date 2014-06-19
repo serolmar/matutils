@@ -8,6 +8,8 @@
     /// <summary>
     /// Obtém a solução do sistema Ax = b onde A corresponde a uma matriz simétrica.
     /// </summary>
+    /// <typeparam name="ElementType">O tipo de elementos que constituem as entradas das matrizes.</typeparam>
+    /// <typeparam name="FieldType">O tipo de objectos responsáveis pelas operações sobre as entradas das matrizes.</typeparam>
     public class SequentialLanczosAlgorithm<ElementType, FieldType> :
         IAlgorithm<ISquareMatrix<ElementType>, IMatrix<ElementType>, IMatrix<ElementType>>
         where FieldType : IField<ElementType>

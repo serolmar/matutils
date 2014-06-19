@@ -21,6 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Debug\Mathematics.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -216,7 +217,6 @@
     <Compile Include="Algorithms\Matrix\Determinant\ExpansionDeterminantCalculator.cs" />
     <Compile Include="Algorithms\Matrix\Determinant\PermutationDeterminantCalculator.cs" />
     <Compile Include="Algorithms\Matrix\EigenProblems\FastDivisionFreeCharPolynomCalculator.cs" />
-    <Compile Include="Algorithms\Matrix\Linear Systems\BlockLanczosAlgorithm.cs" />
     <Compile Include="Algorithms\Matrix\Linear Systems\DenseCondensationMethodAlgorithm.cs" />
     <Compile Include="Algorithms\Matrix\Linear Systems\DenseCondensationLinSysAlgorithm.cs" />
     <Compile Include="Algorithms\Matrix\Linear Systems\LinearSystemSolution.cs" />
@@ -278,24 +278,6 @@
     <Compile Include="BacheBezoutResult.cs" />
     <Compile Include="BigDecimalNumber.cs" />
     <Compile Include="Diagnostics.cs" />
-    <Compile Include="MathFunctions.cs" />
-    <Compile Include="Algorithms\Simplex\RevisedSimplexWithDoubles.cs" />
-    <Compile Include="Algorithms\Transportation\TransportationMaxDoubleNumberField.cs" />
-    <Compile Include="Algorithms\Transportation\TransportationMatrixTreeNode.cs" />
-    <Compile Include="Algorithms\Transportation\TransportationProblemDouble.cs" />
-    <Compile Include="Algorithms\Graph\Edge.cs" />
-    <Compile Include="Algorithms\Graph\EdgeListGraph.cs" />
-    <Compile Include="Algorithms\Graph\EdgeListGraphAlgorithms.cs" />
-    <Compile Include="Algorithms\Graph\IEdge.cs" />
-    <Compile Include="Algorithms\Graph\IGraph.cs" />
-    <Compile Include="Algorithms\Graph\IGraphAlgorithms.cs" />
-    <Compile Include="Algorithms\Graph\ITreeNode.cs" />
-    <Compile Include="Algorithms\Graph\ITree.cs" />
-    <Compile Include="Algorithms\Graph\IVisitor.cs" />
-    <Compile Include="Algorithms\Graph\LinkNode.cs" />
-    <Compile Include="Algorithms\Graph\Tree.cs" />
-    <Compile Include="Algorithms\Graph\TreeNode.cs" />
-    <Compile Include="MathematicsException.cs" />
     <Compile Include="MathematicsInterpreter\EMathematicsInterpreterStatus.cs" />
     <Compile Include="MathematicsInterpreter\EScopeType.cs" />
     <Compile Include="MathematicsInterpreter\ExpressionInterpreterException.cs" />
@@ -317,6 +299,24 @@
     <Compile Include="MathematicsInterpreter\MathematicsObjects\NameMathematicsObject.cs" />
     <Compile Include="MathematicsInterpreter\MathematicsObjects\StringMathematicsObject.cs" />
     <Compile Include="MathematicsInterpreter\ScopeDefinition.cs" />
+    <Compile Include="MathFunctions.cs" />
+    <Compile Include="Algorithms\Simplex\RevisedSimplexWithDoubles.cs" />
+    <Compile Include="Algorithms\Transportation\TransportationMaxDoubleNumberField.cs" />
+    <Compile Include="Algorithms\Transportation\TransportationMatrixTreeNode.cs" />
+    <Compile Include="Algorithms\Transportation\TransportationProblemDouble.cs" />
+    <Compile Include="Algorithms\Graph\Edge.cs" />
+    <Compile Include="Algorithms\Graph\EdgeListGraph.cs" />
+    <Compile Include="Algorithms\Graph\EdgeListGraphAlgorithms.cs" />
+    <Compile Include="Algorithms\Graph\IEdge.cs" />
+    <Compile Include="Algorithms\Graph\IGraph.cs" />
+    <Compile Include="Algorithms\Graph\IGraphAlgorithms.cs" />
+    <Compile Include="Algorithms\Graph\ITreeNode.cs" />
+    <Compile Include="Algorithms\Graph\ITree.cs" />
+    <Compile Include="Algorithms\Graph\IVisitor.cs" />
+    <Compile Include="Algorithms\Graph\LinkNode.cs" />
+    <Compile Include="Algorithms\Graph\Tree.cs" />
+    <Compile Include="Algorithms\Graph\TreeNode.cs" />
+    <Compile Include="MathematicsException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SquareRoot.cs" />
   </ItemGroup>

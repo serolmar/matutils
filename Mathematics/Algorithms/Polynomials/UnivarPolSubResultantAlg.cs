@@ -13,6 +13,7 @@
     /// entre dois quaisquer polinómios, apesar do consegui-lo na maior parte dos casos. Porém, premite
     /// calcular um múltiplo do máximo divisor comum entre dois polinómios operando directamente sobre os anéis.
     /// </remarks>
+    /// <typeparam name="CoeffType">O tipo dos objectos que constituem os coeficientes.</typeparam>
     public class UnivarPolSubResultantAlg<CoeffType> :
         IAlgorithm<
         UnivariatePolynomialNormalForm<CoeffType>,

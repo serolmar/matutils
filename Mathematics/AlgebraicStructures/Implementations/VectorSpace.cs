@@ -152,7 +152,7 @@
         /// Determina a inversa aditiva de um vector.
         /// </summary>
         /// <param name="number">O vector.</param>
-        /// <returns></returns>
+        /// <returns>A inversa aditiva.</returns>
         /// <exception cref="ArgumentNullException">Se o vector for nulo.</exception>
         /// <exception cref="MathematicsException">
         /// Se a dimensão do vector não coincidir com a dimensão definida para o espaço

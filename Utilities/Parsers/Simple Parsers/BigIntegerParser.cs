@@ -9,6 +9,7 @@
     /// <summary>
     /// Implementa um leitor de valores inteiros de precisão arbitrária.
     /// </summary>
+    /// <typeparam name="SymbType">O tipo de objectos que constituem os tipos de símbolos.</typeparam>
     public class BigIntegerParser<SymbType> : IParse<BigInteger, string, SymbType>, IParse<object, string, SymbType>
     {
         /// <summary>

@@ -1,13 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using Utilities.Collections;
-using Mathematics.Algorithms;
-
-namespace Mathematics.AlgebraicStructures.Polynomial
+﻿namespace Mathematics
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+    using System.Linq;
+    using System.Text;
+    using Utilities.Collections;
+    using Mathematics.Algorithms;
+
     /// <summary>
     /// Representa um polinómio simétrico.
     /// </summary>

@@ -8,7 +8,7 @@
     /// <summary>
     /// Representa uma colecção onde os elementos são mantidos de forma ordenada.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T">O tipo de objectos na colecção ordenada.</typeparam>
     public class InsertionSortedCollection<T> : IEnumerable<T>
     {
         /// <summary>

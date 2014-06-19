@@ -8,6 +8,7 @@
     /// <summary>
     /// Permite efectuar a leitura de inteiros com precisão dupla.
     /// </summary>
+    /// <typeparam name="SymbType">O tipo de objectos que constituem os tipos de símbolos.</typeparam>
     public class LongParser<SymbType> : IParse<long, string, SymbType>, IParse<object, string, SymbType>
     {
         /// <summary>

@@ -8,6 +8,7 @@
     /// <summary>
     /// Condensa o resultado de um levantamento multifactor.
     /// </summary>
+    /// <typeparam name="CoeffType">O tipo de objectos que constituem os coeficientes.</typeparam>
     public class MultiFactorLiftingResult<CoeffType>
     {
         /// <summary>

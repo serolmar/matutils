@@ -8,6 +8,7 @@
     /// <summary>
     /// Implementa um leitor de valores lógicos.
     /// </summary>
+    /// <typeparam name="SymbType">O tipo dos objectos que constituem os tipos dos símbolos.</typeparam>
     public class BoolParser<SymbType> : IParse<bool, string, SymbType>, IParse<object, string, SymbType>
     {
         /// <summary>

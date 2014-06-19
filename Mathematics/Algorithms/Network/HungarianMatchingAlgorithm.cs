@@ -23,6 +23,7 @@
         /// <summary>
         /// Corre o algoritmo.
         /// </summary>
+        /// <returns>O resultado da execução.</returns>
         /// <param name="affectations">A lista de correspondências possíveis.</param>
         public HungarianMatchingOutput Run(int[][] affectations)
         {
@@ -206,10 +207,11 @@
         }
 
         /// <summary>
-        /// Inicializa todas as variáveis.
+        /// Inicializa todas as variáveis estabelecendo uma solução inicial.
         /// </summary>
         /// <param name="affectations">A matriz das afectações.</param>
         /// <param name="results">O vector que contém os resultados.</param>
+        /// <returns>A solução inicial.</returns>
         /// <exception cref="ArgumentNullException">Se as afectações forem nulas.</exception>
         /// <exception cref="MathematicsException">Se não existirem elementos para afectar.</exception>
         public InsertionSortedCollection<int>[] Init(

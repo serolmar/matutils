@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Mathematics.AlgebraicStructures.Polynomial
+﻿namespace Mathematics
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+
     /// <summary>
     /// Permite comparar o grau do polinómio simétrico assumindo que se trata de uma lista
     /// previamente ordenada de forma decrescente.

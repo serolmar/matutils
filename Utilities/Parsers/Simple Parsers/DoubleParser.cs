@@ -9,6 +9,7 @@
     /// <summary>
     /// Implementa um leitor de valores de precisão dupla.
     /// </summary>
+    /// <typeparam name="SymbType">O tipo dos objectos que constituem os tipos dos símbolos.</typeparam>
     public class DoubleParser<SymbType> : IParse<double, string, SymbType>, IParse<object, string, SymbType>
     {
         /// <summary>

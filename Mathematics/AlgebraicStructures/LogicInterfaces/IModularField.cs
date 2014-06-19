@@ -8,6 +8,7 @@
     /// <summary>
     /// Representa um corpo molular.
     /// </summary>
+    /// <typeparam name="ModuleType">O tipo de objectos que constituem o módulo.</typeparam>
     public interface IModularField<ModuleType> : IField<ModuleType>
     {
         /// <summary>

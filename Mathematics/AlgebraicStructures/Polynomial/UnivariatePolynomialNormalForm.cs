@@ -227,6 +227,7 @@ namespace Mathematics
         /// Obtém um valor que indica se o polinómio é unitário.
         /// </summary>
         /// <param name="monoid">O monóide responsável pelas operações.</param>
+        /// <returns>Veradeiro caso o polinómio corrente seja uma unidade e falso caso contrário.</returns>
         /// <exception cref="ArgumentNullException">Se o monóide for nulo.</exception>
         public bool IsUnity(IRing<CoeffType> monoid)
         {
@@ -1356,7 +1357,7 @@ namespace Mathematics
         /// </summary>
         /// <param name="other">O polinómio a ser comparado.</param>
         /// <param name="coeffsEqualityComparer">O comparador de coeficientes.</param>
-        /// <returns></returns>
+        /// <returns>Verdadeiro caso os polinómios sejam iguais e falso caso contrário.</returns>
         /// <exception cref="ArgumentNullException">Se o comparador de coeficientes for nulo.</exception>
         public bool Equals(
             UnivariatePolynomialNormalForm<CoeffType> other,

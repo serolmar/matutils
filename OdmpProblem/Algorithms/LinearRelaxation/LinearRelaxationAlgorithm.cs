@@ -109,7 +109,7 @@
                 this.FillVariablesSelectors(nonBasicVariables, basicVariables, linesLength);
 
                 // Preencimento da matriz das restrições
-                var constraintsMatrix = new ArrayMatrix<CoeffType>(
+                var constraintsMatrix = new SparseDictionaryMatrix<CoeffType>(
                     constraintsNumber,
                     constraintsNumber,
                     this.coeffsField.AdditiveUnity);
@@ -155,7 +155,7 @@
                 }
 
                 // Preenchimento do vector independente das restrições
-                var vector = new ArrayVector<CoeffType>(constraintsNumber, this.coeffsField.AdditiveUnity);
+                var vector = new SparseDictionaryVector<CoeffType>(constraintsNumber, this.coeffsField.AdditiveUnity);
                 lastLine = constraintsNumber - 1;
                 for (int i = numberXVars; i < lastLine; ++i)
                 {

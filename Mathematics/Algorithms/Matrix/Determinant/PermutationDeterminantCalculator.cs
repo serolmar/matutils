@@ -12,6 +12,7 @@ namespace Mathematics
     /// <remarks>
     /// Este método é extremamente ineficaz e serve apenas para efeitos académicos.
     /// </remarks>
+    /// <typeparam name="ElementsType">O tipo dos objectos que constituem as entradas das matrizes.</typeparam>
     public class PermutationDeterminantCalculator<ElementsType> : ADeterminant<ElementsType>
     {
         /// <summary>

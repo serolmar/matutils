@@ -108,6 +108,7 @@
         /// Obtém a parte inteira da fracção.
         /// </summary>
         /// <param name="domain">O domínio responsável pelas operações sobre os coeficientes.</param>
+        /// <returns>A parte inteira da fracção.</returns>
         /// <exception cref="ArgumentNullException">Se o domínio for nulo.</exception>
         public T IntegralPart(IEuclidenDomain<T> domain)
         {
@@ -125,6 +126,7 @@
         /// Obtém o que resta da fracção quando lhe é extraída a sua parte inteira.
         /// </summary>
         /// <param name="domain">O domínio responsável pelas operações sobre os coeficientes.</param>
+        /// <returns>A fracção correspondente à parte fraccionária.</returns>
         /// <exception cref="ArgumentNullException">Se o domínio for nulo.</exception>
         public Fraction<T> FractionalPart(IEuclidenDomain<T> domain)
         {
@@ -143,6 +145,7 @@
         /// Obtém a decomposição da fracção em parte inteira e fracionária na mesma função.
         /// </summary>
         /// <param name="domain">O domínio responsável pelas operações sobre os coeficientes.</param>
+        /// <returns>O valor da decomposição.</returns>
         /// <exception cref="ArgumentNullException">Se o domínio for nulo.</exception>
         public FractionDecompositionResult<T> FractionDecomposition(IEuclidenDomain<T> domain)
         {

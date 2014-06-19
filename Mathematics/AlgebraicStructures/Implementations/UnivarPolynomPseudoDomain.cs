@@ -15,6 +15,7 @@
     /// grau de g. Trata-se de uma espécie de divisão sem ter a necessidade de serem efecutadas operações
     /// que não estejam contempladas no anel.
     /// </remarks>
+    /// <typeparam name="CoeffType">O tipo dos objectos que constituem os coeficientes dos polinómios.</typeparam>
     public class UnivarPolynomPseudoDomain<CoeffType>
         : UnivarPolynomRing<CoeffType>,
         IEuclidenDomain<UnivariatePolynomialNormalForm<CoeffType>>

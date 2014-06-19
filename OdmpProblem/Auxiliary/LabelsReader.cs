@@ -259,7 +259,7 @@
                                             var value = default(double);
                                             if (double.TryParse(
                                                 readedBuffer,
-                                                NumberStyles.Number,
+                                                NumberStyles.Number | NumberStyles.AllowExponent,
                                                 numberFormat,
                                                 out value))
                                             {
@@ -303,7 +303,7 @@
                                             var value = default(double);
                                             if (double.TryParse(
                                                 readedBuffer,
-                                                NumberStyles.Number,
+                                                NumberStyles.Number | NumberStyles.AllowExponent,
                                                 numberFormat,
                                                 out value))
                                             {
@@ -335,7 +335,7 @@
                                             var value = default(double);
                                             if (double.TryParse(
                                                 readedBuffer,
-                                                NumberStyles.Number,
+                                                NumberStyles.Number | NumberStyles.AllowExponent,
                                                 numberFormat,
                                                 out value))
                                             {

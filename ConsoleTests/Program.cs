@@ -8,7 +8,6 @@
     using System.Numerics;
     using System.Text;
     using Mathematics;
-    using Mathematics.AlgebraicStructures.Polynomial;
     using Mathematics.MathematicsInterpreter;
     using Utilities.Collections;
     using Utilities;
@@ -21,17 +20,12 @@
 
         static void Main(string[] args)
         {
-            var bigDecimalField = new BigDecimalNumberField(23);
-            var firstNumber = default(BigDecimalNumber);
-            var secondNumber = default(BigDecimalNumber);
-            bigDecimalField.TryParse("1.1", out firstNumber);
-            bigDecimalField.TryParse("15", out secondNumber);
-
-            var result = bigDecimalField.MultiplicativeInverse(firstNumber);
-            Console.WriteLine(bigDecimalField.ToString(result));
-
-            // Test20();
-            Console.ReadLine();
+            var filePath = @"..\..\Files\componente_0.txt";
+            var labelsReader = new LabelsReader();
+            using (var stream = File.OpenRead(filePath))
+            {
+                var labels = labelsReader.ReadLabels(stream, Encoding.ASCII);
+            }
         }
 
         static void Example()

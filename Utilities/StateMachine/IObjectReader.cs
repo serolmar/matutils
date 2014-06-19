@@ -8,6 +8,7 @@
     /// <summary>
     /// Define um leitor de objectos.
     /// </summary>
+    /// <typeparam name="Object">O tipos dos objectos a serem lidos.</typeparam>
     public interface IObjectReader<out Object>
     {
         /// <summary>

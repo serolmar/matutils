@@ -9,6 +9,7 @@
     /// <summary>
     /// Implementa um leitor de expressões que definem decimais.
     /// </summary>
+    /// <typeparam name="SymbType">O tipo dos objectos que constituem os tipos dos símbolos.</typeparam>
     public class DecimalParser<SymbType> : IParse<decimal, string, SymbType>, IParse<object, string, SymbType>
     {
         /// <summary>

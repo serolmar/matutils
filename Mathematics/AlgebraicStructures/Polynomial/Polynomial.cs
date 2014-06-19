@@ -279,7 +279,7 @@
         /// Obtém o polinómio como sendo um valor.
         /// </summary>
         /// <param name="coefficientRing">O anel responsável pelas operações sobre os coficientes.</param>
-        /// <returns></returns>
+        /// <returns>O valor do polinómio.</returns>
         /// <exception cref="ArgumentNullException">Se o anel for nulo.</exception>
         /// <exception cref="MathematicsException">Se o polinómio não for um valor.</exception>
         public T GetAsValue(IRing<T> coefficientRing)

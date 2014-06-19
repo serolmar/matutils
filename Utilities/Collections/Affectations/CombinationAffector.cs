@@ -35,7 +35,7 @@
         /// <summary>
         /// Obtém um enumerador genérico para o conjunto de combinações.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>O enumerador.</returns>
         public override IEnumerator<int[]> GetEnumerator()
         {
             return new CombinationEnumerator(this);

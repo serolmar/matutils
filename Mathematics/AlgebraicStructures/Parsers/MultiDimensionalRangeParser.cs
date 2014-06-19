@@ -9,7 +9,7 @@
     /// <summary>
     /// Implementa um leitor de matrizes multidimensionais.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T">O tipo de objectos que constituem as entradas do alcance multidimensional.</typeparam>
     public class MultiDimensionalRangeParser<T> : 
         IParse<MultiDimensionalRange<T>, string, string>
     {

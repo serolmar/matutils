@@ -34,6 +34,7 @@
         /// <summary>
         /// Obtém uma árvore de cobertura mínima que se inicia num vértice.
         /// </summary>
+        /// <typeparam name="OuterType">O tipo de objectos que constituem os pesos das arestas.</typeparam>
         /// <param name="startVertex">O vértice inicial.</param>
         /// <param name="edgeValueFunction">A função que permite obter o valor do peso da aresta.</param>
         /// <param name="valueComparer">O comparador de valores.</param>

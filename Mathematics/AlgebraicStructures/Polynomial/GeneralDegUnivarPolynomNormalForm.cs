@@ -242,6 +242,7 @@
         /// Obtém um valor que indica se o polinómio é unitário.
         /// </summary>
         /// <param name="monoid">O monóide responsável pelas operações.</param>
+        /// <returns>Verdadeiro caso o argumento  seja uma unidade e falso caso contrário.</returns>
         /// <exception cref="ArgumentNullException">Se o monóide for nulo.</exception>
         public bool IsUnity(IRing<CoeffType> monoid)
         {

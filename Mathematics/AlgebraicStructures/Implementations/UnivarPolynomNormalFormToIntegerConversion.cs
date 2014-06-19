@@ -8,6 +8,7 @@
     /// <summary>
     /// Permite converter um polinómio para um inteiro.
     /// </summary>
+    /// <typeparam name="CoeffsType">O tipo dos objectos que constituem os coeficientes.</typeparam>
     public class UnivarPolynomNormalFormToIntegerConversion<CoeffsType> 
         : IConversion<int, UnivariatePolynomialNormalForm<CoeffsType>>
     {

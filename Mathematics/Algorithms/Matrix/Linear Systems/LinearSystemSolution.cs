@@ -13,6 +13,7 @@
     /// A solução de um sistema de equações lineares resume-se ao vector particular da solução
     /// e uma base do espaço gerado pelas soluções da equação homogénea associada.
     /// </remarks>
+    /// <typeparam name="ElementType">O tipo de objectos que constituem os coeficientes do sistema linear.</typeparam>
     public class LinearSystemSolution<ElementType>
     {
         /// <summary>
