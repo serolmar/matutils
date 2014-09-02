@@ -1,13 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using Utilities;
-using System.Globalization;
-
-namespace OdmpProblem
+﻿namespace OdmpProblem
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+    using System.Text;
+    using Utilities;
+    using System.Globalization;
+
     public class OdmpSparseMatrixSetReader<ComponentType, LineType, ColumnType, T>
     {
         private string[] voidTypes = new string[] { "space", "carriage_return", "new_line" };

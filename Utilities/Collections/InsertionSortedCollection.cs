@@ -62,6 +62,27 @@
         }
 
         /// <summary>
+        /// Obtém o elemento que se encontra na posição especificada.
+        /// </summary>
+        /// <param name="index">O índice do elemento.</param>
+        /// <returns>O elemento.</returns>
+        public T this[int index]
+        {
+            get
+            {
+                if (index < 0 || index >= this.elements.Count)
+                {
+                    throw new IndexOutOfRangeException(
+                        "The parameter index must be non-negative and less the size of the collection.");
+                }
+                else
+                {
+                    return this.elements[index];
+                }
+            }
+        }
+
+        /// <summary>
         /// Obtém o número de elementos inseridos.
         /// </summary>
         /// <value>O número de elementos inseridos.</value>
@@ -193,6 +214,7 @@
             {
                 return;
             }
+
             this.elements.RemoveAt(index);
         }
 

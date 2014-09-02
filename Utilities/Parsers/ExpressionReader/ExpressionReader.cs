@@ -731,7 +731,7 @@
         /// </summary>
         /// <param name="reader">O leitor de símbolos.</param>
         /// <returns>O próximo estado.</returns>
-        private IState< SymbValue, SymbType> StartTransition(ISymbolReader<SymbValue, SymbType> reader)
+        protected virtual IState< SymbValue, SymbType> StartTransition(ISymbolReader<SymbValue, SymbType> reader)
         {
             this.IgnoreVoids(reader);
             if (reader.IsAtEOF())
@@ -788,7 +788,7 @@
         /// </summary>
         /// <param name="reader">O leitor de símbolos.</param>
         /// <returns>O próximo estado.</returns>
-        private IState< SymbValue, SymbType> ElementTransition(ISymbolReader<SymbValue, SymbType> reader)
+        protected virtual IState<SymbValue, SymbType> ElementTransition(ISymbolReader<SymbValue, SymbType> reader)
         {
             this.IgnoreVoids(reader);
             if (reader.IsAtEOF())
@@ -836,7 +836,7 @@
         /// </summary>
         /// <param name="reader">O leitor de símbolos.</param>
         /// <returns>O próximo estado.</returns>
-        private IState< SymbValue, SymbType> OperatorTransition(ISymbolReader<SymbValue, SymbType> reader)
+        protected virtual IState<SymbValue, SymbType> OperatorTransition(ISymbolReader<SymbValue, SymbType> reader)
         {
             this.IgnoreVoids(reader);
             if (reader.IsAtEOF())
@@ -929,7 +929,7 @@
         /// </summary>
         /// <param name="reader">O leitor de símbolos.</param>
         /// <returns>O próximo estado.</returns>
-        private IState< SymbValue, SymbType> InsideExternalDelimitersTransition(ISymbolReader<SymbValue, SymbType> reader)
+        protected virtual IState<SymbValue, SymbType> InsideExternalDelimitersTransition(ISymbolReader<SymbValue, SymbType> reader)
         {
             var readedSymbol = reader.Peek();
             if (reader.IsAtEOFSymbol(readedSymbol))
@@ -1027,7 +1027,7 @@
         /// </summary>
         /// <param name="reader">O leitor de símbolos.</param>
         /// <returns>O próximo estado.</returns>
-        private IState< SymbValue, SymbType> SequencePeekDelimitersTransition(ISymbolReader<SymbValue, SymbType> reader)
+        protected virtual IState<SymbValue, SymbType> SequencePeekDelimitersTransition(ISymbolReader<SymbValue, SymbType> reader)
         {
             this.IgnoreVoids(reader);
             var readedSymbol = reader.Peek();
@@ -1060,7 +1060,7 @@
         /// </summary>
         /// <param name="reader">O leitor de símbolos.</param>
         /// <returns>O próximo estado.</returns>
-        private IState< SymbValue, SymbType> InsideSequenceDelimitersTransition(ISymbolReader<SymbValue, SymbType> reader)
+        protected virtual IState<SymbValue, SymbType> InsideSequenceDelimitersTransition(ISymbolReader<SymbValue, SymbType> reader)
         {
             var readedSymbol = reader.Peek();
             var delimiterType = this.operatorStack.Pop().Symbol;

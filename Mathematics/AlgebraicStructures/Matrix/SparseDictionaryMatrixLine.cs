@@ -12,6 +12,11 @@
     internal class SparseDictionaryMatrixLine<ObjectType> : ISparseMatrixLine<ObjectType>
     {
         /// <summary>
+        /// Objecto responsável pela sincronização dos fluxos.
+        /// </summary>
+        private object lockObject = new object();
+
+        /// <summary>
         /// A matriz da qual a linha faz parte.
         /// </summary>
         private SparseDictionaryMatrix<ObjectType> owner;
@@ -19,7 +24,7 @@
         /// <summary>
         /// As entradas.
         /// </summary>
-        private Dictionary<int, ObjectType> matrixEntries = new Dictionary<int, ObjectType>();
+        private SortedDictionary<int, ObjectType> matrixEntries;
 
         /// <summary>
         /// Cria instâncias de objectos do tipo <see cref="SparseDictionaryMatrixLine{ObjectType}"/>.
@@ -28,6 +33,24 @@
         public SparseDictionaryMatrixLine(SparseDictionaryMatrix<ObjectType> owner)
         {
             this.owner = owner;
+            this.matrixEntries = new SortedDictionary<int, ObjectType>(Comparer<int>.Default);
+        }
+
+        /// <summary>
+        /// Cria instâncias de objectos do tipo <see cref="SparseDictionaryMatrixLine{ObjectType}"/>.
+        /// </summary>
+        /// <remarks>
+        /// Nenhuma verificação é realizada no que concerne à integridade das entradas proporcionadas no argumento
+        /// face ao número de colunas declarado na matriz original.
+        /// </remarks>
+        /// <param name="matrixEntries">As entradas da matriz.</param>
+        /// <param name="owner">A matriz à qual a linha actual pertence.</param>
+        internal SparseDictionaryMatrixLine(
+            SortedDictionary<int, ObjectType> matrixEntries,
+            SparseDictionaryMatrix<ObjectType> owner)
+        {
+            this.owner = owner;
+            this.matrixEntries = matrixEntries;
         }
 
         /// <summary>
@@ -41,6 +64,7 @@
         /// <exception cref="ArgumentOutOfRangeException">
         /// Se o índice for negativo ou não for inferior ao número de colunas na matriz.
         /// </exception>
+        /// <exception cref="MathematicsException">Se a linha foi descartada.</exception>
         public ObjectType this[int index]
         {
             get
@@ -51,14 +75,24 @@
                 }
                 else
                 {
-                    var value = default(ObjectType);
-                    if (this.matrixEntries.TryGetValue(index, out value))
+                    lock (this.lockObject)
                     {
-                        return value;
-                    }
-                    else
-                    {
-                        return this.owner.DefaultValue;
+                        if (this.owner == null)
+                        {
+                            throw new MathematicsException("The current line was disposed.");
+                        }
+                        else
+                        {
+                            var value = default(ObjectType);
+                            if (this.matrixEntries.TryGetValue(index, out value))
+                            {
+                                return value;
+                            }
+                            else
+                            {
+                                return this.owner.DefaultValue;
+                            }
+                        }
                     }
                 }
             }
@@ -75,13 +109,23 @@
                         (this.owner.DefaultValue != null &&
                         !this.owner.DefaultValue.Equals(value)))
                     {
-                        if (this.matrixEntries.ContainsKey(index))
+                        lock (this.lockObject)
                         {
-                            this.matrixEntries[index] = value;
-                        }
-                        else
-                        {
-                            this.matrixEntries.Add(index, value);
+                            if (this.owner == null)
+                            {
+                                throw new MathematicsException("The line was disposed.");
+                            }
+                            else
+                            {
+                                if (this.matrixEntries.ContainsKey(index))
+                                {
+                                    this.matrixEntries[index] = value;
+                                }
+                                else
+                                {
+                                    this.matrixEntries.Add(index, value);
+                                }
+                            }
                         }
                     }
                 }
@@ -94,11 +138,22 @@
         /// <value>
         /// O comrpimento total da linha que iguala a dimensão da matriz.
         /// </value>
+        /// <exception cref="MathematicsException">Se a linha foi descartada.</exception>
         public int Length
         {
             get
             {
-                return this.owner.GetLength(1);
+                lock (this.lockObject)
+                {
+                    if (this.owner == null)
+                    {
+                        throw new MathematicsException("The current line was disposed.");
+                    }
+                    else
+                    {
+                        return this.owner.GetLength(1);
+                    }
+                }
             }
         }
 
@@ -108,25 +163,51 @@
         /// <value>
         /// O número de entradas não nulas.
         /// </value>
+        /// <exception cref="MathematicsException">Se a linha foi descartada.</exception>
         public int NumberOfColumns
         {
             get
             {
-                return this.matrixEntries.Count;
+                lock (this.lockObject)
+                {
+                    if (this.owner == null)
+                    {
+                        throw new MathematicsException("The current line was disposed.");
+                    }
+                    else
+                    {
+                        return this.matrixEntries.Count;
+                    }
+                }
+
             }
         }
 
         /// <summary>
         /// Obtém as entradas das matrizes.
         /// </summary>
+        /// <remarks>
+        /// As entradas da matriz estão ordenadas por número de coluna.
+        /// </remarks>
         /// <value>
         /// As entradas das matrizes.
         /// </value>
-        internal Dictionary<int, ObjectType> MatrixEntries
+        /// <exception cref="MathematicsException">Se a linha foi descartada.</exception>
+        internal SortedDictionary<int, ObjectType> MatrixEntries
         {
             get
             {
-                return this.matrixEntries;
+                lock (this.lockObject)
+                {
+                    if (this.owner == null)
+                    {
+                        throw new MathematicsException("The current line was disposed.");
+                    }
+                    else
+                    {
+                        return this.matrixEntries;
+                    }
+                }
             }
         }
 
@@ -134,18 +215,40 @@
         /// Obtém as colunas.
         /// </summary>
         /// <returns></returns>
+        /// <exception cref="MathematicsException">Se a linha foi descartada.</exception>
         public IEnumerable<KeyValuePair<int, ObjectType>> GetColumns()
         {
-            return this.matrixEntries;
+            lock (this.lockObject)
+            {
+                if (this.owner == null)
+                {
+                    throw new MathematicsException("The current line was disposed.");
+                }
+                else
+                {
+                    return this.matrixEntries;
+                }
+            }
         }
 
         /// <summary>
         /// Remove uma entrada da linha.
         /// </summary>
         /// <param name="columnIndex">O índice da coluna a remover.</param>
+        /// <exception cref="MathematicsException">Se a linha foi descartada.</exception>
         public void Remove(int columnIndex)
         {
-            this.matrixEntries.Remove(columnIndex);
+            lock (this.lockObject)
+            {
+                if (this.owner == null)
+                {
+                    throw new MathematicsException("The current line was disposed.");
+                }
+                else
+                {
+                    this.matrixEntries.Remove(columnIndex);
+                }
+            }
         }
 
         /// <summary>
@@ -153,9 +256,20 @@
         /// </summary>
         /// <param name="column">A coluna.</param>
         /// <returns>Verdadeiro caso a linha contenha a coluna e falso caso contrário.</returns>
+        /// <exception cref="MathematicsException">Se a linha foi descartada.</exception>
         public bool ContainsColumn(int column)
         {
-            return this.matrixEntries.ContainsKey(column);
+            lock (this.lockObject)
+            {
+                if (this.owner == null)
+                {
+                    throw new MathematicsException("The current line was disposed.");
+                }
+                else
+                {
+                    return this.matrixEntries.ContainsKey(column);
+                }
+            }
         }
 
         /// <summary>
@@ -164,16 +278,27 @@
         /// <param name="column">O índice da coluna.</param>
         /// <param name="value">O valor na coluna.</param>
         /// <returns>Verdadeiro caso a operação seja bem sucedida e falso caso contrário.</returns>
+        /// <exception cref="MathematicsException">Se a linha foi descartada.</exception>
         public bool TryGetColumnValue(int column, out ObjectType value)
         {
-            value = default(ObjectType);
-            if (column < 0 || column >= this.owner.GetLength(1))
+            lock (this.lockObject)
             {
-                return false;
-            }
-            else
-            {
-                return this.matrixEntries.TryGetValue(column, out value);
+                if (this.owner == null)
+                {
+                    throw new MathematicsException("The current line was disposed.");
+                }
+                else
+                {
+                    value = default(ObjectType);
+                    if (column < 0 || column >= this.owner.GetLength(1))
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        return this.matrixEntries.TryGetValue(column, out value);
+                    }
+                }
             }
         }
 
@@ -181,9 +306,28 @@
         /// Obtém um enumerador para todas as entradas da linha da matriz.
         /// </summary>
         /// <returns>O enumerador.</returns>
-        public IEnumerator<KeyValuePair<int,ObjectType>> GetEnumerator()
+        /// <exception cref="MathematicsException">Se a linha foi descartada.</exception>
+        public IEnumerator<KeyValuePair<int, ObjectType>> GetEnumerator()
         {
-            return this.matrixEntries.GetEnumerator();
+            lock (this.lockObject)
+            {
+                if (this.owner == null)
+                {
+                    throw new MathematicsException("The current line was disposed.");
+                }
+                else
+                {
+                    return this.matrixEntries.GetEnumerator();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Descarta a linha.
+        /// </summary>
+        public void Dispose()
+        {
+            this.owner = null;
         }
 
         /// <summary>

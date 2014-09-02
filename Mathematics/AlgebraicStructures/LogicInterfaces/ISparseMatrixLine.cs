@@ -26,6 +26,8 @@
         /// <summary>
         /// Obtém um enumerador para todas as colunas não nulas.
         /// </summary>
+        /// Caso a matriz seja para ser incluída como entrada em alguns algoritmos, o enumerável deverá
+        /// retornar as colunas em sequência crescente pela chave.
         /// <returns>O enumerador.</returns>
         IEnumerable<KeyValuePair<int, ObjectType>> GetColumns();
 

@@ -96,6 +96,7 @@
     <Compile Include="AlgebraicStructures\LogicInterfaces\INaturalNumber.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\INearest.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\INormSpace.cs" />
+    <Compile Include="AlgebraicStructures\LogicInterfaces\ISparseVector.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\ISquareMatrix.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\IUniqueFactorizationDomain.cs" />
     <Compile Include="AlgebraicStructures\Matrix\AArrayTriangularMatrix.cs" />
@@ -105,8 +106,11 @@
     <Compile Include="AlgebraicStructures\Matrix\ArrayTriangUpperMatrix.cs" />
     <Compile Include="AlgebraicStructures\Matrix\ArrayVector.cs" />
     <Compile Include="AlgebraicStructures\Matrix\ArrayVectorFactory.cs" />
+    <Compile Include="AlgebraicStructures\Matrix\BitArraySymmetricMatrix.cs" />
     <Compile Include="AlgebraicStructures\Matrix\BitMatrix.cs" />
     <Compile Include="AlgebraicStructures\Matrix\IMatrixGroup.cs" />
+    <Compile Include="AlgebraicStructures\Matrix\SparseDictionarySquareMatrix.cs" />
+    <Compile Include="AlgebraicStructures\Matrix\SparseDictionarySquareMatrixFactory.cs" />
     <Compile Include="AlgebraicStructures\Parsers\FieldDrivenExpressionParser.cs" />
     <Compile Include="AlgebraicStructures\Parsers\RingDrivenExpressionParser.cs" />
     <Compile Include="AlgebraicStructures\Parsers\SimpleElementFractionParser.cs" />
@@ -271,6 +275,8 @@
     <Compile Include="Algorithms\Polynomials\UnivarPolDeterminantResultantAlg.cs" />
     <Compile Include="Algorithms\Polynomials\UnivarPolSubResultantAlg.cs" />
     <Compile Include="Algorithms\Polynomials\UnivarSquareFreeDecomposition.cs" />
+    <Compile Include="Algorithms\Simplex\RevisedSimplexAlgorithm.cs" />
+    <Compile Include="Algorithms\Simplex\RevisedSimplexInput.cs" />
     <Compile Include="Algorithms\Simplex\SimplexAlgorithm.cs" />
     <Compile Include="Algorithms\Simplex\SimplexInput.cs" />
     <Compile Include="Algorithms\Simplex\SimplexMaximumNumberField.cs" />

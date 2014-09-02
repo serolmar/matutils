@@ -11,8 +11,13 @@
     /// Implementa um vector esparso baseado em dicionários.
     /// </summary>
     /// <typeparam name="CoeffType">O tipo de objectos que constituem as entradas dos vectores.</typeparam>
-    public class SparseDictionaryVector<CoeffType> : IVector<CoeffType>
+    public class SparseDictionaryVector<CoeffType> : ISparseVector<CoeffType>
     {
+        /// <summary>
+        /// Objecto responsável pela sicronização de processos de execução.
+        /// </summary>
+        private object lockObject = new object();
+
         /// <summary>
         /// O valor por defeito.
         /// </summary>
@@ -26,7 +31,7 @@
         /// <summary>
         /// O contentor para os elementos do vector.
         /// </summary>
-        private Dictionary<int, CoeffType> vectorEntries;
+        private SortedDictionary<int, CoeffType> vectorEntries;
 
         /// <summary>
         /// Instancia um novo objecto do tipo <see cref="SparseDictionaryVector{CoeffType}"/>.
@@ -42,10 +47,30 @@
             }
             else
             {
-                this.vectorEntries = new Dictionary<int, CoeffType>();
+                this.vectorEntries = new SortedDictionary<int, CoeffType>(Comparer<int>.Default);
                 this.length = size;
                 this.defaultValue = defaultValue;
             }
+        }
+
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="SparseDictionaryVector{CoeffType}"/>.
+        /// </summary>
+        /// <remarks>
+        /// Como se trata de um construtor interno à livraria, nenhuma verificação é realizada no que concerne
+        /// à integridade dos argumentos.
+        /// </remarks>
+        /// <param name="size">O tamanho do vector.</param>
+        /// <param name="defaultValue">O valor por defeito.</param>
+        /// <param name="vectorEntries">As entradas do vector.</param>
+        internal SparseDictionaryVector(
+            int size,
+            CoeffType defaultValue,
+            SortedDictionary<int, CoeffType> vectorEntries)
+        {
+            this.length = size;
+            this.vectorEntries = vectorEntries;
+            this.defaultValue = defaultValue;
         }
 
         /// <summary>
@@ -78,13 +103,16 @@
                 else
                 {
                     var value = default(CoeffType);
-                    if (this.vectorEntries.TryGetValue(index, out value))
+                    lock (this.lockObject)
                     {
-                        return value;
-                    }
-                    else
-                    {
-                        return this.defaultValue;
+                        if (this.vectorEntries.TryGetValue(index, out value))
+                        {
+                            return value;
+                        }
+                        else
+                        {
+                            return this.defaultValue;
+                        }
                     }
                 }
             }
@@ -96,20 +124,23 @@
                 }
                 else
                 {
-                    if (this.vectorEntries.ContainsKey(index))
+                    lock (this.lockObject)
                     {
-                        if (EqualityComparer<CoeffType>.Default.Equals(value, this.defaultValue))
+                        if (this.vectorEntries.ContainsKey(index))
                         {
-                            this.vectorEntries.Remove(index);
+                            if (EqualityComparer<CoeffType>.Default.Equals(value, this.defaultValue))
+                            {
+                                this.vectorEntries.Remove(index);
+                            }
+                            else
+                            {
+                                this.vectorEntries[index] = value;
+                            }
                         }
                         else
                         {
-                            this.vectorEntries[index] = value;
+                            this.vectorEntries.Add(index, value);
                         }
-                    }
-                    else
-                    {
-                        this.vectorEntries.Add(index, value);
                     }
                 }
             }
@@ -138,6 +169,28 @@
             get
             {
                 return this.defaultValue;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o número de entradas não nulas.
+        /// </summary>
+        public int NumberOfEntries
+        {
+            get
+            {
+                return this.vectorEntries.Count;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o contentor para as entradas do vector.
+        /// </summary>
+        internal SortedDictionary<int, CoeffType> VectorEntries
+        {
+            get
+            {
+                return this.vectorEntries;
             }
         }
 
@@ -200,28 +253,31 @@
                 }
                 else
                 {
-                    var firstValue = default(CoeffType);
-                    if (this.vectorEntries.TryGetValue(first, out firstValue))
+                    lock (this.lockObject)
                     {
-                        var secondValue = default(CoeffType);
-                        if (this.vectorEntries.TryGetValue(second, out secondValue))
+                        var firstValue = default(CoeffType);
+                        if (this.vectorEntries.TryGetValue(first, out firstValue))
                         {
-                            this.vectorEntries[first] = secondValue;
-                            this.vectorEntries[second] = firstValue;
+                            var secondValue = default(CoeffType);
+                            if (this.vectorEntries.TryGetValue(second, out secondValue))
+                            {
+                                this.vectorEntries[first] = secondValue;
+                                this.vectorEntries[second] = firstValue;
+                            }
+                            else
+                            {
+                                this.vectorEntries.Add(second, firstValue);
+                                this.vectorEntries.Remove(first);
+                            }
                         }
                         else
                         {
-                            this.vectorEntries.Add(second, firstValue);
-                            this.vectorEntries.Remove(first);
-                        }
-                    }
-                    else
-                    {
-                        var secondValue = default(CoeffType);
-                        if (this.vectorEntries.TryGetValue(second, out secondValue))
-                        {
-                            this.vectorEntries.Add(first, secondValue);
-                            this.vectorEntries.Remove(second);
+                            var secondValue = default(CoeffType);
+                            if (this.vectorEntries.TryGetValue(second, out secondValue))
+                            {
+                                this.vectorEntries.Add(first, secondValue);
+                                this.vectorEntries.Remove(second);
+                            }
                         }
                     }
                 }
@@ -236,7 +292,53 @@
         /// <returns>Verdadeiro caso a entrada esteja no vector e falso caso contrário.</returns>
         public bool ContainsEntry(int index)
         {
-            return this.vectorEntries.ContainsKey(index);
+            lock (this.lockObject)
+            {
+                return this.vectorEntries.ContainsKey(index);
+            }
+        }
+
+        /// <summary>
+        /// Obtém um enumerador para todas as entradas não nulas do vector.
+        /// </summary>
+        /// <returns>As entradas não nulas do vector.</returns>
+        IEnumerable<KeyValuePair<int, CoeffType>> ISparseVector<CoeffType>.GetEntries()
+        {
+            return this.vectorEntries;
+        }
+
+        /// <summary>
+        /// Remove a entrada.
+        /// </summary>
+        /// <param name="entryNumber">O número da entrada a ser removida.</param>
+        void ISparseVector<CoeffType>.Remove(int entryNumber)
+        {
+            lock (this.lockObject)
+            {
+                this.vectorEntries.Remove(entryNumber);
+            }
+        }
+
+        /// <summary>
+        /// Tenta obter a entrada especificada pelo índice.
+        /// </summary>
+        /// <param name="index">O índice da entrada.</param>
+        /// <param name="entry">A entrada.</param>
+        /// <returns>Verdadeiro caso a operação seja bem sucedida e falso caso contrário.</returns>
+        public bool TryGetLine(int index, out CoeffType entry)
+        {
+            entry = default(CoeffType);
+            if (index >= 0)
+            {
+                lock (this.lockObject)
+                {
+                    return this.vectorEntries.TryGetValue(index, out entry);
+                }
+            }
+            else
+            {
+                return false;
+            }
         }
 
         /// <summary>
@@ -290,7 +392,7 @@
         {
             var result = new SparseDictionaryVector<CoeffType>(this.length);
             result.defaultValue = this.defaultValue;
-            result.vectorEntries = new Dictionary<int, CoeffType>();
+            result.vectorEntries = new SortedDictionary<int, CoeffType>(Comparer<int>.Default);
             foreach (var kvp in this.vectorEntries)
             {
                 result.vectorEntries.Add(kvp.Key, kvp.Value);
@@ -307,7 +409,10 @@
         {
             if (index >= 0)
             {
-                this.Remove(index);
+                lock (this.lockObject)
+                {
+                    this.Remove(index);
+                }
             }
         }
 

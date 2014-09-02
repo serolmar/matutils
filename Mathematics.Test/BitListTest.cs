@@ -1,9 +1,12 @@
-﻿using Utilities.Collections;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-
-namespace Mathematics.Test
+﻿namespace Mathematics.Test
 {
+    using Utilities.Collections;
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using System;
+
+    /// <summary>
+    /// Implementa testes sobre as listas de bits.
+    /// </summary>
     [TestClass()]
     public class BitListTest
     {

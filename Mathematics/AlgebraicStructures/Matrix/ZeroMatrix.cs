@@ -156,6 +156,14 @@
         /// <param name="j">A segunda linha a ser trocada.</param>
         public void SwapLines(int i, int j)
         {
+            if (i < 0 || i > this.linesNumber)
+            {
+                throw new IndexOutOfRangeException("Index must be non-negative and less than the number of lines.");
+            }
+            else if (j < 0 || j > this.linesNumber)
+            {
+                throw new IndexOutOfRangeException("Index must be non-negative and less than the number of lines.");
+            }
         }
 
         /// <summary>
@@ -165,6 +173,69 @@
         /// <param name="j">A segunda coluna a ser trocada.</param>
         public void SwapColumns(int i, int j)
         {
+            if (i < 0 || i > this.columnsNumber)
+            {
+                throw new IndexOutOfRangeException("Index must be non-negative and less than the number of lines.");
+            }
+            else if (j < 0 || j > this.columnsNumber)
+            {
+                throw new IndexOutOfRangeException("Index must be non-negative and less than the number of lines.");
+            }
+        }
+
+        /// <summary>
+        /// Multiplica os valores da linha pelo escalar definido.
+        /// </summary>
+        /// <param name="line">A linha a ser considerada.</param>
+        /// <param name="scalar">O escalar a ser multiplicado.</param>
+        /// <param name="ring">O objecto responsável pela operações de multiplicação e determinação da unidade aditiva.</param>
+        public void ScalarLineMultiplication(int line, ElementType scalar, IRing<ElementType> ring)
+        {
+            if (line < 0 || line >= this.linesNumber)
+            {
+                throw new ArgumentOutOfRangeException("line");
+            }
+            else if (ring == null)
+            {
+                throw new ArgumentNullException("ring");
+            }
+            else if (scalar == null)
+            {
+                throw new ArgumentNullException("scalar");
+            }
+        }
+
+        /// <summary>
+        /// Substitui a linha especificada por uma combinação linear desta com uma outra. Por exemplo, li = a * li + b * lj, isto é,
+        /// a linha i é substituída pela soma do produto de a pela linha i com o produto de b peloa linha j.
+        /// </summary>
+        /// <param name="i">A linha a ser substituída.</param>
+        /// <param name="j">A linha a ser combinada.</param>
+        /// <param name="a">O escalar a ser multiplicado pela primeira linha.</param>
+        /// <param name="b">O escalar a ser multiplicado pela segunda linha.</param>
+        /// <param name="ring">O objecto responsável pelas operações sobre os coeficientes.</param>
+        public void CombineLines(int i, int j, ElementType a, ElementType b, IRing<ElementType> ring)
+        {
+            if (i < 0 || i >= this.linesNumber)
+            {
+                throw new ArgumentNullException("i");
+            }
+            else if (j < 0 || j >= this.linesNumber)
+            {
+                throw new ArgumentNullException("j");
+            }
+            else if (a == null)
+            {
+                throw new ArgumentNullException("a");
+            }
+            else if (b == null)
+            {
+                throw new ArgumentNullException("b");
+            }
+            else if (ring == null)
+            {
+                throw new ArgumentNullException("ring");
+            }
         }
 
         /// <summary>

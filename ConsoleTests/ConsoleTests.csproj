@@ -45,6 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Auxiliary\NullableDoubleField.cs" />
+    <Compile Include="Auxiliary\PrecisionNullableDoubleComparer.cs" />
     <Compile Include="BigIntegerFractionToIntConversion.cs" />
     <Compile Include="ObjectTester\CallMethodInvoker.cs" />
     <Compile Include="ObjectTester\Command.cs" />

@@ -40,6 +40,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Algorithms\CompatibilityAlgorithm\OdmpCompatibilityGreedyAlgorithm.cs" />
     <Compile Include="Algorithms\ComponentBoundsAlgorithm.cs" />
     <Compile Include="Algorithms\ComponentBoundsItemResult.cs" />
     <Compile Include="Algorithms\Dual\DualComponentsHeuristicAlgorithm.cs" />
@@ -87,9 +88,7 @@
       <Name>Utilities</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Algorithms\Corrections\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

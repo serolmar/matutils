@@ -109,7 +109,7 @@
                 this.FillVariablesSelectors(nonBasicVariables, basicVariables, linesLength);
 
                 // Preencimento da matriz das restrições
-                var constraintsMatrix = new SparseDictionaryMatrix<CoeffType>(
+                var constraintsMatrix = new ArrayMatrix<CoeffType>(
                     constraintsNumber,
                     constraintsNumber,
                     this.coeffsField.AdditiveUnity);
@@ -122,9 +122,12 @@
                 {
                     foreach (var column in line.Value.GetColumns())
                     {
-                        constraintsMatrix[constraintXYLineNumber, constraintLineNumber] = inverseAdditive;
-                        constraintsMatrix[constraintXYLineNumber, constraintXYLineNumber + numberOfVertices] = unity;
-                        ++constraintXYLineNumber;
+                        if (line.Key != column.Key)
+                        {
+                            constraintsMatrix[constraintXYLineNumber, constraintLineNumber] = inverseAdditive;
+                            constraintsMatrix[constraintXYLineNumber, constraintXYLineNumber + numberOfVertices] = unity;
+                            ++constraintXYLineNumber;
+                        }
                     }
 
                     ++constraintLineNumber;
@@ -142,12 +145,15 @@
                     {
                         foreach (var column in lines.Value.GetColumns())
                         {
-                            if (column.Key == i)
+                            if (lines.Key != column.Key)
                             {
-                                constraintsMatrix[constraintLineNumber, constraintXYLineNumber] = unity;
-                            }
+                                if (column.Key == i)
+                                {
+                                    constraintsMatrix[constraintLineNumber, constraintXYLineNumber] = unity;
+                                }
 
-                            ++constraintXYLineNumber;
+                                ++constraintXYLineNumber;
+                            }
                         }
                     }
 
@@ -155,7 +161,7 @@
                 }
 
                 // Preenchimento do vector independente das restrições
-                var vector = new SparseDictionaryVector<CoeffType>(constraintsNumber, this.coeffsField.AdditiveUnity);
+                var vector = new ArrayVector<CoeffType>(constraintsNumber, this.coeffsField.AdditiveUnity);
                 lastLine = constraintsNumber - 1;
                 for (int i = numberXVars; i < lastLine; ++i)
                 {
@@ -164,7 +170,8 @@
 
                 vector[lastLine] = this.conversion.InverseConversion(numberOfMedians);
                 var sumVector = this.coeffsField.AdditiveUnity;
-                for (int i = 0; i < vector.Length; ++i) {
+                for (int i = 0; i < vector.Length; ++i)
+                {
                     sumVector = this.coeffsField.Add(sumVector, vector[i]);
                 }
 

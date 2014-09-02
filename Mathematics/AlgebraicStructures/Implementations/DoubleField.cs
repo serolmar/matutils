@@ -12,12 +12,45 @@
     public class DoubleField : IField<double>
     {
         /// <summary>
+        /// Mantém a precisão nas comparações.
+        /// </summary>
+        private double precision;
+
+        /// <summary>
+        /// Instancia objectos do tipo <see cref="DoubleField"/>.
+        /// </summary>
+        /// <param name="precisionUnits">A quantidade de unidades de precisão.</param>
+        public DoubleField(double precisionUnits = 0.0)
+        {
+            if (this.precision < 0)
+            {
+                throw new ArgumentNullException("The precision must be a non-negative number.");
+            }
+            else
+            {
+                this.precision = precisionUnits;
+            }
+        }
+
+        /// <summary>
+        /// Obtém a quantidade precisão utilizada nas comparações de números de ponto flutuante.
+        /// </summary>
+        public double Precision
+        {
+            get
+            {
+                return this.precision;
+            }
+        }
+
+        /// <summary>
         /// Obtém a unidade aditiva.
         /// </summary>
         /// <value>A unidade aditiva.</value>
         public double AdditiveUnity
         {
-            get {
+            get
+            {
                 return 0;
             }
         }
@@ -30,7 +63,8 @@
         /// </value>
         public double MultiplicativeUnity
         {
-            get {
+            get
+            {
                 return 1;
             }
         }
@@ -81,7 +115,7 @@
         /// <returns>Verdadeiro caso o valor seja uma unidade aditiva e falso caso contrário.</returns>
         public bool IsAdditiveUnity(double value)
         {
-            return value == 0;
+            return this.Equals(value, 0);
         }
 
         /// <summary>
@@ -94,7 +128,15 @@
         /// </returns>
         public bool Equals(double x, double y)
         {
-            return x.Equals(y);
+            if (this.precision == 0.0)
+            {
+                return x.Equals(y);
+            }
+            else
+            {
+                var difference = Math.Abs(x - y);
+                return difference <= this.precision;
+            }
         }
 
         /// <summary>
@@ -127,7 +169,7 @@
         /// <returns>Verdadeiro caso o valor seja uma unidade multiplicativa e falso caso contrário.</returns>
         public bool IsMultiplicativeUnity(double value)
         {
-            return value == 1;
+            return this.Equals(value, 1);
         }
 
         /// <summary>

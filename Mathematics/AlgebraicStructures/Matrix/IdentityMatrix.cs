@@ -169,6 +169,37 @@
         }
 
         /// <summary>
+        /// Multiplica os valores da linha pelo escalar definido.
+        /// </summary>
+        /// <param name="line">A linha a ser considerada.</param>
+        /// <param name="scalar">O escalar a ser multiplicado.</param>
+        /// <param name="ring">O objecto responsável pela operações de multiplicação e determinação da unidade aditiva.</param>
+        /// <exception cref="MathematicsException">
+        /// Sempre.
+        /// </exception>
+        public void ScalarLineMultiplication(int line, ElementType scalar, IRing<ElementType> ring)
+        {
+            throw new MathematicsException("Identity matrix is constant.");
+        }
+
+        /// <summary>
+        /// Substitui a linha especificada por uma combinação linear desta com uma outra. Por exemplo, li = a * li + b * lj, isto é,
+        /// a linha i é substituída pela soma do produto de a pela linha i com o produto de b peloa linha j.
+        /// </summary>
+        /// <param name="i">A linha a ser substituída.</param>
+        /// <param name="j">A linha a ser combinada.</param>
+        /// <param name="a">O escalar a ser multiplicado pela primeira linha.</param>
+        /// <param name="b">O escalar a ser multiplicado pela segunda linha.</param>
+        /// <param name="ring">O objecto responsável pelas operações sobre os coeficientes.</param>
+        /// <exception cref="MathematicsException">
+        /// Sempre.
+        /// </exception>
+        public void CombineLines(int i, int j, ElementType a, ElementType b, IRing<ElementType> ring)
+        {
+            throw new MathematicsException("Identity matrix is constant.");
+        }
+
+        /// <summary>
         /// Obtém o enumerador genérico para a matriz.
         /// </summary>
         /// <returns>O enumerador genérico.</returns>

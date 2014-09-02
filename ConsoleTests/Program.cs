@@ -5,8 +5,10 @@
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.IO;
+    using System.Linq;
     using System.Numerics;
     using System.Text;
+    using System.Threading.Tasks;
     using Mathematics;
     using Mathematics.MathematicsInterpreter;
     using Utilities.Collections;
@@ -20,17 +22,84 @@
 
         static void Main(string[] args)
         {
+            TestOdmpCompatibilityAlgorithm();
+            Console.ReadKey();
+        }
+
+        static void TestOdmpCompatibilityAlgorithm()
+        {
+            var filePath = @"Data\Matrix5\Matrix5_0.dat";
+            var medians = 1;
+            var fileInfo = new FileInfo(filePath);
+            if (fileInfo.Exists)
+            {
+                var integerParser = new IntegerParser<string>();
+                var doubleParser = new DoubleParser<string>();
+                var odmpReader = new OdmpSparseMatrixSetReader<int, int, int, double>(
+                    doubleParser,
+                    integerParser,
+                    integerParser,
+                    integerParser);
+
+                using (var fileStream = fileInfo.OpenRead())
+                {
+                    var sparseMatrixSet = odmpReader.Read(fileStream);
+                    var componentsList = new List<ISparseMatrix<double>>();
+                    foreach (var odmpMatrix in sparseMatrixSet)
+                    {
+                        var firstLine = odmpMatrix.FirstOrDefault();
+                        if (firstLine == null)
+                        {
+                            Console.WriteLine("Existe uma matriz sem linhas.");
+                            break;
+                        }
+                        else
+                        {
+                            var linesNumber = firstLine.Last().Column + 1;
+                            var matrix = new SparseDictionaryMatrix<double>(
+                                linesNumber,
+                                linesNumber,
+                                double.MaxValue);
+                            foreach (var line in odmpMatrix)
+                            {
+                                foreach (var column in line)
+                                {
+                                    if (line.Line != column.Column)
+                                    {
+                                        matrix[line.Line, column.Column] = column.Value;
+                                    }
+                                }
+                            }
+
+                            componentsList.Add(matrix);
+                        }
+
+                        var compatibilityAlgorithm = new OdmpCompatibilityGreedyAlgorithm<double>(
+                            Comparer<double>.Default,
+                            new DoubleField());
+                        var result = compatibilityAlgorithm.Run(1, componentsList);
+                        Console.WriteLine(result.Aggregate(0.0, (a, b) => a + b.Cost));
+                        Console.WriteLine(
+                            "Initial medians: {0}. Final Medians: {1}.",
+                            medians,
+                            result.Aggregate(0, (a, b) => a + b.Chosen.Count));
+                    }
+                }
+            }
+            else
+            {
+                Console.WriteLine("O ficheiro não existe: {0}", fileInfo.FullName);
+            }
+        }
+
+        static void Example()
+        {
             var filePath = @"..\..\Files\componente_0.txt";
             var labelsReader = new LabelsReader();
             using (var stream = File.OpenRead(filePath))
             {
                 var labels = labelsReader.ReadLabels(stream, Encoding.ASCII);
             }
-        }
-
-        static void Example()
-        {
-            //return 0;
         }
 
         static void RunObjectTester()
@@ -144,7 +213,7 @@
                 //    var searchAlgorithm = new SearchFactorizationAlgorithm<BigInteger>(
                 //        modularFactory,
                 //        new BigIntegerDomain());
-                    
+
                 //    //Determinar a estimativa
                 //    var estimation = Math.Sqrt(factorKvp.Value.FactoredPolynomial.Degree + 1);
                 //    var estimationIntegerPart = (1 << factorKvp.Value.FactoredPolynomial.Degree) * 
@@ -178,7 +247,7 @@
                         Console.WriteLine(factor);
                     }
 
-                    var modularField = new ModularSymmetricBigIntField(31*31*31*31);
+                    var modularField = new ModularSymmetricBigIntField(31 * 31 * 31 * 31);
                     var polRing = new UnivarPolynomRing<BigInteger>("x", modularField);
                     var factorsEnumerator = liftFactor.Value.GetEnumerator();
                     if (factorsEnumerator.MoveNext())
@@ -267,7 +336,8 @@
             //}
 
             // Outro exemplo
-            var fileInfo = new FileInfo("..\\..\\Files\\Matrix1.csv");
+            var path = "Data\\Exemplos\\Matriz_Exemplo.dat";
+            var fileInfo = new FileInfo("..\\..\\Files\\Matrix.csv");
             if (fileInfo.Exists)
             {
                 var dataProvider = new DataReaderProvider<IParse<Nullable<double>, string, string>>(
@@ -295,124 +365,97 @@
                         }
                     }
 
+                    var nullableDoubleField = new NullableDoubleField();
+                    var integerDoubleConversion = new IntegerNullableDoubleConverter();
+                    var precisionComparer = new PrecisionNullableDoubleComparer(0.000001);
+                    var simplexAlgorithm = new SimplexAlgorithm<Nullable<double>>(
+                        precisionComparer,
+                        nullableDoubleField);
+                    var linearRelax = new LinearRelaxationAlgorithm<Nullable<double>>(
+                        simplexAlgorithm,
+                        integerDoubleConversion,
+                        nullableDoubleField);
+
+                    var result = linearRelax.Run(costs, 5);
+
                     // p = 5
-                    var initialSolution = new Nullable<double>[table.Count];
-                    for (int i = 0; i < initialSolution.Length; ++i)
-                    {
-                        initialSolution[i] = 0;
-                    }
+                    //var initialSolution = new Nullable<double>[table.Count];
+                    //for (int i = 0; i < initialSolution.Length; ++i)
+                    //{
+                    //    initialSolution[i] = 0;
+                    //}
 
-                    initialSolution[0] = 1;
-                    initialSolution[1] = 0.137905;
-                    initialSolution[4] = 0.262507;
-                    initialSolution[5] = 0.104513;
-                    initialSolution[8] = 0.337386;
-                    initialSolution[9] = 0.084155;
-                    initialSolution[12] = 0.332995;
-                    initialSolution[16] = 0.143789;
-                    initialSolution[20] = 0.121665;
-                    initialSolution[24] = 0.0851576;
-                    initialSolution[64] = 0.266743;
-                    initialSolution[65] = 0.047304;
-                    initialSolution[68] = 0.271134;
-                    initialSolution[72] = 0.395872;
-                    initialSolution[80] = 0.0395245;
-                    initialSolution[128] = 0.106906;
-                    initialSolution[129] = 0.0313958;
-                    initialSolution[132] = 0.0663087;
-                    initialSolution[136] = 0.0560474;
-                    initialSolution[144] = 0.0250102;
-                    initialSolution[192] = 0.0264022;
-                    initialSolution[257] = 0.106054;
-                    initialSolution[260] = 0.0671126;
-                    initialSolution[272] = 0.105553;
-                    initialSolution[320] = 0.137139;
-                    initialSolution[384] = 0.140151;
-                    initialSolution[512] = 0.449401;
-                    initialSolution[513] = 0.134202;
-                    initialSolution[516] = 0.288092;
-                    initialSolution[517] = 0.114046;
-                    initialSolution[520] = 0.213213;
-                    initialSolution[521] = 0.303104;
-                    initialSolution[524] = 0.1657;
-                    initialSolution[528] = 0.134703;
-                    initialSolution[532] = 0.102779;
-                    initialSolution[536] = 0.314371;
-                    initialSolution[576] = 0.283856;
-                    initialSolution[577] = 0.184431;
-                    initialSolution[580] = 0.156918;
-                    initialSolution[588] = 1;
-                    initialSolution[592] = 0.198095;
-                    initialSolution[640] = 0.14019;
-                    initialSolution[644] = 0.121252;
-                    initialSolution[648] = 0.295898;
-                    initialSolution[704] = 0.152219;
-                    initialSolution[768] = 0.159801;
-                    initialSolution[769] = 0.0126368;
-                    initialSolution[772] = 0.413599;
-                    initialSolution[784] = 0.00675249;
-                    initialSolution[832] = 0.152461;
-                    initialSolution[896] = 0.00355069;
+                    //initialSolution[0] = 1;
+                    //initialSolution[1] = 0.137905;
+                    //initialSolution[4] = 0.262507;
+                    //initialSolution[5] = 0.104513;
+                    //initialSolution[8] = 0.337386;
+                    //initialSolution[9] = 0.084155;
+                    //initialSolution[12] = 0.332995;
+                    //initialSolution[16] = 0.143789;
+                    //initialSolution[20] = 0.121665;
+                    //initialSolution[24] = 0.0851576;
+                    //initialSolution[64] = 0.266743;
+                    //initialSolution[65] = 0.047304;
+                    //initialSolution[68] = 0.271134;
+                    //initialSolution[72] = 0.395872;
+                    //initialSolution[80] = 0.0395245;
+                    //initialSolution[128] = 0.106906;
+                    //initialSolution[129] = 0.0313958;
+                    //initialSolution[132] = 0.0663087;
+                    //initialSolution[136] = 0.0560474;
+                    //initialSolution[144] = 0.0250102;
+                    //initialSolution[192] = 0.0264022;
+                    //initialSolution[257] = 0.106054;
+                    //initialSolution[260] = 0.0671126;
+                    //initialSolution[272] = 0.105553;
+                    //initialSolution[320] = 0.137139;
+                    //initialSolution[384] = 0.140151;
+                    //initialSolution[512] = 0.449401;
+                    //initialSolution[513] = 0.134202;
+                    //initialSolution[516] = 0.288092;
+                    //initialSolution[517] = 0.114046;
+                    //initialSolution[520] = 0.213213;
+                    //initialSolution[521] = 0.303104;
+                    //initialSolution[524] = 0.1657;
+                    //initialSolution[528] = 0.134703;
+                    //initialSolution[532] = 0.102779;
+                    //initialSolution[536] = 0.314371;
+                    //initialSolution[576] = 0.283856;
+                    //initialSolution[577] = 0.184431;
+                    //initialSolution[580] = 0.156918;
+                    //initialSolution[588] = 1;
+                    //initialSolution[592] = 0.198095;
+                    //initialSolution[640] = 0.14019;
+                    //initialSolution[644] = 0.121252;
+                    //initialSolution[648] = 0.295898;
+                    //initialSolution[704] = 0.152219;
+                    //initialSolution[768] = 0.159801;
+                    //initialSolution[769] = 0.0126368;
+                    //initialSolution[772] = 0.413599;
+                    //initialSolution[784] = 0.00675249;
+                    //initialSolution[832] = 0.152461;
+                    //initialSolution[896] = 0.00355069;
 
-                    var correction = new LinearRelRoundCorrectorAlg<Nullable<double>>(
-                        Comparer<Nullable<double>>.Default,
-                        new IntegerNullableDoubleConverter(0.00001),
-                        new NullableIntegerNearest(),
-                        new NullableDoubleField());
-                    var result = correction.Run(initialSolution, costs, 2);
-                    Console.WriteLine("Medianas:");
-                    foreach (var chose in result.Chosen)
-                    {
-                        Console.WriteLine(chose);
-                    }
+                    //var correction = new LinearRelRoundCorrectorAlg<Nullable<double>>(
+                    //    Comparer<Nullable<double>>.Default,
+                    //    new IntegerNullableDoubleConverter(0.00001),
+                    //    new NullableIntegerNearest(),
+                    //    new NullableDoubleField());
+                    //var result = correction.Run(initialSolution, costs, 2);
+                    //Console.WriteLine("Medianas:");
+                    //foreach (var chose in result.Chosen)
+                    //{
+                    //    Console.WriteLine(chose);
+                    //}
 
-                    Console.WriteLine("Custo: {0}", result.Cost);
+                    //Console.WriteLine("Custo: {0}", result.Cost);
                 }
             }
             else
             {
                 Console.WriteLine("O camminho fornecido não existe.");
             }
-
-            // Estabelece os leitores e os campos
-            var arrayMatrixReader = new DoubleArrayMatrixReader();
-            var sparseMatrixReader = new DoubleSparseMatrixReader();
-            var arrayVectorReader = new DoubleArrayVectorReader();
-            var doubleField = new DoubleField();
-
-            var costsMatrixInput = "[[0,0,0,0,0],[3,0,0,0,0],[5,0,0,0,0],[2,1,0,0,0],[1,2,4,0,0]]";
-            var costsMatrix = sparseMatrixReader.ReadArray(5, 5, costsMatrixInput);
-            var linearRelaxation = new LinearRelaxationAlgorithm<double>(
-                new SimplexAlgorithm<double>(Comparer<double>.Default, doubleField),
-                new DoubleToIntegerConversion(),
-                doubleField);
-            var linearRelaxationResult = linearRelaxation.Run(costsMatrix, 3);
-
-            var inputConstraintsMatrix = "[[1,0,3],[0,2,2]]";
-            var inputConstraintsVector = "[4,12,8]";
-            var inputObjectiveFunc = "[-3,-2]";
-            var cost = 0.0;
-            var nonBasicVariables = new[] { 0, 1 };
-            var basicVariables = new[] { 2, 3, 4 };
-
-            var constraintsMatrix = arrayMatrixReader.ReadArray(3, 2, inputConstraintsMatrix);
-            var constraintsVector = arrayVectorReader.ReadVector(3, inputConstraintsVector);
-
-            var objectiveFunction = arrayVectorReader.ReadVector(2, inputObjectiveFunc);
-            var simplexInput = new SimplexInput<double, double>(
-                basicVariables,
-                nonBasicVariables,
-                objectiveFunction,
-                cost,
-                constraintsMatrix,
-                constraintsVector);
-
-            var simplexAlg = new SimplexAlgorithm<double>(
-                Comparer<double>.Default,
-                doubleField);
-
-            var simplexOut = simplexAlg.Run(simplexInput);
-            Console.WriteLine("Cost: {0}", simplexOut.Cost);
         }
 
         /// <summary>

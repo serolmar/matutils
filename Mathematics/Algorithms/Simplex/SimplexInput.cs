@@ -17,32 +17,32 @@
         /// <summary>
         /// As variáveis básicas.
         /// </summary>
-        private int[] basicVariables;
+        protected int[] basicVariables;
 
         /// <summary>
         /// As variáveis não básicas.
         /// </summary>
-        private int[] nonBasicVariables;
+        protected int[] nonBasicVariables;
 
         /// <summary>
         /// A função objectivo.
         /// </summary>
-        private IVector<ObjectiveCoeffType> objectiveFunction;
+        protected IVector<ObjectiveCoeffType> objectiveFunction;
 
         /// <summary>
         /// O custo actual.
         /// </summary>
-        private ObjectiveCoeffType cost;
+        protected ObjectiveCoeffType cost;
 
         /// <summary>
         /// A matriz das restrições.
         /// </summary>
-        private IMatrix<ConstraintsType> constraintsMatrix;
+        protected IMatrix<ConstraintsType> constraintsMatrix;
 
         /// <summary>
         /// O vector das restrições.
         /// </summary>
-        private IVector<ConstraintsType> constraintsVector;
+        protected IVector<ConstraintsType> constraintsVector;
 
         /// <summary>
         /// Permite criar uma instância de entrada para o algoritmo do simplex na forma normal de minimização. 
@@ -107,13 +107,17 @@
                     throw new ArgumentException(
                         "The number of non basic variables must be equal to the number of coefficients in objective funcion.");
                 }
-
-                this.basicVariables = basicVariables;
-                this.nonBasicVariables = nonBasicVariables;
-                this.objectiveFunction = objectiveFunction;
-                this.cost = cost;
-                this.constraintsMatrix = constraintsMatrix;
-                this.constraintsVector = constraintsVector;
+                else
+                {
+                    // Verifica a validade dos índices contidos nas variáveis básicas e não básicas.
+                    this.CheckVariablesIndices(basicVariables, nonBasicVariables);
+                    this.basicVariables = basicVariables;
+                    this.nonBasicVariables = nonBasicVariables;
+                    this.objectiveFunction = objectiveFunction;
+                    this.cost = cost;
+                    this.constraintsMatrix = constraintsMatrix;
+                    this.constraintsVector = constraintsVector;
+                }
             }
         }
 
@@ -197,6 +201,39 @@
             get
             {
                 return this.constraintsVector;
+            }
+        }
+
+        /// <summary>
+        /// Averigua se os índices contidos nas variáveis básicas e não-básicas estão correctos.
+        /// </summary>
+        /// <param name="basicVariables">As variáveis básicas.</param>
+        /// <param name="nonBasicVariables">As variáveis não básicas.</param>
+        /// <exception cref="MathematicsException">Se os índices não estiverem conformes.</exception>
+        private void CheckVariablesIndices(int[] basicVariables, int[] nonBasicVariables)
+        {
+            var sortedIndices = new SortedSet<int>(Comparer<int>.Default);
+            for (int i = 0; i < basicVariables.Length; ++i)
+            {
+                sortedIndices.Add(i);
+            }
+
+            for (int i = 0; i < nonBasicVariables.Length; ++i)
+            {
+                sortedIndices.Add(i);
+            }
+
+            var currentIndex = 0;
+            foreach (var index in sortedIndices)
+            {
+                if (index == currentIndex)
+                {
+                    ++currentIndex;
+                }
+                else
+                {
+                    throw new MathematicsException("The indices in basic and non-basica variables are invalid.");
+                }
             }
         }
     }
