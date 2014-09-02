@@ -371,7 +371,7 @@
                 foreach (var index in nonBasicCostsIndices)
                 {
                     var objectiveValue = objectiveFunction[basicVariables[index]];
-                    var inverseMatrixEntry = inverseMatrix[i, index];
+                    var inverseMatrixEntry = inverseMatrix[index, i];
                     objectiveValue.FinitePart = this.coeffsField.Multiply(objectiveValue.FinitePart, inverseMatrixEntry);
                     objectiveValue.BigPart = this.coeffsField.Multiply(objectiveValue.BigPart, inverseMatrixEntry);
                     sum.Add(objectiveValue.FinitePart, objectiveValue.BigPart, this.coeffsField);
@@ -472,32 +472,63 @@
             {
                 var finitePart = this.coeffsField.AdditiveUnity;
                 var bigPart = this.coeffsField.AdditiveUnity;
-                for (int j = 0; j < constraintsLinesLength; ++j)
+                var nonBasicVariable = nonBasicVariables[i];
+                if (nonBasicVariable < nonBasicLength)
                 {
-                    var dualVectorEntry = dualVector[i];
-                    var constraintsMatrixEntry = constraintsMatrix[i, j];
-                    var finiteValueToAdd = this.coeffsField.Multiply(dualVectorEntry.FinitePart, constraintsMatrixEntry);
-                    var bigValueToAdd = this.coeffsField.Multiply(dualVectorEntry.BigPart, constraintsMatrixEntry);
-                    finitePart = this.coeffsField.Add(finitePart, finiteValueToAdd);
-                    bigPart = this.coeffsField.Add(bigPart, bigValueToAdd);
-                }
-
-                lock (syncObject)
-                {
-                    var comparisionValue = this.coeffsComparer.Compare(bigPart, value.BigPart);
-                    if (comparisionValue < 0)
+                    for (int j = 0; j < constraintsLinesLength; ++j)
                     {
-                        result = i;
-                        value.FinitePart = finitePart;
-                        value.BigPart = bigPart;
+                        var dualVectorEntry = dualVector[i];
+                        var constraintsMatrixEntry = constraintsMatrix[j, nonBasicVariable];
+                        var finiteValueToAdd = this.coeffsField.Multiply(dualVectorEntry.FinitePart, constraintsMatrixEntry);
+                        var bigValueToAdd = this.coeffsField.Multiply(dualVectorEntry.BigPart, constraintsMatrixEntry);
+                        finitePart = this.coeffsField.Add(finitePart, finiteValueToAdd);
+                        bigPart = this.coeffsField.Add(bigPart, bigValueToAdd);
                     }
-                    else if (comparisionValue == 0)
+
+                    lock (syncObject)
                     {
-                        if (this.coeffsComparer.Compare(finitePart, value.FinitePart) < 0)
+                        var comparisionValue = this.coeffsComparer.Compare(bigPart, value.BigPart);
+                        if (comparisionValue < 0)
                         {
                             result = i;
                             value.FinitePart = finitePart;
                             value.BigPart = bigPart;
+                        }
+                        else if (comparisionValue == 0)
+                        {
+                            if (this.coeffsComparer.Compare(finitePart, value.FinitePart) < 0)
+                            {
+                                result = i;
+                                value.FinitePart = finitePart;
+                                value.BigPart = bigPart;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    var index = nonBasicVariable - nonBasicLength;
+                    var dualValue = dualVector[index];
+                    finitePart = dualValue.FinitePart;
+                    bigPart = dualValue.BigPart;
+
+                    lock (syncObject)
+                    {
+                        var comparisionValue = this.coeffsComparer.Compare(bigPart, value.BigPart);
+                        if (comparisionValue < 0)
+                        {
+                            result = i;
+                            value.FinitePart = finitePart;
+                            value.BigPart = bigPart;
+                        }
+                        else if (comparisionValue == 0)
+                        {
+                            if (this.coeffsComparer.Compare(finitePart, value.FinitePart) < 0)
+                            {
+                                result = i;
+                                value.FinitePart = finitePart;
+                                value.BigPart = bigPart;
+                            }
                         }
                     }
                 }

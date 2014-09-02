@@ -40,7 +40,6 @@
 
             // Leitura da matriz das retrições.
             var matrixFactory = new ArrayMatrixFactory<double>();
-            var squareMatrixFactory = new ArraySquareMatrixFactory<double>();
             var doubleElementsParser = new DoubleParser<string>();
             var inputConstraintsMatrix = TestsHelper.ReadMatrix<double>(
                 3,
@@ -49,6 +48,9 @@
                 matrixFactory,
                 doubleElementsParser,
                 true);
+
+            // Leitura da matriz inversa.
+            var squareMatrixFactory = new ArraySquareMatrixFactory<double>();
             var inverseMatrix = TestsHelper.ReadMatrix(
                 3, 
                 3, 
@@ -85,6 +87,81 @@
                 inverseMatrix);
 
             // Executa o algoritmo do simplex.
+            var doubleField = new DoubleField();
+            var target = new RevisedSimplexAlgorithm<double>(Comparer<double>.Default, doubleField);
+            var actual = target.Run(simplexInput);
+
+            // Verifica o custo
+            Assert.AreEqual(36, actual.Cost);
+
+            // Verifica a solução
+            Assert.AreEqual(2, actual.Solution[0]);
+            Assert.AreEqual(6, actual.Solution[1]);
+        }
+
+        /// <summary>
+        /// Teste ao algoritmo do simplex para resolver um problema de maximização cujas
+        /// restrições contêm uma igualdade.
+        /// </summary>
+        [TestMethod]
+        public void RunTest_OneEquality()
+        {
+            var inputConstraintsMatrixText = "[[1,0,3],[0,2,2]]";
+            var inputConstraintsVectorText = "[4,12,18]";
+            var inverseMatrixText = "[[1,0,0],[0,1,0],[0,0,1]]";
+            var cost = new SimplexMaximumNumberField<double>(0, -18);
+            var nonBasicVariables = new[] { 0, 1 };
+            var basicVariables = new[] { 2, 3, 4 };
+
+            // Leitura da matriz das retrições.
+            var matrixFactory = new ArrayMatrixFactory<double>();
+            var doubleElementsParser = new DoubleParser<string>();
+            var inputConstraintsMatrix = TestsHelper.ReadMatrix<double>(
+                3,
+                2,
+                inputConstraintsMatrixText,
+                matrixFactory,
+                doubleElementsParser,
+                true);
+
+            // Leitura da matriz inversa.
+            var squareMatrixFactory = new ArraySquareMatrixFactory<double>();
+            var inverseMatrix = TestsHelper.ReadMatrix(
+                3,
+                3,
+                inverseMatrixText,
+                squareMatrixFactory,
+                doubleElementsParser,
+                true) as ISquareMatrix<double>;
+
+            // Leitura do vector de restrições.
+            var vectorFactory = new ArrayVectorFactory<double>();
+            var inputConstraintsVector = TestsHelper.ReadVector<double>(
+                3,
+                inputConstraintsVectorText,
+                vectorFactory,
+                doubleElementsParser,
+                true);
+
+            // Introdução da função objectivo.
+            var inputObjectiveFunction = new ArrayVector<SimplexMaximumNumberField<double>>(2);
+            inputObjectiveFunction[0] = new SimplexMaximumNumberField<double>(
+                -3,
+                -3);
+            inputObjectiveFunction[1] = new SimplexMaximumNumberField<double>(
+                -5,
+                -2);
+
+            // Objecto de entrada para o algoritmo do simplex.
+            var simplexInput = new RevisedSimplexInput<double, SimplexMaximumNumberField<double>>(
+                basicVariables,
+                nonBasicVariables,
+                inputObjectiveFunction,
+                cost,
+                inputConstraintsMatrix,
+                inputConstraintsVector,
+                inverseMatrix);
+
             var doubleField = new DoubleField();
             var target = new RevisedSimplexAlgorithm<double>(Comparer<double>.Default, doubleField);
             var actual = target.Run(simplexInput);
