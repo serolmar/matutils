@@ -173,9 +173,11 @@
                 {
                     return this.BuildSolution(
                         data.NonBasicVariables,
-                        data.BasicVariables, data.ObjectiveFunction,
-                        initialBasisCosts,
-                        constraintsVector);
+                        data.BasicVariables, 
+                        data.Cost,
+                        dualVector,
+                        constraintsVector,
+                        data.ConstraintsVector);
                 }
                 else
                 {
@@ -239,7 +241,6 @@
                     var state = true;
                     while (state)
                     {
-                        this.ComputeConstraintsVector(data.InverseBasisMatrix, data.ConstraintsVector, constraintsVector);
                         var leavingVariable = this.GetNextLeavingVariable(
                         data.NonBasicVariables[enteringVariable],
                         data.ConstraintsMatrix,
@@ -279,9 +280,11 @@
                 {
                     return this.BuildSolution(
                         data.NonBasicVariables,
-                        data.BasicVariables, data.ObjectiveFunction,
-                        initialBasisCosts,
-                        constraintsVector);
+                        data.BasicVariables, 
+                        data.Cost,
+                        dualVector,
+                        constraintsVector,
+                        data.ConstraintsVector);
                 }
                 else
                 {
@@ -371,10 +374,16 @@
                 foreach (var index in nonBasicCostsIndices)
                 {
                     var objectiveValue = objectiveFunction[basicVariables[index]];
+                    var finitePart = objectiveValue.FinitePart;
+                    var bigPart = objectiveValue.BigPart;
                     var inverseMatrixEntry = inverseMatrix[index, i];
-                    objectiveValue.FinitePart = this.coeffsField.Multiply(objectiveValue.FinitePart, inverseMatrixEntry);
-                    objectiveValue.BigPart = this.coeffsField.Multiply(objectiveValue.BigPart, inverseMatrixEntry);
-                    sum.Add(objectiveValue.FinitePart, objectiveValue.BigPart, this.coeffsField);
+                    finitePart = this.coeffsField.Multiply(
+                        inverseMatrixEntry, 
+                        this.coeffsField.AdditiveInverse(objectiveValue.FinitePart));
+                    bigPart = this.coeffsField.Multiply(
+                        inverseMatrixEntry,
+                        this.coeffsField.AdditiveInverse(objectiveValue.BigPart));
+                    sum.Add(finitePart, bigPart, this.coeffsField);
                 }
 
                 result[i] = sum;
@@ -477,10 +486,15 @@
                 {
                     for (int j = 0; j < constraintsLinesLength; ++j)
                     {
-                        var dualVectorEntry = dualVector[i];
+                        var dualVectorEntry = dualVector[j];
                         var constraintsMatrixEntry = constraintsMatrix[j, nonBasicVariable];
                         var finiteValueToAdd = this.coeffsField.Multiply(dualVectorEntry.FinitePart, constraintsMatrixEntry);
                         var bigValueToAdd = this.coeffsField.Multiply(dualVectorEntry.BigPart, constraintsMatrixEntry);
+
+                        var objectiveValue = objectiveFunction[nonBasicVariable];
+                        finiteValueToAdd = this.coeffsField.Add(finiteValueToAdd, objectiveValue.FinitePart);
+                        bigValueToAdd = this.coeffsField.Add(bigValueToAdd, objectiveValue.BigPart);
+
                         finitePart = this.coeffsField.Add(finitePart, finiteValueToAdd);
                         bigPart = this.coeffsField.Add(bigPart, bigValueToAdd);
                     }
@@ -679,10 +693,10 @@
                 {
                     costsFunction.Add(leavingVariableIndex);
                 }
-                else
-                {
-                    costsFunction.Remove(leavingVariableIndex);
-                }
+            }
+            else
+            {
+                costsFunction.Remove(leavingVariableIndex);
             }
 
             // Troca as variáveis
@@ -696,16 +710,18 @@
         /// </summary>
         /// <param name="nonBasicVariables">As variáveis não básicas.</param>
         /// <param name="basicVariables">As variáveis básicas.</param>
-        /// <param name="objectiveFunction">A função objectivo.</param>
-        /// <param name="basicCostsIndices">Os custos básicos com valor.</param>
+        /// <param name="dataCost">O custo inicial.</param>
+        /// <param name="dualVector">O vector dual.</param>
+        /// <param name="computedConstraintsVector">O vector das restrições calculado.</param>
         /// <param name="constraintsVector">O vector das restrições.</param>
         /// <returns>A solução.</returns>
         private SimplexOutput<CoeffType> BuildSolution(
             int[] nonBasicVariables,
             int[] basicVariables,
-            IVector<CoeffType> objectiveFunction,
-            SortedSet<int> basicCostsIndices,
-            CoeffType[] constraintsVector)
+            CoeffType dataCost,
+            CoeffType[] dualVector,
+            CoeffType[] computedConstraintsVector,
+            IVector<CoeffType> constraintsVector)
         {
             var nonBasicLength = nonBasicVariables.Length;
             var basicLength = basicVariables.Length;
@@ -718,22 +734,24 @@
                 var basicVariable = basicVariables[i];
                 if (basicVariable < nonBasicLength)
                 {
-                    solution[basicVariable] = constraintsVector[i];
+                    solution[basicVariable] = computedConstraintsVector[i];
                 }
             });
 
             // Calcula o custo.
             var cost = this.coeffsField.AdditiveUnity;
-            foreach (var basicCostIndex in basicCostsIndices)
+            var length = dualVector.Length;
+            for (int i = 0; i < length; ++i )
             {
-                var valueToAdd = constraintsVector[basicCostIndex];
+                var valueToAdd = constraintsVector[i];
                 valueToAdd = this.coeffsField.Multiply(
                     valueToAdd,
-                    objectiveFunction[basicVariables[basicCostIndex]]);
+                    dualVector[i]);
                 cost = this.coeffsField.Add(cost, valueToAdd);
             }
 
-            return new SimplexOutput<CoeffType>(solution, this.coeffsField.AdditiveInverse(cost), true);
+            cost = this.coeffsField.Add(cost, dataCost);
+            return new SimplexOutput<CoeffType>(solution, cost, true);
         }
 
         /// <summary>
@@ -741,16 +759,18 @@
         /// </summary>
         /// <param name="nonBasicVariables">As variáveis não básicas.</param>
         /// <param name="basicVariables">As variáveis básicas.</param>
-        /// <param name="objectiveFunction">A função objectivo.</param>
-        /// <param name="basicCostsIndices">Os custos básicos com valor.</param>
+        /// <param name="dataCost">O custo inicial.</param>
+        /// <param name="dualVector">O vector dual.</param>
+        /// <param name="computedConstraintsVector">O vector das restrições calculado.</param>
         /// <param name="constraintsVector">O vector das restrições.</param>
         /// <returns>A solução.</returns>
         private SimplexOutput<CoeffType> BuildSolution(
             int[] nonBasicVariables,
             int[] basicVariables,
-            IVector<SimplexMaximumNumberField<CoeffType>> objectiveFunction,
-            SortedSet<int> basicCostsIndices,
-            CoeffType[] constraintsVector)
+            SimplexMaximumNumberField<CoeffType> dataCost,
+            SimplexMaximumNumberField<CoeffType>[] dualVector,
+            CoeffType[] computedConstraintsVector,
+            IVector<CoeffType> constraintsVector)
         {
             var nonBasicLength = nonBasicVariables.Length;
             var basicLength = basicVariables.Length;
@@ -763,28 +783,31 @@
                 var basicVariable = basicVariables[i];
                 if (basicVariable < nonBasicLength)
                 {
-                    solution[basicVariable] = constraintsVector[i];
+                    solution[basicVariable] = computedConstraintsVector[i];
                 }
             });
 
             // Calcula o custo.
             var finiteCost = this.coeffsField.AdditiveUnity;
             var bigCost = this.coeffsField.AdditiveUnity;
-            foreach (var basicCostIndex in basicCostsIndices)
+            var length = dualVector.Length;
+            for (int i = 0; i < length; ++i)
             {
-                var constraintsVectorValue = constraintsVector[basicCostIndex];
-                var objectiveFunctionValue = objectiveFunction[basicVariables[basicCostIndex]];
-                var finiteValueToAdd = objectiveFunctionValue.FinitePart;
-                var bigValueToAdd = objectiveFunctionValue.BigPart;
+                var constraintsVectorValue = constraintsVector[i];
+                var dualValue = dualVector[i];
+                var finiteValueToAdd = dualValue.FinitePart;
+                var bigValueToAdd = dualValue.BigPart;
                 finiteValueToAdd = this.coeffsField.Multiply(finiteValueToAdd, constraintsVectorValue);
-                bigValueToAdd = this.coeffsField.Multiply(bigValueToAdd, objectiveFunctionValue.BigPart);
+                bigValueToAdd = this.coeffsField.Multiply(bigValueToAdd, constraintsVectorValue);
                 finiteCost = this.coeffsField.Add(finiteCost, finiteValueToAdd);
                 bigCost = this.coeffsField.Add(bigCost, bigValueToAdd);
             }
 
+            finiteCost = this.coeffsField.Add(finiteCost, dataCost.FinitePart);
+            bigCost = this.coeffsField.Add(bigCost, dataCost.BigPart);
             if (this.coeffsField.IsAdditiveUnity(bigCost))
             {
-                return new SimplexOutput<CoeffType>(solution, this.coeffsField.AdditiveInverse(finiteCost), true);
+                return new SimplexOutput<CoeffType>(solution, finiteCost, true);
             }
             else
             {
@@ -792,7 +815,6 @@
                 return new SimplexOutput<CoeffType>(solution, default(CoeffType), false);
             }
         }
-
         /// <summary>
         /// Calcula o vector dos termos independentes actual.
         /// </summary>
