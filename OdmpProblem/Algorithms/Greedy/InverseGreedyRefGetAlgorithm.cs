@@ -172,8 +172,9 @@
                         minimumCover = this.GetMinimumCover(
                             chosenReferences,
                             lines,
-                            solutionValue);
+                            column.Key);
 
+                        minimumCover = this.ring.Add(minimumCover, this.ring.AdditiveInverse(currentValue));
                         sum = this.ring.Add(sum, minimumCover);
                     }
                 }
