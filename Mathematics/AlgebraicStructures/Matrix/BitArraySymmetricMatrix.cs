@@ -12,8 +12,14 @@
     /// </summary>
     public class BitArraySymmetricMatrix : ISquareMatrix<bool>
     {
+        /// <summary>
+        /// O valor por defeito.
+        /// </summary>
         private bool defaultValue;
 
+        /// <summary>
+        /// Os elementos.
+        /// </summary>
         private BitArray[] elements;
 
         /// <summary>

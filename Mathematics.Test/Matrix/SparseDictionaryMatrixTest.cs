@@ -1,4 +1,4 @@
-﻿namespace Mathematics
+﻿namespace Mathematics.Test
 {
     using Utilities.Collections;
     using Microsoft.VisualStudio.TestTools.UnitTesting;

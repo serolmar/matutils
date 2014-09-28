@@ -48,7 +48,7 @@
                 innerEqualityComparer = EqualityComparer<CoeffType>.Default;
             }
 
-            var last = this.numberOfColumns;
+            var last = 1;
             for (int i = 0; i < this.numberOfLines; ++i)
             {
                 for (int j = 0; j < last; ++j)
@@ -60,7 +60,7 @@
                     }
                 }
 
-                --last;
+                ++last;
             }
 
             return true;
@@ -93,6 +93,20 @@
         }
 
         /// <summary>
+        /// Substitui a linha especificada por uma combinação linear desta com uma outra. Por exemplo, li = a * li + b * lj, isto é,
+        /// a linha i é substituída pela soma do produto de a pela linha i com o produto de b peloa linha j.
+        /// </summary>
+        /// <param name="i">A linha a ser substituída.</param>
+        /// <param name="j">A linha a ser combinada.</param>
+        /// <param name="a">O escalar a ser multiplicado pela primeira linha.</param>
+        /// <param name="b">O escalar a ser multiplicado pela segunda linha.</param>
+        /// <param name="ring">O objecto responsável pelas operações sobre os coeficientes.</param>
+        public override void CombineLines(int i, int j, CoeffType a, CoeffType b, IRing<CoeffType> ring)
+        {
+            throw new MathematicsException("Can't combine lines in a triangular matrix.");
+        }
+
+        /// <summary>
         /// Sobrecarrega a função que permite inicializar a matriz.
         /// </summary>
         /// <param name="line">O número de linhas da matriz.</param>
@@ -101,11 +115,11 @@
         {
             this.defaultValue = default(CoeffType);
             this.elements = new CoeffType[line][];
-            var last = column;
+            var last = 1;
             for (int i = 0; i < line; ++i)
             {
                 this.elements[i] = new CoeffType[last];
-                --last;
+                ++last;
             }
 
             this.numberOfLines = line;
@@ -123,25 +137,16 @@
         {
             this.defaultValue = defaultValue;
             this.elements = new CoeffType[line][];
-            var last = column;
-            if (EqualityComparer<object>.Default.Equals(defaultValue, default(CoeffType)))
+            var last = 1;
+            for (int i = 0; i < line; ++i)
             {
-                for (int i = 0; i < line; ++i)
+                this.elements[i] = new CoeffType[last];
+                for (int j = 0; j < last; ++j)
                 {
-                    this.elements[i] = new CoeffType[last];
-                    --last;
+                    this.elements[i][j] = defaultValue;
                 }
-            }
-            else
-            {
-                for (int i = 0; i < line; ++i)
-                {
-                    this.elements[i] = new CoeffType[last];
-                    for (int j = 0; j < last; ++j)
-                    {
-                        this.elements[i][j] = defaultValue;
-                    }
-                }
+
+                ++last;
             }
 
             this.numberOfLines = line;

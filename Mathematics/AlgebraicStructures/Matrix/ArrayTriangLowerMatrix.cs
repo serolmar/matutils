@@ -43,24 +43,66 @@
         {
             get
             {
-                if (column < line)
+                if (line < 0 || line >= this.numberOfLines)
+                {
+                    throw new IndexOutOfRangeException("Paramter line is out of range.");
+                }
+                else if (column < 0 || column >= this.numberOfColumns)
+                {
+                    throw new IndexOutOfRangeException("Paramter column is out of range.");
+                }
+                else if (line < column)
                 {
                     return this.defaultValue;
                 }
                 else
                 {
-                    return base[column, line];
+                    return this.elements[line][column];
                 }
             }
             set
             {
-                if (line < column)
+                if (line < 0 || line >= this.numberOfLines)
+                {
+                    throw new IndexOutOfRangeException("Paramter line is out of range.");
+                }
+                else if (column < 0 || column >= this.numberOfColumns)
+                {
+                    throw new IndexOutOfRangeException("Paramter column is out of range.");
+                }
+                else if (line < column)
                 {
                     throw new MathematicsException("Can't set the upper terms in an lower triangular matrix.");
                 }
                 else
                 {
-                    base[column, line] = value;
+                    this.elements[line][column] = value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Multiplica os valores da linha pelo escalar definido.
+        /// </summary>
+        /// <param name="line">A linha a ser considerada.</param>
+        /// <param name="scalar">O escalar a ser multiplicado.</param>
+        /// <param name="ring">O objecto responsável pela operações de multiplicação e determinação da unidade aditiva.</param>
+        public override void ScalarLineMultiplication(int line, CoeffType scalar, IRing<CoeffType> ring)
+        {
+            if (ring == null)
+            {
+                throw new ArgumentNullException("ring");
+            }
+            else if (line < 0 || line >= this.numberOfLines)
+            {
+                throw new ArgumentOutOfRangeException("line");
+            }
+            else
+            {
+                var currentLine = this.elements[line];
+                for (int i = 0; i < this.numberOfColumns; ++i)
+                {
+                    currentLine[i] = ring.Multiply(currentLine[i], scalar);
                 }
             }
         }

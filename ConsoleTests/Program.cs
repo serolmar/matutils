@@ -22,7 +22,48 @@
 
         static void Main(string[] args)
         {
-            TestOdmpCompatibilityAlgorithm();
+            var upperBoundsFile = "Data\\Exemplos\\limites_superiores_20.csv";
+            var lowerBoundsFile = "Data\\Exemplos\\limites_inferiores_20.csv";
+
+            var comparer = Comparer<double>.Default;
+            var ring = new DoubleField();
+            var componentBoundsAlgorithm = new ComponentBoundsAlgorithm<double>(
+                new IntegerMinWeightTdecomposition<double>(comparer, ring),
+                comparer,
+                ring);
+
+            var dataProvider = new DataReaderProvider<IParse<double, string, string>>(
+                new DoubleParser<string>());
+            var csvParser = new CsvFileParser<List<List<double>>, double, string, string>(
+                "new_line",
+                "semi_colon",
+                dataProvider);
+            csvParser.AddIgnoreType("carriage_return");
+
+            var upperBounds = new List<List<double>>();
+            var lowerBounds = new List<List<double>>();
+
+            var adder = new ListTypeTransposedAdder<double>();
+            using (var textReader = new StreamReader(upperBoundsFile))
+            {
+                var symbolReader = new StringSymbolReader(textReader, true, false);
+                csvParser.Parse(symbolReader, upperBounds, adder);
+            }
+
+            using (var textReader = new StreamReader(lowerBoundsFile))
+            {
+                var symbolReader = new StringSymbolReader(textReader, true, false);
+                csvParser.Parse(symbolReader, lowerBounds, adder);
+            }
+
+            // Conta o número de vértices.
+            var countRefs = 0;
+            for (int i = 0; i < upperBounds.Count; ++i)
+            {
+                countRefs += upperBounds[i].Count;
+            }
+
+            var result = componentBoundsAlgorithm.Run(20, lowerBounds, upperBounds);
             Console.ReadKey();
         }
 
@@ -336,7 +377,7 @@
             //}
 
             // Outro exemplo
-            var path = "Data\\Exemplos\\Matriz_Exemplo.dat";
+            //var path = "Data\\Exemplos\\Matriz_Exemplo.dat";
             var fileInfo = new FileInfo("..\\..\\Files\\Matrix.csv");
             if (fileInfo.Exists)
             {

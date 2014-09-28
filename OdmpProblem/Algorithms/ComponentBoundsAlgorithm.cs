@@ -203,7 +203,7 @@
                 }
 
                 // Tratamento dos limites superiores
-                upBound = Math.Min(secondLowerBoundEstimate - numberOfComponents + i + 1, lowerBounds.Count);
+                upBound = Math.Min(secondLowerBoundEstimate - numberOfComponents + 1, lowerBounds.Count);
                 downBound = upperBoundCost.Medians[i];
                 if (this.OutOfBounds(
                     medians, 

@@ -1,10 +1,8 @@
-﻿using Mathematics;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-
-namespace Mathematics.Test
+﻿namespace Mathematics.Test
 {
-
+    using Mathematics;
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using System;
 
     /// <summary>
     ///This is a test class for BooleanMinimalFormAlgorithmTest and is intended
