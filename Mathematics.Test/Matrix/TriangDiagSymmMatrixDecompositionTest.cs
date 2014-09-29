@@ -50,8 +50,8 @@
                 fractionField);
             var actual = new TransposeMatrix<Fraction<int>>(decomposition.UpperTriangularMatrix)
                 as IMatrix<Fraction<int>>;
-            actual = matrixMultiplicaton.Multiply(decomposition.DiagonalMatrix, actual);
-            actual = matrixMultiplicaton.Multiply(decomposition.UpperTriangularMatrix, actual);
+            actual = matrixMultiplicaton.Multiply(actual, decomposition.DiagonalMatrix);
+            actual = matrixMultiplicaton.Multiply(actual,decomposition.UpperTriangularMatrix);
 
             // Valida as asserções.
             Assert.AreEqual(matrix.GetLength(0), actual.GetLength(0));
@@ -75,19 +75,19 @@
             var result = new ArraySquareMatrix<Fraction<int>>(3);
 
             // Primeira linha
-            result[0, 0] = new Fraction<int>(6, 1, integerDomain);
-            result[0, 1] = new Fraction<int>(15, 1, integerDomain);
-            result[0, 2] = new Fraction<int>(25, 1, integerDomain);
+            result[0, 0] = new Fraction<int>(4, 1, integerDomain);
+            result[0, 1] = new Fraction<int>(12, 1, integerDomain);
+            result[0, 2] = new Fraction<int>(-16, 1, integerDomain);
 
             // Segunda linha
-            result[1, 0] = new Fraction<int>(19, 1, integerDomain);
-            result[1, 1] = new Fraction<int>(55, 1, integerDomain);
-            result[1, 2] = new Fraction<int>(225, 1, integerDomain);
+            result[1, 0] = new Fraction<int>(12, 1, integerDomain);
+            result[1, 1] = new Fraction<int>(37, 1, integerDomain);
+            result[1, 2] = new Fraction<int>(-43, 1, integerDomain);
 
             // Terceira linha
-            result[2, 0] = new Fraction<int>(55, 1, integerDomain);
-            result[2, 1] = new Fraction<int>(229, 1, integerDomain);
-            result[2, 2] = new Fraction<int>(979, 1, integerDomain);
+            result[2, 0] = new Fraction<int>(-16, 1, integerDomain);
+            result[2, 1] = new Fraction<int>(-43, 1, integerDomain);
+            result[2, 2] = new Fraction<int>(98, 1, integerDomain);
 
             return result;
         }

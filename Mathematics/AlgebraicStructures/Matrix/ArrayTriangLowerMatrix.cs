@@ -106,5 +106,20 @@
                 }
             }
         }
+
+        /// <summary>
+        /// Obtém o enumerador genérico para a matriz.
+        /// </summary>
+        /// <returns>O enumerador genérico.</returns>
+        public override IEnumerator<CoeffType> GetEnumerator()
+        {
+            for (int i = 0; i < this.numberOfLines; ++i)
+            {
+                for (int j = 0; j <=i; ++j)
+                {
+                    yield return this.elements[i][j];
+                }
+            }
+        }
     }
 }

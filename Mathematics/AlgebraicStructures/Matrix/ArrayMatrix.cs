@@ -579,7 +579,7 @@ namespace Mathematics
         /// Obtém o enumerador genérico para a matriz.
         /// </summary>
         /// <returns>O enumerador genérico.</returns>
-        public IEnumerator<ObjectType> GetEnumerator()
+        public virtual IEnumerator<ObjectType> GetEnumerator()
         {
             for (int i = 0; i < this.numberOfLines; ++i)
             {

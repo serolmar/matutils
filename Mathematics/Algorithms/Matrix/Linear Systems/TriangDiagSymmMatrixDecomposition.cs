@@ -80,7 +80,6 @@
 
                     var triangularTask = new Task(() =>
                     {
-                        triangularMatrix[i, i] = field.MultiplicativeUnity;
                         Parallel.For(i + 1, matrixDimension, j =>
                         {
                             var sumValue = field.AdditiveUnity;
@@ -106,6 +105,7 @@
                             i,
                             field.MultiplicativeInverse(diagonalMatrix[i, i]),
                             field);
+                    triangularMatrix[i, i] = field.MultiplicativeUnity;
                 }
 
                 return new TriangDiagSymmMatrixDecompResult<CoeffType>(
