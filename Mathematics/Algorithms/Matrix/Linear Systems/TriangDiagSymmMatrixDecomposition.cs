@@ -8,7 +8,7 @@
 
 
     /// <summary>
-    /// Algoritmo da decomposição de uma matriz simétrica.
+    /// Algoritmo da decomposição de Cholesky de uma matriz simétrica.
     /// </summary>
     /// <typeparam name="CoeffType">O tipo dos coeficientes que constituem as entradas das matrizes.</typeparam>
     public class TriangDiagSymmMatrixDecomposition<CoeffType>
