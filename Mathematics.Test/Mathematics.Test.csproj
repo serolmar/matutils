@@ -59,6 +59,8 @@
     <Compile Include="EdgeListGraphTest.cs" />
     <Compile Include="EulerTotFuncAlgTest.cs" />
     <Compile Include="FastDivisionFreeCharPolynomCalculatorTest.cs" />
+    <Compile Include="Matrix\TriangDiagSymmDecompInverseAlgTest.cs" />
+    <Compile Include="Matrix\TriangDiagSymmMatrixDecompositionTest.cs" />
     <Compile Include="Polynomial\FiniteFieldPolFactorizationAlgorithmTest.cs" />
     <Compile Include="IntegerMinWeightTdecompositionTest.cs" />
     <Compile Include="LagrangeAlgorithmTest.cs" />

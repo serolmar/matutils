@@ -9,7 +9,7 @@
     /// Permite criar uma matriz quadrada baseada num vector de vectores.
     /// </summary>
     /// <typeparam name="ObjectType">O tipo de elementos contidos na matriz.</typeparam>
-    public class ArraySquareMatrixFactory<ObjectType> : IMatrixFactory<ObjectType>
+    public class ArraySquareMatrixFactory<ObjectType> : ISquareMatrixFactory<ObjectType>, IMatrixFactory<ObjectType>
     {
         /// <summary>
         /// Cria uma matriz <see cref="ArraySquareMatrixFactory{ObjectType}"/> com o número de linhas e colunas especificado.
@@ -48,6 +48,27 @@
             {
                 return new ArraySquareMatrix<ObjectType>(lines, defaultValue);
             }
+        }
+
+        /// <summary>
+        /// Cria uma matriz <see cref="ArraySquareMatrixFactory{ObjectType}"/> com o número de linhas e colunas especificado.
+        /// </summary>
+        /// <param name="dimension">A dimensão da matriz.</param>
+        /// <returns>A matriz.</returns>
+        public IMatrix<ObjectType> CreateMatrix(int dimension)
+        {
+            return new ArraySquareMatrix<ObjectType>(dimension);
+        }
+
+        /// <summary>
+        /// Cria uma matriz <see cref="ArraySquareMatrixFactory{ObjectType}"/> com o número de linhas e colunas especificado.
+        /// </summary>
+        /// <param name="dimension">A dimensão da matriz.</param>
+        /// <param name="defaultValue">O valor por defeito.</param>
+        /// <returns>A matriz.</returns>
+        public IMatrix<ObjectType> CreateMatrix(int dimension, ObjectType defaultValue)
+        {
+            return new ArraySquareMatrix<ObjectType>(dimension, defaultValue);
         }
     }
 }

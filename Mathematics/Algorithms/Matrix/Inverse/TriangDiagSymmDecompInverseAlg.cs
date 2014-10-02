@@ -64,13 +64,14 @@
                             field.AdditiveInverse(product));
                     }
 
+                    result[i, j] = diagonalValue;
                     --i;
                     while (i >= 0)
                     {
                         k = i + 1;
                         var upperValue = field.Multiply(
                             decompositionResult.UpperTriangularMatrix[i, k],
-                            result[i, k]);
+                            result[k, j]);
                         upperValue = field.AdditiveInverse(upperValue);
 
                         ++k;
@@ -95,6 +96,7 @@
                                 field.AdditiveInverse(product));
                         }
 
+                        result[i, j] = upperValue;
                         --i;
                     }
                 }
@@ -115,7 +117,7 @@
             {
                 for (int j = i+1; j < dimension; ++j)
                 {
-                    matrix[j, i] = matrix[j, i];
+                    matrix[j, i] = matrix[i, j];
                 }
             }
         }

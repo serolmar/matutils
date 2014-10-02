@@ -27,7 +27,46 @@
         [TestMethod]
         public void Run_TriangDiagSymmDecompInverseAlg()
         {
-            Assert.Inconclusive("O teste ainda não se encontra definido.");
+            // Definição dos algoritmos.
+            var target = new TriangDiagSymmDecompInverseAlg<Fraction<int>>();
+            var triangDecomp = new TriangDiagSymmMatrixDecomposition<Fraction<int>>();
+
+            // Definição dos domínios e fábricas.
+            var integerDomain = new IntegerDomain();
+            var fractionField = new FractionField<int>(integerDomain);
+            var arrayUpperTriangMatrixFactory = new ArrayTriangUpperMatrixFactory<Fraction<int>>();
+            var arrayDiagonalMatrixFactory = new ArrayDiagonalMatrixFactory<Fraction<int>>();
+            var arraySquareMatrixFactory = new ArraySquareMatrixFactory<Fraction<int>>();
+            var arrayMatrixFactory = new ArrayMatrixFactory<Fraction<int>>();
+
+            // A matriz
+            var matrix = this.GetDefaulMatrix(integerDomain);
+
+            // Cálculos
+            var triangDiagDecomp = triangDecomp.Run(
+                matrix,
+                fractionField,
+                arrayUpperTriangMatrixFactory,
+                arrayDiagonalMatrixFactory);
+            var inverseMatrix = target.Run(
+                triangDiagDecomp, 
+                arraySquareMatrixFactory, 
+                fractionField);
+           
+            // Verificação dos valores.
+            var expected = ArrayMatrix<Fraction<int>>.GetIdentity(3, fractionField);
+            var matrixMultiplication = new MatrixMultiplicationOperation<Fraction<int>>(
+                arrayMatrixFactory,
+                fractionField,
+                fractionField);
+            var actual = matrixMultiplication.Multiply(inverseMatrix, matrix);
+            for (int i = 0; i < 3; ++i)
+            {
+                for (int j = 0; j < 3; ++j)
+                {
+                    Assert.AreEqual(expected[i, j], actual[i, j]);
+                }
+            }
         }
 
         /// <summary>
