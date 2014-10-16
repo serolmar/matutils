@@ -32,7 +32,7 @@
         /// <returns>O leitor de símbolos.</returns>
         public SymbolReader<TextReader,string, string> BuildReader(TextReader input)
         {
-            CharSymbolReader<string> result = new CharSymbolReader<string>(input);
+            CharSymbolReader<string> result = new CharSymbolReader<string>(input, "any", "eof");
             result.RegisterCharType('_', "underscore");
             result.RegisterCharType('(', "left_parenthesis");
             result.RegisterCharType(')', "right_parenthesis");
@@ -72,8 +72,6 @@
             result.RegisterCharType('§', "chapter");
             result.RegisterCharType('€', "euro");
             result.DeciderFunction = this.DeciderFunction;
-            result.GenericType = "any";
-            result.EndOfFileType = "eof";
             return result;
         }
 

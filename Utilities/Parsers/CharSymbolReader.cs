@@ -48,7 +48,26 @@
         /// Instancia um novo objecto do tipo <see cref="CharSymbolReader{SymbType}"/>.
         /// </summary>
         /// <param name="inputReader">O leitor de texto.</param>
-        public CharSymbolReader(TextReader inputReader) : base(inputReader) { }
+        public CharSymbolReader(
+            TextReader inputReader,
+            SymbType genericType,
+            SymbType endOfFileType)
+            : base(inputReader)
+        {
+            if (endOfFileType == null)
+            {
+                throw new ArgumentNullException("endOfFileType");
+            }
+            if (genericType == null)
+            {
+                throw new ArgumentNullException("genericType");
+            }
+            else
+            {
+                this.genericType = genericType;
+                this.endOfFileType = endOfFileType;
+            }
+        }
 
         /// <summary>
         /// Obtém ou atribui a função que permite classificar carácteres.
@@ -262,7 +281,7 @@
         /// Lê o próximo símbolo avançando o cursor.
         /// </summary>
         /// <returns>O símbolo.</returns>
-        public override ISymbol<string,SymbType> Get()
+        public override ISymbol<string, SymbType> Get()
         {
             if (!this.started)
             {
@@ -418,8 +437,10 @@
             /// </value>
             public int StartChar
             {
-                get { 
-                    return startChar; }
+                get
+                {
+                    return startChar;
+                }
             }
 
             /// <summary>
@@ -430,8 +451,10 @@
             /// </value>
             public int EndChar
             {
-                get { 
-                    return endChar; }
+                get
+                {
+                    return endChar;
+                }
             }
 
             /// <summary>
@@ -442,8 +465,10 @@
             /// </value>
             public int Length
             {
-                get { 
-                    return (int)this.endChar - (int)this.startChar + 1; }
+                get
+                {
+                    return (int)this.endChar - (int)this.startChar + 1;
+                }
             }
 
             /// <summary>

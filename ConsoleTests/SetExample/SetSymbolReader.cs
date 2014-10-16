@@ -10,10 +10,11 @@
     class SetSymbolReader : SymbolReader<CharSymbolReader<ESymbolSetType>, string, ESymbolSetType>
     {
         public SetSymbolReader(TextReader inputReader) : 
-            base(new CharSymbolReader<ESymbolSetType>(inputReader))
+            base(new CharSymbolReader<ESymbolSetType>(
+                inputReader,
+                ESymbolSetType.ANY,
+                ESymbolSetType.EOF))
         {
-            this.inputStream.EndOfFileType = ESymbolSetType.EOF;
-            this.inputStream.GenericType = ESymbolSetType.ANY;
             this.inputStream.RegisterCharType('{', ESymbolSetType.LBRACE);
             this.inputStream.RegisterCharType('}', ESymbolSetType.RBRACE);
             this.inputStream.RegisterCharType('[', ESymbolSetType.LBRACK);

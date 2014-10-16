@@ -90,6 +90,7 @@
     <Compile Include="Events\InsertEventArgs.cs" />
     <Compile Include="Events\UpdateEventArgs.cs" />
     <Compile Include="ExpressionBuilders\BoolExpressionParser.cs" />
+    <Compile Include="ExpressionBuilders\EWordCharExpressionType.cs" />
     <Compile Include="InverseComparer.cs" />
     <Compile Include="Lambda\ELambdaExpressionWordType.cs" />
     <Compile Include="Lambda\SmartFilterLambdaBuilder.cs" />
@@ -101,6 +102,7 @@
     <Compile Include="Parsers\ExpressionReader\ExpressionCompoundDelimiter.cs" />
     <Compile Include="Parsers\ExpressionReader\OperatorDefinition.cs" />
     <Compile Include="Parsers\ExpressionReader\SOperatorPrecedence.cs" />
+    <Compile Include="Parsers\GeneralSymbol.cs" />
     <Compile Include="Parsers\IParse.cs" />
     <Compile Include="Parsers\Simple Parsers\BigIntegerParser.cs" />
     <Compile Include="Parsers\Simple Parsers\BoolParser.cs" />
@@ -112,6 +114,7 @@
     <Compile Include="Parsers\ExpressionReader\ExpressionReaderException.cs" />
     <Compile Include="Parsers\Simple Parsers\IntegerParser.cs" />
     <Compile Include="Parsers\Simple Parsers\LongParser.cs" />
+    <Compile Include="Parsers\SimpleTextSymbolReader.cs" />
     <Compile Include="Parsers\StringSymbol.cs" />
     <Compile Include="Parsers\StringSymbolReader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

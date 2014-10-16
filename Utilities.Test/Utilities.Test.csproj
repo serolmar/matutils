@@ -52,6 +52,7 @@
   <ItemGroup>
     <Compile Include="CsvFileParserTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SimpleTextSymbolReaderTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Utilities\Utilities.csproj">

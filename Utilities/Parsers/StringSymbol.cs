@@ -10,31 +10,8 @@
     /// Implementa um símbolo cujo valor é texual.
     /// </summary>
     /// <typeparam name="SymbType">O tipo dos objectos que constituem os tipos dos símbolo.</typeparam>
-    class StringSymbol<SymbType> : ISymbol<string, SymbType>
+    class StringSymbol<SymbType> : GeneralSymbol<string, SymbType>
     {
-        #region ISymbol Members
-
-        /// <summary>
-        /// Obtém ou atribui o valor.
-        /// </summary>
-        /// <value>O valor.</value>
-        public string SymbolValue
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Obtém e atribui o tipo de símbolo.
-        /// </summary>
-        /// <value>O tipo de símbolo.</value>
-        public SymbType SymbolType
-        {
-            get;
-            set;
-        }
-        #endregion
-
         /// <summary>
         /// Constrói uma representação textual do símbolo.
         /// </summary>
