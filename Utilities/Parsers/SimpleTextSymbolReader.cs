@@ -26,6 +26,11 @@
         private IEqualityComparer<SymbType> symbolTypeEqualityComparer;
 
         /// <summary>
+        /// Define o número de carácteres do mesmo tipo que podem ser agrupados.
+        /// </summary>
+        private Dictionary<SymbType, int> maxGroupCount;
+
+        /// <summary>
         /// O tipo de símbolo a ser atribuído ao final de ficheiro.
         /// </summary>
         private SymbType endOfFileSymbType;
@@ -53,6 +58,8 @@
             {
                 this.endOfFileSymbType = endOfFileSymbType;
                 this.symbolTypeEqualityComparer = EqualityComparer<SymbType>.Default;
+                this.maxGroupCount = new Dictionary<SymbType, int>(
+                    EqualityComparer<SymbType>.Default);
             }
         }
 
@@ -81,6 +88,7 @@
             {
                 this.endOfFileSymbType = endOfFileSymbType;
                 this.symbolTypeEqualityComparer = symbolTypeEqualityComparer;
+                this.maxGroupCount = new Dictionary<SymbType, int>(symbolTypeEqualityComparer);
             }
         }
 
@@ -118,6 +126,57 @@
             {
                 return this.started;
             }
+        }
+
+        /// <summary>
+        /// Estabelece o número máximo de carácteres de um determinado tipo
+        /// que podem ser agrupados.
+        /// </summary>
+        /// <param name="symbType">O tipo de símbolo ao qual o carácter pertence.</param>
+        /// <param name="count">O número máximo de símbolos que podem ser agrupados.</param>
+        public void SetGroupCount(SymbType symbType, int count)
+        {
+            if (symbType == null)
+            {
+                throw new ArgumentNullException("symbType");
+            }
+            else if (count > 0)
+            {
+                if (this.maxGroupCount.ContainsKey(symbType))
+                {
+                    this.maxGroupCount[symbType] = count;
+                }
+                else
+                {
+                    this.maxGroupCount.Add(symbType, count);
+                }
+            }
+            else
+            {
+                throw new ArgumentException("The number of grouped items must be greater than zero.");
+            }
+        }
+
+        /// <summary>
+        /// Elimina qualquer limite de contagem que possa ter sido atribuído ao
+        /// tipo de símbolo.
+        /// </summary>
+        /// <param name="symbType">O tipo de símbolo.</param>
+        public void SetUnlimitedCount(SymbType symbType)
+        {
+            if (symbType != null)
+            {
+                this.maxGroupCount.Remove(symbType);
+            }
+        }
+
+        /// <summary>
+        /// Remove o limite de contagem de qualquer símbolo que tenha sido
+        /// previamente atrbiuído.
+        /// </summary>
+        public void SetAllUnlimited()
+        {
+            this.maxGroupCount.Clear();
         }
 
         /// <summary>
@@ -229,6 +288,7 @@
 
             var symbType = readed.SymbolType;
             var symbValue = readed.SymbolValue;
+            var count = 1;
 
             if (!this.inputStream.IsAtEOF())
             {
@@ -236,6 +296,14 @@
                 var state = this.symbolTypeEqualityComparer.Equals(
                     readed.SymbolType,
                     peeked.SymbolType);
+
+                var maxCount = default(int);
+                if (this.maxGroupCount.TryGetValue(peeked.SymbolType, out maxCount))
+                {
+                    state &= count < maxCount;
+                    ++count;
+                }
+
                 while (state)
                 {
                     readed = this.inputStream.Get();
@@ -250,6 +318,11 @@
                         state = this.symbolTypeEqualityComparer.Equals(
                             readed.SymbolType,
                             peeked.SymbolType);
+                        if (this.maxGroupCount.TryGetValue(peeked.SymbolType, out maxCount))
+                        {
+                            state &= count < maxCount;
+                            ++count;
+                        }
                     }
                 }
             }

@@ -51,5 +51,14 @@
                 this.symbolType = value;
             }
         }
+
+        /// <summary>
+        /// Constrói uma representação textual do símbolo.
+        /// </summary>
+        /// <returns>A representação textual.</returns>
+        public override string ToString()
+        {
+            return string.Format("{0}:{1}", this.SymbolValue, this.SymbolType);
+        }
     }
 }

@@ -207,6 +207,8 @@
     <Compile Include="AlgebraicStructures\Readers\RangeNoConfigReader.cs" />
     <Compile Include="AlgebraicStructures\Readers\RangeReaderMementoManager.cs" />
     <Compile Include="Algorithms\Decision\SubsetSumLLLReductionAlgorithm.cs" />
+    <Compile Include="Algorithms\Interpolation\BaseInterpolator.cs" />
+    <Compile Include="Algorithms\Interpolation\PointContainer2D.cs" />
     <Compile Include="Algorithms\Logic\BooleanCombination.cs" />
     <Compile Include="Algorithms\Logic\BooleanMinimalFormAlgorithm.cs" />
     <Compile Include="Algorithms\Logic\BooleanMinimalFormInOut.cs" />
@@ -282,6 +284,10 @@
     <Compile Include="Algorithms\Polynomials\UnivarPolDeterminantResultantAlg.cs" />
     <Compile Include="Algorithms\Polynomials\UnivarPolSubResultantAlg.cs" />
     <Compile Include="Algorithms\Polynomials\UnivarSquareFreeDecomposition.cs" />
+    <Compile Include="Algorithms\Simplex\LinearConstraintsInput.cs" />
+    <Compile Include="Algorithms\Simplex\LinearDecompositionInput.cs" />
+    <Compile Include="Algorithms\Simplex\LinearDecompositionOutput.cs" />
+    <Compile Include="Algorithms\Simplex\LinearDecompProblemAlgorithm.cs" />
     <Compile Include="Algorithms\Simplex\RevisedSimplexAlgorithm.cs" />
     <Compile Include="Algorithms\Simplex\RevisedSimplexInput.cs" />
     <Compile Include="Algorithms\Simplex\SimplexAlgorithm.cs" />

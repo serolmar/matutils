@@ -10,7 +10,7 @@
     /// </summary>
     /// <typeparam name="T">O tipo de objectos que representam índices.</typeparam>
     /// <typeparam name="P">O tipo de objectos que representam valores.</typeparam>
-    public interface IIndexed<in T, out P>
+    public interface IIndexed<in T, out P> : IEnumerable<P>
     {
         /// <summary>
         /// Obtém o objecto especificado pelo índice.

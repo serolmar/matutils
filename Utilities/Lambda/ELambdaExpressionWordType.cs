@@ -46,13 +46,18 @@
         CLOSE_DELIMITER,
 
         /// <summary>
-        /// Operador lógico.
+        /// A vírgula.
         /// </summary>
-        LOGIC_OPERATOR,
+        COMMA,
 
         /// <summary>
-        /// Operador interno.
+        /// Outro tipo de elementos.
         /// </summary>
-        INNER_OPERATOR
+        OTHER,
+
+        /// <summary>
+        /// O final de ficheiro.
+        /// </summary>
+        EOF
     }
 }
