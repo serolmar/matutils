@@ -19,40 +19,40 @@
     public interface IInterpolator<SourceType, out TargetType>
     {
         /// <summary>
+        /// Determina o polinómio interpolador na forma nornal.
+        /// </summary>
+        /// <returns>O polinóomio interpolador na forma normal.</returns>
+        UnivariatePolynomialNormalForm<SourceType> InterpolatingPolynomial { get; }
+
+        /// <summary>
         /// Obtém a imagem de interpolação associada ao objecto.
         /// </summary>
         /// <param name="sourceValue">O objecto a ser interpolado.</param>
         /// <returns>A imagem que está associada ao objecto de acordo com a interpolação.</returns>
         TargetType Interpolate(SourceType sourceValue);
-
-        /// <summary>
-        /// Determina o polinómio interpolador na forma nornal.
-        /// </summary>
-        /// <returns>O polinóomio interpolador na forma normal.</returns>
-        UnivariatePolynomialNormalForm<SourceType> InterpolatingPolynomial();
     }
 
     public abstract class ABaseInterpolator<SourceType, TargetType> : IInterpolator<SourceType, TargetType>, IDisposable
     {
         /// <summary>
+        /// O contentor de pontos a serem interpolados.
+        /// </summary>
+        protected PointContainer2D<SourceType, TargetType> pointsContainer;
+
+        /// <summary>
         /// O corpo responsável pelas operações sobre os objectos do conjunto de partida.
         /// </summary>
-        private IField<SourceType> sourceField;
+        protected IField<SourceType> sourceField;
 
         /// <summary>
         /// O grupo responsável pelas operações sobre os objectos da imagem.
         /// </summary>
-        private IGroup<TargetType> targetGroup;
+        protected IGroup<TargetType> targetGroup;
 
         /// <summary>
         /// O objecto responsável pela multiplicação dos objectos de partida com os da imagem.
         /// </summary>
-        private IMultiplicationOperation<SourceType, TargetType, TargetType> multiplicationOperation;
-
-        /// <summary>
-        /// O contentor de pontos a serem interpolados.
-        /// </summary>
-        private PointContainer2D<SourceType, TargetType> pointsContainer;
+        protected IMultiplicationOperation<SourceType, TargetType, TargetType> multiplicationOperation;
 
         /// <summary>
         /// Instancia uma nova instância de objectos do tipo <see cref="ABaseInterpolator{SourceType, TargetType}"/>.
@@ -89,7 +89,8 @@
             else
             {
                 // Delega a inicialização para mais tarde.
-                this.Initialize(pointsContainer);
+                this.pointsContainer = pointsContainer;
+                this.Initialize();
 
                 // Inicializa os eventos.
                 this.pointsContainer.BeforeAddEvent -= this.BeforeAddEventHandler;
@@ -98,7 +99,6 @@
                 this.pointsContainer.AfterDeleteEvent -= this.AfterRemoveEventHandler;
 
                 // Atribui as variáveis privadas.
-                this.pointsContainer = pointsContainer;
                 this.multiplicationOperation = multiplicationOperation;
                 this.targetGroup = targetGroup;
                 this.sourceField = sourceField;
@@ -151,17 +151,16 @@
         }
 
         /// <summary>
+        /// Obtém o polinómio interpolador na forma nornal.
+        /// </summary>
+        public abstract UnivariatePolynomialNormalForm<SourceType> InterpolatingPolynomial { get; }
+
+        /// <summary>
         /// Obtém a imagem de interpolação associada ao objecto.
         /// </summary>
         /// <param name="sourceValue">O objecto a ser interpolado.</param>
         /// <returns>A imagem que está associada ao objecto de acordo com a interpolação.</returns>
         public abstract TargetType Interpolate(SourceType sourceValue);
-
-        /// <summary>
-        /// Determina o polinómio interpolador na forma nornal.
-        /// </summary>
-        /// <returns>O polinóomio interpolador na forma normal.</returns>
-        public abstract UnivariatePolynomialNormalForm<SourceType> InterpolatingPolynomial();
 
         /// <summary>
         /// Permite dispôr os rescursos alocados pelo objecto em questão.
@@ -179,8 +178,7 @@
         /// <summary>
         /// Permite inicializar o interpolador com o conjunto de pontos proporcionado.
         /// </summary>
-        /// <param name="pointsEnumerator">O enumerador de pontos.</param>
-        public abstract void Initialize(IIndexed<int, Tuple<SourceType, TargetType>> pointsEnumerator);
+        public abstract void Initialize();
 
         /// <summary>
         /// Manuseador do evento que é despoletado antes do objecto ser adicionado ao contentor de pontos.
