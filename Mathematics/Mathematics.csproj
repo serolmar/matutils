@@ -209,6 +209,7 @@
     <Compile Include="Algorithms\Decision\SubsetSumLLLReductionAlgorithm.cs" />
     <Compile Include="Algorithms\Interpolation\BaseInterpolator.cs" />
     <Compile Include="Algorithms\Interpolation\PointContainer2D.cs" />
+    <Compile Include="Algorithms\Interpolation\UnivarNormalFromInterpolator.cs" />
     <Compile Include="Algorithms\Logic\BooleanCombination.cs" />
     <Compile Include="Algorithms\Logic\BooleanMinimalFormAlgorithm.cs" />
     <Compile Include="Algorithms\Logic\BooleanMinimalFormInOut.cs" />
