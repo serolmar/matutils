@@ -66,7 +66,7 @@
             // Verifica os valores da interpolação.
             for (int i = 0; i < interpolationPoints.Length; ++i)
             {
-                var actual = interpolator.Interpolate(0);
+                var actual = interpolator.Interpolate(interpolationPoints[i]);
                 Assert.AreEqual(0, actual);
             }
 
@@ -80,6 +80,21 @@
                 true);
             
             Assert.AreEqual(expected, interpolationPol);
+
+            pointContainer.Add(5, -1);
+            pointContainer.Add(-6, 1);
+
+            for (int i = 0; i < interpolationPoints.Length; ++i)
+            {
+                var actual = interpolator.Interpolate(interpolationPoints[i]);
+                Assert.IsTrue(Math.Abs(actual - 0) < 0.000001);
+            }
+
+            var actualValue = interpolator.Interpolate(5);
+            Assert.IsTrue(Math.Abs(actualValue + 1) < 0.000001);
+
+            actualValue = interpolator.Interpolate(-6);
+            Assert.IsTrue(Math.Abs(actualValue - 1) < 0.000001);
         }
     }
 }

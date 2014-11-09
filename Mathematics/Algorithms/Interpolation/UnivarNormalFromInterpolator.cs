@@ -18,7 +18,6 @@
         : ABaseInterpolator<SourceType, TargetType>
     {
 
-
         /// <summary>
         /// O anel responsável pelas operações sobre os objectos da imagem.
         /// </summary>
@@ -131,7 +130,6 @@
         {
             get
             {
-                this.UpdatePolynomialFromMatrices();
                 return this.interpolationgPolynomial;
             }
         }
@@ -149,7 +147,6 @@
             }
             else
             {
-                this.UpdatePolynomialFromMatrices();
                 return this.interpolationgPolynomial.Replace(
                         sourceValue,
                         this.multiplicationOperation,
@@ -270,16 +267,14 @@
             }
             else
             {
-                //var tasks = new Task[]{
-                //    new Task(()=>this.UpdateMatrixFromPointAddition(firstCoord)),
-                //    new Task(()=>this.UpdateVectorFromPointAddition(firstCoord))
-                //};
+                var tasks = new Task[]{
+                    new Task(()=>this.UpdateMatrixFromPointAddition(firstCoord)),
+                    new Task(()=>this.UpdateVectorFromPointAddition(firstCoord))
+                };
 
-                //tasks[0].Start();
-                //tasks[1].Start();
-                //Task.WaitAll(tasks);
-                this.UpdateMatrixFromPointAddition(firstCoord);
-                this.UpdateVectorFromPointAddition(firstCoord);
+                tasks[0].Start();
+                tasks[1].Start();
+                Task.WaitAll(tasks);
             }
         }
 
@@ -387,7 +382,7 @@
         private void UpdateVectorFromPointAddition(SourceType firstCoord)
         {
             var count = this.inverseDifferencesVector.Count;
-            this.inverseDifferencesVector.Add(this.sourceField.AdditiveUnity);
+            this.inverseDifferencesVector.Add(this.sourceField.MultiplicativeUnity);
 
             var blockinCollection = new BlockingCollection<SourceType>();
             var inserveProductConsumer = new InverseProductConsumer(
@@ -439,12 +434,10 @@
                     currentMatrixEntry = currentLine[j];
                     currentVectorItem = this.inverseDifferencesVector[j];
                     sourceResult = this.sourceField.Multiply(currentMatrixEntry, currentVectorItem);
-                    sourceResult = this.sourceField.Multiply(currentMatrixEntry, currentVectorItem);
                     targetResult = this.multiplicationOperation.Multiply(
                     sourceResult,
-                    this.pointsContainer[0].Item2);
-                    targetResult = this.targetRing.Multiply(targetResult, pointsContainer[j].Item2);
-                    polynomialCoeffs[i] = targetResult;
+                    this.pointsContainer[j].Item2);
+                    polynomialCoeffs[i] = this.targetRing.Add(polynomialCoeffs[i], targetResult);
                 }
             });
 
@@ -519,7 +512,7 @@
                     if (this.blockingCollection.TryTake(out value))
                     {
                         this.vector[lastIndex] = this.sourceField.Multiply(
-                                                vector[lastIndex],
+                                                this.vector[lastIndex],
                                                 value);
                     }
                 }

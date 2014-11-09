@@ -73,10 +73,10 @@
                 this.sourceField = sourceField;
 
                 // Inicializa os eventos.
-                this.pointsContainer.BeforeAddEvent -= this.BeforeAddEventHandler;
-                this.pointsContainer.AfterAddEvent -= this.AfterAddEventHandler;
-                this.pointsContainer.BeforeDeleteEvent -= this.BeforeRemoveEventHandler;
-                this.pointsContainer.AfterDeleteEvent -= this.AfterRemoveEventHandler;
+                this.pointsContainer.BeforeAddEvent += this.BeforeAddEventHandler;
+                this.pointsContainer.AfterAddEvent += this.AfterAddEventHandler;
+                this.pointsContainer.BeforeDeleteEvent += this.BeforeRemoveEventHandler;
+                this.pointsContainer.AfterDeleteEvent += this.AfterRemoveEventHandler;
             }
         }
 

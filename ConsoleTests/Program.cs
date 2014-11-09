@@ -22,6 +22,18 @@
 
         static void Main(string[] args)
         {
+            // Consulta que permite obter elementos repetidos numa lista de valores.
+            var list = new List<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
+            var query = from q in list
+                        group q by q into g
+                        where g.Count() > 1
+                        select g.Key;
+            Console.WriteLine(query.Any());
+            Console.ReadKey();
+        }
+
+        static void Temp1()
+        {
             var upperBoundsFile = "Data\\Exemplos\\limites_superiores_20.csv";
             var lowerBoundsFile = "Data\\Exemplos\\limites_inferiores_20.csv";
 
@@ -64,7 +76,6 @@
             }
 
             var result = componentBoundsAlgorithm.Run(20, lowerBounds, upperBounds);
-            Console.ReadKey();
         }
 
         static void TestOdmpCompatibilityAlgorithm()
