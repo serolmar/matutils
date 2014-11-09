@@ -78,6 +78,7 @@
     <Compile Include="Polynomial\SymmetricPolynomialTest.cs" />
     <Compile Include="Polynomial\UnivariatePolynomialNormalFormTest.cs" />
     <Compile Include="Polynomial\UnivarPolynomEuclideanDomainTest.cs" />
+    <Compile Include="InterpolationTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Mathematics\Mathematics.csproj">

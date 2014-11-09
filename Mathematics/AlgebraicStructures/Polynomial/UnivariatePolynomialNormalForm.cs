@@ -1178,7 +1178,7 @@ namespace Mathematics
         /// <param name="value">O valor.</param>
         /// <param name="additionOperation">O objecto responsável pelas operações sobre os coeficientes.</param>
         /// <param name="ring">O anel responsável pelas operações sobre os valores de saída.</param>
-        /// <returns>O resultado calculado.</returns>
+        /// <returns>O resultado cálculado.</returns>
         /// <exception cref="ArgumentNullException">Se algum dos argumentos for nulo.</exception>
         public ResultType Replace<ResultType>(
             ResultType value,
@@ -1220,6 +1220,67 @@ namespace Mathematics
                 else
                 {
                     return ring.AdditiveUnity;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Substitui a variável pelo elemento especificado e calcula o resultado de acordo com as operações
+        /// definidas nos objectos por elas responsáveis.
+        /// </summary>
+        /// <typeparam name="SourceType">O tipo de dados a ser substituído.</typeparam>
+        /// <param name="value">O valor.</param>
+        /// <param name="multiplicationOperation">
+        /// O objecto responsável pelas operações sobre os coeficientes e valores.
+        /// </param>
+        /// <param name="coeffsRing">O anel responsável pelas operações sobre os coeficientes.</param>
+        /// <returns>O resultado cálculado.</returns>
+        /// <exception cref="ArgumentNullException">Se algum dos argumentos for nulo.</exception>
+        public CoeffType Replace<SourceType>(
+            SourceType value,
+            IMultiplicationOperation<SourceType, CoeffType, CoeffType> multiplicationOperation,
+            IMultiplication<SourceType> sourceMultiplication,
+            IRing<CoeffType> coeffsRing)
+        {
+            if (coeffsRing == null)
+            {
+                throw new ArgumentNullException("coeffsRing");
+            }
+            else if (sourceMultiplication == null)
+            {
+                throw new ArgumentNullException("sourceMultiplication");
+            }
+            else if (multiplicationOperation == null)
+            {
+                throw new ArgumentNullException("multiplicationOperation");
+            }
+            else if (value == null)
+            {
+                throw new ArgumentNullException("value");
+            }
+            else
+            {
+                var termsEnumerator = this.terms.GetEnumerator();
+                if (termsEnumerator.MoveNext())
+                {
+                    var result = termsEnumerator.Current.Value;
+                    var previousDegree = termsEnumerator.Current.Key;
+                    while (termsEnumerator.MoveNext())
+                    {
+                        var currentDegree = termsEnumerator.Current.Key;
+                        var power = MathFunctions.Power(value, previousDegree - currentDegree, sourceMultiplication);
+                        result = multiplicationOperation.Multiply(power,result);
+                        result = coeffsRing.Add(termsEnumerator.Current.Value, result);
+                        previousDegree = currentDegree;
+                    }
+
+                    var lastPower = MathFunctions.Power(value, previousDegree, sourceMultiplication);
+                    result = multiplicationOperation.Multiply(lastPower, result);
+                    return result;
+                }
+                else
+                {
+                    return coeffsRing.AdditiveUnity;
                 }
             }
         }

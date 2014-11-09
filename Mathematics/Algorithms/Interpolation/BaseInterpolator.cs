@@ -16,13 +16,13 @@
     /// <typeparam name="TargetType">
     /// O tipo dos objectos que constituem o conjunto imagem.
     /// </typeparam>
-    public interface IInterpolator<SourceType, out TargetType>
+    public interface IInterpolator<SourceType, TargetType>
     {
         /// <summary>
         /// Determina o polinómio interpolador na forma nornal.
         /// </summary>
         /// <returns>O polinóomio interpolador na forma normal.</returns>
-        UnivariatePolynomialNormalForm<SourceType> InterpolatingPolynomial { get; }
+        UnivariatePolynomialNormalForm<TargetType> InterpolatingPolynomial { get; }
 
         /// <summary>
         /// Obtém a imagem de interpolação associada ao objecto.
@@ -32,6 +32,11 @@
         TargetType Interpolate(SourceType sourceValue);
     }
 
+    /// <summary>
+    /// Define a base para instâncias de polinómios interpoladores.
+    /// </summary>
+    /// <typeparam name="SourceType">O tipo de objectos do conjunto de partida.</typeparam>
+    /// <typeparam name="TargetType">O tipo de objectos do conjunto imagem.</typeparam>
     public abstract class ABaseInterpolator<SourceType, TargetType> : IInterpolator<SourceType, TargetType>, IDisposable
     {
         /// <summary>
@@ -45,42 +50,17 @@
         protected IField<SourceType> sourceField;
 
         /// <summary>
-        /// O grupo responsável pelas operações sobre os objectos da imagem.
-        /// </summary>
-        protected IGroup<TargetType> targetGroup;
-
-        /// <summary>
-        /// O objecto responsável pela multiplicação dos objectos de partida com os da imagem.
-        /// </summary>
-        protected IMultiplicationOperation<SourceType, TargetType, TargetType> multiplicationOperation;
-
-        /// <summary>
         /// Instancia uma nova instância de objectos do tipo <see cref="ABaseInterpolator{SourceType, TargetType}"/>.
         /// </summary>
         /// <param name="pointsContainer">O contentor de pontos que constitui o conjunto a ser interpolado.</param>
-        /// <param name="multiplicationOperation">
-        /// O objecto responsável pelas operações de multiplicação entre objectos do conjunto de partida
-        /// e objectos da imagem.
-        /// </param>
-        /// <param name="targetGroup">O objecto responsável pelas operações sobre os objectos da imagem.</param>
         /// <param name="sourceField">O objecto responsável pelas operações sobre os objectos do conjunto de partida.</param>
         public ABaseInterpolator(
             PointContainer2D<SourceType, TargetType> pointsContainer,
-            IMultiplicationOperation<SourceType, TargetType, TargetType> multiplicationOperation,
-            IGroup<TargetType> targetGroup,
             IField<SourceType> sourceField)
         {
             if (sourceField == null)
             {
                 throw new ArgumentNullException("sourceField");
-            }
-            else if (targetGroup == null)
-            {
-                throw new ArgumentNullException("targetGroup");
-            }
-            else if (multiplicationOperation == null)
-            {
-                throw new ArgumentNullException("multiplicationOperation");
             }
             else if (pointsContainer == null)
             {
@@ -90,18 +70,13 @@
             {
                 // Delega a inicialização para mais tarde.
                 this.pointsContainer = pointsContainer;
-                this.Initialize();
+                this.sourceField = sourceField;
 
                 // Inicializa os eventos.
                 this.pointsContainer.BeforeAddEvent -= this.BeforeAddEventHandler;
                 this.pointsContainer.AfterAddEvent -= this.AfterAddEventHandler;
                 this.pointsContainer.BeforeDeleteEvent -= this.BeforeRemoveEventHandler;
                 this.pointsContainer.AfterDeleteEvent -= this.AfterRemoveEventHandler;
-
-                // Atribui as variáveis privadas.
-                this.multiplicationOperation = multiplicationOperation;
-                this.targetGroup = targetGroup;
-                this.sourceField = sourceField;
             }
         }
 
@@ -113,29 +88,6 @@
             get
             {
                 return this.sourceField;
-            }
-        }
-
-        /// <summary>
-        /// Obtém o objecto responsável pelas operações sobre os objectos do conjunto imagem.
-        /// </summary>
-        public IGroup<TargetType> TargetGroup
-        {
-            get
-            {
-                return this.targetGroup;
-            }
-        }
-
-        /// <summary>
-        /// Obtém o objecto responsável pelas operações de multiplicação entre objectos do conjunto de partida
-        /// e os objectos do conjunto imagem.
-        /// </summary>
-        public IMultiplicationOperation<SourceType, TargetType, TargetType> MultiplicationOperation
-        {
-            get
-            {
-                return this.multiplicationOperation;
             }
         }
 
@@ -153,7 +105,7 @@
         /// <summary>
         /// Obtém o polinómio interpolador na forma nornal.
         /// </summary>
-        public abstract UnivariatePolynomialNormalForm<SourceType> InterpolatingPolynomial { get; }
+        public abstract UnivariatePolynomialNormalForm<TargetType> InterpolatingPolynomial { get; }
 
         /// <summary>
         /// Obtém a imagem de interpolação associada ao objecto.
@@ -174,11 +126,6 @@
         }
 
         #region Eventos
-
-        /// <summary>
-        /// Permite inicializar o interpolador com o conjunto de pontos proporcionado.
-        /// </summary>
-        public abstract void Initialize();
 
         /// <summary>
         /// Manuseador do evento que é despoletado antes do objecto ser adicionado ao contentor de pontos.

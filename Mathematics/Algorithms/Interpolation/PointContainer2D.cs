@@ -103,7 +103,7 @@
         {
             get
             {
-                return this.Count;
+                return this.points.Count;
             }
         }
 

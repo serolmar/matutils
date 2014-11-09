@@ -17,15 +17,22 @@
     public class UnivarNormalFromInterpolator<SourceType, TargetType>
         : ABaseInterpolator<SourceType, TargetType>
     {
+
+
+        /// <summary>
+        /// O anel responsável pelas operações sobre os objectos da imagem.
+        /// </summary>
+        protected IRing<TargetType> targetRing;
+
+        /// <summary>
+        /// O objecto responsável pela multiplicação dos objectos de partida com os da imagem.
+        /// </summary>
+        protected IMultiplicationOperation<SourceType, TargetType, TargetType> multiplicationOperation;
+
         /// <summary>
         /// O polinómio interpolador actual.
         /// </summary>
-        protected UnivariatePolynomialNormalForm<SourceType> interpolationgPolynomial;
-
-        /// <summary>
-        /// Indica se o polinómio é actual.
-        /// </summary>
-        protected bool updated;
+        protected UnivariatePolynomialNormalForm<TargetType> interpolationgPolynomial;
 
         /// <summary>
         /// A matriz com os coeficientes simétricos nas coordenadas dos pontos.
@@ -40,7 +47,7 @@
         /// <summary>
         /// Permite converter um valor inteiro num coeficiente do polinómio a ser interpolado.
         /// </summary>
-        protected IConversion<SourceType, int> integerConversion;
+        protected IConversion<int, SourceType> integerConversion;
 
         /// <summary>
         /// O produto de todas as coordenadas dos pontos.
@@ -48,37 +55,84 @@
         protected SourceType productValue;
 
         /// <summary>
+        /// O sinal associado à linha actual.
+        /// </summary>
+        protected SourceType signal;
+
+        /// <summary>
         /// Instancia uma nova instância de objectos do tipo <see cref="UnivarNormalFromInterpolator{SourceType, TargetType}"/>.
         /// </summary>
         /// <param name="pointsContainer">O contentor de pontos que constitui o conjunto a ser interpolado.</param>
+        /// <param name="variableName">A variável associada ao polinómio interpolador.</param>
+        /// <param name="integerConversion">
+        /// O objecto responsável pela conversão entre inteiros a o tipo de dados do conjunto
+        /// dos objectos.
+        /// </param>
         /// <param name="multiplicationOperation">
         /// O objecto responsável pelas operações de multiplicação entre objectos do conjunto de partida
         /// e objectos da imagem.
         /// </param>
-        /// <param name="targetGroup">O objecto responsável pelas operações sobre os objectos da imagem.</param>
+        /// <param name="targetRing">O objecto responsável pelas operações sobre os objectos da imagem.</param>
         /// <param name="sourceField">O objecto responsável pelas operações sobre os objectos do conjunto de partida.</param>
         public UnivarNormalFromInterpolator(
             PointContainer2D<SourceType, TargetType> pointsContainer,
+            string variableName,
+            IConversion<int, SourceType> integerConversion,
             IMultiplicationOperation<SourceType, TargetType, TargetType> multiplicationOperation,
-            IGroup<TargetType> targetGroup,
+            IRing<TargetType> targetRing,
             IField<SourceType> sourceField)
-            : base(pointsContainer, multiplicationOperation, targetGroup, sourceField) { }
+            : base(pointsContainer, sourceField)
+        {
+            if (targetRing == null)
+            {
+                throw new ArgumentNullException("targetGroup");
+            }
+            else if (multiplicationOperation == null)
+            {
+                throw new ArgumentNullException("multiplicationOperation");
+            }
+            else
+            {
+                this.integerConversion = integerConversion;
+                this.targetRing = targetRing;
+                this.multiplicationOperation = multiplicationOperation;
+                this.interpolationgPolynomial = new UnivariatePolynomialNormalForm<TargetType>(variableName);
+                this.Initialize();
+            }
+        }
+
+        /// <summary>
+        /// Obtém o objecto responsável pelas operações sobre os objectos do conjunto imagem.
+        /// </summary>
+        public IRing<TargetType> TargetRing
+        {
+            get
+            {
+                return this.targetRing;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o objecto responsável pelas operações de multiplicação entre objectos do conjunto de partida
+        /// e os objectos do conjunto imagem.
+        /// </summary>
+        public IMultiplicationOperation<SourceType, TargetType, TargetType> MultiplicationOperation
+        {
+            get
+            {
+                return this.multiplicationOperation;
+            }
+        }
 
         /// <summary>
         /// Obtém o polinómio interpolador na forma nornal.
         /// </summary>
-        public override UnivariatePolynomialNormalForm<SourceType> InterpolatingPolynomial
+        public override UnivariatePolynomialNormalForm<TargetType> InterpolatingPolynomial
         {
             get
             {
-                if (this.updated)
-                {
-                    return this.interpolationgPolynomial;
-                }
-                else
-                {
-                    throw new NotImplementedException();
-                }
+                this.UpdatePolynomialFromMatrices();
+                return this.interpolationgPolynomial;
             }
         }
 
@@ -89,21 +143,26 @@
         /// <returns>A imagem que está associada ao objecto de acordo com a interpolação.</returns>
         public override TargetType Interpolate(SourceType sourceValue)
         {
-            if (this.updated)
+            if (sourceValue == null)
             {
-
+                throw new ArgumentNullException("sourceValue");
             }
             else
             {
+                this.UpdatePolynomialFromMatrices();
+                return this.interpolationgPolynomial.Replace(
+                        sourceValue,
+                        this.multiplicationOperation,
+                        this.sourceField,
+                        this.targetRing);
 
             }
-            throw new NotImplementedException();
         }
 
         /// <summary>
         /// Inicializa o interpolador com base nos pontos fornecidos.
         /// </summary>
-        public override void Initialize()
+        public void Initialize()
         {
             if (this.pointsContainer.Count == 0)
             {
@@ -112,8 +171,8 @@
             else
             {
                 this.symmetricFuncMatrix = new List<List<SourceType>>();
-                this.inverseDifferencesVector = new List<SourceType>() { this.sourceField.AdditiveUnity };
-                var lastLine = new List<SourceType>() { this.sourceField.AdditiveUnity };
+                this.inverseDifferencesVector = new List<SourceType>() { this.sourceField.MultiplicativeUnity };
+                var lastLine = new List<SourceType>() { this.sourceField.MultiplicativeUnity };
                 this.symmetricFuncMatrix.Add(lastLine);
                 this.productValue = this.sourceField.AdditiveInverse(this.pointsContainer[0].Item1);
 
@@ -122,6 +181,8 @@
                     var currentPoint = this.pointsContainer[i].Item1;
                     this.UpdateStateFromPointAddition(currentPoint);
                 }
+
+                this.UpdatePolynomialFromMatrices();
             }
         }
 
@@ -152,6 +213,7 @@
         {
             var firstCoord = eventArgs.AddedOrRemovedObject.Item1;
             this.UpdateStateFromPointAddition(firstCoord);
+            this.UpdatePolynomialFromMatrices();
         }
 
         /// <summary>
@@ -184,20 +246,6 @@
         /// <param name="firstCoord">A primeira coordenada do ponto a ser adicionado.</param>
         private void UpdateStateFromPointAddition(SourceType firstCoord)
         {
-            var tasks = new Task[]{
-                new Task(()=>this.UpdateMatrixFromPointAddition(firstCoord)),
-                new Task(()=>this.UpdateVectorFromPointAddition(firstCoord))
-            };
-
-            Task.WaitAll(tasks);
-        }
-
-        /// <summary>
-        /// Actualiza o estado do interpolador com o ponto dado.
-        /// </summary>
-        /// <param name="firstCoord">A primeira coordenada do ponto.</param>
-        private void UpdateMatrixFromPointAddition(SourceType firstCoord)
-        {
             var count = this.symmetricFuncMatrix.Count;
             if (count == 1)
             {
@@ -205,8 +253,8 @@
                 firstLine[0] = firstCoord;
                 firstLine.Add(this.productValue);
                 this.symmetricFuncMatrix.Add(new List<SourceType>(){
-                    this.sourceField.AdditiveInverse(this.sourceField.AdditiveUnity),
-                    this.sourceField.AdditiveUnity
+                    this.sourceField.AdditiveInverse(this.sourceField.MultiplicativeUnity),
+                    this.sourceField.MultiplicativeUnity
                 });
 
                 var value = this.sourceField.Add(
@@ -217,85 +265,118 @@
                 this.inverseDifferencesVector.Add(value);
 
                 // Actualiza os parâmetros auxiliares.
-                value = this.sourceField.AdditiveInverse(firstCoord);
                 this.productValue = this.sourceField.Multiply(this.productValue, firstCoord);
+                this.signal = this.sourceField.AdditiveInverse(this.sourceField.MultiplicativeUnity);
             }
             else
             {
-                // Insere a última linha
-                var vector = new SourceType[count];
-                var last = count - 1;
-                var lastLine = this.symmetricFuncMatrix[last];
-                Parallel.For(0, count, i =>
-                {
-                    vector[i] = this.sourceField.AdditiveInverse(lastLine[i]);
-                });
+                //var tasks = new Task[]{
+                //    new Task(()=>this.UpdateMatrixFromPointAddition(firstCoord)),
+                //    new Task(()=>this.UpdateVectorFromPointAddition(firstCoord))
+                //};
 
-                var insertionLine = new List<SourceType>(vector);
-                insertionLine.Add(this.sourceField.AdditiveUnity);
-                this.symmetricFuncMatrix.Add(insertionLine);
+                //tasks[0].Start();
+                //tasks[1].Start();
+                //Task.WaitAll(tasks);
+                this.UpdateMatrixFromPointAddition(firstCoord);
+                this.UpdateVectorFromPointAddition(firstCoord);
+            }
+        }
 
-                // Soma os valores da linha anterior e adiciona à lista actual.
-                vector[0] = this.productValue;
-                Parallel.For(1, count, i =>
+        /// <summary>
+        /// Actualiza o estado do interpolador com o ponto dado.
+        /// </summary>
+        /// <param name="firstCoord">A primeira coordenada do ponto.</param>
+        private void UpdateMatrixFromPointAddition(SourceType firstCoord)
+        {
+            var count = this.symmetricFuncMatrix.Count;
+            // Insere a última linha
+            var vector = new SourceType[count];
+            var last = count - 1;
+            var lastLine = this.symmetricFuncMatrix[last];
+            Parallel.For(0, count, i =>
+            {
+                vector[i] = this.sourceField.AdditiveInverse(lastLine[i]);
+            });
+
+            var insertionLine = new List<SourceType>(vector);
+            insertionLine.Add(this.sourceField.MultiplicativeUnity);
+            this.symmetricFuncMatrix.Add(insertionLine);
+
+            // Soma os valores da linha anterior e adiciona à lista actual.
+            vector[0] = this.productValue;
+            Parallel.For(1, count, i =>
+            {
+                var accumulationLine = this.symmetricFuncMatrix[i - 1];
+                var value = accumulationLine[0];
+                var currentSignal = this.sourceField.AdditiveInverse(this.sourceField.MultiplicativeUnity);
+                for (int j = 1; j < count; ++j)
                 {
-                    var accumulationLine = this.symmetricFuncMatrix[i - 1];
-                    var value = accumulationLine[0];
-                    var currentSignal = this.sourceField.AdditiveInverse(this.sourceField.AdditiveUnity);
-                    for (int j = 1; j < count; ++j)
+                    var accumulationValue = accumulationLine[j];
+                    if (this.sourceField.IsMultiplicativeUnity(currentSignal))
                     {
-                        var accumulationValue = accumulationLine[j];
-                        if (this.sourceField.IsAdditiveUnity(currentSignal))
-                        {
-                            value = this.sourceField.Add(value, accumulationValue);
-                            currentSignal = this.sourceField.AdditiveInverse(this.sourceField.AdditiveUnity);
-                        }
-                        else
-                        {
-                            value = this.sourceField.Add(
-                                value,
-                                this.sourceField.AdditiveInverse(accumulationValue));
-                            currentSignal = this.sourceField.AdditiveUnity;
-                        }
+                        value = this.sourceField.Add(value, accumulationValue);
+                        currentSignal = this.sourceField.AdditiveInverse(this.sourceField.MultiplicativeUnity);
                     }
-
-                    var conversionValue = this.integerConversion.DirectConversion(i);
-                    vector[i] = this.sourceField.Multiply(
-                        value,
-                        this.sourceField.MultiplicativeInverse(conversionValue));
-                });
-
-                // Adiciona os valores do vector às várias linhas da matriz.
-                Parallel.For(0, count, i =>
-                {
-                    var current = this.symmetricFuncMatrix[i];
-                    current.Add(vector[i]);
-                });
-
-                // A matriz pode ser actualizada de baixo para cima.
-                var previousLine = this.symmetricFuncMatrix[last];
-                --last;
-                for (int i = last; i > 0; --i)
-                {
-                    var currentLine = this.symmetricFuncMatrix[i];
-
-                    // Actualiza todas as linhas com excepção da primeira.
-                    Parallel.For(0, count, j =>
+                    else
                     {
-                        var temp = this.sourceField.Multiply(firstCoord, previousLine[j]);
-                        previousLine[j] = this.sourceField.Add(
-                            temp,
-                            this.sourceField.AdditiveInverse(currentLine[j]));
-                    });
-
-                    previousLine = currentLine;
+                        value = this.sourceField.Add(
+                            value,
+                            this.sourceField.AdditiveInverse(accumulationValue));
+                        currentSignal = this.sourceField.MultiplicativeUnity;
+                    }
                 }
 
-                previousLine = this.symmetricFuncMatrix[0];
-                Parallel.For(0, count, i =>
+                var conversionValue = this.integerConversion.InverseConversion(i);
+                vector[i] = this.sourceField.Multiply(
+                    value,
+                    this.sourceField.MultiplicativeInverse(conversionValue));
+                if (!this.sourceField.IsMultiplicativeUnity(this.signal))
                 {
-                    previousLine[i] = this.sourceField.Multiply(previousLine[i], firstCoord);
+                    vector[i] = this.sourceField.AdditiveInverse(vector[i]);
+                }
+            });
+
+            // Adiciona os valores do vector às várias linhas da matriz.
+            Parallel.For(0, count, i =>
+            {
+                var current = this.symmetricFuncMatrix[i];
+                current.Add(vector[i]);
+            });
+
+            // A matriz pode ser actualizada de baixo para cima.
+            var previousLine = this.symmetricFuncMatrix[last];
+            --last;
+            for (int i = last; i >= 0; --i)
+            {
+                var currentLine = this.symmetricFuncMatrix[i];
+
+                // Actualiza todas as linhas com excepção da primeira.
+                Parallel.For(0, count, j =>
+                {
+                    var temp = this.sourceField.Multiply(firstCoord, previousLine[j]);
+                    previousLine[j] = this.sourceField.Add(
+                        temp,
+                        this.sourceField.AdditiveInverse(currentLine[j]));
                 });
+
+                previousLine = currentLine;
+            }
+
+            previousLine = this.symmetricFuncMatrix[0];
+            Parallel.For(0, count, i =>
+            {
+                previousLine[i] = this.sourceField.Multiply(previousLine[i], firstCoord);
+            });
+
+            this.productValue = this.sourceField.Multiply(this.productValue, firstCoord);
+            if (this.sourceField.IsMultiplicativeUnity(this.signal))
+            {
+                this.signal = this.sourceField.AdditiveInverse(this.sourceField.MultiplicativeUnity);
+            }
+            else
+            {
+                this.signal = this.sourceField.MultiplicativeUnity;
             }
         }
 
@@ -314,6 +395,7 @@
                 blockinCollection,
                 this.sourceField);
             var consumerTask = new Task(() => inserveProductConsumer.Run());
+            consumerTask.Start();
             Parallel.For(0, count, i =>
             {
                 var value = this.sourceField.Add(
@@ -329,7 +411,59 @@
 
             blockinCollection.CompleteAdding();
             consumerTask.Wait();
-            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Actualiza o polinómio interpolador a partir das matrizes.
+        /// </summary>
+        private void UpdatePolynomialFromMatrices()
+        {
+            var count = this.symmetricFuncMatrix.Count;
+            var polynomialCoeffs = new TargetType[count];
+            Parallel.For(0, count, i =>
+            {
+                var currentLine = this.symmetricFuncMatrix[i];
+
+                // Inicializa a primeira entrada do vector de coeficientes.
+                var currentMatrixEntry = currentLine[0];
+                var currentVectorItem = this.inverseDifferencesVector[0];
+                var sourceResult = this.sourceField.Multiply(currentMatrixEntry, currentVectorItem);
+                var targetResult = this.multiplicationOperation.Multiply(
+                    sourceResult,
+                    this.pointsContainer[0].Item2);
+                polynomialCoeffs[i] = targetResult;
+
+                // Processa as restante entradas.
+                for (int j = 1; j < count; ++j)
+                {
+                    currentMatrixEntry = currentLine[j];
+                    currentVectorItem = this.inverseDifferencesVector[j];
+                    sourceResult = this.sourceField.Multiply(currentMatrixEntry, currentVectorItem);
+                    sourceResult = this.sourceField.Multiply(currentMatrixEntry, currentVectorItem);
+                    targetResult = this.multiplicationOperation.Multiply(
+                    sourceResult,
+                    this.pointsContainer[0].Item2);
+                    targetResult = this.targetRing.Multiply(targetResult, pointsContainer[j].Item2);
+                    polynomialCoeffs[i] = targetResult;
+                }
+            });
+
+            // Actualiza o polinómio com os termos encontrados em paralelo uma vez que a verificação de unidade aditiva
+            // pode constituir uma operação com custos.
+            var polynomialTerms = this.interpolationgPolynomial.Terms;
+            polynomialTerms.Clear();
+            var lockObject = new object();
+            Parallel.For(0, count, i =>
+            {
+                var coeff = polynomialCoeffs[i];
+                if (!this.targetRing.IsAdditiveUnity(coeff))
+                {
+                    lock (lockObject)
+                    {
+                        polynomialTerms.Add(i, coeff);
+                    }
+                }
+            });
         }
 
         /// <summary>
@@ -381,10 +515,13 @@
             {
                 while (!this.blockingCollection.IsCompleted)
                 {
-                    var value = this.blockingCollection.Take();
-                    this.vector[lastIndex] = this.sourceField.Multiply(
-                        vector[lastIndex],
-                        value);
+                    var value = default(SourceType);
+                    if (this.blockingCollection.TryTake(out value))
+                    {
+                        this.vector[lastIndex] = this.sourceField.Multiply(
+                                                vector[lastIndex],
+                                                value);
+                    }
                 }
             }
         }
