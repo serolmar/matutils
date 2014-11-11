@@ -3,6 +3,7 @@
     using System;
     using System.Collections;
     using System.Collections.Generic;
+    using System.Collections.Concurrent;
     using System.Diagnostics;
     using System.IO;
     using System.Linq;
@@ -22,13 +23,157 @@
 
         static void Main(string[] args)
         {
+            var watch = new Stopwatch();
+
             // Consulta que permite obter elementos repetidos numa lista de valores.
-            var list = new List<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
-            var query = from q in list
-                        group q by q into g
-                        where g.Count() > 1
-                        select g.Key;
-            Console.WriteLine(query.Any());
+            var list = new List<int>();
+            var i = 0;
+            for (; i < 50000000; ++i)
+            {
+                list.Add(i);
+            }
+
+            list.Add(1);
+            ++i;
+
+            for (; i < 100000000; ++i)
+            {
+                list.Add(i);
+            }
+
+            watch.Start();
+            //var dic = new HashSet<int>();
+            //var contains = false;
+            //var listCount = list.Count;
+            //for (i = 0; i < listCount; ++i)
+            //{
+            //    if (dic.Contains(list[i]))
+            //    {
+            //        contains = true;
+            //        i = listCount;
+            //    }
+            //    else
+            //    {
+            //        dic.Add(i);
+            //    }
+            //}
+
+            watch.Stop();
+            Console.WriteLine(
+                "{0}:{1}:{2}",
+                watch.Elapsed.Hours,
+                watch.Elapsed.Minutes,
+                watch.Elapsed.Seconds);
+            //Console.WriteLine(contains);
+
+            watch.Reset();
+            watch.Start();
+            var cont = false;
+            var listLength = list.Count();
+
+            var tasks = new Task[6];
+            var dicList = new Queue<HashSet<int>>();
+            var addStatus = true;
+            var lockObject = new object();
+
+            for (i = 0; i < 6; ++i)
+            {
+                tasks[i] = new Task(() =>
+                {
+                    var status = !cont;
+                    while (status)
+                    {
+                        var first = default(HashSet<int>);
+                        var second = default(HashSet<int>);
+                        var requireStatus = false;
+                        lock (lockObject)
+                        {
+                            if (dicList.Count > 1)
+                            {
+                                first = dicList.Dequeue();
+                                second = dicList.Dequeue();
+                                requireStatus = true;
+                            }
+                        }
+
+                        if (requireStatus)
+                        {
+                            foreach (var key in second)
+                            {
+                                if (first.Contains(key))
+                                {
+                                    cont = true;
+                                    status = false;
+                                    break;
+                                }
+                                else
+                                {
+                                    first.Add(key);
+                                }
+                            }
+
+                            if (!cont)
+                            {
+                                lock (lockObject)
+                                {
+                                    dicList.Enqueue(first);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            status = !cont && addStatus;
+                        }
+                    }
+                });
+
+                tasks[i].Start();
+            }
+
+            Parallel.ForEach(Partitioner.Create(0, listLength), (obj, state) =>
+            {
+                var hashSet = new HashSet<int>();
+                if (cont)
+                {
+                    state.Break();
+                }
+                else
+                {
+                    for (int j = obj.Item1; j < obj.Item2; ++j)
+                    {
+                        if (hashSet.Contains(list[j]))
+                        {
+                            cont = true;
+                            lock (dicList)
+                            {
+                                dicList.Clear();
+                            }
+
+                            state.Break();
+                        }
+                        else
+                        {
+                            hashSet.Add(list[j]);
+                        }
+                    }
+
+                    lock (lockObject)
+                    {
+                        dicList.Enqueue(hashSet);
+                    }
+                }
+            });
+
+            addStatus = false;
+            Task.WaitAll(tasks);
+
+            watch.Stop();
+            Console.WriteLine(
+                "{0}:{1}:{2}",
+                watch.Elapsed.Hours,
+                watch.Elapsed.Minutes,
+                watch.Elapsed.Seconds);
+            Console.WriteLine(cont);
             Console.ReadKey();
         }
 

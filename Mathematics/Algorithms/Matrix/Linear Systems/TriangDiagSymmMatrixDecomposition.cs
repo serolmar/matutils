@@ -101,11 +101,19 @@
                     triangularTask.Start();
                     Task.WaitAll(new[] { diagonalTask, triangularTask });
 
-                    triangularMatrix.ScalarLineMultiplication(
-                            i,
-                            field.MultiplicativeInverse(diagonalMatrix[i, i]),
-                            field);
-                    triangularMatrix[i, i] = field.MultiplicativeUnity;
+                    var diagonalValue = diagonalMatrix[i, i];
+                    if (field.IsAdditiveUnity(diagonalValue))
+                    {
+                        throw new MathematicsException("Error: matrix is singular.");
+                    }
+                    else
+                    {
+                        triangularMatrix.ScalarLineMultiplication(
+                                i,
+                                field.MultiplicativeInverse(diagonalMatrix[i, i]),
+                                field);
+                        triangularMatrix[i, i] = field.MultiplicativeUnity;
+                    }
                 }
 
                 return new TriangDiagSymmMatrixDecompResult<CoeffType>(

@@ -167,19 +167,40 @@
             }
             else
             {
-                this.symmetricFuncMatrix = new List<List<SourceType>>();
-                this.inverseDifferencesVector = new List<SourceType>() { this.sourceField.MultiplicativeUnity };
-                var lastLine = new List<SourceType>() { this.sourceField.MultiplicativeUnity };
-                this.symmetricFuncMatrix.Add(lastLine);
-                this.productValue = this.sourceField.AdditiveInverse(this.pointsContainer[0].Item1);
-
-                for (int i = 1; i < this.pointsContainer.Count; ++i)
+                // Valida se os pontos são ou náo repetidos.
+                var hashSet = new HashSet<SourceType>(this.sourceField);
+                var containerCount = this.pointsContainer.Count;
+                var valid = true;
+                for (int i = 0; i < containerCount; ++i)
                 {
                     var currentPoint = this.pointsContainer[i].Item1;
-                    this.UpdateStateFromPointAddition(currentPoint);
+                    if (hashSet.Contains(currentPoint))
+                    {
+                        valid = false;
+                        i = containerCount;
+                    }
                 }
 
-                this.UpdatePolynomialFromMatrices();
+                if (valid)
+                {
+                    this.symmetricFuncMatrix = new List<List<SourceType>>();
+                    this.inverseDifferencesVector = new List<SourceType>() { this.sourceField.MultiplicativeUnity };
+                    var lastLine = new List<SourceType>() { this.sourceField.MultiplicativeUnity };
+                    this.symmetricFuncMatrix.Add(lastLine);
+                    this.productValue = this.sourceField.AdditiveInverse(this.pointsContainer[0].Item1);
+
+                    for (int i = 1; i < this.pointsContainer.Count; ++i)
+                    {
+                        var currentPoint = this.pointsContainer[i].Item1;
+                        this.UpdateStateFromPointAddition(currentPoint);
+                    }
+
+                    this.UpdatePolynomialFromMatrices();
+                }
+                else
+                {
+                    throw new ArgumentException("Repeated numbers aren't allowed in points container for interpolator.");
+                }
             }
         }
 

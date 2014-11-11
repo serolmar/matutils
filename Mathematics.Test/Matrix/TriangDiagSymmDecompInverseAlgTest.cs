@@ -24,7 +24,11 @@
             }
         }
 
+        /// <summary>
+        /// Teste à matriz inverssa recorrendo ao algoritmo da decomposição.
+        /// </summary>
         [TestMethod]
+        [Description("Teste à determinação da matriz inversa recorrendo à decomposição.")]
         public void Run_TriangDiagSymmDecompInverseAlg()
         {
             // Definição dos algoritmos.
@@ -70,6 +74,56 @@
         }
 
         /// <summary>
+        /// Teste ao erro originado pela tentativa da determinação da inversa de uma matriz singular.
+        /// </summary>
+        [TestMethod]
+        [Description("Teste ao erro originado pela tentativa da determinação da inversa de uma matriz singular.")]
+        [ExpectedException(typeof(MathematicsException))]
+        public void Run_TriangDiagSymmDecompNoInverse()
+        {
+            // Definição dos algoritmos.
+            var target = new TriangDiagSymmDecompInverseAlg<Fraction<int>>();
+            var triangDecomp = new TriangDiagSymmMatrixDecomposition<Fraction<int>>();
+
+            // Definição dos domínios e fábricas.
+            var integerDomain = new IntegerDomain();
+            var fractionField = new FractionField<int>(integerDomain);
+            var arrayUpperTriangMatrixFactory = new ArrayTriangUpperMatrixFactory<Fraction<int>>();
+            var arrayDiagonalMatrixFactory = new ArrayDiagonalMatrixFactory<Fraction<int>>();
+            var arraySquareMatrixFactory = new ArraySquareMatrixFactory<Fraction<int>>();
+            var arrayMatrixFactory = new ArrayMatrixFactory<Fraction<int>>();
+
+            // A matriz
+            var matrix = this.GetSingularMatrix(integerDomain);
+
+            // Cálculos
+            var triangDiagDecomp = triangDecomp.Run(
+                matrix,
+                fractionField,
+                arrayUpperTriangMatrixFactory,
+                arrayDiagonalMatrixFactory);
+            var inverseMatrix = target.Run(
+                triangDiagDecomp,
+                arraySquareMatrixFactory,
+                fractionField);
+
+            // Verificação dos valores.
+            var expected = ArrayMatrix<Fraction<int>>.GetIdentity(3, fractionField);
+            var matrixMultiplication = new MatrixMultiplicationOperation<Fraction<int>>(
+                arrayMatrixFactory,
+                fractionField,
+                fractionField);
+            var actual = matrixMultiplication.Multiply(inverseMatrix, matrix);
+            for (int i = 0; i < 3; ++i)
+            {
+                for (int j = 0; j < 3; ++j)
+                {
+                    Assert.AreEqual(expected[i, j], actual[i, j]);
+                }
+            }
+        }
+
+        /// <summary>
         /// Obtém a matriz que será sujeita ao teste.
         /// </summary>
         /// <param name="integerDomain">O objecto responsável pelas operações sobre os números inteiros.</param>
@@ -92,6 +146,33 @@
             result[2, 0] = new Fraction<int>(-16, 1, integerDomain);
             result[2, 1] = new Fraction<int>(-43, 1, integerDomain);
             result[2, 2] = new Fraction<int>(98, 1, integerDomain);
+
+            return result;
+        }
+
+        /// <summary>
+        /// Obtém a matriz singular que será sujeita ao teste.
+        /// </summary>
+        /// <param name="integerDomain">O objecto responsável pelas operações sobre os números inteiros.</param>
+        /// <returns>A matriz.</returns>
+        private ArraySquareMatrix<Fraction<int>> GetSingularMatrix(IntegerDomain integerDomain)
+        {
+            var result = new ArraySquareMatrix<Fraction<int>>(3);
+
+            // Primeira linha
+            result[0, 0] = new Fraction<int>(1, 1, integerDomain);
+            result[0, 1] = new Fraction<int>(2, 1, integerDomain);
+            result[0, 2] = new Fraction<int>(3, 1, integerDomain);
+
+            // Segunda linha
+            result[1, 0] = new Fraction<int>(2, 1, integerDomain);
+            result[1, 1] = new Fraction<int>(1, 1, integerDomain);
+            result[1, 2] = new Fraction<int>(3, 1, integerDomain);
+
+            // Terceira linha
+            result[2, 0] = new Fraction<int>(3, 1, integerDomain);
+            result[2, 1] = new Fraction<int>(3, 1, integerDomain);
+            result[2, 2] = new Fraction<int>(6, 1, integerDomain);
 
             return result;
         }

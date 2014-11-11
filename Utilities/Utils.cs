@@ -116,7 +116,6 @@
             /// </summary>
             private void SetMachineInfo()
             {
-#if !__MonoCS__
                 var operatingSystemVersion = Environment.OSVersion;
                 var platform = operatingSystemVersion.Platform;
                 switch (platform)
@@ -136,9 +135,6 @@
                     default:
                         throw new UtilitiesException("Unknown platform.");
                 }    
-#else
-                throw new UtilitiesException("No supported on mono.");
-#endif
             }
 
             /// <summary>
