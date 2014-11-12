@@ -1,11 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Utilities.Collections;
-
-namespace Mathematics
+﻿namespace Mathematics
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Threading.Tasks;
+    using System.Text;
+    using Utilities.Collections;
+
     /// <summary>
     /// Implementa uma matriz com base em vectore do sistema.
     /// </summary>
@@ -339,6 +340,61 @@ namespace Mathematics
         }
 
         /// <summary>
+        /// Obtém o produto da matriz corrente com outra matriz.
+        /// </summary>
+        /// <param name="right">A outra matriz.</param>
+        /// <param name="ring">O anel.</param>
+        /// <returns>O resultado do produto.</returns>
+        public ArrayMatrix<ObjectType> ParallelMultiply(
+            ArrayMatrix<ObjectType> right,
+            IRing<ObjectType> ring)
+        {
+            if (right == null)
+            {
+                throw new ArgumentNullException("right");
+            }
+            else if (ring == null)
+            {
+                throw new ArgumentNullException("ring");
+            }
+            else
+            {
+                var columnNumber = this.numberOfColumns;
+                var lineNumber = right.numberOfColumns;
+                if (columnNumber != lineNumber)
+                {
+                    throw new MathematicsException("To multiply two matrices, the number of columns of the first must match the number of lines of second.");
+                }
+                else
+                {
+                    var firstDimension = this.numberOfLines;
+                    var secondDimension = right.numberOfColumns;
+                    var result = new ArrayMatrix<ObjectType>(
+                        firstDimension,
+                        secondDimension);
+                    Parallel.For(0, firstDimension, i =>
+                    {
+                        for (int j = 0; j < secondDimension; ++j)
+                        {
+                            var addResult = ring.AdditiveUnity;
+                            for (int k = 0; k < columnNumber; ++k)
+                            {
+                                var multResult = ring.Multiply(
+                                    this.elements[i][k],
+                                    right.elements[k][j]);
+                                addResult = ring.Add(addResult, multResult);
+                            }
+
+                            result.elements[i][j] = addResult;
+                        }
+                    });
+
+                    return result;
+                }
+            }
+        }
+
+        /// <summary>
         /// Troca duas linhas da matriz.
         /// </summary>
         /// <param name="i">A primeira linha a ser trocada.</param>
@@ -540,7 +596,7 @@ namespace Mathematics
                             }
                         }
                     }
-                    else if(ring.IsMultiplicativeUnity(b))
+                    else if (ring.IsMultiplicativeUnity(b))
                     {
                         var combinationLine = this.elements[j];
                         var replacementLineLenght = replacementLine.Length;
