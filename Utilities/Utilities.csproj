@@ -63,7 +63,10 @@
     <Compile Include="Collections\LispStyleList.cs" />
     <Compile Include="Collections\OrderedColEqualityComparer.cs" />
     <Compile Include="Collections\UnorderedColEqualityComparer.cs" />
+    <Compile Include="Cuda\CudaApi.cs" />
+    <Compile Include="Cuda\CudaConstants.cs" />
     <Compile Include="Cuda\CudaEnums.cs" />
+    <Compile Include="Cuda\CudaStructs.cs" />
     <Compile Include="Data\Implementations\Files\CSV\CsvDataReaderProvider.cs" />
     <Compile Include="Data\Implementations\Files\CSV\DoubleDataReader.cs" />
     <Compile Include="Data\Implementations\Files\CSV\CsvFileParser.cs" />
