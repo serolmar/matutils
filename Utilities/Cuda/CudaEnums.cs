@@ -1140,6 +1140,692 @@
     /// </summary>
     public enum ECudaGraphicsRegisterFlags
     {
+        /// <summary>
+        /// Sem descrição de momento.
+        /// </summary>
+        None = 0x00,
 
+        /// <summary>
+        /// Sem descrição de momento.
+        /// </summary>
+        Only = 0x01,
+
+        /// <summary>
+        /// Sem descrição de momento.
+        /// </summary>
+        Discard = 0x02,
+
+        /// <summary>
+        /// Sem descrição de momento.
+        /// </summary>
+        Ldst = 0x04,
+
+        /// <summary>
+        /// Sem descrição de momento.
+        /// </summary>
+        TextureGather = 0x08
+    }
+
+    /// <summary>
+    /// Marcas para CUDA IPC.
+    /// </summary>
+    public enum CudaIpcMemFlags
+    {
+        /// <summary>
+        /// Habilitar automaticamente o acesso de porto entre dispositivos remotos
+        /// conforme é necessário.
+        /// </summary>
+        LazyEnablePeerAccess = 0x1
+    }
+
+    /// <summary>
+    /// Códigos de formato de dispositivo.
+    /// </summary>
+    public enum CudaJitInputType
+    {
+        /// <summary>
+        /// Nenhum código de classe compilada específica de dispositivo.
+        /// </summary>
+        Cubin = 0,
+
+        /// <summary>
+        /// Opção de código fonte PTX.
+        /// </summary>
+        Ptx,
+
+        /// <summary>
+        /// Agregação de múltiplos cubins e/ou PTX do mesmo código de dispositivo.
+        /// </summary>
+        FatBinary,
+
+        /// <summary>
+        /// Objecto de anfitrião com código de dispositivo embebido.
+        /// </summary>
+        Object,
+
+        /// <summary>
+        /// Arquivo de objectos de anfitrião com código de dispositivo embebido. 
+        /// </summary>
+        Library,
+
+        /// <summary>
+        /// Sem descrição de momento.
+        /// </summary>
+        InputTypes
+    }
+
+    /// <summary>
+    /// Modos de provisão para DCLM.
+    /// </summary>
+    public enum CudaJitCacheMode
+    {
+        /// <summary>
+        /// Compilar sem a marca -dclm especificada.
+        /// </summary>
+        None = 0,
+
+        /// <summary>
+        /// Compilar com a provisão L1 inactiva.
+        /// </summary>
+        Cg,
+
+        /// <summary>
+        /// Compilar com a provisão L1 activa.
+        /// </summary>
+        Ca
+    }
+
+    /// <summary>
+    /// Estratégias de reserva para cubin.
+    /// </summary>
+    public enum CudaJitFallback
+    {
+        /// <summary>
+        /// Preferível compilar ptx se nenhuma correspondência binária for encontrada.
+        /// </summary>
+        Ptx = 0,
+
+        /// <summary>
+        /// Preferível recuar para código binário se nenhuma correspondência exacta não for encontrada.
+        /// </summary>
+        Binary
+    }
+
+    /// <summary>
+    /// Opções de compilador.
+    /// </summary>
+    public enum CudaJitOption
+    {
+        /// <summary>
+        /// Número máximo de registos que uma linha de fluxo pode ocupar.
+        /// </summary>
+        /// <remarks>
+        /// Tipo: uint
+        /// Aplicação: apenas ao compilador
+        /// </remarks>
+        MaxRegisters = 0,
+
+        /// <summary>
+        /// Entrada: especifica o número mínimo de linhas de flux por bloco para resultado de compilação.
+        /// Saída: retorna o número de linhas de fluxo que o resultou da execução do compilador. Isto restringe
+        /// a utilização de recursos ao compilador (como por exemplo, o número máximo de registos) de modo que
+        /// um bloco com um determinado número de linhsa de fluxo deva ser capaz de se lançar apesar das
+        /// suas limitações em termos de registos. Note-se que esta opção não leva em conta qualquer outra
+        /// limitação de recurso como é o caso da utilização da memória partilhada. Não pode ser combinado
+        /// com <see cref="ECudaJitOption.Target"/>.
+        /// </summary>
+        /// <remarks>
+        /// Tipo: uint
+        /// Aplicação: apenas ao compilador
+        /// </remarks>
+        ThreadsPerBlock,
+
+        /// <summary>
+        /// Subrescreve o valor da opção com o valor total do relógio, em milissegundos, demorados pela
+        /// aplicação do compilador e do ligador.
+        /// </summary>
+        /// <remarks>
+        /// Tipo: float
+        /// Aplicação: compilador e ligador
+        /// </remarks>
+        WallTime,
+
+        /// <summary>
+        /// Apontador para um amortecedor no qual são imprimidas mensagens de registo cuja natureza é
+        /// informacional (o tamanho do amortecedor é especificado via 
+        /// <see cref="ECudaJitOption.InfoLogBufferSizeBytes"/>).
+        /// </summary>
+        /// <remarks>
+        /// Tipo: ref char
+        /// Aplicação: compilador e ligador
+        /// </remarks>
+        InfoLogBuffer,
+
+        /// <summary>
+        /// Entrada: tamanho do amortecedor de mensagens de registo. As mensagens são ajustadas ou truncadas
+        /// até este tamanho.
+        /// Saída: Quantidade de amortecedor preenchido com as mensagens.
+        /// </summary>
+        /// <remarks>
+        /// Tipo: uint
+        /// Aplicação: apenas ao compilador
+        /// </remarks>
+        InfoLogBufferSizeBytes,
+
+        /// <summary>
+        /// Nível de optimização a ser aplicado ao código gerado (0-4), com 4 sendo o maior nível de optimização
+        /// que é tomado por defeito.
+        /// </summary>
+        /// <remarks>
+        /// Tipo: uint
+        /// Aplicação: apenas ao compilador
+        /// </remarks>
+        OptimizationLevel,
+
+        /// <summary>
+        /// Nenhum valor de opção é requerido. Determina o alvo com base no contexto actual (por defeito).
+        /// </summary>
+        /// <remarks>
+        /// Tipo: nenhum
+        /// Aplicação: apenas ao compilador
+        /// </remarks>
+        TargetFromCudaContext,
+
+        /// <summary>
+        /// O alvo é escolhido com base no parâmetro <see cref="ECudaJitTarget"/>. Não pode ser combinado
+        /// com <see cref="ECudaJitOption.ThreadsPerBlock"/>.
+        /// </summary>
+        /// <remarks>
+        /// Tipo: ECudaJitTarget
+        /// Aplicação: apenas ao compilador
+        /// </remarks>
+        Target,
+
+        /// <summary>
+        /// Especifica a escolha da estratégia de reserva se numa correspondência de cubin não for encontrada.
+        /// A escolha é baseada em <see cref="ECudaJitFallback"/>. Esta opção não pode ser usada em comnjunção
+        /// com as API CudaLink uma vez que o ligador requer correspondências exactas.
+        /// </summary>
+        /// /// <remarks>
+        /// Tipo: ECudaFallback
+        /// Aplicação: apenas ao compilador
+        /// </remarks>
+        FallbackStrategy,
+
+        /// <summary>
+        /// Especifica se se pretende criar informação de depuração na saída -g (0: false, valor por defeito).
+        /// </summary>
+        /// /// <remarks>
+        /// Tipo: int
+        /// Aplicação: compilador e ligador
+        /// </remarks>
+        GenerateDebugInfo,
+
+        /// <summary>
+        /// Gera mensagens de registo prolixas (0: falso, valor por defeito).
+        /// </summary>
+        /// /// <remarks>
+        /// Tipo: int
+        /// Aplicação: compilador e ligador
+        /// </remarks>
+        LogVerbose,
+
+        /// <summary>
+        /// Gera informação que contém o número da linha (-lineinfo) (0: falso, valor por defeito).
+        /// </summary>
+        /// /// <remarks>
+        /// Tipo: int
+        /// Aplicação: apenas ao compilador
+        /// </remarks>
+        GenerateLineInfo,
+
+        /// <summary>
+        /// Especifica se se pretende habilitar o suporte a provisão explicitamente (-dlcm). A escolha é
+        /// baseada em <see cref="ECudaJitCacheModeEnum"/>
+        /// </summary>
+        /// /// <remarks>
+        /// Tipo: /// <remarks>
+        /// Tipo: nenhum
+        /// Aplicação: apenas ao compilador
+        /// </remarks>
+        /// Aplicação: apenas ao compilador
+        /// </remarks>
+        CacheMode,
+
+        /// <summary>
+        /// Sem descrição de momento.
+        /// </summary>
+        NumOptions
+    }
+
+    /// <summary>
+    /// Alvos de compilação.
+    /// </summary>
+    public enum ECudaJitTarget
+    {
+        /// <summary>
+        /// Classe de dispositivo 1.0.
+        /// </summary>
+        Compute10 = 10,
+
+        /// <summary>
+        /// Classe de dispositivo 1.1.
+        /// </summary>
+        Compute11 = 11,
+
+        /// <summary>
+        /// Classe de dispositivo 1.2.
+        /// </summary>
+        Compute12 = 12,
+
+        /// <summary>
+        /// Classe de dispositivo 1.3.
+        /// </summary>
+        Compute13 = 13,
+
+        /// <summary>
+        /// Classe de dispositivo 2.0.
+        /// </summary>
+        Compute20 = 20,
+
+        /// <summary>
+        /// Classe de dispositivo 2.1.
+        /// </summary>
+        Compute21 = 21,
+
+        /// <summary>
+        /// Classe de dispositivo 3.0.
+        /// </summary>
+        Compute30 = 30,
+
+        /// <summary>
+        /// Classe de dispositivo 3.2.
+        /// </summary>
+        Compute32 = 32,
+
+        /// <summary>
+        /// Classe de dispositivo 3.5.
+        /// </summary>
+        Compute35 = 35,
+
+        /// <summary>
+        /// Classe de dispositivo 3.7.
+        /// </summary>
+        Compute37 = 37,
+
+        /// <summary>
+        /// Classe de dispositivo 5.0.
+        /// </summary>
+        Compute50 = 50
+    }
+
+    /// <summary>
+    /// Limites CUDA.
+    /// </summary>
+    public enum ECudaLimit
+    {
+        /// <summary>
+        /// Tamanho da pilha de linhas de fluxo.
+        /// </summary>
+        StackSize = 0x00,
+
+        /// <summary>
+        /// O tamanho da fila de impressão.
+        /// </summary>
+        PrintFifoSize = 0x01,
+
+        /// <summary>
+        /// Tamanho do acumolador de malloc.
+        /// </summary>
+        MallocHeapSize = 0x02,
+
+        /// <summary>
+        /// Profundidade da sincronização do lançamento no dispositivo.
+        /// </summary>
+        DevRuntimeSyncDepth = 0x03,
+
+        /// <summary>
+        /// Número de lançamentos pendentes no dispositivo em execução.
+        /// </summary>
+        DevRuntimePendingLaunchCount = 0x04,
+
+        /// <summary>
+        /// Sem descrição de momento.
+        /// </summary>
+        Max
+    }
+
+    public enum ECudaMemAttachFlags
+    {
+        /// <summary>
+        /// A memória pode ser acedida a partir de qualquer caudal em qualquer dispositivo.
+        /// </summary>
+        Global = 0x01,
+
+        /// <summary>
+        /// A memória não pode ser acedida em nenhum caudal de qualquer dispositivo.
+        /// </summary>
+        Host = 0x02,
+
+        /// <summary>
+        /// A memória pode apenas ser acedida por um caudal no dispositivo associado.
+        /// </summary>
+        Single = 0x04
+    }
+
+    /// <summary>
+    /// Tipos de memória.
+    /// </summary>
+    public enum ECudaMemoryType
+    {
+        /// <summary>
+        /// Memória de anfitrião.
+        /// </summary>
+        Host = 0x01,
+
+        /// <summary>
+        /// Memória de dispositivo.
+        /// </summary>
+        Device = 0x02,
+
+        /// <summary>
+        /// Memória em vector.
+        /// </summary>
+        Array = 0x03,
+
+        /// <summary>
+        /// Memória unificada de dispositivo ou anfitrião.
+        /// </summary>
+        Unified = 0x04
+    }
+
+    /// <summary>
+    /// Informação de apontador.
+    /// </summary>
+    public enum ECudaPointerAttribute
+    {
+        /// <summary>
+        /// O <see cref="SCudaContext"/> onde o apontador foi alocado ou registado.
+        /// </summary>
+        Context = 1,
+
+        /// <summary>
+        /// O <see cref="ECudaMemoryType"/> descrevendo a localização física de um apontador.
+        /// </summary>
+        MemoryType =2,
+
+        /// <summary>
+        /// O endereço no qual a memória de apontaores pode ser acedida no dispositivo.
+        /// </summary>
+        DevicePointer = 3,
+
+        /// <summary>
+        /// O endereço no qual a memória de apontadores pode ser acedida no anfitrião.
+        /// </summary>
+        HostPointer = 4,
+
+        /// <summary>
+        /// Um par de símbolos para utilizar com a interface de kernel Linux nv-p2p.h.
+        /// </summary>
+        P2PTokens = 5,
+
+        /// <summary>
+        /// Sicroniza qualquer operação de memória síncrona iniciada nesta região.
+        /// </summary>
+        SyncMomps = 6,
+
+        /// <summary>
+        /// Um ID único por processo para uma região de memória alocada.
+        /// </summary>
+        BufferId = 7,
+
+        /// <summary>
+        /// Indica se o apontador se encontra a apontar para memória gerida.
+        /// </summary>
+        IsManaged = 8
+    }
+
+    /// <summary>
+    /// Formato do recurso de vista.
+    /// </summary>
+    public enum ECudaResourceViewFormat
+    {
+        /// <summary>
+        /// Nenhum formato do recurso de vista (usar o formato de recurso subjacente).
+        /// </summary>
+        None = 0x00,
+
+        /// <summary>
+        /// Um canal a utilizar inteiros sem sinal de 8 bits.
+        /// </summary>
+        Uint1x8 = 0x01,
+
+        /// <summary>
+        /// Dois canais a utilizar inteiros sem sinal de 8 bits.
+        /// </summary>
+        Uint2x8 = 0x02,
+
+        /// <summary>
+        /// Quatro canais a utilizar inteiros sem sinal de 8 bits.
+        /// </summary>
+        Uint4x8 = 0x03,
+
+        /// <summary>
+        /// Um canal a utilizar inteiros de 8 bits.
+        /// </summary>
+        Sint1x8 = 0x04,
+
+        /// <summary>
+        /// Dois canais a utilizar inteiros de 8 bits.
+        /// </summary>
+        Sint2x8 = 0x05,
+
+        /// <summary>
+        /// Quatro canais a utilizar inteiros de 8 bits.
+        /// </summary>
+        Sint4x8 = 0x06,
+
+        /// <summary>
+        /// Um canal a utilizar inteiros sem sinal de 16 bits.
+        /// </summary>
+        Uint1x16 = 0x07,
+
+        /// <summary>
+        /// Dois canal a utilizar inteiros sem sinal de 16 bits.
+        /// </summary>
+        Uint2x16 = 0x08,
+
+        /// <summary>
+        /// Quatro canal a utilizar inteiros sem sinal de 16 bits.
+        /// </summary>
+        Uint4x16 = 0x09,
+
+        /// <summary>
+        /// Um canal a utilizar inteiros de 16 bits.
+        /// </summary>
+        Sint1x16 = 0x0A,
+
+        /// <summary>
+        /// Dois canal a utilizar inteiros de 16 bits.
+        /// </summary>
+        Sint2x16 = 0x0B,
+
+        /// <summary>
+        /// Quatro canal a utilizar inteiros de 16 bits.
+        /// </summary>
+        Sint4x16 = 0x0C,
+
+        /// <summary>
+        /// Um canal a utilizar inteiros sem sinal de 32 bits.
+        /// </summary>
+        Uint1x32 = 0x0D,
+
+        /// <summary>
+        /// Dois canal a utilizar inteiros sem sinal de 32 bits.
+        /// </summary>
+        Uint2x32 = 0x0E,
+
+        /// <summary>
+        /// Quatro canal a utilizar inteiros sem sinal de 32 bits.
+        /// </summary>
+        Uint4x32 = 0x0F,
+
+        /// <summary>
+        /// Um canal a utilizar inteiros de 32 bits.
+        /// </summary>
+        Sint1x32 = 0x10,
+
+        /// <summary>
+        /// Dois canal a utilizar inteiros de 32 bits.
+        /// </summary>
+        Sint2x32 = 0x11,
+
+        /// <summary>
+        /// Quatro canal a utilizar inteiros de 32 bits.
+        /// </summary>
+        Sint4x32 = 0x12,
+
+        /// <summary>
+        /// Um canal a utilizar valores de ponto flutuante de 16 bits.
+        /// </summary>
+        Float1x16 = 0x13,
+
+        /// <summary>
+        /// Dois canal a utilizar valores de ponto flutuante de 16 bits.
+        /// </summary>
+        Float2x16 = 0x14,
+
+        /// <summary>
+        /// Quatro canal a utilizar valores de ponto flutuante de 16 bits.
+        /// </summary>
+        Float4x16 = 0x15,
+
+        /// <summary>
+        /// Um canal a utilizar valores de ponto flutuante de 32 bits.
+        /// </summary>
+        Float1x32 = 0x16,
+
+        /// <summary>
+        /// Dois canal a utilizar valores de ponto flutuante de 32 bits.
+        /// </summary>
+        Float2x32 = 0x17,
+
+        /// <summary>
+        /// Quatro canal a utilizar valores de ponto flutuante de 32 bits.
+        /// </summary>
+        Float4x32 = 0x18,
+
+        /// <summary>
+        /// Compressão de bloco 1.
+        /// </summary>
+        UnsignedBc1 = 0x19,
+
+        /// <summary>
+        /// Compressão de bloco 2.
+        /// </summary>
+        UnsignedBc2 = 0x1A,
+
+        /// <summary>
+        /// Compressão de bloco 3.
+        /// </summary>
+        UnsignedBc3 = 0x1B,
+
+        /// <summary>
+        /// Compressão de bloco 4 sem sinal.
+        /// </summary>
+        UnsignedBc4 = 0x1C,
+
+        /// <summary>
+        /// Compressão de bloco 4 com sinal.
+        /// </summary>
+        SignedBc4 = 0x1D,
+
+        /// <summary>
+        /// Compressão de bloco 5 sem sinal.
+        /// </summary>
+        UnsignedBc5 = 0x1E,
+
+        /// <summary>
+        /// Compressão de bloco 5 com sinal.
+        /// </summary>
+        SignedBc5 = 0x1F,
+
+        /// <summary>
+        /// Compressão de bloco 6 com sinal semi ponto flutuante.
+        /// </summary>
+        UnsignedBc6h = 0x20,
+
+        /// <summary>
+        /// Compressão de bloco 6 sem sinal semi ponto flutuante.
+        /// </summary>
+        SignedBc6h = 0x21,
+
+        /// <summary>
+        /// Compressão de bloco 7.
+        /// </summary>
+        UnsignedBc7 = 0x22
+    }
+
+    /// <summary>
+    /// Tipos de recursos.
+    /// </summary>
+    public enum ECudaResourceType
+    {
+        /// <summary>
+        /// Recurso de vector.
+        /// </summary>
+        Array = 0x00,
+
+        /// <summary>
+        /// Recurso de vector mipmapped.
+        /// </summary>
+        MipmappedArray = 0x01,
+
+        /// <summary>
+        /// Recurso linear.
+        /// </summary>
+        Linear = 0x02,
+
+        /// <summary>
+        /// Recurso de passo 2D.
+        /// </summary>
+        Pitch2D = 0x03
+    }
+
+    /// <summary>
+    /// Configurações de memória partilhada.
+    /// </summary>
+    public enum ECudaSharedConfig
+    {
+        /// <summary>
+        /// Estabelece o tamanho do banco de memória por defeito.
+        /// </summary>
+        DefaultBankSize = 0x00,
+
+        /// <summary>
+        /// Estabelece a largura do banco de memória em 4 bytes.
+        /// </summary>
+        FourByteBankSize = 0x01,
+
+        /// <summary>
+        /// Estabelece a largura do banco de memória em 8 bytes.
+        /// </summary>
+        EightByteBankSize = 0x02
+    }
+
+    /// <summary>
+    /// Marcas de caudal.
+    /// </summary>
+    public enum ECudaStreanFlags
+    {
+        /// <summary>
+        /// Marca de caudal por defeito.
+        /// </summary>
+        Default = 0x0,
+
+        /// <summary>
+        /// O caudal não sincroniza com o caudal 0 (o caudal nulo).
+        /// </summary>
+        NonBlocking = 0x1
     }
 }
