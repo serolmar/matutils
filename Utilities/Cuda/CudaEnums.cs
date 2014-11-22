@@ -8,7 +8,7 @@
     /// <summary>
     /// Define os possíveis resultados de uma chamada CUDA.
     /// </summary>
-    public enum CudaResult
+    public enum ECudaResult
     {
         /// <summary>
         /// A chamada à API foi concluída sem erros. Indica também que uma consulta foi concluída.

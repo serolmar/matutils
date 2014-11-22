@@ -63,6 +63,8 @@
     <Compile Include="Collections\LispStyleList.cs" />
     <Compile Include="Collections\OrderedColEqualityComparer.cs" />
     <Compile Include="Collections\UnorderedColEqualityComparer.cs" />
+    <Compile Include="Cuda\CudaCallbacks.cs" />
+    <Compile Include="Cuda\CudaConstants.cs" />
     <Compile Include="Cuda\CudaEnums.cs" />
     <Compile Include="Cuda\CudaStructs.cs" />
     <Compile Include="Data\Implementations\Files\CSV\CsvDataReaderProvider.cs" />
@@ -121,6 +123,7 @@
     <Compile Include="Parsers\StringSymbol.cs" />
     <Compile Include="Parsers\StringSymbolReader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SizeT.cs" />
     <Compile Include="StateMachine\DelegateDrivenState.cs" />
     <Compile Include="StateMachine\DelegateStateImplementation.cs" />
     <Compile Include="StateMachine\IMemento.cs" />
