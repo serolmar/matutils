@@ -63,6 +63,7 @@
     <Compile Include="Collections\LispStyleList.cs" />
     <Compile Include="Collections\OrderedColEqualityComparer.cs" />
     <Compile Include="Collections\UnorderedColEqualityComparer.cs" />
+    <Compile Include="Cuda\CudaApi.cs" />
     <Compile Include="Cuda\CudaCallbacks.cs" />
     <Compile Include="Cuda\CudaConstants.cs" />
     <Compile Include="Cuda\CudaEnums.cs" />
