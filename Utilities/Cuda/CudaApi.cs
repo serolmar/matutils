@@ -337,11 +337,14 @@
         /// </summary>
         /// <remarks>
         /// Retorna num número de versão no parâmetro <see cref="version"/> que corresponde às capacidades do
-        /// contexto (exemplo, 3010 ou 3020).
+        /// contexto (exemplo, 3010 ou 3020) cuja livraria os utilizadores podem direccionar os executadores
+        /// para uma versão específica da API. Por exemplo, é válida para a versão 3020 enquanto a versão
+        /// é 4020.
         /// </remarks>
         /// <param name="ctx">O contexto.</param>
         /// <param name="version">A versão.</param>
-        /// <returns><see cref="ECudaResult.CudaSuccess"/>,
+        /// <returns>
+        /// <see cref="ECudaResult.CudaSuccess"/>,
         /// <see cref="ECudaResult.CudaErrorDeinitialized"/>,
         /// <see cref="ECudaResult.CudaErrorNotInitialized"/>,
         /// <see cref="ECudaResult.CudaErrorInvalidContext"/>,
@@ -351,38 +354,342 @@
         [DllImport(DllName, EntryPoint = "cuCtxGetApiVersion")]
         public static extern ECudaResult CudaGetApiVersion(SCudaContext ctx, ref uint version);
 
+        /// <summary>
+        /// Retorna a configuração da provisão.
+        /// </summary>
+        /// <remarks>
+        /// Em dispositivos onde a provisão L1 e a memória partilhada usam os mesmos recursos, esta função
+        /// retorna em <see cref="pconfig"/> a provisão preferida para o contexto actual. Isto é apenas uma
+        /// preferência. O condutor irá utilizar a configuração requerida se possível mas é livre de esolher
+        /// uma configuração diferente se necessário para executar as funções.
+        /// Irá retornar o valor <see cref="ECudaFuncCache.None"/> em dispositivos onde o tamanho da provisão
+        /// L1 e da memória partilhada são fixos.
+        /// As configurações de provisão suportadas são:
+        /// <list type="bullet">
+        /// <item><see cref="ECudaFuncCache.None"/></item>
+        /// <description>
+        /// Nenhuma preferência para memória partilhada.
+        /// </description>
+        /// <item><see cref="ECudaFuncCache.Shared"/></item>
+        /// <description>
+        /// Preferência por uma grande quantidade de memória partilhada e menor provisão L1.
+        /// </description>
+        /// <item><see cref="ECudaFuncCache.L1"/></item>
+        /// <description>
+        /// Preferência por uma grande quantidade de provisão L1 e menor memória partilhada.
+        /// </description>
+        /// <item><see cref="ECudaFuncCache.Equal"/></item>
+        /// <description>
+        /// Preferência por iguais quantidades de memória partilhada e provisão L1.
+        /// </description>
+        /// </list>
+        /// </remarks>
+        /// <param name="pconfig">A configuração da provisão.</param>
+        /// <returns>
+        /// <see cref="ECudaResult.CudaSuccess"/>,
+        /// <see cref="ECudaResult.CudaErrorDeinitialized"/>,
+        /// <see cref="ECudaResult.CudaErrorNotInitialized"/>,
+        /// <see cref="ECudaResult.CudaErrorInvalidContext"/>,
+        /// <see cref="ECudaResult.CudaErrorInvalidValue"/>.
+        /// </returns>
         [DllImport(DllName, EntryPoint = "cuCtxGetCacheConfig")]
         public static extern ECudaResult CudaCtxGetCacheConfig(ref ECudaFuncCache pconfig);
 
+        /// <summary>
+        /// Retorna o contexto CUDA ligado à linha de fluxo corrente.
+        /// </summary>
+        /// <remarks>
+        /// Se nenhum contexto estiver ligado à linha de fluxo corrente então <see cref="pctx"/> recebe o valor
+        /// nulo e o valor <see cref="ECudaResult.CudaSuccess"/> é retornado.
+        /// </remarks>
+        /// <param name="pctx">O manuseador do contexto.</param>
+        /// <returns>
+        /// <see cref="ECudaResult.CudaSuccess"/>,
+        /// <see cref="ECudaResult.CudaErrorDeinitialized"/>,
+        /// <see cref="ECudaResult.CudaErrorNotInitialized"/>
+        /// </returns>
         [DllImport(DllName, EntryPoint = "cuCtxGetCurrent")]
         public static extern ECudaResult CudaCtxGetCurrent(ref SCudaContext pctx);
 
+        /// <summary>
+        /// Retorna o ID do dispositivo para o contexto actual.
+        /// </summary>
+        /// <param name="device">O dispositivo.</param>
+        /// <returns>
+        /// <see cref="ECudaResult.CudaSuccess"/>,
+        /// <see cref="ECudaResult.CudaErrorDeinitialized"/>,
+        /// <see cref="ECudaResult.CudaErrorNotInitialized"/>,
+        /// <see cref="ECudaResult.CudaErrorInvalidContext"/>,
+        /// <see cref="ECudaResult.CudaErrorInvalidValue"/>.
+        /// </returns>
         [DllImport(DllName, EntryPoint = "cuCtxGetDevice")]
         public static extern ECudaResult CudaCtxGetDevice(ref SCudaDevice device);
 
+        /// <summary>
+        /// Retorna os limites dos recursos.
+        /// </summary>
+        /// <remarks>
+        /// Retorna em <see cref="pvalue"/> o tamanho actual do <see cref="limit"/>. Os valores do limite
+        /// suportados são:
+        /// <list type="bullet">
+        /// <item><see cref="ECudaLimit.StackSize"/></item>
+        /// <description>
+        /// Tamanho de pilha em bytes de cada linha de fluxo GPU.
+        /// </description>
+        /// <item><see cref="ECudaLimit.PrintFifoSize"/></item>
+        /// <description>
+        /// Tamanho em bytes da fila usada pela função de sistema "printf()" no dispositivo.
+        /// </description>
+        /// <item><see cref="ECudaLimit.MallocHeapSize"/></item>
+        /// <description>
+        /// Tamanho em bytes do acumulador utilizado pelas funções de sistema "malloc()" e "freee()" no
+        /// dispositivo.
+        /// </description>
+        /// <item><see cref="ECudaLimit.DevRuntimeSyncDepth"/></item>
+        /// <description>
+        /// Profundidade máxima da grelha na qual uma linha de fluxo pode emitir uma chamada no dispositivo
+        /// em tempo de execução "cudaDeviceSynchronize()" para esperar que as grelhas dependentes terminem.
+        /// </description>
+        /// <item><see cref="ECudaLimit.DevRuntimePendingLaunchCount"/></item>
+        /// <description>
+        /// Número máximo de lançamentos de dispositivo prominentes que podem ser realizados a partir do contexto
+        /// corrente.
+        /// </description>
+        /// </list>
+        /// </remarks>
+        /// <param name="pvalue">O valor do tamanho do limite.</param>
+        /// <param name="limit">O limite a ser consultado.</param>
+        /// <returns>
+        /// <see cref="ECudaResult.CudaSuccess"/>,
+        /// <see cref="ECudaResult.CudaErrorInvalidValue"/>,
+        /// <see cref="ECudaResult.CudaErrorInvalidContext"/>
+        /// </returns>
         [DllImport(DllName, EntryPoint = "cuCtxGetLimit")]
         public static extern ECudaResult CudaCtxGetLimit(ref SizeT pvalue, ECudaLimit limit);
 
+        /// <summary>
+        /// Retorna a confifuração de memória partilhada para o contexto corrente.
+        /// </summary>
+        /// <param name="pconfig">A configuração da memória.</param>
+        /// <returns>
+        /// <remarks>
+        /// A função retorna em <see cref="pconfig"/> o tamanho actual dos bancos de memória partilhada no
+        /// contexto actual. Nos dispositivos onde os bancos de memória partilhada são configuráveis,
+        /// <see cref="CudaApi.CudaCtxSetSharedMemConfig"/> pode ser usada para alterar esta configuração
+        /// de tal modo que todos os lançamentos de kernel subsequentes utilizarão, por defeito, o novo
+        /// tamanho do banco. Quando <see cref="CudaApi.CudaCtxGetSharedMemConfig"/> é chamada em dispositivos
+        /// sem memória partilhada configurável, retornará o tamanho fixo dos bancos.
+        /// </remarks>
+        /// <see cref="ECudaResult.CudaSuccess"/>,
+        /// <see cref="ECudaResult.CudaErrorDeinitialized"/>,
+        /// <see cref="ECudaResult.CudaErrorNotInitialized"/>,
+        /// <see cref="ECudaResult.CudaErrorInvalidContext"/>,
+        /// <see cref="ECudaResult.CudaErrorInvalidValue"/>.
+        /// </returns>
         [DllImport(DllName, EntryPoint = "cuCtxGetSharedMemConfig")]
         public static extern ECudaResult CudaCtxGetSharedMemConfig(ref ECudaSharedConfig pconfig);
 
+        /// <summary>
+        /// Retorna valores numéricos que correspondem às prioridades máxima e mínima de caudal.
+        /// </summary>
+        /// <remarks>
+        /// Retorna em <see cref="leastPriority"/> e <see cref="greatestPriority"/> os valores numéricos que
+        /// correspondem às prioridades de caudal mínima e máxima. O intervalo de prioridades de caudal é dado
+        /// por [<see cref="leastPriority"/>,<see cref="greatestPriority"/>]. Se o utilizador tentar criar um
+        /// caudal com um valor de prioridade fora do intervalo como se encontra especificado pela API, a
+        /// prioridade é automaticamente reestabelecida em <see cref="leastPriority"/> ou
+        /// <see cref="greatestPriority"/> respectivamente. Ver 
+        /// <see cref="CudaApi.CudaStreamCreateWithPriority"/> para mais detalhes sobre a criação de caudais
+        /// com prioridades. O valor nulo pode ser passado em <see cref="leastPriority"/> ou
+        /// <see cref="greatestPriority"/> se esse valor não for desejado.
+        /// A função irá retornar zero em ambos <see cref="leastPriority"/> e
+        /// <see cref="greatestPriority"/> se o dispositivo do contexto actual não suportar prioridades de
+        /// caudal (ver <see cref="CudaApi.CudaDeviceGetAttribute"/>.
+        /// </remarks>
+        /// <param name="leastPriority">A prioridade mínima.</param>
+        /// <param name="greatestPriority">A prioridade máxima.</param>
+        /// <returns>
+        /// <see cref="ECudaResult.CudaSuccess"/>,
+        /// <see cref="ECudaResult.CudaErrorInvalidValue"/>.
+        /// </returns>
         [DllImport(DllName, EntryPoint = "cuCtxGetStreamPriorityRange")]
         public static extern ECudaResult CudaCtxGetStreamPriorityRange(
             ref int leastPriority, 
             ref int greatestPriority);
 
+        /// <summary>
+        /// Extrai o contexto CUDA actual da linha de fluxo do CPU corrente.
+        /// </summary>
+        /// <remarks>
+        /// Extrai o contexto CUDA actual da linha de fluxo do CPU corrente e passa o manuseador do contexto
+        /// antigo no parâmetro <see cref="pctx"/>. Este contexto pode ser tornado corrente numa linha de fluxo
+        /// do CPU diferente por intermédio da chamada à função <see cref="CudaApi.CudaCtxPushCurrent"/>.
+        /// Se um contexto já era corrente numa linha de fluxo do CPU antes da chamada às funções
+        /// <see cref="CudaApi.CudaCtxCreate"/> ou <see cref="CudaApi.CudaCtxPushCurrent"/>, esta fução torna
+        /// novamente corrente este contexto corrente para a linha de fluxo do CPU.
+        /// </remarks>
+        /// <param name="pctx">O contexto.</param>
+        /// <returns>
+        /// <see cref="ECudaResult.CudaSuccess"/>,
+        /// <see cref="ECudaResult.CudaErrorDeinitialized"/>,
+        /// <see cref="ECudaResult.CudaErrorNotInitialized"/>,
+        /// <see cref="ECudaResult.CudaErrorInvalidContext"/>.
+        /// </returns>
         [DllImport(DllName, EntryPoint = "cuCtxPopCurrent")]
-        public static extern ECudaResult CudaCtxPopCurrent(ref SCudaContext ctx);
+        public static extern ECudaResult CudaCtxPopCurrent(ref SCudaContext pctx);
 
+        /// <summary>
+        /// Insere um contxto na linha de fluxo do CPU corrente.
+        /// </summary>
+        /// <remarks>
+        /// Insere o contexto proporcionado na pilha de contextos da linha de fluxo do CPU. O contexto
+        /// especificado passa a ser o contexto corrente dessa linha de fluxo de modo que todas as funções CUDA
+        /// que operam no contexto são afectadas.
+        /// </remarks>
+        /// <param name="ctx">O contexto.</param>
+        /// <returns>
+        /// <see cref="ECudaResult.CudaSuccess"/>,
+        /// <see cref="ECudaResult.CudaErrorDeinitialized"/>,
+        /// <see cref="ECudaResult.CudaErrorNotInitialized"/>,
+        /// <see cref="ECudaResult.CudaErrorInvalidContext"/>,
+        /// <see cref="ECudaResult.CudaErrorInvalidValue"/>.
+        /// </returns>
         [DllImport(DllName, EntryPoint = "cuCtxPushCurrent")]
-        public static extern ECudaResult CudaCtxPushCurrent(ref SCudaContext ctx);
+        public static extern ECudaResult CudaCtxPushCurrent(SCudaContext ctx);
 
+        /// <summary>
+        /// Atribui a configuração de provisão preferencial para o contexto corrente.
+        /// </summary>
+        /// <remarks>
+        /// Nos dispositivos onde a provisão L1 e a memória usam os mesmos recursos físicos, isto atribui
+        /// por intermédio do parâmetro <see cref="config"/> a configuração de provisão preferencial para o
+        /// contexto actual. Trata-se apenas de uma preferência. O condutor irá utilizar a configuração
+        /// requrerida se possível, mas é livre de escolher uma diferente caso seja necessária para executar
+        /// a função. Qualquer atribuição de função preferencial via <see cref="CudaApi.CudaFuncSetCacheConfig"/>
+        /// será preferida sobre qualquer atribuição possível no contexto. Atribuindo o valor
+        /// <see cref="EFCudaFuncCache.None"/> irá causar com que os lançamentos de kernel subsequentes prefiram
+        /// não alterar a configuração de provisão a menos que seja requerido pelo lançamento do kernel.
+        /// Esta atribuição não tem qualquer efeito em dispositivos onde o tamanho da provisão L1 e da memória
+        /// partilhada são fixo. Lançando um kernel com uma preferência diferente da actual pode inserir um
+        /// ponto de sincronizaçao no lado do dispsitivo.
+        /// As configurações de provisão suportadas são:
+        /// <list type="bullet">
+        /// <item><see cref="ECudaFuncCache.None"/></item>
+        /// <description>
+        /// Nenhuma preferência para provisão L1 ou memória partilhada (por defeito).
+        /// </description>
+        /// <item><see cref="ECudaFuncCache.Shared"/></item>
+        /// <description>
+        /// Preferência por maior memória partilhada e menor provisão L1.
+        /// </description>
+        /// <item><see cref="ECudaFuncCache.L1"/></item>
+        /// <description>
+        /// Preferência por maior provisão L1 e menor memória partilhada.
+        /// </description>
+        /// <item><see cref="ECudaFuncCache.Equal"/></item>
+        /// <description>
+        /// Preferência por iguais quantidades entre provisão L1 e memória partilhada.
+        /// </description>
+        /// </list>
+        /// </remarks>
+        /// <param name="config">A configuração de provisão requerida.</param>
+        /// <returns>
+        /// <see cref="ECudaResult.CudaSuccess"/>,
+        /// <see cref="ECudaResult.CudaErrorDeinitialized"/>,
+        /// <see cref="ECudaResult.CudaErrorNotInitialized"/>,
+        /// <see cref="ECudaResult.CudaErrorInvalidContext"/>,
+        /// <see cref="ECudaResult.CudaErrorInvalidValue"/>.
+        /// </returns>
         [DllImport(DllName, EntryPoint = "cuCtxSetCacheConfig")]
         public static extern ECudaResult CudaCtxSetCacheConfig(ECudaFuncCache config);
 
+        /// <summary>
+        /// Liga o contexto CUDA especificado à linha de fluxo de chamada do CPU.
+        /// </summary>
+        /// <remarks>
+        /// Se o parâmetro <see cref="ctx"/> for nulo então o contexto CUDA previamente ligado à linha de fluxo
+        /// de chamada no CPU é desligado e o valor <see cref="ECudaResult.CudaSuccess"/> é retornado.
+        /// Se existir um contexto CUDA na pilha da linha de fluxo do CPU de chamada, este irá substituir o topo
+        /// dessa pilha com <see cref="ctx"/>. Sendo o valor de <see cref="ctx"/> nulo, isto equivale a extrair
+        /// o topo da pilha de contexto da linha de fluxo do CPU de chamada (ou a no-op se a pilha da
+        /// linha CPU de chamada se encontrar vazia). 
+        /// </remarks>
+        /// <param name="ctx">O contexto a ser ligado à linha de fluxo de chamada do CPU.</param>
+        /// <returns>
+        /// <see cref="ECudaResult.CudaSuccess"/>,
+        /// <see cref="ECudaResult.CudaErrorDeinitialized"/>,
+        /// <see cref="ECudaResult.CudaErrorNotInitialized"/>,
+        /// <see cref="ECudaResult.CudaErrorInvalidContext"/>.
+        /// </returns>
         [DllImport(DllName, EntryPoint = "cuCtxSetCurrent")]
         public static extern ECudaResult CudaCtxSetCurrent(SCudaContext ctx);
 
+        /// <summary>
+        /// Atribui os limites dos recursos.
+        /// </summary>
+        /// <remarks>
+        /// A atribuição de <see cref="value"/> a <see cref="limit"/> consiste num requisito da aplicação para
+        /// alterar o limite actual mantido pelo contexto. O condutor é livre de modificar o valor requerido
+        /// de modo a ser coadunado com requisitos h/w (isto pode estar relacionado com a reatribuição a valores
+        /// mínimos ou máximos, arredondamento para o tamanho de elemento mais próximo, etc). A aplicação pode
+        /// usar <see cref="CudaApi.CudaCtxGetLimit"/> para determinar exactamente o valor ao qual foi atribuído
+        /// o limite.
+        /// A atribuição de cada um dos limites <see cref="ECudaLimit"/> tem as suas restrições específicas que
+        /// serão brevemente resumidas de seguida.
+        /// <list type="bullet">
+        /// <item><see cref="ECudaLimit.StackSize"/></item>
+        /// <description>
+        /// Controla o tamanho da pilha em bytes de cada linha de fluxo GPU. Este limite é apenas aplicável a
+        /// dispositivos com capacidade computacional 2.0 e maior. Tentanto atribuir este limite em dispositivos
+        /// com capacidade computacional menor que 2.0 irá resultar no retorno do erro
+        /// <see cref="ECudaResult.CudaErrorUnsupportedLimit"/>.
+        /// </description>
+        /// <list type="bullet">
+        /// <item><see cref="ECudaLimit.PrintFifoSize"/></item>
+        /// <description>
+        /// Controla o tamanho em bytes da fila usada pela chamada de sistema da função "printf()". A atribuição 
+        /// do limite <see cref="ECudaLimit.PrintFifoSize"/> deve ser realizada antes do lançamento do kernel que
+        /// usa a função de sistema "printf()", caso contrário será retornado o erro
+        /// <see cref="ECudaResult.CudaErrorInvalidValue"/>. Este limite é apenas aplicável a dispositivos com
+        /// capacidade computacional 2.0 ou superior. A tentativa de atribuição deste limite em dispositivos com
+        /// capacidade computacional inferior a 2.0 irá resultar no retorno do erro
+        /// <see cref="ECudaResult.CudaErrorUnsupportedLimit"/>.
+        /// </description>
+        /// <list type="bullet">
+        /// <item><see cref="ECudaLimit.MallocHeapSize"/></item>
+        /// <description>
+        /// Controla o tamanho em bytes do acumulador utilizado pelas chamadas Às funções de sistema "malloc()" e
+        /// "free()". A atribuição de <see cref="ECudaLimit.MallocHeapSize"/> deve ser realizada antes do 
+        /// lançamento de qualquer kernel que utilize as funções de sistema "malloc()" ou "free()" no dispositivo,
+        /// caso contrário será retornado o erro <see cref="ECudaResult.CudaErrorInvalidValue"/>. Este limite é
+        /// apenas aplicado em dispositivos com capacidade computacional 2.0 ou superior. A tentativa de
+        /// atribuição deste limite em dispositivos com capacidade computacional inferior a 2.0 irá resultar no
+        /// retorno do erro <see cref="ECudaResult.CudaErrorUnsupportedLimit"/>.
+        /// contrário
+        /// </description>
+        /// <list type="bullet">
+        /// <item><see cref="ECudaLimit.DevRuntimeSyncDepth"/></item>
+        /// <description>
+        /// Controla a profundidade aninhada máxima de uma grelha na qual uma linha de fluxo pode chamar com
+        /// segurança a função "cudaDeviceSynchronize()". A atribuição deste limite deve ser realizada antes de
+        /// quaqluer lançamento de kernel que utilize o dispositivo e chame a função "cudaDeviceSynchronize()"
+        /// acima da profundidade de sincronização por defeito, dois níveis de grelha. Chamadas à função
+        /// "cudaDeviceSynchronize()" irão falhar com o código de erro "cudaErrorSyncDepthExceeded" se a 
+        /// limitação for violada.
+        /// </description>
+        /// <list type="bullet">
+        /// <item><see cref="ECudaLimit.DevRuntimePendingLaunchCount"/></item>
+        /// <description>
+        /// </description>
+        /// </list>
+        /// </remarks>
+        /// <param name="limit">O limite a ser atribuído.</param>
+        /// <param name="value">O valor a atribuir.</param>
+        /// <returns>
+        /// <see cref="ECudaResult.CudaSuccess"/>,
+        /// <see cref="ECudaResult.CudaErrorInvalidValue"/>,
+        /// <see cref="ECudaResult.CudaErrorOutOfMemory"/>.
+        /// </returns>
         [DllImport(DllName, EntryPoint = "cuCtxSetLimit")]
         public static extern ECudaResult CudaCtxSetLimit(ECudaLimit limit, SizeT value);
 
