@@ -1181,7 +1181,7 @@
     /// <summary>
     /// Códigos de formato de dispositivo.
     /// </summary>
-    public enum CudaJitInputType
+    public enum ECudaJitInputType
     {
         /// <summary>
         /// Nenhum código de classe compilada específica de dispositivo.
@@ -1217,7 +1217,7 @@
     /// <summary>
     /// Modos de provisão para DCLM.
     /// </summary>
-    public enum CudaJitCacheMode
+    public enum ECudaJitCacheMode
     {
         /// <summary>
         /// Compilar sem a marca -dclm especificada.
@@ -1238,7 +1238,7 @@
     /// <summary>
     /// Estratégias de reserva para cubin.
     /// </summary>
-    public enum CudaJitFallback
+    public enum ECudaJitFallback
     {
         /// <summary>
         /// Preferível compilar ptx se nenhuma correspondência binária for encontrada.
@@ -1254,7 +1254,7 @@
     /// <summary>
     /// Opções de compilador.
     /// </summary>
-    public enum CudaJitOption
+    public enum ECudaJitOption
     {
         /// <summary>
         /// Número máximo de registos que uma linha de fluxo pode ocupar.

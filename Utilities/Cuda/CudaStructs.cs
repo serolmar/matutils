@@ -834,4 +834,16 @@
         /// </summary>
         public IntPtr Pointer;
     }
+
+    /// <summary>
+    /// Referencia um estado de ligação CUDA.
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct SCudaLinkState
+    {
+        /// <summary>
+        /// Apontador para o estado de ligação CUDA.
+        /// </summary>
+        public IntPtr Pointer;
+    }
 }

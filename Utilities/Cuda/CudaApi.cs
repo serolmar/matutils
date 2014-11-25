@@ -675,11 +675,33 @@
         /// quaqluer lançamento de kernel que utilize o dispositivo e chame a função "cudaDeviceSynchronize()"
         /// acima da profundidade de sincronização por defeito, dois níveis de grelha. Chamadas à função
         /// "cudaDeviceSynchronize()" irão falhar com o código de erro "cudaErrorSyncDepthExceeded" se a 
-        /// limitação for violada.
+        /// limitação for violada. Este limite pode ser estabelecido com um valor menor do que o que se encontra
+        /// por defeito ou até um máximo de profundidade de lançamento igual a 24. Quando é estabelecido este
+        /// limite, convém notar que níveis adicionais de profundidade de sincronização requerem ao condutor
+        /// que reserve grandes quantidaades de memória que deixam de ficar disponíveis para as alocações do
+        /// utilizador. Se esta reserva de memória de dispositivo falhar, <see cref="CudaApi.CudaCtxSetLimit"/>
+        /// irá retornar <see cref="ECudaResult.CudaErrorOutOfMemory"/> ee o limite pode ser reestabelecido
+        /// num valor menor. Este limite é apenas aplicável a dispositivos com capacidade computacional 3.5 e
+        /// superior. A tentativa de atribuir este limite em dispositivos com capacidade computacional inferior
+        /// a 3.5 irá resultar no retorno do erro <see cref="ECudaResult.CudaErrorUnsupportedLimit"/>.
         /// </description>
         /// <list type="bullet">
         /// <item><see cref="ECudaLimit.DevRuntimePendingLaunchCount"/></item>
         /// <description>
+        /// Controla o número máximo de lançamentos prominentes de dispositivos em execução que podem ser
+        /// realizados a partir do contexto actual. Uma grelha é prominente do ponto de lançamento até que a
+        /// grelha tenha ficado completa. Lançamentos em tempo de execução do dispositivo que violarem esta
+        /// limitação falham e retornam "cudaErrorLaunchPendingCountExceed" quando é chamada a função
+        /// "cudaGetLastError()" após o lançamento. Se mais lançamentos pendentes dos que está definido por
+        /// defeito (2018 lançamentos) são necessários para um módulo que utilize o dispositivo em execução,
+        /// este limite pode ser aumentado. Convém notar que sendo capaz de suster lançamentos pendentes 
+        /// adicionais, será requerido ao condutor a reserva de grandes quantidades de memória de dispositivo
+        /// que não poderá ser utilizada por alocações do utilizador. Se estas reservas falharem,
+        /// <see cref="CudaApi.CudaCtxSetLimit"/> retornará o erro <see cref="CudaResult.CudaErrorOutOfMemory"/>
+        /// e o limite pode ser reatribuído para um menor valor. Este limite é apenas aplicável em dispositivos
+        /// com capacidade computacional 3.5 e superior. A tentativa de atribuir este limite em dispositivos com
+        /// capacidade computacional inferior a 3.5 irá resultar no retorno do erro 
+        /// <see cref="ECudaResult.CudaErrorUnsupportedLimit"/>.
         /// </description>
         /// </list>
         /// </remarks>
@@ -693,12 +715,160 @@
         [DllImport(DllName, EntryPoint = "cuCtxSetLimit")]
         public static extern ECudaResult CudaCtxSetLimit(ECudaLimit limit, SizeT value);
 
+        /// <summary>
+        /// Atribui a configuração de memória partilhada ao contexto corrente.
+        /// </summary>
+        /// <remarks>
+        /// Em disposivos com bancos de memória reconfiguráveis, esta função irá atribuir o tamanho do banco
+        /// de memória que é usado em lançamentos subsequentes do kernel. A alteração da configuração entre
+        /// lançamentos pode introduzir um ponto de sincronização no lado do dispositivo entre os dois
+        /// lançamentos. Alterando o tamanho do banco da memória partilhada não irá aumentar a utilização de
+        /// memória partilhada ou afectar a ocupância dos kernels, mas pode ter efeitos consideráveis no
+        /// desempenho. Maiores tamanhos dos bancos irão permitir um maior potencial de largura de banda para a
+        /// memória partilhada mas irá alterar que tipo de acessos à memória partilhada irão resultar em
+        /// conflitos de bancos. Esta função não terá efeito em dispositivos com um tamanho do banco de memória
+        /// fixo. As configurações de banco suportadas são:
+        /// <list type="bullet">
+        /// <item><see cref="ECudaSharedConfig.DefaultBankSize"/></item>
+        /// <description>
+        /// Atribui a largura do banco para o valor inicial por defeito (actualmente, quatro bytes).
+        /// </description>
+        /// <item><see cref="ECudaSharedConfig.FourByteBankSize"/></item>
+        /// <description>
+        /// Atribui a largura do banco de memória partilhada para os quatro bytes nativos.
+        /// </description>
+        /// <item><see cref="ECudaSharedConfig.EightByteBankSize"/></item>
+        /// <description>
+        /// Atribui a largura do banco de memória partilhada para os oito bytes nativos.
+        /// </description>
+        /// </list>
+        /// </remarks>
+        /// <param name="config">A configuração de memória partilhada.</param>
+        /// <returns>
+        /// <see cref="ECudaResult.CudaSuccess"/>,
+        /// <see cref="ECudaResult.CudaErrorDeinitialized"/>,
+        /// <see cref="ECudaResult.CudaErrorNotInitialized"/>,
+        /// <see cref="ECudaResult.CudaErrorInvalidContext"/>,
+        /// <see cref="ECudaResult.CudaErrorInvalidValue"/>.
+        /// </returns>
         [DllImport(DllName, EntryPoint = "cuCtxSetSharedMemConfig")]
         public static extern ECudaResult CudaCtxSetSharedMemConfig(ECudaSharedConfig config);
 
+        /// <summary>
+        /// Bloqueia até que as tarefas do contexto completem.
+        /// </summary>
+        /// <remarks>
+        /// Bloqueia até que o dispositivo tenha completado todas as tarefas precedentes. Retorna um erro
+        /// se uma das tarefas falhar. Se o contxto foi criado com a marca 
+        /// <see cref="ECudaContexFlags.SchedBlockingSync"/>, a linha de fluxo do CPU irá bloquear até que
+        /// o contexto do GPU tenha terminado o seu trabalho.
+        /// </remarks>
+        /// <returns>
+        /// <see cref="ECudaResult.CudaSuccess"/>,
+        /// <see cref="ECudaResult.CudaErrorDeinitialized"/>,
+        /// <see cref="ECudaResult.CudaErrorNotInitialized"/>,
+        /// <see cref="ECudaResult.CudaErrorInvalidContext"/>
+        /// </returns>
         [DllImport(DllName, EntryPoint = "cuCtxSynchronize")]
         public static extern ECudaResult CudaCtxSynchronize();
 
+        /// <summary>
+        /// Incrementa a contagem de utilização de contexto.
+        /// </summary>
+        /// <param name="pctx">O manueseador do contexto actual retornado.</param>
+        /// <param name="flgas">As marcas de anexação (deve ser 0).</param>
+        /// <returns>
+        /// <see cref="ECudaResult.CudaSuccess"/>,
+        /// <see cref="ECudaResult.CudaErrorDeinitialized"/>,
+        /// <see cref="ECudaResult.CudaErrorNotInitialized"/>,
+        /// <see cref="ECudaResult.CudaErrorInvalidContext"/>,
+        /// <see cref="ECudaResult.CudaErrorInvalidValue"/>.
+        /// </returns>
+        [Obsolete("This function is deprecated and should not be used.")]
+        [DllImport(DllName, EntryPoint = "cuCtxAttach")]
+        public static extern ECudaResult CudaCtxAttach(ref SCudaContext pctx, uint flgas);
+
+        /// <summary>
+        /// Decrementa a contagem de utilzação de contexto.
+        /// </summary>
+        /// <param name="ctx">O contexto.</param>
+        /// <returns>
+        /// <see cref="ECudaResult.CudaSuccess"/>,
+        /// <see cref="ECudaResult.CudaErrorDeinitialized"/>,
+        /// <see cref="ECudaResult.CudaErrorNotInitialized"/>,
+        /// <see cref="ECudaResult.CudaErrorInvalidContext"/>.
+        /// </returns>
+        [Obsolete("This function is deprecated and should not be used.")]
+        [DllImport(DllName, EntryPoint = "cuCtxDetach")]
+        public static extern ECudaResult CudaCtxDetach(SCudaContext ctx);
+
         #endregion Gestão de contextos
+
+        #region Gestão de módulos
+        
+        [DllImport(DllName, EntryPoint="cuLinkAddData")]
+        public static extern ECudaResult CudaLinkAddData(
+            SCudaLinkState state,
+            ECudaJitInputType type,
+            IntPtr data,
+            SizeT size,
+            string name,
+            uint numOptions,
+            [Out] ECudaJitOption[] options,
+            IntPtr optionValues);
+
+        [DllImport(DllName, EntryPoint="cuLinkAddFile")]
+        public static extern ECudaResult CudaLinkAddFile(
+            SCudaLinkState state,
+            ECudaJitInputType type,
+            string path,
+            uint numbOptions,
+            [Out] ECudaJitOption[] options,
+            IntPtr optionValues);
+
+        [DllImport(DllName, EntryPoint="cuLinkComplete")]
+        public static extern ECudaResult CudaLinkComplete(
+            SCudaLinkState state,
+            IntPtr cubinOut,
+            ref SizeT sizeOut);
+
+        [DllImport(DllName, EntryPoint="cuLinkCreate")]
+        public static extern ECudaResult CudaLinkCreate(
+            uint numOptions,
+            [Out] ECudaJitOption[] options,
+            IntPtr optionValues,
+            ref SCudaLinkState stateOut);
+
+        [DllImport(DllName, EntryPoint="cuLinkDestroy")]
+        public static extern ECudaResult CudaLinkDestroy();
+
+        [DllImport(DllName, EntryPoint="cuModuleGetFunction")]
+        public static extern ECudaResult CudaModuleGetFunction();
+
+        [DllImport(DllName, EntryPoint="cuModuleGetGlobal")]
+        public static extern ECudaResult CudaModuleGetGlobal();
+
+        [DllImport(DllName, EntryPoint="cuModuleGetSurfRef")]
+        public static extern ECudaResult CudaModuleGetSurfRef();
+
+        [DllImport(DllName, EntryPoint="cuModuleGetTexRef")]
+        public static extern ECudaResult CudaModuleGetTextRef();
+
+        [DllImport(DllName, EntryPoint="cuModuleLoad")]
+        public static extern ECudaResult CudaModuleLoad();
+
+        [DllImport(DllName, EntryPoint="cuModuleLoadData")]
+        public static extern ECudaResult CudaModuleLoadData();
+
+        [DllImport(DllName, EntryPoint="cuModuleLoadDataEx")]
+        public static extern ECudaResult CudaModuleLoadDataEx();
+
+        [DllImport(DllName, EntryPoint="cuModuleLoadFatBinary")]
+        public static extern ECudaResult CudaModuleLoadFatBinary();
+
+        [DllImport(DllName, EntryPoint = "cuModuleUnload")]
+        public static extern ECudaResult CudaModuleUnload();
+
+        #endregion Gestão de módulos
     }
 }
