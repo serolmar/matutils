@@ -806,6 +806,31 @@
 
         #region Gestão de módulos
         
+        /// <summary>
+        /// Adiciona dados a uma invocação pendente do ligador.
+        /// </summary>
+        /// <param name="state">Uma acção do ligador pendente.</param>
+        /// <param name="type">O tipo dos dados de entrada do ligador.</param>
+        /// <param name="data">Os dados de entrada. O vector PTX deve ser terminado com um nulo.</param>
+        /// <param name="size">O tamanho dos dados de entrada.</param>
+        /// <param name="name">
+        /// Um nome adicional para o conjunto de dados como deve aparecer nos diários de mensagens.
+        /// </param>
+        /// <param name="numOptions">O tamanho das opções.</param>
+        /// <param name="options">
+        /// As opçóes a serem aplicadas apenas para estes dados de entrada. Sobrecarrega as opções de
+        /// <see cref="CudaApi.CudaLinkCreate"/>.
+        /// </param>
+        /// <param name="optionValues">Vector de opçoes de valores.</param>
+        /// <returns>
+        /// <see cref="ECudaResult.CudaSuccess"/>,
+        /// <see cref="ECudaResult.CudaErrorIvalidHandle"/>,
+        /// <see cref="ECudaResult.CudaErrorInvalidValue"/>,
+        /// <see cref="ECudaResult.CudaErrorIvalidImage"/>,
+        /// <see cref="ECudaResult.CudaErrorInvalidPtx"/>,
+        /// <see cref="ECudaResult.CudaErrorOutOfMemory"/>,
+        /// <see cref="ECudaResult.CudaErrorNoBinaryForGpu"/>
+        /// </returns>
         [DllImport(DllName, EntryPoint="cuLinkAddData")]
         public static extern ECudaResult CudaLinkAddData(
             SCudaLinkState state,
@@ -817,6 +842,25 @@
             [Out] ECudaJitOption[] options,
             IntPtr optionValues);
 
+        /// <summary>
+        /// Adiciona um ficheiro de entrada a uma incovação pendente do ligador.
+        /// </summary>
+        /// <param name="state">Uma acção do ligador pendente.</param>
+        /// <param name="type">O tipo dos dados de entrada.</param>
+        /// <param name="path">O caminho para o ficheiro.</param>
+        /// <param name="numbOptions">O tamanho das opções.</param>
+        /// <param name="options">As opções a serem tomadas apenas para estes dados de entrada.</param>
+        /// <param name="optionValues">Vector de valores de opções, cada uma promovida a void*.</param>
+        /// <returns>
+        /// <see cref="ECudaResult.CudaSuccess"/>,
+        /// <see cref="ECudaResult.CudaErrorFileNotFound"/>,
+        /// <see cref="ECudaResult.CudaErrorIvalidHandle"/>,
+        /// <see cref="ECudaResult.CudaErrorInvalidValue"/>,
+        /// <see cref="ECudaResult.CudaErrorIvalidImage"/>,
+        /// <see cref="ECudaResult.CudaErrorInvalidPtx"/>,
+        /// <see cref="ECudaResult.CudaErrorOutOfMemory"/>,
+        /// <see cref="ECudaResult.CudaErrorNoBinaryForGpu"/>
+        /// </returns>
         [DllImport(DllName, EntryPoint="cuLinkAddFile")]
         public static extern ECudaResult CudaLinkAddFile(
             SCudaLinkState state,
@@ -826,12 +870,40 @@
             [Out] ECudaJitOption[] options,
             IntPtr optionValues);
 
+        /// <summary>
+        /// Completa uma invocação do ligador pendente.
+        /// </summary>
+        /// <param name="state">Uma ligação pendente do ligador.</param>
+        /// <param name="cubinOut">Caso seja bem-sucedido, irá apontar para a imagem de saída.</param>
+        /// <param name="sizeOut">Parâmetro opcional para receber o tamanho da imagem gerada.</param>
+        /// <returns>
+        /// <see cref="ECudaResult.CudaSuccess"/>,
+        /// <see cref="ECudaResult.CudaErrorIvalidHandle"/>,
+        /// <see cref="ECudaResult.CudaErrorOutOfMemory"/>.
+        /// </returns>
         [DllImport(DllName, EntryPoint="cuLinkComplete")]
         public static extern ECudaResult CudaLinkComplete(
             SCudaLinkState state,
             IntPtr cubinOut,
             ref SizeT sizeOut);
 
+        /// <summary>
+        /// Cria uma invocação do ligador pendente.
+        /// </summary>
+        /// <param name="numOptions">O número de opçóes.</param>
+        /// <param name="options">Vector de opções de compilador e ligador.</param>
+        /// <param name="optionValues">Vector de valores de opçóes, cada uma promovida a void*.</param>
+        /// <param name="stateOut">
+        /// Em caso de sucesso, irá conter um estado <see cref="SCudaLinkState"/>.
+        /// </param>
+        /// <returns>
+        /// <see cref="ECudaResult.CudaSuccess"/>,
+        /// <see cref="ECudaResult.CudaErrorDeinitialized"/>,
+        /// <see cref="ECudaResult.CudaErrorNotInitialized"/>,
+        /// <see cref="ECudaResult.CudaErrorInvalidContext"/>,
+        /// <see cref="EcudaResult.CudaErrorInvalidValue"/>,
+        /// <see cref="ECudaResult.CudaErrorOutOfMemory"/>.
+        /// </returns>
         [DllImport(DllName, EntryPoint="cuLinkCreate")]
         public static extern ECudaResult CudaLinkCreate(
             uint numOptions,
@@ -839,36 +911,223 @@
             IntPtr optionValues,
             ref SCudaLinkState stateOut);
 
+        /// <summary>
+        /// Destrói o estado para invocações JIT do ligador.
+        /// </summary>
+        /// <param name="state">O objecto de estado para a invocação do ligador.</param>
+        /// <returns>
+        /// <see cref="ECudaResult.CudaSuccess"/>,
+        /// <see cref="ECudaResult.CudaErrorIvalidHandle"/>.
+        /// </returns>
         [DllImport(DllName, EntryPoint="cuLinkDestroy")]
-        public static extern ECudaResult CudaLinkDestroy();
+        public static extern ECudaResult CudaLinkDestroy(SCudaLinkState state);
 
+        /// <summary>
+        /// Retorna um manuseador para uma função.
+        /// </summary>
+        /// <param name="hfunc">O manuesador para a função retornado.</param>
+        /// <param name="mod">O módulo do qual se pretende extrair a função.</param>
+        /// <param name="name">O nome da função.</param>
+        /// <returns>
+        /// <see cref="ECudaResult.CudaSuccess"/>,
+        /// <see cref="ECudaResult.CudaErrorDeinitialized"/>,
+        /// <see cref="ECudaResult.CudaErrorNotInitialized"/>,
+        /// <see cref="ECudaResult.CudaErrorInvalidContext"/>,
+        /// <see cref="EcudaResult.CudaErrorInvalidValue"/>,
+        /// <see cref="ECudaResult.CudaErrorNotFound"/>.
+        /// </returns>
         [DllImport(DllName, EntryPoint="cuModuleGetFunction")]
-        public static extern ECudaResult CudaModuleGetFunction();
+        public static extern ECudaResult CudaModuleGetFunction(
+            ref SCudaFunction hfunc, 
+            SCudaModule mod,
+            string name);
 
+        /// <summary>
+        /// Retorna um apontador global a partir do módulo.
+        /// </summary>
+        /// <param name="dptr">O apontador global de dispositivo retornado.</param>
+        /// <param name="bytes">O tamanho global em bytes retornado.</param>
+        /// <param name="mod">O módulo do qual se pretende obter o apontador global.</param>
+        /// <param name="name">Nome do global para obter.</param>
+        /// <returns>
+        /// <see cref="ECudaResult.CudaSuccess"/>,
+        /// <see cref="ECudaResult.CudaErrorDeinitialized"/>,
+        /// <see cref="ECudaResult.CudaErrorNotInitialized"/>,
+        /// <see cref="ECudaResult.CudaErrorInvalidContext"/>,
+        /// <see cref="EcudaResult.CudaErrorInvalidValue"/>,
+        /// <see cref="ECudaResult.CudaErrorNotFound"/>.
+        /// </returns>
         [DllImport(DllName, EntryPoint="cuModuleGetGlobal")]
-        public static extern ECudaResult CudaModuleGetGlobal();
+        public static extern ECudaResult CudaModuleGetGlobal(
+            ref SCudaDevicePtr dptr,
+            ref SizeT bytes,
+            SCudaModule mod,
+            string name);
 
+        /// <summary>
+        /// Retorna um manuseador para uma surface.
+        /// </summary>
+        /// <param name="psurfref">A referência da surface retornada.</param>
+        /// <param name="mod">O módulo de onde se pretende obter a referência da surface.</param>
+        /// <param name="name">O nome da referência da surface a ser obtida.</param>
+        /// <returns>
+        /// <see cref="ECudaResult.CudaSuccess"/>,
+        /// <see cref="ECudaResult.CudaErrorDeinitialized"/>,
+        /// <see cref="ECudaResult.CudaErrorNotInitialized"/>,
+        /// <see cref="ECudaResult.CudaErrorInvalidContext"/>,
+        /// <see cref="EcudaResult.CudaErrorInvalidValue"/>,
+        /// <see cref="ECudaResult.CudaErrorNotFound"/>.
+        /// </returns>
         [DllImport(DllName, EntryPoint="cuModuleGetSurfRef")]
-        public static extern ECudaResult CudaModuleGetSurfRef();
+        public static extern ECudaResult CudaModuleGetSurfRef(
+            ref SCudaSurfRef psurfref,
+            SCudaModule mod,
+            string name);
 
+        /// <summary>
+        /// Obtém um manuseador para uma referência de textura.
+        /// </summary>
+        /// <param name="ptextref">A referência de textura retornada.</param>
+        /// <param name="mod">O módulo do qual se pretende obter a referência de textura.</param>
+        /// <param name="name">O nome da referência de textura.</param>
+        /// <returns>
+        /// <see cref="ECudaResult.CudaSuccess"/>,
+        /// <see cref="ECudaResult.CudaErrorDeinitialized"/>,
+        /// <see cref="ECudaResult.CudaErrorNotInitialized"/>,
+        /// <see cref="ECudaResult.CudaErrorInvalidContext"/>,
+        /// <see cref="EcudaResult.CudaErrorInvalidValue"/>,
+        /// <see cref="ECudaResult.CudaErrorNotFound"/>.
+        /// </returns>
         [DllImport(DllName, EntryPoint="cuModuleGetTexRef")]
-        public static extern ECudaResult CudaModuleGetTextRef();
+        public static extern ECudaResult CudaModuleGetTextRef(
+            ref SCudaTexRef ptextref,
+            SCudaModule mod,
+            string name);
 
+        /// <summary>
+        /// Carrega um módulo de computação.
+        /// </summary>
+        /// <param name="module">O módulo retornado.</param>
+        /// <param name="name">O nome do ficheiro do módulo a ser carregado.</param>
+        /// <returns>
+        /// <see cref="ECudaResult.CudaSuccess"/>,
+        /// <see cref="ECudaResult.CudaErrorDeinitialized"/>,
+        /// <see cref="ECudaResult.CudaErrorNotInitialized"/>,
+        /// <see cref="ECudaResult.CudaErrorInvalidContext"/>,
+        /// <see cref="ECudaResult.CudaErrorInvalidValue"/>,
+        /// <see cref="EcudaResult.CudaErrorInvalidPtx"/>,
+        /// <see cref="ECudaResult.CudaErrorNotFound"/>,
+        /// <see cref="ECudaResult.CudaErrorOutOfMemory"/>,
+        /// <see cref="ECudaResult.CudaErrorFileNotFound"/>,
+        /// <see cref="ECudaResult.CudaErrorNoBinaryForGpu"/>,
+        /// <see cref="ECudaResult.CudaErrorShareObjectSymbolNotFound"/>,
+        /// <see cref="ECudaResult.CudaErrorSharedObjectInitFailed"/>.
+        /// </returns>
         [DllImport(DllName, EntryPoint="cuModuleLoad")]
-        public static extern ECudaResult CudaModuleLoad();
+        public static extern ECudaResult CudaModuleLoad(ref SCudaModule module, string name);
 
+        /// <summary>
+        /// Carrega os dados do módulo.
+        /// </summary>
+        /// <remarks>
+        /// A partir de uma apontador para uma imagem, carrega o módulo correspondente no contexto actual. O
+        /// apontador pode ser obtido por intermédio do mapeamento de um ficheiro cubin, de um PTX ou de um
+        /// fatbin contendo um vector de carácteres terminado com o valor nulo ou ncorporando um cubin ou
+        /// fatbin nos recursos do executável e utilzador funçóes do sistema operativo taiso como a função
+        /// Windows "FindResource()" para obter o apontador.
+        /// </remarks>
+        /// <param name="module">O módulo retornado.</param>
+        /// <param name="image">Os dados do módulo a serem carregados.</param>
+        /// <returns>
+        /// <see cref="ECudaResult.CudaSuccess"/>,
+        /// <see cref="ECudaResult.CudaErrorDeinitialized"/>,
+        /// <see cref="ECudaResult.CudaErrorNotInitialized"/>,
+        /// <see cref="ECudaResult.CudaErrorInvalidContext"/>,
+        /// <see cref="ECudaResult.CudaErrorInvalidValue"/>
+        /// <see cref="EcudaResult.CudaErrorInvalidPtx"/>,
+        /// <see cref="ECudaResult.CudaErrorNotFound"/>,
+        /// <see cref="ECudaResult.CudaErrorOutOfMemory"/>,
+        /// <see cref="ECudaResult.CudaErrorNoBinaryForGpu"/>,
+        /// <see cref="ECudaResult.CudaErrorShareObjectSymbolNotFound"/>,
+        /// <see cref="ECudaResult.CudaErrorSharedObjectInitFailed"/>.
+        /// </returns>
         [DllImport(DllName, EntryPoint="cuModuleLoadData")]
-        public static extern ECudaResult CudaModuleLoadData();
+        public static extern ECudaResult CudaModuleLoadData(ref SCudaModule module, IntPtr image);
 
+        /// <summary>
+        /// Carrega os dados do módulo com opções.
+        /// </summary>
+        /// <param name="module">O módulo retornado.</param>
+        /// <param name="image">Os dados do móudlo a serem carregados.</param>
+        /// <param name="numOptions">O número de opções.</param>
+        /// <param name="options">O vector de opçóes para o JIT.</param>
+        /// <param name="optionValues">Os valores das opções para o JIT.</param>
+        /// <returns>
+        /// <see cref="ECudaResult.CudaSuccess"/>,
+        /// <see cref="ECudaResult.CudaErrorDeinitialized"/>,
+        /// <see cref="ECudaResult.CudaErrorNotInitialized"/>,
+        /// <see cref="ECudaResult.CudaErrorInvalidContext"/>,
+        /// <see cref="ECudaResult.CudaErrorInvalidValue"/>
+        /// <see cref="EcudaResult.CudaErrorInvalidPtx"/>,
+        /// <see cref="ECudaResult.CudaErrorNotFound"/>,
+        /// <see cref="ECudaResult.CudaErrorOutOfMemory"/>,
+        /// <see cref="ECudaResult.CudaErrorNoBinaryForGpu"/>,
+        /// <see cref="ECudaResult.CudaErrorShareObjectSymbolNotFound"/>,
+        /// <see cref="ECudaResult.CudaErrorSharedObjectInitFailed"/>.
+        /// </returns>
         [DllImport(DllName, EntryPoint="cuModuleLoadDataEx")]
-        public static extern ECudaResult CudaModuleLoadDataEx();
+        public static extern ECudaResult CudaModuleLoadDataEx(
+            ref SCudaModule module,
+            IntPtr image,
+            uint numOptions,
+            [Out] ECudaJitOption[] options,
+            IntPtr optionValues);
 
+        /// <summary>
+        /// Carrega um módulo.
+        /// </summary>
+        /// <param name="module">O módulo retornado.</param>
+        /// <param name="fatCubin">O binário fat a ser carregado.</param>
+        /// <returns>
+        /// <see cref="ECudaResult.CudaSuccess"/>,
+        /// <see cref="ECudaResult.CudaErrorDeinitialized"/>,
+        /// <see cref="ECudaResult.CudaErrorNotInitialized"/>,
+        /// <see cref="ECudaResult.CudaErrorInvalidContext"/>,
+        /// <see cref="ECudaResult.CudaErrorInvalidValue"/>
+        /// <see cref="EcudaResult.CudaErrorInvalidPtx"/>,
+        /// <see cref="ECudaResult.CudaErrorNotFound"/>,
+        /// <see cref="ECudaResult.CudaErrorOutOfMemory"/>,
+        /// <see cref="ECudaResult.CudaErrorNoBinaryForGpu"/>,
+        /// <see cref="ECudaResult.CudaErrorShareObjectSymbolNotFound"/>,
+        /// <see cref="ECudaResult.CudaErrorSharedObjectInitFailed"/>.
+        /// </returns>
         [DllImport(DllName, EntryPoint="cuModuleLoadFatBinary")]
-        public static extern ECudaResult CudaModuleLoadFatBinary();
+        public static extern ECudaResult CudaModuleLoadFatBinary(ref SCudaModule module, IntPtr fatCubin);
 
+        /// <summary>
+        /// Descarrega um módulo.
+        /// </summary>
+        /// <param name="module">O módulo.</param>
+        /// <returns>
+        /// <see cref="ECudaResult.CudaSuccess"/>,
+        /// <see cref="ECudaResult.CudaErrorDeinitialized"/>,
+        /// <see cref="ECudaResult.CudaErrorNotInitialized"/>,
+        /// <see cref="ECudaResult.CudaErrorInvalidContext"/>,
+        /// <see cref="ECudaResult.CudaErrorInvalidValue"/>
+        /// <see cref="EcudaResult.CudaErrorInvalidPtx"/>,
+        /// <see cref="ECudaResult.CudaErrorNotFound"/>,
+        /// <see cref="ECudaResult.CudaErrorOutOfMemory"/>,
+        /// <see cref="ECudaResult.CudaErrorNoBinaryForGpu"/>,
+        /// <see cref="ECudaResult.CudaErrorShareObjectSymbolNotFound"/>,
+        /// <see cref="ECudaResult.CudaErrorSharedObjectInitFailed"/>.
+        /// </returns>
         [DllImport(DllName, EntryPoint = "cuModuleUnload")]
-        public static extern ECudaResult CudaModuleUnload();
+        public static extern ECudaResult CudaModuleUnload(SCudaModule module);
 
         #endregion Gestão de módulos
+
+        #region Gestão de memória
+        
+        #endregion Gestão de memória
     }
 }
