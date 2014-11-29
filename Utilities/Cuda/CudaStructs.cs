@@ -127,7 +127,7 @@
     /// Representa um object surface CUDA.
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
-    public struct SCudaSufObj
+    public struct SCudaSurfObj
     {
         /// <summary>
         /// Valor do apontador para o objecto surface CUDA.
