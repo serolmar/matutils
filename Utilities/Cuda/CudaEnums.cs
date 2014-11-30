@@ -1828,4 +1828,41 @@
         /// </summary>
         NonBlocking = 0x1
     }
+
+    /// <summary>
+    /// Formatos de ficheiros de saída de dados.
+    /// </summary>
+    public enum ECudaOutputMode
+    {
+        /// <summary>
+        /// Par chave-valor.
+        /// </summary>
+        KeyValuePair = 0x0,
+
+        /// <summary>
+        /// Dados separados por vírgula ou ponto-e-vírgula.
+        /// </summary>
+        Csv = 0x1
+    }
+
+    /// <summary>
+    /// Dispositivos CUDA que correspondem a um dispositivo OpenGL.
+    /// </summary>
+    public enum ECudaGLDeviceList
+    {
+        /// <summary>
+        /// Os dispositivos CUDA para todos os GPU utiliados pelo contexto OpenGL actual.
+        /// </summary>
+        All = 0x01,
+
+        /// <summary>
+        /// Os dispositivos CUDA para os GPU utilizados pelo contexto OpenGL na sua moldura de desenho.
+        /// </summary>
+        CurrentFrame = 0x02,
+
+        /// <summary>
+        /// Os dispositivos CUDA para os GPU utilizados pelo contexto OpenGL corrente na proxima moldura.
+        /// </summary>
+        NextFrame = 0x03
+    }
 }

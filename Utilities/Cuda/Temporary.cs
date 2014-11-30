@@ -793,5 +793,48 @@
         public static extern ECudaResult CudaGraphicsUnregisterResource();
 
         #endregion Interoperabilidade gráfica
+
+        #region Análise de desempenho
+
+        [DllImport(DLLName, EntryPoint = "cuProfilerInitialize")]
+        public static extern ECudaResult CudaProfilerInitialize(
+            string configFile,
+            string outputFile,
+            ECudaOutputMode outputMode);
+
+        [DllImport(DLLName, EntryPoint = "cuProfilerStart")]
+        public static extern ECudaResult CudaProfilerStart();
+
+        [DllImport(DLLName, EntryPoint = "cuProfilerStop")]
+        public static extern ECudaResult CudaProfilerStop();
+
+        #endregion Análise de desempenho
+
+        #region Interoperabilidade OpenGL
+
+        [DllImport(DLLName, EntryPoint = "cuGLGetDevices")]
+        public static extern ECudaResult CudaGLGetDevices(
+            ref uint ptrCudaDeviceCount,
+            [Out] SCudaDevice[] cudaDevices,
+            uint cudaDeviceCount,
+            ECudaGLDeviceList deviceList);
+
+        [DllImport(DLLName, EntryPoint = "cuGraphicsGLRegisterBuffer")]
+        public static extern ECudaResult CudaGraphicsGLRegisterBuffer(
+            ref SCudaGraphicsResource ptrCudaResource,
+            uint buffer, // Deveria ser do tipo GLuint que é definido como: typedef unsinged int GLuint
+            uint flags);
+
+        [DllImport(DLLName, EntryPoint = " cuGraphicsGLRegisterImage")]
+        public static extern ECudaResult CudaGraphicsGLRegisterImage(
+            ref SCudaGraphicsResource ptrCudaResource,
+            uint image, // Deveria ser do tipo GLuint
+            uint target, // Deveria ser do tipo GLenum que é definido como: typedef unsigned int GLenum
+            uint flags);
+
+        [DllImport(DLLName, EntryPoint = "cuWGLGetDevice")]
+        public static extern ECudaResult CudaGLGetDevice(ref SCudaDevice ptrDevice, SHgpunv handleGpu);
+
+        #endregion Interoperabilidade OpenGL
     }
 }
