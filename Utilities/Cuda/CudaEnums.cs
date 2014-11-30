@@ -1865,4 +1865,26 @@
         /// </summary>
         NextFrame = 0x03
     }
+
+    /// <summary>
+    /// Dispositivos CUDA correspondentes a um dispositivo D3D9.
+    /// </summary>
+    public enum ECudaD3D9DeviceList
+    {
+        /// <summary>
+        /// Os dispositivos CUDA para todos os GPU utilizados por um dispositivo D3D9.
+        /// </summary>
+        All = 0x01,
+
+        /// <summary>
+        /// Os dispositivos CUDA para os GPU utilizados por um dispositivo D3D9 na sua modulura de desenho
+        /// actual.
+        /// </summary>
+        CurrentFrame = 0x02,
+
+        /// <summary>
+        /// Os dispositivos CUDA para os GPU a serem utilizados por um dispositivo D3D9 na próxima moldura.
+        /// </summary>
+        NextFrame = 0x03
+    }
 }
