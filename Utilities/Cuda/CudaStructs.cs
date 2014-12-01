@@ -846,16 +846,4 @@
         /// </summary>
         public IntPtr Pointer;
     }
-
-    /// <summary>
-    /// Define um manuseador OpenGL para placas gráficas NV.
-    /// </summary>
-    [StructLayout(LayoutKind.Sequential)]
-    public struct SHgpunv
-    {
-        /// <summary>
-        /// O apontaddor.
-        /// </summary>
-        public IntPtr Pointer;
-    }
 }
