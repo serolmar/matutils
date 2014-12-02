@@ -93,7 +93,7 @@
         /// mas lenta a ler excepto via a instrução de carregamento de caudal SSE4 (MONVNTDQA). Marca para
         /// <see cref="CudaApi.CudaMemHostAlloc"/>.
         /// </summary>
-        public const int CudaMemHostAllocWritecombine = 0x04;
+        public const int CudaMemHostAllocWritecombined = 0x04;
 
         /// <summary>
         /// Sse esta marca for atribuída, a memória de anfitrião é mapeada no espaço de endereçamento CUDA

@@ -15,6 +15,11 @@
         /// <summary>
         /// Cria um vector 3D de CUDA.
         /// </summary>
+        /// <remarks>
+        /// Cria um vector 3D de acordo com o objecto do tipo <see cref="SCudaArray3DDescriptor"/> passado
+        /// no argumento ptrAllocateArray e retorna um manuseador no parâmetro de referência
+        /// phandle.
+        /// </remarks>
         /// <param name="phandle">O vector retornado.</param>
         /// <param name="ptrAllocateArray">O descritor do vector.</param>
         /// <returns>
@@ -32,10 +37,17 @@
             ref SCudaArray3DDescriptor ptrAllocateArray);
 
         /// <summary>
-        /// 
+        /// Obtém um descritor do vector CUDA 3D.
         /// </summary>
-        /// <param name="ptrArrayDescriptor"></param>
-        /// <param name="harray"></param>
+        /// <remarks>
+        /// Rertorna na referência ptrArrayDescriptor o descritor que contém informação do formato
+        /// e dimensões do vector CUDA harray. É útil em sub-rotinas para as quais é passado um
+        /// vector CUDA e onde é necessário conhecer os parâmetros do vector CUDA para validações ou outros
+        /// propósitos. Esta função pode ser chamada em vectores 1D ou 2D nos quais os membros de altura e/ou 
+        /// largura do descritor serão preenchidos com o valor 0.
+        /// </remarks>
+        /// <param name="ptrArrayDescriptor">O descritor retornado.</param>
+        /// <param name="harray">O vector CUDA 3D.</param>
         /// <returns>
         /// <see cref="ECudaResult.CudaSuccess"/>,
         /// <see cref="ECudaResult.CudaErrorDeinitialized"/>,
@@ -51,10 +63,14 @@
             SCudaArray harray);
 
         /// <summary>
-        /// 
+        /// Cria um vector CUDA 1D ou 2D.
         /// </summary>
-        /// <param name="phandle"></param>
-        /// <param name="ptrAllocateArray"></param>
+        /// <remarks>
+        /// Cria um vector CUDA de acordo com o descritor e retorna um manuseador no parâmetro de referência
+        /// phandle.
+        /// </remarks>
+        /// <param name="phandle">O vector retornado.</param>
+        /// <param name="ptrAllocateArray">O descritor do vector.</param>
         /// <returns>
         /// <see cref="ECudaResult.CudaSuccess"/>,
         /// <see cref="ECudaResult.CudaErrorDeinitialized"/>,
@@ -69,9 +85,9 @@
             ref SCudaArrayDescriptor ptrAllocateArray);
 
         /// <summary>
-        /// 
+        /// Destrói o vector CUDA.
         /// </summary>
-        /// <param name="harray"></param>
+        /// <param name="harray">O vector CUDA a ser destruído.</param>
         /// <returns>
         /// <see cref="ECudaResult.CudaSuccess"/>,
         /// <see cref="ECudaResult.CudaErrorDeinitialized"/>,
@@ -84,10 +100,16 @@
         public static extern ECudaResult CudaArrayDestroy(SCudaArray harray);
 
         /// <summary>
-        /// 
+        /// Obtém o descritor de um vector CUDA 1D ou 2D.
         /// </summary>
-        /// <param name="ptrArrayDescriptor"></param>
-        /// <param name="harray"></param>
+        /// <remarks>
+        /// Retorna em ptrArrayDescriptor um descritor contendo informação do formato e dimensões
+        /// do vector CUDA harray. É útil para sub-rotinas para as quais seja passado um vector
+        /// CUDA mas onde é necessário o conhecimento dos parâmetros do vector CUDA para validações ou outros
+        /// propósitos.
+        /// </remarks>
+        /// <param name="ptrArrayDescriptor">O descritor do vector retornado.</param>
+        /// <param name="harray">O vector do qual se pretende obter o descritor.</param>
         /// <returns>
         /// <see cref="ECudaResult.CudaSuccess"/>,
         /// <see cref="ECudaResult.CudaErrorDeinitialized"/>,
@@ -102,12 +124,25 @@
             SCudaArray harray);
 
         /// <summary>
-        /// 
+        /// Retona um manuseador para um dispositivo computacional.
         /// </summary>
-        /// <param name="dev"></param>
-        /// <param name="pciBusId"></param>
+        /// <param name="dev">O manuseador do dispositivo retornado.</param>
+        /// <param name="pciBusId">
+        /// Texto em qualuer uma das seguintes formas:
+        /// <list type="bullet">
+        /// <item>[domain]:[bus]:[device].[function]</item>
+        /// <item> [domain]:[bus]:[device]</item>
+        /// <item>[bus]:[device].[function]</item>
+        /// </list>
+        /// onde domain, bus, device e function são valores hexadecimais.
+        /// </param>
         /// <returns>
-        /// 
+        /// <see cref="ECudaResult.CudaSuccess"/>,
+        /// <see cref="ECudaResult.CudaErrorDeinitialized"/>,
+        /// <see cref="ECudaResult.CudaErrorNotInitialized"/>,
+        /// <see cref="ECudaResult.CudaErrorInvalidContext"/>,
+        /// <see cref="ECudaResult.CudaErrorInvalidValue"/>,
+        /// <see cref="ECudaResult.CudaErrorInvalidDevice"/>.
         /// </returns>
         [DllImport(DLLName, EntryPoint = "cuDeviceGetByPCIBusId")]
         public static extern ECudaResult CudaDeviceGetByPCIBusId(
@@ -115,11 +150,23 @@
             string pciBusId);
 
         /// <summary>
-        /// 
+        /// Retorna o identificador do barramento PCI.
         /// </summary>
-        /// <param name="pciBusId"></param>
-        /// <param name="len"></param>
-        /// <param name="dev"></param>
+        /// <remarks>
+        /// Retorna uma cadeia de carácteres ASCII que identifica o dispositivo dev na
+        /// referência pciBusId. O parâmetro len especifica o comprimento máximo
+        /// da cadeia de carácters que pode ser retornado.
+        /// </remarks>
+        /// <param name="pciBusId">
+        /// <list type="bullet">
+        /// <item>[domain]:[bus]:[device].[function]</item>
+        /// <item> [domain]:[bus]:[device]</item>
+        /// <item>[bus]:[device].[function]</item>
+        /// </list>
+        /// onde domain, bus, device e function são valores hexadecimais.
+        /// </param>
+        /// <param name="len">Comprimento máximo do texto a ser armazenado como nome.</param>
+        /// <param name="dev">O dispositivo do qual se pretende obter o identificador.</param>
         /// <returns>
         /// <see cref="ECudaResult.CudaSuccess"/>,
         /// <see cref="ECudaResult.CudaErrorDeinitialized"/>,
@@ -129,14 +176,22 @@
         /// </returns>
         [DllImport(DLLName, EntryPoint = "cuDeviceGetPCIBusId")]
         public static extern ECudaResult CudaDeviceGetPCIBusId(
-            string pciBusId,
+            ref string pciBusId,
             int len,
             SCudaDevice dev);
 
         /// <summary>
-        /// 
+        /// Fecha a memória mapeada com a função <see cref="CudaApi.CudaIpcOpenMemHandle"/>.
         /// </summary>
-        /// <param name="dptr"></param>
+        /// <remarks>
+        /// A alocação original no processo de exportação bem como dos mapeamentos de importação em outros
+        /// processos mantêm-se inalterados. Quaisquer recursos utilizados para habilitar o acesso de cais
+        /// serão libertados se este for o último mapeamento que os utilize. A funcionalidade de IPC é restrita
+        /// a dispositivos com suporte para endereçamento unificado em sistemas operativos Linux.
+        /// </remarks>
+        /// <param name="dptr">
+        /// O apontador para o dispositivo retornado por <see cref="CudaApi.CudaIpcOpenMemHandle"/>.
+        /// </param>
         /// <returns>
         /// <see cref="ECudaResult.CudaSuccess"/>,
         /// <see cref="ECudaResult.CudaErrorDeinitialized"/>,
@@ -148,9 +203,12 @@
         public static extern ECudaResult CudaIpcCloseMemHandle(SCudaDevicePtr dptr);
 
         /// <summary>
-        /// 
+        /// Obtém um manuseador interporcesso para um evento previamente alocado.
         /// </summary>
-        /// <param name="phandle"></param>
+        /// <param name="phandle">
+        /// Uma referência para um evento alocado pelo utilizador na qual é retornado o manuseador opaco do
+        /// evento.
+        /// </param>
         /// <param name="cudaEvent"></param>
         /// <returns>
         /// <see cref="ECudaResult.CudaSuccess"/>,
@@ -164,10 +222,15 @@
             SCudaEvent cudaEvent);
 
         /// <summary>
-        /// 
+        /// Obtém um manuseador iterprocesso de memória para uma alocação de memória em dispositivo existente.
         /// </summary>
-        /// <param name="phandle"></param>
-        /// <param name="dptr"></param>
+        /// <remarks>
+        /// Por intermédio de uma referência para a base de memória de dispositivo alocada pela função
+        /// <see cref="CudaApi.CudaMemAlloc"/> e exporta-o para ser utilizado em outro processo. Trata-se de uma
+        /// operação leve e pode ser chamada várias vezes numa alocação sem incorrer em efeitos adversos.
+        /// </remarks>
+        /// <param name="phandle">A referência na qual é retornado o manuseador da memória.</param>
+        /// <param name="dptr">A referência para a memória de dispositivo alocada.</param>
         /// <returns>
         /// <see cref="ECudaResult.CudaSuccess"/>,
         /// <see cref="ECudaResult.CudaErrorInvalidHandle"/>,
@@ -180,10 +243,10 @@
             SCudaDevicePtr dptr);
 
         /// <summary>
-        /// 
+        /// Abre um manuseador de evento interprocesso para ser utilizado no processo corrente.
         /// </summary>
-        /// <param name="phEvent"></param>
-        /// <param name="handle"></param>
+        /// <param name="phEvent">Retorna o evento importado.</param>
+        /// <param name="handle">O manuseador interporcesso a ser aberto.</param>
         /// <returns>
         /// <see cref="ECudaResult.CudaSuccess"/>,
         /// <see cref="ECudaResult.CudaErrorInvalidContext"/>,
@@ -197,11 +260,12 @@
             SCudaIpcEventHandle handle);
 
         /// <summary>
-        /// 
+        /// Abre um manuseador interprocesso de memória exportado de outro processo e retorna um apontador
+        /// de dispositivo utilizável no processo local.
         /// </summary>
-        /// <param name="pdptr"></param>
-        /// <param name="handle"></param>
-        /// <param name="flags"></param>
+        /// <param name="pdptr">O apontador de dispositivo retornado.</param>
+        /// <param name="handle">O manuseador da memória a ser aberto.</param>
+        /// <param name="flags">A marca a ser utilizada.</param>
         /// <returns>
         /// <see cref="ECudaResult.CudaSuccess"/>,
         /// <see cref="ECudaResult.CudaErrorInvalidContext"/>,
@@ -213,13 +277,19 @@
         public static extern ECudaResult CudaIpcOpenMemHandle(
             ref SCudaDevicePtr pdptr,
             SCudaIpcMemHandle handle,
-            uint flags);
+            ECudaIpcMemFlags flags);
 
         /// <summary>
-        /// 
+        /// Aloca memória de dispositivo.
         /// </summary>
-        /// <param name="dptr"></param>
-        /// <param name="bytesize"></param>
+        /// <remarks>
+        /// Aloca o tamanho especificado em bytes de memória linear no dispositivo e retorna um apontador
+        /// para a memória alocada. A memória alocada é adequadamente alinhada para qualquer tipo de variável.
+        /// A memória não é limpa. Se o tamanho for 0, a função retorna 
+        /// <see cref="ECudaResult.CudaErrorInvalidValue"/>.
+        /// </remarks>
+        /// <param name="dptr">O apontador de dispositivo retornado.</param>
+        /// <param name="bytesize">O tamanho da alocação requerida em bytes.</param>
         /// <returns>
         /// <see cref="ECudaResult.CudaSuccess"/>,
         /// <see cref="ECudaResult.CudaErrorDeinitialized"/>,
@@ -232,10 +302,10 @@
         public static extern ECudaResult CudaMemAlloc(ref SCudaDevicePtr dptr, SizeT bytesize);
 
         /// <summary>
-        /// 
+        /// Aloca memória de anfitrião com fechadura por página.
         /// </summary>
-        /// <param name="pp"></param>
-        /// <param name="bytesize"></param>
+        /// <param name="pp">Referência para o apontador de anfitrião.</param>
+        /// <param name="bytesize">O tamanho da alocação requerida em bytes.</param>
         /// <returns>
         /// <see cref="ECudaResult.CudaSuccess"/>,
         /// <see cref="ECudaResult.CudaErrorDeinitialized"/>,
@@ -248,17 +318,17 @@
         public static extern ECudaResult CudaMemAllocHost(IntPtr pp, SizeT bytesize);
 
         /// <summary>
-        /// 
+        /// Aloca memória que será automaticamente gerida pelo Sistema de Memória Unificada.
         /// </summary>
-        /// <param name="dptr"></param>
-        /// <param name="bytesize"></param>
-        /// <param name="flags"></param>
+        /// <param name="dptr">O apontador do dispositivo retornado.</param>
+        /// <param name="bytesize">O tamanho da memória alocada em bytes.</param>
+        /// <param name="flags">A marca que indica o tipo de anexação.</param>
         /// <returns>
         /// <see cref="ECudaResult.CudaSuccess"/>,
         /// <see cref="ECudaResult.CudaErrorDeinitialized"/>,
         /// <see cref="ECudaResult.CudaErrorNotInitialized"/>,
         /// <see cref="ECudaResult.CudaErrorInvalidContext"/>,
-        /// <see cref="CudaErrorNotSupported"/>,
+        /// <see cref="ECudaResultCudaErrorNotSupported"/>,
         /// <see cref="ECudaResult.CudaErrorInvalidValue"/>,
         /// <see cref="ECudaResult.CudaErrorOutOfMemory"/>.
         /// </returns>
@@ -266,16 +336,16 @@
         public static extern ECudaResult CudaMemAllocManaged(
             ref SCudaDevicePtr dptr,
             SizeT bytesize,
-            uint flags);
+            ECudaMemAttachFlags flags);
 
         /// <summary>
-        /// 
+        /// Aloca memória espaçada do dispositivo.
         /// </summary>
-        /// <param name="dptr"></param>
-        /// <param name="ptrPitch"></param>
-        /// <param name="WidthInBytes"></param>
-        /// <param name="height"></param>
-        /// <param name="ElementSizeBytes"></param>
+        /// <param name="dptr">O apontador retornado do dispositivo.</param>
+        /// <param name="ptrPitch">O passo em bytes retornado da alocação.</param>
+        /// <param name="widthInBytes">A lagrgura em bytes.</param>
+        /// <param name="height">A altura em bytes.</param>
+        /// <param name="elementSizeBytes">Tamanho dos maiores blocos de leitura/escrita.</param>
         /// <returns>
         /// <see cref="ECudaResult.CudaSuccess"/>,
         /// <see cref="ECudaResult.CudaErrorDeinitialized"/>,
@@ -288,14 +358,18 @@
         public static extern ECudaResult CudaMemAllocPitch(
             ref SCudaDevicePtr dptr,
             ref SizeT ptrPitch,
-            SizeT WidthInBytes,
+            SizeT widthInBytes,
             SizeT height,
-            uint ElementSizeBytes);
+            uint elementSizeBytes);
 
         /// <summary>
-        /// 
+        /// Liberta a memória de dispositivo.
         /// </summary>
-        /// <param name="dptr"></param>
+        /// <remarks>
+        /// Liberta a memória apontada por dptr que deve ter sido retornado por uma chamada préiva às funções
+        /// <see cref="CudaApi.CudaMemAlloc"/> ou <see cref="CudaApi.CudaMemAllocPitch"/>.
+        /// </remarks>
+        /// <param name="dptr">O apontador para a memória a ser libertada.</param>
         /// <returns>
         /// <see cref="ECudaResult.CudaSuccess"/>,
         /// <see cref="ECudaResult.CudaErrorDeinitialized"/>,
@@ -307,9 +381,13 @@
         public static extern ECudaResult CudaMemFree(SCudaDevicePtr dptr);
 
         /// <summary>
-        /// 
+        /// Liberta memória de paginação do anfitrião.
         /// </summary>
-        /// <param name="p"></param>
+        /// <remarks>
+        /// O apontador para a memória a ser libertada deverá ser resultado de uma chamada prévia à função
+        /// <see cref="CudaMemAllocHost"/>.
+        /// </remarks>
+        /// <param name="p">O apontador para a memória a ser libertada.</param>
         /// <returns>
         /// <see cref="ECudaResult.CudaSuccess"/>,
         /// <see cref="ECudaResult.CudaErrorDeinitialized"/>,
@@ -321,11 +399,14 @@
         public static extern ECudaResult CudaMemFreeHost(IntPtr p);
 
         /// <summary>
-        /// 
+        /// Obtém informação sobre alocações de memória.
         /// </summary>
-        /// <param name="pbase"></param>
-        /// <param name="psize"></param>
-        /// <param name="dptr"></param>
+        /// <remarks>
+        /// Os parâmetros pbase e psize são opcionais. Se algum deles for nulo, será ignorado.
+        /// </remarks>
+        /// <param name="pbase">O endereço de base retornado.</param>
+        /// <param name="psize">O tamanho retornado da alocação de memória de dispositivo.</param>
+        /// <param name="dptr">O apontador para o dispositivo a ser consultado.</param>
         /// <returns>
         /// <see cref="ECudaResult.CudaSuccess"/>,
         /// <see cref="ECudaResult.CudaErrorDeinitialized"/>,
@@ -340,10 +421,10 @@
             SCudaDevicePtr dptr);
 
         /// <summary>
-        /// 
+        /// Obtém a memória livre e a memória total.
         /// </summary>
-        /// <param name="free"></param>
-        /// <param name="total"></param>
+        /// <param name="free">A memória livre em bytes retornada.</param>
+        /// <param name="total">A memória total em bytes retornada.</param>
         /// <returns>
         /// <see cref="ECudaResult.CudaSuccess"/>,
         /// <see cref="ECudaResult.CudaErrorDeinitialized"/>,
@@ -355,11 +436,17 @@
         public static extern ECudaResult CudaMemGetInfo(ref SizeT free, ref SizeT total);
 
         /// <summary>
-        /// 
+        /// Aloca memória de anfitrião fechada à paginação.
         /// </summary>
-        /// <param name="pp"></param>
-        /// <param name="bytesize"></param>
-        /// <param name="flags"></param>
+        /// <remarks>
+        /// O parâmetro flags poderá receber um dos valores 
+        /// <see cref="CudaConstants.CudaMemHostRegisterPortable"/>,
+        /// <see cref="CudaConstants.CudaMemHostDeviceMap"/> ou 
+        /// <see cref="CudaConstants.CudaMemHostAllocWritecombined"/>.
+        /// </remarks>
+        /// <param name="pp"><Apontador de anfitrião para a memória de fecho por paginação./param>
+        /// <param name="bytesize">O tamanho da alocação requerida em bytes.</param>
+        /// <param name="flags">Marcas para a requisição de alocação.</param>
         /// <returns>
         /// <see cref="ECudaResult.CudaSuccess"/>,
         /// <see cref="ECudaResult.CudaErrorDeinitialized"/>,
@@ -372,11 +459,11 @@
         public static extern ECudaResult CudaMemHostAlloc(IntPtr pp, SizeT bytesize, uint flags);
 
         /// <summary>
-        /// 
+        /// Passa o apontador de memória mapeada.
         /// </summary>
-        /// <param name="pdptr"></param>
-        /// <param name="p"></param>
-        /// <param name="flags"></param>
+        /// <param name="pdptr">O apontador de dispositivo retornado.</param>
+        /// <param name="p">O apontador de anfitrião.</param>
+        /// <param name="flags">Opções (terá de ser igual a 0).</param>
         /// <returns>
         /// <see cref="ECudaResult.CudaSuccess"/>,
         /// <see cref="ECudaResult.CudaErrorDeinitialized"/>,
@@ -391,10 +478,13 @@
             uint flags);
 
         /// <summary>
-        /// 
+        /// Passa as marcas que foram usadas para uma alocação mapeada.
         /// </summary>
-        /// <param name="ptrFlags"></param>
-        /// <param name="p"></param>
+        /// <remarks>
+        /// Ver <see cref="CudaApi.CudaMemHostAlloc"/> para averiguar que marcas poderão ser retornadas.
+        /// </remarks>
+        /// <param name="ptrFlags">As marcas retornadas.</param>
+        /// <param name="p">O apontador de anfitrião.</param>
         /// <returns>
         /// <see cref="ECudaResult.CudaSuccess"/>,
         /// <see cref="ECudaResult.CudaErrorDeinitialized"/>,
@@ -406,11 +496,11 @@
         public static extern ECudaResult CudaMemHostGetFlags(ref uint ptrFlags, IntPtr p);
 
         /// <summary>
-        /// 
+        /// Regista um intervalo de memória existente para ser utilizado com CUDA.
         /// </summary>
-        /// <param name="p"></param>
-        /// <param name="bytesize"></param>
-        /// <param name="flags"></param>
+        /// <param name="p">A apontador de anfitrião para a memória a ser fechada por paginação.</param>
+        /// <param name="bytesize">O tamanho em bytes do intervalo de endereços da paginação fechada.</param>
+        /// <param name="flags">As marcas que descrevem o pedido de alocação.</param>
         /// <returns>
         /// <see cref="ECudaResult.CudaSuccess"/>,
         /// <see cref="ECudaResult.CudaErrorDeinitialized"/>,
@@ -424,11 +514,17 @@
         public static extern ECudaResult CudaMemHostRegister(IntPtr p, SizeT bytesize, uint flags);
 
         /// <summary>
-        /// 
+        /// Elimina o registo do intervalo de memória anteriormente registada.
         /// </summary>
-        /// <param name="p"></param>
+        /// <param name="p">O apontador para a memória da qual se pretende eliminar o registo.</param>
         /// <returns>
-        /// 
+        /// <see cref="ECudaResult.CudaSuccess"/>,
+        /// <see cref="ECudaResult.CudaErrorDeinitialized"/>,
+        /// <see cref="ECudaResult.CudaErrorNotInitialized"/>,
+        /// <see cref="ECudaResult.CudaErrorInvalidContext"/>,
+        /// <see cref="ECudaResult.CudaErrorInvalidValue"/>,
+        /// <see cref="ECudaResult.CudaErrorOutOfMemory"/>,
+        /// <see cref="ECudaResult.CudaErrorHostMemoryNotRegistered"/>.
         /// </returns>
         [DllImport(DLLName, EntryPoint = "cuMemHostUnregister")]
         public static extern ECudaResult CudaMemHostUnregister(IntPtr p);
@@ -444,9 +540,7 @@
         /// <see cref="ECudaResult.CudaErrorDeinitialized"/>,
         /// <see cref="ECudaResult.CudaErrorNotInitialized"/>,
         /// <see cref="ECudaResult.CudaErrorInvalidContext"/>,
-        /// <see cref="ECudaResult.CudaErrorInvalidValue"/>,
-        /// <see cref="ECudaResult.CudaErrorOutOfMemory"/>,
-        /// <see cref="ECudaResult.CudaErrorHostMemoryNotRegistered"/>.
+        /// <see cref="ECudaResult.CudaErrorInvalidValue"/>.
         /// </returns>
         [DllImport(DLLName, EntryPoint = "cuMemcpy")]
         public static extern ECudaResult CudaMemcpy(SCudaDevicePtr dst, SCudaDevicePtr src, SizeT byteCount);

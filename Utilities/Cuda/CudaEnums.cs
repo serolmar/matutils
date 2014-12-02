@@ -205,7 +205,7 @@
         /// Um manuseador de recurso passado para a chamda à API não é válido. Manuseadores de recurso
         /// são tipos opacos tais como <see cref="CudaStream"/> e <see cref="CudaEvent"/>.
         /// </summary>
-        CudaErrorInvalidHandler = 400,
+        CudaErrorInvalidHandle = 400,
 
         /// <summary>
         /// Indica que um símbolo denominado não foi encontrado. Exemplo de símbolos constituem as variáveis e
@@ -293,7 +293,7 @@
         /// Indica que o intervalo de memória passada para a função <see cref="CudaApi.CudaMemoryHostRegister"/>
         /// não corresponde a nenhuma região de memória correntemente registada.
         /// </summary>
-        CudaErrorHostMemoryAlreadyRegisteres = 712,
+        CudaErrorHostMemoryAlreadyRegistered = 712,
 
         /// <summary>
         /// Indica que o apontador passado para <see cref="CudaApi.CudaMemoryHostUnregister"/> não corresopnde
@@ -1169,7 +1169,7 @@
     /// <summary>
     /// Marcas para CUDA IPC.
     /// </summary>
-    public enum CudaIpcMemFlags
+    public enum ECudaIpcMemFlags
     {
         /// <summary>
         /// Habilitar automaticamente o acesso de porto entre dispositivos remotos
