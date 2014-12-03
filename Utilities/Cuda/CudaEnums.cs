@@ -1816,7 +1816,7 @@
     /// <summary>
     /// Marcas de caudal.
     /// </summary>
-    public enum ECudaStreanFlags
+    public enum ECudaStreamFlags
     {
         /// <summary>
         /// Marca de caudal por defeito.
