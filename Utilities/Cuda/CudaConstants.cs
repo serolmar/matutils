@@ -9,15 +9,15 @@
     public static class CudaConstants
     {
         /// <summary>
-        /// Ver <see cref="CudaConstants.CudaArray3DLayred"/> 
+        /// Ver <see cref="CudaConstants.CudaArray3DLayered"/> 
         /// </summary>
-        [Obsolete("Use CudaArray3DLayred instead.")]
+        [Obsolete("Use CudaArray3DLayered instead.")]
         public const int CudaArray3DWithArray2D = 0x01;
 
         /// <summary>
         /// Se esta marca estiver atribuído, o vector CUDA passa a ser uma colecção de seis vectores 2D que
         /// representam as faces de um cubo. A largura de tal vector CUDA deverá ser igual à sua altura e a profundidade deverá ser
-        /// seis. Se a marca <see cref="CudaConstants.CudaArray3DLayred"/> também estiver atribuída, o vector
+        /// seis. Se a marca <see cref="CudaConstants.CudaArray3DLayered"/> também estiver atribuída, o vector
         /// CUDA representa um colecção de cubemaps e a profundidade deverá ser um múltiplo de seis.
         /// </summary>
         public const int CudaArray3DCubeMap = 0x04;
@@ -116,19 +116,19 @@
 
         /// <summary>
         /// Subescreve o formato texref com um formato inferido do vector. Marca para
-        /// <see cref="CudaApi.CudaTexRefSetArray"/>.
+        /// <see cref="CudaApi.CudaTextRefSetArray"/>.
         /// </summary>
         public const int CudaTrsaOverrideFormat = 0x01;
 
         /// <summary>
         /// Usar coordenadas de textura normalizadas no intervalo [0,1) ao invés do intervalo [0,dim).
-        /// Marca para <see cref="CudaApi.CudaTexRefSetFlags"/>.
+        /// Marca para <see cref="CudaApi.CudaTextRefSetFlags"/>.
         /// </summary>
         public const int CudaTrsfNormalizedCoordinates = 0x02;
 
         /// <summary>
         /// Lê a textura como inteiros ao invés de promover os valores a ponto flutuante no intervalo [0,1].
-        /// Marca para <see cref="CudaApi.CudaTExRefSetFlags"/>.
+        /// Marca para <see cref="CudaApi.CudaTextRefSetFlags"/>.
         /// </summary>
         public const int CudaTrsfReadAsInteger = 0x01;
 

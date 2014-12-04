@@ -48,6 +48,8 @@
         /// Instancia um novo objecto do tipo <see cref="CharSymbolReader{SymbType}"/>.
         /// </summary>
         /// <param name="inputReader">O leitor de texto.</param>
+        /// <param name="genericType">O tipo genérico.</param>
+        /// <param name="endOfFileType">O marcador de final de ficheiro.</param>
         public CharSymbolReader(
             TextReader inputReader,
             SymbType genericType,

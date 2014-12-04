@@ -46,19 +46,19 @@
         CudaErrorProfilerDisabled = 5,
 
         /// <summary>
-        /// Obsoleto: ver <see cref="CudaApi.CudaProfileStart"/> e <see cref="CudaApi.CudaProfileStop"/>.
+        /// Obsoleto: ver <see cref="CudaApi.CudaProfilerStart"/> e <see cref="CudaApi.CudaProfilerStop"/>.
         /// </summary>
         [Obsolete("Deprecated as of CUDA 5.0.")]
         CudaErrorProfilerNotInitialized = 6,
 
         /// <summary>
-        /// Obsoleto: ver <see cref="CudaApi.CudaProfileStart"/>.
+        /// Obsoleto: ver <see cref="CudaApi.CudaProfilerStart"/>.
         /// </summary>
         [Obsolete("Deprecated as of CUDA 5.0.")]
         CudaErrorProfilerAlreadyStarted = 7,
 
         /// <summary>
-        /// Obsoleto: ver <see cref="CudaApi.CudaProfileStop"/>.
+        /// Obsoleto: ver <see cref="CudaApi.CudaProfilerStop"/>.
         /// </summary>
         [Obsolete("Deprecated as of CUDA 5.0.")]
         CudaErrorProfilerAlreadyStopped = 8,
@@ -84,14 +84,14 @@
         /// <summary>
         /// Frequentemente indica que não existen nenhum contexto ligado à linha de fluxo corrente.
         /// Também pode ser retornado se o contexto passado para a chamada à API não foi um manuseador
-        /// válido (tal como um contexto sobre o qual se invocou <see cref="CudaApi.CudaContexDestroy"/>).
+        /// válido (tal como um contexto sobre o qual se invocou <see cref="CudaApi.CudaCtxDestroy"/>).
         /// Também pode ser retornado se um utilizador misturar diferentes versões da API (isto é, um contexto
-        /// 3010 com chamadas à API 3020). Ver <see cref="CudaApi.CudaContextGetApiVersion"/> para mais detalhes.
+        /// 3010 com chamadas à API 3020). Ver <see cref="CudaApi.CudaCtxGetApiVersion"/> para mais detalhes.
         /// </summary>
         CudaErrorInvalidContext = 201,
 
         /// <summary>
-        /// Obsoleto: ver <see cref="CudaApi.CudaContextPushCurrent"/>.
+        /// Obsoleto: ver <see cref="CudaApi.CudaCtxPushCurrent"/>.
         /// </summary>
         [Obsolete("Deprecated as of CUDA 3.2.")]
         CudaErrorContextAlreadyCurrent = 202,
@@ -149,13 +149,13 @@
         CudaErrorEccUncorrectable = 214,
 
         /// <summary>
-        /// Indica que o <see cref="CudaLimit"/> passado para a chamada à API não é suportado
+        /// Indica que o <see cref="ECudaLimit"/> passado para a chamada à API não é suportado
         /// pelo dispositivo corrente.
         /// </summary>
         CudaErrorUnsupportedLimit = 215,
 
         /// <summary>
-        /// Indica que o <see cref="CudaContext"/> passado para a chamada à API pode apenas ser
+        /// Indica que o <see cref="SCudaContext"/> passado para a chamada à API pode apenas ser
         /// ligado a uma única linha de fluxo no CPU de cada vez mas encontra-se já ligado a uma linha
         /// de fluxo de CPU.
         /// </summary>
@@ -203,7 +203,7 @@
 
         /// <summary>
         /// Um manuseador de recurso passado para a chamda à API não é válido. Manuseadores de recurso
-        /// são tipos opacos tais como <see cref="CudaStream"/> e <see cref="CudaEvent"/>.
+        /// são tipos opacos tais como <see cref="SCudaStream"/> e <see cref="SCudaEvent"/>.
         /// </summary>
         CudaErrorInvalidHandle = 400,
 
@@ -215,9 +215,9 @@
 
         /// <summary>
         /// Indica que a operação emitida anteriormente ainda não terminou. Este resultado não consiste 
-        /// exactamente num erro mas deve ser indicado de modo diferente do <see cref="CudaResult.CudaSuccess"/>
+        /// exactamente num erro mas deve ser indicado de modo diferente do <see cref="ECudaResult.CudaSuccess"/>
         /// (que indica que a operação terminou). Chamadas que poderão retornar este valor incluem 
-        /// <see cref="CudaEventQuery"/> e <see cref="CudaStreamQuery"/>.
+        /// <see cref="CudaApi.CudaEventQuery"/> e <see cref="CudaApi.CudaStreamQuery"/>.
         /// </summary>
         CudaErrorNotReady = 600,
 
@@ -242,7 +242,7 @@
         /// Indica que o kernel do dispositivo levou demasiado tempo a executar. Isto só pode acontecer se
         /// limites de tempo estiverem activos - ver o atributo de dispositivo
         /// CU_DEVICE_ATTRIBUTE_KERNEL_EXEC_TIMEOUT para mais informação. O contexto não pode ser utilizado (e
-        /// deverá ser destruído à semelhança do <see cref="CudaResult.CudaErrorLaunchFailed"/>). Todas as
+        /// deverá ser destruído à semelhança do <see cref="ECudaResult.CudaErrorLaunchFailed"/>). Todas as
         /// alocações de memória existentes no dispositivo neste contexto são inválidas e deverão ser
         /// reconstruídas se se pretender continuar a utilizar CUDA.
         /// </summary>
@@ -254,14 +254,14 @@
         CudaErrorLaunchIncompatibleTexturing = 703,
 
         /// <summary>
-        /// Indica que a chamada à função <see cref="CudaApi.CudaContextEnablePeerAccess"/> se encontra a tentar
+        /// Indica que a chamada à função <see cref="CudaApi.CudaCtxEnablePeerAccess"/> se encontra a tentar
         /// reestabelecer acesso de porto a um contexto que já possui acesso de porto activo.
         /// </summary>
         CudaErrorPeerAccessAlreadyEnabled = 704,
 
         /// <summary>
-        /// Indica que a função <see cref="CudaApi.CudaContextDisablePeerAccess"/> está a tentar desabilitar
-        /// acesso de porto que ainda não foi habilitado via <see cref="CudaApi.CudaContextEnablePeerAccess"/>.
+        /// Indica que a função <see cref="CudaApi.CudaCtxDisablePeerAccess"/> está a tentar desabilitar
+        /// acesso de porto que ainda não foi habilitado via <see cref="CudaApi.CudaCtxEnablePeerAccess"/>.
         /// </summary>
         CudaErrorPeerAccessNotEnabled = 705,
 
@@ -272,7 +272,7 @@
 
         /// <summary>
         /// O contexto corrente na linha de fluxo que se encontra a realizar a chamada foi destruído via
-        /// <see cref="CudaApi.CudaContextDestroy"/> ou é um contexto primário que ainda não foi inicializado.
+        /// <see cref="CudaApi.CudaCtxDestroy"/> ou é um contexto primário que ainda não foi inicializado.
         /// </summary>
         CudaErrorContextIsDestroyed = 709,
 
@@ -285,18 +285,18 @@
 
         /// <summary>
         /// Indica que os recursos requeridos para habilitar o acesso de porto foram exaurdios para um ou mais
-        /// dispositivos passados para a função <see cref="CudaApi.CudaContextEnablePeerAccess"/>.
+        /// dispositivos passados para a função <see cref="CudaApi.CudaCtxEnablePeerAccess"/>.
         /// </summary>
         CudaErrorTooManyPeers = 711,
 
         /// <summary>
-        /// Indica que o intervalo de memória passada para a função <see cref="CudaApi.CudaMemoryHostRegister"/>
+        /// Indica que o intervalo de memória passada para a função <see cref="CudaApi.CudaMemHostRegister"/>
         /// não corresponde a nenhuma região de memória correntemente registada.
         /// </summary>
         CudaErrorHostMemoryAlreadyRegistered = 712,
 
         /// <summary>
-        /// Indica que o apontador passado para <see cref="CudaApi.CudaMemoryHostUnregister"/> não corresopnde
+        /// Indica que o apontador passado para <see cref="CudaApi.CudaMemHostUnregister"/> não corresopnde
         /// a nenhuma região de memória correntemente registada.
         /// </summary>
         CudaErrorHostMemoryNotRegistered = 713,
@@ -504,7 +504,7 @@
     /// <summary>
     /// Marcas para criação de contexto.
     /// </summary>
-    public enum ECudaContexFlags
+    public enum ECudaContextFlags
     {
         /// <summary>
         /// Calenderização automática.
@@ -527,7 +527,7 @@
         SchedBlockingSync = 0x04,
 
         /// <summary>
-        /// Foi susbituído por <see cref="CudaContexFlags.SchedBlockingSync"/>.
+        /// Foi susbituído por <see cref="ECudaContextFlags.SchedBlockingSync"/>.
         /// </summary>
         [Obsolete("Deprecated as of CUDA 4.0.")]
         BlockingSync = 0x04,
@@ -655,7 +655,7 @@
         CanMapHostMemory = 19,
 
         /// <summary>
-        /// Nó de computação (ver <see cref="CudaApi.CudaComputeNode"/>).
+        /// Nó de computação (ver <see cref="ECudaComputeMode"/>).
         /// </summary>
         ComputeMode = 20,
 
@@ -775,12 +775,12 @@
         MaxTexture1DLayeredLayers = 43,
 
         /// <summary>
-        /// Largura máxima da textura 2D se estiver activa <see cref="CudaApi.CudaArrayTextureGather"/>.
+        /// Largura máxima da textura 2D se estiver activa.
         /// </summary>
         MaxTexture2DGatherWidth = 45,
 
         /// <summary>
-        /// Altura máxima da textura 2D se estiver activa <see cref="CudaApi.CudaArrayTextureGather"/>.
+        /// Altura máxima da textura 2D se estiver activa.
         /// </summary>
         MaxTexture2DGatherHeight = 46,
 
@@ -1381,7 +1381,7 @@
 
         /// <summary>
         /// Especifica se se pretende habilitar o suporte a provisão explicitamente (-dlcm). A escolha é
-        /// baseada em <see cref="ECudaJitCacheModeEnum"/>
+        /// baseada em <see cref="ECudaJitCacheMode"/>
         /// </summary>
         /// /// <remarks>
         /// Tipo: /// <remarks>
@@ -1495,6 +1495,9 @@
         Max
     }
 
+    /// <summary>
+    /// Marcas de anexação a caudal.
+    /// </summary>
     public enum ECudaMemAttachFlags
     {
         /// <summary>

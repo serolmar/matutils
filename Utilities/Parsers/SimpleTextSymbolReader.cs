@@ -36,11 +36,6 @@
         private SymbType endOfFileSymbType;
 
         /// <summary>
-        /// Variável que indica se o leitor já se encontra iniciado.
-        /// </summary>
-        private bool started = false;
-
-        /// <summary>
         /// Instancia um novo objecto do tipo <see cref="SimpleTextSymbolReader{SymbType}"/>.
         /// </summary>
         /// <param name="reader">O leitor do qual são efectuadas as leituras dos símbolos.</param>
@@ -114,17 +109,6 @@
                 {
                     this.endOfFileSymbType = value;
                 }
-            }
-        }
-
-        /// <summary>
-        /// Obtém um valor que indica se o leitor se encontra inicializado.
-        /// </summary>
-        public bool Started
-        {
-            get
-            {
-                return this.started;
             }
         }
 
