@@ -14,6 +14,7 @@
     using Mathematics.MathematicsInterpreter;
     using Utilities.Collections;
     using Utilities;
+    using Utilities.Cuda;
     using System.Linq.Expressions;
     using OdmpProblem;
 
@@ -22,6 +23,119 @@
         delegate void Temp();
 
         static void Main(string[] args)
+        {
+            var count = default(int);
+            var cudaResult = CudaApi.CudaInit(0);
+            if (cudaResult == ECudaResult.CudaSuccess)
+            {
+                var driverVersion = default(int);
+                cudaResult = CudaApi.CudaDriverGetVersion(ref driverVersion);
+                if (cudaResult == ECudaResult.CudaSuccess)
+                {
+                    Console.WriteLine("A versão do condutor é: {0}", driverVersion);
+                }
+
+                cudaResult = CudaApi.CudaDeviceGetCount(ref count);
+                if (cudaResult == ECudaResult.CudaSuccess)
+                {
+                    Console.WriteLine("Número de dispositivos com suporte CUDA: {0}", count);
+                    for (int i = 0; i < count; ++i)
+                    {
+                        // Informação do dispositivo
+                        var device = default(int);
+                        cudaResult = CudaApi.CudaDeviceGet(ref device, i);
+                        if (cudaResult == ECudaResult.CudaSuccess)
+                        {
+                            // Nome do dispositivo
+                            var textLength = 100;
+                            var deviceName = new StringBuilder(textLength);
+                            cudaResult = CudaApi.CudaDeviceGetName(deviceName, textLength, device);
+                            if (cudaResult == ECudaResult.CudaSuccess)
+                            {
+                                Console.WriteLine("O nome do dispositivo é: {0}", deviceName);
+                            }
+                            else
+                            {
+                                Console.WriteLine("Erro na obtenção do nome do dispositivo.");
+                            }
+
+                            // Atributos do dispostivo
+                            var attribute = default(int);
+                            cudaResult = CudaApi.CudaDeviceGetAttribute(
+                                ref attribute,
+                                ECudaDeviceAttr.MaxBlockDimX,
+                                device);
+                            if (cudaResult == ECudaResult.CudaSuccess)
+                            {
+                                Console.WriteLine("O atributo do dispositivo é: {0}", attribute);
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("Um erro ocorreu na tentativa da obtenção de um dispositivo.");
+                        }
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Ocorreu um erro durante a tentativa de consulta de número de dispositivos.");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Ocorreu um erro durante a incialização.");
+            }
+
+            Console.ReadKey();
+        }
+
+        static void Temp1()
+        {
+            var upperBoundsFile = "Data\\Exemplos\\limites_superiores_20.csv";
+            var lowerBoundsFile = "Data\\Exemplos\\limites_inferiores_20.csv";
+
+            var comparer = Comparer<double>.Default;
+            var ring = new DoubleField();
+            var componentBoundsAlgorithm = new ComponentBoundsAlgorithm<double>(
+                new IntegerMinWeightTdecomposition<double>(comparer, ring),
+                comparer,
+                ring);
+
+            var dataProvider = new DataReaderProvider<IParse<double, string, string>>(
+                new DoubleParser<string>());
+            var csvParser = new CsvFileParser<List<List<double>>, double, string, string>(
+                "new_line",
+                "semi_colon",
+                dataProvider);
+            csvParser.AddIgnoreType("carriage_return");
+
+            var upperBounds = new List<List<double>>();
+            var lowerBounds = new List<List<double>>();
+
+            var adder = new ListTypeTransposedAdder<double>();
+            using (var textReader = new StreamReader(upperBoundsFile))
+            {
+                var symbolReader = new StringSymbolReader(textReader, true, false);
+                csvParser.Parse(symbolReader, upperBounds, adder);
+            }
+
+            using (var textReader = new StreamReader(lowerBoundsFile))
+            {
+                var symbolReader = new StringSymbolReader(textReader, true, false);
+                csvParser.Parse(symbolReader, lowerBounds, adder);
+            }
+
+            // Conta o número de vértices.
+            var countRefs = 0;
+            for (int i = 0; i < upperBounds.Count; ++i)
+            {
+                countRefs += upperBounds[i].Count;
+            }
+
+            var result = componentBoundsAlgorithm.Run(20, lowerBounds, upperBounds);
+        }
+
+        public void Lixo()
         {
             var watch = new Stopwatch();
 
@@ -174,53 +288,6 @@
                 watch.Elapsed.Minutes,
                 watch.Elapsed.Seconds);
             Console.WriteLine(cont);
-            Console.ReadKey();
-        }
-
-        static void Temp1()
-        {
-            var upperBoundsFile = "Data\\Exemplos\\limites_superiores_20.csv";
-            var lowerBoundsFile = "Data\\Exemplos\\limites_inferiores_20.csv";
-
-            var comparer = Comparer<double>.Default;
-            var ring = new DoubleField();
-            var componentBoundsAlgorithm = new ComponentBoundsAlgorithm<double>(
-                new IntegerMinWeightTdecomposition<double>(comparer, ring),
-                comparer,
-                ring);
-
-            var dataProvider = new DataReaderProvider<IParse<double, string, string>>(
-                new DoubleParser<string>());
-            var csvParser = new CsvFileParser<List<List<double>>, double, string, string>(
-                "new_line",
-                "semi_colon",
-                dataProvider);
-            csvParser.AddIgnoreType("carriage_return");
-
-            var upperBounds = new List<List<double>>();
-            var lowerBounds = new List<List<double>>();
-
-            var adder = new ListTypeTransposedAdder<double>();
-            using (var textReader = new StreamReader(upperBoundsFile))
-            {
-                var symbolReader = new StringSymbolReader(textReader, true, false);
-                csvParser.Parse(symbolReader, upperBounds, adder);
-            }
-
-            using (var textReader = new StreamReader(lowerBoundsFile))
-            {
-                var symbolReader = new StringSymbolReader(textReader, true, false);
-                csvParser.Parse(symbolReader, lowerBounds, adder);
-            }
-
-            // Conta o número de vértices.
-            var countRefs = 0;
-            for (int i = 0; i < upperBounds.Count; ++i)
-            {
-                countRefs += upperBounds[i].Count;
-            }
-
-            var result = componentBoundsAlgorithm.Run(20, lowerBounds, upperBounds);
         }
 
         static void TestOdmpCompatibilityAlgorithm()

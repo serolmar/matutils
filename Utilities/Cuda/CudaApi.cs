@@ -2,6 +2,7 @@
 {
     using System;
     using System.Runtime.InteropServices;
+    using System.Text;
 
     /// <summary>
     /// Permite fazer ligação estática às funções diponibilizadas pela API CUDA.
@@ -46,10 +47,7 @@
         /// o parâmetro das marcas tem de ser 0. Se <see cref="CudaApi.CudaInit"/> não for chamada qualquer
         /// função da API retornará <see cref="ECudaResult.CudaErrorNotInitialized"/>.
         /// </summary>
-        /// <remarks>
-        /// Actuamente o parâmetro flags apenas suporta o valor 0.
-        /// </remarks>
-        /// <param name="flags">As marcas de inicialização.</param>
+        /// <param name="flags">As marcas de inicialização (deverá receber o valor 0).</param>
         /// <returns>
         /// <see cref="ECudaResult.CudaSuccess"/>,
         /// <see cref="ECudaResult.CudaErrorInvalidValue"/> ou
@@ -91,7 +89,7 @@
         /// <see cref="ECudaResult.CudaErrorInvalidDevice"/>.
         /// </returns>
         [DllImport(DllName, EntryPoint = "cuDeviceGet")]
-        public static extern ECudaResult CudaDeviceGet(ref SCudaDevice device, int ordinal);
+        public static extern ECudaResult CudaDeviceGet(ref int device, int ordinal);
 
         /// <summary>
         /// Retorna informação sobre o dispositivo.
@@ -111,7 +109,7 @@
         public static extern ECudaResult CudaDeviceGetAttribute(
             ref int pi, 
             ECudaDeviceAttr attrib, 
-            SCudaDevice device);
+            int device);
 
         /// <summary>
         /// Retorna o número de dispositivos capazes computação CUDA.
@@ -131,6 +129,14 @@
         /// <summary>
         /// Retorna um valor textual que identifica o dispositivo.
         /// </summary>
+        /// <remarks>
+        /// Note-se que a função é ordenada por intermédio do tipo <see cref="System.Text.StringBuilder"/>.
+        /// Poderia ser por <see cref="T:System.Char[]"/>. No entanto, a utilização de um objecto do tipo
+        /// <see cref="System.Text.StringBuilder"/> permite construir directamente um objecto do tipo 
+        /// <see cref="System.String"/> a partir do apontador no código não gerido, admitindo que se trata
+        /// de uma cadeia de carácteres com terminação nula. No outro caso, seria necessário instanciar um
+        /// vector de carácteres com o tamanho correcto para acomodar o texto.
+        /// </remarks>
         /// <param name="name">O nome do dispositivo retornado.</param>
         /// <param name="len">O comprimento máximo a ser guardado no nome.</param>
         /// <param name="dev">O dispositivo do qual se pretende a identificação.</param>
@@ -142,8 +148,11 @@
         /// <see cref="ECudaResult.CudaErrorInvalidValue"/>,
         /// <see cref="ECudaResult.CudaErrorInvalidDevice"/>.
         /// </returns>
-        [DllImport(DllName, EntryPoint = "cuDeviceGetName")]
-        public static extern ECudaResult CudaDeviceGetName([Out] char[] name, int len, SCudaDevice dev);
+        [DllImport(DllName, EntryPoint = "cuDeviceGetName", CharSet= CharSet.Ansi)]
+        public static extern ECudaResult CudaDeviceGetName(
+            [MarshalAs(UnmanagedType.LPStr)] StringBuilder name, 
+            int len, 
+            int dev);
 
         /// <summary>
         /// Retorna a memória total disponível no dispositivo.
@@ -159,7 +168,7 @@
         /// <see cref="ECudaResult.CudaErrorInvalidDevice"/>.
         /// </returns>
         [DllImport(DllName, EntryPoint = "cuDeviceTotalMem")]
-        public static extern ECudaResult CudaDeviceTotalMem(ref SizeT bytes, SCudaDevice dev);
+        public static extern ECudaResult CudaDeviceTotalMem(ref SizeT bytes, int dev);
 
         /// <summary>
         /// Retorna as capacidades computacionais do dispositivo.
@@ -183,7 +192,7 @@
         public static extern ECudaResult CudaDeviceComputeCapability(
             ref int major,
             ref int minor,
-            SCudaDevice dev);
+            int dev);
 
         /// <summary>
         /// Retorna as propriedades do dispositivo especificado.
@@ -203,7 +212,7 @@
         /// </returns>
         [Obsolete("Deprecated as of CUDA 5.0.")]
         [DllImport(DllName, EntryPoint = "cuDeviceGetProperties")]
-        public static extern ECudaResult CudaDeviceGetProperties(ref SCudaDevProp prop, SCudaDevice dev);
+        public static extern ECudaResult CudaDeviceGetProperties(ref SCudaDevProp prop, int dev);
 
         #endregion Gestão de dispositivos
 
@@ -306,7 +315,7 @@
         public static extern ECudaResult CudaCtxCreate(
             ref SCudaContext pctx, 
             ECudaContextFlags flags, 
-            SCudaDevice dev);
+            int dev);
 
         /// <summary>
         /// Destrói um contexto CUDA.
@@ -423,7 +432,7 @@
         /// <see cref="ECudaResult.CudaErrorInvalidValue"/>.
         /// </returns>
         [DllImport(DllName, EntryPoint = "cuCtxGetDevice")]
-        public static extern ECudaResult CudaCtxGetDevice(ref SCudaDevice device);
+        public static extern ECudaResult CudaCtxGetDevice(ref int device);
 
         /// <summary>
         /// Retorna os limites dos recursos.
@@ -1261,7 +1270,7 @@
         /// </returns>
         [DllImport(DllName, EntryPoint = "cuDeviceGetByPCIBusId")]
         public static extern ECudaResult CudaDeviceGetByPCIBusId(
-            ref SCudaDevice dev,
+            ref int dev,
             string pciBusId);
 
         /// <summary>
@@ -1293,7 +1302,7 @@
         public static extern ECudaResult CudaDeviceGetPCIBusId(
             ref string pciBusId,
             int len,
-            SCudaDevice dev);
+            int dev);
 
         /// <summary>
         /// Fecha a memória mapeada com a função <see cref="CudaApi.CudaIpcOpenMemHandle"/>.
@@ -3895,8 +3904,8 @@
         [DllImport(DllName, EntryPoint = "cuDeviceCanAccessPeer")]
         public static extern ECudaResult CudaDeviceCanAccessPeer(
             ref int canAccessPeer,
-            SCudaDevice dev,
-            SCudaDevice peerDev);
+            int dev,
+            int peerDev);
 
         #endregion Contexto de cais para acesso de memória
 

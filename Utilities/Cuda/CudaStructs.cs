@@ -28,18 +28,6 @@
     }
 
     /// <summary>
-    /// O dispositivo CUDA.
-    /// </summary>
-    [StructLayout(LayoutKind.Sequential)]
-    public struct SCudaDevice
-    {
-        /// <summary>
-        /// O valor do dispositivo.
-        /// </summary>
-        public int Value;
-    }
-
-    /// <summary>
     /// Referencia um apontador para o dispositivo.
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
