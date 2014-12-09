@@ -67,6 +67,8 @@
     <Compile Include="Cuda\CudaCallbacks.cs" />
     <Compile Include="Cuda\CudaConstants.cs" />
     <Compile Include="Cuda\CudaEnums.cs" />
+    <Compile Include="Cuda\CudaException.cs" />
+    <Compile Include="Cuda\CudaManager.cs" />
     <Compile Include="Cuda\CudaStructs.cs" />
     <Compile Include="Data\Implementations\Files\CSV\CsvDataReaderProvider.cs" />
     <Compile Include="Data\Implementations\Files\CSV\DoubleDataReader.cs" />
@@ -97,6 +99,7 @@
     <Compile Include="Events\UpdateEventArgs.cs" />
     <Compile Include="ExpressionBuilders\BoolExpressionParser.cs" />
     <Compile Include="ExpressionBuilders\EWordCharExpressionType.cs" />
+    <Compile Include="GenericException.cs" />
     <Compile Include="InverseComparer.cs" />
     <Compile Include="Lambda\ELambdaExpressionWordType.cs" />
     <Compile Include="Lambda\SmartFilterLambdaBuilder.cs" />

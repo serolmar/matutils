@@ -59,15 +59,69 @@
                                 Console.WriteLine("Erro na obtenção do nome do dispositivo.");
                             }
 
-                            // Atributos do dispostivo
+                            // Capacidade computacional menor
                             var attribute = default(int);
                             cudaResult = CudaApi.CudaDeviceGetAttribute(
                                 ref attribute,
-                                ECudaDeviceAttr.MaxBlockDimX,
+                                ECudaDeviceAttr.ComputeCapabilityMinor,
                                 device);
                             if (cudaResult == ECudaResult.CudaSuccess)
                             {
-                                Console.WriteLine("O atributo do dispositivo é: {0}", attribute);
+                                Console.WriteLine(
+                                    "A capacidade computacional menor do dispositivo é: {0}", 
+                                    attribute);
+                            }
+                            else
+                            {
+                                Console.WriteLine(
+                                    "Ocorreu um erro ao tentar obter a capacidade computacional menor");
+                            }
+
+                            cudaResult = CudaApi.CudaDeviceGetAttribute(
+                                ref attribute,
+                                ECudaDeviceAttr.ComputeCapabilityMajor,
+                                device);
+                            if (cudaResult == ECudaResult.CudaSuccess)
+                            {
+                                Console.WriteLine(
+                                    "A capacidade computacional maior do dispositivo é: {0}",
+                                    attribute);
+                            }
+
+                            // Estabelecimento do contexto
+                            var context = default(SCudaContext);
+                            cudaResult = CudaApi.CudaCtxCreate(ref context, ECudaContextFlags.SchedAuto, device);
+                            if (cudaResult != ECudaResult.CudaSuccess)
+                            {
+                                throw new Exception("Um erro ocorreu durante a criação do contexto.");
+                            }
+
+                            cudaResult = CudaApi.CudaCtxSetCurrent(context);
+                            if (cudaResult != ECudaResult.CudaSuccess)
+                            {
+                                throw new Exception(
+                                    "Um erro ocorreu na tentativa do estabelecimento de um contexto.");
+                            }
+
+                            // Tentativa do carregamento de um módulo
+                            var module = default(SCudaModule);
+                            cudaResult = CudaApi.CudaModuleLoad(ref module, "Data\\AddVector.cu.obj");
+                            if (cudaResult == ECudaResult.CudaSuccess)
+                            {
+                                Console.WriteLine("O módulo foi carregado com sucesso.");
+                                cudaResult = CudaApi.CudaModuleUnload(module);
+                                if (cudaResult == ECudaResult.CudaSuccess)
+                                {
+                                    Console.WriteLine("O módulo foi descarregado com sucesso");
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Ocorreu um erro durante o carregamento do módulo.");
+                                }
+                            }
+                            else
+                            {
+                                Console.WriteLine("Um erro ocorreu durante o carregamento do módulo.");
                             }
                         }
                         else

@@ -25,7 +25,9 @@
         /// <see cref="ECudaResult.CudaSuccess"/> ou <see cref="ECudaResult.CudaErrorInvalidValue"/>.
         /// </returns>
         [DllImport(DllName, EntryPoint = "cuGetErrorName")]
-        public static extern ECudaResult CudaGetErrorName(ECudaResult error, ref string ptrStr);
+        public static extern ECudaResult CudaGetErrorName(
+            ECudaResult error,
+            ref IntPtr ptrStr);
 
         /// <summary>
         /// Obtém a descrição de um código de erro.
@@ -36,7 +38,9 @@
         /// <see cref="ECudaResult.CudaSuccess"/> ou <see cref="ECudaResult.CudaErrorInvalidValue"/>.
         /// </returns>
         [DllImport(DllName, EntryPoint = "cuGetErrorString")]
-        public static extern ECudaResult CudaGetErrorString(ECudaResult error, ref string ptrStr);
+        public static extern ECudaResult CudaGetErrorString(
+            ECudaResult error,
+            ref IntPtr ptrStr);
 
         #endregion Gestão dos erros
 
