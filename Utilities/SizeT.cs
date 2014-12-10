@@ -157,6 +157,17 @@
         }
 
         /// <summary>
+        /// O valor zero.
+        /// </summary>
+        public static SizeT Zero
+        {
+            get
+            {
+                return new SizeT(0);
+            }
+        }
+
+        /// <summary>
         /// Determina se o objecto proporcionado é igual ao objecto corrente.
         /// </summary>
         /// <param name="obj">O objecto a ser compardo.</param>

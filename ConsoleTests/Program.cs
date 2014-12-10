@@ -26,6 +26,7 @@
         {
             var count = default(int);
             var cudaResult = CudaApi.CudaInit(0);
+            cudaResult = CudaApi.CudaInit(0);
             if (cudaResult == ECudaResult.CudaSuccess)
             {
                 var driverVersion = default(int);
@@ -94,6 +95,12 @@
                             if (cudaResult != ECudaResult.CudaSuccess)
                             {
                                 throw new Exception("Um erro ocorreu durante a criação do contexto.");
+                            }
+
+                            cudaResult = CudaApi.CudaCtxPushCurrent(context);
+                            if (cudaResult != ECudaResult.CudaSuccess)
+                            {
+                                Console.WriteLine("Um erro ocorreu.");
                             }
 
                             cudaResult = CudaApi.CudaCtxSetCurrent(context);

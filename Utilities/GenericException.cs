@@ -22,10 +22,10 @@
         /// <summary>
         /// Os dados que serão mapeados às etiquetas.
         /// </summary>
-        private Dictionary<TagType, object> data;
+        private Dictionary<TagType, object> tagData;
 
         /// <summary>
-        /// Instancia um novo objecto do tipo <see cref="GenericException"/>.
+        /// Instancia um novo objecto do tipo <see cref="GenericException{CodeType, TagType}"/>.
         /// </summary>
         /// <param name="code">O código do erro.</param>
         /// <param name="data">Os dados que serão mapeados às etiquetas.</param>
@@ -36,7 +36,7 @@
         }
 
         /// <summary>
-        /// Instancia um novo objecto do tipo <see cref="GenericException"/>.
+        /// Instancia um novo objecto do tipo <see cref="GenericException{CodeType, TagType}"/>.
         /// </summary>
         /// <param name="message">A mensagem da excepção.</param>
         /// <param name="code">O código do erro.</param>
@@ -51,7 +51,7 @@
         }
 
         /// <summary>
-        /// Instancia um novo objecto do tipo <see cref="GenericException"/>.
+        /// Instancia um novo objecto do tipo <see cref="GenericException{CodeType, TagType}"/>.
         /// </summary>
         /// <param name="message">A mensagem da excepção.</param>
         /// <param name="innerException">A excepção interna.</param>
@@ -68,7 +68,7 @@
         }
 
         /// <summary>
-        /// Instancia um novo objecto do tipo <see cref="GenericException"/>.
+        /// Instancia um novo objecto do tipo <see cref="GenericException{CodeType, TagType}"/>.
         /// </summary>
         /// <param name="info">
         /// O objecto do tipo <see cref="T:System.Runtime.Serialization.SerializationInfo" /> que contém os 
@@ -104,11 +104,11 @@
         /// <summary>
         /// Obtém os dados que serão mapeados às etiquetas.
         /// </summary>
-        public Dictionary<TagType, object> Data
+        public Dictionary<TagType, object> TagData
         {
             get
             {
-                return this.data;
+                return this.tagData;
             }
         }
 
@@ -122,11 +122,11 @@
             this.code = code;
             if (data == null)
             {
-                this.data = new Dictionary<TagType, object>();
+                this.tagData = new Dictionary<TagType, object>();
             }
             else
             {
-                this.data = data;
+                this.tagData = data;
             }
         }
     }

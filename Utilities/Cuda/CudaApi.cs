@@ -551,7 +551,7 @@
         public static extern ECudaResult CudaCtxPopCurrent(ref SCudaContext pctx);
 
         /// <summary>
-        /// Insere um contxto na linha de fluxo do CPU corrente.
+        /// Insere um contexto na linha de fluxo do CPU corrente.
         /// </summary>
         /// <remarks>
         /// Insere o contexto proporcionado na pilha de contextos da linha de fluxo do CPU. O contexto

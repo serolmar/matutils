@@ -20,9 +20,29 @@
         private static CudaManager manager;
 
         /// <summary>
+        /// Mantém o conjunto dos dispositivos existentes no anfitrião.
+        /// </summary>
+        private CudaDeviceProxy[] devices;
+
+        /// <summary>
         /// Instância uma nova instância de objectos do tipo <see cref="CudaManager"/>.
         /// </summary>
-        private CudaManager() { }
+        /// <param name="devices">Os dispositivos encontrados.</param>
+        private CudaManager(CudaDeviceProxy[] devices)
+        {
+            this.devices = devices;
+        }
+
+        /// <summary>
+        /// Obtém o número de dispositivos carregados.
+        /// </summary>
+        public int DevicesCount
+        {
+            get
+            {
+                return this.devices.Length;
+            }
+        }
 
         /// <summary>
         /// Obtém a instância única do gestor do ambiente CUDA.
@@ -36,13 +56,30 @@
                 {
                     try
                     {
+                        // Inicializa CUDA
                         var cudaResult = CudaApi.CudaInit(0);
                         if (cudaResult != ECudaResult.CudaSuccess)
                         {
                             throw CudaException.GetExceptionFromCudaResult(cudaResult);
                         }
 
-                        throw new NotImplementedException();
+                        // Obtém o número de dispositivos disponíveis
+                        var deviceCount = default(int);
+                        cudaResult = CudaApi.CudaDeviceGetCount(ref deviceCount);
+                        if (cudaResult != ECudaResult.CudaSuccess)
+                        {
+                            throw CudaException.GetExceptionFromCudaResult(cudaResult);
+                        }
+
+                        var devices = new CudaDeviceProxy[deviceCount];
+                        for (int i = 0; i < deviceCount; ++i)
+                        {
+                            var currentDevice = default(int);
+                            cudaResult = CudaApi.CudaDeviceGet(ref currentDevice, i);
+                            devices[i] = new CudaDeviceProxy(currentDevice);
+                        }
+
+                        manager = new CudaManager(devices);
                     }
                     catch (DllNotFoundException dllNotFoundException)
                     {
@@ -109,6 +146,29 @@
                     -1);
             }
         }
+
+        /// <summary>
+        /// Obtém o dispositivo especificado pelo índice.
+        /// </summary>
+        /// <param name="index">O índice.</param>
+        /// <returns>O dispositivo.</returns>
+        public CudaDeviceProxy GetDevice(int index)
+        {
+            return this.devices[index];
+        }
+
+        /// <summary>
+        /// Estabelece o contexto actual.
+        /// </summary>
+        /// <param name="context">O contexto a ser estabelecido.</param>
+        public void SetCurrentContext(SCudaContext context)
+        {
+            var cudaResult = CudaApi.CudaCtxSetCurrent(context);
+            if (cudaResult != ECudaResult.CudaSuccess)
+            {
+                throw CudaException.GetExceptionFromCudaResult(cudaResult);
+            }
+        }
     }
 
     /// <summary>
@@ -131,9 +191,20 @@
         }
 
         /// <summary>
+        /// Obtém o número do dispostivo que pode ser usado na API CUDA.
+        /// </summary>
+        public int CudaDevice
+        {
+            get
+            {
+                return this.cudaDevice;
+            }
+        }
+
+        /// <summary>
         /// Obtém o nome do dispositivo.
         /// </summary>
-        public string DeviceName
+        public string Name
         {
             get
             {
@@ -146,6 +217,41 @@
 
                 return result.ToString();
             }
+        }
+
+        /// <summary>
+        /// Obtém a memória total do dispositivo.
+        /// </summary>
+        public long TotalMemory
+        {
+            get
+            {
+                var result = default(SizeT);
+                var cudaResult = CudaApi.CudaDeviceTotalMem(ref result, this.cudaDevice);
+                if (cudaResult != ECudaResult.CudaSuccess)
+                {
+                    throw CudaException.GetExceptionFromCudaResult(cudaResult);
+                }
+
+                return result;
+            }
+        }
+
+        /// <summary>
+        /// Cria um contexto associado ao dispositivo na linha de fluxo de chamada.
+        /// </summary>
+        /// <param name="flags">As marcas de criação do contexto.</param>
+        /// <returns>O contexto.</returns>
+        public CudaContextProxy CreateContext(ECudaContextFlags flags)
+        {
+            var result = default(SCudaContext);
+            var cudaResult = CudaApi.CudaCtxCreate(ref result, flags, this.cudaDevice);
+            if (cudaResult != ECudaResult.CudaSuccess)
+            {
+                throw CudaException.GetExceptionFromCudaResult(cudaResult);
+            }
+
+            return new CudaContextProxy(result);
         }
 
         #region Atributos
@@ -168,7 +274,10 @@
         {
             get
             {
-                throw new NotImplementedException();
+                var x = this.GetAttributeValue(ECudaDeviceAttr.MaxBlockDimX);
+                var y = this.GetAttributeValue(ECudaDeviceAttr.MaxBlockDimY);
+                var z = this.GetAttributeValue(ECudaDeviceAttr.MaxBlockDimZ);
+                return Tuple.Create(x, y, z);
             }
         }
 
@@ -179,7 +288,10 @@
         {
             get
             {
-                throw new NotImplementedException();
+                var x = this.GetAttributeValue(ECudaDeviceAttr.MaxGridDimX);
+                var y = this.GetAttributeValue(ECudaDeviceAttr.MaxBlockDimY);
+                var z = this.GetAttributeValue(ECudaDeviceAttr.MaxBlockDimZ);
+                return Tuple.Create(x, y, z);
             }
         }
 
@@ -224,7 +336,7 @@
         {
             get
             {
-                throw new NotImplementedException();
+                return this.GetAttributeValue(ECudaDeviceAttr.MaxPitch);
             }
         }
 
@@ -235,7 +347,7 @@
         {
             get
             {
-                throw new NotImplementedException();
+                return this.GetAttributeValue(ECudaDeviceAttr.MaxRegistersPerBlock);
             }
         }
 
@@ -246,7 +358,7 @@
         {
             get
             {
-                throw new NotImplementedException();
+                return this.GetAttributeValue(ECudaDeviceAttr.ClockRate);
             }
         }
 
@@ -257,7 +369,7 @@
         {
             get
             {
-                throw new NotImplementedException();
+                return this.GetAttributeValue(ECudaDeviceAttr.TextureAlignment);
             }
         }
 
@@ -268,7 +380,7 @@
         {
             get
             {
-                throw new NotImplementedException();
+                return this.GetAttributeValue(ECudaDeviceAttr.GpuOverlap);
             }
         }
 
@@ -279,7 +391,7 @@
         {
             get
             {
-                throw new NotImplementedException();
+                return this.GetAttributeValue(ECudaDeviceAttr.MultiProcessorCount);
             }
         }
 
@@ -293,7 +405,8 @@
         {
             get
             {
-                throw new NotImplementedException();
+                var resultValue = this.GetAttributeValue(ECudaDeviceAttr.KernelExecTimeout);
+                return resultValue == 1;
             }
         }
 
@@ -304,7 +417,7 @@
         {
             get
             {
-                throw new NotImplementedException();
+                return this.GetAttributeValue(ECudaDeviceAttr.Integrated);
             }
         }
 
@@ -318,7 +431,8 @@
         {
             get
             {
-                throw new NotImplementedException();
+                var resultValue = this.GetAttributeValue(ECudaDeviceAttr.CanMapHostMemory);
+                return resultValue == 1;
             }
         }
 
@@ -329,7 +443,7 @@
         {
             get
             {
-                throw new NotImplementedException();
+                return this.GetAttributeValue(ECudaDeviceAttr.ComputeMode);
             }
         }
 
@@ -340,40 +454,47 @@
         {
             get
             {
-                throw new NotImplementedException();
+                return this.GetAttributeValue(ECudaDeviceAttr.MaxTexture1DWidth);
             }
         }
 
         /// <summary>
-        /// Obtém o par (largura, altura) mãximas da textura 2D.
+        /// Obtém o par (largura, altura) máximas da textura 2D.
         /// </summary>
-        public Tuple<int,int> MaxTexture2D
+        public Tuple<int, int> MaxTexture2D
         {
             get
             {
-                throw new NotImplementedException();
+                var width = this.GetAttributeValue(ECudaDeviceAttr.MaxTexture2DWidth);
+                var height = this.GetAttributeValue(ECudaDeviceAttr.MaxTexture2DHeight);
+                return Tuple.Create(width, height);
             }
         }
 
         /// <summary>
         /// Obtém o terno (largura, altura, profundidade) máximas da textura 3D.
         /// </summary>
-        public Tuple<int,int,int> MaxTexture3D
+        public Tuple<int, int, int> MaxTexture3D
         {
             get
             {
-                throw new NotImplementedException();
+                var width = this.GetAttributeValue(ECudaDeviceAttr.MaxTexture3DWidth);
+                var height = this.GetAttributeValue(ECudaDeviceAttr.MaxTexture3DHeight);
+                var depth = this.GetAttributeValue(ECudaDeviceAttr.MaxTexture3DDepth);
+                return Tuple.Create(width, height, depth);
             }
         }
 
         /// <summary>
         /// Obtém o par (largura, altura) máximas da textura 2D estratificável.
         /// </summary>
-        public Tuple<int,int> MaxTexture2DLayered
+        public Tuple<int, int> MaxTexture2DLayered
         {
             get
             {
-                throw new NotImplementedException();
+                var width = this.GetAttributeValue(ECudaDeviceAttr.MaxTexture2DLayeredWidth);
+                var height = this.GetAttributeValue(ECudaDeviceAttr.MaxTexture2DLayeredHeight);
+                return Tuple.Create(width, height);
             }
         }
 
@@ -384,7 +505,7 @@
         {
             get
             {
-                throw new NotImplementedException();
+                return this.GetAttributeValue(ECudaDeviceAttr.MaxTexture2DLayeredLayers);
             }
         }
 
@@ -395,7 +516,7 @@
         {
             get
             {
-                throw new NotImplementedException();
+                return this.GetAttributeValue(ECudaDeviceAttr.SurfaceAlignment);
             }
         }
 
@@ -406,7 +527,7 @@
         {
             get
             {
-                throw new NotImplementedException();
+                return this.GetAttributeValue(ECudaDeviceAttr.ConcurrentKernels);
             }
         }
 
@@ -417,7 +538,7 @@
         {
             get
             {
-                throw new NotImplementedException();
+                return this.GetAttributeValue(ECudaDeviceAttr.EccEnabled);
             }
         }
 
@@ -428,7 +549,7 @@
         {
             get
             {
-                throw new NotImplementedException();
+                return this.GetAttributeValue(ECudaDeviceAttr.PciBusId);
             }
         }
 
@@ -439,7 +560,7 @@
         {
             get
             {
-                throw new NotImplementedException();
+                return this.GetAttributeValue(ECudaDeviceAttr.PciDeviceId);
             }
         }
 
@@ -450,7 +571,7 @@
         {
             get
             {
-                throw new NotImplementedException();
+                return this.GetAttributeValue(ECudaDeviceAttr.TccDriver);
             }
         }
 
@@ -461,7 +582,7 @@
         {
             get
             {
-                throw new NotImplementedException();
+                return this.GetAttributeValue(ECudaDeviceAttr.MemoryClockRate);
             }
         }
 
@@ -472,7 +593,7 @@
         {
             get
             {
-                throw new NotImplementedException();
+                return this.GetAttributeValue(ECudaDeviceAttr.GlobalMemoryBusWidth);
             }
         }
 
@@ -483,7 +604,7 @@
         {
             get
             {
-                throw new NotImplementedException();
+                return this.GetAttributeValue(ECudaDeviceAttr.L2CacheSize);
             }
         }
 
@@ -494,7 +615,7 @@
         {
             get
             {
-                throw new NotImplementedException();
+                return this.GetAttributeValue(ECudaDeviceAttr.MaxThreadsPerMultiProcessor);
             }
         }
 
@@ -505,7 +626,7 @@
         {
             get
             {
-                throw new NotImplementedException();
+                return this.GetAttributeValue(ECudaDeviceAttr.UnifiedAddressing);
             }
         }
 
@@ -516,7 +637,7 @@
         {
             get
             {
-                throw new NotImplementedException();
+                return this.GetAttributeValue(ECudaDeviceAttr.MaxTexture1DLayeredWidth);
             }
         }
 
@@ -527,7 +648,7 @@
         {
             get
             {
-                throw new NotImplementedException();
+                return this.GetAttributeValue(ECudaDeviceAttr.MaxTexture1DLayeredLayers);
             }
         }
 
@@ -538,7 +659,10 @@
         {
             get
             {
-                throw new NotImplementedException();
+                var width = this.GetAttributeValue(ECudaDeviceAttr.MaxTexture3DWidthAlt);
+                var height = this.GetAttributeValue(ECudaDeviceAttr.MaxTexture3DHeightAlt);
+                var depth = this.GetAttributeValue(ECudaDeviceAttr.MaxTexture3DDepthAlt);
+                return Tuple.Create(width, height, depth);
             }
         }
 
@@ -549,7 +673,7 @@
         {
             get
             {
-                throw new NotImplementedException();
+                return this.GetAttributeValue(ECudaDeviceAttr.TexturePitchAlignment);
             }
         }
 
@@ -560,7 +684,7 @@
         {
             get
             {
-                throw new NotImplementedException();
+                return this.GetAttributeValue(ECudaDeviceAttr.MaxTextureCubemapWidth);
             }
         }
 
@@ -571,7 +695,7 @@
         {
             get
             {
-                throw new NotImplementedException();
+                return this.GetAttributeValue(ECudaDeviceAttr.MaxTextureCubemapLayeredWidth);
             }
         }
 
@@ -582,7 +706,7 @@
         {
             get
             {
-                throw new NotImplementedException();
+                return this.GetAttributeValue(ECudaDeviceAttr.MaxTextureCubemapLayeredLayers);
             }
         }
 
@@ -593,7 +717,7 @@
         {
             get
             {
-                throw new NotImplementedException();
+                return this.GetAttributeValue(ECudaDeviceAttr.MaxSurface1DWidth);
             }
         }
 
@@ -604,7 +728,9 @@
         {
             get
             {
-                throw new NotImplementedException();
+                var width = this.GetAttributeValue(ECudaDeviceAttr.MaxSurface2DWidth);
+                var height = this.GetAttributeValue(ECudaDeviceAttr.MaxSurface2DHeight);
+                return Tuple.Create(width, height);
             }
         }
 
@@ -615,7 +741,10 @@
         {
             get
             {
-                throw new NotImplementedException();
+                var width = this.GetAttributeValue(ECudaDeviceAttr.MaxSurface3DWidth);
+                var height = this.GetAttributeValue(ECudaDeviceAttr.MaxSurface3DHeight);
+                var depth = this.GetAttributeValue(ECudaDeviceAttr.MaxSurface3DDepth);
+                return Tuple.Create(width, height, depth);
             }
         }
 
@@ -626,7 +755,7 @@
         {
             get
             {
-                throw new NotImplementedException();
+                return this.GetAttributeValue(ECudaDeviceAttr.MaxSurface1DLayeredWidth);
             }
         }
 
@@ -637,7 +766,7 @@
         {
             get
             {
-                throw new NotImplementedException();
+                return this.GetAttributeValue(ECudaDeviceAttr.MaxSurface1DLayeredLayers);
             }
         }
 
@@ -648,7 +777,9 @@
         {
             get
             {
-                throw new NotImplementedException();
+                var width = this.GetAttributeValue(ECudaDeviceAttr.MaxSurface2DLayeredWidth);
+                var height = this.GetAttributeValue(ECudaDeviceAttr.MaxSurface2DLayeredHeight);
+                return Tuple.Create(width, height);
             }
         }
 
@@ -659,7 +790,7 @@
         {
             get
             {
-                throw new NotImplementedException();
+                return this.GetAttributeValue(ECudaDeviceAttr.MaxSurface2DLayeredLayers);
             }
         }
 
@@ -670,7 +801,7 @@
         {
             get
             {
-                throw new NotImplementedException();
+                return this.GetAttributeValue(ECudaDeviceAttr.MaxSurfaceCubemapWidth);
             }
         }
 
@@ -681,7 +812,7 @@
         {
             get
             {
-                throw new NotImplementedException();
+                return this.GetAttributeValue(ECudaDeviceAttr.MaxSurfaceCubemapLayeredWidth);
             }
         }
 
@@ -692,7 +823,7 @@
         {
             get
             {
-                throw new NotImplementedException();
+                return this.GetAttributeValue(ECudaDeviceAttr.MaxSurfaceCubemapLayeredLayers);
             }
         }
 
@@ -703,7 +834,7 @@
         {
             get
             {
-                throw new NotImplementedException();
+                return this.GetAttributeValue(ECudaDeviceAttr.MaxTexture1DLinearWidth);
             }
         }
 
@@ -714,7 +845,9 @@
         {
             get
             {
-                throw new NotImplementedException();
+                var width = this.GetAttributeValue(ECudaDeviceAttr.MaxTexture2DLinearWidth);
+                var height = this.GetAttributeValue(ECudaDeviceAttr.MaxTexture2DLinearHeight);
+                return Tuple.Create(width, height);
             }
         }
 
@@ -725,7 +858,7 @@
         {
             get
             {
-                throw new NotImplementedException();
+                return this.GetAttributeValue(ECudaDeviceAttr.MaxTexture2DLinearPitch);
             }
         }
 
@@ -736,7 +869,9 @@
         {
             get
             {
-                throw new NotImplementedException();
+                var width = this.GetAttributeValue(ECudaDeviceAttr.MaxTexture2DMipmappedWidth);
+                var height = this.GetAttributeValue(ECudaDeviceAttr.MaxTexture2DMipmappedHeight);
+                return Tuple.Create(width, height);
             }
         }
 
@@ -747,7 +882,9 @@
         {
             get
             {
-                throw new NotImplementedException();
+                var major = this.GetAttributeValue(ECudaDeviceAttr.ComputeCapabilityMajor);
+                var minor = this.GetAttributeValue(ECudaDeviceAttr.ComputeCapabilityMinor);
+                return Tuple.Create(major, minor);
             }
         }
 
@@ -758,7 +895,7 @@
         {
             get
             {
-                throw new NotImplementedException();
+                return this.GetAttributeValue(ECudaDeviceAttr.MaxTexture1DMipmappedWidth);
             }
         }
 
@@ -769,7 +906,7 @@
         {
             get
             {
-                throw new NotImplementedException();
+                return this.GetAttributeValue(ECudaDeviceAttr.GlobalL1CacheSupported);
             }
         }
 
@@ -780,7 +917,7 @@
         {
             get
             {
-                throw new NotImplementedException();
+                return this.GetAttributeValue(ECudaDeviceAttr.LocalL1CacheSupported);
             }
         }
 
@@ -791,7 +928,7 @@
         {
             get
             {
-                throw new NotImplementedException();
+                return this.GetAttributeValue(ECudaDeviceAttr.MaxSharedMemoryPerMultiprocessor);
             }
         }
 
@@ -802,7 +939,7 @@
         {
             get
             {
-                throw new NotImplementedException();
+                return this.GetAttributeValue(ECudaDeviceAttr.MaxRegistersPerMultiprocessor);
             }
         }
 
@@ -813,7 +950,7 @@
         {
             get
             {
-                throw new NotImplementedException();
+                return this.GetAttributeValue(ECudaDeviceAttr.ManagedMemory);
             }
         }
 
@@ -824,7 +961,7 @@
         {
             get
             {
-                throw new NotImplementedException();
+                return this.GetAttributeValue(ECudaDeviceAttr.IsMultiGpuBoard);
             }
         }
 
@@ -835,11 +972,38 @@
         {
             get
             {
-                throw new NotImplementedException();
+                return this.GetAttributeValue(ECudaDeviceAttr.MultiGpuBoardGroupID);
             }
         }
 
         #endregion Atributos
+
+        /// <summary>
+        /// Verifica a igualdade entre o objecto actual e o objecto especificado.
+        /// </summary>
+        /// <param name="obj">O objecto a ser comparado com o actual.</param>
+        /// <returns>Verdadeiro caso os objectos sejam iguais e falso caso contrário.</returns>
+        public override bool Equals(object obj)
+        {
+            var innerObj = obj as CudaDeviceProxy;
+            if (innerObj == null)
+            {
+                return false;
+            }
+            else
+            {
+                return this.cudaDevice == innerObj.cudaDevice;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o código confuso do objecto corrente.
+        /// </summary>
+        /// <returns>O código confuso.</returns>
+        public override int GetHashCode()
+        {
+            return this.cudaDevice.GetHashCode();
+        }
 
         #region Funções privadas
 
@@ -861,5 +1025,240 @@
         }
 
         #endregion Funções privadas
+    }
+
+    /// <summary>
+    /// Implmenta a representação de um contexto.
+    /// </summary>
+    public class CudaContextProxy : IDisposable
+    {
+        /// <summary>
+        /// O contexto CUDA.
+        /// </summary>
+        private SCudaContext cudaContext;
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="CudaContextProxy"/>.
+        /// </summary>
+        /// <param name="cudaContext"></param>
+        internal CudaContextProxy(SCudaContext cudaContext)
+        {
+            this.cudaContext = cudaContext;
+        }
+
+        /// <summary>
+        /// Obtém o contexto CUDA associado ao representante.
+        /// </summary>
+        public SCudaContext CudaContext
+        {
+            get
+            {
+                return this.cudaContext;
+            }
+        }
+
+        /// <summary>
+        /// Obtém ou atribui a configuração de provisão do contexto corrente.
+        /// </summary>
+        /// <returns>A configuração de provisão.</returns>
+        public static ECudaFuncCache CurrentContextCacheConfig
+        {
+            get
+            {
+                var result = default(ECudaFuncCache);
+                var cudaResult = CudaApi.CudaCtxGetCacheConfig(ref result);
+                if (cudaResult != ECudaResult.CudaSuccess)
+                {
+                    throw CudaException.GetExceptionFromCudaResult(cudaResult);
+                }
+
+                return result;
+            }
+            set
+            {
+                var cudaResult = CudaApi.CudaCtxSetCacheConfig(value);
+                if (cudaResult != ECudaResult.CudaSuccess)
+                {
+                    throw CudaException.GetExceptionFromCudaResult(cudaResult);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Obtém ou atribui a configuração da memória partilhada associada ao contexto actual.
+        /// </summary>
+        /// <returns>A configuração de memória partilhada.</returns>
+        public static ECudaSharedConfig CurrentContexSharedMemConfig
+        {
+            get
+            {
+                var result = default(ECudaSharedConfig);
+                var cudaResult = CudaApi.CudaCtxGetSharedMemConfig(ref result);
+                if (cudaResult != ECudaResult.CudaSuccess)
+                {
+                    throw CudaException.GetExceptionFromCudaResult(cudaResult);
+                }
+
+                return result;
+            }
+            set
+            {
+                var cudaResult = CudaApi.CudaCtxSetSharedMemConfig(value);
+                if (cudaResult != ECudaResult.CudaSuccess)
+                {
+                    throw CudaException.GetExceptionFromCudaResult(cudaResult);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Dispõe o contexto e liberta todos os recursos associados com este.
+        /// </summary>
+        public void Dispose()
+        {
+            // Destrói o contexto corrente
+            CudaApi.CudaCtxDestroy(this.cudaContext);
+        }
+
+        #region Membros
+
+        /// <summary>
+        /// Obtém a versão de API suportada pelo dispositivo associado ao contexto.
+        /// </summary>
+        /// <returns>A versão da API suportada.</returns>
+        public uint GetContextApiVersion()
+        {
+            var result = default(uint);
+            var cudaResult = CudaApi.CudaCtxGetApiVersion(this.cudaContext, ref result);
+            if (cudaResult != ECudaResult.CudaSuccess)
+            {
+                throw CudaException.GetExceptionFromCudaResult(cudaResult);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Estabelece o contexto CUDA actual.
+        /// </summary>
+        public void SetAsCurrent()
+        {
+            var cudaResult = CudaApi.CudaCtxSetCurrent(this.cudaContext);
+            if (cudaResult != ECudaResult.CudaSuccess)
+            {
+                throw CudaException.GetExceptionFromCudaResult(cudaResult);
+            }
+        }
+
+        /// <summary>
+        /// Insere o contexto actual na pilha de contextos.
+        /// </summary>
+        public void PushAsCurrent()
+        {
+            var cudaResult = CudaApi.CudaCtxPushCurrent(this.cudaContext);
+            if (cudaResult != ECudaResult.CudaSuccess)
+            {
+                throw CudaException.GetExceptionFromCudaResult(cudaResult);
+            }
+        }
+
+        #endregion Membros
+
+        /// <summary>
+        /// Obtém o contexto corrente na linha de fluxo.
+        /// </summary>
+        /// <returns>O contexto corrente.</returns>
+        public static CudaContextProxy CudaContextGetCurrent()
+        {
+            var result = default(SCudaContext);
+            var cudaResult = CudaApi.CudaCtxGetCurrent(ref result);
+            if (cudaResult != ECudaResult.CudaSuccess)
+            {
+                throw CudaException.GetExceptionFromCudaResult(cudaResult);
+            }
+
+            return new CudaContextProxy(result);
+        }
+
+        /// <summary>
+        /// Remove o contexto CUDA da pilha de contextos.
+        /// </summary>
+        /// <returns>O contexto que se encontra no topo da pilha.</returns>
+        public static CudaContextProxy PopCurrent()
+        {
+            var result = default(SCudaContext);
+            var cudaResult = CudaApi.CudaCtxPopCurrent(ref result);
+            if (cudaResult != ECudaResult.CudaSuccess)
+            {
+                throw CudaException.GetExceptionFromCudaResult(cudaResult);
+            }
+
+            return new CudaContextProxy(result);
+        }
+
+        /// <summary>
+        /// Obtém um representante do dispositivo associado ao contexto actual.
+        /// </summary>
+        /// <returns>O dispositivo.</returns>
+        public static CudaDeviceProxy GetCurrentContextDevice()
+        {
+            var result = default(int);
+            var cudaResult = CudaApi.CudaCtxGetDevice(ref result);
+            if (cudaResult != ECudaResult.CudaSuccess)
+            {
+                throw CudaException.GetExceptionFromCudaResult(cudaResult);
+            }
+
+            return new CudaDeviceProxy(result);
+
+        }
+
+        /// <summary>
+        /// Obtém o limite associado ao contexto actual.
+        /// </summary>
+        /// <param name="limit">O tipo do limite.</param>
+        /// <returns>O valor do limite.</returns>
+        public static int GetCurrentContextLimit(ECudaLimit limit)
+        {
+            var result = default(SizeT);
+            var cudaResult = CudaApi.CudaCtxGetLimit(ref result, limit);
+            if (cudaResult != ECudaResult.CudaSuccess)
+            {
+                throw CudaException.GetExceptionFromCudaResult(cudaResult);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Estabelece o valor do limite.
+        /// </summary>
+        /// <param name="limit">O tipo do lmite a ser estabelecido.</param>
+        /// <param name="value">O valor do limite.</param>
+        public static void SetCurrentContextLimit(ECudaLimit limit, int value)
+        {
+            var cudaResult = CudaApi.CudaCtxSetLimit(limit, value);
+            if (cudaResult != ECudaResult.CudaSuccess)
+            {
+                throw CudaException.GetExceptionFromCudaResult(cudaResult);
+            }
+        }
+
+        /// <summary>
+        /// Obtém o par (prioridade de caudal menor, prioridade de caudal maior) associada ao caudal corrente.
+        /// </summary>
+        /// <returns>O par de valores que definem o intervalo de prioridades de caudal.</returns>
+        public static Tuple<int, int> GetCurrentContextStreamPriorityRange()
+        {
+            var leastPriority = default(int);
+            var greatestPriority = default(int);
+            var cudaResult = CudaApi.CudaCtxGetStreamPriorityRange(ref leastPriority, ref greatestPriority);
+            if (cudaResult != ECudaResult.CudaSuccess)
+            {
+                throw CudaException.GetExceptionFromCudaResult(cudaResult);
+            }
+
+            return Tuple.Create(leastPriority, greatestPriority);
+        }
     }
 }
