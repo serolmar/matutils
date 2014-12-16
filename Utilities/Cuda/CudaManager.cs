@@ -158,12 +158,196 @@
         }
 
         /// <summary>
-        /// Estabelece o contexto actual.
+        /// Estabelece o contexto CUDA actual.
         /// </summary>
-        /// <param name="context">O contexto a ser estabelecido.</param>
-        public void SetCurrentContext(SCudaContext context)
+        /// <param name="context">O contexto CUDA.</param>
+        public void SetCurrentContext(CudaContextProxy context)
         {
-            var cudaResult = CudaApi.CudaCtxSetCurrent(context);
+            if (context == null)
+            {
+                throw new ArgumentNullException("currentCtx");
+            }
+            else
+            {
+                var cudaResult = CudaApi.CudaCtxSetCurrent(context.CudaContext);
+                if (cudaResult != ECudaResult.CudaSuccess)
+                {
+                    throw CudaException.GetExceptionFromCudaResult(cudaResult);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Insere o contexto actual na pilha de contextos.
+        /// </summary>
+        /// <param name="context">O contexto a ser inserido.</param>
+        public void PushCurrentContext(CudaContextProxy context)
+        {
+            if (context == null)
+            {
+                throw new ArgumentNullException("currentCtx");
+            }
+            else
+            {
+                var cudaResult = CudaApi.CudaCtxPushCurrent(context.CudaContext);
+                if (cudaResult != ECudaResult.CudaSuccess)
+                {
+                    throw CudaException.GetExceptionFromCudaResult(cudaResult);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Remove o contexto CUDA da pilha de contextos.
+        /// </summary>
+        /// <returns>O contexto que se encontra no topo da pilha.</returns>
+        public CudaContextProxy PopCurrentContext()
+        {
+            var result = default(SCudaContext);
+            var cudaResult = CudaApi.CudaCtxPopCurrent(ref result);
+            if (cudaResult != ECudaResult.CudaSuccess)
+            {
+                throw CudaException.GetExceptionFromCudaResult(cudaResult);
+            }
+
+            return new CudaContextProxy(result);
+        }
+
+        /// <summary>
+        /// Obtém um representante do dispositivo associado ao contexto actual.
+        /// </summary>
+        /// <returns>O dispositivo.</returns>
+        public CudaDeviceProxy GetCurrentContextDevice()
+        {
+            var result = default(int);
+            var cudaResult = CudaApi.CudaCtxGetDevice(ref result);
+            if (cudaResult != ECudaResult.CudaSuccess)
+            {
+                throw CudaException.GetExceptionFromCudaResult(cudaResult);
+            }
+
+            return new CudaDeviceProxy(result);
+
+        }
+
+        /// <summary>
+        /// Carrega o módulo no contexto actual definido no ficheiro associado ao caminho especificado.
+        /// </summary>
+        /// <param name="modulePath">O caminho do ficheiro.</param>
+        /// <returns>O módulo carregado.</returns>
+        public CudaModuleProxy CudaModuleLoad(string modulePath)
+        {
+            var cudaModule = default(SCudaModule);
+            var cudaResult = CudaApi.CudaModuleLoad(ref cudaModule, modulePath);
+            if (cudaResult != ECudaResult.CudaSuccess)
+            {
+                throw CudaException.GetExceptionFromCudaResult(cudaResult);
+            }
+
+            return new CudaModuleProxy(cudaModule);
+        }
+
+        /// <summary>
+        /// Carrega um módulo no contexto actual a partir de conteúdo definido por texto.
+        /// </summary>
+        /// <param name="moduleData">O texto que define o módulo.</param>
+        /// <returns>O módulo carregado.</returns>
+        public CudaModuleProxy CudaModuleLoadData(string moduleData)
+        {
+            var cudaModule = default(SCudaModule);
+            var cudaResult = CudaApi.CudaModuleLoadData(ref cudaModule, moduleData);
+            if (cudaResult != ECudaResult.CudaSuccess)
+            {
+                throw CudaException.GetExceptionFromCudaResult(cudaResult);
+            }
+
+            return new CudaModuleProxy(cudaModule);
+        }
+
+        /// <summary>
+        /// Carrega um módulo no contexto actual proporcionando opções do compilador JIT.
+        /// </summary>
+        /// <param name="moduleData">Os dados que definem o módulo.</param>
+        /// <param name="options">O conjunto de opções de compilação.</param>
+        /// <param name="optionValues">O conjunto de valores a serem atribuídos consoante as opções.</param>
+        /// <returns>O módulo carregado.</returns>
+        public CudaModuleProxy CudaModuleLoadDataEx(
+            string moduleData,
+            ECudaJitOption[] options,
+            string[] optionValues)
+        {
+            if (options == null && optionValues == null)
+            {
+                var cudaModule = default(SCudaModule);
+                var cudaResult = CudaApi.CudaModuleLoadDataEx(
+                    ref cudaModule,
+                    moduleData,
+                    0,
+                    options,
+                    optionValues);
+                if (cudaResult != ECudaResult.CudaSuccess)
+                {
+                    throw CudaException.GetExceptionFromCudaResult(cudaResult);
+                }
+
+                return new CudaModuleProxy(cudaModule);
+            }
+            else if (options == null)
+            {
+                throw new ArgumentException("The number of options and option values must match.");
+            }
+            else if (optionValues == null)
+            {
+                throw new ArgumentException("The number of options and option values must match.");
+            }
+            else if (options.Length != optionValues.Length)
+            {
+                throw new ArgumentException("The number of options and option values must match.");
+            }
+            else
+            {
+                var cudaModule = default(SCudaModule);
+                var cudaResult = CudaApi.CudaModuleLoadDataEx(
+                    ref cudaModule,
+                    moduleData,
+                    (uint)options.Length,
+                    options,
+                    optionValues);
+                if (cudaResult != ECudaResult.CudaSuccess)
+                {
+                    throw CudaException.GetExceptionFromCudaResult(cudaResult);
+                }
+
+                return new CudaModuleProxy(cudaModule);
+            }
+        }
+
+        /// <summary>
+        /// Carrega um módulo CUDA a partir dum ficheiro fatbinary no contexto actual.
+        /// </summary>
+        /// <param name="fatBinary">Os dados do ficheiro fatbinary.</param>
+        /// <returns>O módulo carregado.</returns>
+        public CudaModuleProxy CudaModuleLoadFatBinary(string fatBinary)
+        {
+            var cudaModule = default(SCudaModule);
+            var cudaResult = CudaApi.CudaModuleLoadFatBinary(
+                ref cudaModule,
+                fatBinary);
+            if (cudaResult != ECudaResult.CudaSuccess)
+            {
+                throw CudaException.GetExceptionFromCudaResult(cudaResult);
+            }
+
+            return new CudaModuleProxy(cudaModule);
+        }
+
+        /// <summary>
+        /// Descarrega o módulo do contexto actual.
+        /// </summary>
+        /// <param name="module">O módulo a ser descarregado.</param>
+        public void UnloadModule(CudaModuleProxy module)
+        {
+            var cudaResult = CudaApi.CudaModuleUnload(module.CudaModule);
             if (cudaResult != ECudaResult.CudaSuccess)
             {
                 throw CudaException.GetExceptionFromCudaResult(cudaResult);
@@ -235,23 +419,6 @@
 
                 return result;
             }
-        }
-
-        /// <summary>
-        /// Cria um contexto associado ao dispositivo na linha de fluxo de chamada.
-        /// </summary>
-        /// <param name="flags">As marcas de criação do contexto.</param>
-        /// <returns>O contexto.</returns>
-        public CudaContextProxy CreateContext(ECudaContextFlags flags)
-        {
-            var result = default(SCudaContext);
-            var cudaResult = CudaApi.CudaCtxCreate(ref result, flags, this.cudaDevice);
-            if (cudaResult != ECudaResult.CudaSuccess)
-            {
-                throw CudaException.GetExceptionFromCudaResult(cudaResult);
-            }
-
-            return new CudaContextProxy(result);
         }
 
         #region Atributos
@@ -979,6 +1146,23 @@
         #endregion Atributos
 
         /// <summary>
+        /// Cria um contexto associado ao dispositivo.
+        /// </summary>
+        /// <param name="flags">As marcas de criação do contexto.</param>
+        /// <returns>O contexto.</returns>
+        public CudaContextProxy CrateContext(ECudaContextFlags flags = ECudaContextFlags.SchedAuto)
+        {
+            var result = default(SCudaContext);
+            var cudaResult = CudaApi.CudaCtxCreate(ref result, flags, this.cudaDevice);
+            if (cudaResult != ECudaResult.CudaSuccess)
+            {
+                throw CudaException.GetExceptionFromCudaResult(cudaResult);
+            }
+
+            return new CudaContextProxy(result);
+        }
+
+        /// <summary>
         /// Verifica a igualdade entre o objecto actual e o objecto especificado.
         /// </summary>
         /// <param name="obj">O objecto a ser comparado com o actual.</param>
@@ -1047,67 +1231,13 @@
         }
 
         /// <summary>
-        /// Obtém o contexto CUDA associado ao representante.
+        /// Obtém o contexto CUDA inerente.
         /// </summary>
         public SCudaContext CudaContext
         {
             get
             {
                 return this.cudaContext;
-            }
-        }
-
-        /// <summary>
-        /// Obtém ou atribui a configuração de provisão do contexto corrente.
-        /// </summary>
-        /// <returns>A configuração de provisão.</returns>
-        public static ECudaFuncCache CurrentContextCacheConfig
-        {
-            get
-            {
-                var result = default(ECudaFuncCache);
-                var cudaResult = CudaApi.CudaCtxGetCacheConfig(ref result);
-                if (cudaResult != ECudaResult.CudaSuccess)
-                {
-                    throw CudaException.GetExceptionFromCudaResult(cudaResult);
-                }
-
-                return result;
-            }
-            set
-            {
-                var cudaResult = CudaApi.CudaCtxSetCacheConfig(value);
-                if (cudaResult != ECudaResult.CudaSuccess)
-                {
-                    throw CudaException.GetExceptionFromCudaResult(cudaResult);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Obtém ou atribui a configuração da memória partilhada associada ao contexto actual.
-        /// </summary>
-        /// <returns>A configuração de memória partilhada.</returns>
-        public static ECudaSharedConfig CurrentContexSharedMemConfig
-        {
-            get
-            {
-                var result = default(ECudaSharedConfig);
-                var cudaResult = CudaApi.CudaCtxGetSharedMemConfig(ref result);
-                if (cudaResult != ECudaResult.CudaSuccess)
-                {
-                    throw CudaException.GetExceptionFromCudaResult(cudaResult);
-                }
-
-                return result;
-            }
-            set
-            {
-                var cudaResult = CudaApi.CudaCtxSetSharedMemConfig(value);
-                if (cudaResult != ECudaResult.CudaSuccess)
-                {
-                    throw CudaException.GetExceptionFromCudaResult(cudaResult);
-                }
             }
         }
 
@@ -1119,31 +1249,262 @@
             // Destrói o contexto corrente
             CudaApi.CudaCtxDestroy(this.cudaContext);
         }
+    }
 
-        #region Membros
+    /// <summary>
+    /// Implementa a representação de um módulo.
+    /// </summary>
+    public class CudaModuleProxy
+    {
+        /// <summary>
+        /// O módulo CUDA.
+        /// </summary>
+        private SCudaModule cudaModule;
 
         /// <summary>
-        /// Obtém a versão de API suportada pelo dispositivo associado ao contexto.
+        /// Instancia uma nova instância de objectos do tipo <see cref="CudaModuleProxy"/>.
         /// </summary>
-        /// <returns>A versão da API suportada.</returns>
-        public uint GetContextApiVersion()
+        /// <param name="cudaModule">O módulo CUDA.</param>
+        internal CudaModuleProxy(SCudaModule cudaModule)
         {
-            var result = default(uint);
-            var cudaResult = CudaApi.CudaCtxGetApiVersion(this.cudaContext, ref result);
+            this.cudaModule = cudaModule;
+        }
+
+        /// <summary>
+        /// Obtém o módulo CUDA.
+        /// </summary>
+        public SCudaModule CudaModule
+        {
+            get
+            {
+                return this.cudaModule;
+            }
+        }
+
+        /// <summary>
+        /// Obtém a função especificada pelo nome a partir do módulo.
+        /// </summary>
+        /// <param name="functionName">O nome da função.</param>
+        /// <returns>A função.</returns>
+        public CudaFunctionProxy GetCudaFunction(string functionName)
+        {
+            var cudaFunction = default(SCudaFunction);
+            var cudaResult = CudaApi.CudaModuleGetFunction(
+                ref cudaFunction,
+                this.cudaModule,
+                functionName);
             if (cudaResult != ECudaResult.CudaSuccess)
             {
                 throw CudaException.GetExceptionFromCudaResult(cudaResult);
             }
 
-            return result;
+            return new CudaFunctionProxy(cudaFunction);
         }
 
         /// <summary>
-        /// Estabelece o contexto CUDA actual.
+        /// Obtém um apontador para uma variável global, retornando o seu tamanho em bytes.
         /// </summary>
-        public void SetAsCurrent()
+        /// <param name="name">O nome da variável global.</param>
+        /// <returns>O par (apontador, tamanho).</returns>
+        public Tuple<SCudaDevicePtr, ulong> GetGlobal(string name)
         {
-            var cudaResult = CudaApi.CudaCtxSetCurrent(this.cudaContext);
+            var resultDevicePtr = default(SCudaDevicePtr);
+            var resultSize = default(SizeT);
+            var cudaResult = CudaApi.CudaModuleGetGlobal(
+                ref resultDevicePtr,
+                ref resultSize,
+                this.cudaModule,
+                name);
+            if (cudaResult != ECudaResult.CudaSuccess)
+            {
+                throw CudaException.GetExceptionFromCudaResult(cudaResult);
+            }
+
+            return Tuple.Create(resultDevicePtr, (ulong)resultSize);
+        }
+    }
+
+    /// <summary>
+    /// Implementa a representação de uma função.
+    /// </summary>
+    public class CudaFunctionProxy
+    {
+        /// <summary>
+        /// O manuseador para a função CUDA.
+        /// </summary>
+        private SCudaFunction cudaFunction;
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="CudaFunctionProxy"/>.
+        /// </summary>
+        /// <param name="cudaFunction">O manuseador para a função CUDA subjacente.</param>
+        internal CudaFunctionProxy(SCudaFunction cudaFunction)
+        {
+            this.cudaFunction = cudaFunction;
+        }
+
+        /// <summary>
+        /// Obtém o manuseador para a função CUDA subjacente.
+        /// </summary>
+        public SCudaFunction CudaFunction
+        {
+            get
+            {
+                return this.cudaFunction;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o número máximo de linhas de fluxo por bloco.
+        /// </summary>
+        public int MaxThreadsPerBlock
+        {
+            get
+            {
+                return this.GetAttribute(ECudaFuncAttribute.MaxThreadsPerBlock);
+            }
+        }
+
+        /// <summary>
+        /// Obtém o tamanho em bytes da memória partilhada estática.
+        /// </summary>
+        public int SharedSizeBytes
+        {
+            get
+            {
+                return this.GetAttribute(ECudaFuncAttribute.SharedSizeBytes);
+            }
+        }
+
+        /// <summary>
+        /// Tamanho em bytes de toda a memória constante.
+        /// </summary>
+        public int ConstSizeBytes
+        {
+            get
+            {
+                return this.GetAttribute(ECudaFuncAttribute.ConstSizeBytes);
+            }
+        }
+
+        /// <summary>
+        /// Obtém o tamanho em bytes da memória local utilizada por cada linha de fluxo da função.
+        /// </summary>
+        public int LocalSizeBytes
+        {
+            get
+            {
+                return this.GetAttribute(ECudaFuncAttribute.LocalSizeBytes);
+            }
+        }
+
+        /// <summary>
+        /// Obtém o número de registos.
+        /// </summary>
+        public int NumRegs
+        {
+            get
+            {
+                return this.GetAttribute(ECudaFuncAttribute.NumRegs);
+            }
+        }
+
+        /// <summary>
+        /// Obtém a versão PTX.
+        /// </summary>
+        public int PtxVersion
+        {
+            get
+            {
+                return this.GetAttribute(ECudaFuncAttribute.PtxVersion);
+            }
+        }
+
+        /// <summary>
+        /// Obtém a versão binária.
+        /// </summary>
+        public int BinaryVersion
+        {
+            get
+            {
+                return this.GetAttribute(ECudaFuncAttribute.BinaryVersion);
+            }
+        }
+
+        /// <summary>
+        /// Executa a função.
+        /// </summary>
+        /// <param name="gridDimX">A dimensão X da grelha.</param>
+        /// <param name="gridDimY">A dimensão Y da grelha.</param>
+        /// <param name="gridDimZ">A dimensão Z da grelha.</param>
+        /// <param name="blockDimX">A dimensão X do bloco.</param>
+        /// <param name="blockDimY">A dimensão Y do bloco.</param>
+        /// <param name="blockDimZ">A dimensão Z do bloco.</param>
+        /// <param name="sharedMemBytes">O tamanho da memória partilhada em bytes.</param>
+        /// <param name="hstream">O caudal de execução.</param>
+        /// <param name="kernelParams">Os parâmetros do kernel (poderá ser nulo).</param>
+        public void LaunchKernel(
+            uint gridDimX,
+            uint gridDimY,
+            uint gridDimZ,
+            uint blockDimX,
+            uint blockDimY,
+            uint blockDimZ,
+            uint sharedMemBytes,
+            CudaStream hstream,
+            object[] kernelParams)
+        {
+            if (kernelParams == null)
+            {
+                var cudaResult = CudaApi.CudaLaunchKernel(
+                    this.cudaFunction,
+                    gridDimX,
+                    gridDimY,
+                    gridDimZ,
+                    blockDimX,
+                    blockDimY,
+                    blockDimZ,
+                    sharedMemBytes,
+                    hstream.Stream,
+                    IntPtr.Zero,
+                    IntPtr.Zero);
+                if (cudaResult != ECudaResult.CudaSuccess)
+                {
+                    throw CudaException.GetExceptionFromCudaResult(cudaResult);
+                }
+            }
+            else
+            {
+                var marshalParams = Utils.AllocUnmanagedPointersArray(kernelParams);
+                var cudaResult = CudaApi.CudaLaunchKernel(
+                    this.cudaFunction,
+                    gridDimX,
+                    gridDimY,
+                    gridDimZ,
+                    blockDimX,
+                    blockDimY,
+                    blockDimZ,
+                    sharedMemBytes,
+                    hstream.Stream,
+                    marshalParams.Item1,
+                    IntPtr.Zero);
+                Utils.FreeUnmanagedArray(marshalParams);
+                if (cudaResult != ECudaResult.CudaSuccess)
+                {
+                    throw CudaException.GetExceptionFromCudaResult(cudaResult);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Estabelece a configuração da provisão.
+        /// </summary>
+        /// <param name="config">A configuração a ser estabelecida.</param>
+        public void SetCacheConfig(ECudaFuncCache config)
+        {
+            var cudaResult = CudaApi.CudaFuncSetCacheConfig(
+                this.cudaFunction,
+                config);
             if (cudaResult != ECudaResult.CudaSuccess)
             {
                 throw CudaException.GetExceptionFromCudaResult(cudaResult);
@@ -1151,77 +1512,32 @@
         }
 
         /// <summary>
-        /// Insere o contexto actual na pilha de contextos.
+        /// Estabelece a configuração da memória partilhada.
         /// </summary>
-        public void PushAsCurrent()
+        /// <param name="config">A configuração a ser estabelecida.</param>
+        public void SetSharedMemConfig(ECudaSharedConfig config)
         {
-            var cudaResult = CudaApi.CudaCtxPushCurrent(this.cudaContext);
+            var cudaResult = CudaApi.CudaFuncSetSharedMemConfig(
+                this.cudaFunction,
+                config);
             if (cudaResult != ECudaResult.CudaSuccess)
             {
                 throw CudaException.GetExceptionFromCudaResult(cudaResult);
             }
         }
 
-        #endregion Membros
-
         /// <summary>
-        /// Obtém o contexto corrente na linha de fluxo.
+        /// Obtém o valor do atributo especificado no argumento.
         /// </summary>
-        /// <returns>O contexto corrente.</returns>
-        public static CudaContextProxy CudaContextGetCurrent()
-        {
-            var result = default(SCudaContext);
-            var cudaResult = CudaApi.CudaCtxGetCurrent(ref result);
-            if (cudaResult != ECudaResult.CudaSuccess)
-            {
-                throw CudaException.GetExceptionFromCudaResult(cudaResult);
-            }
-
-            return new CudaContextProxy(result);
-        }
-
-        /// <summary>
-        /// Remove o contexto CUDA da pilha de contextos.
-        /// </summary>
-        /// <returns>O contexto que se encontra no topo da pilha.</returns>
-        public static CudaContextProxy PopCurrent()
-        {
-            var result = default(SCudaContext);
-            var cudaResult = CudaApi.CudaCtxPopCurrent(ref result);
-            if (cudaResult != ECudaResult.CudaSuccess)
-            {
-                throw CudaException.GetExceptionFromCudaResult(cudaResult);
-            }
-
-            return new CudaContextProxy(result);
-        }
-
-        /// <summary>
-        /// Obtém um representante do dispositivo associado ao contexto actual.
-        /// </summary>
-        /// <returns>O dispositivo.</returns>
-        public static CudaDeviceProxy GetCurrentContextDevice()
+        /// <param name="cudaFunctionAttribute">O atributo a ser obtido.</param>
+        /// <returns>O valor do atributo.</returns>
+        private int GetAttribute(ECudaFuncAttribute cudaFunctionAttribute)
         {
             var result = default(int);
-            var cudaResult = CudaApi.CudaCtxGetDevice(ref result);
-            if (cudaResult != ECudaResult.CudaSuccess)
-            {
-                throw CudaException.GetExceptionFromCudaResult(cudaResult);
-            }
-
-            return new CudaDeviceProxy(result);
-
-        }
-
-        /// <summary>
-        /// Obtém o limite associado ao contexto actual.
-        /// </summary>
-        /// <param name="limit">O tipo do limite.</param>
-        /// <returns>O valor do limite.</returns>
-        public static int GetCurrentContextLimit(ECudaLimit limit)
-        {
-            var result = default(SizeT);
-            var cudaResult = CudaApi.CudaCtxGetLimit(ref result, limit);
+            var cudaResult = CudaApi.CudaFuncGetAttribute(
+                ref result,
+                cudaFunctionAttribute,
+                this.cudaFunction);
             if (cudaResult != ECudaResult.CudaSuccess)
             {
                 throw CudaException.GetExceptionFromCudaResult(cudaResult);
@@ -1229,15 +1545,27 @@
 
             return result;
         }
+    }
+
+    /// <summary>
+    /// Representa um caudal de execução CUDA.
+    /// </summary>
+    public class CudaStream : IDisposable
+    {
+        /// <summary>
+        /// O caudal de execução CUDA.
+        /// </summary>
+        private SCudaStream stream;
 
         /// <summary>
-        /// Estabelece o valor do limite.
+        /// Instancia uma nova instância de objectos do tipo <see cref="CudaStream"/>.
         /// </summary>
-        /// <param name="limit">O tipo do lmite a ser estabelecido.</param>
-        /// <param name="value">O valor do limite.</param>
-        public static void SetCurrentContextLimit(ECudaLimit limit, int value)
+        /// <param name="flags">As marcas do caudal (ver <see cref="ECudaStreamFlags"/>).</param>
+        public CudaStream(uint flags)
         {
-            var cudaResult = CudaApi.CudaCtxSetLimit(limit, value);
+            var cudaResult = CudaApi.CudaStreamCreate(
+                ref this.stream,
+                flags);
             if (cudaResult != ECudaResult.CudaSuccess)
             {
                 throw CudaException.GetExceptionFromCudaResult(cudaResult);
@@ -1245,20 +1573,175 @@
         }
 
         /// <summary>
-        /// Obtém o par (prioridade de caudal menor, prioridade de caudal maior) associada ao caudal corrente.
+        /// Instancia uma nova instância de objectos do tipo <see cref="CudaStream"/>.
         /// </summary>
-        /// <returns>O par de valores que definem o intervalo de prioridades de caudal.</returns>
-        public static Tuple<int, int> GetCurrentContextStreamPriorityRange()
+        /// <param name="flags">As marcas do caudal de execução (ver <see cref="ECudaStreamFlags"/>).</param>
+        /// <param name="priority">A prioridade do caudal de execução.</param>
+        public CudaStream(uint flags, int priority)
         {
-            var leastPriority = default(int);
-            var greatestPriority = default(int);
-            var cudaResult = CudaApi.CudaCtxGetStreamPriorityRange(ref leastPriority, ref greatestPriority);
+            var cudaResult = CudaApi.CudaStreamCreateWithPriority(
+                ref this.stream,
+                flags,
+                priority);
             if (cudaResult != ECudaResult.CudaSuccess)
             {
                 throw CudaException.GetExceptionFromCudaResult(cudaResult);
             }
+        }
 
-            return Tuple.Create(leastPriority, greatestPriority);
+        /// <summary>
+        /// Obtém o caudal de execução CUDA.
+        /// </summary>
+        public SCudaStream Stream
+        {
+            get
+            {
+                return this.stream;
+            }
+        }
+
+        /// <summary>
+        /// Obtém as marcas do caudal de execução.
+        /// </summary>
+        public uint Flags
+        {
+            get
+            {
+                var result = default(uint);
+                var cudaResult = CudaApi.CudaStreamGetFlags(this.stream, ref result);
+                if (cudaResult != ECudaResult.CudaSuccess)
+                {
+                    throw CudaException.GetExceptionFromCudaResult(cudaResult);
+                }
+
+                return result;
+            }
+        }
+
+        /// <summary>
+        /// Obtém a prioridade do caudal de execução.
+        /// </summary>
+        public int Priority
+        {
+            get
+            {
+                var result = default(int);
+                var cudaResult = CudaApi.CudaStreamGetPriority(this.stream, ref result);
+                if (cudaResult != ECudaResult.CudaSuccess)
+                {
+                    throw CudaException.GetExceptionFromCudaResult(cudaResult);
+                }
+
+                return result;
+            }
+        }
+
+        /// <summary>
+        /// Verifica se todas as tarefas foram terminadas no caudal de execução.
+        /// </summary>
+        /// <returns>
+        /// Verdadeiro caso todas as tarefas tenham sido terminadas e falso caso contrário.
+        /// </returns>
+        public bool Ready
+        {
+            get
+            {
+                var cudaResult = CudaApi.CudaStreamQuery(this.stream);
+                if (cudaResult == ECudaResult.CudaSuccess)
+                {
+                    return true;
+                }
+                else if (cudaResult == ECudaResult.CudaErrorNotReady)
+                {
+                    return false;
+                }
+                else
+                {
+                    throw CudaException.GetExceptionFromCudaResult(cudaResult);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Espera até que todas as tarefas associadas ao caudal de execução terminem.
+        /// </summary>
+        public void Synchronize()
+        {
+            var cudaResult = CudaApi.CudaStreamSynchronize(this.stream);
+            if (cudaResult != ECudaResult.CudaSuccess)
+            {
+                throw CudaException.GetExceptionFromCudaResult(cudaResult);
+            }
+        }
+
+        /// <summary>
+        /// Garante que todo o trabalho futuro enviado para o caudal de execução seja iniciado após o término
+        /// despoletado pelo evento.
+        /// </summary>
+        /// <param name="cudaEvent">O evento.</param>
+        public void WaitEvent(SCudaEvent cudaEvent)
+        {
+            var cudaResult = CudaApi.CudaStreamWaitEvent(
+                this.stream,
+                cudaEvent,
+                0);
+            if (cudaResult != ECudaResult.CudaSuccess)
+            {
+                throw CudaException.GetExceptionFromCudaResult(cudaResult);
+            }
+        }
+
+        /// <summary>
+        /// Adiciona uma função que é executada quando todas as tarefas na pilha do caudal são executadas.
+        /// </summary>
+        /// <remarks>
+        /// A funcionalidade é apenas suportada em dispositivos com capacidade 2.1 ou superior.
+        /// </remarks>
+        /// <param name="callbackFunc">A função a ser executada.</param>
+        /// <param name="userData">Os dados de utilizador passados para a função.</param>
+        public void AddCallback(CudaStreamCallback callbackFunc, object userData)
+        {
+            var innerUserData = (IntPtr)userData;
+            var cudaResult = CudaApi.CudaStreamAddCallback(
+                this.stream,
+                callbackFunc,
+                innerUserData,
+                0);
+            if (cudaResult != ECudaResult.CudaSuccess)
+            {
+                throw CudaException.GetExceptionFromCudaResult(cudaResult);
+            }
+        }
+
+        /// <summary>
+        /// Associa memória ao caudal de execução de forma assíncrona.
+        /// </summary>
+        /// <param name="devicePtr">O apontador para a região de memória.</param>
+        /// <param name="size">O tamanho da região de memória.</param>
+        /// <param name="flags">As marcas de anexação.</param>
+        public void AttachMemAsync(SCudaDevicePtr devicePtr, long size, ECudaMemAttachFlags flags)
+        {
+            var cudaResult = CudaApi.CudaStreamAttachMemAsync(
+                this.stream,
+                devicePtr,
+                size,
+                flags);
+            if (cudaResult != ECudaResult.CudaSuccess)
+            {
+                throw CudaException.GetExceptionFromCudaResult(cudaResult);
+            }
+        }
+
+        /// <summary>
+        /// Descarta o caudal de execução.
+        /// </summary>
+        public void Dispose()
+        {
+            var cudaResult = CudaApi.CudaStreamDestroy(this.stream);
+            if (cudaResult != ECudaResult.CudaSuccess)
+            {
+                throw CudaException.GetExceptionFromCudaResult(cudaResult);
+            }
         }
     }
 }

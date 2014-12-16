@@ -1060,7 +1060,7 @@
         /// <see cref="ECudaResult.CudaErrorSharedObjectInitFailed"/>.
         /// </returns>
         [DllImport(DllName, EntryPoint="cuModuleLoadData")]
-        public static extern ECudaResult CudaModuleLoadData(ref SCudaModule module, IntPtr image);
+        public static extern ECudaResult CudaModuleLoadData(ref SCudaModule module, string image);
 
         /// <summary>
         /// Carrega os dados do módulo com opções.
@@ -1086,10 +1086,10 @@
         [DllImport(DllName, EntryPoint="cuModuleLoadDataEx")]
         public static extern ECudaResult CudaModuleLoadDataEx(
             ref SCudaModule module,
-            IntPtr image,
+            string image,
             uint numOptions,
             [Out] ECudaJitOption[] options,
-            IntPtr optionValues);
+            [Out] string[] optionValues);
 
         /// <summary>
         /// Carrega um módulo.
@@ -1110,7 +1110,7 @@
         /// <see cref="ECudaResult.CudaErrorSharedObjectInitFailed"/>.
         /// </returns>
         [DllImport(DllName, EntryPoint="cuModuleLoadFatBinary")]
-        public static extern ECudaResult CudaModuleLoadFatBinary(ref SCudaModule module, IntPtr fatCubin);
+        public static extern ECudaResult CudaModuleLoadFatBinary(ref SCudaModule module, string fatCubin);
 
         /// <summary>
         /// Descarrega um módulo.
@@ -2598,7 +2598,7 @@
         /// </list>
         /// </remarks>
         /// <param name="phstream">O caudal criado.</param>
-        /// <param name="flags">Parâmetros passados para a criação de caudal.</param>
+        /// <param name="flags">Parâmetros passados para a criação de caudal (ver <see cref="ECudaStreamFlags"/>).</param>
         /// <returns>
         /// <see cref="ECudaResult.CudaSuccess"/>,
         /// <see cref="ECudaResult.CudaErrorDeinitialized"/>,
@@ -2610,7 +2610,7 @@
         [DllImport(DllName, EntryPoint = "cuStreamCreate")]
         public static extern ECudaResult CudaStreamCreate(
             ref SCudaStream phstream,
-            ECudaStreamFlags flags);
+            uint flags);
 
         /// <summary>
         /// Cria um caudal com a prioridade especificada.
@@ -2623,7 +2623,7 @@
         /// anfitrião.
         /// </remarks>
         /// <param name="phstream">O caudal criado.</param>
-        /// <param name="flags">As marcas para a criação do caudal.</param>
+        /// <param name="flags">As marcas para a criação do caudal (ver <see cref="ECudaStreamFlags"/>).</param>
         /// <param name="priority">
         /// As prioridades de caudal. Números menores representam prioridades mais elevadas.
         /// </param>
@@ -2638,7 +2638,7 @@
         [DllImport(DllName, EntryPoint = "cuStreamCreateWithPriority")]
         public static extern ECudaResult CudaStreamCreateWithPriority(
             ref SCudaStream phstream,
-            ECudaStreamFlags flags,
+            uint flags,
             int priority);
 
         /// <summary>
@@ -2698,7 +2698,7 @@
         /// <see cref="ECudaResult.CudaErrorOutOfMemory"/>.
         /// </returns>
         [DllImport(DllName, EntryPoint = "cuStreamGetPriority")]
-        public static extern ECudaResult CudaGetPriority(SCudaStream hstream, ref int priority);
+        public static extern ECudaResult CudaStreamGetPriority(SCudaStream hstream, ref int priority);
 
         /// <summary>
         /// Determina o estado de um caudal computacional.
@@ -2916,7 +2916,7 @@
         /// <see cref="ECudaResult.CudaErrorInvalidContext"/>.
         /// </returns>
         [DllImport(DllName, EntryPoint = "cuFuncSetSharedMemConfig")]
-        public static extern ECudaResult CudaSetSharedMemConfig(SCudaFunction hfunc, ECudaSharedConfig config);
+        public static extern ECudaResult CudaFuncSetSharedMemConfig(SCudaFunction hfunc, ECudaSharedConfig config);
 
         /// <summary>
         /// Lança uma função CUDA.

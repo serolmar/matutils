@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Management;
+    using System.Runtime.InteropServices;
     using System.Text;
     using System.Threading.Tasks;
     using Utilities.Collections;
@@ -65,6 +66,59 @@
             return stringSymbolReaderTypes[(int)type];
         }
 
+        /// <summary>
+        /// Cria um vector de apontadores em código não gerido.
+        /// </summary>
+        /// <typeparam name="T">O tipo de dados no vector.</typeparam>
+        /// <param name="array">O vector.</param>
+        /// <returns>Os objectos a serem passados.</returns>
+        public static Tuple<IntPtr, IntPtr[]> AllocUnmanagedPointersArray<T>(T[] array)
+        {
+            if (array == null)
+            {
+                return null;
+            }
+            else
+            {
+                var arrayLength = array.Length;
+                var managedPtrArray = new IntPtr[arrayLength];
+                var ptrSize = Marshal.SizeOf(typeof(IntPtr));
+                var unmanagedArrayPtr = Marshal.AllocHGlobal(ptrSize * arrayLength);
+
+                // Procede à criação dos objectos em código não gerido
+                for (int i = 0; i < arrayLength; ++i)
+                {
+                    var current = array[i];
+                    var managedElementPtr = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(T)));
+                    managedPtrArray[i] = managedElementPtr;
+                    Marshal.StructureToPtr(current, managedElementPtr, false);
+                    Marshal.WriteIntPtr(unmanagedArrayPtr, i * ptrSize, managedElementPtr);
+                }
+
+                return Tuple.Create(unmanagedArrayPtr, managedPtrArray);
+            }
+        }
+
+        /// <summary>
+        /// Liberta o vector de apontadores reservao na memória não gerida.
+        /// </summary>
+        /// <param name="arrayPtr">O apontador.</param>
+        public static void FreeUnmanagedArray(Tuple<IntPtr, IntPtr[]> arrayPtr)
+        {
+            if (arrayPtr != null)
+            {
+                Marshal.FreeHGlobal(arrayPtr.Item1);
+                var elements = arrayPtr.Item2;
+                var elementsLength = elements.Length;
+                for (int i = 0; i < elementsLength; ++i)
+                {
+                    var current = elements[i];
+                    Marshal.FreeHGlobal(current);
+                }
+            }
+        }
+    }
+    
         /// <summary>
         /// Classe que possibilita a consulta do número de processadores e núcleos de processamento
         /// existentes na máquina.
@@ -170,5 +224,4 @@
                 }
             }
         }
-    }
 }

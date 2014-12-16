@@ -8,6 +8,7 @@
     using System.IO;
     using System.Linq;
     using System.Numerics;
+    using System.Runtime.InteropServices;
     using System.Text;
     using System.Threading.Tasks;
     using Mathematics;
@@ -23,6 +24,70 @@
         delegate void Temp();
 
         static void Main(string[] args)
+        {
+            try
+            {
+                // Inicializa CUDA e avalia os dispositivos existentes
+                var cudaManager = CudaManager.GetManager();
+                if (cudaManager.DevicesCount == 0)
+                {
+                    Console.WriteLine("Nenhum dispositivo com suporte CUDA foi encontrado.");
+                }
+                else
+                {
+                    // Obtém o primeiro dispositivo
+                    var device = cudaManager.GetDevice(0);
+
+                    // O contexto é automaticamente colocado como corrente para a linha de fluxo actual
+                    var context = device.CrateContext();
+
+                    // Carrega o módulo no contexto actual
+                    var module = cudaManager.CudaModuleLoad("Data\\AddVector.cu.obj");
+
+                    // Obtém a função a ser chamada
+                    var cudaFunc = module.GetCudaFunction("Add");
+
+                    var elemensNum = 1000;
+                    var firstVector = new int[elemensNum];
+                    var secondVector = new int[elemensNum];
+                    var result = new int[elemensNum];
+                    for (int i = 0; i < elemensNum; ++i)
+                    {
+                        firstVector[i] = i + 1;
+                        secondVector[i] = elemensNum - i;
+                    }
+
+                    var firstCudaVector = default(SCudaDevicePtr);
+                    var cudaResult = CudaApi.CudaMemAlloc(
+                        ref firstCudaVector,
+                        Marshal.SizeOf(typeof(int)) * elemensNum);
+                    if (cudaResult != ECudaResult.CudaSuccess)
+                    {
+                        throw CudaException.GetExceptionFromCudaResult(cudaResult);
+                    }
+
+                    // Efectua a cópia do primeiro vector para o dispositivo
+                    var firstPinningObj = new int[0];
+                    var handle = GCHandle.Alloc(firstPinningObj, GCHandleType.Pinned);
+
+                    handle.Free();
+
+                    // Remove o módulo do contexto actual
+                    cudaManager.UnloadModule(module);
+
+                    // Descarta o contexto
+                    context.Dispose();
+                }
+            }
+            catch (CudaException cudaException)
+            {
+                Console.WriteLine("Ocorreu um erro CUDA: {0}", cudaException.Message);
+            }
+
+            Console.ReadKey();
+        }
+
+        static void TempCuda()
         {
             var count = default(int);
             var cudaResult = CudaApi.CudaInit(0);
@@ -69,7 +134,7 @@
                             if (cudaResult == ECudaResult.CudaSuccess)
                             {
                                 Console.WriteLine(
-                                    "A capacidade computacional menor do dispositivo é: {0}", 
+                                    "A capacidade computacional menor do dispositivo é: {0}",
                                     attribute);
                             }
                             else
@@ -146,8 +211,6 @@
             {
                 Console.WriteLine("Ocorreu um erro durante a incialização.");
             }
-
-            Console.ReadKey();
         }
 
         static void Temp1()
