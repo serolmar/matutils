@@ -57,6 +57,7 @@
                         secondVector[i] = elemensNum - i;
                     }
 
+                    // Reserva o primeiro vector
                     var firstCudaVector = default(SCudaDevicePtr);
                     var cudaResult = CudaApi.CudaMemAlloc(
                         ref firstCudaVector,
@@ -66,11 +67,72 @@
                         throw CudaException.GetExceptionFromCudaResult(cudaResult);
                     }
 
+                    // Reserva o segundo vector
+                    var secondCudaVector = default(SCudaDevicePtr);
+                    cudaResult = CudaApi.CudaMemAlloc(
+                        ref secondCudaVector,
+                        Marshal.SizeOf(typeof(int)) * elemensNum);
+                    if (cudaResult != ECudaResult.CudaSuccess)
+                    {
+                        throw CudaException.GetExceptionFromCudaResult(cudaResult);
+                    }
+
+                    // Reserva o terceiro vector
+                    var resultVector = default(SCudaDevicePtr);
+                    cudaResult = CudaApi.CudaMemAlloc(
+                        ref resultVector,
+                        Marshal.SizeOf(typeof(int)) * elemensNum);
+                    if (cudaResult != ECudaResult.CudaSuccess)
+                    {
+                        throw CudaException.GetExceptionFromCudaResult(cudaResult);
+                    }
+
                     // Efectua a cópia do primeiro vector para o dispositivo
-                    var firstPinningObj = new int[0];
-                    var handle = GCHandle.Alloc(firstPinningObj, GCHandleType.Pinned);
+                    var handle = GCHandle.Alloc(firstVector, GCHandleType.Pinned);
+                    var size = Marshal.SizeOf(typeof(int));
+                    var hostPtr = handle.AddrOfPinnedObject();
+
+                    cudaResult = CudaApi.CudaMemcpyHtoD(
+                        firstCudaVector, 
+                        hostPtr,
+                        elemensNum * size);
+                    if (cudaResult != ECudaResult.CudaSuccess)
+                    {
+                        throw CudaException.GetExceptionFromCudaResult(cudaResult);
+                    }
 
                     handle.Free();
+
+                    // Efectua a cópia do segundo vector para o dispositivo
+                    handle = GCHandle.Alloc(firstVector, GCHandleType.Pinned);
+                    hostPtr = handle.AddrOfPinnedObject();
+
+                    cudaResult = CudaApi.CudaMemcpyHtoD(
+                        secondCudaVector,
+                        hostPtr,
+                        elemensNum * size);
+                    if (cudaResult != ECudaResult.CudaSuccess)
+                    {
+                        throw CudaException.GetExceptionFromCudaResult(cudaResult);
+                    }
+
+                    handle.Free();
+
+                    // Realiza a chamada
+                    cudaResult = CudaApi.CudaLaunchKernel(
+                        cudaFunc.CudaFunction,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        0,
+                        new SCudaStream(),
+                        IntPtr.Zero,
+                        IntPtr.Zero);
+
+                    // Copia de volta o terceiro vector para o anfitrião
 
                     // Remove o módulo do contexto actual
                     cudaManager.UnloadModule(module);

@@ -1677,7 +1677,7 @@
         /// <see cref="ECudaResult.CudaErrorInvalidValue"/>.
         /// </returns>
         [DllImport(DllName, EntryPoint = "cuMemcpy")]
-        public static extern ECudaResult CudaMemcpy(SCudaDevicePtr dst, SCudaDevicePtr src, SizeT byteCount);
+        public static extern ECudaResult CudaMemCpy(SCudaDevicePtr dst, SCudaDevicePtr src, SizeT byteCount);
 
         /// <summary>
         /// Copia memória para vectores 2D.
