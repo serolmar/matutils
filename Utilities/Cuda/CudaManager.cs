@@ -235,7 +235,7 @@
         /// </summary>
         /// <param name="modulePath">O caminho do ficheiro.</param>
         /// <returns>O módulo carregado.</returns>
-        public CudaModuleProxy CudaModuleLoad(string modulePath)
+        public CudaModuleProxy LoadModule(string modulePath)
         {
             var cudaModule = default(SCudaModule);
             var cudaResult = CudaApi.CudaModuleLoad(ref cudaModule, modulePath);
@@ -252,7 +252,7 @@
         /// </summary>
         /// <param name="moduleData">O texto que define o módulo.</param>
         /// <returns>O módulo carregado.</returns>
-        public CudaModuleProxy CudaModuleLoadData(string moduleData)
+        public CudaModuleProxy LoadModuleFromData(string moduleData)
         {
             var cudaModule = default(SCudaModule);
             var cudaResult = CudaApi.CudaModuleLoadData(ref cudaModule, moduleData);
@@ -271,7 +271,7 @@
         /// <param name="options">O conjunto de opções de compilação.</param>
         /// <param name="optionValues">O conjunto de valores a serem atribuídos consoante as opções.</param>
         /// <returns>O módulo carregado.</returns>
-        public CudaModuleProxy CudaModuleLoadDataEx(
+        public CudaModuleProxy LoadModuleFromDataEx(
             string moduleData,
             ECudaJitOption[] options,
             string[] optionValues)
@@ -351,6 +351,112 @@
             if (cudaResult != ECudaResult.CudaSuccess)
             {
                 throw CudaException.GetExceptionFromCudaResult(cudaResult);
+            }
+        }
+
+        /// <summary>
+        /// Aloca memória no dispositivo com capacidade para albertar o vector de objectos.
+        /// </summary>
+        /// <typeparam name="T">O tipo dos objectos a serem albergados.</typeparam>
+        /// <param name="array">O vector de objectos.</param>
+        /// <returns>O apontador para a memória alocada de dispositivo.</returns>
+        public SCudaDevicePtr AllocMemoryOnDevice<T>(T[] array)
+        {
+            if (array == null)
+            {
+                throw new ArgumentNullException("array");
+            }
+            else
+            {
+                var size = Marshal.SizeOf(typeof(T)) * array.Length;
+                var result = default(SCudaDevicePtr);
+                var cudaResult = CudaApi.CudaMemAlloc(ref result, size);
+                if (cudaResult != ECudaResult.CudaSuccess)
+                {
+                    throw CudaException.GetExceptionFromCudaResult(cudaResult);
+                }
+
+                return result;
+            }
+        }
+
+        /// <summary>
+        /// Libera a memória do dispositivo alocada anteriormente.
+        /// </summary>
+        /// <param name="memoryDevicePtr">O apontador para a memória de dispositivo alocada.</param>
+        public void FreeMemoryFromDevice(SCudaDevicePtr memoryDevicePtr)
+        {
+            var cudaResult = CudaApi.CudaMemFree(memoryDevicePtr);
+            if (cudaResult != ECudaResult.CudaSuccess)
+            {
+                throw CudaException.GetExceptionFromCudaResult(cudaResult);
+            }
+        }
+
+        /// <summary>
+        /// Copia o conteúdo do vector para a memória do dispositivo alocada previamente.
+        /// </summary>
+        /// <remarks>
+        /// Este método suporta apenas a cópia de tipos formatados. Para mais detalhes sobre a cópia
+        /// de valores entre código gerido e não-gerido, consultar:
+        /// <list type="bullet">
+        /// <item>http://msdn.microsoft.com/en-us/library/75dwhxf7(v=vs.110).aspx</item>
+        /// <item>http://msdn.microsoft.com/en-us/library/0t2cwe11(v=vs.110).aspx</item>
+        /// </list>
+        /// </remarks>
+        /// <typeparam name="T">O tipo de objectos que constituem as entradas do vector.</typeparam>
+        /// <param name="memDevicePtr">O apontador para a memória do dispositivo.</param>
+        /// <param name="array">O vector de elementos a ser copiado.</param>
+        public void CopyToDevice<T>(SCudaDevicePtr memDevicePtr, T[] array)
+        {
+            if (array == null)
+            {
+                throw new ArgumentNullException("array");
+            }
+            else
+            {
+                var handle = GCHandle.Alloc(array, GCHandleType.Pinned);
+                var size = Marshal.SizeOf(typeof(int));
+                var hostPtr = handle.AddrOfPinnedObject();
+
+                var cudaResult = CudaApi.CudaMemcpyHtoD(
+                    memDevicePtr,
+                    hostPtr,
+                    array.Length * size);
+                handle.Free();
+                if (cudaResult != ECudaResult.CudaSuccess)
+                {
+                    throw CudaException.GetExceptionFromCudaResult(cudaResult);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Copia o conteúdo da memória do dispositivo para o anfitrião.
+        /// </summary>
+        /// <typeparam name="T">O tipo de objectos que constituem as entradas do vector de destino.</typeparam>
+        /// <param name="array">O vector de destino.</param>
+        /// <param name="memDevicePtr">O apontador para a memória do dispositivo a ser copiada.</param>
+        public void CopyToHost<T>(T[] array, SCudaDevicePtr memDevicePtr)
+        {
+            if (array == null)
+            {
+                throw new ArgumentNullException("array");
+            }
+            else
+            {
+                var size = Marshal.SizeOf(typeof(T)) * array.Length;
+                var handle = GCHandle.Alloc(array, GCHandleType.Pinned);
+                var hostPtr = handle.AddrOfPinnedObject();
+                var cudaResult = CudaApi.CudaMemcpyDtoH(
+                    hostPtr,
+                    memDevicePtr,
+                    size);
+                handle.Free();
+                if (cudaResult != ECudaResult.CudaSuccess)
+                {
+                    throw CudaException.GetExceptionFromCudaResult(cudaResult);
+                }
             }
         }
     }
@@ -1452,7 +1558,7 @@
             uint blockDimZ,
             uint sharedMemBytes,
             CudaStream hstream,
-            object[] kernelParams)
+            SCudaDevicePtr[] kernelParams)
         {
             if (kernelParams == null)
             {

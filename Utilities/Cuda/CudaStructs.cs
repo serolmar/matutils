@@ -36,7 +36,7 @@
         /// <summary>
         /// O valor do apontador para o dispositivo.
         /// </summary>
-        public uint Value;
+        public UInt64 Value;
     }
 
     /// <summary>

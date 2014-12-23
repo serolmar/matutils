@@ -100,7 +100,7 @@
         }
 
         /// <summary>
-        /// Liberta o vector de apontadores reservao na memória não gerida.
+        /// Liberta o vector de apontadores reservado na memória não gerida.
         /// </summary>
         /// <param name="arrayPtr">O apontador.</param>
         public static void FreeUnmanagedArray(Tuple<IntPtr, IntPtr[]> arrayPtr)

@@ -227,7 +227,7 @@
         /// ser criado). Todas as alocações de memória existentes neste contexto são inválidas e deverão ser
         /// resconstruídas se se pretender que o programa continue a utilizar CUDA.
         /// </summary>
-        CudaErrorIlegalAddress = 700,
+        CudaErrorIllegalAddress = 700,
 
         /// <summary>
         /// Indica que um lançamento não ocorreu porque não dispunha de recursos suficientes. Usualmente indica

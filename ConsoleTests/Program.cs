@@ -42,12 +42,13 @@
                     var context = device.CrateContext();
 
                     // Carrega o módulo no contexto actual
-                    var module = cudaManager.CudaModuleLoad("Data\\AddVector.cu.obj");
+                    var module = cudaManager.LoadModule("Data\\AddVector.cu.obj");
 
                     // Obtém a função a ser chamada
                     var cudaFunc = module.GetCudaFunction("Add");
 
-                    var elemensNum = 1000;
+                    var elemensNum = 10;
+                    //var start = 0;
                     var firstVector = new int[elemensNum];
                     var secondVector = new int[elemensNum];
                     var result = new int[elemensNum];
@@ -78,9 +79,9 @@
                     }
 
                     // Reserva o terceiro vector
-                    var resultVector = default(SCudaDevicePtr);
+                    var resultCudaVector = default(SCudaDevicePtr);
                     cudaResult = CudaApi.CudaMemAlloc(
-                        ref resultVector,
+                        ref resultCudaVector,
                         Marshal.SizeOf(typeof(int)) * elemensNum);
                     if (cudaResult != ECudaResult.CudaSuccess)
                     {
@@ -93,7 +94,7 @@
                     var hostPtr = handle.AddrOfPinnedObject();
 
                     cudaResult = CudaApi.CudaMemcpyHtoD(
-                        firstCudaVector, 
+                        firstCudaVector,
                         hostPtr,
                         elemensNum * size);
                     if (cudaResult != ECudaResult.CudaSuccess)
@@ -104,7 +105,7 @@
                     handle.Free();
 
                     // Efectua a cópia do segundo vector para o dispositivo
-                    handle = GCHandle.Alloc(firstVector, GCHandleType.Pinned);
+                    handle = GCHandle.Alloc(secondVector, GCHandleType.Pinned);
                     hostPtr = handle.AddrOfPinnedObject();
 
                     cudaResult = CudaApi.CudaMemcpyHtoD(
@@ -118,10 +119,29 @@
 
                     handle.Free();
 
+                    // Envia os restantes argumentos para o dispositivo
+                    //var integerSize = Marshal.SizeOf(typeof(int));
+                    //var startArg = Marshal.AllocHGlobal(integerSize);
+                    //Marshal.WriteInt32(startArg, start);
+                    //var startArgDevPtr = default(SCudaDevicePtr);
+                    //cudaResult = CudaApi.CudaMemAlloc(ref startArgDevPtr, integerSize);
+                    //cudaResult = CudaApi.CudaMemcpyHtoD(startArgDevPtr, startArg, integerSize);
+                    //Marshal.FreeHGlobal(startArg);
+
+                    //var endArg = Marshal.AllocHGlobal(integerSize);
+                    //Marshal.WriteInt32(endArg, elemensNum);
+                    //var endArgDevPtr = default(SCudaDevicePtr);
+                    //cudaResult = CudaApi.CudaMemAlloc(ref endArgDevPtr, integerSize);
+                    //cudaResult = CudaApi.CudaMemcpyHtoD(endArgDevPtr, endArg, integerSize);
+                    //Marshal.FreeHGlobal(endArg);
+
+                    var arrayPtr = Utils.AllocUnmanagedPointersArray(
+                        new[] { firstCudaVector, secondCudaVector, resultCudaVector});
+                    
                     // Realiza a chamada
                     cudaResult = CudaApi.CudaLaunchKernel(
                         cudaFunc.CudaFunction,
-                        1,
+                        (uint)elemensNum,
                         1,
                         1,
                         1,
@@ -129,10 +149,34 @@
                         1,
                         0,
                         new SCudaStream(),
-                        IntPtr.Zero,
+                        arrayPtr.Item1,
                         IntPtr.Zero);
 
+                    cudaResult = CudaApi.CudaCtxSynchronize();
+
+                    // Liberta o conjunto de argumentos alocado
+                    Utils.FreeUnmanagedArray(arrayPtr);
+
                     // Copia de volta o terceiro vector para o anfitrião
+                    handle = GCHandle.Alloc(result, GCHandleType.Pinned);
+                    hostPtr = handle.AddrOfPinnedObject();
+                    cudaResult = CudaApi.CudaMemcpyDtoH(
+                        hostPtr,
+                        resultCudaVector,
+                        size * elemensNum);
+                    //if (cudaResult != ECudaResult.CudaSuccess)
+                    //{
+                    //    throw CudaException.GetExceptionFromCudaResult(cudaResult);
+                    //}
+
+                    handle.Free();
+
+                    // Liberta a memória alocada
+                    cudaResult = CudaApi.CudaMemFree(firstCudaVector);
+                    cudaResult = CudaApi.CudaMemFree(secondCudaVector);
+                    cudaResult = CudaApi.CudaMemFree(resultCudaVector);
+                    //cudaResult = CudaApi.CudaMemFree(startArgDevPtr);
+                    //cudaResult = CudaApi.CudaMemFree(endArgDevPtr);
 
                     // Remove o módulo do contexto actual
                     cudaManager.UnloadModule(module);
