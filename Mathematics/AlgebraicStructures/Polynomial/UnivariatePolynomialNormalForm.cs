@@ -1233,6 +1233,7 @@ namespace Mathematics
         /// <param name="multiplicationOperation">
         /// O objecto responsável pelas operações sobre os coeficientes e valores.
         /// </param>
+        /// <param name="sourceMultiplication">A operação de multiplicação na fonte.</param>
         /// <param name="coeffsRing">O anel responsável pelas operações sobre os coeficientes.</param>
         /// <returns>O resultado cálculado.</returns>
         /// <exception cref="ArgumentNullException">Se algum dos argumentos for nulo.</exception>

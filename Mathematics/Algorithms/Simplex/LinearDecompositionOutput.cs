@@ -5,6 +5,10 @@
     using System.Linq;
     using System.Text;
 
+    /// <summary>
+    /// Representa o resultado final da aplicação do algoritmo da decomposição linear.
+    /// </summary>
+    /// <typeparam name="CoeffsType">O tipo dos objectos que constituem os coeficientes.</typeparam>
     public class LinearDecompositionOutput<CoeffsType>
     {
         /// <summary>
@@ -12,6 +16,9 @@
         /// </summary>
         private CoeffsType[][] problemSolution;
 
+        /// <summary>
+        /// A solução que se encontra associada ao problema principal.
+        /// </summary>
         private CoeffsType[] masterExclusiveSolution;
 
         /// <summary>
