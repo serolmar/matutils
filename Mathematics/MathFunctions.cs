@@ -584,6 +584,46 @@
         }
 
         /// <summary>
+        /// Obtém o índice do "bit" mais alto com valor atribuído.
+        /// </summary>
+        /// <param name="value">O valor.</param>
+        /// <returns>O índice.</returns>
+        public static int GetHighestSettedBitIndex(ulong value)
+        {
+            if (value == 0)
+            {
+                return -1;
+            }
+            else
+            {
+                var initMask = (ulong)0xFFFFFFFF00000000;
+                var initOffset = 32;
+                var index = initOffset;
+                while (initOffset > 0)
+                {
+                    var current = value & initMask;
+                    if (current == 0)
+                    {
+                        initMask = initMask >> initOffset;
+                        index -= initOffset;
+                    }
+                    else if (current == 1)
+                    {
+                        return index;
+                    }
+                    else
+                    {
+                        initOffset = initOffset >> 1;
+                        initMask = initMask << initOffset;
+                        index += initOffset;
+                    }
+                }
+
+                return index;
+            }
+        }
+
+        /// <summary>
         /// Permite obter a divisão inteira de dois polinómios.
         /// </summary>
         /// <typeparam name="CoeffType">O tipo de coeficiente dos argumentos.</typeparam>

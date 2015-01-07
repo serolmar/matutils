@@ -736,6 +736,9 @@
 
         #region Outros Testes
 
+        /// <summary>
+        /// Permite testar a função que permite contar o número de "bits" num valor.
+        /// </summary>
         [TestMethod()]
         public void PopCountTest()
         {
@@ -744,6 +747,21 @@
             for (int i = 0; i < values.Length; ++i)
             {
                 var actual = MathFunctions.PopCount(values[i]);
+                Assert.AreEqual(expected[i], actual);
+            }
+        }
+
+        /// <summary>
+        /// Permite testar a função que determina o índice do "bit" mais alto que se encontra activo.
+        /// </summary>
+        [TestMethod()]
+        public void GetHighestSettedBitIndexTest()
+        {
+            var values = new ulong[] { 0, 1, 0xFFFFFFFFFFFFFFFF, 10, 0xA00000000000000 };
+            var expected = new[] { -1, 0, 63, 3, 59 };
+            for (int i = 0; i < values.Length; ++i)
+            {
+                var actual = MathFunctions.GetHighestSettedBitIndex(values[i]);
                 Assert.AreEqual(expected[i], actual);
             }
         }
