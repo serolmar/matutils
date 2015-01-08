@@ -10,6 +10,7 @@
     using System.Numerics;
     using System.Runtime.InteropServices;
     using System.Text;
+    using System.Text.RegularExpressions;
     using System.Threading.Tasks;
     using Mathematics;
     using Mathematics.MathematicsInterpreter;
@@ -25,6 +26,29 @@
 
         static void Main(string[] args)
         {
+            var temp  = new Regex("^\\s*(-{0,1})(\\d+)\\s*$");
+            var match = temp.Match(null);
+            if (match.Success)
+            {
+                var groupCount = match.Groups.Count;
+                Console.WriteLine("Número de grupos: {0}", groupCount);
+                for (int i = 0; i < groupCount; ++i)
+                {
+                    Console.WriteLine("    {0}", match.Groups[i].Value);
+                }
+            }
+
+            match = temp.Match("123");
+            if (match.Success)
+            {
+                var groupCount = match.Groups.Count;
+                Console.WriteLine("Número de grupos: {0}", groupCount);
+                for (int i = 0; i < groupCount; ++i)
+                {
+                    Console.WriteLine("    {0}", match.Groups[i].Value);
+                }
+            }
+
             try
             {
                 // Inicializa CUDA e avalia os dispositivos existentes

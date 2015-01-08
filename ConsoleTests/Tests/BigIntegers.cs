@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
+    using System.Text.RegularExpressions;
     using Mathematics;
 
     /// <summary>
@@ -150,7 +151,7 @@
             else
             {
                 this.sign = true;
-                this.array = new ulong[] { (numb };
+                this.array = new ulong[] { numb };
             }
         }
 
@@ -209,12 +210,70 @@
             throw new NotImplementedException();
         }
 
-        public UlongArrayBigInt operator %(UlongArrayBigInt first, UlongArrayBigInt second)
+        public static UlongArrayBigInt operator %(UlongArrayBigInt first, UlongArrayBigInt second)
         {
             throw new NotImplementedException();
         }
 
         #endregion Sobrecarga de operadores
+
+        #region Funções estáticas
+
+        public static bool TryParse(string text, out UlongArrayBigInt value)
+        {
+            if (text == null)
+            {
+                value = default(UlongArrayBigInt);
+                return false;
+            }
+            else
+            {
+                var integerExpression = new Regex("^\\s*(-{0,1})(0*)(\\d+)\\s*$");
+                var match = integerExpression.Match(text);
+                if (match.Success)
+                {
+                    var sign = true;
+                    var readed = new List<ulong>();
+
+                    var innerText = match.Groups[1].Value;
+                    if (string.IsNullOrWhiteSpace(innerText))
+                    {
+                        sign = true;
+                    }
+                    else
+                    {
+                        sign = false;
+                    }
+
+                    // Trata os valores
+                    var numbBase = 0x400000000000000u;
+                    innerText = match.Groups[3].Value;
+                    var length = innerText.Length;
+                    if (length < 19)
+                    {
+                        var currentValue = ulong.Parse(innerText);
+                        readed.Add(currentValue);
+                    }
+                    else
+                    {
+                        var initialText = innerText.Substring(0, 18);
+                        var currentValue = ulong.Parse(initialText);
+                        var divisionResult = (currentValue / numbBase).ToString();
+                        var remainderResult = currentValue % numbBase;
+                    }
+
+                    value = new UlongArrayBigInt(sign, readed.ToArray());
+                    return true;
+                }
+                else
+                {
+                    value = default(UlongArrayBigInt);
+                    return false;
+                }
+            }
+        }
+
+        #endregion
 
         /// <summary>
         /// Obtém uma representação textual do número.
@@ -360,6 +419,39 @@
             if (carry > 0)
             {
                 decimalRepresentation.Insert(0, carry);
+            }
+        }
+
+        /// <summary>
+        /// Premite dividir um número pela base especificada.
+        /// </summary>
+        /// <param name="text">O número a ser dividido.</param>
+        /// <param name="baseNumb">A base.</param>
+        /// <returns>O quociente e o resto da divisão.</returns>
+        private Tuple<string, ulong> DivideByBase(string text, ulong baseNumb)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Adiciona um valor ao final da lista, deslocando os "bits" para a esquerda
+        /// em uma unidade.
+        /// </summary>
+        /// <param name="list">A lista à qual se pretende adicionar o valor.</param>
+        /// <param name="value">O valor a ser adicionado.</param>
+        /// <param name="alignment">O valor do alinhamnto.</param>
+        private void AppendUlong(List<ulong> list, ulong value, int alignment)
+        {
+            var index = list.Count - 1;
+
+            // O valor dos "bits" mais baixos são colocados no valor anterior.
+            var lowest = (value & 1) << alignment;
+            list[index] = list[index] | lowest;
+
+            var append = value >> (64 - alignment);
+            if (append != 0)
+            {
+                list.Add(append);
             }
         }
     }
