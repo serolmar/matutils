@@ -1,4 +1,4 @@
-﻿namespace Mathematics
+﻿namespace Utilities
 {
     using System;
     using System.Collections.Generic;
@@ -39,7 +39,7 @@
         /// <summary>
         /// Permite instanciar uma árvore sem raiz para que possa ser usada rapidamente pelas livrarias internas.
         /// </summary>
-        internal Tree()
+        public Tree()
         {
         }
 
@@ -59,7 +59,7 @@
         /// Obtém e atribui a raiz da árvore de acordo com o respectivo tipo.
         /// </summary>
         /// <value>A raiz</value>
-        internal TreeNode<NodeObjectType> InternalRootNode
+        public TreeNode<NodeObjectType> InternalRootNode
         {
             get
             {

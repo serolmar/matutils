@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
+    using Utilities;
 
     /// <summary>
     /// Permite realizar um levantamento multifactor.
@@ -53,7 +54,7 @@
                 var factorTree = this.MountFactorTree(
                     multiFactorLiftingStatus,
                     modularField);
-                factorTree.InternalRootNode.NodeObject.Polynom = multiFactorLiftingStatus.Polynom;
+                factorTree.RootNode.NodeObject.Polynom = multiFactorLiftingStatus.Polynom;
                 if (factorTree == null)
                 {
                     // Não existem factores suficientes para elevar

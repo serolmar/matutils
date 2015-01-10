@@ -1,4 +1,4 @@
-﻿namespace Mathematics
+﻿namespace Utilities
 {
     using System;
     using System.Collections.Generic;
@@ -44,7 +44,7 @@
         /// Remove o nó filho do nó actual.
         /// </summary>
         /// <param name="child">O nó a ser removido.</param>
-        void Remove(TreeNode<NodeObjectType> child);
+        void Remove(ITreeNode<NodeObjectType> child);
 
         /// <summary>
         /// Move o nó especificado estabelecendo-o como filho do nó actual na posição indicada

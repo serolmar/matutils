@@ -100,7 +100,7 @@
     <Compile Include="SetExample\SetParser.cs" />
     <Compile Include="SetExample\SetSymbol.cs" />
     <Compile Include="SetExample\SetSymbolReader.cs" />
-    <Compile Include="Tests\BigIntegers.cs" />
+    <Compile Include="Tests\BigIntegerTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Mathematics\Mathematics.csproj">

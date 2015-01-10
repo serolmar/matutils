@@ -1,8 +1,9 @@
-﻿namespace ConsoleTests
+﻿namespace Mathematics
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Numerics;
     using System.Text;
     using System.Text.RegularExpressions;
     using Mathematics;
@@ -14,7 +15,7 @@
     public struct UlongArrayBigInt
     {
         /// <summary>
-        /// Verdadeiro caso o sinal seja positivo e falso caso seja negativo.
+        /// Verdadeiro caso o número seja afecto de sinal e falso caso contrário.
         /// </summary>
         private bool sign;
 
@@ -29,7 +30,7 @@
         /// <param name="array">O vector de valores que inicializam o número.</param>
         public UlongArrayBigInt(ulong[] array)
         {
-            this.sign = true;
+            this.sign = false;
             if (array == null)
             {
                 this.array = default(ulong[]);
@@ -48,7 +49,7 @@
         /// <param name="list"></param>
         public UlongArrayBigInt(List<ulong> list)
         {
-            this.sign = true;
+            this.sign = false;
             this.array = list.ToArray();
         }
 
@@ -96,7 +97,7 @@
             }
             else
             {
-                this.sign = numb > 0;
+                this.sign = numb < 0;
                 this.array = new ulong[] { (ulong)Math.Abs(numb) };
             }
         }
@@ -127,12 +128,12 @@
         {
             if (numb == 0)
             {
-                this.sign = true;
+                this.sign = false;
                 this.array = null;
             }
             else
             {
-                this.sign = numb > 0;
+                this.sign = numb < 0;
                 this.array = new ulong[] { (ulong)Math.Abs(numb) };
             }
         }
@@ -156,7 +157,7 @@
         }
 
         /// <summary>
-        /// Obtém o sinal do número em questão.
+        /// Obtém um valor que indica se o número está afecto do sinal.
         /// </summary>
         public bool Sign
         {
@@ -186,6 +187,37 @@
             var result = new ulong[length];
             Array.Copy(this.array, result, length);
             return result;
+        }
+
+        /// <summary>
+        /// Obtém a representação no formato no qual estes números são
+        /// representados no <see cref="System.Numerics.BigInteger"/>.
+        /// </summary>
+        /// <returns>O inteiro enorme.</returns>
+        public BigInteger ToBigint()
+        {
+            if (this.array == null || this.array.Length == 0)
+            {
+                return BigInteger.Zero;
+            }
+            else
+            {
+                var pow = BigInteger.One << 64;
+                var i = this.array.Length - 1;
+                var result = new BigInteger(this.array[i]);
+                if (sign)
+                {
+                    result = BigInteger.Subtract(0, result);
+                }
+
+                for (; i >= 0; --i)
+                {
+                    result = BigInteger.Multiply(result, pow);
+                    result = BigInteger.Add(result, this.array[i]);
+                }
+
+                return result;
+            }
         }
 
         #region Sobrecarga de operadores
@@ -232,34 +264,38 @@
                 var match = integerExpression.Match(text);
                 if (match.Success)
                 {
-                    var sign = true;
+                    var sign = false;
                     var readed = new List<ulong>();
 
                     var innerText = match.Groups[1].Value;
-                    if (string.IsNullOrWhiteSpace(innerText))
+                    if (innerText == "-")
                     {
                         sign = true;
                     }
-                    else
-                    {
-                        sign = false;
-                    }
 
                     // Trata os valores
-                    var numbBase = 0x400000000000000u;
                     innerText = match.Groups[3].Value;
-                    var length = innerText.Length;
-                    if (length < 19)
+                    if (!string.IsNullOrEmpty(innerText))
                     {
-                        var currentValue = ulong.Parse(innerText);
-                        readed.Add(currentValue);
-                    }
-                    else
-                    {
-                        var initialText = innerText.Substring(0, 18);
-                        var currentValue = ulong.Parse(initialText);
-                        var divisionResult = (currentValue / numbBase).ToString();
-                        var remainderResult = currentValue % numbBase;
+                        var currentRes = DivideByBase(innerText);
+
+                        readed.Add(currentRes.Item2);
+                        var alignement = 0;
+                        while (currentRes.Item1 != "0")
+                        {
+                            alignement += 5;
+                            alignement %= 64;
+
+                            currentRes = DivideByBase(currentRes.Item1);
+                            if (alignement == 0)
+                            {
+                                readed.Add(currentRes.Item2);
+                            }
+                            else
+                            {
+                                AppendUlong(readed, currentRes.Item2, alignement);
+                            }
+                        }
                     }
 
                     value = new UlongArrayBigInt(sign, readed.ToArray());
@@ -287,16 +323,15 @@
             }
             else
             {
-                var length = this.array.Length;
-                var index = 0;
+                var index = this.array.Length - 1;
                 var current = this.array[index];
-                while (current == 0 && index < length)
+                while (current == 0 && index >= 0)
                 {
                     current = this.array[index];
-                    ++index;
+                    --index;
                 }
 
-                if (index == length)
+                if (index < 0)
                 {
                     return "0";
                 }
@@ -314,10 +349,12 @@
                         {
                             this.IncrementDecimalRep(decimalRep);
                         }
+
+                        current = current << 1;
                     }
 
-                    ++index;
-                    for (; index < length; ++index)
+                    --index;
+                    for (; index >= 0; --index)
                     {
                         current = this.array[index];
                         for (int i = 0; i < 64; ++i)
@@ -327,31 +364,60 @@
                             {
                                 this.IncrementDecimalRep(decimalRep);
                             }
+
+                            current = current << 1;
                         }
                     }
 
                     // Imprime o resultado
-                    index = 0;
-                    var result = decimalRep[index].ToString();
-                    ++index;
-                    for (; index < length; ++index)
+                    var result = this.GetDecimalRepresentation(decimalRep);
+                    if (this.sign)
                     {
-                        var next = decimalRep[index].ToString();
-                        var additional = 18 - next.Length;
-                        if (additional > 0)
-                        {
-                            for (int i = 0; i < additional; ++i)
-                            {
-                                next = "0" + next;
-                            }
-                        }
+                        result = "-" + result;
+                    }
 
-                        result += next;
+                    return result;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Função auxiliar que permite escrever a representação textual de um número representado em notação
+        /// decimal na base 10000000000000000000.
+        /// </summary>
+        /// <param name="decimalRep">A representação decimal como vector de longos sem sinal.</param>
+        /// <returns>A representação textual do número.</returns>
+        private string GetDecimalRepresentation(List<ulong> decimalRep)
+        {
+            var length = decimalRep.Count;
+            var index = 0;
+            var result = decimalRep[index].ToString();
+            if (result.Length > 18)
+            {
+                result = result.Substring(0, 18);
+            }
+
+            ++index;
+            for (; index < length; ++index)
+            {
+                var next = decimalRep[index].ToString();
+                var additional = 18 - next.Length;
+                if (additional > 0)
+                {
+                    for (int i = 0; i < additional; ++i)
+                    {
+                        next = "0" + next;
                     }
                 }
+                else if (additional < 0)
+                {
+                    next = next.Substring(0, 18);
+                }
 
-                return base.ToString();
+                result += next;
             }
+
+            return result;
         }
 
         /// <summary>
@@ -384,7 +450,7 @@
         /// <param name="decimalRepresentation">A representação decimal.</param>
         private void DuplicateDecimalRep(List<ulong> decimalRepresentation)
         {
-            var numBase = 10000000000000000000;
+            var numBase = 1000000000000000000u;
             var index = decimalRepresentation.Count - 1;
             var current = decimalRepresentation[index];
             current = current << 1;
@@ -395,7 +461,8 @@
             }
             else
             {
-                current = numBase - current;
+                // A conta é aqui realizada de forma errada
+                current -= numBase;
             }
 
             decimalRepresentation[index] = current;
@@ -406,14 +473,16 @@
                 current = (current << 1) + carry;
                 if (current < numBase)
                 {
-                    carry = 0;
+                    carry = 0u;
                 }
                 else
                 {
-                    current = numBase - current;
+                    current -= numBase;
+                    carry = 1u;
                 }
 
                 decimalRepresentation[index] = current;
+                --index;
             }
 
             if (carry > 0)
@@ -422,37 +491,90 @@
             }
         }
 
-        /// <summary>
-        /// Premite dividir um número pela base especificada.
-        /// </summary>
-        /// <param name="text">O número a ser dividido.</param>
-        /// <param name="baseNumb">A base.</param>
-        /// <returns>O quociente e o resto da divisão.</returns>
-        private Tuple<string, ulong> DivideByBase(string text, ulong baseNumb)
-        {
-            throw new NotImplementedException();
-        }
+        #region Funções estáticas privadas
 
         /// <summary>
         /// Adiciona um valor ao final da lista, deslocando os "bits" para a esquerda
-        /// em uma unidade.
+        /// em quatro unidades (alinhamento associado à base 0x8000000000000000).
         /// </summary>
         /// <param name="list">A lista à qual se pretende adicionar o valor.</param>
         /// <param name="value">O valor a ser adicionado.</param>
-        /// <param name="alignment">O valor do alinhamnto.</param>
-        private void AppendUlong(List<ulong> list, ulong value, int alignment)
+        /// <param name="alignement">O alinhamento.</param>
+        private static void AppendUlong(List<ulong> list, ulong value, int alignement)
         {
             var index = list.Count - 1;
+            var complement = 64 - alignement;
+            var mask = 0xFFFFFFFFFFFFFFFF >> complement;
 
             // O valor dos "bits" mais baixos são colocados no valor anterior.
-            var lowest = (value & 1) << alignment;
+            var lowest = (value & mask) << complement;
             list[index] = list[index] | lowest;
 
-            var append = value >> (64 - alignment);
+            var append = value >> alignement;
             if (append != 0)
             {
                 list.Add(append);
             }
         }
+
+        /// <summary>
+        /// Premite dividir um número pela base 0x800000000000000.
+        /// </summary>
+        /// <param name="text">O número a ser dividido.</param>
+        /// <returns>O quociente e o resto da divisão.</returns>
+        private static Tuple<string, ulong> DivideByBase(string text)
+        {
+            var length = text.Length;
+            var numbBase = 0x800000000000000u;
+            if (length < 19)
+            {
+                var currentValue = ulong.Parse(text);
+                return Tuple.Create("0", currentValue);
+            }
+            else
+            {
+                var initialText = text.Substring(0, 18);
+                var currentValue = ulong.Parse(initialText);
+                var index = 18;
+
+                // Ao início todos os zeros no resultado são ignorados
+                while (currentValue < numbBase && index < length)
+                {
+                    var chrValue = (ulong)char.GetNumericValue(text[index]);
+                    currentValue *= 10;
+                    currentValue += chrValue;
+                    ++index;
+                }
+
+                var result = (currentValue / numbBase).ToString();
+                currentValue %= numbBase;
+                while (index < length)
+                {
+                    var chrValue = (ulong)char.GetNumericValue(text[index]);
+                    currentValue *= 10;
+                    currentValue += chrValue;
+                    if (currentValue < numbBase)
+                    {
+                        result += "0";
+                    }
+                    else if (currentValue == numbBase)
+                    {
+                        result += "1";
+                        currentValue = 0;
+                    }
+                    else
+                    {
+                        result += (currentValue / numbBase).ToString();
+                        currentValue %= numbBase;
+                    }
+
+                    ++index;
+                }
+
+                return Tuple.Create(result, currentValue);
+            }
+        }
+
+        #endregion Funções estáticas privadas
     }
 }

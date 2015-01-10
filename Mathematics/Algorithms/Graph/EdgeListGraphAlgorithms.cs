@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
+    using Utilities;
 
     /// <summary>
     /// Implementa um conjunto de algoritmos sobre os grafos definidos como listas de arestas.
@@ -15,13 +16,13 @@
         /// <summary>
         /// Mantém o grafo sobre o qual actuam os algoritmos.
         /// </summary>
-        private EdgeListGraph<VertexType, EdgeValueType> graph;
+        private EdgeListGraphMathExtensions<VertexType, EdgeValueType> graph;
 
         /// <summary>
         /// Instancia um novo objecto do tipo <see cref="EdgeListGraphAlgorithms{VertexType, EdgeValueType}"/>.
         /// </summary>
         /// <param name="graph">O grafo..</param>
-        public EdgeListGraphAlgorithms(EdgeListGraph<VertexType, EdgeValueType> graph)
+        public EdgeListGraphAlgorithms(EdgeListGraphMathExtensions<VertexType, EdgeValueType> graph)
         {
             this.graph = graph;
         }

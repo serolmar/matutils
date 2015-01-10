@@ -96,9 +96,9 @@
         /// Obtém o grafo que irá servir de teste.
         /// </summary>
         /// <returns>O grafo.</returns>
-        private EdgeListGraph<int, int> GetTestGraph()
+        private EdgeListGraphMathExtensions<int, int> GetTestGraph()
         {
-            var graph = new EdgeListGraph<int, int>();
+            var graph = new EdgeListGraphMathExtensions<int, int>();
             graph.AddEdge(0, 1, 1);
             graph.AddEdge(0, 2, 3);
             graph.AddEdge(0, 3, 5);

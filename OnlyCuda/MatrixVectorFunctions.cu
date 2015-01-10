@@ -172,8 +172,8 @@ extern "C" __global__ void AddUnsignedLongFraction(unsigned long* a, unsigned lo
 /// <param name="c"></param>
 extern "C" __global__ void InnerProdIntegerVectorRed(int* a, int* b, int* c){
 	// A memória estática terá de ser reservada no código de anfitrião de modo a poder ser utilizada
-	extern __shared__ int* innera;
-	extern __shared__ int* innerb;
+	extern __shared__ int innera[];
+	extern __shared__ int innerb[];
 
 	unsigned int tid = threadIdx.x;
 	unsigned int i = blockIdx.x * blockDim.x + threadIdx.x;

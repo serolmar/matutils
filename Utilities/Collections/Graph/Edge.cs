@@ -1,4 +1,4 @@
-﻿namespace Mathematics
+﻿namespace Utilities
 {
     using System;
     using System.Collections.Generic;
@@ -10,7 +10,7 @@
     /// </summary>
     /// <typeparam name="VertexType">O tipo de objectos associados aos vértices.</typeparam>
     /// <typeparam name="EdgeValueType">O tipo de objectos associado às arestas.</typeparam>
-    class Edge<VertexType, EdgeValueType> : IEdge<VertexType, EdgeValueType>
+    public class Edge<VertexType, EdgeValueType> : IEdge<VertexType, EdgeValueType>
     {
         /// <summary>
         /// O vértice inicial da aresta.

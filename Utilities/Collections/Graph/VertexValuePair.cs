@@ -1,4 +1,4 @@
-﻿namespace Mathematics
+﻿namespace Utilities
 {
     using System;
     using System.Collections.Generic;
@@ -59,7 +59,7 @@
             {
                 return this.value;
             }
-            internal set
+            set
             {
                 this.value = value;
             }

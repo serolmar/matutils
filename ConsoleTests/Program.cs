@@ -10,7 +10,6 @@
     using System.Numerics;
     using System.Runtime.InteropServices;
     using System.Text;
-    using System.Text.RegularExpressions;
     using System.Threading.Tasks;
     using Mathematics;
     using Mathematics.MathematicsInterpreter;
@@ -26,29 +25,71 @@
 
         static void Main(string[] args)
         {
-            var temp  = new Regex("^\\s*(-{0,1})(\\d+)\\s*$");
-            var match = temp.Match(null);
-            if (match.Success)
+            var bigIntegerTests = new BigIntegerTests();
+            var decomposed = bigIntegerTests.DecomposeNumber("11111111222222233333344444455555566666777778888899999");
+
+            Console.WriteLine("{0}", (0x800000000000000).ToString().Length);
+            Console.WriteLine("valor máximo: {0}", ulong.MaxValue);
+            Console.WriteLine("semi-valor máximo: {0}", ulong.MaxValue >> 1);
+            var dec = (ulong)1000000000000000000;
+            var temp = (ulong)999999999999999999;
+            checked
             {
-                var groupCount = match.Groups.Count;
-                Console.WriteLine("Número de grupos: {0}", groupCount);
-                for (int i = 0; i < groupCount; ++i)
-                {
-                    Console.WriteLine("    {0}", match.Groups[i].Value);
-                }
+                var temp1 = 2 * temp;
+                Console.WriteLine("temp: {0}", temp);
+                Console.WriteLine("temp1: {0}", temp1);
             }
 
-            match = temp.Match("123");
-            if (match.Success)
+            var ulongMax = ulong.MaxValue.ToString();
+            Console.WriteLine("máximo ulong: {0}", ulongMax.Length);
+            uint i = 0xFFFFFFFF;
+            uint j = 0xFFFFFFFF;
+            // (a*2^32+b)*(c*2^32+d)=(a*c)*2^64+(ad+bc)*2^32+bd
+            // Parte superior a 32...
+
+            Console.WriteLine("{0:X}",(ulong)2 * 0xFFFFFFFF);
+
+            ulong k = (ulong)i * (ulong)j;
+            uint l = i * j;
+
+            var num1 = default(ulong);
+            var num2 = default(ulong);
+            var a = num1 >> 32;
+            var b = num1 & 0x00000000FFFFFFFF;
+            var c = num2 >> 32;
+            var d = num2 & 0x00000000FFFFFFFF;
+
+            // Adição de dois números
+            // 1010 + 1001 -> diff: 0111
+            num1 = 0xFFFFFFFFFFFFFFFF;
+            num2 = 0xFFFFFFFFFFFFFFFF;
+            var res = default(ulong);
+            var carry = default(ulong);
+            var diff = ((~num2) + 1);
+            if (num2 < diff)
             {
-                var groupCount = match.Groups.Count;
-                Console.WriteLine("Número de grupos: {0}", groupCount);
-                for (int i = 0; i < groupCount; ++i)
-                {
-                    Console.WriteLine("    {0}", match.Groups[i].Value);
-                }
+                // Não há risco de sobrecarga
+                res = num1 + num2;
+                carry = 0;
+            }
+            else
+            {
+                res = num2 - diff;
+                carry = 1;
             }
 
+            Console.WriteLine("res = {0:X}", res);
+            Console.WriteLine("carry = {0:X}", carry);
+
+            Console.WriteLine("m={0:X}", (uint)0xFFFF * (uint)0xFFFF);
+
+            Console.WriteLine("k={0:X}", k);
+            Console.WriteLine("l={0:X}", l);
+            Console.ReadKey();
+        }
+
+        static void TempCuda()
+        {
             try
             {
                 // Inicializa CUDA e avalia os dispositivos existentes
@@ -160,8 +201,8 @@
                     //Marshal.FreeHGlobal(endArg);
 
                     var arrayPtr = Utils.AllocUnmanagedPointersArray(
-                        new[] { firstCudaVector, secondCudaVector, resultCudaVector});
-                    
+                        new[] { firstCudaVector, secondCudaVector, resultCudaVector });
+
                     // Realiza a chamada
                     cudaResult = CudaApi.CudaLaunchKernel(
                         cudaFunc.CudaFunction,
@@ -212,134 +253,6 @@
             catch (CudaException cudaException)
             {
                 Console.WriteLine("Ocorreu um erro CUDA: {0}", cudaException.Message);
-            }
-
-            Console.ReadKey();
-        }
-
-        static void TempCuda()
-        {
-            var count = default(int);
-            var cudaResult = CudaApi.CudaInit(0);
-            cudaResult = CudaApi.CudaInit(0);
-            if (cudaResult == ECudaResult.CudaSuccess)
-            {
-                var driverVersion = default(int);
-                cudaResult = CudaApi.CudaDriverGetVersion(ref driverVersion);
-                if (cudaResult == ECudaResult.CudaSuccess)
-                {
-                    Console.WriteLine("A versão do condutor é: {0}", driverVersion);
-                }
-
-                cudaResult = CudaApi.CudaDeviceGetCount(ref count);
-                if (cudaResult == ECudaResult.CudaSuccess)
-                {
-                    Console.WriteLine("Número de dispositivos com suporte CUDA: {0}", count);
-                    for (int i = 0; i < count; ++i)
-                    {
-                        // Informação do dispositivo
-                        var device = default(int);
-                        cudaResult = CudaApi.CudaDeviceGet(ref device, i);
-                        if (cudaResult == ECudaResult.CudaSuccess)
-                        {
-                            // Nome do dispositivo
-                            var textLength = 100;
-                            var deviceName = new StringBuilder(textLength);
-                            cudaResult = CudaApi.CudaDeviceGetName(deviceName, textLength, device);
-                            if (cudaResult == ECudaResult.CudaSuccess)
-                            {
-                                Console.WriteLine("O nome do dispositivo é: {0}", deviceName);
-                            }
-                            else
-                            {
-                                Console.WriteLine("Erro na obtenção do nome do dispositivo.");
-                            }
-
-                            // Capacidade computacional menor
-                            var attribute = default(int);
-                            cudaResult = CudaApi.CudaDeviceGetAttribute(
-                                ref attribute,
-                                ECudaDeviceAttr.ComputeCapabilityMinor,
-                                device);
-                            if (cudaResult == ECudaResult.CudaSuccess)
-                            {
-                                Console.WriteLine(
-                                    "A capacidade computacional menor do dispositivo é: {0}",
-                                    attribute);
-                            }
-                            else
-                            {
-                                Console.WriteLine(
-                                    "Ocorreu um erro ao tentar obter a capacidade computacional menor");
-                            }
-
-                            cudaResult = CudaApi.CudaDeviceGetAttribute(
-                                ref attribute,
-                                ECudaDeviceAttr.ComputeCapabilityMajor,
-                                device);
-                            if (cudaResult == ECudaResult.CudaSuccess)
-                            {
-                                Console.WriteLine(
-                                    "A capacidade computacional maior do dispositivo é: {0}",
-                                    attribute);
-                            }
-
-                            // Estabelecimento do contexto
-                            var context = default(SCudaContext);
-                            cudaResult = CudaApi.CudaCtxCreate(ref context, ECudaContextFlags.SchedAuto, device);
-                            if (cudaResult != ECudaResult.CudaSuccess)
-                            {
-                                throw new Exception("Um erro ocorreu durante a criação do contexto.");
-                            }
-
-                            cudaResult = CudaApi.CudaCtxPushCurrent(context);
-                            if (cudaResult != ECudaResult.CudaSuccess)
-                            {
-                                Console.WriteLine("Um erro ocorreu.");
-                            }
-
-                            cudaResult = CudaApi.CudaCtxSetCurrent(context);
-                            if (cudaResult != ECudaResult.CudaSuccess)
-                            {
-                                throw new Exception(
-                                    "Um erro ocorreu na tentativa do estabelecimento de um contexto.");
-                            }
-
-                            // Tentativa do carregamento de um módulo
-                            var module = default(SCudaModule);
-                            cudaResult = CudaApi.CudaModuleLoad(ref module, "Data\\AddVector.cu.obj");
-                            if (cudaResult == ECudaResult.CudaSuccess)
-                            {
-                                Console.WriteLine("O módulo foi carregado com sucesso.");
-                                cudaResult = CudaApi.CudaModuleUnload(module);
-                                if (cudaResult == ECudaResult.CudaSuccess)
-                                {
-                                    Console.WriteLine("O módulo foi descarregado com sucesso");
-                                }
-                                else
-                                {
-                                    Console.WriteLine("Ocorreu um erro durante o carregamento do módulo.");
-                                }
-                            }
-                            else
-                            {
-                                Console.WriteLine("Um erro ocorreu durante o carregamento do módulo.");
-                            }
-                        }
-                        else
-                        {
-                            Console.WriteLine("Um erro ocorreu na tentativa da obtenção de um dispositivo.");
-                        }
-                    }
-                }
-                else
-                {
-                    Console.WriteLine("Ocorreu um erro durante a tentativa de consulta de número de dispositivos.");
-                }
-            }
-            else
-            {
-                Console.WriteLine("Ocorreu um erro durante a incialização.");
             }
         }
 

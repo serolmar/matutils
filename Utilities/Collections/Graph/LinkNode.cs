@@ -1,4 +1,4 @@
-﻿namespace Mathematics
+﻿namespace Utilities
 {
     using System;
     using System.Collections.Generic;
@@ -10,7 +10,7 @@
     /// </summary>
     /// <typeparam name="NodeType">O tipo de objectos que constituem os nós.</typeparam>
     /// <typeparam name="EdgeValueType">O tipo de objectos associados às arestas.</typeparam>
-    internal class LinkNode<NodeType, EdgeValueType>
+    public class LinkNode<NodeType, EdgeValueType>
     {
         /// <summary>
         /// O nó inicial.

@@ -1,6 +1,4 @@
-﻿
-
-namespace Mathematics
+﻿namespace Utilities
 {
     using System;
     using System.Collections.Generic;
@@ -18,22 +16,22 @@ namespace Mathematics
         /// <summary>
         /// Indica se o grafo é direccionado.
         /// </summary>
-        private bool directed = false;
+        protected bool directed = false;
 
         /// <summary>
         /// O comparador de vértices.
         /// </summary>
-        private IEqualityComparer<VertexType> vertexEqualityComparer;
+        protected IEqualityComparer<VertexType> vertexEqualityComparer;
 
         /// <summary>
         /// Mapeia cada vértice às arestas adjacentes.
         /// </summary>
-        private Dictionary<VertexType, List<Edge<VertexType, EdgeValueType>>> vertices;
+        protected Dictionary<VertexType, List<Edge<VertexType, EdgeValueType>>> vertices;
 
         /// <summary>
         /// O contentor das arestas.
         /// </summary>
-        private List<Edge<VertexType, EdgeValueType>> edges;
+        protected List<Edge<VertexType, EdgeValueType>> edges;
 
         /// <summary>
         /// Instancia um novo objecto do tipo <see cref="EdgeListGraph{VertexType, EdgeValueType}"/>.
@@ -105,57 +103,6 @@ namespace Mathematics
         }
 
         /// <summary>
-        /// Obtém o comparador de vértices associado ao grafo.
-        /// </summary>
-        /// <value>
-        /// O comparador.
-        /// </value>
-        internal IEqualityComparer<VertexType> VertexEqualityComparer
-        {
-            get
-            {
-                return this.vertexEqualityComparer;
-            }
-        }
-
-        /// <summary>
-        /// Obtém o dicionário que contém os vértices e as arestas que daí saem.
-        /// </summary>
-        /// <value>
-        /// O dicionário.
-        /// </value>
-        internal Dictionary<VertexType, List<Edge<VertexType, EdgeValueType>>> VerticesDictionary
-        {
-            get
-            {
-                return this.vertices;
-            }
-        }
-
-        /// <summary>
-        /// Obtém a lista de arestas.
-        /// </summary>
-        /// <value>
-        /// A lista de arestas.
-        /// </value>
-        internal List<Edge<VertexType, EdgeValueType>> EdgesList
-        {
-            get
-            {
-                return this.edges;
-            }
-        }
-
-        /// <summary>
-        /// Obtém o objecto responsável pelos algoritmos sobre o grafo actual.
-        /// </summary>
-        /// <returns>O objecto responsável pelos alroritmos.</returns>
-        public IGraphAlgorithms<VertexType, EdgeValueType> GetAlgorithmsProcessor()
-        {
-            return new EdgeListGraphAlgorithms<VertexType, EdgeValueType>(this);
-        }
-
-        /// <summary>
         /// Retorna os vizinhos de um determinado vértice.
         /// </summary>
         /// <remarks>
@@ -204,7 +151,7 @@ namespace Mathematics
         /// </summary>
         /// <param name="vertex">O vértice.</param>
         /// <exception cref="ArgumentNullException">Se o vértice for nulo.</exception>
-        /// <exception cref="MathematicsException">Se o vértice já existe.</exception>
+        /// <exception cref="UtilitiesException">Se o vértice já existe.</exception>
         public void AddVertex(VertexType vertex)
         {
             if (vertex == null)
@@ -213,7 +160,7 @@ namespace Mathematics
             }
             else if (this.vertices.ContainsKey(vertex))
             {
-                throw new MathematicsException("Vertex was already inserted.");
+                throw new UtilitiesException("Vertex was already inserted.");
             }
             else
             {
@@ -314,7 +261,7 @@ namespace Mathematics
         /// Adiciona uma aresta ao grafo actual.
         /// </summary>
         /// <param name="edge">A aresta a ser adicionada.</param>
-        internal void AddEdge(Edge<VertexType, EdgeValueType> edge)
+        public void AddEdge(Edge<VertexType, EdgeValueType> edge)
         {
             this.edges.Add(edge);
             var edgesWithVertex = default(List<Edge<VertexType, EdgeValueType>>);

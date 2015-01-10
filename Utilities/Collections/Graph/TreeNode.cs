@@ -1,4 +1,4 @@
-﻿namespace Mathematics
+﻿namespace Utilities
 {
     using System;
     using System.Collections.Generic;
@@ -37,7 +37,7 @@
         /// <param name="nodeObject">O objecto associado ao nó.</param>
         /// <param name="owner">A árvore da qual faz parte.</param>
         /// <param name="parent">O nó do qual descende.</param>
-        internal TreeNode(
+        public TreeNode(
             NodeObjectType nodeObject, 
             Tree<NodeObjectType> owner, 
             TreeNode<NodeObjectType> parent)
@@ -103,7 +103,7 @@
         /// Obtém e atribui o nó precedente.
         /// </summary>
         /// <value>O nó precedente.</value>
-        internal TreeNode<NodeObjectType> InternalParent
+        public TreeNode<NodeObjectType> InternalParent
         {
             get
             {
@@ -119,7 +119,7 @@
         /// Obtém e atribui a árvore da qual faz parte.
         /// </summary>
         /// <value>A árvore.</value>
-        internal Tree<NodeObjectType> Owner
+        public Tree<NodeObjectType> Owner
         {
             get
             {
@@ -135,7 +135,7 @@
         /// Obtém a lista de nós descendentes.
         /// </summary>
         /// <value>A lista de nós descendentes.</value>
-        internal List<TreeNode<NodeObjectType>> ChildsList
+        public List<TreeNode<NodeObjectType>> ChildsList
         {
             get
             {
@@ -190,9 +190,17 @@
         /// Remove o nó filho do nó actual.
         /// </summary>
         /// <param name="child">O nó a ser removido.</param>
-        public void Remove(TreeNode<NodeObjectType> child)
+        public void Remove(ITreeNode<NodeObjectType> child)
         {
-            this.childs.Remove(child);
+            var innerNode = child as TreeNode<NodeObjectType>;
+            if (innerNode == null)
+            {
+                throw new ArgumentException("Tree node is invalid.");
+            }
+            else
+            {
+                this.childs.Remove(innerNode);
+            }
         }
 
         /// <summary>
@@ -304,7 +312,7 @@
         /// Adiciona um nó à lista de nós descendentes.
         /// </summary>
         /// <param name="node">O nó a adicionar.</param>
-        internal void Add(TreeNode<NodeObjectType> node)
+        public void Add(TreeNode<NodeObjectType> node)
         {
             this.childs.Add(node);
         }

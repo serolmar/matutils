@@ -5,6 +5,7 @@
     using System.Collections.ObjectModel;
     using System.Linq;
     using System.Text;
+    using Utilities;
 
     /// <summary>
     /// Mantém um par de componentes conexas e respectivos ciclos classificados por componente.
