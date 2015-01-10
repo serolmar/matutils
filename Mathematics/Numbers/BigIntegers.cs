@@ -196,6 +196,7 @@
         /// <returns>O inteiro enorme.</returns>
         public BigInteger ToBigint()
         {
+            // TODO: Melhorar o processo a partir da construção directa de um vector de "bytes"
             if (this.array == null || this.array.Length == 0)
             {
                 return BigInteger.Zero;
@@ -222,35 +223,375 @@
 
         #region Sobrecarga de operadores
 
+        /// <summary>
+        /// Sobrecarrega o operador de adição.
+        /// </summary>
+        /// <remarks>
+        /// O operador de adição utiliza a versão sequencial e não a paralela.
+        /// </remarks>
+        /// <param name="first">O primeiro valor a ser somado.</param>
+        /// <param name="second">O segundo valor a ser somado.</param>
+        /// <returns>O resultado da soma.</returns>
         public static UlongArrayBigInt operator +(UlongArrayBigInt first, UlongArrayBigInt second)
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Sonrecarrega o operador de multiplicação.
+        /// </summary>
+        /// <param name="first">O primeiro valor a ser multiplicado.</param>
+        /// <param name="second">O segundo valor a ser multiplicado.</param>
+        /// <returns>O resultado do produto.</returns>
         public static UlongArrayBigInt operator *(UlongArrayBigInt first, UlongArrayBigInt second)
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Sobrecarrega o operador de subtracção.
+        /// </summary>
+        /// <param name="first">O valor do minuendo.</param>
+        /// <param name="second">O valor do subtraendo.</param>
+        /// <returns>O resultado da subtracção.</returns>
         public static UlongArrayBigInt operator -(UlongArrayBigInt first, UlongArrayBigInt second)
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Determina o quociente inteiro entre dois números.
+        /// </summary>
+        /// <param name="first">O valor do dividendo.</param>
+        /// <param name="second">O valor do divisor.</param>
+        /// <returns>O valor do quociente entre os dois números.</returns>
         public static UlongArrayBigInt operator /(UlongArrayBigInt first, UlongArrayBigInt second)
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Determina o resto da divisão inteira entre dois números.
+        /// </summary>
+        /// <param name="first">O valor do dividendo.</param>
+        /// <param name="second">O valor do divisor.</param>
+        /// <returns>O resto da divisão.</returns>
         public static UlongArrayBigInt operator %(UlongArrayBigInt first, UlongArrayBigInt second)
         {
             throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Sobrecarrega o operador de igualdade entre os operandos.
+        /// </summary>
+        /// <param name="first">O primeiro operando.</param>
+        /// <param name="second">O segundo operando.</param>
+        /// <returns>Verdadeiro caso os operados sejam iguais e falso caso contrário.</returns>
+        public static bool operator ==(UlongArrayBigInt first, UlongArrayBigInt second)
+        {
+            if (object.ReferenceEquals(first, second))
+            {
+                return true;
+            }
+            else
+            {
+                var firstArray = first.array;
+                var secondArray = second.array;
+                if (firstArray == null && secondArray == null)
+                {
+                    return true;
+                }
+                else if (firstArray == null)
+                {
+                    return false;
+                }
+                else if (secondArray == null)
+                {
+                    return false;
+                }
+                else
+                {
+                    var firstArrayLength = firstArray.Length;
+                    var secondArrayLength = secondArray.Length;
+                    if (firstArrayLength == secondArrayLength)
+                    {
+                        if (first.sign == second.sign)
+                        {
+                            for (int i = 0; i < firstArrayLength; ++i)
+                            {
+                                if (firstArray[i] != secondArray[i])
+                                {
+                                    return false;
+                                }
+                            }
+
+                            return true;
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Sobrecarrega o operador de diferença entre os operandos.
+        /// </summary>
+        /// <param name="first">O primeiro operando.</param>
+        /// <param name="second">O segundo operando.</param>
+        /// <returns>Verdadeiro caso os operados sejam iguais e falso caso contrário.</returns>
+        public static bool operator !=(UlongArrayBigInt first, UlongArrayBigInt second)
+        {
+            if (object.ReferenceEquals(first, second))
+            {
+                return false;
+            }
+            else
+            {
+                var firstArray = first.array;
+                var secondArray = second.array;
+                if (firstArray == null && secondArray == null)
+                {
+                    return false;
+                }
+                else if (firstArray == null)
+                {
+                    return true;
+                }
+                else if (secondArray == null)
+                {
+                    return true;
+                }
+                else
+                {
+                    var firstArrayLength = firstArray.Length;
+                    var secondArrayLength = secondArray.Length;
+                    if (firstArrayLength == secondArrayLength)
+                    {
+                        if (first.sign == second.sign)
+                        {
+                            for (int i = 0; i < firstArrayLength; ++i)
+                            {
+                                if (firstArray[i] == secondArray[i])
+                                {
+                                    return false;
+                                }
+                            }
+
+                            return true;
+                        }
+                        else
+                        {
+                            return true;
+                        }
+                    }
+                    else
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Sobrecarrega o operador de menor.
+        /// </summary>
+        /// <param name="first">O primeiro argumento do operador.</param>
+        /// <param name="second">O segundo argumento do operador.</param>
+        /// <returns>Verdadeiro caso o primeiro argumento seja menor que o segundo e falso caso contrário.</returns>
+        public static bool operator <(UlongArrayBigInt first, UlongArrayBigInt second)
+        {
+            if (first.array == null && second.array == null)
+            {
+                return false;
+            }
+            else if (!(first.sign || second.sign))
+            {
+                var firstArray = first.array;
+                var secondArray = second.array;
+                if (firstArray == null)
+                {
+                    return true;
+                }
+                else if (secondArray == null)
+                {
+                    return false;
+                }
+                else
+                {
+                    var firstArrayLength = firstArray.Length;
+                    var secondArrayLength = secondArray.Length;
+                    if (firstArrayLength < secondArrayLength)
+                    {
+                        return true;
+                    }
+                    else if (firstArrayLength == secondArrayLength)
+                    {
+                        if (firstArrayLength == 0)
+                        {
+                            return false;
+                        }
+                        else
+                        {
+                            --firstArrayLength;
+                            return firstArray[firstArrayLength] < secondArray[firstArrayLength];
+                        }
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            }
+            else if (first.sign && second.sign)
+            {
+                var firstArray = first.array;
+                var secondArray = second.array;
+                if (firstArray == null)
+                {
+                    return false;
+                }
+                else if (secondArray == null)
+                {
+                    return true;
+                }
+                else
+                {
+                    var firstArrayLength = firstArray.Length;
+                    var secondArrayLength = secondArray.Length;
+                    if (firstArrayLength < secondArrayLength)
+                    {
+                        return false;
+                    }
+                    else if (firstArrayLength == secondArrayLength)
+                    {
+                        if (firstArrayLength == 0)
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            --firstArrayLength;
+                            return firstArray[firstArrayLength] < secondArray[firstArrayLength];
+                        }
+                    }
+                    else
+                    {
+                        return true;
+                    }
+                }
+            }
+            else if (first.sign)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Sobrecarrega o operador de maior.
+        /// </summary>
+        /// <param name="first">O primeiro argumento do operador.</param>
+        /// <param name="second">O segundo argumento do operador.</param>
+        /// <returns>Verdadeiro caso o primeiro argumento seja menor que o segundo e falso caso contrário.</returns>
+        public static bool operator >(UlongArrayBigInt first, UlongArrayBigInt second)
+        {
+            if (first.array == null && second.array == null)
+            {
+                return false;
+            }
+            else if (!(first.sign || second.sign))
+            {
+                var firstArray = first.array;
+                var secondArray = second.array;
+                if (firstArray == null)
+                {
+                    return false;
+                }
+                else if (secondArray == null)
+                {
+                    return true;
+                }
+                else
+                {
+                    var firstArrayLength = firstArray.Length;
+                    var secondArrayLength = secondArray.Length;
+                    if (firstArrayLength > secondArrayLength)
+                    {
+                        return true;
+                    }
+                    else if (firstArrayLength == secondArrayLength)
+                    {
+                        --firstArrayLength;
+                        return firstArray[firstArrayLength] > secondArray[firstArrayLength];
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            }
+            else if (first.sign && second.sign)
+            {
+                var firstArray = first.array;
+                var secondArray = second.array;
+                if (firstArray == null)
+                {
+                    return true;
+                }
+                else if (secondArray == null)
+                {
+                    return false;
+                }
+                else
+                {
+                    var firstArrayLength = firstArray.Length;
+                    var secondArrayLength = secondArray.Length;
+                    if (firstArrayLength > secondArrayLength)
+                    {
+                        return false;
+                    }
+                    else if (firstArrayLength == secondArrayLength)
+                    {
+                        --firstArrayLength;
+                        return firstArray[firstArrayLength] > secondArray[firstArrayLength];
+                    }
+                    else
+                    {
+                        return true;
+                    }
+                }
+            }
+            else if (first.sign)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
         }
 
         #endregion Sobrecarga de operadores
 
         #region Funções estáticas
 
+        /// <summary>
+        /// Tenta realizar a leitura de um número inteiro enorme a partir da sua representação texual caso
+        /// esta seja uma representação correcta.
+        /// </summary>
+        /// <param name="text">A representação textual do número.</param>
+        /// <param name="value">Recebe o valor lido em caso de sucesso.</param>
+        /// <returns>Verdadeiro caso a função seja bem-sucedida e falso caso contrário.</returns>
         public static bool TryParse(string text, out UlongArrayBigInt value)
         {
             if (text == null)
@@ -275,7 +616,12 @@
 
                     // Trata os valores
                     innerText = match.Groups[3].Value;
-                    if (!string.IsNullOrEmpty(innerText))
+                    if (innerText == "0")
+                    {
+                        value = new UlongArrayBigInt();
+                        return true;
+                    }
+                    else
                     {
                         var currentRes = DivideByBase(innerText);
 
@@ -296,10 +642,10 @@
                                 AppendUlong(readed, currentRes.Item2, alignement);
                             }
                         }
-                    }
 
-                    value = new UlongArrayBigInt(sign, readed.ToArray());
-                    return true;
+                        value = new UlongArrayBigInt(sign, readed.ToArray());
+                        return true;
+                    }
                 }
                 else
                 {
@@ -380,6 +726,8 @@
                 }
             }
         }
+
+        #region Funções privadas
 
         /// <summary>
         /// Função auxiliar que permite escrever a representação textual de um número representado em notação
@@ -491,6 +839,8 @@
             }
         }
 
+        #endregion Funções privadas
+
         #region Funções estáticas privadas
 
         /// <summary>
@@ -573,6 +923,144 @@
 
                 return Tuple.Create(result, currentValue);
             }
+        }
+
+        /// <summary>
+        /// Permite adicionar dois números longos sem sinal, determinando o transporte caso esta soma exceda
+        /// o tamano da variável.
+        /// </summary>
+        /// <remarks>
+        /// É importante notar que, numa soma, o valor do transporte é sempre unitário.
+        /// </remarks>
+        /// <param name="first">O primeiro número a ser adicionado.</param>
+        /// <param name="second">O segundo número a ser adicionado.</param>
+        /// <returns>O par transporte/valor da soma.</returns>
+        private static Tuple<bool, ulong> Add(ulong first, ulong second)
+        {
+            return Tuple.Create((~first | 1) < second, first + second);
+        }
+
+        /// <summary>
+        /// Permite determinar a soma de dois números inteiros enormes com base na sua representação.
+        /// </summary>
+        /// <param name="first">A representação do primeiro inteiro enorme.</param>
+        /// <param name="second">A representação do segundo inteiro enorme.</param>
+        /// <returns>O resultado da soma.</returns>
+        private static ulong[] SequentialAdd(ulong[] first, ulong[] second)
+        {
+            if (first == null && second == null)
+            {
+                return null;
+            }
+            else if (first == null)
+            {
+                var length = second.Length;
+                var result = new ulong[length];
+                Array.Copy(second, result, length);
+                return result;
+            }
+            else if (second == null)
+            {
+                var length = first.Length;
+                var result = new ulong[length];
+                Array.Copy(first, result, length);
+                return result;
+            }
+            else
+            {
+                var innerFirst = first;
+                var innerSecond = second;
+
+                var firstLength = first.Length;
+                var secondLength = second.Length;
+                if (secondLength < firstLength)
+                {
+                    innerFirst = second;
+                    innerSecond = first;
+
+                    // Troca os valores dos comprimentos com base no algoritmo do "ou exclusivo"
+                    firstLength ^= secondLength;
+                    secondLength ^= firstLength;
+                    firstLength ^= secondLength;
+                }
+
+                // Efectua a adição dos vectores inciais
+                var partialResult = new ulong[secondLength];
+                var carry = false;
+                for (int i = 0; i < firstLength; ++i)
+                {
+                    var sum = Add(innerFirst[i], innerSecond[i]);
+                    if (carry)
+                    {
+                        if (sum.Item2 == 0xFFFFFFFFFFFFFFFF)
+                        {
+                            partialResult[i] = 0;
+                            carry = true;
+                        }
+                        else
+                        {
+                            partialResult[i] = sum.Item2 + 1;
+                            carry = sum.Item1;
+                        }
+                    }
+                    else
+                    {
+                        partialResult[i] = sum.Item2;
+                        carry = sum.Item1;
+                    }
+                }
+
+                if (carry)
+                {
+                    // Verifica se existe algum valor diferente do máximo
+                    var found = -1;
+                    for (int i = firstLength; i < secondLength; ++i)
+                    {
+                        if (innerSecond[i] != 0xFFFFFFFFFFFFFFFF)
+                        {
+                            found = i;
+                            i = secondLength;
+                        }
+                    }
+
+                    if (found < 0)
+                    {
+                        var result = new ulong[secondLength + 1];
+                        Array.Copy(partialResult, result, firstLength);
+                        result[secondLength] = 1;
+                        --secondLength;
+                        for (; secondLength >= firstLength; --secondLength)
+                        {
+                            result[secondLength] = 0;
+                        }
+
+                        return result;
+                    }
+                    else
+                    {
+                        var result = new ulong[secondLength];
+                        Array.Copy(partialResult, result, firstLength);
+                        for (int i = firstLength; i < found; ++i)
+                        {
+                            result[i] = 0;
+                        }
+
+                        ++result[found++];
+                        Array.Copy(innerSecond, found, result, found, secondLength - found);
+                    }
+                }
+                else
+                {
+                    var result = new ulong[secondLength];
+                    Array.Copy(partialResult, result, firstLength);
+
+                    // Copia os restantes elementos
+                    Array.Copy(second, firstLength, result, firstLength, secondLength - firstLength);
+                    return result;
+                }
+            }
+
+            throw new NotImplementedException();
         }
 
         #endregion Funções estáticas privadas

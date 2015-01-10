@@ -82,5 +82,75 @@
                 Assert.IsFalse(status);
             }
         }
+
+        #region Testes à sobrecarga de operadores para a classe UlongArrayBigInt
+
+        /// <summary>
+        /// Teste ao operador de igualdade entre números inteiro enormes.
+        /// </summary>
+        [Description("Testa a validade da sobrecarga do operador de igualdade entre números inteiro enormes.")]
+        [TestMethod]
+        public void UlongArrayBigInt_TestEqualityOperator()
+        {
+            var firstTexts = new[] { "0", "123", "1234567890123456789012345", "1", "0", "-1111" };
+            var secondTexts = new[] { "-0", "-123", "1234567890123456789012345", "1", "1234567890123456789012345", "-1111" };
+            var expected = new[] { true, false, true, true, false, true };
+            for (int i = 0; i < expected.Length; ++i)
+            {
+                var firstTarget = default(UlongArrayBigInt);
+                if (UlongArrayBigInt.TryParse(firstTexts[i], out firstTarget))
+                {
+                    var secondTarget = default(UlongArrayBigInt);
+                    if (UlongArrayBigInt.TryParse(secondTexts[i], out secondTarget))
+                    {
+                        var actual = firstTarget == secondTarget;
+                        Assert.AreEqual(expected[i], actual);
+                    }
+                    else
+                    {
+                        Assert.Fail("Um problema ocorreu durante a leitura dos números.");
+                    }
+                }
+                else
+                {
+                    Assert.Fail("Um problema ocorreu durante a leitura dos números.");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Teste ao operador de igualdade entre números inteiro enormes.
+        /// </summary>
+        [Description("Testa a validade da sobrecarga do operador de igualdade entre números inteiro enormes.")]
+        [TestMethod]
+        public void UlongArrayBigInt_TestLessOperator()
+        {
+            var firstTexts = new[] { "0", "123", "999999999999999999", "1", "0", "-1112", "-1" };
+            var secondTexts = new[] { "-0", "-123", "1111999999999999999999", "1", "1234567890123456789012345", "-1111", "0" };
+            var expected = new[] { false, false, true, false, true, false, true };
+            for (int i = 0; i < expected.Length; ++i)
+            {
+                var firstTarget = default(UlongArrayBigInt);
+                if (UlongArrayBigInt.TryParse(firstTexts[i], out firstTarget))
+                {
+                    var secondTarget = default(UlongArrayBigInt);
+                    if (UlongArrayBigInt.TryParse(secondTexts[i], out secondTarget))
+                    {
+                        var actual = firstTarget < secondTarget;
+                        Assert.AreEqual(expected[i], actual);
+                    }
+                    else
+                    {
+                        Assert.Fail("Um problema ocorreu durante a leitura dos números.");
+                    }
+                }
+                else
+                {
+                    Assert.Fail("Um problema ocorreu durante a leitura dos números.");
+                }
+            }
+        }
+
+        #endregion Testes à sobrecarga de operadores para a classe UlongArrayBigInt
     }
 }
