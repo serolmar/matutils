@@ -1,12 +1,15 @@
 ﻿namespace Mathematics
 {
     using System;
+    using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
     using System.Numerics;
     using System.Text;
     using System.Text.RegularExpressions;
+    using System.Threading.Tasks;
     using Mathematics;
+    using Utilities.Collections;
 
     /// <summary>
     /// Representa um número inteiro grande como sendo um vector de inteiros longos
@@ -583,7 +586,7 @@
 
         #endregion Sobrecarga de operadores
 
-        #region Funções estáticas
+        #region Funções estáticas públicas
 
         /// <summary>
         /// Tenta realizar a leitura de um número inteiro enorme a partir da sua representação texual caso
@@ -655,7 +658,44 @@
             }
         }
 
-        #endregion
+        #endregion Funções estáticas públicas
+
+        /// <summary>
+        /// Determina se o objecto proporcionado é igual ao corrente.
+        /// </summary>
+        /// <param name="obj">O objecto a ser comparado.</param>
+        /// <returns>Verdadeiro caso ambos os objectos sejam iguais e falso caso contrário.</returns>
+        public override bool Equals(object obj)
+        {
+            if (obj is UlongArrayBigInt)
+            {
+                return this == (UlongArrayBigInt)obj;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Determina um código confuso para o número enorme.
+        /// </summary>
+        /// <returns>O código confuso.</returns>
+        public override int GetHashCode()
+        {
+            var result = typeof(UlongArrayBigInt).GetHashCode();
+            if (this.array != null)
+            {
+                result ^= this.sign.GetHashCode();
+                var length = this.array.Length;
+                for (int i = 0; i < length; ++i)
+                {
+                    result ^= (19 * this.array[i] + 17u).GetHashCode();
+                }
+            }
+
+            return result;
+        }
 
         /// <summary>
         /// Obtém uma representação textual do número.
@@ -1047,6 +1087,7 @@
 
                         ++result[found++];
                         Array.Copy(innerSecond, found, result, found, secondLength - found);
+                        return result;
                     }
                 }
                 else
@@ -1059,8 +1100,201 @@
                     return result;
                 }
             }
+        }
 
-            throw new NotImplementedException();
+        /// <summary>
+        /// Permite determinar a soma de dois inteiros enormes recorrendo a vários núcleos de processamento com base
+        /// no método CLA (propagação e transporte).
+        /// </summary>
+        /// <remarks>
+        /// A alternativa mais conhecida ao método do CLA consiste no ELM. O algoritmo CLA tira partido do facto de que,
+        /// após uma soma de células individuais, nunca se dá a possibilidade de uma marca de transporte e de propagação
+        /// em simultâneo.
+        /// </remarks>
+        /// <param name="first">O primeiro número a ser adicioinado.</param>
+        /// <param name="second">O segundo número a ser adicionado.</param>
+        /// <returns></returns>
+        private static ulong[] ParallelClaAdd(ulong[] first, ulong[] second)
+        {
+            if (first == null && second == null)
+            {
+                return null;
+            }
+            else if (first == null)
+            {
+                var length = second.Length;
+                var result = new ulong[length];
+                Array.Copy(second, result, length);
+                return result;
+            }
+            else if (second == null)
+            {
+                var length = first.Length;
+                var result = new ulong[length];
+                Array.Copy(first, result, length);
+                return result;
+            }
+            else
+            {
+                var innerFirst = first;
+                var innerSecond = second;
+
+                var firstLength = first.Length;
+                var secondLength = second.Length;
+                if (secondLength < firstLength)
+                {
+                    innerFirst = second;
+                    innerSecond = first;
+
+                    // Troca os valores dos comprimentos com base no algoritmo do "ou exclusivo"
+                    firstLength ^= secondLength;
+                    secondLength ^= firstLength;
+                    firstLength ^= secondLength;
+                }
+
+                // O vector de "bits" que marca as posições dos transportes
+                var carries = new BitArray(firstLength);
+
+                // O vector de "bits" que marca a posição das propagações
+                var propagations = new BitArray(firstLength);
+
+                // Determina a soma dos primeiros blocos
+                var partialResult = new ulong[firstLength];
+                Parallel.For(0, firstLength, i =>
+                {
+                    var additionResult = Add(innerFirst[i], innerSecond[i]);
+                    if (additionResult.Item1)
+                    {
+                        carries[i] = true;
+                    }
+
+                    if (additionResult.Item2 == 0xFFFFFFFFFFFFFFFF)
+                    {
+                        propagations[i] = true;
+                    }
+
+                    partialResult[i] = additionResult.Item2;
+                });
+
+                // Aplica os transportes tendo em conta as propagações.
+                Parallel.For(0, firstLength, i =>
+                {
+                    if (propagations[i])
+                    {
+                        for (int j = i - 1; j > -1; ++j)
+                        {
+                            // Caso alguma propagação já tenha sido avaliada, o transporte resultante pode ser utilizado
+                            if (carries[j])
+                            {
+                                partialResult[i] = 0;
+                                carries[i] = true;
+                                j = -1;
+                            }
+                            else if (!propagations[j])
+                            {
+                                j = -1;
+                            }
+                        }
+                    }
+                    else if (carries[i])
+                    {
+                        ++partialResult[i];
+                    }
+                });
+
+                if (carries[firstLength - 1])
+                {
+                    var propagationsList = new BitList(secondLength - firstLength, false);
+                    Parallel.For(firstLength, secondLength, i =>
+                    {
+                        if (innerSecond[i] == 0xFFFFFFFFFFFFFFFF)
+                        {
+                            propagationsList[i - firstLength] = 1;
+                        }
+                    });
+
+                    var foundIndex = propagationsList.IndexOf(0);
+                    if (foundIndex < 0)
+                    {
+                        var result = new ulong[secondLength + 1];
+                        result[secondLength] = 1u;
+                        var firstTask = new Task(() =>
+                        {
+                            Parallel.For(0, firstLength, i =>
+                            {
+                                result[i] = partialResult[i];
+                            });
+                        });
+
+                        var secondTask = new Task(() =>
+                        {
+                            Parallel.For(firstLength, secondLength, i =>
+                            {
+                                result[i] = 0u;
+                            });
+                        });
+
+                        Task.WaitAll(new[] { firstTask, secondTask });
+                        return result;
+                    }
+                    else
+                    {
+                        foundIndex += firstLength;
+                        var result = new ulong[secondLength];
+                        var firstTask = new Task(() =>
+                        {
+                            Parallel.For(0, firstLength, i =>
+                            {
+                                result[i] = partialResult[i];
+                            });
+                        });
+
+                        var secondTask = new Task(() =>
+                        {
+                            Parallel.For(firstLength, foundIndex, i =>
+                            {
+                                result[i] = 0u;
+                            });
+                        });
+
+                        result[foundIndex] = innerSecond[foundIndex] + 1;
+
+                        var thirdTask = new Task(() =>
+                        {
+                            Parallel.For(foundIndex + 1, secondLength, i =>
+                            {
+                                result[i] = 0u;
+                            });
+                        });
+
+                        Task.WaitAll(new[] { firstTask, secondTask, thirdTask });
+                        return result;
+                    }
+                }
+                else
+                {
+                    // Não há transportes nesta fase
+                    var result = new ulong[secondLength];
+                    var firstTask = new Task(() =>
+                    {
+                        Parallel.For(0, firstLength, i =>
+                        {
+                            result[i] = partialResult[i];
+                        });
+                    });
+
+                    var secondTask = new Task(() =>
+                    {
+                        Parallel.For(firstLength, secondLength, i =>
+                        {
+                            result[i] = innerSecond[i];
+                        });
+                    });
+
+                    Task.WaitAll(new[] { firstTask, secondTask });
+                    return result;
+                }
+            }
         }
 
         #endregion Funções estáticas privadas
