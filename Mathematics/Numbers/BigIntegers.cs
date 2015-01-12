@@ -237,7 +237,7 @@
         /// <returns>O resultado da soma.</returns>
         public static UlongArrayBigInt operator +(UlongArrayBigInt first, UlongArrayBigInt second)
         {
-            throw new NotImplementedException();
+            return SequentialAdd(first, second);
         }
 
         /// <summary>
@@ -259,7 +259,7 @@
         /// <returns>O resultado da subtracção.</returns>
         public static UlongArrayBigInt operator -(UlongArrayBigInt first, UlongArrayBigInt second)
         {
-            throw new NotImplementedException();
+            return SequentialSubtract(first, second);
         }
 
         /// <summary>
@@ -443,7 +443,15 @@
                         else
                         {
                             --firstArrayLength;
-                            return firstArray[firstArrayLength] < secondArray[firstArrayLength];
+                            for (; firstArrayLength > -1; --firstArrayLength)
+                            {
+                                if (firstArray[firstArrayLength] < secondArray[firstArrayLength])
+                                {
+                                    return true;
+                                }
+                            }
+
+                            return false;
                         }
                     }
                     else
@@ -481,7 +489,15 @@
                         else
                         {
                             --firstArrayLength;
-                            return firstArray[firstArrayLength] < secondArray[firstArrayLength];
+                            for (; firstArrayLength > -1; --firstArrayLength)
+                            {
+                                if (firstArray[firstArrayLength] < secondArray[firstArrayLength])
+                                {
+                                    return true;
+                                }
+                            }
+
+                            return false;
                         }
                     }
                     else
@@ -535,7 +551,15 @@
                     else if (firstArrayLength == secondArrayLength)
                     {
                         --firstArrayLength;
-                        return firstArray[firstArrayLength] > secondArray[firstArrayLength];
+                        for (; firstArrayLength > -1; --firstArrayLength)
+                        {
+                            if (firstArray[firstArrayLength] > secondArray[firstArrayLength])
+                            {
+                                return true;
+                            }
+                        }
+
+                        return false;
                     }
                     else
                     {
@@ -566,7 +590,15 @@
                     else if (firstArrayLength == secondArrayLength)
                     {
                         --firstArrayLength;
-                        return firstArray[firstArrayLength] > secondArray[firstArrayLength];
+                        for (; firstArrayLength > -1; --firstArrayLength)
+                        {
+                            if (firstArray[firstArrayLength] > secondArray[firstArrayLength])
+                            {
+                                return true;
+                            }
+                        }
+
+                        return false;
                     }
                     else
                     {
@@ -646,7 +678,9 @@
                             }
                         }
 
-                        value = new UlongArrayBigInt(sign, readed.ToArray());
+                        value = new UlongArrayBigInt();
+                        value.sign = sign;
+                        value.array = readed.ToArray();
                         return true;
                     }
                 }
@@ -654,6 +688,740 @@
                 {
                     value = default(UlongArrayBigInt);
                     return false;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Determina a soma de dois números enormes utilizando o algoritmo sequencial habitual.
+        /// </summary>
+        /// <param name="first">O primeiro número a ser adicionado.</param>
+        /// <param name="second">O segundo número a ser adicionado.</param>
+        /// <returns>O resultado da soma.</returns>
+        public static UlongArrayBigInt SequentialAdd(UlongArrayBigInt first, UlongArrayBigInt second)
+        {
+            if (first.sign && second.sign)
+            {
+                var result = new UlongArrayBigInt();
+                result.sign = true;
+                result.array = SequentialAdd(first.array, second.array);
+                return result;
+            }
+            else if (first.sign)
+            {
+                var firstLength = first.array.Length;
+                if (second.array == null)
+                {
+                    var result = new UlongArrayBigInt();
+                    result.sign = true;
+                    result.array = new ulong[firstLength];
+                    Array.Copy(first.array, result.array, firstLength);
+                    return result;
+                }
+                else
+                {
+                    var secondLength = second.array.Length;
+                    if (firstLength < secondLength)
+                    {
+                        var result = new UlongArrayBigInt();
+                        result.sign = false;
+                        result.array = SequentialSubtract(second.array, first.array);
+                        return result;
+                    }
+                    else if (firstLength == secondLength)
+                    {
+                        var last = firstLength - 1;
+                        var compare = 0;
+                        for (int i = last; i > -1; --i)
+                        {
+                            var firstCurrent = first.array[i];
+                            var secondCurrent = second.array[i];
+                            if (firstCurrent < secondCurrent)
+                            {
+                                compare = -1;
+                                i = -1;
+                            }
+                            else if (firstCurrent > secondCurrent)
+                            {
+                                compare = 1;
+                                i = -1;
+                            }
+                        }
+
+                        // A comparação encontra-se realizada neste ponto
+                        if (compare < 0)
+                        {
+                            var result = new UlongArrayBigInt();
+                            result.sign = false;
+                            result.array = SequentialSubtract(second.array, first.array);
+                            return result;
+                        }
+                        else if (compare > 0)
+                        {
+                            return new UlongArrayBigInt();
+                        }
+                        else
+                        {
+                            var result = new UlongArrayBigInt();
+                            result.sign = true;
+                            result.array = SequentialSubtract(first.array, second.array);
+                            return result;
+                        }
+                    }
+                    else
+                    {
+                        var result = new UlongArrayBigInt();
+                        result.sign = true;
+                        result.array = SequentialSubtract(first.array, second.array);
+                        return result;
+                    }
+                }
+            }
+            else if (second.sign)
+            {
+                var secondLength = second.array.Length;
+                if (first.array == null)
+                {
+                    var result = new UlongArrayBigInt();
+                    result.sign = true;
+                    result.array = new ulong[secondLength];
+                    Array.Copy(second.array, result.array, secondLength);
+                    return result;
+                }
+                else
+                {
+                    var firstLength = first.array.Length;
+                    if (firstLength < secondLength)
+                    {
+                        var result = new UlongArrayBigInt();
+                        result.sign = true;
+                        result.array = SequentialSubtract(second.array, first.array);
+                        return result;
+                    }
+                    else if (firstLength == secondLength)
+                    {
+                        var last = firstLength - 1;
+                        var compare = 0;
+                        for (int i = last; i > -1; --i)
+                        {
+                            var firstCurrent = first.array[i];
+                            var secondCurrent = second.array[i];
+                            if (firstCurrent < secondCurrent)
+                            {
+                                compare = -1;
+                                i = -1;
+                            }
+                            else if (firstCurrent > secondCurrent)
+                            {
+                                compare = 1;
+                                i = -1;
+                            }
+                        }
+
+                        // A comparação encontra-se realizada neste ponto
+                        if (compare < 0)
+                        {
+                            var result = new UlongArrayBigInt();
+                            result.sign = true;
+                            result.array = SequentialSubtract(second.array, first.array);
+                            return result;
+                        }
+                        else if (compare > 0)
+                        {
+                            return new UlongArrayBigInt();
+                        }
+                        else
+                        {
+                            var result = new UlongArrayBigInt();
+                            result.sign = false;
+                            result.array = SequentialSubtract(first.array, second.array);
+                            return result;
+                        }
+                    }
+                    else
+                    {
+                        var result = new UlongArrayBigInt();
+                        result.sign = false;
+                        result.array = SequentialSubtract(first.array, second.array);
+                        return result;
+                    }
+                }
+            }
+            else
+            {
+                var result = new UlongArrayBigInt();
+                result.sign = false;
+                result.array = SequentialAdd(first.array, second.array);
+                return result;
+            }
+        }
+
+        /// <summary>
+        /// Determina a soma de dois números, aplicando o algoritmo paralelo CLA (transporte e propagação).
+        /// </summary>
+        /// <param name="first">O primeiro número a ser adicionado.</param>
+        /// <param name="second">O segundo número a ser adicionado.</param>
+        /// <returns>O resultado da soma.</returns>
+        public static UlongArrayBigInt ParallelClaAdd(UlongArrayBigInt first, UlongArrayBigInt second)
+        {
+            if (first.sign && second.sign)
+            {
+                var result = new UlongArrayBigInt();
+                result.sign = true;
+                result.array = ParallelClaAdd(first.array, second.array);
+                return result;
+            }
+            else if (first.sign)
+            {
+                var firstLength = first.array.Length;
+                if (second.array == null)
+                {
+                    var result = new UlongArrayBigInt();
+                    result.sign = true;
+                    result.array = new ulong[firstLength];
+                    Parallel.For(0, firstLength, i =>
+                    {
+                        result.array[i] = first.array[i];
+                    });
+
+                    return result;
+                }
+                else
+                {
+                    var secondLength = second.array.Length;
+                    if (firstLength < secondLength)
+                    {
+                        var result = new UlongArrayBigInt();
+                        result.sign = false;
+                        result.array = ParallelClaSubtract(second.array, first.array);
+                        return result;
+                    }
+                    else if (firstLength == secondLength)
+                    {
+                        var last = firstLength - 1;
+                        var compare = 0;
+                        for (int i = last; i > -1; --i)
+                        {
+                            var firstCurrent = first.array[i];
+                            var secondCurrent = second.array[i];
+                            if (firstCurrent < secondCurrent)
+                            {
+                                compare = -1;
+                                i = -1;
+                            }
+                            else if (firstCurrent > secondCurrent)
+                            {
+                                compare = 1;
+                                i = -1;
+                            }
+                        }
+
+                        // A comparação encontra-se realizada neste ponto
+                        if (compare < 0)
+                        {
+                            var result = new UlongArrayBigInt();
+                            result.sign = false;
+                            result.array = ParallelClaSubtract(second.array, first.array);
+                            return result;
+                        }
+                        else if (compare > 0)
+                        {
+                            return new UlongArrayBigInt();
+                        }
+                        else
+                        {
+                            var result = new UlongArrayBigInt();
+                            result.sign = true;
+                            result.array = ParallelClaSubtract(first.array, second.array);
+                            return result;
+                        }
+                    }
+                    else
+                    {
+                        var result = new UlongArrayBigInt();
+                        result.sign = true;
+                        result.array = ParallelClaSubtract(first.array, second.array);
+                        return result;
+                    }
+                }
+            }
+            else if (second.sign)
+            {
+                var secondLength = second.array.Length;
+                if (first.array == null)
+                {
+                    var result = new UlongArrayBigInt();
+                    result.sign = true;
+                    result.array = new ulong[secondLength];
+                    Parallel.For(0, secondLength, i =>
+                    {
+                        result.array[i] = first.array[i];
+                    });
+
+                    return result;
+                }
+                else
+                {
+                    var firstLength = first.array.Length;
+                    if (firstLength < secondLength)
+                    {
+                        var result = new UlongArrayBigInt();
+                        result.sign = true;
+                        result.array = ParallelClaSubtract(second.array, first.array);
+                        return result;
+                    }
+                    else if (firstLength == secondLength)
+                    {
+                        var last = firstLength - 1;
+                        var compare = 0;
+                        for (int i = last; i > -1; --i)
+                        {
+                            var firstCurrent = first.array[i];
+                            var secondCurrent = second.array[i];
+                            if (firstCurrent < secondCurrent)
+                            {
+                                compare = -1;
+                                i = -1;
+                            }
+                            else if (firstCurrent > secondCurrent)
+                            {
+                                compare = 1;
+                                i = -1;
+                            }
+                        }
+
+                        // A comparação encontra-se realizada neste ponto
+                        if (compare < 0)
+                        {
+                            var result = new UlongArrayBigInt();
+                            result.sign = true;
+                            result.array = ParallelClaSubtract(second.array, first.array);
+                            return result;
+                        }
+                        else if (compare > 0)
+                        {
+                            return new UlongArrayBigInt();
+                        }
+                        else
+                        {
+                            var result = new UlongArrayBigInt();
+                            result.sign = false;
+                            result.array = ParallelClaSubtract(first.array, second.array);
+                            return result;
+                        }
+                    }
+                    else
+                    {
+                        var result = new UlongArrayBigInt();
+                        result.sign = false;
+                        result.array = ParallelClaSubtract(first.array, second.array);
+                        return result;
+                    }
+                }
+            }
+            else
+            {
+                var result = new UlongArrayBigInt();
+                result.sign = false;
+                result.array = ParallelClaAdd(first.array, second.array);
+                return result;
+            }
+        }
+
+        /// <summary>
+        /// Determina a diferença entre dois números.
+        /// </summary>
+        /// <param name="first">O minuendo.</param>
+        /// <param name="second">O subtraendo.</param>
+        /// <returns>A diferença.</returns>
+        public static UlongArrayBigInt SequentialSubtract(UlongArrayBigInt first, UlongArrayBigInt second)
+        {
+            if (first.sign && second.sign)
+            {
+                var firstLength = first.array.Length;
+                var secondLength = second.array.Length;
+                if (firstLength < secondLength)
+                {
+                    var result = new UlongArrayBigInt();
+                    result.sign = false;
+                    result.array = SequentialSubtract(second.array, first.array);
+                    return result;
+                }
+                else if (firstLength == secondLength)
+                {
+                    var last = firstLength - 1;
+                    var compare = 0;
+                    for (int i = last; i > -1; --i)
+                    {
+                        var firstCurrent = first.array[i];
+                        var secondCurrent = second.array[i];
+                        if (firstCurrent < secondCurrent)
+                        {
+                            compare = -1;
+                            i = -1;
+                        }
+                        else if (firstCurrent > secondCurrent)
+                        {
+                            compare = 1;
+                            i = -1;
+                        }
+                    }
+
+                    // A comparação encontra-se realizada neste ponto
+                    if (compare < 0)
+                    {
+                        var result = new UlongArrayBigInt();
+                        result.sign = false;
+                        result.array = SequentialSubtract(second.array, first.array);
+                        return result;
+                    }
+                    else if (compare == 0)
+                    {
+                        return new UlongArrayBigInt();
+                    }
+                    else
+                    {
+                        var result = new UlongArrayBigInt();
+                        result.sign = true;
+                        result.array = SequentialSubtract(first.array, second.array);
+                        return result;
+                    }
+                }
+                else
+                {
+                    var result = new UlongArrayBigInt();
+                    result.sign = true;
+                    result.array = SequentialSubtract(first.array, second.array);
+                    return result;
+                }
+            }
+            else if (first.sign)
+            {
+                if (second.array == null)
+                {
+                    var result = new UlongArrayBigInt();
+                    result.sign = true;
+                    var length = first.array.Length;
+                    result.array = new ulong[length];
+                    Array.Copy(first.array, result.array, length);
+                    return result;
+                }
+                else
+                {
+                    var result = new UlongArrayBigInt();
+                    result.sign = true;
+                    result.array = SequentialAdd(first.array, second.array);
+                    return result;
+                }
+            }
+            else if (second.sign)
+            {
+                if (first.array == null)
+                {
+                    var result = new UlongArrayBigInt();
+                    result.sign = false;
+                    var length = second.array.Length;
+                    result.array = new ulong[length];
+                    Array.Copy(second.array, result.array, length);
+                    return result;
+                }
+                else
+                {
+                    var result = new UlongArrayBigInt();
+                    result.sign = false;
+                    result.array = SequentialAdd(first.array, second.array);
+                    return result;
+                }
+            }
+            else
+            {
+                if (first.array == null && second.array == null)
+                {
+                    return new UlongArrayBigInt();
+                }
+                else if (first.array == null)
+                {
+                    var result = new UlongArrayBigInt();
+                    result.sign = true;
+                    var length = second.array.Length;
+                    result.array = new ulong[length];
+                    Array.Copy(second.array, result.array, length);
+                    return result;
+                }
+                else if (second.array == null)
+                {
+                    var result = new UlongArrayBigInt();
+                    result.sign = true;
+                    var length = first.array.Length;
+                    result.array = new ulong[length];
+                    Array.Copy(first.array, result.array, length);
+                    return result;
+                }
+                else
+                {
+                    var firstLength = first.array.Length;
+                    var secondLength = second.array.Length;
+                    if (firstLength < secondLength)
+                    {
+                        var result = new UlongArrayBigInt();
+                        result.sign = true;
+                        result.array = SequentialSubtract(second.array, first.array);
+                        return result;
+                    }
+                    else if (firstLength == secondLength)
+                    {
+                        var last = firstLength - 1;
+                        var compare = 0;
+                        for (int i = last; i > -1; --i)
+                        {
+                            var firstCurrent = first.array[i];
+                            var secondCurrent = second.array[i];
+                            if (firstCurrent < secondCurrent)
+                            {
+                                compare = -1;
+                                i = -1;
+                            }
+                            else if (firstCurrent > secondCurrent)
+                            {
+                                compare = 1;
+                                i = -1;
+                            }
+                        }
+
+                        // A comparação encontra-se realizada neste ponto
+                        if (compare < 0)
+                        {
+                            var result = new UlongArrayBigInt();
+                            result.sign = true;
+                            result.array = SequentialSubtract(second.array, first.array);
+                            return result;
+                        }
+                        else if (compare == 0)
+                        {
+                            return new UlongArrayBigInt();
+                        }
+                        else
+                        {
+                            var result = new UlongArrayBigInt();
+                            result.sign = false;
+                            result.array = SequentialSubtract(first.array, second.array);
+                            return result;
+                        }
+                    }
+                    else
+                    {
+                        var result = new UlongArrayBigInt();
+                        result.sign = false;
+                        result.array = SequentialSubtract(first.array, second.array);
+                        return result;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Determina a diferença entre dois números, recorrendo ao algoritmo CLA.
+        /// </summary>
+        /// <param name="first">O minuendo.</param>
+        /// <param name="second">O subtraendo.</param>
+        /// <returns>A diferença.</returns>
+        public static UlongArrayBigInt ParallelClaSubtract(UlongArrayBigInt first, UlongArrayBigInt second)
+        {
+            if (first.sign && second.sign)
+            {
+                var firstLength = first.array.Length;
+                var secondLength = second.array.Length;
+                if (firstLength < secondLength)
+                {
+                    var result = new UlongArrayBigInt();
+                    result.sign = false;
+                    result.array = ParallelClaSubtract(second.array, first.array);
+                    return result;
+                }
+                else if (firstLength == secondLength)
+                {
+                    var last = firstLength - 1;
+                    var compare = 0;
+                    for (int i = last; i > -1; --i)
+                    {
+                        var firstCurrent = first.array[i];
+                        var secondCurrent = second.array[i];
+                        if (firstCurrent < secondCurrent)
+                        {
+                            compare = -1;
+                            i = -1;
+                        }
+                        else if (firstCurrent > secondCurrent)
+                        {
+                            compare = 1;
+                            i = -1;
+                        }
+                    }
+
+                    // A comparação encontra-se realizada neste ponto
+                    if (compare < 0)
+                    {
+                        var result = new UlongArrayBigInt();
+                        result.sign = false;
+                        result.array = ParallelClaSubtract(second.array, first.array);
+                        return result;
+                    }
+                    else if (compare == 0)
+                    {
+                        return new UlongArrayBigInt();
+                    }
+                    else
+                    {
+                        var result = new UlongArrayBigInt();
+                        result.sign = true;
+                        result.array = ParallelClaSubtract(first.array, second.array);
+                        return result;
+                    }
+                }
+                else
+                {
+                    var result = new UlongArrayBigInt();
+                    result.sign = true;
+                    result.array = ParallelClaSubtract(first.array, second.array);
+                    return result;
+                }
+            }
+            else if (first.sign)
+            {
+                if (second.array == null)
+                {
+                    var result = new UlongArrayBigInt();
+                    result.sign = true;
+                    var length = first.array.Length;
+                    result.array = new ulong[length];
+                    Parallel.For(0, length, i =>
+                    {
+                        result.array[i] = first.array[i];
+                    });
+
+                    return result;
+                }
+                else
+                {
+                    var result = new UlongArrayBigInt();
+                    result.sign = true;
+                    result.array = ParallelClaAdd(first.array, second.array);
+                    return result;
+                }
+            }
+            else if (second.sign)
+            {
+                if (first.array == null)
+                {
+                    var result = new UlongArrayBigInt();
+                    result.sign = false;
+                    var length = second.array.Length;
+                    result.array = new ulong[length];
+                    Parallel.For(0, length, i =>
+                    {
+                        result.array[i] = second.array[i];
+                    });
+
+                    return result;
+                }
+                else
+                {
+                    var result = new UlongArrayBigInt();
+                    result.sign = false;
+                    result.array = ParallelClaAdd(first.array, second.array);
+                    return result;
+                }
+            }
+            else
+            {
+                if (first.array == null && second.array == null)
+                {
+                    return new UlongArrayBigInt();
+                }
+                else if (first.array == null)
+                {
+                    var result = new UlongArrayBigInt();
+                    result.sign = true;
+                    var length = second.array.Length;
+                    result.array = new ulong[length];
+                    Parallel.For(0, length, i =>
+                    {
+                        result.array[i] = second.array[i];
+                    });
+
+                    return result;
+                }
+                else if (second.array == null)
+                {
+                    var result = new UlongArrayBigInt();
+                    result.sign = true;
+                    var length = first.array.Length;
+                    result.array = new ulong[length];
+                    Parallel.For(0, length, i =>
+                    {
+                        result.array[i] = first.array[i];
+                    });
+
+                    return result;
+                }
+                else
+                {
+                    var firstLength = first.array.Length;
+                    var secondLength = second.array.Length;
+                    if (firstLength < secondLength)
+                    {
+                        var result = new UlongArrayBigInt();
+                        result.sign = true;
+                        result.array = ParallelClaSubtract(second.array, first.array);
+                        return result;
+                    }
+                    else if (firstLength == secondLength)
+                    {
+                        var last = firstLength - 1;
+                        var compare = 0;
+                        for (int i = last; i > -1; --i)
+                        {
+                            var firstCurrent = first.array[i];
+                            var secondCurrent = second.array[i];
+                            if (firstCurrent < secondCurrent)
+                            {
+                                compare = -1;
+                                i = -1;
+                            }
+                            else if (firstCurrent > secondCurrent)
+                            {
+                                compare = 1;
+                                i = -1;
+                            }
+                        }
+
+                        // A comparação encontra-se realizada neste ponto
+                        if (compare < 0)
+                        {
+                            var result = new UlongArrayBigInt();
+                            result.sign = true;
+                            result.array = ParallelClaSubtract(second.array, first.array);
+                            return result;
+                        }
+                        else if (compare == 0)
+                        {
+                            return new UlongArrayBigInt();
+                        }
+                        else
+                        {
+                            var result = new UlongArrayBigInt();
+                            result.sign = false;
+                            result.array = ParallelClaSubtract(first.array, second.array);
+                            return result;
+                        }
+                    }
+                    else
+                    {
+                        var result = new UlongArrayBigInt();
+                        result.sign = false;
+                        result.array = ParallelClaSubtract(first.array, second.array);
+                        return result;
+                    }
                 }
             }
         }
@@ -1025,7 +1793,7 @@
                 }
 
                 // Efectua a adição dos vectores inciais
-                var partialResult = new ulong[secondLength];
+                var partialResult = new ulong[firstLength];
                 var carry = false;
                 for (int i = 0; i < firstLength; ++i)
                 {
@@ -1103,6 +1871,119 @@
         }
 
         /// <summary>
+        /// Determina a diferença entre dois números.
+        /// </summary>
+        /// <remarks>
+        /// Se o primeiro número for inferior ao segundo, então o resultado da diferença
+        /// poderá não corresponder ao esperado.
+        /// </remarks>
+        /// <param name="greatest">O maior número.</param>
+        /// <param name="smallest">O menor número.</param>
+        /// <returns>O resultado da diferença.</returns>
+        private static ulong[] SequentialSubtract(ulong[] greatest, ulong[] smallest)
+        {
+            if (smallest == null)
+            {
+                var length = greatest.Length;
+                var result = new ulong[length];
+                Array.Copy(greatest, result, length);
+                return result;
+            }
+            else
+            {
+                var greatestLength = greatest.Length;
+                var smallestLength = smallest.Length;
+
+                var partialResult = new ulong[greatestLength];
+                var carry = false;
+                var complement = ~smallest[0];
+                var sum = Add(greatest[0], complement);
+                complement = sum.Item2 + 1;
+                if (complement == 0)
+                {
+                    carry = true;
+                }
+                else
+                {
+                    carry = sum.Item1;
+                }
+
+                partialResult[0] = complement;
+                for (int i = 1; i < smallestLength; ++i)
+                {
+                    complement = ~smallest[i];
+                    sum = Add(greatest[i], complement);
+                    if (carry)
+                    {
+                        if (sum.Item2 == 0xFFFFFFFFFFFFFFFF)
+                        {
+                            partialResult[i] = 0;
+                            carry = true;
+                        }
+                        else
+                        {
+                            partialResult[i] = sum.Item2 + 1;
+                            carry = sum.Item1;
+                        }
+                    }
+                    else
+                    {
+                        partialResult[i] = sum.Item2;
+                        carry = sum.Item1;
+                    }
+                }
+
+                for (int i = smallestLength; i < greatestLength; ++i)
+                {
+                    sum = Add(greatest[i], 0xFFFFFFFFFFFFFFFF);
+                    if (carry)
+                    {
+                        if (sum.Item2 == 0xFFFFFFFFFFFFFFFF)
+                        {
+                            partialResult[i] = 0;
+                            carry = true;
+                        }
+                        else
+                        {
+                            partialResult[i] = sum.Item2 + 1;
+                            carry = sum.Item1;
+                        }
+                    }
+                    else
+                    {
+                        partialResult[i] = sum.Item2;
+                        carry = sum.Item1;
+                    }
+                }
+
+                // Mesmo em caso de transporte, este será ignorado e eliminados todas as variáveis iniciais nulas
+                var finalLength = greatestLength;
+                for (int i = greatestLength - 1; i > -1; --i)
+                {
+                    if (partialResult[i] == 0)
+                    {
+                        --finalLength;
+                    }
+                    else
+                    {
+                        i = -1;
+                    }
+                }
+
+                if (finalLength == 0)
+                {
+                    return null;
+                }
+                else
+                {
+                    var result = new ulong[finalLength];
+                    Array.Copy(partialResult, result, finalLength);
+                    return result;
+                }
+            }
+        }
+
+        /// <summary>
         /// Permite determinar a soma de dois inteiros enormes recorrendo a vários núcleos de processamento com base
         /// no método CLA (propagação e transporte).
         /// </summary>
@@ -1113,7 +1994,7 @@
         /// </remarks>
         /// <param name="first">O primeiro número a ser adicioinado.</param>
         /// <param name="second">O segundo número a ser adicionado.</param>
-        /// <returns></returns>
+        /// <returns>A soma.</returns>
         private static ulong[] ParallelClaAdd(ulong[] first, ulong[] second)
         {
             if (first == null && second == null)
@@ -1124,6 +2005,7 @@
             {
                 var length = second.Length;
                 var result = new ulong[length];
+
                 Array.Copy(second, result, length);
                 return result;
             }
@@ -1131,7 +2013,13 @@
             {
                 var length = first.Length;
                 var result = new ulong[length];
-                Array.Copy(first, result, length);
+
+                // A cópia é realizada em paralelo
+                Parallel.For(0, length, i =>
+                {
+                    result[i] = first[i];
+                });
+
                 return result;
             }
             else
@@ -1177,7 +2065,7 @@
                 });
 
                 // Aplica os transportes tendo em conta as propagações.
-                Parallel.For(0, firstLength, i =>
+                Parallel.For(1, firstLength, i =>
                 {
                     if (propagations[i])
                     {
@@ -1196,7 +2084,7 @@
                             }
                         }
                     }
-                    else if (carries[i])
+                    else if (carries[i - 1])
                     {
                         ++partialResult[i];
                     }
@@ -1267,6 +2155,9 @@
                             });
                         });
 
+                        firstTask.Start();
+                        secondTask.Start();
+                        thirdTask.Start();
                         Task.WaitAll(new[] { firstTask, secondTask, thirdTask });
                         return result;
                     }
@@ -1291,7 +2182,152 @@
                         });
                     });
 
+                    firstTask.Start();
+                    secondTask.Start();
                     Task.WaitAll(new[] { firstTask, secondTask });
+                    return result;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Obtém a diferença entre dois números de forma paralela, recorrendo ao método
+        /// CLA para somas de dois números.
+        /// </summary>
+        /// <param name="greatest">O maior dos números.</param>
+        /// <param name="smallest">O menor número a ser subtraído.</param>
+        /// <returns>A diferença.</returns>
+        private static ulong[] ParallelClaSubtract(ulong[] greatest, ulong[] smallest)
+        {
+            if (smallest == null)
+            {
+                var length = greatest.Length;
+                var result = new ulong[length];
+                Array.Copy(greatest, result, length);
+                return result;
+            }
+            else
+            {
+                var greatestLength = greatest.Length;
+                var smallestLength = smallest.Length;
+
+                // O vector de "bits" que marca as posições dos transportes
+                var carries = new BitArray(greatestLength);
+
+                // O vector de "bits" que marca a posição das propagações
+                var propagations = new BitArray(greatestLength);
+
+                // Determina a soma dos primeiros blocos
+                var partialResult = new ulong[greatestLength];
+                var complement = ~smallest[0];
+                var additionResult = Add(greatest[0], complement);
+                complement = additionResult.Item2 + 1;
+                if (complement == 0)
+                {
+                    carries[0] = true;
+                }
+                else
+                {
+                    carries[0] = additionResult.Item1;
+                }
+
+                partialResult[0] = complement;
+                var firstTask = new Task(() =>
+                {
+                    Parallel.For(1, smallestLength, i =>
+                    {
+                        complement = ~smallest[i];
+                        var innerAdditionResult = Add(greatest[i], complement);
+                        if (innerAdditionResult.Item1)
+                        {
+                            carries[i] = true;
+                        }
+
+                        if (innerAdditionResult.Item2 == 0xFFFFFFFFFFFFFFFF)
+                        {
+                            propagations[i] = true;
+                        }
+
+                        partialResult[i] = innerAdditionResult.Item2;
+                    });
+                });
+
+                var secondTask = new Task(() =>
+                {
+                    Parallel.For(smallestLength, greatestLength, i =>
+                    {
+                        var innerAdditionResult = Add(greatest[i], 0xFFFFFFFFFFFFFFFF);
+                        if (innerAdditionResult.Item1)
+                        {
+                            carries[i] = true;
+                        }
+
+                        if (innerAdditionResult.Item2 == 0xFFFFFFFFFFFFFFFF)
+                        {
+                            propagations[i] = true;
+                        }
+
+                        partialResult[i] = innerAdditionResult.Item2;
+                    });
+                });
+
+                firstTask.Start();
+                secondTask.Start();
+                Task.WaitAll(new[] { firstTask, secondTask });
+
+                // Aplica os transportes tendo em conta as propagações.
+                Parallel.For(1, greatestLength, i =>
+                {
+                    if (propagations[i])
+                    {
+                        for (int j = i - 1; j > -1; ++j)
+                        {
+                            // Caso alguma propagação já tenha sido avaliada, o transporte resultante pode ser utilizado
+                            if (carries[j])
+                            {
+                                partialResult[i] = 0;
+                                carries[i] = true;
+                                j = -1;
+                            }
+                            else if (!propagations[j])
+                            {
+                                j = -1;
+                            }
+                        }
+                    }
+                    else if (carries[i - 1])
+                    {
+                        ++partialResult[i];
+                    }
+                });
+
+                // Mesmo em caso de transporte, este será ignorado e eliminados todas as variáveis iniciais nulas
+                var finalLength = greatestLength;
+                for (int i = greatestLength - 1; i > -1; --i)
+                {
+                    if (partialResult[i] == 0)
+                    {
+                        --finalLength;
+                    }
+                    else
+                    {
+                        i = -1;
+                    }
+                }
+
+                if (finalLength == 0)
+                {
+                    return null;
+                }
+                else
+                {
+                    var result = new ulong[finalLength];
+                    Array.Copy(partialResult, result, finalLength);
+                    Parallel.For(0, finalLength, i =>
+                    {
+                        result[i] = partialResult[i];
+                    });
+
                     return result;
                 }
             }

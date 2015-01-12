@@ -83,12 +83,136 @@
             }
         }
 
+        /// <summary>
+        /// Testa a função de soma de números enormes na versão paralela, recorrendo ao algoritmo CLA.
+        /// </summary>
+        [Description("Testa a função de soma de números enormes na versão paralela, recorrendo ao algoritmo CLA.")]
+        [TestMethod]
+        public void UlongArrayBigInt_ParallelClaAddTest()
+        {
+            var firstTexts = new[] { 
+                "0", 
+                "123", 
+                "999999999999999999", 
+                "1", 
+                "0", 
+                "-1112", 
+                "-1111111111111111111111" };
+            var secondTexts = new[] { 
+                "-0", 
+                "-123",
+                "1111999999999999999999", 
+                "1", 
+                "1234567890123456789012345", 
+                "-1111", 
+                "2222222222222222222222" };
+            var expectedText = new[] { 
+                "0", 
+                "0", 
+                "1112999999999999999998", 
+                "2", 
+                "1234567890123456789012345", 
+                "-2223", 
+                "1111111111111111111111" };
+            for (int i = 0; i < expectedText.Length; ++i)
+            {
+                var firstTarget = default(UlongArrayBigInt);
+                if (UlongArrayBigInt.TryParse(firstTexts[i], out firstTarget))
+                {
+                    var secondTarget = default(UlongArrayBigInt);
+                    if (UlongArrayBigInt.TryParse(secondTexts[i], out secondTarget))
+                    {
+                        var expected = default(UlongArrayBigInt);
+                        if (UlongArrayBigInt.TryParse(expectedText[i], out expected))
+                        {
+                            var actual = UlongArrayBigInt.ParallelClaAdd(firstTarget, secondTarget);
+                            Assert.AreEqual(expected, actual);
+                        }
+                        else
+                        {
+                            Assert.Fail("Um problema ocorreu durante a leitura dos números.");
+                        }
+                    }
+                    else
+                    {
+                        Assert.Fail("Um problema ocorreu durante a leitura dos números.");
+                    }
+                }
+                else
+                {
+                    Assert.Fail("Um problema ocorreu durante a leitura dos números.");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Testa a função diferença entre números enormes na versão paralela, recorrendo ao algoritmo CLA.
+        /// </summary>
+        [Description("Testa a função diferença entre números enormes na versão paralela, recorrendo ao algoritmo CLA.")]
+        [TestMethod]
+        public void UlongArrayBigInt_ParallelClaSubtractTest()
+        {
+            var firstTexts = new[] { 
+                "0", 
+                "123", 
+                "999999999999999999", 
+                "1", 
+                "0", 
+                "-1112", 
+                "-1111111111111111111111" };
+            var secondTexts = new[] { 
+                "-0", 
+                "-123",
+                "1111999999999999999999", 
+                "1", 
+                "1234567890123456789012345", 
+                "-1111", 
+                "2222222222222222222222" };
+            var expectedText = new[] { 
+                "0", 
+                "246", 
+                "-1111000000000000000000", 
+                "0", 
+                "-1234567890123456789012345", 
+                "-1", 
+                "-3333333333333333333333" };
+            for (int i = 0; i < expectedText.Length; ++i)
+            {
+                var firstTarget = default(UlongArrayBigInt);
+                if (UlongArrayBigInt.TryParse(firstTexts[i], out firstTarget))
+                {
+                    var secondTarget = default(UlongArrayBigInt);
+                    if (UlongArrayBigInt.TryParse(secondTexts[i], out secondTarget))
+                    {
+                        var expected = default(UlongArrayBigInt);
+                        if (UlongArrayBigInt.TryParse(expectedText[i], out expected))
+                        {
+                            var actual = UlongArrayBigInt.ParallelClaSubtract(firstTarget, secondTarget);
+                            Assert.AreEqual(expected, actual);
+                        }
+                        else
+                        {
+                            Assert.Fail("Um problema ocorreu durante a leitura dos números.");
+                        }
+                    }
+                    else
+                    {
+                        Assert.Fail("Um problema ocorreu durante a leitura dos números.");
+                    }
+                }
+                else
+                {
+                    Assert.Fail("Um problema ocorreu durante a leitura dos números.");
+                }
+            }
+        }
+
         #region Testes à sobrecarga de operadores para a classe UlongArrayBigInt
 
         /// <summary>
-        /// Teste ao operador de igualdade entre números inteiro enormes.
+        /// Teste ao operador de igualdade entre números inteiros enormes.
         /// </summary>
-        [Description("Testa a validade da sobrecarga do operador de igualdade entre números inteiro enormes.")]
+        [Description("Testa a validade da sobrecarga do operador de igualdade entre números inteiros enormes.")]
         [TestMethod]
         public void UlongArrayBigInt_TestEqualityOperator()
         {
@@ -119,9 +243,9 @@
         }
 
         /// <summary>
-        /// Teste ao operador de igualdade entre números inteiro enormes.
+        /// Teste ao operador de igualdade entre números inteiros enormes.
         /// </summary>
-        [Description("Testa a validade da sobrecarga do operador de igualdade entre números inteiro enormes.")]
+        [Description("Testa a validade da sobrecarga do operador de igualdade entre números inteiros enormes.")]
         [TestMethod]
         public void UlongArrayBigInt_TestLessOperator()
         {
@@ -138,6 +262,130 @@
                     {
                         var actual = firstTarget < secondTarget;
                         Assert.AreEqual(expected[i], actual);
+                    }
+                    else
+                    {
+                        Assert.Fail("Um problema ocorreu durante a leitura dos números.");
+                    }
+                }
+                else
+                {
+                    Assert.Fail("Um problema ocorreu durante a leitura dos números.");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Testa a validade da sobrecarga do operador de adição de números inteiros enormes.
+        /// </summary>
+        [Description("Testa a validade da sobrecarga do operador de adição de números inteiros enormes.")]
+        [TestMethod]
+        public void UlongArrayBigInt_AddOperatorTest()
+        {
+            var firstTexts = new[] { 
+                "0", 
+                "123", 
+                "999999999999999999", 
+                "1", 
+                "0", 
+                "-1112", 
+                "-1111111111111111111111" };
+            var secondTexts = new[] { 
+                "-0", 
+                "-123",
+                "1111999999999999999999", 
+                "1", 
+                "1234567890123456789012345", 
+                "-1111", 
+                "2222222222222222222222" };
+            var expectedText = new[] { 
+                "0", 
+                "0", 
+                "1112999999999999999998", 
+                "2", 
+                "1234567890123456789012345", 
+                "-2223", 
+                "1111111111111111111111" };
+            for (int i = 0; i < expectedText.Length; ++i)
+            {
+                var firstTarget = default(UlongArrayBigInt);
+                if (UlongArrayBigInt.TryParse(firstTexts[i], out firstTarget))
+                {
+                    var secondTarget = default(UlongArrayBigInt);
+                    if (UlongArrayBigInt.TryParse(secondTexts[i], out secondTarget))
+                    {
+                        var expected = default(UlongArrayBigInt);
+                        if (UlongArrayBigInt.TryParse(expectedText[i], out expected))
+                        {
+                            var actual = firstTarget + secondTarget;
+                            Assert.AreEqual(expected, actual);
+                        }
+                        else
+                        {
+                            Assert.Fail("Um problema ocorreu durante a leitura dos números.");
+                        }
+                    }
+                    else
+                    {
+                        Assert.Fail("Um problema ocorreu durante a leitura dos números.");
+                    }
+                }
+                else
+                {
+                    Assert.Fail("Um problema ocorreu durante a leitura dos números.");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Testa a validade da sobrecarga do operador de diferença entre números inteiros enormes.
+        /// </summary>
+        [Description("Testa a validade da sobrecarga do operador de diferença entre números inteiros enormes.")]
+        [TestMethod]
+        public void UlongArrayBigInt_SubtractOperatorTest()
+        {
+            var firstTexts = new[] { 
+                "0", 
+                "123", 
+                "999999999999999999", 
+                "1", 
+                "0", 
+                "-1112", 
+                "-1111111111111111111111" };
+            var secondTexts = new[] { 
+                "-0", 
+                "-123",
+                "1111999999999999999999", 
+                "1", 
+                "1234567890123456789012345", 
+                "-1111", 
+                "2222222222222222222222" };
+            var expectedText = new[] { 
+                "0", 
+                "246", 
+                "-1111000000000000000000", 
+                "0", 
+                "-1234567890123456789012345", 
+                "-1", 
+                "-3333333333333333333333" };
+            for (int i = 0; i < expectedText.Length; ++i)
+            {
+                var firstTarget = default(UlongArrayBigInt);
+                if (UlongArrayBigInt.TryParse(firstTexts[i], out firstTarget))
+                {
+                    var secondTarget = default(UlongArrayBigInt);
+                    if (UlongArrayBigInt.TryParse(secondTexts[i], out secondTarget))
+                    {
+                        var expected = default(UlongArrayBigInt);
+                        if (UlongArrayBigInt.TryParse(expectedText[i], out expected))
+                        {
+                            var actual = firstTarget - secondTarget;
+                            Assert.AreEqual(expected, actual);
+                        }
+                        else
+                        {
+                            Assert.Fail("Um problema ocorreu durante a leitura dos números.");
+                        }
                     }
                     else
                     {
