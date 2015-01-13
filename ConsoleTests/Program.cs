@@ -25,6 +25,38 @@
 
         static void Main(string[] args)
         {
+            //Console.WriteLine(((ulong)2*uint.MaxValue).ToString().Length);
+            //var readedNumber = string.Empty;
+            //using (var textReader = new StreamReader("bigNum.txt"))
+            //{
+            //    readedNumber = textReader.ReadToEnd();
+            //}
+            
+            var stopWatch = new Stopwatch();
+            //var bigInteger1 = BigInteger.Parse(readedNumber);
+            //var bigInteger2 = BigInteger.Parse(readedNumber);
+            //stopWatch.Start();
+            //var result = bigInteger1 + bigInteger2;
+            //stopWatch.Stop();
+            //Console.WriteLine(stopWatch.ElapsedMilliseconds);
+            //stopWatch.Reset();
+
+            var bigInt1 = default(UlongArrayBigInt);
+            var bigInt2 = default(UlongArrayBigInt);
+            UlongArrayBigInt.TryParse("500000000000000000000000", out bigInt1);
+            UlongArrayBigInt.TryParse("500000000000000000000000", out bigInt2);
+            stopWatch.Start();
+            var bigRes = bigInt1 + bigInt2;
+            stopWatch.Stop();
+            Console.WriteLine(stopWatch.ElapsedMilliseconds);
+            stopWatch.Reset();
+
+            stopWatch.Start();
+            bigRes = UlongArrayBigInt.ParallelClaAdd(bigInt1, bigInt2);
+            stopWatch.Stop();
+            Console.WriteLine(stopWatch.ElapsedMilliseconds);
+            stopWatch.Reset();
+
             var bigIntegerTests = new BigIntegerTests();
             var decomposed = bigIntegerTests.DecomposeNumber("11111111222222233333344444455555566666777778888899999");
 
