@@ -37,7 +37,7 @@
         /// Permite testar a validade das leituras dos números enormes
         /// representados por vectores de longos.
         /// </summary>
-        [Description("Teste que permite averiguar a validade das leituras dos números enormes representados por vectores de longos.")]
+        [Description("Checks the validity of big integer parse.")]
         [TestMethod]
         public void UlongArrayBigInt_TryParseRightNumbersTest()
         {
@@ -69,7 +69,7 @@
         /// Permite testar a validade das leituras dos números enormes
         /// representados por vectores de longos.
         /// </summary>
-        [Description("Teste que permite averiguar o comportamento face a leituras dos números enormes representados por vectores de longos erradas.")]
+        [Description("Asserts the big integers parse in case of invalid strings.")]
         [TestMethod]
         public void UlongArrayBigInt_TryParseWrongtNumbersTest()
         {
@@ -86,7 +86,7 @@
         /// <summary>
         /// Testa a função de soma de números enormes na versão paralela, recorrendo ao algoritmo CLA.
         /// </summary>
-        [Description("Testa a função de soma de números enormes na versão paralela, recorrendo ao algoritmo CLA.")]
+        [Description("Tests the parallel version of the CLA parallel adition function.")]
         [TestMethod]
         public void UlongArrayBigInt_ParallelClaAddTest()
         {
@@ -148,7 +148,7 @@
         /// <summary>
         /// Testa a função diferença entre números enormes na versão paralela, recorrendo ao algoritmo CLA.
         /// </summary>
-        [Description("Testa a função diferença entre números enormes na versão paralela, recorrendo ao algoritmo CLA.")]
+        [Description("Tests the parallel version of CLA parallel subtrarction function.")]
         [TestMethod]
         public void UlongArrayBigInt_ParallelClaSubtractTest()
         {
@@ -207,12 +207,54 @@
             }
         }
 
+        /// <summary>
+        /// Testa a função que permite adicionar dois números longos sem sinal, retornando o resultado
+        /// na base 10^19.
+        /// </summary>
+        [Description("Tests the ulong numbers addition getting the result in base 10^19.")]
+        [TestMethod]
+        public void UlongArrayBigInt_DecimalRepAdd()
+        {
+            var target = new UlongArrayBigInt();
+            var firstValues = new[] { 0xFFFFFFFFFFFFFFFF, 185948374650294856ul };
+            var secondValues = new[] { 0xFFFFFFFFFFFFFFFF, 798574836475869405ul };
+            var expected = new[] { 
+                Tuple.Create(3ul, 6893488147419103230ul),
+                Tuple.Create(0ul, 984523211126164261ul)};
+            for (int i = 0; i < firstValues.Length; ++i)
+            {
+                var result = target.InternalDecimalRepAdd(firstValues[i], secondValues[i]);
+                Assert.AreEqual(expected[i], result);
+            }
+        }
+
+        /// <summary>
+        /// Testa a função que permite adicionar dois números longos sem sinal, retornando o resultado
+        /// na base 10^19.
+        /// </summary>
+        [Description("Tests the ulong numbers multiplication getting the result in base 10^19.")]
+        [TestMethod]
+        public void UlongArrayBigInt_DecimalRepMultiply()
+        {
+            var target = new UlongArrayBigInt();
+            var firstValues = new[] { 0xFFFFFFFFFFFFFFFF, 185948374650294856ul };
+            var secondValues = new[] { 0xFFFFFFFFFFFFFFFF, 798574836475869405ul };
+            var expected = new[] { 
+                Tuple.Create(3ul, 4028236692093846342ul, 6481119284349108225ul),
+                Tuple.Create(0ul, 14849369287931291ul, 4387396512199280680ul)};
+            for (int i = 0; i < firstValues.Length; ++i)
+            {
+                var result = target.InternalDecimalRepMultiply(firstValues[i], secondValues[i]);
+                Assert.AreEqual(expected[i], result);
+            }
+        }
+
         #region Testes à sobrecarga de operadores para a classe UlongArrayBigInt
 
         /// <summary>
         /// Teste ao operador de igualdade entre números inteiros enormes.
         /// </summary>
-        [Description("Testa a validade da sobrecarga do operador de igualdade entre números inteiros enormes.")]
+        [Description("Tests the equality operator overload for big integers.")]
         [TestMethod]
         public void UlongArrayBigInt_TestEqualityOperator()
         {
@@ -245,7 +287,7 @@
         /// <summary>
         /// Teste ao operador de igualdade entre números inteiros enormes.
         /// </summary>
-        [Description("Testa a validade da sobrecarga do operador de igualdade entre números inteiros enormes.")]
+        [Description("Tests the less than operator overload for big integers.")]
         [TestMethod]
         public void UlongArrayBigInt_TestLessOperator()
         {
@@ -278,7 +320,7 @@
         /// <summary>
         /// Testa a validade da sobrecarga do operador de adição de números inteiros enormes.
         /// </summary>
-        [Description("Testa a validade da sobrecarga do operador de adição de números inteiros enormes.")]
+        [Description("Tests the addition operator overload for big integers.")]
         [TestMethod]
         public void UlongArrayBigInt_AddOperatorTest()
         {
@@ -340,7 +382,7 @@
         /// <summary>
         /// Testa a validade da sobrecarga do operador de diferença entre números inteiros enormes.
         /// </summary>
-        [Description("Testa a validade da sobrecarga do operador de diferença entre números inteiros enormes.")]
+        [Description("Tests the subtraction operator overload for big integers.")]
         [TestMethod]
         public void UlongArrayBigInt_SubtractOperatorTest()
         {
@@ -396,6 +438,38 @@
                 {
                     Assert.Fail("Um problema ocorreu durante a leitura dos números.");
                 }
+            }
+        }
+
+        /// <summary>
+        /// Testa a validade da sobrecarga do operador de rotação à esquerda para números inteiros enormes.
+        /// </summary>
+        [TestMethod]
+        public void UlongArrayBigInt_TestRotateLeftOperator()
+        {
+            var firstNumbers = new[] { new UlongArrayBigInt(1) };
+            var secondNumbers = new[] { 200 };
+            var expected = new[] { new UlongArrayBigInt(new[] { 0ul, 0ul, 0ul, 256ul }) };
+            for (int i = 0; i < expected.Length; ++i)
+            {
+                var actual = firstNumbers[i] << secondNumbers[i];
+                Assert.AreEqual(expected[i], actual);
+            }
+        }
+
+        /// <summary>
+        /// Testa a validade da sobrecarga do operador de rotação à direita para números inteiros enormes.
+        /// </summary>
+        [TestMethod]
+        public void UlongArrayBigInt_TestRotateRightOperator()
+        {
+            var firstNumbers = new[] { new UlongArrayBigInt(new[] { 0ul, 0ul, 0ul, 256ul }) };
+            var secondNumbers = new[] { 200 };
+            var expected = new[] { new UlongArrayBigInt(1) };
+            for (int i = 0; i < expected.Length; ++i)
+            {
+                var actual = firstNumbers[i] >> secondNumbers[i];
+                Assert.AreEqual(expected[i], actual);
             }
         }
 

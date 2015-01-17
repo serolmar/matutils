@@ -25,13 +25,20 @@
 
         static void Main(string[] args)
         {
-            //Console.WriteLine(((ulong)2*uint.MaxValue).ToString().Length);
-            //var readedNumber = string.Empty;
+            Console.WriteLine(((ulong)2 * uint.MaxValue).ToString().Length);
+            var readedNumber = string.Empty;
             //using (var textReader = new StreamReader("bigNum.txt"))
             //{
             //    readedNumber = textReader.ReadToEnd();
             //}
-            
+
+            checked
+            {
+                var t111 = 19073486328125ul / 2;
+                var t112 = 19073486328125ul / 2;
+                var kkk = t111 * t112;
+            }
+
             var stopWatch = new Stopwatch();
             //var bigInteger1 = BigInteger.Parse(readedNumber);
             //var bigInteger2 = BigInteger.Parse(readedNumber);
@@ -43,8 +50,8 @@
 
             var bigInt1 = default(UlongArrayBigInt);
             var bigInt2 = default(UlongArrayBigInt);
-            UlongArrayBigInt.TryParse("500000000000000000000000", out bigInt1);
-            UlongArrayBigInt.TryParse("500000000000000000000000", out bigInt2);
+            UlongArrayBigInt.TryParse1(readedNumber, out bigInt1);
+            UlongArrayBigInt.TryParse1(readedNumber, out bigInt2);
             stopWatch.Start();
             var bigRes = bigInt1 + bigInt2;
             stopWatch.Stop();
@@ -79,7 +86,7 @@
             // (a*2^32+b)*(c*2^32+d)=(a*c)*2^64+(ad+bc)*2^32+bd
             // Parte superior a 32...
 
-            Console.WriteLine("{0:X}",(ulong)2 * 0xFFFFFFFF);
+            Console.WriteLine("{0:X}", (ulong)2 * 0xFFFFFFFF);
 
             ulong k = (ulong)i * (ulong)j;
             uint l = i * j;

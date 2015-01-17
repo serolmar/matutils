@@ -13,7 +13,7 @@
 
     /// <summary>
     /// Representa um número inteiro grande como sendo um vector de inteiros longos
-    /// sem sinal.
+    /// sem sinal em base 2^64.
     /// </summary>
     public struct UlongArrayBigInt
     {
@@ -53,6 +53,8 @@
         /// </summary>
         private ulong[] array;
 
+        #region Construtores
+
         /// <summary>
         /// Instancia uma nova instância de objectos do tipo <see cref="UlongArrayBigInt"/>.
         /// </summary>
@@ -60,9 +62,9 @@
         public UlongArrayBigInt(ulong[] array)
         {
             this.sign = false;
-            if (array == null)
+            if (array == null || array.Length == 0)
             {
-                this.array = default(ulong[]);
+                this.array = null;
             }
             else
             {
@@ -78,8 +80,16 @@
         /// <param name="list"></param>
         public UlongArrayBigInt(List<ulong> list)
         {
-            this.sign = false;
-            this.array = list.ToArray();
+            if (list == null || list.Count == 0)
+            {
+                this.sign = false;
+                this.array = null;
+            }
+            else
+            {
+                this.sign = false;
+                this.array = list.ToArray();
+            }
         }
 
         /// <summary>
@@ -90,9 +100,9 @@
         public UlongArrayBigInt(bool sign, ulong[] array)
         {
             this.sign = sign;
-            if (array == null)
+            if (array == null || array.Length == 0)
             {
-                this.array = default(ulong[]);
+                this.array = null;
             }
             else
             {
@@ -110,7 +120,14 @@
         public UlongArrayBigInt(bool sign, List<ulong> list)
         {
             this.sign = sign;
-            this.array = list.ToArray();
+            if (list == null || list.Count == 0)
+            {
+                this.array = null;
+            }
+            else
+            {
+                this.array = list.ToArray();
+            }
         }
 
         /// <summary>
@@ -121,7 +138,7 @@
         {
             if (numb == 0)
             {
-                this.sign = true;
+                this.sign = false;
                 this.array = null;
             }
             else
@@ -139,12 +156,12 @@
         {
             if (numb == 0)
             {
-                this.sign = true;
+                this.sign = false;
                 this.array = null;
             }
             else
             {
-                this.sign = true;
+                this.sign = false;
                 this.array = new ulong[] { (ulong)numb };
             }
         }
@@ -175,15 +192,17 @@
         {
             if (numb == 0)
             {
-                this.sign = true;
+                this.sign = false;
                 this.array = null;
             }
             else
             {
-                this.sign = true;
+                this.sign = false;
                 this.array = new ulong[] { numb };
             }
         }
+
+        #endregion Construtores
 
         /// <summary>
         /// Obtém um valor que indica se o número está afecto do sinal.
@@ -195,6 +214,8 @@
                 return this.sign;
             }
         }
+
+        #region Funções públicas
 
         /// <summary>
         /// Converte o inteiro actual num vector de "bytes".
@@ -249,6 +270,115 @@
                 return result;
             }
         }
+
+        /// <summary>
+        /// Determina se o objecto proporcionado é igual ao corrente.
+        /// </summary>
+        /// <param name="obj">O objecto a ser comparado.</param>
+        /// <returns>Verdadeiro caso ambos os objectos sejam iguais e falso caso contrário.</returns>
+        public override bool Equals(object obj)
+        {
+            if (obj is UlongArrayBigInt)
+            {
+                return this == (UlongArrayBigInt)obj;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Determina um código confuso para o número enorme.
+        /// </summary>
+        /// <returns>O código confuso.</returns>
+        public override int GetHashCode()
+        {
+            var result = typeof(UlongArrayBigInt).GetHashCode();
+            if (this.array != null)
+            {
+                result ^= this.sign.GetHashCode();
+                var length = this.array.Length;
+                for (int i = 0; i < length; ++i)
+                {
+                    result ^= (19 * this.array[i] + 17u).GetHashCode();
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Obtém uma representação textual do número.
+        /// </summary>
+        /// <returns>A representação textual do número.</returns>
+        public override string ToString()
+        {
+            if (this.array == null || this.array.Length == 0)
+            {
+                return "0";
+            }
+            else
+            {
+                var index = this.array.Length - 1;
+                var current = this.array[index];
+                while (current == 0 && index >= 0)
+                {
+                    current = this.array[index];
+                    --index;
+                }
+
+                if (index < 0)
+                {
+                    return "0";
+                }
+                else
+                {
+                    var decimalRep = new List<ulong>() { 1 };
+
+                    // Determina a posição do primeiro "bit" não nulo
+                    var pos = MathFunctions.GetHighestSettedBitIndex(current);
+                    current = current << (64 - pos);
+                    for (int i = 0; i < pos; ++i)
+                    {
+                        this.DuplicateDecimalRep(decimalRep);
+                        if ((current & 0x8000000000000000) == 0x8000000000000000)
+                        {
+                            this.IncrementDecimalRep(decimalRep);
+                        }
+
+                        current = current << 1;
+                    }
+
+                    --index;
+                    for (; index >= 0; --index)
+                    {
+                        current = this.array[index];
+                        for (int i = 0; i < 64; ++i)
+                        {
+                            this.DuplicateDecimalRep(decimalRep);
+                            if ((current & 0x8000000000000000) == 0x8000000000000000)
+                            {
+                                this.IncrementDecimalRep(decimalRep);
+                            }
+
+                            current = current << 1;
+                        }
+                    }
+
+                    // Imprime o resultado
+                    var result = this.GetDecimalRepresentation(decimalRep);
+                    if (this.sign)
+                    {
+                        result = "-" + result;
+                    }
+
+                    return result;
+                }
+            }
+        }
+
+        #endregion Funções públicas
 
         #region Sobrecarga de operadores
 
@@ -642,6 +772,34 @@
             }
         }
 
+        /// <summary>
+        /// Sobrecarrega o operador de rotação à direita.
+        /// </summary>
+        /// <param name="first">O valor a ser rodado.</param>
+        /// <param name="second">O tamanho do deslocamento.</param>
+        /// <returns>O número resultante da rotação.</returns>
+        public static UlongArrayBigInt operator >>(UlongArrayBigInt first, int second)
+        {
+            var result = new UlongArrayBigInt();
+            result.sign = first.sign;
+            result.array = RotateRight(first.array, second);
+            return result;
+        }
+
+        /// <summary>
+        /// Sobrecarrega o operador de rotação à esquerda.
+        /// </summary>
+        /// <param name="first">O valor a ser rodado.</param>
+        /// <param name="second">O tamanho do deslocamento.</param>
+        /// <returns>O número resultante da rotação.</returns>
+        public static UlongArrayBigInt operator <<(UlongArrayBigInt first, int second)
+        {
+            var result = new UlongArrayBigInt();
+            result.sign = first.sign;
+            result.array = RotateLeft(first.array, second);
+            return result;
+        }
+
         #endregion Sobrecarga de operadores
 
         #region Funções estáticas públicas
@@ -695,7 +853,7 @@
                         var step = 19;
                         var index = 0;
                         var length = innerText.Length;
-                        var parsing = text.Substring(index, step);
+                        var parsing = innerText.Substring(index, step);
                         var parsed = ulong.Parse(parsing);
                         var result = new List<ulong>() { parsed };
                         index = 19;
@@ -709,10 +867,10 @@
                                 len = nextIndex - index;
                             }
 
-                            parsing = text.Substring(index, len);
+                            parsing = innerText.Substring(index, len);
                             parsed = ulong.Parse(parsing);
 
-                            Multiply(result, 10000000000000000000);
+                            Multiply(result, tenthPowers[len - 1]);
                             Add(result, parsed);
 
                             index = nextIndex;
@@ -739,6 +897,7 @@
         /// <param name="text">A representação textual do número.</param>
         /// <param name="value">Recebe o valor lido em caso de sucesso.</param>
         /// <returns>Verdadeiro caso a função seja bem-sucedida e falso caso contrário.</returns>
+        [Obsolete("Deprecated: function is of slow execution and shoud serve for learning purposes.")]
         public static bool TryParse59(string text, out UlongArrayBigInt value)
         {
             if (text == null)
@@ -811,6 +970,7 @@
         /// <param name="text">A representação textual do número.</param>
         /// <param name="value">Recebe o valor lido em caso de sucesso.</param>
         /// <returns>Verdadeiro caso a função seja bem-sucedida e falso caso contrário.</returns>
+        [Obsolete("Deprecated: function is of slow execution and shoud serve for learning purposes.")]
         public static bool TryParse1(string text, out UlongArrayBigInt value)
         {
             if (text == null)
@@ -1612,114 +1772,43 @@
 
         #endregion Funções estáticas públicas
 
-        /// <summary>
-        /// Determina se o objecto proporcionado é igual ao corrente.
-        /// </summary>
-        /// <param name="obj">O objecto a ser comparado.</param>
-        /// <returns>Verdadeiro caso ambos os objectos sejam iguais e falso caso contrário.</returns>
-        public override bool Equals(object obj)
-        {
-            if (obj is UlongArrayBigInt)
-            {
-                return this == (UlongArrayBigInt)obj;
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        /// <summary>
-        /// Determina um código confuso para o número enorme.
-        /// </summary>
-        /// <returns>O código confuso.</returns>
-        public override int GetHashCode()
-        {
-            var result = typeof(UlongArrayBigInt).GetHashCode();
-            if (this.array != null)
-            {
-                result ^= this.sign.GetHashCode();
-                var length = this.array.Length;
-                for (int i = 0; i < length; ++i)
-                {
-                    result ^= (19 * this.array[i] + 17u).GetHashCode();
-                }
-            }
-
-            return result;
-        }
-
-        /// <summary>
-        /// Obtém uma representação textual do número.
-        /// </summary>
-        /// <returns>A representação textual do número.</returns>
-        public override string ToString()
-        {
-            if (this.array == null || this.array.Length == 0)
-            {
-                return "0";
-            }
-            else
-            {
-                var index = this.array.Length - 1;
-                var current = this.array[index];
-                while (current == 0 && index >= 0)
-                {
-                    current = this.array[index];
-                    --index;
-                }
-
-                if (index < 0)
-                {
-                    return "0";
-                }
-                else
-                {
-                    var decimalRep = new List<ulong>() { 1 };
-
-                    // Determina a posição do primeiro "bit" não nulo
-                    var pos = MathFunctions.GetHighestSettedBitIndex(current);
-                    current = current << (64 - pos);
-                    for (int i = 0; i < pos; ++i)
-                    {
-                        this.DuplicateDecimalRep(decimalRep);
-                        if ((current & 0x8000000000000000) == 0x8000000000000000)
-                        {
-                            this.IncrementDecimalRep(decimalRep);
-                        }
-
-                        current = current << 1;
-                    }
-
-                    --index;
-                    for (; index >= 0; --index)
-                    {
-                        current = this.array[index];
-                        for (int i = 0; i < 64; ++i)
-                        {
-                            this.DuplicateDecimalRep(decimalRep);
-                            if ((current & 0x8000000000000000) == 0x8000000000000000)
-                            {
-                                this.IncrementDecimalRep(decimalRep);
-                            }
-
-                            current = current << 1;
-                        }
-                    }
-
-                    // Imprime o resultado
-                    var result = this.GetDecimalRepresentation(decimalRep);
-                    if (this.sign)
-                    {
-                        result = "-" + result;
-                    }
-
-                    return result;
-                }
-            }
-        }
-
         #region Funções privadas
+
+        #region Funções internas
+
+        /// <summary>
+        /// Permite adicionar dois números inteiros longos em base binária 2^64, retornando
+        /// o resultado na base 10^19.
+        /// </summary>
+        /// <remarks>
+        /// Esta função presta-se fundamentalmente à realização de testes unitários.
+        /// </remarks>
+        /// <param name="first">O primeiro número a ser adicionado.</param>
+        /// <param name="second">O segundo número a ser adicionado.</param>
+        /// <returns>O transporte e o valor da soma.</returns>
+        internal Tuple<ulong, ulong> InternalDecimalRepAdd(ulong first, ulong second)
+        {
+            return this.DecimalRepAdd(first, second);
+        }
+
+        /// <summary>
+        /// Permite multiplicar dois números longos sem sinal binários, retornando
+        /// o resultado na base 10^19.
+        /// </summary>
+        /// <remarks>
+        /// O algoritmo baseia-se na propriedade de que qualquer número longo sem sinal admite a
+        /// representação {0,1}x10^19+x.
+        /// Esta função presta-se fundamentelmente à realização de testes unitários.
+        /// </remarks>
+        /// <param name="first">O primeiro número a ser multiplicado.</param>
+        /// <param name="second">O segundo número a ser multiplicado.</param>
+        /// <returns>O resultado da multiplicação.</returns>
+        internal Tuple<ulong, ulong, ulong> InternalDecimalRepMultiply(ulong first, ulong second)
+        {
+            return this.DecimalRepMultiply(first, second);
+        }
+
+        #endregion Funções internas
 
         /// <summary>
         /// Função auxiliar que permite escrever a representação textual de um número representado em notação
@@ -1829,6 +1918,346 @@
             {
                 decimalRepresentation.Insert(0, carry);
             }
+        }
+
+        /// <summary>
+        /// Adiciona um valor à representação decimal de um número enorme.
+        /// </summary>
+        /// <param name="decimalRepresentation">A representação decimal do número enorme.</param>
+        /// <param name="value">O valor a ser adicionado.</param>
+        private void DecimalRepAdd(List<ulong> decimalRepresentation, ulong value)
+        {
+            var current = decimalRepresentation[0];
+            var sum = this.DecimalRepAdd(current, value);
+            decimalRepresentation[0] = sum.Item2;
+            var carry = sum.Item2;
+            var length = decimalRepresentation.Count;
+            var index = 1;
+            while (carry > 0ul && index < length)
+            {
+                current = decimalRepresentation[index];
+                sum = this.DecimalRepAdd(current, carry);
+                decimalRepresentation[index] = sum.Item2;
+                carry = sum.Item1;
+                ++index;
+            }
+
+            if (carry > 0ul)
+            {
+                decimalRepresentation.Add(carry);
+            }
+        }
+
+        /// <summary>
+        /// Multiplica a representação decimal em base 10^19 do número pela potÊncia 2^64.
+        /// </summary>
+        /// <remarks>
+        /// Recorre-se aqui ao caso em que as unidades se encontram nas primeiras posições da lista
+        /// que contém a representação.
+        /// </remarks>
+        /// <param name="decimalRepresentation">A representação decimal do número.</param>
+        private void DecimalMultiplyByBinaryPower64(List<ulong> decimalRepresentation)
+        {
+            var low = 8446744073709551616ul;
+            var previous = decimalRepresentation[0];
+            var prod = this.DecimalRepMultiply(previous, low);
+            var carries = new List<ulong>() { prod.Item2, prod.Item1 };
+            var length = decimalRepresentation.Count;
+            for (int i = 1; i < length; ++i)
+            {
+                var current = decimalRepresentation[i];
+                prod = this.DecimalRepMultiply(current, low);
+                var currentCarry = carries[0];
+                carries.RemoveAt(0);
+
+                var sum = this.DecimalRepAdd(currentCarry, prod.Item3);
+
+                // Propaga todos os transportes
+                var index = 0;
+                var carriesLength = carries.Count;
+                currentCarry = sum.Item1;
+
+                // Propaga o transporte resultante da soma com o primeiro elemento
+                while (currentCarry > 0ul && index < carriesLength)
+                {
+                    var innerSum = this.DecimalRepAdd(carries[index], currentCarry);
+                    carries[index] = innerSum.Item2;
+                    currentCarry = innerSum.Item2;
+                    ++index;
+                }
+
+                if (currentCarry > 0ul)
+                {
+                    carries.Add(currentCarry);
+                }
+
+                // Propaga o transporte resultante do primeiro elemento do produto
+                index = 0;
+                currentCarry = prod.Item2;
+                carriesLength = carries.Count;
+                while (currentCarry > 0ul && index < carriesLength)
+                {
+                    var innerSum = this.DecimalRepAdd(carries[index], currentCarry);
+                    carries[index] = innerSum.Item2;
+                    currentCarry = innerSum.Item2;
+                    ++index;
+                }
+
+                if (currentCarry > 0ul)
+                {
+                    carries.Add(currentCarry);
+                }
+
+                // Propaga o transporte do segundo elemento do produto
+                index = 1;
+                currentCarry = prod.Item3;
+                carriesLength = carries.Count;
+                while (currentCarry > 0ul && index < carriesLength)
+                {
+                    var innerSum = this.DecimalRepAdd(carries[index], currentCarry);
+                    carries[index] = innerSum.Item2;
+                    currentCarry = innerSum.Item2;
+                    ++index;
+                }
+
+                if (currentCarry > 0ul)
+                {
+                    carries.Add(currentCarry);
+                }
+
+                // Realiza a soma com o elemento anterior (2^64 = 1x10^19 + 8446744073709551616)
+                sum = this.DecimalRepAdd(previous, sum.Item2);
+                index = 0;
+                carriesLength = carries.Count;
+                currentCarry = sum.Item1;
+
+                // Propaga o transporte resultante da soma com o primeiro elemento
+                carriesLength = carries.Count;
+                while (currentCarry > 0ul && index < carriesLength)
+                {
+                    var innerSum = this.DecimalRepAdd(carries[index], currentCarry);
+                    carries[index] = innerSum.Item2;
+                    currentCarry = innerSum.Item2;
+                    ++index;
+                }
+
+                decimalRepresentation[i] = sum.Item2;
+                previous = current;
+            }
+
+            length = carries.Count;
+            if (length > 0)
+            {
+                var sum = this.DecimalRepAdd(carries[0], previous);
+                decimalRepresentation.Add(sum.Item2);
+                var index = 1;
+                while (sum.Item1 > 0 && index < length)
+                {
+                    sum = this.DecimalRepAdd(carries[index], sum.Item1);
+                    decimalRepresentation.Add(sum.Item2);
+                    ++index;
+                }
+
+                if (sum.Item1 > 0)
+                {
+                    decimalRepresentation.Add(sum.Item1);
+                }
+                else
+                {
+                    while (index < length)
+                    {
+                        decimalRepresentation.Add(carries[index]);
+                        ++index;
+                    }
+                }
+            }
+            else
+            {
+                decimalRepresentation.Add(previous);
+            }
+        }
+
+        /// <summary>
+        /// Permite adicionar dois números inteiros longos em base binária 2^64, retornando
+        /// o resultado na base 10^19.
+        /// </summary>
+        /// <param name="first">O primeiro número a ser adicionado.</param>
+        /// <param name="second">O segundo número a ser adicionado.</param>
+        /// <returns>O transporte e o valor da soma.</returns>
+        private Tuple<ulong, ulong> DecimalRepAdd(ulong first, ulong second)
+        {
+            checked
+            {
+                var sum = Add(first, second);
+                if (sum.Item1)
+                {
+                    var highRes = 1ul;
+                    var lowRes = sum.Item2;
+                    if (lowRes >= 10000000000000000000ul)
+                    {
+                        ++highRes;
+                        lowRes -= 10000000000000000000ul;
+                    }
+
+                    lowRes += 8446744073709551616ul;
+                    if (lowRes >= 10000000000000000000ul)
+                    {
+                        ++highRes;
+                        lowRes -= 10000000000000000000ul;
+                    }
+
+                    return Tuple.Create(highRes, lowRes);
+                }
+                else
+                {
+                    var highRes = 0ul;
+                    var lowRes = sum.Item2;
+                    if (lowRes >= 10000000000000000000ul)
+                    {
+                        highRes = 1ul;
+                        lowRes -= 10000000000000000000ul;
+                    }
+
+                    return Tuple.Create(highRes, lowRes);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Permite multiplicar dois números longos sem sinal binários, retornando
+        /// o resultado na base 10^19.
+        /// </summary>
+        /// <remarks>
+        /// O algoritmo baseia-se na propriedade de que qualquer número longo sem sinal admite a
+        /// representação {0,1}x10^19+x.
+        /// </remarks>
+        /// <param name="first">O primeiro número a ser multiplicado.</param>
+        /// <param name="second">O segundo número a ser multiplicado.</param>
+        /// <returns>O resultado da multiplicação.</returns>
+        private Tuple<ulong, ulong, ulong> DecimalRepMultiply(ulong first, ulong second)
+        {
+            var firstItem = 0ul;
+            var secondItem = 0ul;
+            var thirdItem = 0ul;
+
+            var prod = Multiply(first, second);
+
+            if (prod.Item2 < 10000000000000000000ul)
+            {
+                thirdItem = prod.Item2;
+            }
+            else
+            {
+                thirdItem = prod.Item2 - 10000000000000000000ul;
+                secondItem = 1ul;
+            }
+
+            if (prod.Item1 > 0)
+            {
+                // Nunca ocorre o fenómeno de transporte da primeira vez
+                if (prod.Item1 < 10000000000000000000ul)
+                {
+                    secondItem = prod.Item1;
+                }
+                else
+                {
+                    secondItem += prod.Item1 - 10000000000000000000ul;
+                    firstItem = 1ul;
+                }
+
+                do
+                {
+                    prod = Multiply(prod.Item1, 8446744073709551616);
+
+                    // Termo de ordem baixa
+                    if (prod.Item2 < 10000000000000000000ul)
+                    {
+                        var sum = this.DecimalRepAdd(thirdItem, prod.Item2);
+                        thirdItem = sum.Item2;
+                        if (sum.Item1 > 0)
+                        {
+                            sum = this.DecimalRepAdd(sum.Item1, secondItem);
+                            secondItem = sum.Item2;
+                            firstItem += sum.Item1;
+                        }
+                    }
+                    else
+                    {
+                        // Ocorrência de transporte
+                        if (secondItem == 999999999999999999ul)
+                        {
+                            secondItem = 0ul;
+                            ++firstItem;
+                        }
+                        else
+                        {
+                            ++secondItem;
+                        }
+
+                        var sum = this.DecimalRepAdd(thirdItem, prod.Item2 - 10000000000000000000ul);
+                        thirdItem = sum.Item2;
+                        if (sum.Item1 > 0)
+                        {
+                            sum = this.DecimalRepAdd(sum.Item1, secondItem);
+                            secondItem = sum.Item2;
+                            firstItem += sum.Item1;
+                        }
+                    }
+
+                    // Termo de ordem alta
+                    if (prod.Item1 < 10000000000000000000ul)
+                    {
+                        var sum = this.DecimalRepAdd(secondItem, prod.Item1);
+                        secondItem = sum.Item2;
+                        if (sum.Item1 > 0)
+                        {
+                            firstItem += sum.Item1;
+                        }
+                    }
+                    else
+                    {
+                        ++firstItem;
+                    }
+
+                } while (prod.Item1 > 2);
+
+                // Termina a operação, adidicionando o produto final
+                var finalProd = prod.Item1 * 8446744073709551616;
+                if (finalProd < 10000000000000000000ul)
+                {
+                    var sum = this.DecimalRepAdd(thirdItem, finalProd);
+                    thirdItem = sum.Item2;
+                    if (sum.Item1 > 0)
+                    {
+                        sum = this.DecimalRepAdd(sum.Item1, secondItem);
+                        secondItem = sum.Item2;
+                        firstItem += sum.Item1;
+                    }
+                }
+                else
+                {
+                    if (secondItem == 999999999999999999ul)
+                    {
+                        secondItem = 0ul;
+                        ++firstItem;
+                    }
+                    else
+                    {
+                        ++secondItem;
+                    }
+
+                    var sum = this.DecimalRepAdd(thirdItem, finalProd - 10000000000000000000ul);
+                    thirdItem = sum.Item2;
+                    if (sum.Item1 > 0)
+                    {
+                        sum = this.DecimalRepAdd(sum.Item1, secondItem);
+                        secondItem = sum.Item2;
+                        firstItem += sum.Item1;
+                    }
+                }
+            }
+
+            return Tuple.Create(firstItem, secondItem, thirdItem);
         }
 
         #endregion Funções privadas
@@ -1984,14 +2413,15 @@
         /// <param name="value">O número longo sem sinal.</param>
         private static void Multiply(List<ulong> list, ulong value)
         {
-            var index = list.Count - 1;
+            var length = list.Count;
             var carry = 0ul;
-            for (; index > -1; --index)
+            for (int index = 0; index < length; ++index)
             {
                 var current = list[index];
                 var multRes = Multiply(current, value);
 
-                var sumRes = Add(multRes.Item1, carry);
+                var sumRes = Add(multRes.Item2, carry);
+                carry = 0ul;
                 if (sumRes.Item1)
                 {
                     carry = 1ul;
@@ -2004,7 +2434,7 @@
 
             if (carry > 0)
             {
-                list.Insert(0, carry);
+                list.Add(carry);
             }
         }
 
@@ -2015,13 +2445,14 @@
         /// <param name="value">O valor a ser adicionado.</param>
         private static void Add(List<ulong> list, ulong value)
         {
-            var index = list.Count - 1;
+            var length = list.Count;
+            var index = 0;
             var current = list[index];
             var sumRes = Add(current, value);
             list[index] = sumRes.Item2;
             var carry = sumRes.Item1;
-            --index;
-            while (index > -1 && carry)
+            ++index;
+            while (index < length && carry)
             {
                 current = list[index];
                 if (current == 0xFFFFFFFFFFFFFFFF)
@@ -2034,7 +2465,7 @@
                     carry = false;
                 }
 
-                --index;
+                ++index;
             }
 
             if (carry)
@@ -2055,7 +2486,10 @@
         /// <returns>O par transporte/valor da soma.</returns>
         private static Tuple<bool, ulong> Add(ulong first, ulong second)
         {
-            return Tuple.Create((~first | 1) < second, first + second);
+            unchecked
+            {
+                return Tuple.Create((~first | 1) < second, first + second);
+            }
         }
 
         /// <summary>
@@ -2067,21 +2501,37 @@
         /// <returns>O resultado da multiplicação.</returns>
         private static Tuple<ulong, ulong> Multiply(ulong first, ulong second)
         {
-            var firstLow = 0xFFFFFFFF & first;
-            var firstHigh = 0xFFFFFFFF00000000 & first;
-            var secondLow = 0xFFFFFFFF & first;
-            var secondHigh = 0xFFFFFFFF00000000 & first;
+            checked
+            {
+                var firstLow = 0xFFFFFFFF & first;
+                var firstHigh = first >> 32;
+                var secondLow = 0xFFFFFFFF & second;
+                var secondHigh = second >> 32;
 
-            var z2 = firstHigh * secondHigh;
-            var z0 = firstLow * secondLow;
-            var z1 = (firstLow + firstHigh) * (secondLow + secondHigh) - z2 - z0;
+                var z2 = firstHigh * secondHigh;
+                var z0 = firstLow * secondLow;
+                var mediumRes = Add(firstHigh * secondLow, firstLow * secondHigh);
+                var z1 = mediumRes.Item2;
 
-            var highz = (z1 & 0xFFFFFFFF00000000) >> 32;
-            var lowz = z1 & 0xFFFFFFFF;
+                var highz = z1 >> 32;
+                var lowz = z1 << 32;
 
-            var lowRes = z0 + lowz;
-            var highRes = z2 + highz;
-            return Tuple.Create(lowRes, highRes);
+                var sumLowRes = Add(z0, lowz);
+                var lowRes = sumLowRes.Item2;
+                var highRes = z2 + highz;
+
+                if (sumLowRes.Item1)
+                {
+                    ++highRes;
+                }
+
+                if (mediumRes.Item1)
+                {
+                    highRes += 0x100000000;
+                }
+
+                return Tuple.Create(highRes, lowRes);
+            }
         }
 
         /// <summary>
@@ -2121,11 +2571,8 @@
                 {
                     innerFirst = second;
                     innerSecond = first;
-
-                    // Troca os valores dos comprimentos com base no algoritmo do "ou exclusivo"
-                    firstLength ^= secondLength;
-                    secondLength ^= firstLength;
-                    firstLength ^= secondLength;
+                    firstLength = second.Length;
+                    secondLength = first.Length;
                 }
 
                 // Efectua a adição dos vectores inciais
@@ -2675,7 +3122,7 @@
         /// <param name="value">O número enorme a ser rodado.</param>
         /// <param name="places">O tamanho da deslocação em "bits".</param>
         /// <returns>O valor rodado.</returns>
-        public static ulong[] RotateRight(ulong[] value, int places)
+        private static ulong[] RotateRight(ulong[] value, int places)
         {
             if (value == null)
             {
@@ -2683,12 +3130,887 @@
             }
             else
             {
-                var innerPlaces = (uint)places;
+                // Se o valor for negativo, o "bit" correspondente ao sinal é eliminado
+                var innerPlaces = places & 0x7FFFFFFF;
+
+                // Inicia o processo de rotação
+                var length = value.Length;
+                var masterRotate = innerPlaces / 64;
+                if (masterRotate < length)
+                {
+                    // Determina o tamanho do novo vector
+                    var innerRotate = innerPlaces % 64;
+                    var counterRotate = 64 - innerRotate;
+                    var index = length - 1;
+                    var current = value[index];
+                    var masked = current >> counterRotate;
+                    current >>= innerRotate;
+                    var finalLength = length - masterRotate;
+                    if (current == 0)
+                    {
+                        --finalLength;
+                        if (finalLength == 0)
+                        {
+                            return null;
+                        }
+                        else
+                        {
+                            var result = new ulong[finalLength];
+                            var finalIndex = finalLength - 1;
+                            --finalIndex;
+                            --index;
+                            while (finalIndex > -1)
+                            {
+                                current = value[index];
+                                result[finalIndex] = (current >> innerRotate) | masked;
+                                masked = current >> counterRotate;
+                                --finalIndex;
+                                --index;
+                            }
+
+                            return result;
+                        }
+                    }
+                    else
+                    {
+                        var result = new ulong[finalLength];
+                        var finalIndex = finalLength - 1;
+                        result[finalIndex] = current;
+                        --finalIndex;
+                        --index;
+                        while (finalIndex > -1)
+                        {
+                            current = value[index];
+                            result[finalIndex] = (current >> innerRotate) | masked;
+                            masked = current >> counterRotate;
+                            --finalIndex;
+                            --index;
+                        }
+
+                        return result;
+                    }
+                }
+                else
+                {
+                    return null;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Efectua a rotação à esquerda da representação de um número enorme.
+        /// </summary>
+        /// <param name="value">O número enorme a ser rodado.</param>
+        /// <param name="places">O tamanho da deslocação em "bits".</param>
+        /// <returns>O valor rodado.</returns>
+        public static ulong[] RotateLeft(ulong[] value, int places)
+        {
+            if (value == null)
+            {
+                return null;
+            }
+            else
+            {
+                // Se o valor for negativo, o "bit" correspondente ao sinal é eliminado
+                var innerPlaces = places & 0x7FFFFFFF;
+
+                // Inicia o processo de rotação
+                var length = value.Length;
                 var masterRotate = innerPlaces / 64;
                 var innerRotate = innerPlaces % 64;
+                var counterRotate = 64 - innerRotate;
+                var current = value[length - 1];
+                var masked = current << counterRotate;
+                var finalLength = length + masterRotate;
+                if (masked == 0)
+                {
+                    var finalIndex = finalLength;
+                    ++finalLength;
+                    var result = new ulong[finalLength];
+                    for (int i = 0; i < masterRotate; ++i)
+                    {
+                        result[i] = 0;
+                    }
+
+                    var index = 0;
+                    finalIndex = masterRotate;
+                    current = value[index];
+                    masked = current >> counterRotate;
+                    result[finalIndex] = current << innerRotate;
+                    ++index;
+                    ++finalIndex;
+                    while (index < length)
+                    {
+                        current = value[index];
+                        var innerMasked = current >> counterRotate;
+                        result[finalIndex] = (current << innerRotate) | masked;
+                        masked = current >> counterRotate;
+                        ++index;
+                        ++finalIndex;
+                    }
+
+                    return result;
+                }
+                else
+                {
+                    var finalIndex = finalLength - 1;
+                    var result = new ulong[finalLength];
+                    for (int i = 0; i < masterRotate; ++i)
+                    {
+                        result[i] = 0;
+                    }
+
+                    var index = 0;
+                    finalIndex = masterRotate;
+                    current = value[index];
+                    masked = current >> counterRotate;
+                    result[finalIndex] = current << innerRotate;
+                    ++index;
+                    ++finalIndex;
+                    while (index < length)
+                    {
+                        current = value[index];
+                        var innerMasked = current >> counterRotate;
+                        result[finalIndex] = (current << innerRotate) | masked;
+                        masked = current >> counterRotate;
+                        ++index;
+                        ++finalIndex;
+                    }
+
+                    return result;
+                }
+            }
+        }
+
+        #endregion Funções estáticas privadas
+    }
+
+    /// <summary>
+    /// Representa um número inteiro grande como sendo um vector de inteiros sem
+    /// sinal em base 10^10.
+    /// </summary>
+    /// <remarks>
+    /// As unidades encontram-se representadas na primeira entrada do vector.
+    /// </remarks>
+    public struct UintArrayDecimalRepBigInt
+    {
+        /// <summary>
+        /// A base na qual se encontra representado o número.
+        /// </summary>
+        private static uint numberBase = 1000000000;
+
+        /// <summary>
+        /// O logaritmo decimal da base.
+        /// </summary>
+        private static byte numberBaseLog = 9;
+
+        /// <summary>
+        /// O sinal do número.
+        /// </summary>
+        private bool sign;
+
+        /// <summary>
+        /// O vector que contém a representação.
+        /// </summary>
+        private uint[] array;
+
+        #region Construtores
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="UintArrayDecimalRepBigInt"/>.
+        /// </summary>
+        /// <param name="array">O vector de valores que inicializam o número.</param>
+        public UintArrayDecimalRepBigInt(uint[] array)
+        {
+            this.sign = false;
+            if (array == null || array.Length == 0)
+            {
+                this.array = null;
+            }
+            else
+            {
+                var length = array.Length;
+                this.array = new uint[length];
+                Array.Copy(array, this.array, length);
+            }
+        }
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="UintArrayDecimalRepBigInt"/>.
+        /// </summary>
+        /// <param name="list"></param>
+        public UintArrayDecimalRepBigInt(List<uint> list)
+        {
+            if (list == null || list.Count == 0)
+            {
+                this.sign = false;
+                this.array = null;
+            }
+            else
+            {
+                this.sign = false;
+                this.array = list.ToArray();
+            }
+        }
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="UintArrayDecimalRepBigInt"/>.
+        /// </summary>
+        /// <param name="sign">O sinal do número.</param>
+        /// <param name="array">O vector de valores que inicializam o número.</param>
+        public UintArrayDecimalRepBigInt(bool sign, uint[] array)
+        {
+            this.sign = sign;
+            if (array == null || array.Length == 0)
+            {
+                this.array = null;
+            }
+            else
+            {
+                var length = array.Length;
+                this.array = new uint[length];
+                Array.Copy(array, this.array, length);
+            }
+        }
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="UintArrayDecimalRepBigInt"/>.
+        /// </summary>
+        /// <param name="sign">O sinal do número.</param>
+        /// <param name="list"></param>
+        public UintArrayDecimalRepBigInt(bool sign, List<uint> list)
+        {
+            this.sign = sign;
+            if (list == null || list.Count == 0)
+            {
+                this.array = null;
+            }
+            else
+            {
+                this.array = list.ToArray();
+            }
+        }
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="UintArrayDecimalRepBigInt"/>.
+        /// </summary>
+        /// <param name="numb">O número inteiro.</param>
+        public UintArrayDecimalRepBigInt(int numb)
+        {
+            if (numb == 0)
+            {
+                this.sign = false;
+                this.array = null;
+            }
+            else
+            {
+                this.sign = numb < 0;
+                var innerNumb = (uint)Math.Abs(numb);
+                var quo = innerNumb / numberBase;
+                if (quo == 0)
+                {
+                    var rem = innerNumb % numberBase;
+                    this.array = new[] { quo, rem };
+                }
+                else
+                {
+                    this.array = new[] { innerNumb };
+                }
+            }
+        }
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="UintArrayDecimalRepBigInt"/>.
+        /// </summary>
+        /// <param name="numb">O número inteiro.</param>
+        public UintArrayDecimalRepBigInt(uint numb)
+        {
+            if (numb == 0)
+            {
+                this.sign = false;
+                this.array = null;
+            }
+            else
+            {
+                this.sign = false;
+                var quo = numb / numberBase;
+                if (quo == 0)
+                {
+                    var rem = numb % numberBase;
+                    this.array = new[] { quo, rem };
+                }
+                else
+                {
+                    this.array = new[] { numb };
+                }
+            }
+        }
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="UintArrayDecimalRepBigInt"/>.
+        /// </summary>
+        /// <param name="numb">O número inteiro.</param>
+        public UintArrayDecimalRepBigInt(long numb)
+        {
+            if (numb == 0)
+            {
+                this.sign = false;
+                this.array = null;
+            }
+            else
+            {
+                this.sign = numb < 0;
+                var innerNumb = Math.Abs(numb);
+                var result = new List<uint>();
+                var quo = innerNumb / numberBase;
+                while (quo > 0)
+                {
+                    var rem = innerNumb % numberBase;
+                    result.Add((uint)rem);
+                    innerNumb = quo;
+                }
+
+                result.Add((uint)innerNumb);
+                this.array = result.ToArray();
+            }
+        }
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="UintArrayDecimalRepBigInt"/>.
+        /// </summary>
+        /// <param name="numb">O número inteiro.</param>
+        public UintArrayDecimalRepBigInt(ulong numb)
+        {
+            if (numb == 0)
+            {
+                this.sign = false;
+                this.array = null;
+            }
+            else
+            {
+                this.sign = false;
+                var result = new List<uint>();
+                var innerNumb = numb;
+                var quo = innerNumb / numberBase;
+                while (quo > 0)
+                {
+                    var rem = innerNumb % numberBase;
+                    result.Add((uint)rem);
+                    innerNumb = quo;
+                }
+
+                result.Add((uint)innerNumb);
+                this.array = result.ToArray();
+            }
+        }
+
+        #endregion Construtores
+
+        /// <summary>
+        /// Obtém o sinal do número.
+        /// </summary>
+        public bool Sign
+        {
+            get
+            {
+                return this.sign;
+            }
+        }
+
+        #region Funções públicas
+
+        /// <summary>
+        /// Obtém a representação interna do número.
+        /// </summary>
+        /// <returns>A representação interna do número.</returns>
+        public uint[] GetRepresentationArray()
+        {
+            if (this.array == null)
+            {
+                return new uint[0];
+            }
+            else
+            {
+                var length = this.array.Length;
+                var result = new uint[length];
+                Array.Copy(this.array, result, length);
+                return result;
+            }
+        }
+
+        /// <summary>
+        /// Determina se o objecto proporcionado é igual ao corrente.
+        /// </summary>
+        /// <param name="obj">O objecto a ser comparado.</param>
+        /// <returns>Verdadeiro caso ambos os objectos sejam iguais e falso caso contrário.</returns>
+        public override bool Equals(object obj)
+        {
+            if (obj is UintArrayDecimalRepBigInt)
+            {
+                var innerObj = (UintArrayDecimalRepBigInt)obj;
+                if (this.array == null && innerObj.array == null)
+                {
+                    return true;
+                }
+                else if (this.array == null)
+                {
+                    return false;
+                }
+                else if (innerObj.array == null)
+                {
+                    return false;
+                }
+                else
+                {
+                    if (this.sign == innerObj.sign)
+                    {
+                        var length = this.array.Length;
+                        var objLength = innerObj.array.Length;
+                        if (length == objLength)
+                        {
+                            for (int i = 0; i < length; ++i)
+                            {
+                                if (this.array[i] != innerObj.array[i])
+                                {
+                                    return false;
+                                }
+                            }
+
+                            return true;
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Determina um código confuso para o número enorme.
+        /// </summary>
+        /// <returns>O código confuso.</returns>
+        public override int GetHashCode()
+        {
+            var result = typeof(UintArrayDecimalRepBigInt).GetHashCode();
+            if (this.array != null)
+            {
+                result ^= this.sign.GetHashCode();
+                var length = this.array.Length;
+                for (int i = 0; i < length; ++i)
+                {
+                    result ^= (19 * this.array[i] + 17u).GetHashCode();
+                }
             }
 
-            throw new NotImplementedException();
+            return result;
+        }
+
+        /// <summary>
+        /// Obtém a representação textual do número.
+        /// </summary>
+        /// <returns>A representação textual.</returns>
+        public override string ToString()
+        {
+            if (this.array == null)
+            {
+                return "0";
+            }
+            else
+            {
+                var result = string.Empty;
+                if (this.sign)
+                {
+                    result = "-";
+                }
+
+                for (int i = this.array.Length - 1; i > 0; --i)
+                {
+                    var value = this.array[i].ToString();
+                    while (value.Length < numberBaseLog)
+                    {
+                        value = "0" + value;
+                    }
+
+                    result += value;
+                }
+
+                result += this.array[0];
+                return result;
+            }
+        }
+
+        #endregion Funções públicas
+
+        #region Funções estáticas públicas
+
+        /// <summary>
+        /// Tenta realizar a leitura de um número inteiro enorme a partir da sua representação texual caso
+        /// esta seja uma representação correcta.
+        /// </summary>
+        /// <param name="text">A representação textual do número.</param>
+        /// <param name="value">Recebe o valor lido em caso de sucesso.</param>
+        /// <returns>Verdadeiro caso a função seja bem-sucedida e falso caso contrário.</returns>
+        public static bool TryParse(string text, out UintArrayDecimalRepBigInt value)
+        {
+            var integerExpression = new Regex("^\\s*(-{0,1})(0*)(\\d+)\\s*$");
+            var match = integerExpression.Match(text);
+            if (match.Success)
+            {
+                var sign = false;
+                var readed = new List<uint>();
+
+                var innerText = match.Groups[1].Value;
+                if (innerText == "-")
+                {
+                    sign = true;
+                }
+
+                // Trata os valores
+                innerText = match.Groups[3].Value;
+                if (innerText == "0")
+                {
+                    value = new UintArrayDecimalRepBigInt();
+                    return true;
+                }
+                else
+                {
+                    var length = innerText.Length;
+                    var baseLen = (int)numberBaseLog;
+                    var len = baseLen;
+                    if (length < len)
+                    {
+                        len = length;
+                    }
+
+                    var parsing = innerText.Substring(0, len);
+                    var parsed = uint.Parse(parsing);
+                    readed.Add(parsed);
+
+                    var index = len;
+                    while (index < length)
+                    {
+                        len = baseLen;
+                        var nextIndex = index + len;
+                        if (length < nextIndex)
+                        {
+                            len = length - index;
+                            nextIndex = length;
+                        }
+
+                        parsing = innerText.Substring(0, len);
+                        parsed = uint.Parse(parsing);
+                        readed.Insert(0, parsed);
+                        index = nextIndex;
+                    }
+                }
+
+                value = new UintArrayDecimalRepBigInt(sign, readed);
+                return true;
+            }
+            else
+            {
+                value = default(UintArrayDecimalRepBigInt);
+                return false;
+            }
+        }
+
+        #endregion
+
+        #region Funções estáticas privadas
+
+        /// <summary>
+        /// Realiza a adição sequencial de dois vectores que constituem as representações
+        /// de dois números sem sinal.
+        /// </summary>
+        /// <param name="first">O primeiro número a ser adicionado.</param>
+        /// <param name="second">O segundo número a ser adicionado.</param>
+        /// <returns>O resultado da adição.</returns>
+        private static uint[] SequentialAdd(uint[] first, uint[] second)
+        {
+            if (first == null && second == null)
+            {
+                return null;
+            }
+            else if (first == null)
+            {
+                var secondLength = second.Length;
+                var result = new uint[secondLength];
+                Array.Copy(second, result, secondLength);
+                return result;
+            }
+            else if (second == null)
+            {
+                var firstLength = first.Length;
+                var result = new uint[firstLength];
+                Array.Copy(first, result, firstLength);
+                return result;
+            }
+            else
+            {
+                var innerFirst = first;
+                var innerSecond = second;
+                var firstLength = first.Length;
+                var secondLength = second.Length;
+                if (firstLength < secondLength)
+                {
+                    innerFirst = second;
+                    innerSecond = first;
+                    firstLength = second.Length;
+                    secondLength = first.Length;
+                }
+
+                var partialResult = new uint[secondLength];
+                var firstCurrent = innerFirst[0];
+                var secondCurrent = innerSecond[0];
+                var sum = firstCurrent + secondCurrent;
+                var carry = 0u;
+                if (sum >= numberBase)
+                {
+                    carry = 1u;
+                    partialResult[0] = sum - numberBase;
+                }
+                else
+                {
+                    partialResult[0] = sum;
+                }
+
+                for (int i = 1; i < secondLength; ++i)
+                {
+                    firstCurrent = innerFirst[i];
+                    secondCurrent = innerSecond[i];
+                    sum = firstCurrent + secondCurrent + carry;
+                    if (sum >= numberBase)
+                    {
+                        carry = 1u;
+                        partialResult[i] = sum - numberBase;
+                    }
+                    else
+                    {
+                        carry = 0u;
+                    }
+                }
+
+                if (carry == 0u)
+                {
+                    var result = new uint[firstLength];
+                    Array.Copy(partialResult, result, firstLength);
+                    Array.Copy(innerSecond, secondLength, result, secondLength, firstLength - secondLength);
+                    return result;
+                }
+                else
+                {
+                    // Verifica até quando o transporte é propagado
+                    var propagationIndex = -1;
+                    var max = numberBase - 1;
+                    for (int i = secondLength; i < firstLength; ++i)
+                    {
+                        if (innerFirst[i] != max)
+                        {
+                            propagationIndex = i;
+                            i = firstLength;
+                        }
+                    }
+
+                    if (propagationIndex < 0)
+                    {
+                        var result = new uint[firstLength + 1];
+                        result[firstLength] = 1u;
+                        Array.Copy(partialResult, result, firstLength);
+                        for (int i = secondLength; i < firstLength; ++i)
+                        {
+                            result[i] = 0;
+                        }
+
+                        return result;
+                    }
+                    else
+                    {
+                        var result = new uint[firstLength];
+                        Array.Copy(partialResult, result, firstLength);
+                        for (int i = secondLength; i < propagationIndex; ++i)
+                        {
+                            result[i] = 0;
+                        }
+
+                        result[propagationIndex] = innerFirst[propagationIndex] + 1;
+                        ++propagationIndex;
+                        Array.Copy(innerFirst, propagationIndex, result, propagationIndex, firstLength - propagationIndex);
+                        return result;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Determina a diferença entre dois números.
+        /// </summary>
+        /// <remarks>
+        /// Se o primeiro número for inferior ao segundo, então o resultado da diferença
+        /// poderá não corresponder ao esperado.
+        /// </remarks>
+        /// <param name="greatest">O maior número.</param>
+        /// <param name="smallest">O menor número.</param>
+        /// <returns>O resultado da diferença.</returns>
+        private static uint[] SequentialSubtract(uint[] greatest, uint[] smallest)
+        {
+            if (smallest == null)
+            {
+                var length = greatest.Length;
+                var result = new uint[length];
+                Array.Copy(greatest, result, length);
+                return result;
+            }
+            else
+            {
+                var greatestLength = greatest.Length;
+                var smallestLength = smallest.Length;
+                var partialResult = new uint[smallestLength];
+                var greatestCurrent = greatest[0];
+                var smallestCurrent = smallest[0];
+                var carry = 0u;
+                if (greatestCurrent < smallestCurrent)
+                {
+                    partialResult[0] = (numberBase - greatestCurrent) + smallestCurrent;
+                    carry = 1u;
+                }
+                else
+                {
+                    partialResult[0] = greatestCurrent - smallestCurrent;
+                }
+
+                for (int i = 1; i < smallestLength; ++i)
+                {
+                    greatestCurrent = greatest[i];
+                    smallestCurrent = smallest[i];
+                    if (carry == 0u)
+                    {
+                        if (greatestCurrent < smallestCurrent)
+                        {
+                            partialResult[0] = (numberBase - greatestCurrent) + smallestCurrent;
+                            carry = 0u;
+                        }
+                        else
+                        {
+                            partialResult[i] = greatestCurrent - smallestCurrent;
+                            carry = 1u;
+                        }
+                    }
+                    else if (greatestCurrent <= smallestCurrent)
+                    {
+                        ++smallestCurrent;
+                        partialResult[i] = (numberBase - greatestCurrent) + smallestCurrent;
+                        carry = 1u;
+                    }
+                    else
+                    {
+                        ++smallestCurrent;
+                        partialResult[i] = greatestCurrent - smallestCurrent;
+                        carry = 1u;
+                    }
+                }
+
+                if (carry == 0u)
+                {
+                    if (greatestLength == smallestLength)
+                    {
+                        var finalLength = greatestLength;
+                        for (int i = greatestLength - 1; i > -1; --i)
+                        {
+                            if (partialResult[i] == 0)
+                            {
+                                --finalLength;
+                            }
+                            else
+                            {
+                                i = -1;
+                            }
+                        }
+
+                        if (finalLength == 0)
+                        {
+                            return null;
+                        }
+                        else
+                        {
+                            var result = new uint[finalLength];
+                            Array.Copy(partialResult, result, finalLength);
+                            return result;
+                        }
+                    }
+                    else
+                    {
+                        var result = new uint[greatestLength];
+                        Array.Copy(partialResult, result, smallestLength);
+                        Array.Copy(greatest, smallestLength, result, smallestLength, greatestLength - smallestLength);
+                        return result;
+                    }
+                }
+                else
+                {
+                    // Completa a subtracção a partir dos elementos de maior ordem do primeiro argumento
+                    var stopPropagationIndex = -1;
+                    for (int i = smallestLength; i < greatestLength; ++i)
+                    {
+                        if (greatest[i] != 0)
+                        {
+                            stopPropagationIndex = i;
+                            i = greatestLength;
+                        }
+                    }
+
+                    if (stopPropagationIndex == greatestLength - 1)
+                    {
+                        greatestCurrent = greatest[stopPropagationIndex];
+                        if (greatestCurrent > 1u)
+                        {
+                            var result = new uint[greatestLength];
+                            Array.Copy(partialResult, result, smallestLength);
+                            result[stopPropagationIndex] = greatestCurrent - 1;
+                            for (int i = smallestLength; i < stopPropagationIndex; ++i)
+                            {
+                                result[i] = 9u;
+                            }
+
+                            return result;
+                        }
+                        else
+                        {
+                            var result = new uint[stopPropagationIndex];
+                            Array.Copy(partialResult, result, smallestLength);
+                            for (int i = smallestLength; i < stopPropagationIndex; ++i)
+                            {
+                                result[i] = 9u;
+                            }
+
+                            return result;
+                        }
+                    }
+                    else
+                    {
+                        var result = new uint[greatestLength];
+                        Array.Copy(partialResult, result, smallestLength);
+                        result[stopPropagationIndex]--;
+                        ++stopPropagationIndex;
+                        Array.Copy(
+                            greatest,
+                            stopPropagationIndex,
+                            result,
+                            stopPropagationIndex,
+                            greatestLength - stopPropagationIndex);
+                        return result;
+                    }
+                }
+            }
         }
 
         #endregion Funções estáticas privadas

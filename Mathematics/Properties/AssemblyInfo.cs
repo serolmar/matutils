@@ -35,4 +35,4 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
 
-[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("UtilitiesTest")]
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("Mathematics.Test")]
