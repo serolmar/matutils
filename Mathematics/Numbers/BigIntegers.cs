@@ -1792,6 +1792,19 @@
         }
 
         /// <summary>
+        /// Adiciona um valor à representação decimal de um número enorme.
+        /// </summary>
+        /// <remarks>
+        /// Esta função presta-se fundamentalmente à realização de testes unitários.
+        /// </remarks>
+        /// <param name="decimalRepresentation">A representação decimal do número enorme.</param>
+        /// <param name="value">O valor a ser adicionado.</param>
+        internal void InternalDecimalRepAdd(List<ulong> decimalRepresentation, ulong value)
+        {
+            this.DecimalRepAdd(decimalRepresentation, value);
+        }
+
+        /// <summary>
         /// Permite multiplicar dois números longos sem sinal binários, retornando
         /// o resultado na base 10^19.
         /// </summary>
@@ -1806,6 +1819,20 @@
         internal Tuple<ulong, ulong, ulong> InternalDecimalRepMultiply(ulong first, ulong second)
         {
             return this.DecimalRepMultiply(first, second);
+        }
+
+        /// <summary>
+        /// Multiplica a representação decimal em base 10^19 do número pela potÊncia 2^64.
+        /// </summary>
+        /// <remarks>
+        /// Recorre-se aqui ao caso em que as unidades se encontram nas primeiras posições da lista
+        /// que contém a representação.
+        /// Esta função presta-se fundamentalmente à realização de testes unitários.
+        /// </remarks>
+        /// <param name="decimalRepresentation">A representação decimal do número.</param>
+        internal void InternalDecimalMultiplyByBinaryPower(List<ulong> decimalRepresentation)
+        {
+            this.DecimalMultiplyByBinaryPower64(decimalRepresentation);
         }
 
         #endregion Funções internas
@@ -1929,16 +1956,34 @@
         {
             var current = decimalRepresentation[0];
             var sum = this.DecimalRepAdd(current, value);
-            decimalRepresentation[0] = sum.Item2;
-            var carry = sum.Item2;
+            var carry = sum.Item1;
+            if (sum.Item2 < 10000000000000000000ul)
+            {
+                decimalRepresentation[0] = sum.Item2;
+            }
+            else
+            {
+                decimalRepresentation[0] = sum.Item2 - 10000000000000000000ul;
+                ++carry;
+            }
+
             var length = decimalRepresentation.Count;
             var index = 1;
             while (carry > 0ul && index < length)
             {
                 current = decimalRepresentation[index];
                 sum = this.DecimalRepAdd(current, carry);
-                decimalRepresentation[index] = sum.Item2;
                 carry = sum.Item1;
+                if (sum.Item2 < 10000000000000000000ul)
+                {
+                    decimalRepresentation[index] = sum.Item2;
+                }
+                else
+                {
+                    decimalRepresentation[index] = sum.Item2 - 10000000000000000000ul;
+                    ++carry;
+                }
+
                 ++index;
             }
 
@@ -1961,6 +2006,7 @@
             var low = 8446744073709551616ul;
             var previous = decimalRepresentation[0];
             var prod = this.DecimalRepMultiply(previous, low);
+            decimalRepresentation[0] = prod.Item3;
             var carries = new List<ulong>() { prod.Item2, prod.Item1 };
             var length = decimalRepresentation.Count;
             for (int i = 1; i < length; ++i)
@@ -1982,7 +2028,7 @@
                 {
                     var innerSum = this.DecimalRepAdd(carries[index], currentCarry);
                     carries[index] = innerSum.Item2;
-                    currentCarry = innerSum.Item2;
+                    currentCarry = innerSum.Item1;
                     ++index;
                 }
 
@@ -1999,7 +2045,7 @@
                 {
                     var innerSum = this.DecimalRepAdd(carries[index], currentCarry);
                     carries[index] = innerSum.Item2;
-                    currentCarry = innerSum.Item2;
+                    currentCarry = innerSum.Item1;
                     ++index;
                 }
 
@@ -2010,13 +2056,13 @@
 
                 // Propaga o transporte do segundo elemento do produto
                 index = 1;
-                currentCarry = prod.Item3;
+                currentCarry = prod.Item1;
                 carriesLength = carries.Count;
                 while (currentCarry > 0ul && index < carriesLength)
                 {
                     var innerSum = this.DecimalRepAdd(carries[index], currentCarry);
                     carries[index] = innerSum.Item2;
-                    currentCarry = innerSum.Item2;
+                    currentCarry = innerSum.Item1;
                     ++index;
                 }
 
@@ -2037,8 +2083,13 @@
                 {
                     var innerSum = this.DecimalRepAdd(carries[index], currentCarry);
                     carries[index] = innerSum.Item2;
-                    currentCarry = innerSum.Item2;
+                    currentCarry = innerSum.Item1;
                     ++index;
+                }
+
+                if (currentCarry > 0ul)
+                {
+                    carries.Add(currentCarry);
                 }
 
                 decimalRepresentation[i] = sum.Item2;

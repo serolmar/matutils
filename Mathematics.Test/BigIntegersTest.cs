@@ -207,6 +207,8 @@
             }
         }
 
+        #region Testes às funções internas
+
         /// <summary>
         /// Testa a função que permite adicionar dois números longos sem sinal, retornando o resultado
         /// na base 10^19.
@@ -229,6 +231,29 @@
         }
 
         /// <summary>
+        /// Testa a adição de um longo sem sinal a uma lista de valores que contém a representação decimal de um número
+        /// enorme.
+        /// </summary>
+        [Description("Tests the addition of an ulong to a list containing the decimal representation of a big number.")]
+        [TestMethod]
+        public void UlongArrayBigInt_DecimalRepAddValueToList()
+        {
+            var target = new UlongArrayBigInt();
+            var firstValues = new[] { 
+                new List<ulong>(){3584938574839482017ul, 5377562948593845950ul, 9843ul}};
+            var secondValues = new[] { 789345789403948593ul };
+            var expected = new[] { 
+                new List<ulong>(){4374284364243430610ul, 5377562948593845950ul, 9843ul}};
+            for (int i = 0; i < firstValues.Length; ++i)
+            {
+                target.InternalDecimalRepAdd(firstValues[i], secondValues[i]);
+
+                // A função altera a lista que é passada como argumento
+                CollectionAssert.AreEqual(expected[i], firstValues[i]);
+            }
+        }
+
+        /// <summary>
         /// Testa a função que permite adicionar dois números longos sem sinal, retornando o resultado
         /// na base 10^19.
         /// </summary>
@@ -237,17 +262,48 @@
         public void UlongArrayBigInt_DecimalRepMultiply()
         {
             var target = new UlongArrayBigInt();
-            var firstValues = new[] { 0xFFFFFFFFFFFFFFFF, 185948374650294856ul };
-            var secondValues = new[] { 0xFFFFFFFFFFFFFFFF, 798574836475869405ul };
+            var firstValues = new[] { 
+                //0xFFFFFFFFFFFFFFFF, 
+                //185948374650294856ul,
+                5377562948593845950ul };
+            var secondValues = new[] { 
+                //0xFFFFFFFFFFFFFFFF, 
+                //798574836475869405ul, 
+                8446744073709551616ul };
             var expected = new[] { 
-                Tuple.Create(3ul, 4028236692093846342ul, 6481119284349108225ul),
-                Tuple.Create(0ul, 14849369287931291ul, 4387396512199280680ul)};
+                //Tuple.Create(3ul, 4028236692093846342ul, 6481119284349108225ul),
+                //Tuple.Create(0ul, 14849369287931291ul, 4387396512199280680ul),
+                Tuple.Create(0ul, 4542289796703513044ul, 2754042671477555200ul)};
             for (int i = 0; i < firstValues.Length; ++i)
             {
                 var result = target.InternalDecimalRepMultiply(firstValues[i], secondValues[i]);
                 Assert.AreEqual(expected[i], result);
             }
         }
+
+        /// <summary>
+        /// Testa a multiplicação do número 2^64 por um número enorme representado por uma lista
+        /// de longos sem sinal em base 10^19.
+        /// </summary>
+        [Description("Tests the ulong numbers multiplication getting the result in base 10^19.")]
+        [TestMethod]
+        public void UlongArrayBigInt_DecimalMultiplyByBinaryPower64()
+        {
+            var target = new UlongArrayBigInt();
+            var values = new[] { 
+                new List<ulong>(){3584938574839482017ul, 5377562948593845950ul, 9843ul}};
+            var expected = new[] { 
+                new List<ulong>(){2522926646765289472ul, 9367087112480853278ul, 1221770268413915282ul, 18158ul}};
+            for (int i = 0; i < values.Length; ++i)
+            {
+                target.InternalDecimalMultiplyByBinaryPower(values[i]);
+
+                // A função altera a lista que é passada como argumento
+                CollectionAssert.AreEqual(expected[i], values[i]);
+            }
+        }
+
+        #endregion Testes às funções internas
 
         #region Testes à sobrecarga de operadores para a classe UlongArrayBigInt
 
