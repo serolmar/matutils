@@ -314,67 +314,28 @@
         /// <returns>A representação textual do número.</returns>
         public override string ToString()
         {
-            if (this.array == null || this.array.Length == 0)
+            if (this.array == null)
             {
                 return "0";
             }
             else
             {
                 var index = this.array.Length - 1;
-                var current = this.array[index];
-                while (current == 0 && index >= 0)
+                var resultValue = new List<ulong>() { this.array[index] };
+                --index;
+                for (; index > -1; --index)
                 {
-                    current = this.array[index];
-                    --index;
+                    this.DecimalMultiplyByBinaryPower64(resultValue);
+                    this.DecimalRepAdd(resultValue, this.array[index]);
                 }
 
-                if (index < 0)
+                var result = this.GetDecimalRepresentation(resultValue);
+                if (this.sign)
                 {
-                    return "0";
+                    result = "-" + result;
                 }
-                else
-                {
-                    var decimalRep = new List<ulong>() { 1 };
 
-                    // Determina a posição do primeiro "bit" não nulo
-                    var pos = MathFunctions.GetHighestSettedBitIndex(current);
-                    current = current << (64 - pos);
-                    for (int i = 0; i < pos; ++i)
-                    {
-                        this.DuplicateDecimalRep(decimalRep);
-                        if ((current & 0x8000000000000000) == 0x8000000000000000)
-                        {
-                            this.IncrementDecimalRep(decimalRep);
-                        }
-
-                        current = current << 1;
-                    }
-
-                    --index;
-                    for (; index >= 0; --index)
-                    {
-                        current = this.array[index];
-                        for (int i = 0; i < 64; ++i)
-                        {
-                            this.DuplicateDecimalRep(decimalRep);
-                            if ((current & 0x8000000000000000) == 0x8000000000000000)
-                            {
-                                this.IncrementDecimalRep(decimalRep);
-                            }
-
-                            current = current << 1;
-                        }
-                    }
-
-                    // Imprime o resultado
-                    var result = this.GetDecimalRepresentation(decimalRep);
-                    if (this.sign)
-                    {
-                        result = "-" + result;
-                    }
-
-                    return result;
-                }
+                return result;
             }
         }
 
@@ -879,152 +840,6 @@
                         value = new UlongArrayBigInt();
                         value.sign = sign;
                         value.array = result.ToArray();
-                        return true;
-                    }
-                }
-                else
-                {
-                    value = default(UlongArrayBigInt);
-                    return false;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Tenta realizar a leitura de um número inteiro enorme a partir da sua representação texual caso
-        /// esta seja uma representação correcta.
-        /// </summary>
-        /// <param name="text">A representação textual do número.</param>
-        /// <param name="value">Recebe o valor lido em caso de sucesso.</param>
-        /// <returns>Verdadeiro caso a função seja bem-sucedida e falso caso contrário.</returns>
-        [Obsolete("Deprecated: function is of slow execution and shoud serve for learning purposes.")]
-        public static bool TryParse59(string text, out UlongArrayBigInt value)
-        {
-            if (text == null)
-            {
-                value = default(UlongArrayBigInt);
-                return false;
-            }
-            else
-            {
-                var integerExpression = new Regex("^\\s*(-{0,1})(0*)(\\d+)\\s*$");
-                var match = integerExpression.Match(text);
-                if (match.Success)
-                {
-                    var sign = false;
-                    var readed = new List<ulong>();
-
-                    var innerText = match.Groups[1].Value;
-                    if (innerText == "-")
-                    {
-                        sign = true;
-                    }
-
-                    // Trata os valores
-                    innerText = match.Groups[3].Value;
-                    if (innerText == "0")
-                    {
-                        value = new UlongArrayBigInt();
-                        return true;
-                    }
-                    else
-                    {
-                        var currentRes = DivideByBase59(innerText);
-
-                        readed.Add(currentRes.Item2);
-                        var alignement = 0;
-                        while (currentRes.Item1 != "0")
-                        {
-                            alignement += 5;
-                            alignement %= 64;
-
-                            currentRes = DivideByBase59(currentRes.Item1);
-                            if (alignement == 0)
-                            {
-                                readed.Add(currentRes.Item2);
-                            }
-                            else
-                            {
-                                AppendUlong(readed, currentRes.Item2, alignement);
-                            }
-                        }
-
-                        value = new UlongArrayBigInt();
-                        value.sign = sign;
-                        value.array = readed.ToArray();
-                        return true;
-                    }
-                }
-                else
-                {
-                    value = default(UlongArrayBigInt);
-                    return false;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Tenta realizar a leitura de um número inteiro enorme a partir da sua representação texual caso
-        /// esta seja uma representação correcta.
-        /// </summary>
-        /// <param name="text">A representação textual do número.</param>
-        /// <param name="value">Recebe o valor lido em caso de sucesso.</param>
-        /// <returns>Verdadeiro caso a função seja bem-sucedida e falso caso contrário.</returns>
-        [Obsolete("Deprecated: function is of slow execution and shoud serve for learning purposes.")]
-        public static bool TryParse1(string text, out UlongArrayBigInt value)
-        {
-            if (text == null)
-            {
-                value = default(UlongArrayBigInt);
-                return false;
-            }
-            else
-            {
-                var integerExpression = new Regex("^\\s*(-{0,1})(0*)(\\d+)\\s*$");
-                var match = integerExpression.Match(text);
-                if (match.Success)
-                {
-                    var sign = false;
-                    var readed = new List<ulong>();
-
-                    var innerText = match.Groups[1].Value;
-                    if (innerText == "-")
-                    {
-                        sign = true;
-                    }
-
-                    // Trata os valores
-                    innerText = match.Groups[3].Value;
-                    if (innerText == "0")
-                    {
-                        value = new UlongArrayBigInt();
-                        return true;
-                    }
-                    else
-                    {
-                        var currentRes = DivideByBase1(innerText);
-
-                        readed.Add(currentRes.Item2);
-                        var alignement = 0;
-                        while (currentRes.Item1 != "0")
-                        {
-                            ++alignement;
-                            alignement %= 64;
-
-                            currentRes = DivideByBase1(currentRes.Item1);
-                            if (alignement == 0)
-                            {
-                                readed.Add(currentRes.Item2);
-                            }
-                            else
-                            {
-                                AppendUlong(readed, currentRes.Item2, alignement);
-                            }
-                        }
-
-                        value = new UlongArrayBigInt();
-                        value.sign = sign;
-                        value.array = readed.ToArray();
                         return true;
                     }
                 }
@@ -1846,18 +1661,18 @@
         private string GetDecimalRepresentation(List<ulong> decimalRep)
         {
             var length = decimalRep.Count;
-            var index = 0;
+            var index = length - 1;
             var result = decimalRep[index].ToString();
-            if (result.Length > 18)
+            if (result.Length > 19)
             {
-                result = result.Substring(0, 18);
+                result = result.Substring(0, 19);
             }
 
-            ++index;
-            for (; index < length; ++index)
+            --index;
+            for (; index > -1; --index)
             {
                 var next = decimalRep[index].ToString();
-                var additional = 18 - next.Length;
+                var additional = 19 - next.Length;
                 if (additional > 0)
                 {
                     for (int i = 0; i < additional; ++i)
@@ -1867,84 +1682,13 @@
                 }
                 else if (additional < 0)
                 {
-                    next = next.Substring(0, 18);
+                    next = next.Substring(0, 19);
                 }
 
                 result += next;
             }
 
             return result;
-        }
-
-        /// <summary>
-        /// Incrementa o valor na representação decimal em uma unidade.
-        /// </summary>
-        /// <param name="decimalRepresentation">A representação decimal.</param>
-        private void IncrementDecimalRep(List<ulong> decimalRepresentation)
-        {
-            var index = decimalRepresentation.Count - 1;
-            var current = decimalRepresentation[index];
-            while (current == 999999999999999999 && index > -1)
-            {
-                decimalRepresentation[index] = 0;
-                --index;
-            }
-
-            if (index == -1)
-            {
-                decimalRepresentation.Insert(0, 1);
-            }
-            else
-            {
-                decimalRepresentation[index] = current + 1;
-            }
-        }
-
-        /// <summary>
-        /// Duplica o número dado pela representação decimal.
-        /// </summary>
-        /// <param name="decimalRepresentation">A representação decimal.</param>
-        private void DuplicateDecimalRep(List<ulong> decimalRepresentation)
-        {
-            var numBase = 1000000000000000000u;
-            var index = decimalRepresentation.Count - 1;
-            var current = decimalRepresentation[index];
-            current = current << 1;
-            var carry = 1u;
-            if (current < numBase)
-            {
-                carry = 0;
-            }
-            else
-            {
-                // A conta é aqui realizada de forma errada
-                current -= numBase;
-            }
-
-            decimalRepresentation[index] = current;
-            --index;
-            while (index >= 0)
-            {
-                current = decimalRepresentation[index];
-                current = (current << 1) + carry;
-                if (current < numBase)
-                {
-                    carry = 0u;
-                }
-                else
-                {
-                    current -= numBase;
-                    carry = 1u;
-                }
-
-                decimalRepresentation[index] = current;
-                --index;
-            }
-
-            if (carry > 0)
-            {
-                decimalRepresentation.Insert(0, carry);
-            }
         }
 
         /// <summary>
@@ -2007,7 +1751,24 @@
             var previous = decimalRepresentation[0];
             var prod = this.DecimalRepMultiply(previous, low);
             decimalRepresentation[0] = prod.Item3;
-            var carries = new List<ulong>() { prod.Item2, prod.Item1 };
+            var carries = new List<ulong>();
+            if (prod.Item2 == 0ul)
+            {
+                if (prod.Item1 != 0ul)
+                {
+                    carries.Add(prod.Item2);
+                    carries.Add(prod.Item1);
+                }
+            }
+            else
+            {
+                carries.Add(prod.Item2);
+                if (prod.Item1 != 0ul)
+                {
+                    carries.Add(prod.Item1);
+                }
+            }
+
             var length = decimalRepresentation.Count;
             for (int i = 1; i < length; ++i)
             {
@@ -2208,7 +1969,7 @@
                 // Nunca ocorre o fenómeno de transporte da primeira vez
                 if (prod.Item1 < 10000000000000000000ul)
                 {
-                    secondItem = prod.Item1;
+                    secondItem += prod.Item1;
                 }
                 else
                 {
@@ -2314,148 +2075,6 @@
         #endregion Funções privadas
 
         #region Funções estáticas privadas
-
-        /// <summary>
-        /// Adiciona um valor ao final da lista, deslocando os "bits" para a esquerda
-        /// em quatro unidades (alinhamento associado à base 0x8000000000000000).
-        /// </summary>
-        /// <param name="list">A lista à qual se pretende adicionar o valor.</param>
-        /// <param name="value">O valor a ser adicionado.</param>
-        /// <param name="alignement">O alinhamento.</param>
-        private static void AppendUlong(List<ulong> list, ulong value, int alignement)
-        {
-            var index = list.Count - 1;
-            var complement = 64 - alignement;
-            var mask = 0xFFFFFFFFFFFFFFFF >> complement;
-
-            // O valor dos "bits" mais baixos são colocados no valor anterior.
-            var lowest = (value & mask) << complement;
-            list[index] = list[index] | lowest;
-
-            var append = value >> alignement;
-            if (append != 0)
-            {
-                list.Add(append);
-            }
-        }
-
-        /// <summary>
-        /// Permite devidir um número pela base 2.
-        /// </summary>
-        /// <param name="text">A representação textual do número a ser dividio.</param>
-        /// <returns>O quociente e o resto da divisão.</returns>
-        private static Tuple<string, byte> DivideByBase1(string text)
-        {
-            var length = text.Length;
-            var index = 0;
-            var quotient = string.Empty;
-            var remainder = default(byte);
-            if (length < 20)
-            {
-                var parsed = ulong.Parse(text);
-                quotient = (parsed >> 1).ToString();
-                remainder = (byte)(parsed & 1);
-            }
-            else
-            {
-                var parsing = text.Substring(index, 18);
-                var parsed = ulong.Parse(parsing);
-                quotient += (parsed >> 1).ToString();
-                remainder = (byte)(parsed & 1);
-                index += 18;
-                while (index < length)
-                {
-                    var nextIndex = index + 18;
-                    var len = 18;
-                    if (nextIndex > length)
-                    {
-                        nextIndex = length;
-                        len = length - index;
-                        parsing = text.Substring(index, len);
-                    }
-                    else
-                    {
-                        parsing = text.Substring(index, len);
-                    }
-
-                    if (remainder == 1)
-                    {
-                        parsing = "1" + parsing;
-                    }
-
-                    parsed = ulong.Parse(parsing);
-                    var temp = (parsed >> 1).ToString();
-                    for (int i = temp.Length; i < len; ++i)
-                    {
-                        temp = "0" + temp;
-                    }
-
-                    quotient += temp;
-                    remainder = (byte)(parsed & 1);
-                    index = nextIndex;
-                }
-            }
-
-            return Tuple.Create(quotient, remainder);
-        }
-
-        /// <summary>
-        /// Premite dividir um número pela base 0x800000000000000.
-        /// </summary>
-        /// <param name="text">O número a ser dividido.</param>
-        /// <returns>O quociente e o resto da divisão.</returns>
-        private static Tuple<string, ulong> DivideByBase59(string text)
-        {
-            var length = text.Length;
-            var numbBase = 0x800000000000000u;
-            if (length < 19)
-            {
-                var currentValue = ulong.Parse(text);
-                return Tuple.Create("0", currentValue);
-            }
-            else
-            {
-                var initialText = text.Substring(0, 18);
-                var currentValue = ulong.Parse(initialText);
-                var index = 18;
-
-                // Ao início todos os zeros no resultado são ignorados
-                while (currentValue < numbBase && index < length)
-                {
-                    var chrValue = (ulong)char.GetNumericValue(text[index]);
-                    currentValue *= 10;
-                    currentValue += chrValue;
-                    ++index;
-                }
-
-                var result = (currentValue / numbBase).ToString();
-                currentValue %= numbBase;
-                while (index < length)
-                {
-                    var chrValue = (ulong)char.GetNumericValue(text[index]);
-                    currentValue *= 10;
-                    currentValue += chrValue;
-                    if (currentValue < numbBase)
-                    {
-                        result += "0";
-                    }
-                    else if (currentValue == numbBase)
-                    {
-                        result += "1";
-                        currentValue = 0;
-                    }
-                    else
-                    {
-                        result += (currentValue / numbBase).ToString();
-                        currentValue %= numbBase;
-                    }
-
-                    ++index;
-                }
-
-                return Tuple.Create(result, currentValue);
-            }
-        }
 
         /// <summary>
         /// Multiplica o número enorme representado na lista pelo número longo sem sinal especificado.
@@ -2826,7 +2445,7 @@
         /// após uma soma de células individuais, nunca se dá a possibilidade de uma marca de transporte e de propagação
         /// em simultâneo.
         /// </remarks>
-        /// <param name="first">O primeiro número a ser adicioinado.</param>
+        /// <param name="first">O primeiro número a ser adicionado.</param>
         /// <param name="second">O segundo número a ser adicionado.</param>
         /// <returns>A soma.</returns>
         private static ulong[] ParallelClaAdd(ulong[] first, ulong[] second)
@@ -3163,6 +2782,106 @@
                     });
 
                     return result;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Obtém o produto de dois números enormes, encontrando-se estes representados por vectores
+        /// de longos sem sinal.
+        /// </summary>
+        /// <param name="first">O primeiro número a ser multiplicado.</param>
+        /// <param name="second">O segundo número a ser multiplicado.</param>
+        /// <returns>O resultado da multiplicação.</returns>
+        private static ulong[] SequentialMultiply(ulong[] first, ulong[] second)
+        {
+            if (first == null || second == null)
+            {
+                return null;
+            }
+            else
+            {
+                var firstLenght = first.Length;
+                var secondLength = second.Length;
+                var length = firstLenght + secondLength;
+                var partialResult = new ulong[length + 1];
+
+                // Multiplicação do primeiro elemento para inicializar os vectores
+                var currentFirst = first[0];
+                var currentSecond = second[0];
+                var prod = Multiply(currentFirst, currentSecond);
+                partialResult[0] = prod.Item2;
+                var carry = prod.Item1;
+                for (int i = 1; i < firstLenght; ++i)
+                {
+                    currentFirst = first[i];
+                    prod = Multiply(currentFirst, currentSecond);
+
+                    // Sendo b a base, o máximo número possível é dado por (b-1)^2=(b-2)b+1, e o transporte associado ao
+                    // produto deixa de ser suficiente para gerar um novo transporte
+                    partialResult[i] = prod.Item2 + carry;
+                    carry = prod.Item1;
+                }
+
+                partialResult[firstLenght] = carry;
+
+                // Realiza a multiplicação tendo em conta as restantes componentes do segundo factor
+                for (int i = 1; i < secondLength; ++i)
+                {
+                    currentFirst = first[0];
+                    currentSecond = second[i];
+                    prod = Multiply(currentFirst, currentSecond);
+                    var currentPartial = partialResult[i];
+                    var sum = Add(currentPartial, prod.Item1 + carry);
+                    carry = prod.Item1;
+                    partialResult[i] = sum.Item2;
+
+                    for (int j = 1; j < firstLenght; ++j)
+                    {
+                        var innerIndex = i + j;
+                        currentFirst = first[j];
+                        prod = Multiply(currentFirst, currentSecond);
+                        currentPartial = partialResult[innerIndex];
+                        if (sum.Item1)
+                        {
+                            sum = Add(currentPartial, prod.Item1 + carry);
+                            partialResult[innerIndex] = sum.Item2 + 1;
+                        }
+                        else
+                        {
+                            sum = Add(currentPartial, prod.Item1 + carry);
+                            partialResult[innerIndex] = sum.Item2;
+                        }
+
+                        carry = prod.Item1;
+                    }
+
+                    if (sum.Item1)
+                    {
+                        ++carry;
+                    }
+                }
+
+                partialResult[length] = carry;
+
+                var lastIndex = length - 1;
+                var lastValue = partialResult[lastIndex];
+                while (lastValue == 0ul)
+                {
+                    --lastIndex;
+                    lastValue = partialResult[lastIndex];
+                }
+
+                if (lastIndex < length - 1)
+                {
+                    length = lastIndex + 1;
+                    var result = new ulong[length];
+                    Array.Copy(partialResult, result, length);
+                    return result;
+                }
+                else
+                {
+                    return partialResult;
                 }
             }
         }

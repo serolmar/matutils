@@ -263,16 +263,16 @@
         {
             var target = new UlongArrayBigInt();
             var firstValues = new[] { 
-                //0xFFFFFFFFFFFFFFFF, 
-                //185948374650294856ul,
+                0xFFFFFFFFFFFFFFFF, 
+                185948374650294856ul,
                 5377562948593845950ul };
             var secondValues = new[] { 
-                //0xFFFFFFFFFFFFFFFF, 
-                //798574836475869405ul, 
+                0xFFFFFFFFFFFFFFFF, 
+                798574836475869405ul, 
                 8446744073709551616ul };
             var expected = new[] { 
-                //Tuple.Create(3ul, 4028236692093846342ul, 6481119284349108225ul),
-                //Tuple.Create(0ul, 14849369287931291ul, 4387396512199280680ul),
+                Tuple.Create(3ul, 4028236692093846342ul, 6481119284349108225ul),
+                Tuple.Create(0ul, 14849369287931291ul, 4387396512199280680ul),
                 Tuple.Create(0ul, 4542289796703513044ul, 2754042671477555200ul)};
             for (int i = 0; i < firstValues.Length; ++i)
             {
