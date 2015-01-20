@@ -130,17 +130,17 @@
                         }
                         else
                         {
-                            Assert.Fail("Um problema ocorreu durante a leitura dos números.");
+                            Assert.Fail("A problem has occurred while parsing the numbers.");
                         }
                     }
                     else
                     {
-                        Assert.Fail("Um problema ocorreu durante a leitura dos números.");
+                        Assert.Fail("A problem has occurred while parsing the numbers.");
                     }
                 }
                 else
                 {
-                    Assert.Fail("Um problema ocorreu durante a leitura dos números.");
+                    Assert.Fail("A problem has occurred while parsing the numbers.");
                 }
             }
         }
@@ -192,17 +192,17 @@
                         }
                         else
                         {
-                            Assert.Fail("Um problema ocorreu durante a leitura dos números.");
+                            Assert.Fail("A problem has occurred while parsing the numbers.");
                         }
                     }
                     else
                     {
-                        Assert.Fail("Um problema ocorreu durante a leitura dos números.");
+                        Assert.Fail("A problem has occurred while parsing the numbers.");
                     }
                 }
                 else
                 {
-                    Assert.Fail("Um problema ocorreu durante a leitura dos números.");
+                    Assert.Fail("A problem has occurred while parsing the numbers.");
                 }
             }
         }
@@ -330,12 +330,12 @@
                     }
                     else
                     {
-                        Assert.Fail("Um problema ocorreu durante a leitura dos números.");
+                        Assert.Fail("A problem has occurred while parsing the numbers.");
                     }
                 }
                 else
                 {
-                    Assert.Fail("Um problema ocorreu durante a leitura dos números.");
+                    Assert.Fail("A problem has occurred while parsing the numbers.");
                 }
             }
         }
@@ -363,12 +363,12 @@
                     }
                     else
                     {
-                        Assert.Fail("Um problema ocorreu durante a leitura dos números.");
+                        Assert.Fail("A problem has occurred while parsing the numbers.");
                     }
                 }
                 else
                 {
-                    Assert.Fail("Um problema ocorreu durante a leitura dos números.");
+                    Assert.Fail("A problem has occurred while parsing the numbers.");
                 }
             }
         }
@@ -420,17 +420,74 @@
                         }
                         else
                         {
-                            Assert.Fail("Um problema ocorreu durante a leitura dos números.");
+                            Assert.Fail("A problem has occurred while parsing the numbers.");
                         }
                     }
                     else
                     {
-                        Assert.Fail("Um problema ocorreu durante a leitura dos números.");
+                        Assert.Fail("A problem has occurred while parsing the numbers.");
                     }
                 }
                 else
                 {
-                    Assert.Fail("Um problema ocorreu durante a leitura dos números.");
+                    Assert.Fail("A problem has occurred while parsing the numbers.");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Testa a validade da sobrecarga do operador de multiplicação de números inteiros enormes.
+        /// </summary>
+        [Description("Tests the multiplication operator overload for big integers.")]
+        [TestMethod]
+        public void UlongArrayBigInt_MultiplyOperatorTest()
+        {
+            var firstTests = new[]{
+                //"0",
+                //"999999999999999999",
+                "123456789012345678901234567890",
+                "-123098765412309876541230987654"
+            };
+            var secondTests = new[]{
+                //"-1",
+                //"999999999999999999",
+                "-120398471209384719238",
+                "-341019084571029843571023948"
+            };
+            var expectedValues = new[]{
+                //"0",
+                //"999999999999999998000000000000000001",
+                "-14864008657505984968540605278839196519227900067820",
+                "41979028292729865179421161730533936344764861672126337992"
+            };
+
+            for (int i = 0; i < firstTests.Length; ++i)
+            {
+                var firstTarget = default(UlongArrayBigInt);
+                if (UlongArrayBigInt.TryParse(firstTests[i], out firstTarget))
+                {
+                    var secondTarget = default(UlongArrayBigInt);
+                    if (UlongArrayBigInt.TryParse(secondTests[i], out secondTarget))
+                    {
+                        var expected = default(UlongArrayBigInt);
+                        if (UlongArrayBigInt.TryParse(expectedValues[i], out expected))
+                        {
+                            var actual = firstTarget * secondTarget;
+                            Assert.AreEqual(expected, actual);
+                        }
+                        else
+                        {
+                            Assert.Fail("A problem has occurred while parsing the numbers.");
+                        }
+                    }
+                    else
+                    {
+                        Assert.Fail("A problem has occurred while parsing the numbers.");
+                    }
+                }
+                else
+                {
+                    Assert.Fail("A problem has occurred while parsing the numbers.");
                 }
             }
         }
@@ -482,17 +539,17 @@
                         }
                         else
                         {
-                            Assert.Fail("Um problema ocorreu durante a leitura dos números.");
+                            Assert.Fail("A problem has occurred while parsing the numbers.");
                         }
                     }
                     else
                     {
-                        Assert.Fail("Um problema ocorreu durante a leitura dos números.");
+                        Assert.Fail("A problem has occurred while parsing the numbers.");
                     }
                 }
                 else
                 {
-                    Assert.Fail("Um problema ocorreu durante a leitura dos números.");
+                    Assert.Fail("A problem has occurred while parsing the numbers.");
                 }
             }
         }

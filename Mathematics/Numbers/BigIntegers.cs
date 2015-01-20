@@ -365,7 +365,7 @@
         /// <returns>O resultado do produto.</returns>
         public static UlongArrayBigInt operator *(UlongArrayBigInt first, UlongArrayBigInt second)
         {
-            throw new NotImplementedException();
+            return SequentialMultiply(first, second);
         }
 
         /// <summary>
@@ -1585,9 +1585,39 @@
             }
         }
 
-        #endregion Funções estáticas públicas
+        /// <summary>
+        /// Determina o produto entre dois números enormes.
+        /// </summary>
+        /// <param name="first">O primeiro factor a ser multiplicado.</param>
+        /// <param name="second">O segundo factor a ser multiplicado.</param>
+        /// <returns>O valor do produto entre os dois números.</returns>
+        public static UlongArrayBigInt SequentialMultiply(UlongArrayBigInt first, UlongArrayBigInt second)
+        {
+            if (first.array == null || second.array == null)
+            {
+                var result = new UlongArrayBigInt();
+                result.sign = false;
+                result.array = null;
+                return result;
+            }
+            else
+            {
+                var result = new UlongArrayBigInt();
+                if ((first.sign && second.sign) || (!first.sign && !second.sign))
+                {
+                    result.sign = false;
+                }
+                else
+                {
+                    result.sign = true;
+                }
 
-        #region Funções privadas
+                result.array = SequentialMultiply(first.array, second.array);
+                return result;
+            }
+        }
+
+        #endregion Funções estáticas públicas
 
         #region Funções internas
 
@@ -1651,6 +1681,8 @@
         }
 
         #endregion Funções internas
+
+        #region Funções privadas
 
         /// <summary>
         /// Função auxiliar que permite escrever a representação textual de um número representado em notação
@@ -2801,87 +2833,93 @@
             }
             else
             {
-                var firstLenght = first.Length;
-                var secondLength = second.Length;
-                var length = firstLenght + secondLength;
-                var partialResult = new ulong[length + 1];
-
-                // Multiplicação do primeiro elemento para inicializar os vectores
-                var currentFirst = first[0];
-                var currentSecond = second[0];
-                var prod = Multiply(currentFirst, currentSecond);
-                partialResult[0] = prod.Item2;
-                var carry = prod.Item1;
-                for (int i = 1; i < firstLenght; ++i)
+                checked
                 {
-                    currentFirst = first[i];
-                    prod = Multiply(currentFirst, currentSecond);
+                    var firstLenght = first.Length;
+                    var secondLength = second.Length;
+                    var length = firstLenght + secondLength;
+                    var partialResult = new ulong[length + 1];
 
-                    // Sendo b a base, o máximo número possível é dado por (b-1)^2=(b-2)b+1, e o transporte associado ao
-                    // produto deixa de ser suficiente para gerar um novo transporte
-                    partialResult[i] = prod.Item2 + carry;
-                    carry = prod.Item1;
-                }
-
-                partialResult[firstLenght] = carry;
-
-                // Realiza a multiplicação tendo em conta as restantes componentes do segundo factor
-                for (int i = 1; i < secondLength; ++i)
-                {
-                    currentFirst = first[0];
-                    currentSecond = second[i];
-                    prod = Multiply(currentFirst, currentSecond);
-                    var currentPartial = partialResult[i];
-                    var sum = Add(currentPartial, prod.Item1 + carry);
-                    carry = prod.Item1;
-                    partialResult[i] = sum.Item2;
-
-                    for (int j = 1; j < firstLenght; ++j)
+                    // Multiplicação do primeiro elemento para inicializar os vectores
+                    var currentFirst = first[0];
+                    var currentSecond = second[0];
+                    var prod = Multiply(currentFirst, currentSecond);
+                    partialResult[0] = prod.Item2;
+                    var carry = prod.Item1;
+                    for (int i = 1; i < firstLenght; ++i)
                     {
-                        var innerIndex = i + j;
-                        currentFirst = first[j];
+                        currentFirst = first[i];
                         prod = Multiply(currentFirst, currentSecond);
-                        currentPartial = partialResult[innerIndex];
+
+                        var sum = Add(prod.Item2, carry);
+                        partialResult[i] = sum.Item2;
+                        carry = prod.Item1;
+
+                        // Sendo b a base, o máximo número possível é dado por (b-1)^2=(b-2)b+1, e o transporte associado ao
+                        // produto deixa de ser suficiente para gerar um novo transporte
                         if (sum.Item1)
                         {
-                            sum = Add(currentPartial, prod.Item1 + carry);
-                            partialResult[innerIndex] = sum.Item2 + 1;
+                            ++carry;
                         }
-                        else
-                        {
-                            sum = Add(currentPartial, prod.Item1 + carry);
-                            partialResult[innerIndex] = sum.Item2;
-                        }
-
-                        carry = prod.Item1;
                     }
 
-                    if (sum.Item1)
+                    partialResult[firstLenght] = carry;
+
+                    // Realiza a multiplicação tendo em conta as restantes componentes do segundo factor
+                    carry = 0ul;
+                    for (int i = 1; i < secondLength; ++i)
                     {
-                        ++carry;
+                        currentFirst = first[0];
+                        currentSecond = second[i];
+                        prod = Multiply(currentFirst, currentSecond);
+                        var currentPartial = partialResult[i];
+                        var sum = Add(currentPartial, prod.Item1 + carry);
+                        carry = prod.Item1;
+                        partialResult[i] = sum.Item2;
+
+                        for (int j = 1; j < firstLenght; ++j)
+                        {
+                            if (sum.Item1)
+                            {
+                                ++carry;
+                            }
+
+                            var innerIndex = i + j;
+                            currentFirst = first[j];
+                            prod = Multiply(currentFirst, currentSecond);
+                            currentPartial = partialResult[innerIndex];
+                            sum = Add(currentPartial, prod.Item2);
+                            partialResult[innerIndex] = sum.Item2 + carry;
+                            carry = prod.Item1;
+                        }
+
+                        if (sum.Item1)
+                        {
+                            ++carry;
+                        }
                     }
-                }
 
-                partialResult[length] = carry;
+                    partialResult[length] = carry;
 
-                var lastIndex = length - 1;
-                var lastValue = partialResult[lastIndex];
-                while (lastValue == 0ul)
-                {
-                    --lastIndex;
-                    lastValue = partialResult[lastIndex];
-                }
+                    var lastIndex = length;
+                    var lastValue = partialResult[lastIndex];
+                    while (lastValue == 0ul)
+                    {
+                        --lastIndex;
+                        lastValue = partialResult[lastIndex];
+                    }
 
-                if (lastIndex < length - 1)
-                {
-                    length = lastIndex + 1;
-                    var result = new ulong[length];
-                    Array.Copy(partialResult, result, length);
-                    return result;
-                }
-                else
-                {
-                    return partialResult;
+                    if (lastIndex < length)
+                    {
+                        length = lastIndex + 1;
+                        var result = new ulong[length];
+                        Array.Copy(partialResult, result, length);
+                        return result;
+                    }
+                    else
+                    {
+                        return partialResult;
+                    }
                 }
             }
         }
