@@ -215,6 +215,66 @@
             }
         }
 
+        /// <summary>
+        /// Obtém um valor que indica se se trata do número zero.
+        /// </summary>
+        public bool IsZero
+        {
+            get
+            {
+                return this.array == null;
+            }
+        }
+
+        /// <summary>
+        /// Obtém um valor que indica se se trata do número um.
+        /// </summary>
+        public bool IsOne
+        {
+            get
+            {
+                return this.array != null && this.array.Length == 1 && this.array[0] == 1ul && !this.sign;
+            }
+        }
+
+        /// <summary>
+        /// Obtém um valor que indica se se trata de um núemro par.
+        /// </summary>
+        public bool IsEven
+        {
+            get
+            {
+                return this.array == null || (this.array[0] & 1ul) == 0ul;
+            }
+        }
+
+        /// <summary>
+        /// Obtém um valor que indica se se trata de uma potência de dois.
+        /// </summary>
+        public bool IsPowerOfTwo
+        {
+            get
+            {
+                if (this.array == null)
+                {
+                    return false;
+                }
+                else
+                {
+                    var last = this.array.Length - 1;
+                    for (int i = 0; i < last; ++i)
+                    {
+                        if (this.array[i] != 0ul)
+                        {
+                            return false;
+                        }
+                    }
+
+                    return MathFunctions.PopCount(this.array[last]) == 1;
+                }
+            }
+        }
+
         #region Funções públicas
 
         /// <summary>
@@ -2833,94 +2893,123 @@
             }
             else
             {
-                checked
+                var firstLenght = first.Length;
+                var secondLength = second.Length;
+                var length = firstLenght + secondLength;
+                var partialResult = new ulong[length + 1];
+
+                // Multiplicação do primeiro elemento para inicializar os vectores
+                var currentFirst = first[0];
+                var currentSecond = second[0];
+                var prod = Multiply(currentFirst, currentSecond);
+                partialResult[0] = prod.Item2;
+                var carry = prod.Item1;
+                for (int i = 1; i < firstLenght; ++i)
                 {
-                    var firstLenght = first.Length;
-                    var secondLength = second.Length;
-                    var length = firstLenght + secondLength;
-                    var partialResult = new ulong[length + 1];
+                    currentFirst = first[i];
+                    prod = Multiply(currentFirst, currentSecond);
 
-                    // Multiplicação do primeiro elemento para inicializar os vectores
-                    var currentFirst = first[0];
-                    var currentSecond = second[0];
-                    var prod = Multiply(currentFirst, currentSecond);
-                    partialResult[0] = prod.Item2;
-                    var carry = prod.Item1;
-                    for (int i = 1; i < firstLenght; ++i)
+                    var sum = Add(prod.Item2, carry);
+                    partialResult[i] = sum.Item2;
+                    carry = prod.Item1;
+
+                    // Sendo b a base, o máximo número possível é dado por (b-1)^2=(b-2)b+1, e o transporte associado ao
+                    // produto deixa de ser suficiente para gerar um novo transporte
+                    if (sum.Item1)
                     {
-                        currentFirst = first[i];
-                        prod = Multiply(currentFirst, currentSecond);
-
-                        var sum = Add(prod.Item2, carry);
-                        partialResult[i] = sum.Item2;
-                        carry = prod.Item1;
-
-                        // Sendo b a base, o máximo número possível é dado por (b-1)^2=(b-2)b+1, e o transporte associado ao
-                        // produto deixa de ser suficiente para gerar um novo transporte
-                        if (sum.Item1)
-                        {
-                            ++carry;
-                        }
-                    }
-
-                    partialResult[firstLenght] = carry;
-
-                    // Realiza a multiplicação tendo em conta as restantes componentes do segundo factor
-                    carry = 0ul;
-                    for (int i = 1; i < secondLength; ++i)
-                    {
-                        currentFirst = first[0];
-                        currentSecond = second[i];
-                        prod = Multiply(currentFirst, currentSecond);
-                        var currentPartial = partialResult[i];
-                        var sum = Add(currentPartial, prod.Item1 + carry);
-                        carry = prod.Item1;
-                        partialResult[i] = sum.Item2;
-
-                        for (int j = 1; j < firstLenght; ++j)
-                        {
-                            if (sum.Item1)
-                            {
-                                ++carry;
-                            }
-
-                            var innerIndex = i + j;
-                            currentFirst = first[j];
-                            prod = Multiply(currentFirst, currentSecond);
-                            currentPartial = partialResult[innerIndex];
-                            sum = Add(currentPartial, prod.Item2);
-                            partialResult[innerIndex] = sum.Item2 + carry;
-                            carry = prod.Item1;
-                        }
-
-                        if (sum.Item1)
-                        {
-                            ++carry;
-                        }
-                    }
-
-                    partialResult[length] = carry;
-
-                    var lastIndex = length;
-                    var lastValue = partialResult[lastIndex];
-                    while (lastValue == 0ul)
-                    {
-                        --lastIndex;
-                        lastValue = partialResult[lastIndex];
-                    }
-
-                    if (lastIndex < length)
-                    {
-                        length = lastIndex + 1;
-                        var result = new ulong[length];
-                        Array.Copy(partialResult, result, length);
-                        return result;
-                    }
-                    else
-                    {
-                        return partialResult;
+                        ++carry;
                     }
                 }
+
+                partialResult[firstLenght] = carry;
+
+                // Realiza a multiplicação tendo em conta as restantes componentes do segundo factor
+                carry = 0ul;
+                for (int i = 1; i < secondLength; ++i)
+                {
+                    currentFirst = first[0];
+                    currentSecond = second[i];
+                    prod = Multiply(currentFirst, currentSecond);
+                    var currentPartial = partialResult[i];
+                    var sum = Add(currentPartial, prod.Item2);
+                    partialResult[i] = sum.Item2 + carry;
+                    carry = prod.Item1;
+
+                    for (int j = 1; j < firstLenght; ++j)
+                    {
+                        if (sum.Item1)
+                        {
+                            ++carry;
+                        }
+
+                        var innerIndex = i + j;
+                        currentFirst = first[j];
+                        prod = Multiply(currentFirst, currentSecond);
+                        currentPartial = partialResult[innerIndex];
+                        sum = Add(currentPartial, prod.Item2);
+                        partialResult[innerIndex] = sum.Item2 + carry;
+                        carry = prod.Item1;
+                    }
+
+                    if (sum.Item1)
+                    {
+                        ++carry;
+                    }
+                }
+
+                partialResult[length] = carry;
+
+                var lastIndex = length;
+                var lastValue = partialResult[lastIndex];
+                while (lastValue == 0ul)
+                {
+                    --lastIndex;
+                    lastValue = partialResult[lastIndex];
+                }
+
+                if (lastIndex < length)
+                {
+                    length = lastIndex + 1;
+                    var result = new ulong[length];
+                    Array.Copy(partialResult, result, length);
+                    return result;
+                }
+                else
+                {
+                    return partialResult;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Obtém o quociente e o resto da divisão de dois números.
+        /// </summary>
+        /// <param name="first">O dividendo.</param>
+        /// <param name="second">O divisor.</param>
+        /// <returns>O par quociente/resto da divisão.</returns>
+        private static Tuple<ulong[], ulong[]> SequentialQuotientAndRemainder(
+            ulong[] first,
+            ulong[] second)
+        {
+            if (second == null)
+            {
+                throw new DivideByZeroException();
+            }
+            else if (first == null)
+            {
+                return null;
+            }
+            else if (second.Length == 1 && second[0] == 1ul)
+            {
+                // Caso o denominador seja unitário
+                var length = first.Length;
+                var result = new ulong[length];
+                Array.Copy(first, result, length);
+                return Tuple.Create<ulong[], ulong[]>(result, null);
+            }
+            else
+            {
+                throw new NotImplementedException();
             }
         }
 

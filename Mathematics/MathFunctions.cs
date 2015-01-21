@@ -584,6 +584,27 @@
         }
 
         /// <summary>
+        /// Conta o número de "bits" ligasdos associados ao longo sem sinal.
+        /// </summary>
+        /// <param name="bitSet">O longo sem sinal.</param>
+        /// <returns>O número de "bits" ligados.</returns>
+        public static int PopCount(ulong bitSet)
+        {
+            var current = bitSet;
+            unchecked
+            {
+                current = (current & 0x5555555555555555ul) + (current >> 1 & 0x5555555555555555ul);
+                current = (current & 0x3333333333333333ul) + (current >> 2 & 0x3333333333333333ul);
+                current = current + (current >> 4) & 0x0F0F0F0F0F0F0F0Ful;
+                current = current + (current >> 8);
+                current = current + (current >> 16);
+                current = current + (current >> 32) & 127ul;
+
+                return (int)current;
+            }
+        }
+
+        /// <summary>
         /// Obtém o índice do "bit" mais alto com valor atribuído.
         /// </summary>
         /// <param name="value">O valor.</param>
