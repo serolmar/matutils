@@ -1740,6 +1740,25 @@
             this.DecimalMultiplyByBinaryPower64(decimalRepresentation);
         }
 
+        /// <summary>
+        /// Permite dividir um número de dois símbolos por um outro de apenas um. Trata-se
+        /// da divisão inteira.
+        /// </summary>
+        /// <remarks>
+        /// Na divisão não é efectuada qualquer validação no que concerne ao valor dos
+        /// argumentos. A função proporciona casos correctos sempre que o maior valor
+        /// do dividendo seja inferior ao divisor.
+        /// Esta função serve apenas para efeitos de testes.
+        /// </remarks>
+        /// <param name="highDividend">O número de maior valor no dividendo.</param>
+        /// <param name="lowDividend">O núemro de menor valor no dividendo.</param>
+        /// <param name="divisor">O número que constitui o divisor.</param>
+        /// <returns>O quociente e o resto da divisão inteira.</returns>
+        internal static Tuple<ulong, ulong> InternalDivide(ulong highDividend, ulong lowDividend, ulong divisor)
+        {
+            return Divide(highDividend, lowDividend, divisor);
+        }
+
         #endregion Funções internas
 
         #region Funções privadas
@@ -2294,6 +2313,191 @@
 
                 return Tuple.Create(highRes, lowRes);
             }
+        }
+
+        /// <summary>
+        /// Permite dividir um número de dois símbolos por um outro de apenas um. Trata-se
+        /// da divisão inteira.
+        /// </summary>
+        /// <remarks>
+        /// Na divisão não é efectuada qualquer validação no que concerne ao valor dos
+        /// argumentos. A função proporciona casos correctos sempre que o maior valor
+        /// do dividendo seja inferior ao divisor.
+        /// </remarks>
+        /// <param name="highDividend">O número de maior valor no dividendo.</param>
+        /// <param name="lowDividend">O núemro de menor valor no dividendo.</param>
+        /// <param name="divisor">O número que constitui o divisor.</param>
+        /// <returns>O quociente e o resto da divisão inteira.</returns>
+        private static Tuple<ulong, ulong> Divide(ulong highDividend, ulong lowDividend, ulong divisor)
+        {
+            var symmDivisor = (~divisor) + 1;
+            var halfDivisor = divisor >> 1;
+
+            var quoRes = 0ul;
+            var remRes = lowDividend;
+            if (divisor <= lowDividend)
+            {
+                quoRes = lowDividend / divisor;
+                remRes = lowDividend % divisor;
+            }
+
+            var innerHighDividend = highDividend;
+            var sign = false;
+            var k = symmDivisor / divisor + 1;
+            symmDivisor %= divisor;
+            if (symmDivisor < halfDivisor)
+            {
+                while (innerHighDividend > 0ul)
+                {
+                    var innerQuo = innerHighDividend * k;
+                    var innerRem = 0ul;
+                    var changeSign = false;
+                    if (innerHighDividend < halfDivisor)
+                    {
+                        var prod = Multiply(innerHighDividend, symmDivisor);
+                        innerHighDividend = prod.Item1;
+                        innerRem = prod.Item2;
+                        if (innerRem > divisor)
+                        {
+                            innerQuo += innerRem / divisor;
+                            innerRem = innerRem % divisor;
+                        }
+                    }
+                    else
+                    {
+                        innerQuo += symmDivisor;
+                        var prod = Multiply(divisor - innerHighDividend, symmDivisor);
+                        innerHighDividend = prod.Item1;
+                        innerRem = prod.Item2;
+                        if (innerRem > divisor)
+                        {
+                            innerQuo += innerRem / divisor;
+                            innerRem = innerRem % divisor;
+                        }
+
+                        changeSign = true;
+                    }
+
+                    if (sign)
+                    {
+                        // Subtracção dos restos
+                        if (innerRem < remRes)
+                        {
+                            remRes -= innerRem;
+                        }
+                        else
+                        {
+                            --innerQuo;
+                            remRes += (divisor - innerRem);
+                        }
+
+                        quoRes -= innerQuo;
+                    }
+                    else
+                    {
+                        // Adição dos restos
+                        var symRes = divisor - innerRem;
+                        if (symRes < remRes)
+                        {
+                            ++innerQuo;
+                            remRes -= symRes;
+                        }
+                        else
+                        {
+                            remRes += innerRem;
+                        }
+
+                        quoRes += innerQuo;
+                    }
+
+                    if (changeSign)
+                    {
+                        sign = !sign;
+                    }
+                }
+            }
+            else
+            {
+                while (innerHighDividend > 0ul)
+                {
+                    var innerQuo = innerHighDividend * k;
+                    var innerRem = 0ul;
+                    var changeSign = false;
+                    if (innerHighDividend < halfDivisor)
+                    {
+                        innerQuo += innerHighDividend;
+                        var prod = Multiply(innerHighDividend, divisor - symmDivisor);
+                        innerHighDividend = prod.Item1;
+                        innerRem = prod.Item2;
+                        if (innerRem > divisor)
+                        {
+                            innerQuo += innerRem / divisor;
+                            innerRem = innerRem % divisor;
+                        }
+
+                        changeSign = true;
+                    }
+                    else
+                    {
+                        innerQuo += innerHighDividend;
+                        var difference = divisor - symmDivisor;
+                        innerQuo += difference;
+                        var prod = Multiply(divisor - innerHighDividend, difference);
+                        innerHighDividend = prod.Item1;
+                        innerRem = prod.Item2;
+                        if (innerRem > divisor)
+                        {
+                            innerQuo += innerRem / divisor;
+                            innerRem = innerRem % divisor;
+                        }
+                    }
+
+                    if (sign)
+                    {
+                        // Subtracção dos restos
+                        if (innerRem < remRes)
+                        {
+                            remRes -= innerRem;
+                        }
+                        else
+                        {
+                            --innerQuo;
+                            remRes += (divisor - innerRem);
+                        }
+
+                        quoRes -= innerQuo;
+                    }
+                    else
+                    {
+                        // Adição dos restos
+                        var symRes = divisor - innerRem;
+                        if (symRes < remRes)
+                        {
+                            ++innerQuo;
+                            remRes -= symRes;
+                        }
+                        else
+                        {
+                            remRes += innerRem;
+                        }
+
+                        quoRes += innerQuo;
+                    }
+
+                    if (changeSign)
+                    {
+                        sign = !sign;
+                    }
+                }
+            }
+
+            if (sign)
+            {
+                remRes = divisor - remRes;
+                --quoRes;
+            }
+
+            return Tuple.Create(quoRes, remRes);
         }
 
         /// <summary>
@@ -3009,8 +3213,54 @@
             }
             else
             {
-                throw new NotImplementedException();
+                var firstLength = first.Length;
+                var secondLength = second.Length;
+                if (firstLength < secondLength)
+                {
+                    var quoResult = default(ulong[]);
+                    var remResult = new ulong[firstLength];
+                    Array.Copy(first, remResult, firstLength);
+                    return Tuple.Create(quoResult, remResult);
+                }
+                else
+                {
+                    var quotientList = new List<ulong>();
+                    var remainder = new ulong[secondLength];
+                    var firstIndex = firstLength - 1;
+                    for (var secondIndex = secondLength - 1; secondIndex > -1; --secondIndex)
+                    {
+                        var currentFirst = first[firstIndex];
+                        var currentSecond = second[secondIndex];
+                        if (currentSecond < currentFirst)
+                        {
+                            secondIndex = -1;
+                            firstIndex = firstLength - secondLength;
+                        }
+
+                        --firstIndex;
+                    }
+
+                    if (firstIndex < 0)
+                    {
+                        // O divisor é menor que o quociente
+                        var quoResult = default(ulong[]);
+                        var remResult = new ulong[firstLength];
+                        Array.Copy(first, remResult, firstLength);
+                        return Tuple.Create(quoResult, remResult);
+                    }
+                    else
+                    {
+                        while (firstIndex > -1)
+                        {
+                            // Realização do processo actual de divisão
+
+                            --firstIndex;
+                        }
+                    }
+                }
             }
+
+            throw new NotImplementedException();
         }
 
         /// <summary>
