@@ -4162,4 +4162,147 @@
 
         #endregion Funções estáticas privadas
     }
+
+    /// <summary>
+    /// Classe usada apenas para efectuar alguns testes.
+    /// </summary>
+    public class TestWithAlg
+    {
+        public Tuple<ulong, ulong> Divide(ulong highDividend, ulong lowDividend, ulong divisor)
+        {
+            var intermediary = highDividend * 10 + lowDividend;
+            var quo = intermediary / divisor;
+            var rem = intermediary % divisor;
+            return Tuple.Create(quo, rem);
+        }
+
+        public Tuple<ulong[], ulong[]> SequentialQuotientAndRemainder(
+            ulong[] first,
+            ulong[] second)
+        {
+            if (second == null)
+            {
+                throw new DivideByZeroException();
+            }
+            else if (first == null)
+            {
+                return null;
+            }
+            else if (second.Length == 1 && second[0] == 1ul)
+            {
+                // Caso o denominador seja unitário
+                var length = first.Length;
+                var result = new ulong[length];
+                Array.Copy(first, result, length);
+                return Tuple.Create<ulong[], ulong[]>(result, null);
+            }
+            else
+            {
+                var firstLength = first.Length;
+                var secondLength = second.Length;
+                if (firstLength < secondLength)
+                {
+                    var quoResult = default(ulong[]);
+                    var remResult = new ulong[firstLength];
+                    Array.Copy(first, remResult, firstLength);
+                    return Tuple.Create(quoResult, remResult);
+                }
+                else
+                {
+                    var lengthDiff = firstLength - secondLength;
+                    var firstIndex = firstLength - 1;
+                    for (var secondIndex = secondLength - 1; secondIndex > -1; --secondIndex)
+                    {
+                        var currentFirst = first[firstIndex];
+                        var currentSecond = second[secondIndex];
+                        if (currentSecond < currentFirst)
+                        {
+                            secondIndex = -1;
+                            firstIndex = lengthDiff;
+                        }
+                        else if (currentFirst < currentSecond)
+                        {
+                            secondIndex = -1;
+                            firstIndex = lengthDiff - 1;
+                        }
+
+                        --firstIndex;
+                    }
+
+                    if (firstIndex < 0)
+                    {
+                        // O divisor é menor que o quociente
+                        var quoResult = default(ulong[]);
+                        var remResult = new ulong[firstLength];
+                        Array.Copy(first, remResult, firstLength);
+                        return Tuple.Create(quoResult, remResult);
+                    }
+                    else
+                    {
+                        var quoList = new List<ulong>();
+                        var remResult = new ulong[secondLength];
+                        var carryRem = new ulong[secondLength];
+                        var lastRem = 0ul;
+                        var lastDividendIndex = firstLength - 1;
+                        if (firstIndex == lengthDiff - 1)
+                        {
+                            // Caso o primeiro coeficiente do dividendo seja inferior
+                            // ao primeiro coeficiente do divisor
+                            lastRem = first[firstLength - 1];
+                            --lastDividendIndex;
+                        }
+
+                        // Testa a primeira divisão
+                        int i = secondLength - 1;
+                        var k = lastDividendIndex;
+                        var testDivision = default(ulong);
+                        if (lastRem == 0)
+                        {
+                            var innerCurrentDividend = first[lastDividendIndex];
+                            var innerCurrentDivisor = second[i];
+                            testDivision = innerCurrentDividend / innerCurrentDivisor;
+                            var innerRem = innerCurrentDividend % innerCurrentDivisor;
+
+                            carryRem[i] = testDivision;
+                            remResult[i] = innerCurrentDividend - innerRem;
+
+                        }
+                        else
+                        {
+                            var innerCurrentDividend = first[lastDividendIndex];
+                            var divisionResult = Divide(lastRem, first[lastDividendIndex], second[i]);
+                            testDivision = divisionResult.Item1;
+                            if (divisionResult.Item2 < innerCurrentDividend)
+                            {
+                                carryRem[i] = testDivision;
+                                remResult[i] = innerCurrentDividend - divisionResult.Item2;
+                            }
+                            else
+                            {
+                                carryRem[i] = testDivision - 1;
+                                remResult[i] = innerCurrentDividend + (10 - divisionResult.Item2);
+                            }
+                        }
+
+                        var stopIndex = -1;
+                        for (; i > -1; --i, --k)
+                        {
+
+                        }
+
+                        while (firstIndex > -1)
+                        {
+
+
+
+                            --firstIndex;
+                            --lastDividendIndex;
+                        }
+                    }
+                }
+            }
+
+            throw new NotImplementedException();
+        }
+    }
 }

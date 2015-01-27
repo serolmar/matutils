@@ -569,5 +569,14 @@
         }
 
         #endregion Testes à sobrecarga de operadores para a classe UlongArrayBigInt
+
+        [TestMethod]
+        public void TestWithAlg()
+        {
+            var target = new TestWithAlg();
+            var dividend = new ulong[] { 8, 0, 8, 6, 8 };
+            var divisor = new ulong[] { 9, 8, 9 };
+            var result = target.SequentialQuotientAndRemainder(dividend, divisor);
+        }
     }
 }
