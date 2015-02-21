@@ -311,6 +311,7 @@
         [TestMethod]
         public void UlongArrayBigInt_Divide()
         {
+            Assert.Inconclusive("The function is under development.");
             var highValues = new[] { 
                 235624ul, 
                 18446744073709551614ul,
@@ -340,6 +341,165 @@
                     quotients[i]);
                 Assert.AreEqual(expected[i], actual);
             }
+        }
+
+        /// <summary>
+        /// Testa a função que permite rodar à direita um vector de valores, mantendo
+        /// fixo o seu tamanho.
+        /// </summary>
+        /// <remarks>
+        /// A rotação à direita é relativa ao número representado pelo vector, ito é,
+        /// a rotação é tal que o número resultante advém dividido por dois.
+        /// </remarks>
+        [TestMethod]
+        public void UlongArrayBigInt_FixedLengthRotateRight()
+        {
+            var vectorToRotate = new ulong[] { 
+                0xABCDEFABCDEF0101, 
+                0X1010FEDCBAFEDCBA, 
+                0xABCDEFABCDEF0101, 
+                0X1010FEDCBAFEDCBA, 
+                0xABCDEFABCDEF0101 };
+
+            // Rotação de um número inferior ao tamanho da variável
+            var places = 16;
+            var currentVector = new ulong[vectorToRotate.Length];
+            Array.Copy(vectorToRotate, currentVector, vectorToRotate.Length);
+            var expected = new ulong[]{ 
+                0xDCBAABCDEFABCDEF, 
+                0X01011010FEDCBAFE, 
+                0xDCBAABCDEFABCDEF, 
+                0X01011010FEDCBAFE, 
+                0x0000ABCDEFABCDEF };
+            UlongArrayBigInt.InternalFixedLengthRotateRight(currentVector, places);
+            CollectionAssert.AreEqual(expected, currentVector);
+
+            // Rotação de um número superior ao tamanho da variável
+            places = 132; // 2 * 64 + 4
+            Array.Copy(vectorToRotate, currentVector, vectorToRotate.Length);
+            expected = new ulong[] { 
+                0xAABCDEFABCDEF010, 
+                0X11010FEDCBAFEDCB, 
+                0x0ABCDEFABCDEF010, 
+                0x0000000000000000, 
+                0x0000000000000000 };
+            UlongArrayBigInt.InternalFixedLengthRotateRight(currentVector, places);
+            CollectionAssert.AreEqual(expected, currentVector);
+
+            // Rotação de um número superior a metade do tamanho do vector
+            places = 212; // 3 * 64 + 20
+            Array.Copy(vectorToRotate, currentVector, vectorToRotate.Length);
+            expected = new ulong[]{ 
+                0XF01011010FEDCBAF, 
+                0x00000ABCDEFABCDE, 
+                0x0000000000000000, 
+                0x0000000000000000, 
+                0x0000000000000000 };
+            UlongArrayBigInt.InternalFixedLengthRotateRight(currentVector, places);
+            CollectionAssert.AreEqual(expected, currentVector);
+
+            // Menos do tamanho de uma variável para completara um vector
+            places = 316;  // 5 * 64 - 4
+            Array.Copy(vectorToRotate, currentVector, vectorToRotate.Length);
+            expected = new ulong[] { 
+                0x000000000000000A, 
+                0x0000000000000000, 
+                0x0000000000000000, 
+                0x0000000000000000, 
+                0x0000000000000000 };
+            UlongArrayBigInt.InternalFixedLengthRotateRight(currentVector, places);
+            CollectionAssert.AreEqual(expected, currentVector);
+
+            // Tamanho igual ao do vector
+            places = 320; // 3 * 64
+            Array.Copy(vectorToRotate, currentVector, vectorToRotate.Length);
+            expected = new ulong[] { 
+                0x0000000000000000, 
+                0x0000000000000000, 
+                0x0000000000000000, 
+                0x0000000000000000, 
+                0x0000000000000000 };
+            UlongArrayBigInt.InternalFixedLengthRotateRight(currentVector, places);
+            CollectionAssert.AreEqual(expected, currentVector);
+        }
+        /// <summary>
+        /// Testa a função que permite rodar à esquerda um vector de valores, mantendo
+        /// fixo o seu tamanho.
+        /// </summary>
+        /// <remarks>
+        /// A rotação à direita é relativa ao número representado pelo vector, ito é,
+        /// a rotação é tal que o número resultante advém multiplicado por dois.
+        /// </remarks>
+        [TestMethod]
+        public void UlongArrayBigInt_FixedLengthRotateLeft()
+        {
+            var vectorToRotate = new ulong[] { 
+                0xABCDEFABCDEF0101, 
+                0X1010FEDCBAFEDCBA, 
+                0xABCDEFABCDEF0101, 
+                0X1010FEDCBAFEDCBA, 
+                0xABCDEFABCDEF0101 };
+
+            // Rotação de um número inferior ao tamanho da variável
+            var places = 16;
+            var currentVector = new ulong[vectorToRotate.Length];
+            Array.Copy(vectorToRotate, currentVector, vectorToRotate.Length);
+            var expected = new ulong[]{ 
+                0xEFABCDEF01010000, 
+                0XFEDCBAFEDCBAABCD, 
+                0xEFABCDEF01011010, 
+                0XFEDCBAFEDCBAABCD, 
+                0xEFABCDEF01011010 };
+            UlongArrayBigInt.InternalFixedLengthRotateLeft(currentVector, places);
+            CollectionAssert.AreEqual(expected, currentVector);
+
+            // Rotação de um número superior ao tamanho da variável
+            places = 132; // 2 * 64 + 4
+            Array.Copy(vectorToRotate, currentVector, vectorToRotate.Length);
+            expected = new ulong[] { 
+                0x0000000000000000, 
+                0x0000000000000000, 
+                0xBCDEFABCDEF01010, 
+                0X010FEDCBAFEDCBAA, 
+                0xBCDEFABCDEF01011 };
+            UlongArrayBigInt.InternalFixedLengthRotateLeft(currentVector, places);
+            CollectionAssert.AreEqual(expected, currentVector);
+
+            // Rotação de um número superior a metade do tamanho do vector
+            places = 212; // 3 * 64 + 20
+            Array.Copy(vectorToRotate, currentVector, vectorToRotate.Length);
+            expected = new ulong[]{ 
+                0x0000000000000000, 
+                0x0000000000000000, 
+                0x0000000000000000, 
+                0xFABCDEF010100000, 
+                0XEDCBAFEDCBAABCDE };
+            UlongArrayBigInt.InternalFixedLengthRotateLeft(currentVector, places);
+            CollectionAssert.AreEqual(expected, currentVector);
+
+            // Menos do tamanho de uma variável para completara um vector
+            places = 316;  // 5 * 64 - 4
+            Array.Copy(vectorToRotate, currentVector, vectorToRotate.Length);
+            expected = new ulong[] { 
+                0x0000000000000000, 
+                0x0000000000000000, 
+                0x0000000000000000, 
+                0x0000000000000000, 
+                0x1000000000000000 };
+            UlongArrayBigInt.InternalFixedLengthRotateLeft(currentVector, places);
+            CollectionAssert.AreEqual(expected, currentVector);
+
+            // Tamanho igual ao do vector
+            places = 320; // 3 * 64
+            Array.Copy(vectorToRotate, currentVector, vectorToRotate.Length);
+            expected = new ulong[] { 
+                0x0000000000000000, 
+                0x0000000000000000, 
+                0x0000000000000000, 
+                0x0000000000000000, 
+                0x0000000000000000 };
+            UlongArrayBigInt.InternalFixedLengthRotateLeft(currentVector, places);
+            CollectionAssert.AreEqual(expected, currentVector);
         }
 
         #endregion Testes às funções internas
@@ -542,9 +702,81 @@
         [TestMethod]
         public void UlongArrayBigInt_TestRotateLeftOperator()
         {
-            var firstNumbers = new[] { new UlongArrayBigInt(1) };
-            var secondNumbers = new[] { 200 };
-            var expected = new[] { new UlongArrayBigInt(new[] { 0ul, 0ul, 0ul, 256ul }) };
+            var vectorToRotate = new ulong[] { 
+                0xABCDEFABCDEF0101, 
+                0X1010FEDCBAFEDCBA, 
+                0xABCDEFABCDEF0101, 
+                0X1010FEDCBAFEDCBA, 
+                0xABCDEFABCDEF0101 };
+
+            var firstNumbers = new[] { 
+                new UlongArrayBigInt(1),
+                new UlongArrayBigInt(vectorToRotate),
+                new UlongArrayBigInt(vectorToRotate),
+                new UlongArrayBigInt(vectorToRotate),
+                new UlongArrayBigInt(vectorToRotate),
+                new UlongArrayBigInt(vectorToRotate),
+            };
+            var secondNumbers = new[] { 
+                200, 
+                16, 
+                132, 
+                212, 
+                316, 
+                320 };
+            var expected = new[] { 
+                new UlongArrayBigInt(new[] { 0ul, 0ul, 0ul, 256ul }),
+                new UlongArrayBigInt(new ulong[]{ 
+                    0xEFABCDEF01010000, 
+                    0XFEDCBAFEDCBAABCD, 
+                    0xEFABCDEF01011010, 
+                    0XFEDCBAFEDCBAABCD, 
+                    0xEFABCDEF01011010,
+                    0xABCDul}),
+                new UlongArrayBigInt(new ulong[] { 
+                    0x0000000000000000, 
+                    0x0000000000000000, 
+                    0xBCDEFABCDEF01010, 
+                    0X010FEDCBAFEDCBAA, 
+                    0xBCDEFABCDEF01011,
+                    0X010FEDCBAFEDCBAA, 
+                    0xBCDEFABCDEF01011,
+                    0xAul}),
+                new UlongArrayBigInt(new ulong[]{ 
+                    0x0000000000000000, 
+                    0x0000000000000000, 
+                    0x0000000000000000, 
+                    0xFABCDEF010100000, 
+                    0XEDCBAFEDCBAABCDE, 
+                    0xFABCDEF01011010F, 
+                    0XEDCBAFEDCBAABCDE, 
+                    0xFABCDEF01011010F,
+                    0xABCDE}),
+                new UlongArrayBigInt(new ulong[] { 
+                    0x0000000000000000, 
+                    0x0000000000000000, 
+                    0x0000000000000000, 
+                    0x0000000000000000, 
+                    0x1000000000000000,
+                    0XAABCDEFABCDEF010, 
+                    0x11010FEDCBAFEDCB, 
+                    0XAABCDEFABCDEF010, 
+                    0x11010FEDCBAFEDCB,
+                    0xABCDEFABCDEF010
+                }),
+                new UlongArrayBigInt(new ulong[]{
+                    0x0000000000000000, 
+                    0x0000000000000000, 
+                    0x0000000000000000, 
+                    0x0000000000000000,
+                    0x0000000000000000,
+                    0xABCDEFABCDEF0101, 
+                    0X1010FEDCBAFEDCBA, 
+                    0xABCDEFABCDEF0101, 
+                    0X1010FEDCBAFEDCBA, 
+                    0xABCDEFABCDEF0101
+                })
+            };
             for (int i = 0; i < expected.Length; ++i)
             {
                 var actual = firstNumbers[i] << secondNumbers[i];
@@ -558,9 +790,48 @@
         [TestMethod]
         public void UlongArrayBigInt_TestRotateRightOperator()
         {
-            var firstNumbers = new[] { new UlongArrayBigInt(new[] { 0ul, 0ul, 0ul, 256ul }) };
-            var secondNumbers = new[] { 200 };
-            var expected = new[] { new UlongArrayBigInt(1) };
+            var vectorToRotate = new ulong[] { 
+                0xABCDEFABCDEF0101, 
+                0X1010FEDCBAFEDCBA, 
+                0xABCDEFABCDEF0101, 
+                0X1010FEDCBAFEDCBA, 
+                0xABCDEFABCDEF0101 };
+
+            var firstNumbers = new[] { 
+                new UlongArrayBigInt(new[] { 0ul, 0ul, 0ul, 256ul }),
+                new UlongArrayBigInt(vectorToRotate),
+                new UlongArrayBigInt(vectorToRotate),
+                new UlongArrayBigInt(vectorToRotate),
+                new UlongArrayBigInt(vectorToRotate),
+                new UlongArrayBigInt(vectorToRotate)
+            };
+            var secondNumbers = new[] { 
+                200,
+                16,
+                132,
+                212,
+                316,
+                320
+            };
+            var expected = new[] { 
+                new UlongArrayBigInt(1),
+                new UlongArrayBigInt(new ulong[]{ 
+                    0xDCBAABCDEFABCDEF, 
+                    0X01011010FEDCBAFE, 
+                    0xDCBAABCDEFABCDEF, 
+                    0X01011010FEDCBAFE, 
+                    0x0000ABCDEFABCDEF }),
+                new UlongArrayBigInt(new ulong[] { 
+                    0xAABCDEFABCDEF010, 
+                    0X11010FEDCBAFEDCB, 
+                    0x0ABCDEFABCDEF010}),
+                new UlongArrayBigInt(new ulong[]{ 
+                    0XF01011010FEDCBAF, 
+                    0x00000ABCDEFABCDE}),
+                new UlongArrayBigInt(new ulong[] { 
+                    0x000000000000000A}),
+                new UlongArrayBigInt()
+            };
             for (int i = 0; i < expected.Length; ++i)
             {
                 var actual = firstNumbers[i] >> secondNumbers[i];

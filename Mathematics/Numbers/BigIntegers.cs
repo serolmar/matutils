@@ -1759,6 +1759,26 @@
             return Divide(highDividend, lowDividend, divisor);
         }
 
+        /// <summary>
+        /// Efectua a rotação interna à direita, mantendo o tamanho do vector que contém a representação.
+        /// </summary>
+        /// <param name="value">O vector a ser rodado.</param>
+        /// <param name="places">O número de posições a rodar.</param>
+        internal static void InternalFixedLengthRotateRight(ulong[] value, int places)
+        {
+            FixedLengthRotateRight(value, places);
+        }
+
+        /// <summary>
+        /// Efectua a rotação interna à esquerda, mantendo o tamanho do vector que contém a representação.
+        /// </summary>
+        /// <param name="value">O vector a ser rodado.</param>
+        /// <param name="places">O número de posições a rodar.</param>
+        internal static void InternalFixedLengthRotateLeft(ulong[] value, int places)
+        {
+            FixedLengthRotateLeft(value, places);
+        }
+
         #endregion Funções internas
 
         #region Funções privadas
@@ -3201,7 +3221,7 @@
             }
             else if (first == null)
             {
-                return null;
+                return Tuple.Create<ulong[], ulong[]>(null, null);
             }
             else if (second.Length == 1 && second[0] == 1ul)
             {
@@ -3215,52 +3235,90 @@
             {
                 var firstLength = first.Length;
                 var secondLength = second.Length;
-                if (firstLength < secondLength)
+                if (secondLength < firstLength)
                 {
-                    var quoResult = default(ulong[]);
-                    var remResult = new ulong[firstLength];
-                    Array.Copy(first, remResult, firstLength);
-                    return Tuple.Create(quoResult, remResult);
                 }
-                else
+                else if (firstLength == secondLength)
                 {
-                    var quotientList = new List<ulong>();
-                    var remainder = new ulong[secondLength];
-                    var firstIndex = firstLength - 1;
-                    for (var secondIndex = secondLength - 1; secondIndex > -1; --secondIndex)
+                    var firstLastIndex = first.Length - 1;
+                    var secondLastIndex = second.Length - 1;
+
+                    var currentFirstLastLog = MathFunctions.GetHighestSettedBitIndex(
+                        first[firstLastIndex]);
+                    var currentSecondLastLog = MathFunctions.GetHighestSettedBitIndex(
+                        second[secondLastIndex]);
+
+                    if (currentSecondLastLog < currentFirstLastLog)
                     {
-                        var currentFirst = first[firstIndex];
-                        var currentSecond = second[secondIndex];
-                        if (currentSecond < currentFirst)
+                        var logDifference = currentFirstLastLog - currentSecondLastLog;
+
+                        // O comprimento máximo do resto pode igualar o comprimento do quociente
+                        var remainder = new ulong[firstLength];
+                        if (logDifference == 1)
                         {
-                            secondIndex = -1;
-                            firstIndex = firstLength - secondLength;
                         }
-
-                        --firstIndex;
+                        else
+                        {
+                        }
                     }
-
-                    if (firstIndex < 0)
+                    else if (currentFirstLastLog < currentSecondLastLog)
                     {
-                        // O divisor é menor que o quociente
-                        var quoResult = default(ulong[]);
-                        var remResult = new ulong[firstLength];
-                        Array.Copy(first, remResult, firstLength);
-                        return Tuple.Create(quoResult, remResult);
+                        // O primeiro número é inferior ao segundo e, portanto,
+                        // o resto será igual ao dividendo
+                        var remainder = new ulong[firstLength];
+                        Array.Copy(first, remainder, firstLength);
+                        return Tuple.Create<ulong[], ulong[]>(null, remainder);
                     }
                     else
                     {
-                        while (firstIndex > -1)
+                        var compareValue = 0;
+                        for (int i = firstLastIndex; i > -1; --i)
                         {
-                            // Realização do processo actual de divisão
+                            var firstCurrent = first[i];
+                            var secondCurrent = second[i];
+                            if (firstCurrent < secondCurrent)
+                            {
+                                compareValue = -1;
+                                i = -1;
+                            }
+                            else if (secondCurrent < firstCurrent)
+                            {
+                                compareValue = 1;
+                                i = -1;
+                            }
+                        }
 
-                            --firstIndex;
+                        if (compareValue < 0)
+                        {
+                            // O primeiro número é inferior ao segundo e, portanto,
+                            // o resto será igual ao dividendo
+                            var remainder = new ulong[firstLength];
+                            Array.Copy(first, remainder, firstLength);
+                            return Tuple.Create<ulong[], ulong[]>(null, remainder);
+                        }
+                        else if (compareValue > 0)
+                        {
+                            // Neste ponto, o quociente é unitário e o resto corresponde à diferença
+                            var difference = SequentialSubtract(first, second);
+                            return Tuple.Create(new ulong[] { 1ul }, difference);
+                        }
+                        else
+                        {
+                            // Ambos os números são iguais,sendo o quociente unitário e o resto nulo
+                            return Tuple.Create<ulong[], ulong[]>(new ulong[] { 1ul }, null);
                         }
                     }
                 }
-            }
+                else
+                {
+                    // O divisor é superior ao dividendo
+                    var remainder = new ulong[firstLength];
+                    Array.Copy(first, remainder, firstLength);
+                    return Tuple.Create<ulong[], ulong[]>(null, remainder);
+                }
 
-            throw new NotImplementedException();
+                throw new NotImplementedException();
+            }
         }
 
         /// <summary>
@@ -3290,7 +3348,7 @@
                     var counterRotate = 64 - innerRotate;
                     var index = length - 1;
                     var current = value[index];
-                    var masked = current >> counterRotate;
+                    var masked = current << counterRotate;
                     current >>= innerRotate;
                     var finalLength = length - masterRotate;
                     if (current == 0)
@@ -3310,7 +3368,7 @@
                             {
                                 current = value[index];
                                 result[finalIndex] = (current >> innerRotate) | masked;
-                                masked = current >> counterRotate;
+                                masked = current << counterRotate;
                                 --finalIndex;
                                 --index;
                             }
@@ -3329,7 +3387,7 @@
                         {
                             current = value[index];
                             result[finalIndex] = (current >> innerRotate) | masked;
-                            masked = current >> counterRotate;
+                            masked = current << counterRotate;
                             --finalIndex;
                             --index;
                         }
@@ -3340,6 +3398,52 @@
                 else
                 {
                     return null;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Permite rodar o vector de valores para a direita, mantendo fixo o
+        /// tamanho do vector.
+        /// </summary>
+        /// <param name="value">O vector a ser rodado.</param>
+        /// <param name="places">O número de posições a serem rodadas.</param>
+        private static void FixedLengthRotateRight(ulong[] value, int places)
+        {
+            // Se o valor for negativo, o "bit" correspondente ao sinal é eliminado
+            var innerPlaces = places & 0x7FFFFFFF;
+
+            // Inicia o processo de rotação
+            var length = value.Length;
+            var masterRotate = innerPlaces / 64;
+            if (masterRotate < length)
+            {
+                var innerRotate = innerPlaces % 64;
+                var counterRotate = 64 - innerPlaces;
+                var writeIndex = 0;
+                var index = masterRotate;
+                var nextIndex = index + 1;
+                while (nextIndex < length)
+                {
+                    var masked = value[nextIndex] << counterRotate;
+                    value[writeIndex] = (value[index] >> innerRotate) | masked;
+                    ++index;
+                    ++nextIndex;
+                    ++writeIndex;
+                }
+
+                value[writeIndex++] = value[index] >> innerRotate;
+                while (writeIndex < length)
+                {
+                    value[writeIndex] = 0;
+                    ++writeIndex;
+                }
+            }
+            else // O vector passa a ser completamente nulo
+            {
+                for (int i = 0; i < length; ++i)
+                {
+                    value[i] = 0;
                 }
             }
         }
@@ -3365,14 +3469,9 @@
                 var length = value.Length;
                 var masterRotate = innerPlaces / 64;
                 var innerRotate = innerPlaces % 64;
-                var counterRotate = 64 - innerRotate;
-                var current = value[length - 1];
-                var masked = current << counterRotate;
                 var finalLength = length + masterRotate;
-                if (masked == 0)
+                if (innerRotate == 0)
                 {
-                    var finalIndex = finalLength;
-                    ++finalLength;
                     var result = new ulong[finalLength];
                     for (int i = 0; i < masterRotate; ++i)
                     {
@@ -3380,51 +3479,120 @@
                     }
 
                     var index = 0;
-                    finalIndex = masterRotate;
-                    current = value[index];
-                    masked = current >> counterRotate;
-                    result[finalIndex] = current << innerRotate;
-                    ++index;
-                    ++finalIndex;
-                    while (index < length)
+                    for (int i = masterRotate; i < finalLength; ++i)
                     {
-                        current = value[index];
-                        var innerMasked = current >> counterRotate;
-                        result[finalIndex] = (current << innerRotate) | masked;
-                        masked = current >> counterRotate;
+                        result[i] = value[index];
                         ++index;
-                        ++finalIndex;
                     }
 
                     return result;
                 }
                 else
                 {
-                    var finalIndex = finalLength - 1;
-                    var result = new ulong[finalLength];
-                    for (int i = 0; i < masterRotate; ++i)
-                    {
-                        result[i] = 0;
-                    }
+                    var counterRotate = 64 - innerRotate;
+                    var current = value[length - 1];
+                    var masked = current >> counterRotate;
 
-                    var index = 0;
-                    finalIndex = masterRotate;
-                    current = value[index];
-                    masked = current >> counterRotate;
-                    result[finalIndex] = current << innerRotate;
-                    ++index;
-                    ++finalIndex;
-                    while (index < length)
+                    if (masked == 0)
                     {
+                        var finalIndex = finalLength - 1;
+                        var result = new ulong[finalLength];
+                        for (int i = 0; i < masterRotate; ++i)
+                        {
+                            result[i] = 0;
+                        }
+
+                        var index = 0;
+                        finalIndex = masterRotate;
                         current = value[index];
-                        var innerMasked = current >> counterRotate;
-                        result[finalIndex] = (current << innerRotate) | masked;
-                        masked = current >> counterRotate;
+                        result[finalIndex] = current << innerRotate;
                         ++index;
                         ++finalIndex;
-                    }
+                        while (index < length)
+                        {
+                            current = value[index];
+                            result[finalIndex] = (current << innerRotate) | masked;
+                            masked = current >> counterRotate;
+                            ++index;
+                            ++finalIndex;
+                        }
 
-                    return result;
+                        return result;
+                    }
+                    else
+                    {
+                        var finalIndex = finalLength;
+                        ++finalLength;
+                        var result = new ulong[finalLength];
+                        for (int i = 0; i < masterRotate; ++i)
+                        {
+                            result[i] = 0;
+                        }
+
+                        var index = 0;
+                        finalIndex = masterRotate;
+                        current = value[index];
+                        result[finalIndex] = current << innerRotate;
+                        ++index;
+                        ++finalIndex;
+                        while (index < length)
+                        {
+                            current = value[index];
+                            result[finalIndex] = (current << innerRotate) | masked;
+                            masked = current >> counterRotate;
+                            ++index;
+                            ++finalIndex;
+                        }
+
+                        result[finalIndex] = masked;
+                        return result;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Permite rodar o vector de valores para a esquerda, mantendo fixo o
+        /// tamanho do vector.
+        /// </summary>
+        /// <param name="value">O vector a ser rodado.</param>
+        /// <param name="places">O número de posições a serem rodadas.</param>
+        private static void FixedLengthRotateLeft(ulong[] value, int places)
+        {
+            // Se o valor for negativo, o "bit" correspondente ao sinal é eliminado
+            var innerPlaces = places & 0x7FFFFFFF;
+
+            // Inicia o processo de rotação
+            var length = value.Length;
+            var masterRotate = innerPlaces / 64;
+            if (masterRotate < length)
+            {
+                var innerRotate = innerPlaces % 64;
+                var counterRotate = 64 - innerRotate;
+                var writeIndex = length - 1;
+                var index = length - masterRotate - 1;
+                var nextIndex = index - 1;
+                while (nextIndex > -1)
+                {
+                    var masked = value[nextIndex] >> counterRotate;
+                    value[writeIndex] = (value[index] << innerRotate) | masked;
+                    --index;
+                    --nextIndex;
+                    --writeIndex;
+                }
+
+                value[writeIndex--] = value[index] << innerRotate;
+                while (writeIndex > -1)
+                {
+                    value[writeIndex] = 0;
+                    --writeIndex;
+                }
+            }
+            else // O vector passa a ser completamente nulo
+            {
+                for (int i = 0; i < length; ++i)
+                {
+                    value[i] = 0;
                 }
             }
         }
@@ -4168,6 +4336,13 @@
     /// </summary>
     public class TestWithAlg
     {
+        /// <summary>
+        /// Permite dividir um número de dois símbolos por um número de um símbolo.
+        /// </summary>
+        /// <param name="highDividend">O símbolo mais significativo do dividendo.</param>
+        /// <param name="lowDividend">O símbolo menos significativo do dividendo.</param>
+        /// <param name="divisor">O divisor.</param>
+        /// <returns>Os símbolos mais e menos significativo do resultado.</returns>
         public Tuple<ulong, ulong> Divide(ulong highDividend, ulong lowDividend, ulong divisor)
         {
             var intermediary = highDividend * 10 + lowDividend;
@@ -4176,6 +4351,12 @@
             return Tuple.Create(quo, rem);
         }
 
+        /// <summary>
+        /// Aplica o processo de divisão.
+        /// </summary>
+        /// <param name="first">O dividendo.</param>
+        /// <param name="second">O divisor.</param>
+        /// <returns>O quociente.</returns>
         public Tuple<ulong[], ulong[]> SequentialQuotientAndRemainder(
             ulong[] first,
             ulong[] second)
