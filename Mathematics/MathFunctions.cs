@@ -813,5 +813,41 @@
         {
             return (int)(binaryPrecision * Math.Log10(2));
         }
+
+        /// <summary>
+        /// Obtém as potências de dois contidas num inteiro sem sinal.
+        /// </summary>
+        /// <returns>O vector com as potências.</returns>
+        public static uint[] GetUintPowersOfTwo()
+        {
+            var result = new uint[32];
+            result[0] = 1;
+            var temp = 2u;
+            for (int i = 1; i < 32; ++i)
+            {
+                result[i] = temp;
+                temp <<= 1;
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Obtém as potências de dois contidas num longo sem sinal.
+        /// </summary>
+        /// <returns>O vector com as potências.</returns>
+        public static ulong[] GetUlongPowersOfTwo()
+        {
+            var result = new ulong[64];
+            result[0] = 1;
+            var temp = 2ul;
+            for (int i = 1; i < 64; ++i)
+            {
+                result[i] = temp;
+                temp <<= 1;
+            }
+
+            return result;
+        }
     }
 }

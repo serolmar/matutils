@@ -2753,6 +2753,109 @@
         }
 
         /// <summary>
+        /// Permite subtrair o número dado pelo segundo argumento ao primeiro.
+        /// </summary>
+        /// <remarks>
+        /// A aplicação da função altera o valor do minuendo, indicando o tamanho
+        /// sub-vector com os valores válidos da subtracção. Se o subtraendo for superior
+        /// ao minuendo após a aplicação do deslocamento, o resultado da subtracção será imprevisível.
+        /// </remarks>
+        /// <param name="minuend">O número a ser subtraído.</param>
+        /// <param name="minuendValidLength">
+        /// O tamanho do sub-vector que contém valores válidos do minuendo.
+        /// </param>
+        /// <param name="subtraend">O número a subtrair.</param>
+        /// <param name="offset">
+        /// O deslocamento do subtraendo.
+        /// </param>
+        /// <returns>O tamanho do sub-vector do minuendo que contém os valores válidos da subtracção.</returns>
+        private static int SequentialSubtract(
+            ulong[] minuend,
+            int minuendValidLength,
+            ulong[] subtraend,
+            int offset)
+        {
+            var result = 0;
+            var subtraendLength = subtraend.Length;
+            var minuendIndex = offset;
+
+            var carry = false;
+            var complement = ~subtraend[0];
+            var sum = Add(minuend[minuendIndex], complement);
+            complement = sum.Item2 + 1;
+            if (complement == 0)
+            {
+                carry = true;
+            }
+            else
+            {
+                carry = sum.Item1;
+            }
+
+            minuend[minuendIndex] = complement;
+            for (int i = 1; i < subtraendLength; ++i)
+            {
+                ++minuendIndex;
+                complement = ~subtraend[i];
+                sum = Add(minuend[i], complement);
+                if (carry)
+                {
+                    if (sum.Item2 == 0xFFFFFFFFFFFFFFFF)
+                    {
+                        minuend[minuendIndex] = 0;
+                        carry = true;
+                    }
+                    else
+                    {
+                        minuend[minuendIndex] = sum.Item2 + 1;
+                        carry = sum.Item1;
+                        result = minuendIndex;
+                    }
+                }
+                else
+                {
+                    minuend[minuendIndex] = sum.Item2;
+                    carry = sum.Item1;
+                    if (sum.Item2 != 0)
+                    {
+                        result = i;
+                    }
+                }
+            }
+
+            ++minuendIndex;
+            for (int i = minuendIndex; i < minuendValidLength; ++i)
+            {
+                sum = Add(minuend[i], 0xFFFFFFFFFFFFFFFF);
+                if (carry)
+                {
+                    if (sum.Item2 == 0xFFFFFFFFFFFFFFFF)
+                    {
+                        minuend[i] = 0;
+                        carry = true;
+                    }
+                    else
+                    {
+                        minuend[i] = sum.Item2 + 1;
+                        carry = sum.Item1;
+                        result = i;
+                    }
+                }
+                else
+                {
+                    minuend[i] = sum.Item2;
+                    carry = sum.Item1;
+                    if (sum.Item2 != 0)
+                    {
+                        result = i;
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
         /// Permite determinar a soma de dois inteiros enormes recorrendo a vários núcleos de processamento com base
         /// no método CLA (propagação e transporte).
         /// </summary>
@@ -3240,6 +3343,8 @@
                 }
                 else if (firstLength == secondLength)
                 {
+                    var binaryPowers = MathFunctions.GetUlongPowersOfTwo();
+
                     var firstLastIndex = first.Length - 1;
                     var secondLastIndex = second.Length - 1;
 
@@ -3253,12 +3358,68 @@
                         var logDifference = currentFirstLastLog - currentSecondLastLog;
 
                         // O comprimento máximo do resto pode igualar o comprimento do quociente
-                        var remainder = new ulong[firstLength];
-                        if (logDifference == 1)
+                        var shiftedDivisor = new ulong[secondLength];
+
+                        // Aplicação do primeiro passo do ciclo
+                        var counterRotate = 64 - logDifference;
+                        var current = second[0];
+                        shiftedDivisor[0] = current << logDifference;
+                        var carry = current >> counterRotate;
+                        for (int i = 1; i < secondLength; ++i)
                         {
+                            current = second[i];
+                            shiftedDivisor[i] = current | carry;
+                            carry = current >> counterRotate;
+                        }
+
+                        var index = firstLength - 1;
+                        var currentDividendValue = first[index];
+                        var currentDivisorValue = shiftedDivisor[index];
+                        --index;
+                        while (currentDividendValue == currentDivisorValue && index > 0)
+                        {
+                            currentDividendValue = first[index];
+                            currentDivisorValue = shiftedDivisor[index];
+                            --index;
+                        }
+
+                        // O resto é nulo e o quociente é igual a uma potência de dois
+                        if (index < 0)
+                        {
+                            return Tuple.Create<ulong[], ulong[]>(
+                                new ulong[] { binaryPowers[logDifference] },
+                                null);
+                        }
+                        else if (index < firstLength - 1) // O resto torna-se menor que o quociente
+                        {
+                            var remainder = new ulong[index + 1];
+                            var quo = binaryPowers[logDifference];
+                            if (currentDivisorValue < currentDividendValue)
+                            {
+                                for (int i = 0; i <= index; ++i)
+                                {
+                                    currentDivisorValue = shiftedDivisor[i];
+                                }
+                            }
+                            else
+                            {
+
+                            }
+
+                            return Tuple.Create(new ulong[] { quo }, remainder);
                         }
                         else
                         {
+                            // O tamanho inicial do resto depende do número de valores não nulos
+                            var remainder = new ulong[firstLength];
+                            var quo = binaryPowers[logDifference];
+                            if (currentDivisorValue < currentDividendValue)
+                            {
+
+                            }
+                            else
+                            {
+                            }
                         }
                     }
                     else if (currentFirstLastLog < currentSecondLastLog)
@@ -3594,6 +3755,29 @@
                 {
                     value[i] = 0;
                 }
+            }
+        }
+
+        /// <summary>
+        /// Função auxiliar que permite rodar à equerda um vector de longos sem sinal em um número de bits
+        /// inferior ao tamanho da variável.
+        /// </summary>
+        /// <remarks>
+        /// Função definida para auxiliar o processo de divisão. Neste caso, o vector passado no argumento
+        /// terá de conter pelo menos um valor.
+        /// </remarks>
+        /// <param name="value">O valor a ser rodado.</param>
+        /// <param name="places">O número bits a ser aplicado na rotação, inferior a 64.</param>
+        private static void AuxiliaryRotateLeft(ulong[] value, int places)
+        {
+            var counterRotate = 64 - places;
+            var index = value.Length - 1;
+            value[index] <<= places;
+            for (int i = index - 1; i > -1; --i, --index)
+            {
+                var current = value[i];
+                value[index] |= (current >> counterRotate);
+                value[i] = current << places;
             }
         }
 
