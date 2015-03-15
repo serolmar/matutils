@@ -44,6 +44,21 @@
         };
 
         /// <summary>
+        /// Mantém o número zero.
+        /// </summary>
+        private static UlongArrayBigInt zero = new UlongArrayBigInt(0);
+
+        /// <summary>
+        /// Mantém o número unitário.
+        /// </summary>
+        private static UlongArrayBigInt unity = new UlongArrayBigInt(1);
+
+        /// <summary>
+        /// Mantém o simétrico da unidade.
+        /// </summary>
+        private static UlongArrayBigInt symmUnity = new UlongArrayBigInt(-1);
+
+        /// <summary>
         /// Verdadeiro caso o número seja afecto de sinal e falso caso contrário.
         /// </summary>
         private bool sign;
@@ -62,15 +77,33 @@
         public UlongArrayBigInt(ulong[] array)
         {
             this.sign = false;
-            if (array == null || array.Length == 0)
+            if (array == null)
             {
                 this.array = null;
             }
             else
             {
-                var length = array.Length;
-                this.array = new ulong[length];
-                Array.Copy(array, this.array, length);
+                var length = 0;
+                for (int i = array.Length - 1; i > -1; --i)
+                {
+                    var current = array[i];
+                    if (current != 0ul)
+                    {
+                        length = i + 1;
+                        i = -1;
+                    }
+                }
+
+                if (length == 0)
+                {
+                    this.array = null;
+                }
+                else
+                {
+                    this.array = new ulong[length];
+                    Array.Copy(array, this.array, length);
+                }
+
             }
         }
 
@@ -272,6 +305,39 @@
 
                     return MathFunctions.PopCount(this.array[last]) == 1;
                 }
+            }
+        }
+
+        /// <summary>
+        /// Obtém o número 0.
+        /// </summary>
+        public static UlongArrayBigInt Zero
+        {
+            get
+            {
+                return zero;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o número 1.
+        /// </summary>
+        public static UlongArrayBigInt Unity
+        {
+            get
+            {
+                return unity;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o número -1.
+        /// </summary>
+        public static UlongArrayBigInt SymmUnity
+        {
+            get
+            {
+                return symmUnity;
             }
         }
 
@@ -1677,6 +1743,50 @@
             }
         }
 
+        /// <summary>
+        /// Determina o quociente e o resto da divisão entre dois números.
+        /// </summary>
+        /// <param name="first">O dividendo.</param>
+        /// <param name="second">O divisor.</param>
+        /// <returns>O par quociente/resto da divisão.</returns>
+        public static Tuple<UlongArrayBigInt, UlongArrayBigInt> SequentialQuotientAndRemainder(UlongArrayBigInt first, UlongArrayBigInt second)
+        {
+            if (second.array == null)
+            {
+                throw new DivideByZeroException();
+            }
+            else if (first.array == null)
+            {
+                var result = new UlongArrayBigInt();
+                result.sign = false;
+                result.array = null;
+
+                // O quociente e o resto são nulos
+                return Tuple.Create(result, result);
+            }
+            else
+            {
+                var quo = new UlongArrayBigInt();
+                var remainder = new UlongArrayBigInt();
+                remainder.sign = false;
+                if ((first.sign && second.sign) || (!first.sign && !second.sign))
+                {
+                    quo.sign = false;
+                }
+                else
+                {
+                    quo.sign = true;
+                }
+
+                var aux = SequentialQuotientAndRemainder(
+                    first.array,
+                    second.array);
+                quo.array = aux.Item1;
+                remainder.array = aux.Item2;
+                return Tuple.Create(quo, remainder);
+            }
+        }
+
         #endregion Funções estáticas públicas
 
         #region Funções internas
@@ -2640,6 +2750,120 @@
         }
 
         /// <summary>
+        /// Permite adicionar o número dado pelo segundo argumento ao primeiro.
+        /// </summary>
+        /// <remarks>
+        /// Se o tamanho do vector que contém o primeiro número não for suficiente
+        /// para albergar o resultado então este será imprevisível.
+        /// </remarks>
+        /// <param name="first">O número a ser adicionado.</param>
+        /// <param name="firstLength">O comprimento do vector que contém dados válidos.</param>
+        /// <param name="second">O segundo número.</param>
+        /// <param name="secondOffset">O deslocamento do segundo número.</param>
+        /// <returns>O tamanho do vector que contém o valor final da soma.</returns>
+        private static int SequentialAdd(
+            ulong[] first,
+            int firstLength,
+            ulong[] second,
+            int secondOffset)
+        {
+            var result = firstLength;
+            var secondLength = second.Length;
+            var firstIndex = secondOffset;
+            var secondIndex = 0;
+            var carry = false;
+            while (secondIndex < secondLength
+                && firstIndex < firstLength)
+            {
+                var addValue = Add(
+                    first[firstIndex],
+                    second[secondIndex]);
+                if (carry)
+                {
+                    if (addValue.Item2 == 0xFFFFFFFFFFFFFFFF)
+                    {
+                        first[firstIndex] = 0;
+                        carry = true;
+                    }
+                    else
+                    {
+                        first[firstIndex] = addValue.Item2 + 1;
+                        carry = addValue.Item1;
+                    }
+                }
+                else
+                {
+                    first[firstIndex] = addValue.Item2;
+                    carry = addValue.Item1;
+                }
+
+                ++firstIndex;
+                ++secondIndex;
+            }
+
+            if (carry)
+            {
+                while (secondIndex < secondLength)
+                {
+                    var current = second[secondIndex];
+                    if (current == 0xFFFFFFFFFFFFFFFF)
+                    {
+                        first[firstIndex] = 0;
+                        ++firstIndex;
+                        ++secondIndex;
+                    }
+                    else
+                    {
+                        carry = false;
+                        first[firstIndex] = second[secondIndex] + 1;
+                        ++firstIndex;
+                        ++secondIndex;
+                        while (secondIndex < secondLength)
+                        {
+                            first[firstIndex] = second[secondIndex];
+                            ++firstIndex;
+                            ++secondIndex;
+                        }
+                    }
+                }
+
+                while (firstIndex < firstLength)
+                {
+                    var current = first[firstIndex];
+                    if (current == 0xFFFFFFFFFFFFFFFF)
+                    {
+                        first[firstIndex] = 0;
+                        ++firstIndex;
+                        ++secondIndex;
+                    }
+                    else
+                    {
+                        carry = false;
+                        ++first[firstIndex];
+                        firstIndex = firstLength;
+                    }
+                }
+
+                if (carry)
+                {
+                    first[firstIndex] = 1ul;
+                    ++result;
+                }
+            }
+            else
+            {
+                while (secondIndex < secondLength)
+                {
+                    first[firstIndex] = second[secondIndex];
+                    ++firstIndex;
+                    ++secondIndex;
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
         /// Determina a diferença entre dois números.
         /// </summary>
         /// <remarks>
@@ -3340,6 +3564,7 @@
                 var secondLength = second.Length;
                 if (secondLength < firstLength)
                 {
+                    throw new NotImplementedException("Encontra-se em fase de implementação");
                 }
                 else if (firstLength == secondLength)
                 {
@@ -3356,70 +3581,204 @@
                     if (currentSecondLastLog < currentFirstLastLog)
                     {
                         var logDifference = currentFirstLastLog - currentSecondLastLog;
-
-                        // O comprimento máximo do resto pode igualar o comprimento do quociente
                         var shiftedDivisor = new ulong[secondLength];
+                        AuxiliaryRotateLeft(second, shiftedDivisor, logDifference);
 
-                        // Aplicação do primeiro passo do ciclo
-                        var counterRotate = 64 - logDifference;
-                        var current = second[0];
-                        shiftedDivisor[0] = current << logDifference;
-                        var carry = current >> counterRotate;
-                        for (int i = 1; i < secondLength; ++i)
-                        {
-                            current = second[i];
-                            shiftedDivisor[i] = current | carry;
-                            carry = current >> counterRotate;
-                        }
-
+                        var found = -1;
                         var index = firstLength - 1;
                         var currentDividendValue = first[index];
                         var currentDivisorValue = shiftedDivisor[index];
-                        --index;
-                        while (currentDividendValue == currentDivisorValue && index > 0)
+                        if (currentDividendValue == currentDivisorValue)
                         {
-                            currentDividendValue = first[index];
-                            currentDivisorValue = shiftedDivisor[index];
                             --index;
+                            while (index > -1)
+                            {
+                                currentDividendValue = first[index];
+                                currentDivisorValue = shiftedDivisor[index];
+                                if (currentDividendValue == currentDivisorValue)
+                                {
+                                    --index;
+                                }
+                                else
+                                {
+                                    found = index;
+                                    index = -1;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            found = index;
                         }
 
                         // O resto é nulo e o quociente é igual a uma potência de dois
-                        if (index < 0)
+                        if (found < 0)
                         {
                             return Tuple.Create<ulong[], ulong[]>(
                                 new ulong[] { binaryPowers[logDifference] },
                                 null);
                         }
-                        else if (index < firstLength - 1) // O resto torna-se menor que o quociente
+                        else if (found < firstLength - 1) // O resto torna-se menor que o quociente
                         {
-                            var remainder = new ulong[index + 1];
+                            var remainder = default(ulong[]);
                             var quo = binaryPowers[logDifference];
                             if (currentDivisorValue < currentDividendValue)
                             {
-                                for (int i = 0; i <= index; ++i)
-                                {
-                                    currentDivisorValue = shiftedDivisor[i];
-                                }
+                                // O resto iguala à diferença entre o dividendo e o divisor rodado
+                                remainder = SequentialSubtract(first, shiftedDivisor);
                             }
                             else
                             {
-
+                                //  Resto iguala a diferença entre o divisor rodado e o dividendo
+                                remainder = SequentialSubtract(shiftedDivisor, first);
+                                --quo;
                             }
 
                             return Tuple.Create(new ulong[] { quo }, remainder);
                         }
                         else
                         {
-                            // O tamanho inicial do resto depende do número de valores não nulos
-                            var remainder = new ulong[firstLength];
+                            // Aplica o ciclo que permite determinar o valor do quociente e do resto
+                            var remainder = default(ulong[]);
                             var quo = binaryPowers[logDifference];
+                            var signal = false;
                             if (currentDivisorValue < currentDividendValue)
                             {
-
+                                remainder = SequentialSubtract(first, shiftedDivisor);
                             }
                             else
                             {
+                                remainder = SequentialSubtract(shiftedDivisor, first);
+                                signal = true;
+
                             }
+
+                            currentFirstLastLog = MathFunctions.GetHighestSettedBitIndex(
+                                remainder[firstLastIndex]);
+                            currentSecondLastLog = MathFunctions.GetHighestSettedBitIndex(
+                                second[secondLastIndex]);
+                            while (currentSecondLastLog <= currentFirstLastLog)
+                            {
+                                logDifference = currentFirstLastLog - currentSecondLastLog;
+                                AuxiliaryRotateLeft(second, shiftedDivisor, logDifference);
+
+                                found = -1;
+                                index = firstLength - 1;
+                                currentDividendValue = remainder[index];
+                                currentDivisorValue = shiftedDivisor[index];
+                                if (currentDividendValue == currentDivisorValue)
+                                {
+                                    --index;
+                                    while (index > -1)
+                                    {
+                                        currentDividendValue = remainder[index];
+                                        currentDivisorValue = shiftedDivisor[index];
+                                        if (currentDividendValue == currentDivisorValue)
+                                        {
+                                            --index;
+                                        }
+                                        else
+                                        {
+                                            found = index;
+                                            index = -1;
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    found = index;
+                                }
+
+                                // O resto é nulo
+                                if (found < 0)
+                                {
+                                    if (signal)
+                                    {
+                                        quo -= binaryPowers[logDifference];
+                                    }
+                                    else
+                                    {
+                                        quo += binaryPowers[logDifference];
+                                    }
+
+                                    return Tuple.Create<ulong[], ulong[]>(
+                                        new ulong[] { quo },
+                                        null);
+                                }
+                                else if (found < firstLength - 1) // O resto torna-se menor que o quociente
+                                {
+                                    if (currentDivisorValue < currentDividendValue)
+                                    {
+                                        // O resto iguala à diferença entre o dividendo e o divisor rodado
+                                        SequentialSubtract(remainder, remainder.Length, shiftedDivisor, 0);
+                                    }
+                                    else
+                                    {
+                                        //  Resto iguala a diferença entre o divisor rodado e o dividendo
+                                        SequentialSubtract(shiftedDivisor, shiftedDivisor.Length, remainder, 0);
+                                        remainder = shiftedDivisor;
+                                        if (signal)
+                                        {
+                                            ++quo;
+                                        }
+                                        else
+                                        {
+                                            --quo;
+                                        }
+                                    }
+
+                                    return Tuple.Create(new ulong[] { quo }, remainder);
+                                }
+                                else
+                                {
+
+                                    if (currentDivisorValue < currentDividendValue)
+                                    {
+                                        if (signal)
+                                        {
+                                            quo -= binaryPowers[logDifference];
+                                        }
+                                        else
+                                        {
+                                            quo += binaryPowers[logDifference];
+                                        }
+
+                                        SequentialSubtract(remainder, remainder.Length, shiftedDivisor, 0);
+                                    }
+                                    else
+                                    {
+                                        SequentialSubtract(shiftedDivisor, shiftedDivisor.Length, remainder, 0);
+                                        remainder = shiftedDivisor;
+                                        if (signal)
+                                        {
+                                            quo -= binaryPowers[logDifference];
+                                            signal = false;
+                                        }
+                                        else
+                                        {
+                                            quo += binaryPowers[logDifference];
+                                            signal = true;
+                                        }
+
+                                        quo += binaryPowers[logDifference] - 1;
+
+                                    }
+
+                                    currentFirstLastLog = MathFunctions.GetHighestSettedBitIndex(
+                                        remainder[firstLastIndex]);
+                                    currentSecondLastLog = MathFunctions.GetHighestSettedBitIndex(
+                                        second[secondLastIndex]);
+                                }
+                            }
+
+
+                            if (signal)
+                            {
+                                --quo;
+                                remainder = SequentialSubtract(second, remainder);
+                            }
+
+                            return Tuple.Create(new ulong[] { quo }, remainder);
                         }
                     }
                     else if (currentFirstLastLog < currentSecondLastLog)
@@ -3477,8 +3836,6 @@
                     Array.Copy(first, remainder, firstLength);
                     return Tuple.Create<ulong[], ulong[]>(null, remainder);
                 }
-
-                throw new NotImplementedException();
             }
         }
 
@@ -3767,17 +4124,25 @@
         /// terá de conter pelo menos um valor.
         /// </remarks>
         /// <param name="value">O valor a ser rodado.</param>
+        /// <param name="output">O valor de saída.</param>
         /// <param name="places">O número bits a ser aplicado na rotação, inferior a 64.</param>
-        private static void AuxiliaryRotateLeft(ulong[] value, int places)
+        private static void AuxiliaryRotateLeft(ulong[] value, ulong[] output, int places)
         {
-            var counterRotate = 64 - places;
-            var index = value.Length - 1;
-            value[index] <<= places;
-            for (int i = index - 1; i > -1; --i, --index)
+            if (places == 0)
             {
-                var current = value[i];
-                value[index] |= (current >> counterRotate);
-                value[i] = current << places;
+                Array.Copy(value, output, value.Length);
+            }
+            else
+            {
+                var counterRotate = 64 - places;
+                var index = value.Length - 1;
+                output[index] = value[index] << places;
+                for (int i = index - 1; i > -1; --i, --index)
+                {
+                    var current = value[i];
+                    output[index] |= (current >> counterRotate);
+                    output[i] = current << places;
+                }
             }
         }
 

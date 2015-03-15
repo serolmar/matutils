@@ -148,7 +148,7 @@
         /// <summary>
         /// Testa a função diferença entre números enormes na versão paralela, recorrendo ao algoritmo CLA.
         /// </summary>
-        [Description("Tests the parallel version of CLA parallel subtrarction function.")]
+        [Description("Tests the parallel version of CLA parallel subtraction function.")]
         [TestMethod]
         public void UlongArrayBigInt_ParallelClaSubtractTest()
         {
@@ -204,6 +204,93 @@
                 {
                     Assert.Fail("Um problema ocorreu durante a leitura dos números.");
                 }
+            }
+        }
+
+        /// <summary>
+        /// Testa a função que permite determinar o quociente e o resto de dois números do algoritmo sequencial.
+        /// </summary>
+        [Description("Test the sequential implementation of the sequential quotient and remainder function.")]
+        [TestMethod]
+        public void UlongArrayBigInt_SequentialQuotientAndRemainderTest()
+        {
+            // O dividendo é zero e o divisor diferente de zero
+            var dividend = new UlongArrayBigInt(0);
+            var divisor = new UlongArrayBigInt(new[] { 1ul, ulong.MaxValue });
+            var result = UlongArrayBigInt.SequentialQuotientAndRemainder(dividend, divisor);
+            Assert.AreEqual(dividend, result.Item1);
+            Assert.AreEqual(dividend, result.Item2);
+
+            // O dividendo tem um número inferior de elementos relativamente ao divisor
+            dividend = new UlongArrayBigInt(new[] { 1ul, 2ul, 3ul });
+            divisor = new UlongArrayBigInt(new[] { 0ul, 0ul, 0ul, 0ul, 0ul, 1ul });
+            result = UlongArrayBigInt.SequentialQuotientAndRemainder(dividend, divisor);
+            Assert.AreEqual(UlongArrayBigInt.Zero, result.Item1);
+            Assert.AreEqual(dividend, result.Item2);
+
+            // O dividendo tem o mesmo número de elementos que o divisor mas constitui um número inferior
+            dividend = new UlongArrayBigInt(new[] { 1ul, 50ul, 3ul, 234ul });
+            divisor = new UlongArrayBigInt(new[] { 2ul, 50ul, 3ul, 234ul });
+            result = UlongArrayBigInt.SequentialQuotientAndRemainder(dividend, divisor);
+            Assert.AreEqual(UlongArrayBigInt.Zero, result.Item1);
+            Assert.AreEqual(dividend, result.Item2);
+
+            // O dividendo é igual ao divisor
+            dividend = new UlongArrayBigInt(new[] { 1ul, 50ul, 3ul, 234ul });
+            divisor = new UlongArrayBigInt(new[] { 1ul, 50ul, 3ul, 234ul });
+            result = UlongArrayBigInt.SequentialQuotientAndRemainder(dividend, divisor);
+            Assert.AreEqual(UlongArrayBigInt.Unity, result.Item1);
+            Assert.AreEqual(UlongArrayBigInt.Zero, result.Item2);
+
+            // O dividendo é superior ao divisor mas possui o mesmo logaritmo inteiro
+            dividend = new UlongArrayBigInt(new[] { 1ul, 50ul, 10ul, 234ul });
+            divisor = new UlongArrayBigInt(new[] { 1ul, 500ul, 9ul, 234ul });
+            result = UlongArrayBigInt.SequentialQuotientAndRemainder(dividend, divisor);
+            var expectedRemainder = new UlongArrayBigInt(new[] { 0ul, 18446744073709551166ul });
+            Assert.AreEqual(UlongArrayBigInt.Unity, result.Item1);
+            Assert.AreEqual(expectedRemainder, result.Item2);
+
+            // O dividendo contém o mesmo número de elementos e é divisível pelo divisor
+            dividend = new UlongArrayBigInt(new[] { 1024ul, 512000ul, 9216ul, 239616ul });
+            divisor = new UlongArrayBigInt(new[] { 1ul, 500ul, 9ul, 234ul });
+            result = UlongArrayBigInt.SequentialQuotientAndRemainder(dividend, divisor);
+            var expectedQuo = new UlongArrayBigInt(1024);
+            Assert.AreEqual(expectedQuo, result.Item1);
+            Assert.AreEqual(UlongArrayBigInt.Zero, result.Item2);
+
+            // Divisão geral onde o logaritmo do dividendo é superior ao divisor mas não é divisível por este,
+            // contendo ambos o mesmo número de elementos
+            dividend = new UlongArrayBigInt(new[] { ulong.MaxValue, ulong.MaxValue, ulong.MaxValue });
+            divisor = new UlongArrayBigInt(new[] { 3ul, 3ul, 1ul });
+            result = UlongArrayBigInt.SequentialQuotientAndRemainder(dividend, divisor);
+            expectedQuo = new UlongArrayBigInt(new[] { 18446744073709551613ul });
+            expectedRemainder = new UlongArrayBigInt(new[] { 8ul, 6ul });
+            Assert.AreEqual(expectedQuo, result.Item1);
+            Assert.AreEqual(expectedRemainder, result.Item2);
+
+            // Assert.Inconclusive("Ainda não foi implementado qualquer teste.");
+        }
+
+        /// <summary>
+        /// Testa a divisão por zero na função quociente e resto de dois números.
+        /// </summary>
+        [Description("Test the devide by zero exception in sequential quotient and remainder function.")]
+        [TestMethod]
+        [ExpectedException(typeof(DivideByZeroException))]
+        public void UlongArrayBigInt_SequentialQuotientAndRemainderDivideByZeroTest()
+        {
+            var firstTextValue = "423481503948512039485938440895732";
+            var secondTextValue = new UlongArrayBigInt(0);
+            var firstValue = default(UlongArrayBigInt);
+            if (UlongArrayBigInt.TryParse(firstTextValue, out firstValue))
+            {
+                var result = UlongArrayBigInt.SequentialQuotientAndRemainder(
+                    firstValue,
+                    new UlongArrayBigInt(0));
+            }
+            else
+            {
+                Assert.Inconclusive("An error has occured while reading the first value.");
             }
         }
 
