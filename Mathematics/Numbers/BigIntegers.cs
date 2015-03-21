@@ -3076,6 +3076,7 @@
                 }
             }
 
+            ++result;
             return result;
         }
 
@@ -3653,132 +3654,42 @@
 
                             }
 
-                            currentFirstLastLog = MathFunctions.GetHighestSettedBitIndex(
-                                remainder[firstLastIndex]);
-                            currentSecondLastLog = MathFunctions.GetHighestSettedBitIndex(
-                                second[secondLastIndex]);
-                            while (currentSecondLastLog <= currentFirstLastLog)
+                            var currentDivisionResult = new DivisionResult()
                             {
-                                logDifference = currentFirstLastLog - currentSecondLastLog;
-                                AuxiliaryRotateLeft(second, shiftedDivisor, logDifference);
+                                CurrentDividend = remainder,
+                                CurrentDivisor = second,
+                                CurrentSign = signal,
+                                CurrentQuotient = quo
+                            };
 
-                                found = -1;
-                                index = firstLength - 1;
-                                currentDividendValue = remainder[index];
-                                currentDivisorValue = shiftedDivisor[index];
-                                if (currentDividendValue == currentDivisorValue)
-                                {
-                                    --index;
-                                    while (index > -1)
-                                    {
-                                        currentDividendValue = remainder[index];
-                                        currentDivisorValue = shiftedDivisor[index];
-                                        if (currentDividendValue == currentDivisorValue)
-                                        {
-                                            --index;
-                                        }
-                                        else
-                                        {
-                                            found = index;
-                                            index = -1;
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    found = index;
-                                }
-
-                                // O resto é nulo
-                                if (found < 0)
-                                {
-                                    if (signal)
-                                    {
-                                        quo -= binaryPowers[logDifference];
-                                    }
-                                    else
-                                    {
-                                        quo += binaryPowers[logDifference];
-                                    }
-
-                                    return Tuple.Create<ulong[], ulong[]>(
-                                        new ulong[] { quo },
-                                        null);
-                                }
-                                else if (found < firstLength - 1) // O resto torna-se menor que o quociente
-                                {
-                                    if (currentDivisorValue < currentDividendValue)
-                                    {
-                                        // O resto iguala à diferença entre o dividendo e o divisor rodado
-                                        SequentialSubtract(remainder, remainder.Length, shiftedDivisor, 0);
-                                    }
-                                    else
-                                    {
-                                        //  Resto iguala a diferença entre o divisor rodado e o dividendo
-                                        SequentialSubtract(shiftedDivisor, shiftedDivisor.Length, remainder, 0);
-                                        remainder = shiftedDivisor;
-                                        if (signal)
-                                        {
-                                            ++quo;
-                                        }
-                                        else
-                                        {
-                                            --quo;
-                                        }
-                                    }
-
-                                    return Tuple.Create(new ulong[] { quo }, remainder);
-                                }
-                                else
-                                {
-
-                                    if (currentDivisorValue < currentDividendValue)
-                                    {
-                                        if (signal)
-                                        {
-                                            quo -= binaryPowers[logDifference];
-                                        }
-                                        else
-                                        {
-                                            quo += binaryPowers[logDifference];
-                                        }
-
-                                        SequentialSubtract(remainder, remainder.Length, shiftedDivisor, 0);
-                                    }
-                                    else
-                                    {
-                                        SequentialSubtract(shiftedDivisor, shiftedDivisor.Length, remainder, 0);
-                                        remainder = shiftedDivisor;
-                                        if (signal)
-                                        {
-                                            quo -= binaryPowers[logDifference];
-                                            signal = false;
-                                        }
-                                        else
-                                        {
-                                            quo += binaryPowers[logDifference];
-                                            signal = true;
-                                        }
-
-                                        quo += binaryPowers[logDifference] - 1;
-
-                                    }
-
-                                    currentFirstLastLog = MathFunctions.GetHighestSettedBitIndex(
-                                        remainder[firstLastIndex]);
-                                    currentSecondLastLog = MathFunctions.GetHighestSettedBitIndex(
-                                        second[secondLastIndex]);
-                                }
-                            }
-
+                            var currentRemainderLength = ApplyGreatestLogDivision(
+                                currentDivisionResult,
+                                shiftedDivisor,
+                                binaryPowers);
 
                             if (signal)
                             {
-                                --quo;
-                                remainder = SequentialSubtract(second, remainder);
+                                --currentDivisionResult.CurrentQuotient;
+                                currentDivisionResult.CurrentDividend = SequentialSubtract(
+                                    second,
+                                    currentDivisionResult.CurrentDividend);
                             }
 
-                            return Tuple.Create(new ulong[] { quo }, remainder);
+                            if (currentRemainderLength < remainder.Length)
+                            {
+                                var resultRem = new ulong[currentRemainderLength];
+                                Array.Copy(
+                                    currentDivisionResult.CurrentDividend, 
+                                    resultRem, 
+                                    currentRemainderLength);
+                                return Tuple.Create(new ulong[] { currentDivisionResult.CurrentQuotient }, resultRem);
+                            }
+                            else
+                            {
+                                return Tuple.Create(
+                                    new ulong[] { currentDivisionResult.CurrentQuotient }, 
+                                    currentDivisionResult.CurrentDividend);
+                            }
                         }
                     }
                     else if (currentFirstLastLog < currentSecondLastLog)
@@ -4115,6 +4026,10 @@
             }
         }
 
+        #endregion Funções estáticas privadas
+
+        #region Funções privadas auxiliares
+
         /// <summary>
         /// Função auxiliar que permite rodar à equerda um vector de longos sem sinal em um número de bits
         /// inferior ao tamanho da variável.
@@ -4146,7 +4061,282 @@
             }
         }
 
-        #endregion Funções estáticas privadas
+        /// <summary>
+        /// Divide o divisor ao dividendo, alterando este último parâmetro.
+        /// </summary>
+        /// <remarks>
+        /// Trata-se de uma função auxiliar no processo da divisão sequencial.
+        /// </remarks>
+        /// <param name="divisionResult">O resultado da divisão actual.</param>
+        /// <param name="shiftedDivisor">
+        /// Vector que mantém a rotação do divisor. Este argumento existe apenas para evitar
+        /// nova alocação de memória.
+        /// </param>
+        /// <param name="binaryPowers">O vector que contém todas as potências binárias.</param>
+        /// <returns>O tamanho do vector dividendo que irá conter resultado do resto.</returns>
+        private static int ApplyGreatestLogDivision(
+            DivisionResult divisionResult,
+            ulong[] shiftedDivisor,
+            ulong[] binaryPowers)
+        {
+            var remainder = divisionResult.CurrentDividend;
+            var second = divisionResult.CurrentDivisor;
+            var quo = divisionResult.CurrentQuotient;
+            var signal = divisionResult.CurrentSign;
+            var firstLength = remainder.Length;
+
+            var currentRemainderLength = firstLength;
+            var firstLastIndex = remainder.Length - 1;
+            var secondLastIndex = second.Length - 1;
+
+            var currentFirstLastLog = MathFunctions.GetHighestSettedBitIndex(
+                remainder[firstLastIndex]);
+            var currentSecondLastLog = MathFunctions.GetHighestSettedBitIndex(
+                second[secondLastIndex]);
+            while (currentSecondLastLog <= currentFirstLastLog)
+            {
+                var logDifference = currentFirstLastLog - currentSecondLastLog;
+                AuxiliaryRotateLeft(second, shiftedDivisor, logDifference);
+
+                var found = -1;
+                var index = firstLength - 1;
+                var currentDividendValue = remainder[index];
+                var currentDivisorValue = shiftedDivisor[index];
+                if (currentDividendValue == currentDivisorValue)
+                {
+                    --index;
+                    while (index > -1)
+                    {
+                        currentDividendValue = remainder[index];
+                        currentDivisorValue = shiftedDivisor[index];
+                        if (currentDividendValue == currentDivisorValue)
+                        {
+                            --index;
+                        }
+                        else
+                        {
+                            found = index;
+                            index = -1;
+                        }
+                    }
+                }
+                else
+                {
+                    found = index;
+                }
+
+                // O resto é nulo
+                if (found < 0)
+                {
+                    if (signal)
+                    {
+                        quo -= binaryPowers[logDifference];
+                    }
+                    else
+                    {
+                        quo += binaryPowers[logDifference];
+                    }
+
+                    divisionResult.CurrentQuotient = quo;
+                    divisionResult.CurrentDividend = null;
+                    divisionResult.CurrentSign = signal;
+                    return 0;
+                }
+                else if (found < firstLength - 1) // O resto torna-se menor que o quociente
+                {
+                    if (currentDivisorValue < currentDividendValue)
+                    {
+                        // O resto iguala à diferença entre o dividendo e o divisor rodado
+                        currentRemainderLength = SequentialSubtract(
+                            remainder,
+                            remainder.Length,
+                            shiftedDivisor,
+                            0);
+                        if (signal)
+                        {
+                            --quo;
+                        }
+                        else
+                        {
+                            ++quo;
+                        }
+                    }
+                    else
+                    {
+                        //  Resto iguala a diferença entre o divisor rodado e o dividendo
+                        currentRemainderLength = SequentialSubtract(
+                            shiftedDivisor,
+                            shiftedDivisor.Length,
+                            remainder,
+                            0);
+                        remainder = shiftedDivisor;
+                        if (signal)
+                        {
+                            --quo;
+                        }
+                        else
+                        {
+                            ++quo;
+                        }
+                    }
+
+                    if (currentRemainderLength < remainder.Length)
+                    {
+                        var resRem = new ulong[currentRemainderLength];
+                        Array.Copy(remainder, resRem, currentRemainderLength);
+                        divisionResult.CurrentQuotient = quo;
+                        divisionResult.CurrentDividend = resRem;
+                        divisionResult.CurrentSign = signal;
+                        return currentRemainderLength;
+                    }
+                    else
+                    {
+                        divisionResult.CurrentQuotient = quo;
+                        divisionResult.CurrentDividend = remainder;
+                        divisionResult.CurrentSign = signal;
+                        return currentRemainderLength;
+                    }
+                }
+                else
+                {
+
+                    if (currentDivisorValue < currentDividendValue)
+                    {
+                        if (signal)
+                        {
+                            quo -= binaryPowers[logDifference];
+                        }
+                        else
+                        {
+                            quo += binaryPowers[logDifference];
+                        }
+
+                        currentRemainderLength = SequentialSubtract(
+                            remainder,
+                            remainder.Length,
+                            shiftedDivisor, 0);
+                    }
+                    else
+                    {
+                        currentRemainderLength = SequentialSubtract(
+                            shiftedDivisor,
+                            shiftedDivisor.Length,
+                            remainder,
+                            0);
+                        remainder = shiftedDivisor;
+                        if (signal)
+                        {
+                            quo -= binaryPowers[logDifference];
+                            signal = false;
+                        }
+                        else
+                        {
+                            quo += binaryPowers[logDifference];
+                            signal = true;
+                        }
+
+                        quo += binaryPowers[logDifference] - 1;
+
+                    }
+
+                    currentFirstLastLog = MathFunctions.GetHighestSettedBitIndex(
+                        remainder[firstLastIndex]);
+                    currentSecondLastLog = MathFunctions.GetHighestSettedBitIndex(
+                        second[secondLastIndex]);
+                }
+            }
+
+            divisionResult.CurrentQuotient = quo;
+            divisionResult.CurrentDividend = remainder;
+            divisionResult.CurrentSign = signal;
+            return currentRemainderLength;
+        }
+
+        #endregion Funções privadas auxiliares
+
+        /// <summary>
+        /// Clase que permite auxiliar a passagem de argumentos no algoritmo sequencial
+        /// de divisão.
+        /// </summary>
+        private class DivisionResult
+        {
+            /// <summary>
+            /// O dividendo actual.
+            /// </summary>
+            private ulong[] currentDividend;
+
+            /// <summary>
+            /// O divisor actual.
+            /// </summary>
+            private ulong[] currentDivisor;
+
+            /// <summary>
+            /// O quociente actual.
+            /// </summary>
+            private ulong currentQuotient;
+
+            /// <summary>
+            /// O sinal actual.
+            /// </summary>
+            private bool currentSign;
+
+            /// <summary>
+            /// Obtém ou atribui o dividendo actual.
+            /// </summary>
+            public ulong[] CurrentDividend
+            {
+                get
+                {
+                    return this.currentDividend;
+                }
+                set { this.currentDividend = value; }
+            }
+
+            /// <summary>
+            /// Obtém ou atribuir o divisor actual.
+            /// </summary>
+            public ulong[] CurrentDivisor
+            {
+                get
+                {
+                    return this.currentDivisor;
+                }
+                set
+                {
+                    this.currentDivisor = value;
+                }
+            }
+
+            /// <summary>
+            /// Obtém ou atribui o quociente actual.
+            /// </summary>
+            public ulong CurrentQuotient
+            {
+                get
+                {
+                    return this.currentQuotient;
+                }
+                set
+                {
+                    this.currentQuotient = value;
+                }
+            }
+
+            /// <summary>
+            /// Obtém ou atribui o sinal actual do dividendo.
+            /// </summary>
+            public bool CurrentSign
+            {
+                get
+                {
+                    return this.currentSign;
+                }
+                set
+                {
+                    this.currentSign = value;
+                }
+            }
+        }
     }
 
     /// <summary>
