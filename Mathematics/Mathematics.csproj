@@ -328,6 +328,7 @@
     <Compile Include="Algorithms\Graph\IGraphAlgorithms.cs" />
     <Compile Include="MathematicsException.cs" />
     <Compile Include="Numbers\BigIntegers.cs" />
+    <Compile Include="Numbers\BigIntegersOperationsProviders.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SquareRoot.cs" />
   </ItemGroup>

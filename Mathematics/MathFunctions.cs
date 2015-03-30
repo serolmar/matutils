@@ -849,5 +849,23 @@
 
             return result;
         }
+
+        /// <summary>
+        /// Permite adicionar dois números longos sem sinal, determinando o transporte caso esta soma exceda
+        /// o tamanho da variável.
+        /// </summary>
+        /// <remarks>
+        /// É importante notar que, numa soma, o valor do transporte é sempre unitário.
+        /// </remarks>
+        /// <param name="first">O primeiro número a ser adicionado.</param>
+        /// <param name="second">O segundo número a ser adicionado.</param>
+        /// <returns>O par transporte/valor da soma.</returns>
+        public static Tuple<bool, ulong> Add(ulong first, ulong second)
+        {
+            unchecked
+            {
+                return Tuple.Create((~first | 1) < second, first + second);
+            }
+        }
     }
 }

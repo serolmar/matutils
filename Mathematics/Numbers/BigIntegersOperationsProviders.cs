@@ -50,18 +50,139 @@
         /// </summary>
         /// <param name="shiftOffset">O deslocamento do quociente rodado.</param>
         /// <returns>O tamanho do novo resto.</returns>
-        private int SubtractShiftedQuoFromRema(int shiftOffset)
+        private int SubtractShiftedQuoFromRem(int shiftOffset)
         {
-            throw new NotImplementedException();
+            var result = 0;
+            var subtraendLength = this.currentShiftQuotient.Length;
+            var minuendIndex = shiftOffset;
+
+            var carry = false;
+            var complement = ~this.currentShiftQuotient[0];
+            var sum = MathFunctions.Add(this.currentRemainder[minuendIndex], complement);
+            complement = sum.Item2 + 1;
+            if (complement == 0)
+            {
+                carry = true;
+            }
+            else
+            {
+                carry = sum.Item1;
+            }
+
+            this.currentRemainder[minuendIndex] = complement;
+            for (int i = 1; i < subtraendLength; ++i)
+            {
+                ++minuendIndex;
+                complement = ~this.currentShiftQuotient[i];
+                sum = MathFunctions.Add(this.currentRemainder[i], complement);
+                if (carry)
+                {
+                    if (sum.Item2 == 0xFFFFFFFFFFFFFFFF)
+                    {
+                        this.currentRemainder[minuendIndex] = 0;
+                        carry = true;
+                    }
+                    else
+                    {
+                        this.currentRemainder[minuendIndex] = sum.Item2 + 1;
+                        carry = sum.Item1;
+                        result = minuendIndex;
+                    }
+                }
+                else
+                {
+                    this.currentRemainder[minuendIndex] = sum.Item2;
+                    carry = sum.Item1;
+                    if (sum.Item2 != 0)
+                    {
+                        result = i;
+                    }
+                }
+            }
+
+            ++minuendIndex;
+            for (int i = minuendIndex; i < this.currentRemainderLength; ++i)
+            {
+                sum = MathFunctions.Add(this.currentRemainder[i], 0xFFFFFFFFFFFFFFFF);
+                if (carry)
+                {
+                    if (sum.Item2 == 0xFFFFFFFFFFFFFFFF)
+                    {
+                        this.currentRemainder[i] = 0;
+                        carry = true;
+                    }
+                    else
+                    {
+                        this.currentRemainder[i] = sum.Item2 + 1;
+                        carry = sum.Item1;
+                        result = i;
+                    }
+                }
+                else
+                {
+                    this.currentRemainder[i] = sum.Item2;
+                    carry = sum.Item1;
+                    if (sum.Item2 != 0)
+                    {
+                        result = i;
+                    }
+                }
+            }
+
+            ++result;
+            return result;
         }
 
         /// <summary>
         /// Subtrai o resto do quociente rodado.
         /// </summary>
+        /// <remarks>O resultado é colocado no resto.</remarks>
         /// <param name="shiftOffset">O deslocamento do quociente rodado.</param>
         /// <returns>O tamanho do novo resto.</returns>
         private int SubtractRemFromShiftedQuo(int remLength, int shiftOffset)
         {
+            var result = -1;
+            var subtraendIndex = 0;
+            var carry = false;
+            var complement = ~this.currentRemainder[subtraendIndex];
+            ++complement;
+            if (subtraendIndex == shiftOffset)
+            {
+                var addValues = MathFunctions.Add(this.currentShiftQuotient[subtraendIndex], complement);
+                carry = addValues.Item1;
+                this.currentRemainder[subtraendIndex] = addValues.Item2;
+                if (addValues.Item2 != 0)
+                {
+                    result = 0;
+                }
+            }
+            else
+            {
+                this.currentRemainder[subtraendIndex] = complement;
+                if (complement != 0)
+                {
+                    result = subtraendIndex;
+                }
+
+                ++subtraendIndex;
+                while (subtraendIndex < shiftOffset)
+                {
+                    complement = ~this.currentRemainder[subtraendIndex];
+                    this.currentRemainder[subtraendIndex] = complement;
+                    if (complement != 0)
+                    {
+                        result = subtraendIndex;
+                    }
+
+                    ++subtraendIndex;
+                }
+
+                var minuendIndex = 0;
+                while (subtraendIndex < remLength)
+                {
+
+                }
+            }
             throw new NotImplementedException();
         }
     }

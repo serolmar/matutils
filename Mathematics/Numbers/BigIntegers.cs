@@ -2999,7 +2999,7 @@
             ulong[] subtraend,
             int offset)
         {
-            var result = 0;
+            var result = -1;
             var subtraendLength = subtraend.Length;
             var minuendIndex = offset;
 
@@ -3017,6 +3017,11 @@
             }
 
             minuend[minuendIndex] = complement;
+            if (sum.Item2 != 0)
+            {
+                result = 0;
+            }
+
             for (int i = 1; i < subtraendLength; ++i)
             {
                 ++minuendIndex;
