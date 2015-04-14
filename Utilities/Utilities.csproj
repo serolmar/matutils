@@ -73,6 +73,7 @@
     <Compile Include="Collections\IntegerSequence.cs" />
     <Compile Include="Collections\Interfaces\IIndexed.cs" />
     <Compile Include="Collections\LispStyleList.cs" />
+    <Compile Include="Collections\MutableTuple.cs" />
     <Compile Include="Collections\OrderedColEqualityComparer.cs" />
     <Compile Include="Collections\UnorderedColEqualityComparer.cs" />
     <Compile Include="Cuda\CudaApi.cs" />
