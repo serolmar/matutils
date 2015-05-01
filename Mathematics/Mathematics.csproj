@@ -294,6 +294,7 @@
     <Compile Include="Algorithms\Simplex\SimplexInput.cs" />
     <Compile Include="Algorithms\Simplex\SimplexMaximumNumberField.cs" />
     <Compile Include="Algorithms\Simplex\SimplexOutput.cs" />
+    <Compile Include="Algorithms\StatisticsAndDataMining\Statistics.cs" />
     <Compile Include="BacheBezoutResult.cs" />
     <Compile Include="Numbers\BigDecimalNumber.cs" />
     <Compile Include="Diagnostics.cs" />
