@@ -4,13 +4,14 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
+    using System.Collections;
 
     /// <summary>
     /// Representa uma árvore associativa.
     /// </summary>
     /// <typeparam name="LabelType">O tipo dos objectos que constituem as etiquetas.</typeparam>
     /// <typeparam name="ColType">O tipo de objectos associados ao conjunto de etiquetas.</typeparam>
-    public interface ITrie<LabelType, ColType> : ISet<ColType>
+    public interface ITrie<LabelType, ColType> : ISet<ColType>, ICollection
         where ColType : IEnumerable<LabelType>
     {
         /// <summary>

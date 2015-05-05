@@ -49,9 +49,9 @@ namespace Utilities.Collections
                 sorter.Clear();
                 foreach (var innerItem in item)
                 {
-                    if (!sorter.HasElement(innerItem))
+                    if (!sorter.Contains(innerItem))
                     {
-                        sorter.InsertSortElement(innerItem);
+                        sorter.Add(innerItem);
                     }
                 }
 

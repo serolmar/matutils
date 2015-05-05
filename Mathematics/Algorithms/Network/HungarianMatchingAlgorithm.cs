@@ -57,7 +57,7 @@
                             {
                                 int temp = innerAffectations[i].First;
                                 results[i] = temp;
-                                domainSubset.InsertSortElement(i);
+                                domainSubset.Add(i);
                                 i = innerAffectations.Length;  // Termina o ciclo de forma elegante.
                             }
                         }
@@ -75,7 +75,7 @@
                             if (results[i] == -1)
                             {
                                 domainFree = i;
-                                domainSubset.InsertSortElement(domainFree);
+                                domainSubset.Add(domainFree);
                                 i = results.Length;
                             }
                         }
@@ -87,14 +87,14 @@
                             neighboursSubset.Clear();
                             for (int i = 0; i < innerAffectations.Length; ++i)
                             {
-                                domainSubset.InsertSortElement(i);
+                                domainSubset.Add(i);
                             }
 
                             foreach (var item in domainSubset)
                             {
                                 foreach (var possibleAffectations in innerAffectations[item])
                                 {
-                                    neighboursSubset.InsertSortElement(possibleAffectations);
+                                    neighboursSubset.Add(possibleAffectations);
                                 }
                             }
 
@@ -114,7 +114,7 @@
                         {
                             foreach (var possibleAffectations in innerAffectations[item])
                             {
-                                neighboursSubset.InsertSortElement(possibleAffectations);
+                                neighboursSubset.Add(possibleAffectations);
                             }
                         }
 
@@ -133,8 +133,8 @@
                                 if (results[i] == targetUncommon)
                                 {
                                     found = i;
-                                    domainSubset.InsertSortElement(found);
-                                    targetSubset.InsertSortElement(targetUncommon);
+                                    domainSubset.Add(found);
+                                    targetSubset.Add(targetUncommon);
                                     i = results.Length;
                                 }
                             }
@@ -157,7 +157,7 @@
                         {
                             foreach (var possibleAffectations in innerAffectations[item])
                             {
-                                neighboursSubset.InsertSortElement(possibleAffectations);
+                                neighboursSubset.Add(possibleAffectations);
                             }
                         }
 
@@ -178,8 +178,8 @@
                                 if (results[i] == targetUncommon)
                                 {
                                     found = i;
-                                    domainSubset.InsertSortElement(found);
-                                    targetSubset.InsertSortElement(targetUncommon);
+                                    domainSubset.Add(found);
+                                    targetSubset.Add(targetUncommon);
                                     i = results.Length;
                                 }
                             }
@@ -248,7 +248,7 @@
                 innerAffectations[i] = new InsertionSortedCollection<int>(Comparer<int>.Default, true);
                 foreach (var item in affectations[i])
                 {
-                    innerAffectations[i].InsertSortElement(item);
+                    innerAffectations[i].Add(item);
                 }
             }
 

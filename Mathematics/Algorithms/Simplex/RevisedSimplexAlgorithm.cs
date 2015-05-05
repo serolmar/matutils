@@ -815,6 +815,7 @@
                 return new SimplexOutput<CoeffType>(solution, default(CoeffType), false);
             }
         }
+
         /// <summary>
         /// Calcula o vector dos termos independentes actual.
         /// </summary>

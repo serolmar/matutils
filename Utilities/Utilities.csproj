@@ -81,6 +81,7 @@
     <Compile Include="Collections\OrderedColEqualityComparer.cs" />
     <Compile Include="Collections\Sort.cs" />
     <Compile Include="Collections\UnorderedColEqualityComparer.cs" />
+    <Compile Include="Comparers.cs" />
     <Compile Include="Cuda\CudaApi.cs" />
     <Compile Include="Cuda\CudaCallbacks.cs" />
     <Compile Include="Cuda\CudaConstants.cs" />

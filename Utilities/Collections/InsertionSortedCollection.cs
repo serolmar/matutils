@@ -1,6 +1,7 @@
 ﻿namespace Utilities.Collections
 {
     using System;
+    using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
@@ -9,7 +10,7 @@
     /// Representa uma colecção onde os elementos são mantidos de forma ordenada.
     /// </summary>
     /// <typeparam name="T">O tipo de objectos na colecção ordenada.</typeparam>
-    public class InsertionSortedCollection<T> : IEnumerable<T>
+    public class InsertionSortedCollection<T> : ICollection<T>, ICollection
     {
         /// <summary>
         /// O contentor.
@@ -24,7 +25,12 @@
         /// <summary>
         /// Valor que indica se os valores repetidos são ignorados.
         /// </summary>
-        private bool ignoreRepetaed = false;
+        private bool ignoreRepeated = false;
+
+        /// <summary>
+        /// Indica se a colecção actual é só de leitura.
+        /// </summary>
+        private bool isReadOnly;
 
         /// <summary>
         /// Instancia uma nova instância da classe <see cref="InsertionSortedCollection{T}"/>.
@@ -45,7 +51,36 @@
         /// <summary>
         /// Instancia uma nova instância da classe <see cref="InsertionSortedCollection{T}"/>.
         /// </summary>
-        /// <param name="comparer">The comparer that specifies the ordering.</param>
+        /// <param name="items">Os itens que a colecção contém.</param>
+        /// <param name="isReadOnly">Valor que indica se a colecção é só de leitura.</param>
+        /// <param name="comparer">O comparador que especifica a ordem.</param>
+        public InsertionSortedCollection(
+            IEnumerable<T> items,
+            bool isReadOnly,
+            IComparer<T> comparer)
+        {
+            if (comparer == null)
+            {
+                this.comparer = Comparer<T>.Default;
+            }
+            else
+            {
+                this.comparer = comparer;
+            }
+
+            this.isReadOnly = isReadOnly;
+            if (items != null)
+            {
+                this.elements.AddRange(items);
+                var sorter = new MergeSorter<T>();
+                sorter.Sort(this.elements, this.comparer);
+            }
+        }
+
+        /// <summary>
+        /// Instancia uma nova instância da classe <see cref="InsertionSortedCollection{T}"/>.
+        /// </summary>
+        /// <param name="comparer">O comparador que especifica a ordem.</param>
         /// <param name="ignoreRepeated">Valor que indica se são para serem ignorados os valores repetidos.</param>
         public InsertionSortedCollection(IComparer<T> comparer, bool ignoreRepeated)
         {
@@ -58,7 +93,39 @@
                 this.comparer = comparer;
             }
 
-            this.ignoreRepetaed = ignoreRepeated;
+            this.ignoreRepeated = ignoreRepeated;
+        }
+
+        /// <summary>
+        /// Instancia uma nova instância da classe <see cref="InsertionSortedCollection{T}"/>.
+        /// </summary>
+        /// <param name="items">Os itens que a colecção contém.</param>
+        /// <param name="isReadOnly">Valor que indica se a colecção é só de leitura.</param>
+        /// <param name="comparer">The comparer that specifies the ordering.</param>
+        /// <param name="ignoreRepeated">Valor que indica se são para serem ignorados os valores repetidos.</param>
+        public InsertionSortedCollection(
+            IEnumerable<T> items,
+            bool isReadOnly,
+            IComparer<T> comparer,
+            bool ignoreRepeated)
+        {
+            if (comparer == null)
+            {
+                this.comparer = Comparer<T>.Default;
+            }
+            else
+            {
+                this.comparer = comparer;
+            }
+
+            this.ignoreRepeated = ignoreRepeated;
+            this.isReadOnly = isReadOnly;
+            if (items != null)
+            {
+                this.elements.AddRange(items);
+                var sorter = new MergeSorter<T>();
+                sorter.Sort(this.elements, this.comparer);
+            }
         }
 
         /// <summary>
@@ -88,7 +155,10 @@
         /// <value>O número de elementos inseridos.</value>
         public int Count
         {
-            get { return this.elements.Count; }
+            get
+            {
+                return this.elements.Count;
+            }
         }
 
         /// <summary>
@@ -127,25 +197,93 @@
             }
         }
 
+        /// <summary>
+        /// Obtém um valor que indica se a colecção é só de leitura.
+        /// </summary>
+        public bool IsReadOnly
+        {
+            get
+            {
+                return this.isReadOnly;
+            }
+        }
+
+        /// <summary>
+        /// Obtém um valor que indica se a colecção é segura em termos de linhas de fluxo.
+        /// </summary>
+        public bool IsSynchronized
+        {
+            get
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// O objecto que permite realizar a sincronização.
+        /// </summary>
+        /// <value>O valor da instância actual.</value>
+        public object SyncRoot
+        {
+            get
+            {
+                return this;
+            }
+        }
 
         /// <summary>
         /// Insere um elemento na colecção.
         /// </summary>
-        /// <param name="objectToInsert">O elemento a ser inserido.</param>
-        public void InsertSortElement(T objectToInsert)
+        /// <param name="item">O elemento a ser inserido.</param>
+        /// <returns>Verdadeiro caso o item seja inserido e falso caso contrário.</returns>
+        public bool Add(T item)
         {
-            int insertionIndex = this.FindPosition(objectToInsert);
-            if (insertionIndex == this.elements.Count)
+            if (this.isReadOnly)
             {
-                this.elements.Add(objectToInsert);
+                throw new CollectionsException("The collection is readonly.");
             }
             else
             {
-                if (!ignoreRepetaed || this.comparer.Compare(objectToInsert, this.elements[insertionIndex]) != 0)
+                int insertionIndex = this.FindGreatestPosition(item);
+                if (insertionIndex == this.elements.Count)
                 {
-                    this.elements.Insert(insertionIndex, objectToInsert);
+                    this.elements.Add(item);
+                    return true;
                 }
+                else
+                {
+                    if (this.ignoreRepeated)
+                    {
+                        if (this.comparer.Compare(item, this.elements[insertionIndex]) != 0)
+                        {
+                            this.elements.Insert(insertionIndex, item);
+                        }
+                    }
+                    else
+                    {
+                        if (this.comparer.Compare(item, this.elements[insertionIndex]) == 0)
+                        {
+                            ++insertionIndex;
+                            this.elements.Insert(insertionIndex, item);
+                        }
+                        else
+                        {
+                            this.elements.Insert(insertionIndex, item);
+                        }
+                    }
+                }
+
+                return this.ignoreRepeated;
             }
+        }
+
+        /// <summary>
+        /// Insere um elemento na colecção.
+        /// </summary>
+        /// <param name="item">O elemento a ser inserido.</param>
+        void ICollection<T>.Add(T item)
+        {
+            this.Add(item);
         }
 
         /// <summary>
@@ -153,7 +291,7 @@
         /// </summary>
         /// <param name="elementsToInsert">Os elementos a serem inseridos.</param>
         /// <exception cref="ArgumentNullException">Se o conjunto de elementso for nulo.</exception>
-        public void InsertSortRange(InsertionSortedCollection<T> elementsToInsert)
+        public void AddRange(InsertionSortedCollection<T> elementsToInsert)
         {
             if (elementsToInsert == null)
             {
@@ -163,7 +301,7 @@
             {
                 for (int i = 0; i < elementsToInsert.elements.Count; ++i)
                 {
-                    this.InsertSortElement(elementsToInsert.elements[i]);
+                    this.Add(elementsToInsert.elements[i]);
                 }
             }
         }
@@ -173,7 +311,7 @@
         /// </summary>
         /// <param name="elementsToInsert">Os elementos a serem inseridos.</param>
         /// <exception cref="ArgumentNullException">Se o conjunto de elementso for nulo.</exception>
-        public void InsertSortEnum(IEnumerable<T> elementsToInsert)
+        public void AddRange(IEnumerable<T> elementsToInsert)
         {
             if (elementsToInsert == null)
             {
@@ -183,7 +321,7 @@
             {
                 foreach (var elementToInsert in elementsToInsert)
                 {
-                    this.InsertSortElement(elementToInsert);
+                    this.Add(elementToInsert);
                 }
             }
         }
@@ -191,31 +329,42 @@
         /// <summary>
         /// Verifica se um elemento está contido na colecção.
         /// </summary>
-        /// <param name="objectToFind">O elemento a ser verificado.</param>
+        /// <param name="item">O elemento a ser verificado.</param>
         /// <returns>Verdadeiro caso o elemento exista e falso caso contrário.</returns>
-        public bool HasElement(T objectToFind)
+        public bool Contains(T item)
         {
-            int index = this.FindPosition(objectToFind);
+            int index = this.FindGreatestPosition(item);
             if (index >= this.elements.Count || index < 0)
             {
                 return false;
             }
-            return this.comparer.Compare(objectToFind, this.elements[index]) == 0;
+
+            return this.comparer.Compare(item, this.elements[index]) == 0;
         }
 
         /// <summary>
         /// Remove um elemento considerando a ordem.
         /// </summary>
-        /// <param name="objectToRemove">O elemento a ser removido.</param>
-        public void RemoveElement(T objectToRemove)
+        /// <param name="item">O elemento a ser removido.</param>
+        public bool Remove(T item)
         {
-            int index = this.FindPosition(objectToRemove);
-            if (index > this.elements.Count)
+            if (this.isReadOnly)
             {
-                return;
+                throw new CollectionsException("The collection is readonly.");
             }
-
-            this.elements.RemoveAt(index);
+            else
+            {
+                int index = this.FindLowestPosition(item);
+                if (index >= this.elements.Count)
+                {
+                    return false;
+                }
+                else
+                {
+                    this.elements.RemoveAt(index);
+                    return true;
+                }
+            }
         }
 
         /// <summary>
@@ -223,7 +372,34 @@
         /// </summary>
         public void Clear()
         {
-            this.elements.Clear();
+            if (this.isReadOnly)
+            {
+                throw new CollectionsException("The collection is readonly.");
+            }
+            else
+            {
+                this.elements.Clear();
+            }
+        }
+
+        /// <summary>
+        /// Copia os elementos da colecção para um vector.
+        /// </summary>
+        /// <param name="array">O vector.</param>
+        /// <param name="arrayIndex">O índice onde é iniciada a cópia.</param>
+        public void CopyTo(T[] array, int arrayIndex)
+        {
+            this.elements.CopyTo(array, arrayIndex);
+        }
+
+        /// <summary>
+        /// Copia os elementos da colecção para um vector.
+        /// </summary>
+        /// <param name="array">O vector.</param>
+        /// <param name="index">O índice onde é iniciada a cópia.</param>
+        public void CopyTo(Array array, int index)
+        {
+            ((ICollection)this.elements).CopyTo(array, index);
         }
 
         /// <summary>
@@ -236,13 +412,36 @@
         }
 
         /// <summary>
+        /// Conta o número de itens inferior ao valor especificado.
+        /// </summary>
+        /// <param name="obj">O valor a ser comparado.</param>
+        /// <returns>O número de itens inferiores ao valor especificado.</returns>
+        public int CountLessThan(T obj)
+        {
+            var position = this.FindLowestPosition(obj);
+            return position;
+        }
+
+        /// <summary>
+        /// Conta o número de itens superior ao valor especificado.
+        /// </summary>
+        /// <param name="obj">O valor a ser comparado.</param>
+        /// <returns>O número de itens superior ao valor especificado.</returns>
+        public int CountGreatThan(T obj)
+        {
+            var elementsCount = this.elements.Count;
+            var position = this.FindGreatestPosition(obj);
+            return elementsCount - position - 1;
+        }
+
+        /// <summary>
         /// Obtém um enumerador para todos os elementos da colecção que são iguais ao elemento dadao.
         /// </summary>
         /// <param name="objectToFind">O elemento a comparar.</param>
         /// <returns>Um enumerador para os valores iguais.</returns>
         public IEnumerator<T> GetEqualsTo(T objectToFind)
         {
-            int index = this.FindPosition(objectToFind);
+            int index = this.FindGreatestPosition(objectToFind);
             if (index < 0)
             {
                 index = this.elements.Count;
@@ -274,7 +473,7 @@
         /// e falso caso contrário.
         /// </returns>
         public bool TryFindValueNotIn(
-            InsertionSortedCollection<T> collection, 
+            InsertionSortedCollection<T> collection,
             out T item)
         {
             item = default(T);
@@ -360,62 +559,138 @@
         /// </summary>
         /// <param name="objectToInsert">O elemento a ser procurado.</param>
         /// <returns>O índice da posição onde o elemento se encontra.</returns>
-        private int FindPosition(T objectToInsert)
+        private int FindGreatestPosition(T objectToInsert)
         {
             if (elements.Count == 0)
             {
                 return 0;
             }
-            if (comparer.Compare(objectToInsert, this.elements[this.elements.Count - 1]) > 0)
+            else if (comparer.Compare(objectToInsert, this.elements[this.elements.Count - 1]) > 0)
             {
                 return this.elements.Count;
             }
-            if (comparer.Compare(objectToInsert, this.elements[0]) <= 0)
+            else if (comparer.Compare(objectToInsert, this.elements[0]) < 0)
             {
                 return 0;
             }
-            int low = 0;
-            int high = this.elements.Count - 1;
-            while (low <= high - 1)
+            else
             {
-                int sum = high + low;
-                int intermediaryIndex = sum / 2;
-                if (sum % 2 == 0)
+                int low = 0;
+                int high = this.elements.Count - 1;
+                while (low< high)
                 {
-                    if (this.comparer.Compare(objectToInsert, this.elements[intermediaryIndex]) < 0)
+                    int sum = high + low;
+                    int intermediaryIndex = sum / 2;
+                    if (sum % 2 == 0)
                     {
-                        high = intermediaryIndex;
+                        if (this.comparer.Compare(objectToInsert, this.elements[intermediaryIndex]) < 0)
+                        {
+                            high = intermediaryIndex;
+                        }
+                        else
+                        {
+                            low = intermediaryIndex;
+                        }
                     }
                     else
                     {
-                        low = intermediaryIndex;
+                        if (
+                            this.comparer.Compare(objectToInsert, this.elements[intermediaryIndex]) > 0 &&
+                            this.comparer.Compare(objectToInsert, this.elements[intermediaryIndex + 1]) < 0)
+                        {
+                            return intermediaryIndex + 1;
+                        }
+                        else if (
+                            this.comparer.Compare(objectToInsert, this.elements[intermediaryIndex]) == 0 &&
+                            this.comparer.Compare(objectToInsert, this.elements[intermediaryIndex + 1]) < 0)
+                        {
+                            return intermediaryIndex;
+                        }
+                        else if (this.comparer.Compare(objectToInsert, this.elements[intermediaryIndex + 1]) == 0)
+                        {
+                            low = intermediaryIndex + 1;
+                        }
+                        else if (this.comparer.Compare(objectToInsert, this.elements[intermediaryIndex]) < 0)
+                        {
+                            high = intermediaryIndex;
+                        }
+                        else
+                        {
+                            low = intermediaryIndex;
+                        }
                     }
                 }
-                else
-                {
-                    if (
-                        this.comparer.Compare(objectToInsert, this.elements[intermediaryIndex]) > 0 &&
-                        this.comparer.Compare(objectToInsert, this.elements[intermediaryIndex + 1]) <= 0)
-                    {
-                        return intermediaryIndex + 1;
-                    }
-                    else if (
-                        this.comparer.Compare(objectToInsert, this.elements[intermediaryIndex]) >= 0 &&
-                        this.comparer.Compare(objectToInsert, this.elements[intermediaryIndex + 1]) <= 0)
-                    {
-                        return intermediaryIndex;
-                    }
-                    if (this.comparer.Compare(objectToInsert, this.elements[intermediaryIndex]) < 0)
-                    {
-                        high = intermediaryIndex;
-                    }
-                    else
-                    {
-                        low = intermediaryIndex;
-                    }
-                }
+
+                return high;
             }
-            return -1;
+        }
+
+        /// <summary>
+        /// Encontra a posição onde o elemento especificado se encontra, retornando, em caso
+        /// de empate, a posição do primeiro.
+        /// </summary>
+        /// <param name="objectToInsert">O elemento a ser procurado.</param>
+        /// <returns>O índice da posição onde o elemento se encontra.</returns>
+        private int FindLowestPosition(T objectToInsert)
+        {
+            if (elements.Count == 0)
+            {
+                return 0;
+            }
+            else if (comparer.Compare(objectToInsert, this.elements[this.elements.Count - 1]) > 0)
+            {
+                return this.elements.Count;
+            }
+            else if (comparer.Compare(objectToInsert, this.elements[0]) <= 0)
+            {
+                return 0;
+            }
+            else
+            {
+                int low = 0;
+                int high = this.elements.Count - 1;
+                while (low < high)
+                {
+                    int sum = high + low;
+                    int intermediaryIndex = sum / 2;
+                    if (sum % 2 == 0)
+                    {
+                        if (this.comparer.Compare(objectToInsert, this.elements[intermediaryIndex]) <= 0)
+                        {
+                            high = intermediaryIndex;
+                        }
+                        else
+                        {
+                            low = intermediaryIndex;
+                        }
+                    }
+                    else
+                    {
+                        if (
+                            this.comparer.Compare(objectToInsert, this.elements[intermediaryIndex]) > 0 &&
+                            this.comparer.Compare(objectToInsert, this.elements[intermediaryIndex + 1]) <= 0)
+                        {
+                            return intermediaryIndex + 1;
+                        }
+                        else if (
+                            this.comparer.Compare(objectToInsert, this.elements[intermediaryIndex]) == 0 &&
+                            this.comparer.Compare(objectToInsert, this.elements[intermediaryIndex + 1]) < 0)
+                        {
+                            return intermediaryIndex;
+                        }
+                        else if (this.comparer.Compare(objectToInsert, this.elements[intermediaryIndex]) > 0)
+                        {
+                            low = intermediaryIndex;
+                        }
+                        else
+                        {
+                            high = intermediaryIndex;
+                        }
+                    }
+                }
+
+                return low;
+            }
         }
 
         /// <summary>
@@ -426,76 +701,5 @@
         {
             return this.GetEnumerator();
         }
-    }
-
-    /// <summary>
-    /// Implementa um comparador lexicográfico de colecções.
-    /// </summary>
-    /// <typeparam name="T">O tipo de elementos na colecção a comparar.</typeparam>
-    public class LexicographicalComparer<T> : IComparer<ICollection<T>>
-    {
-        /// <summary>
-        /// O comparador de elementos.
-        /// </summary>
-        private IComparer<T> comparer;
-
-        /// <summary>
-        /// Instancia uma nova instância da classe <see cref="LexicographicalComparer{T}"/>.
-        /// </summary>
-        /// <param name="comparer">O comparador de elementos.</param>
-        public LexicographicalComparer(IComparer<T> comparer)
-        {
-            if (comparer == null)
-            {
-                this.comparer = Comparer<T>.Default;
-            }
-            else
-            {
-                this.comparer = comparer;
-            }
-        }
-
-        #region IComparer<ICollection<T>> Members
-
-        /// <summary>
-        /// Compara dois objectos e retorna um valor que indica se um é menor, maior ou igual a outro.
-        /// </summary>
-        /// <param name="x">O primeiro objecto a ser comparado.</param>
-        /// <param name="y">O segundo objecto a ser comparado.</param>
-        /// <returns>
-        /// O valor 1 se o primeiro for maior do que o segundo, 0 se ambos forem iguais e -1 se o primeiro for
-        /// menor do que o segundo.
-        /// </returns>
-        public int Compare(ICollection<T> x, ICollection<T> y)
-        {
-            IEnumerator<T> xEnum = x.GetEnumerator();
-            IEnumerator<T> yEnum = y.GetEnumerator();
-            bool xMoveNext = xEnum.MoveNext();
-            bool yMoveNext = yEnum.MoveNext();
-            while (xMoveNext && yMoveNext)
-            {
-                if (this.comparer.Compare(xEnum.Current, yEnum.Current) < 0)
-                {
-                    return -1;
-                }
-                else if (this.comparer.Compare(xEnum.Current, yEnum.Current) > 0)
-                {
-                    return 1;
-                }
-                xMoveNext = xEnum.MoveNext();
-                yMoveNext = yEnum.MoveNext();
-            }
-            if (xMoveNext)
-            {
-                return 1;
-            }
-            if (yMoveNext)
-            {
-                return -1;
-            }
-            return 0;
-        }
-
-        #endregion
     }
 }

@@ -50,8 +50,8 @@
 
             var bigInt1 = default(UlongArrayBigInt);
             var bigInt2 = default(UlongArrayBigInt);
-            UlongArrayBigInt.TryParse1(readedNumber, out bigInt1);
-            UlongArrayBigInt.TryParse1(readedNumber, out bigInt2);
+            UlongArrayBigInt.TryParse(readedNumber, out bigInt1);
+            UlongArrayBigInt.TryParse(readedNumber, out bigInt2);
             stopWatch.Start();
             var bigRes = bigInt1 + bigInt2;
             stopWatch.Stop();

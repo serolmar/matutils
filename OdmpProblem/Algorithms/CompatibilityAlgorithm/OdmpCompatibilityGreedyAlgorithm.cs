@@ -282,7 +282,7 @@
                     if (column.Key != line.Key)
                     {
                         var element = new CoordsElement(line.Key, column.Key, currentIndex, column.Value);
-                        sortedElements.InsertSortElement(element);
+                        sortedElements.Add(element);
                         var processedColumn = processedColumns[column.Key];
                         foreach (var processed in processedColumn)
                         {

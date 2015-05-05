@@ -4,6 +4,8 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
+    using System.Collections;
+    using Utilities.Collections;
 
     /// <summary>
     /// Árvore associativa cujos nós são indexados por dicionários.
@@ -70,6 +72,10 @@
             {
                 this.factory = factory;
             }
+
+            this.root = new TrieNode(this.factory);
+            this.elements = new List<ColType>();
+            this.activeIterators = new HashSet<TrieIterator>();
         }
 
         /// <summary>
@@ -90,6 +96,8 @@
             }
             else
             {
+                this.readOnly = isReadOnly;
+
                 // Adiciona cada uma das colecções à lista.
                 foreach (var col in cols)
                 {
@@ -121,7 +129,7 @@
         {
             get
             {
-                return this.Count;
+                return this.elements.Count;
             }
         }
 
@@ -133,6 +141,30 @@
             get
             {
                 return this.readOnly;
+            }
+        }
+
+        /// <summary>
+        /// Obtém um valor que indica se a colecção é segura em termos de vários 
+        /// fluxos de execução.
+        /// </summary>
+        public bool IsSynchronized
+        {
+            get
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// O objecto sobre o qual é realizada a sincronização.
+        /// </summary>
+        /// <value>O valor da instância actual.</value>
+        public object SyncRoot
+        {
+            get
+            {
+                return this;
             }
         }
 
@@ -208,7 +240,7 @@
                     List<LabelType>,
                     IEnumerator<KeyValuePair<LabelType, TrieNode>>>>();
                 var otherStack = new Stack<TrieNode>();
-                var remove = new List<int>();
+                var remove = new InsertionSortedCollection<int>(Comparer<int>.Default);
 
                 if (this.root.NodeNumber != -1 &&
                     other.root.NodeNumber != -1)
@@ -224,9 +256,9 @@
                 while (thisStack.Count > 0)
                 {
                     var thisTop = thisStack.Peek();
-                    var current = thisTop.Item3.Current;
                     if (thisTop.Item3.MoveNext())
                     {
+                        var current = thisTop.Item3.Current;
                         var otherNode = otherStack.Peek();
                         var otherNextNode = default(TrieNode);
                         if (otherNode.ChildNodes.TryGetValue(
@@ -238,6 +270,7 @@
                                 if (otherNextNode.NodeNumber != -1)
                                 {
                                     remove.Add(current.Value.NodeNumber);
+                                    current.Value.NodeNumber = -1;
                                 }
                             }
 
@@ -248,11 +281,6 @@
                                 current.Value.ChildNodes.GetEnumerator()));
                             otherStack.Push(otherNextNode);
                         }
-                        else
-                        {
-                            thisTop.Item2.Add(current.Key);
-                            this.RemoveNodeDescendants(current.Value, remove);
-                        }
                     }
                     else
                     {
@@ -262,7 +290,9 @@
                             thisTop.Item1.ChildNodes.Remove(item);
                         }
 
-                        if (current.Value.NodeNumber == -1
+                        thisStack.Pop();
+                        otherStack.Pop();
+                        if (thisTop.Item1.NodeNumber == -1
                             && thisTop.Item1.ChildNodes.Count == 0)
                         {
                             if (thisStack.Count > 0)
@@ -272,16 +302,15 @@
                                     previousNode.Item3.Current.Key);
                             }
                         }
-
-                        thisStack.Pop();
-                        otherStack.Pop();
                     }
                 }
 
                 // Remove todos os eleemntos marcados
+                var offset = 0;
                 foreach (var index in remove)
                 {
-                    this.elements.RemoveAt(index);
+                    this.elements.RemoveAt(index - offset);
+                    ++offset;
                 }
             }
         }
@@ -342,7 +371,7 @@
                     List<LabelType>,
                     IEnumerator<KeyValuePair<LabelType, TrieNode>>>>();
                 var otherStack = new Stack<TrieNode>();
-                var remove = new List<int>();
+                var remove = new InsertionSortedCollection<int>(Comparer<int>.Default);
 
                 if (this.root.NodeNumber != -1 &&
                     other.root.NodeNumber == -1)
@@ -358,7 +387,7 @@
                 while (thisStack.Count > 0)
                 {
                     var thisTop = thisStack.Peek();
-                        var current = thisTop.Item3.Current;
+                    var current = thisTop.Item3.Current;
                     if (thisTop.Item3.MoveNext())
                     {
                         var otherNode = otherStack.Peek();
@@ -1009,6 +1038,10 @@
                                 if ((current.Value.NodeNumber == -1 && nextNode.NodeNumber != -1) ||
                                     (current.Value.NodeNumber != -1 && nextNode.NodeNumber == -1))
                                 {
+                                    return false;
+                                }
+                                else
+                                {
                                     if (current.Value.ChildNodes.Count == nextNode.ChildNodes.Count)
                                     {
                                         thisStack.Push(current.Value.ChildNodes.GetEnumerator());
@@ -1018,10 +1051,6 @@
                                     {
                                         return false;
                                     }
-                                }
-                                else
-                                {
-                                    return false;
                                 }
                             }
                             else
@@ -1113,7 +1142,7 @@
             }
             else
             {
-                var elementsToRemove = new List<int>();
+                var elementsToRemove = new InsertionSortedCollection<int>(Comparer<int>.Default);
 
                 // Remove a lista vazia caso não se encontre em ambos os conjuntos
                 if (other.root.NodeNumber == -1)
@@ -1399,10 +1428,41 @@
                 }
                 else
                 {
+                    this.UpdateTrieNodeNumbers(deletedIndex);
                     this.elements.RemoveAt(deletedIndex);
                     return true;
                 }
             }
+        }
+
+        /// <summary>
+        /// Copia os elementos da colecção para o vector.
+        /// </summary>
+        /// <param name="array">O vector.</param>
+        /// <param name="index">A posição do vector onde se pretende iniciar a cópia.</param>
+        public void CopyTo(Array array, int index)
+        {
+            (this.elements as ICollection).CopyTo(
+                array, 
+                index);
+        }
+
+        /// <summary>
+        /// Obtém um enumerador para a colecção.
+        /// </summary>
+        /// <returns>O enumerador.</returns>
+        public IEnumerator<ColType> GetEnumerator()
+        {
+            return this.elements.GetEnumerator();
+        }
+
+        /// <summary>
+        /// Otbém um enumerador não genérico para a colecção.
+        /// </summary>
+        /// <returns>O enumerador.</returns>
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+        {
+            return this.elements.GetEnumerator();
         }
 
         /// <summary>
@@ -1424,12 +1484,14 @@
             while (state)
             {
                 var currentItem = itemEnumerator.Current;
-                if (this.root.ChildNodes.TryGetValue(
+                var nextNode = default(TrieNode);
+                if (currentNode.ChildNodes.TryGetValue(
                     itemEnumerator.Current,
-                    out currentNode))
+                    out nextNode))
                 {
-                    nodeStack.Push(currentNode);
+                    nodeStack.Push(nextNode);
                     itemStack.Push(currentItem);
+                    currentNode = nextNode;
                     state = itemEnumerator.MoveNext();
                 }
                 else
@@ -1488,21 +1550,71 @@
         }
 
         /// <summary>
-        /// Obtém um enumerador para a colecção.
+        /// Actualiza os nós da árvore associativa.
         /// </summary>
-        /// <returns>O enumerador.</returns>
-        public IEnumerator<ColType> GetEnumerator()
+        /// <param name="remove">O item marcado para remoção.</param>
+        private void UpdateTrieNodeNumbers(int remove)
         {
-            return this.elements.GetEnumerator();
+            if (this.root.NodeNumber != -1 && this.root.NodeNumber > remove)
+            {
+                --this.root.NodeNumber;
+            }
+
+            var stack = new Stack<IEnumerator<KeyValuePair<LabelType, TrieNode>>>();
+            stack.Push(this.root.ChildNodes.GetEnumerator());
+            while (stack.Count > 0)
+            {
+                var top = stack.Peek();
+                if (top.MoveNext())
+                {
+                    var child = top.Current.Value;
+                    if (child.NodeNumber != -1 && child.NodeNumber > remove)
+                    {
+                        --child.NodeNumber;
+                    }
+
+                    stack.Push(child.ChildNodes.GetEnumerator());
+                }
+                else
+                {
+                    stack.Pop();
+                }
+            }
         }
 
         /// <summary>
-        /// Otbém um enumerador não genérico para a colecção.
+        /// Actualiza os nós da árvore associativa.
         /// </summary>
-        /// <returns>O enumerador.</returns>
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+        /// <param name="remove">Os itens marcados para remoção.</param>
+        private void UpdateTrieNodeNumbers(InsertionSortedCollection<int> remove)
         {
-            return this.elements.GetEnumerator();
+            if (this.root.NodeNumber != -1)
+            {
+                var count = remove.CountLessThan(this.root.NodeNumber);
+                this.root.NodeNumber -= count;
+            }
+
+            var stack = new Stack<IEnumerator<KeyValuePair<LabelType, TrieNode>>>();
+            stack.Push(this.root.ChildNodes.GetEnumerator());
+            while (stack.Count > 0)
+            {
+                var top = stack.Peek();
+                if (top.MoveNext())
+                {
+                    var child = top.Current.Value;
+                    if (child.NodeNumber != -1)
+                    {
+                        var count = remove.CountLessThan(child.NodeNumber);
+                        child.NodeNumber -= count;
+                    }
+
+                    stack.Push(child.ChildNodes.GetEnumerator());
+                }
+                else
+                {
+                    stack.Pop();
+                }
+            }
         }
 
         /// <summary>
@@ -1525,7 +1637,8 @@
                 var currentNode = this.root;
                 var colEnumerator = item.GetEnumerator();
                 var state = colEnumerator.MoveNext();
-                while (state)
+                var aux = state;
+                while (aux)
                 {
                     var nextNode = default(TrieNode);
                     if (currentNode.ChildNodes.TryGetValue(
@@ -1533,21 +1646,21 @@
                         out nextNode))
                     {
                         currentNode = nextNode;
-                        state = colEnumerator.MoveNext();
+                        aux = state = colEnumerator.MoveNext();
                     }
                     else
                     {
-                        state = false;
+                        aux = false;
                     }
                 }
 
-                state = colEnumerator.MoveNext();
                 while (state)
                 {
                     var nextNode = new TrieNode(
                         this.factory);
                     currentNode.ChildNodes.Add(colEnumerator.Current, nextNode);
                     currentNode = nextNode;
+                    state = colEnumerator.MoveNext();
                 }
 
                 if (currentNode.NodeNumber == -1)
@@ -1617,7 +1730,9 @@
         /// </summary>
         /// <param name="node">O nó.</param>
         /// <param name="removed">Recebe os números das colecções removidas.</param>
-        private void RemoveNodeDescendants(TrieNode node, List<int> removed)
+        private void RemoveNodeDescendants(
+            TrieNode node, 
+            InsertionSortedCollection<int> removed)
         {
             var nodeStack = new Stack<Tuple<TrieNode, IEnumerator<KeyValuePair<LabelType, TrieNode>>>>();
             nodeStack.Push(Tuple.Create(node, node.ChildNodes.GetEnumerator()));
@@ -1652,7 +1767,10 @@
         /// <param name="target">O nó de destino da cópia.</param>
         /// <param name="source">O nó da fonte.</param>
         /// <param name="sourceElements">Os valores que se encontram registados na fonte.</param>
-        private void AppendSubTree(TrieNode target, TrieNode source, List<ColType> sourceElements)
+        private void AppendSubTree(
+            TrieNode target, 
+            TrieNode source, 
+            List<ColType> sourceElements)
         {
             var sourceStack = new Stack<IEnumerator<KeyValuePair<LabelType, TrieNode>>>();
             var targetStack = new Stack<TrieNode>();
@@ -1812,7 +1930,16 @@
                     this.ValidateIteratorStatus();
                     if (this.visitedChilds.Count == 1)
                     {
-                        return default(ColType);
+                        var topNode = this.visitedChilds.Peek();
+                        var nodeNumber = topNode.NodeNumber;
+                        if (nodeNumber == -1)
+                        {
+                            throw new UtilitiesException("Iterator is pointing to a non terminal node.");
+                        }
+                        else
+                        {
+                            return default(ColType);
+                        }
                     }
                     else
                     {
@@ -1838,15 +1965,8 @@
                 get
                 {
                     this.ValidateIteratorStatus();
-                    if (this.visitedChilds.Count == 1)
-                    {
-                        return true;
-                    }
-                    else
-                    {
-                        var topNode = this.visitedChilds.Peek();
-                        return topNode.NodeNumber != -1;
-                    }
+                    var topNode = this.visitedChilds.Peek();
+                    return topNode.NodeNumber != -1;
                 }
             }
 
