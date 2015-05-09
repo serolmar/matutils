@@ -115,6 +115,7 @@
     <Compile Include="AlgebraicStructures\Matrix\IMatrixGroup.cs" />
     <Compile Include="AlgebraicStructures\Matrix\SparseDictionarySquareMatrix.cs" />
     <Compile Include="AlgebraicStructures\Matrix\Factories\SparseDictionarySquareMatrixFactory.cs" />
+    <Compile Include="AlgebraicStructures\Matrix\SparseMatrix.cs" />
     <Compile Include="AlgebraicStructures\Parsers\FieldDrivenExpressionParser.cs" />
     <Compile Include="AlgebraicStructures\Parsers\RingDrivenExpressionParser.cs" />
     <Compile Include="AlgebraicStructures\Parsers\SimpleElementFractionParser.cs" />

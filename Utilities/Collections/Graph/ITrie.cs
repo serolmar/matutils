@@ -11,28 +11,27 @@
     /// </summary>
     /// <typeparam name="LabelType">O tipo dos objectos que constituem as etiquetas.</typeparam>
     /// <typeparam name="ColType">O tipo de objectos associados ao conjunto de etiquetas.</typeparam>
-    public interface ITrie<LabelType, ColType> : ISet<ColType>, ICollection
+    public interface ITrie<LabelType, ColType, ObjectType>
         where ColType : IEnumerable<LabelType>
     {
         /// <summary>
         /// Otbém um iterador para a árvore associativa.
         /// </summary>
         /// <returns>O iterador.</returns>
-        ITrieIterator<LabelType, ColType> GetIterator();
+        ITrieIterator<LabelType, ObjectType> GetIterator();
     }
 
     /// <summary>
     /// Representa um iterador que actua sobre árvores associativas.
     /// </summary>
     /// <typeparam name="LabelType">O tipo dos objectos que constituem as etiquetas.</typeparam>
-    /// <typeparam name="ColType">O tipo de objectos associados ao conjunto de etiquetas.</typeparam>
-    public interface ITrieIterator<LabelType, ColType> : IDisposable
-        where ColType : IEnumerable<LabelType>
+    /// <typeparam name="ObjectType">O tipo de objectos associados ao conjunto de etiquetas.</typeparam>
+    public interface ITrieIterator<LabelType, ObjectType> : IDisposable
     {
         /// <summary>
-        /// Obtém o prefixo actual.
+        /// Obtém o índice do prefixo actual.
         /// </summary>
-        ColType Current { get; }
+        ObjectType Current { get; }
 
         /// <summary>
         /// Obtém um valor que indica se existe colecção associada ao nó apontado pelo iterador.
@@ -54,9 +53,9 @@
         /// <summary>
         /// Tenta obter o objecto actual.
         /// </summary>
-        /// <param name="col">O parâmetro que recebe o objecto caso este exitsta.</param>
+        /// <param name="col">O parâmetro que recebe o índice do objecto caso este exitsta.</param>
         /// <returns>Verdadeiro se o objecto existir e falso caso contrário.</returns>
-        bool TryGetCurrent(out ColType col);
+        bool TryGetCurrent(out ObjectType col);
 
         /// <summary>
         /// Avança na árvore para o próximo elemento especificado pela etiqueta.

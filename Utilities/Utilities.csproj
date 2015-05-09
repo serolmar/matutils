@@ -57,7 +57,7 @@
     <Compile Include="Collections\CollectionsException.cs" />
     <Compile Include="Collections\Factories\CollectionFactories.cs" />
     <Compile Include="Collections\GeneralMapper.cs" />
-    <Compile Include="Collections\Graph\DictionaryTrie.cs" />
+    <Compile Include="Collections\Graph\DicDrivenTrie.cs" />
     <Compile Include="Collections\Graph\Edge.cs" />
     <Compile Include="Collections\Graph\EdgeListGraph.cs" />
     <Compile Include="Collections\Graph\IEdge.cs" />

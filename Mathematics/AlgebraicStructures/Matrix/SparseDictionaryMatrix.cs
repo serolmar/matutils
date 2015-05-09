@@ -33,6 +33,11 @@
         private int afterLastColumn;
 
         /// <summary>
+        /// Mantém o comparador para a verficação do valor por defeito.
+        /// </summary>
+        private IEqualityComparer<ObjectType> objectComparer;
+
+        /// <summary>
         /// As linhas da matriz.
         /// </summary>
         private SortedDictionary<int, ISparseMatrixLine<ObjectType>> matrixLines =
@@ -62,6 +67,30 @@
             {
                 this.afterLastLine = lines;
                 this.afterLastColumn = columns;
+            }
+        }
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="SparseDictionaryMatrix{ObjectType}"/>.
+        /// </summary>
+        /// <param name="lines">O número de linhas.</param>
+        /// <param name="columns">O número de colunas.</param>
+        /// <param name="defaultValue">O valor por defeito.</param>
+        /// <param name="comparer">O comparador que permite verificar a igualdade com o valor por defeito..</param>
+        public SparseDictionaryMatrix(
+            int lines,
+            int columns,
+            ObjectType defaultValue,
+            IEqualityComparer<ObjectType> comparer)
+            : this(lines, columns, defaultValue)
+        {
+            if (comparer == null)
+            {
+                throw new ArgumentNullException("comparer");
+            }
+            else
+            {
+                this.objectComparer = comparer;
             }
         }
 
@@ -98,6 +127,7 @@
         public SparseDictionaryMatrix(ObjectType defaultValue)
         {
             this.defaultValue = defaultValue;
+            this.objectComparer = EqualityComparer<ObjectType>.Default;
         }
 
         /// <summary>
@@ -159,10 +189,7 @@
                 else
                 {
 
-                    if (!object.ReferenceEquals(this.defaultValue, value) &&
-                        this.defaultValue == null ||
-                        (this.defaultValue != null &&
-                        !this.defaultValue.Equals(value)))
+                    if (!this.objectComparer.Equals(value, this.defaultValue))
                     {
                         var currentLine = default(ISparseMatrixLine<ObjectType>);
                         lock (this.lockObject)
@@ -776,7 +803,7 @@
                     {
                         var otherMatrixElements = new SortedDictionary<int, ObjectType>(
                                 Comparer<int>.Default);
-                        var valueToAdd = ring.Multiply(this.defaultValue, scalar);;
+                        var valueToAdd = ring.Multiply(this.defaultValue, scalar); ;
 
                         if (!this.defaultValue.Equals(valueToAdd))
                         {

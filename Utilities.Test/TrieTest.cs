@@ -7,13 +7,13 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
-    public class DictionaryTrieTest
+    public class DicDrivenTrieSetTest
     {
         /// <summary>
         /// Fábrica responsável pela criação dos dicionários.
         /// </summary>
-        private DictionaryEqualityComparerFactory<char, DictionaryTrie<char, string>.TrieNode> dicFactory =
-            new DictionaryEqualityComparerFactory<char, DictionaryTrie<char, string>.TrieNode>(
+        private DictionaryEqualityComparerFactory<char, DicDrivenTrieSet<char, string>.TrieNode> dicFactory =
+            new DictionaryEqualityComparerFactory<char, DicDrivenTrieSet<char, string>.TrieNode>(
                 EqualityComparer<char>.Default);
 
         /// <summary>
@@ -21,10 +21,10 @@
         /// </summary>
         [TestMethod]
         [Description("Tests the indexing functionality.")]
-        public void DictionaryTrie_IndexerTest()
+        public void DicDrivenTrieSet_IndexerTest()
         {
             var values = this.GetTestValues();
-            var target = new DictionaryTrie<char, string>(
+            var target = new DicDrivenTrieSet<char, string>(
                 values,
                 false,
                 this.dicFactory);
@@ -41,10 +41,10 @@
         /// </summary>
         [TestMethod]
         [Description("Tests the count property")]
-        public void DictionaryTrie_CountTest()
+        public void DicDrivenTrieSet_CountTest()
         {
             var values = this.GetTestValues();
-            var target = new DictionaryTrie<char, string>(
+            var target = new DicDrivenTrieSet<char, string>(
                 values,
                 false,
                 this.dicFactory);
@@ -56,15 +56,15 @@
         /// </summary>
         [TestMethod]
         [Description("Tests the reaondly property")]
-        public void DictionaryTrie_ReadOnlyTest()
+        public void DicDrivenTrieSet_ReadOnlyTest()
         {
-            var target = new DictionaryTrie<char, string>(
+            var target = new DicDrivenTrieSet<char, string>(
                 new[] { string.Empty },
                 true,
                 this.dicFactory);
             Assert.IsTrue(target.IsReadOnly);
 
-            target = new DictionaryTrie<char, string>(
+            target = new DicDrivenTrieSet<char, string>(
                 new[] { string.Empty },
                 false,
                 this.dicFactory);
@@ -76,10 +76,10 @@
         /// </summary>
         [TestMethod]
         [Description("Tests the iterator functioning")]
-        public void DictionaryTrie_GetIteratorTest()
+        public void DicDrivenTrieSet_GetIteratorTest()
         {
             var values = this.GetTestValues();
-            var target = new DictionaryTrie<char, string>(
+            var target = new DicDrivenTrieSet<char, string>(
                 values,
                 false,
                 this.dicFactory);
@@ -104,7 +104,7 @@
 
                 // O valor procurado encontra-se associado ao final do iterador.
                 var current = iterator.Current;
-                Assert.AreEqual(current, value);
+                Assert.AreEqual(current, i);
 
                 var forwarded = iterator.GoForward(' ');
                 Assert.IsFalse(forwarded);
@@ -116,10 +116,10 @@
         /// </summary>
         [TestMethod]
         [Description("Tests the items addition function.")]
-        public void DictionaryTrie_AddTest()
+        public void DicDrivenTrieSet_AddTest()
         {
             var values = this.GetTestValues();
-            var target = new DictionaryTrie<char, string>(
+            var target = new DicDrivenTrieSet<char, string>(
                 values,
                 false,
                 this.dicFactory);
@@ -141,9 +141,9 @@
         [TestMethod]
         [Description("Tests the exception thrown when trie is readonly.")]
         [ExpectedException(typeof(UtilitiesException))]
-        public void DictionaryTrie_AddReadOnlyExceptionTest()
+        public void DicDrivenTrieSet_AddReadOnlyExceptionTest()
         {
-            var target = new DictionaryTrie<char, string>(
+            var target = new DicDrivenTrieSet<char, string>(
                 new[] { string.Empty },
                 true,
                 this.dicFactory);
@@ -155,12 +155,12 @@
         /// </summary>
         [TestMethod]
         [Description("Tests the except with function.")]
-        public void DictionaryTrie_ExceptWithTest()
+        public void DicDrivenTrieSet_ExceptWithTest()
         {
             var values = this.GetTestValues();
             var overlappingValues = this.GetTestOverlappingValues();
             var expected = values.Except(overlappingValues).ToArray();
-            var target = new DictionaryTrie<char, string>(
+            var target = new DicDrivenTrieSet<char, string>(
                 values,
                 false,
                 this.dicFactory);
@@ -168,15 +168,15 @@
             // Testa a versão da função actual sobre enumeráveis
             target.ExceptWith((IEnumerable<string>)overlappingValues);
             CollectionAssert.AreEquivalent(
-                expected, 
+                expected,
                 target);
 
             // Testa a função actual sobre ávores associativas
-            target = new DictionaryTrie<char, string>(
+            target = new DicDrivenTrieSet<char, string>(
                 values,
                 false,
                 this.dicFactory);
-            var exceptWith = new DictionaryTrie<char, string>(
+            var exceptWith = new DicDrivenTrieSet<char, string>(
                 overlappingValues,
                 true,
                 this.dicFactory);
@@ -185,7 +185,7 @@
                 expected,
                 target);
 
-            var expectedTarget = new DictionaryTrie<char, string>(
+            var expectedTarget = new DicDrivenTrieSet<char, string>(
                 expected,
                 false,
                 this.dicFactory);
@@ -197,9 +197,39 @@
         /// </summary>
         [TestMethod]
         [Description("Tests the intersection function.")]
-        public void DictionaryTrie_IntersectWithTest()
+        public void DicDrivenTrieSet_IntersectWithTest()
         {
-            Assert.Inconclusive("Test not yet implemented.");
+            var values = this.GetTestValues();
+            var overlappingValues = this.GetTestOverlappingValues();
+            var expected = values.Intersect(overlappingValues).ToArray();
+            var target = new DicDrivenTrieSet<char, string>(
+                values,
+                false,
+                this.dicFactory);
+            target.IntersectWith((IEnumerable<string>)overlappingValues);
+            CollectionAssert.AreEquivalent(
+                expected,
+                target);
+
+            // Testa a função sobre as árvore associativas
+            target = new DicDrivenTrieSet<char, string>(
+                values,
+                false,
+                this.dicFactory);
+            var intersectWith = new DicDrivenTrieSet<char, string>(
+                overlappingValues,
+                true,
+                this.dicFactory);
+            target.IntersectWith(intersectWith);
+            CollectionAssert.AreEquivalent(
+                expected,
+                target);
+
+            var expectedTarget = new DicDrivenTrieSet<char, string>(
+                expected,
+                false,
+                this.dicFactory);
+            Assert.IsTrue(target.SetEquals(expectedTarget));
         }
 
         /// <summary>
@@ -208,9 +238,50 @@
         /// </summary>
         [TestMethod]
         [Description("Tests the proper substet checking function.")]
-        public void DictionaryTrie_IsProperSubsetOfTest()
+        public void DicDrivenTrieSet_IsProperSubsetOfTest()
         {
-            Assert.Inconclusive("Test not yet implemented.");
+            var values = this.GetTestValues();
+            var subsetValues = new string[values.Length - 1];
+            var index = 0;
+            for (int i = 0; i < 3; ++i)
+            {
+                subsetValues[index++] = values[i];
+            }
+
+            for (int i = 4; i < values.Length; ++i)
+            {
+                subsetValues[index++] = values[i];
+            }
+
+            // Subconjunto
+            var target = new DicDrivenTrieSet<char, string>(
+                subsetValues,
+                false,
+                this.dicFactory);
+            var actual = target.IsProperSubsetOf(values);
+            Assert.IsTrue(actual);
+
+            // Igual - não é subconjunto próprio
+            target = new DicDrivenTrieSet<char, string>(
+                values,
+                false,
+                this.dicFactory);
+            actual = target.IsProperSubsetOf(values);
+            Assert.IsFalse(actual);
+
+            var subsetTarget = new DicDrivenTrieSet<char, string>(
+                subsetValues,
+                false,
+                this.dicFactory);
+            actual = subsetTarget.IsProperSubsetOf(target);
+            Assert.IsTrue(actual);
+
+            subsetTarget = new DicDrivenTrieSet<char, string>(
+                values,
+                false,
+                this.dicFactory);
+            actual = subsetTarget.IsProperSubsetOf(target);
+            Assert.IsFalse(actual);
         }
 
         /// <summary>
@@ -219,9 +290,41 @@
         /// </summary>
         [TestMethod]
         [Description("Tests the proper superset checking function.")]
-        public void DictionaryTrie_IsProperSupersetOfTest()
+        public void DicDrivenTrieSet_IsProperSupersetOfTest()
         {
-            Assert.Inconclusive("Test not yet implemented.");
+            var values = this.GetTestValues();
+            var valuesLength = values.Length;
+            var superSetValues = new string[valuesLength + 1];
+            Array.Copy(values, superSetValues, valuesLength);
+            superSetValues[valuesLength] = "esferográfica";
+
+            var target = new DicDrivenTrieSet<char, string>(
+                superSetValues,
+                false,
+                this.dicFactory);
+            var actual = target.IsProperSupersetOf(values);
+            Assert.IsTrue(actual);
+
+            target = new DicDrivenTrieSet<char, string>(
+                values,
+                false,
+                this.dicFactory);
+            actual = target.IsProperSupersetOf(values);
+            Assert.IsFalse(actual);
+
+            var superSetTarget = new DicDrivenTrieSet<char, string>(
+                superSetValues,
+                false,
+                this.dicFactory);
+            actual = superSetTarget.IsProperSupersetOf(target);
+            Assert.IsTrue(actual);
+
+            superSetTarget = new DicDrivenTrieSet<char, string>(
+                values,
+                false,
+                this.dicFactory);
+            actual = superSetTarget.IsProperSupersetOf(target);
+            Assert.IsFalse(actual);
         }
 
         /// <summary>
@@ -230,9 +333,50 @@
         /// </summary>
         [TestMethod]
         [Description("Tests the subset checking function.")]
-        public void DictionaryTrie_IsSubsetOfTest()
+        public void DicDrivenTrieSet_IsSubsetOfTest()
         {
-            Assert.Inconclusive("Test not yet implemented.");
+            var values = this.GetTestValues();
+            var subsetValues = new string[values.Length - 1];
+            var index = 0;
+            for (int i = 0; i < 3; ++i)
+            {
+                subsetValues[index++] = values[i];
+            }
+
+            for (int i = 4; i < values.Length; ++i)
+            {
+                subsetValues[index++] = values[i];
+            }
+
+            // Subconjunto
+            var target = new DicDrivenTrieSet<char, string>(
+                subsetValues,
+                false,
+                this.dicFactory);
+            var actual = target.IsProperSubsetOf(values);
+            Assert.IsTrue(actual);
+
+            // Igual - não é subconjunto próprio
+            target = new DicDrivenTrieSet<char, string>(
+                values,
+                false,
+                this.dicFactory);
+            actual = target.IsSubsetOf(values);
+            Assert.IsTrue(actual);
+
+            var subsetTarget = new DicDrivenTrieSet<char, string>(
+                subsetValues,
+                false,
+                this.dicFactory);
+            actual = subsetTarget.IsSubsetOf(target);
+            Assert.IsTrue(actual);
+
+            subsetTarget = new DicDrivenTrieSet<char, string>(
+                values,
+                false,
+                this.dicFactory);
+            actual = subsetTarget.IsSubsetOf(target);
+            Assert.IsTrue(actual);
         }
 
         /// <summary>
@@ -241,9 +385,41 @@
         /// </summary>
         [TestMethod]
         [Description("Tests the superset checking function.")]
-        public void DictionaryTrie_IsSupersetOfTest()
+        public void DicDrivenTrieSet_IsSupersetOfTest()
         {
-            Assert.Inconclusive("Test not yet implemented.");
+            var values = this.GetTestValues();
+            var valuesLength = values.Length;
+            var superSetValues = new string[valuesLength + 1];
+            Array.Copy(values, superSetValues, valuesLength);
+            superSetValues[valuesLength] = "esferográfica";
+
+            var target = new DicDrivenTrieSet<char, string>(
+                superSetValues,
+                false,
+                this.dicFactory);
+            var actual = target.IsSupersetOf(values);
+            Assert.IsTrue(actual);
+
+            target = new DicDrivenTrieSet<char, string>(
+                values,
+                false,
+                this.dicFactory);
+            actual = target.IsSupersetOf(values);
+            Assert.IsTrue(actual);
+
+            var superSetTarget = new DicDrivenTrieSet<char, string>(
+                superSetValues,
+                false,
+                this.dicFactory);
+            actual = superSetTarget.IsSupersetOf(target);
+            Assert.IsTrue(actual);
+
+            superSetTarget = new DicDrivenTrieSet<char, string>(
+                values,
+                false,
+                this.dicFactory);
+            actual = superSetTarget.IsSupersetOf(target);
+            Assert.IsTrue(actual);
         }
 
         /// <summary>
@@ -252,9 +428,38 @@
         /// </summary>
         [TestMethod]
         [Description("Tests the overlap ckecking function.")]
-        public void DictionaryTrie_OverlapsTest()
+        public void DicDrivenTrieSet_OverlapsTest()
         {
-            Assert.Inconclusive("Test not yet implemented.");
+            var values = this.GetTestValues();
+            var overlappingValues = this.GetTestOverlappingValues();
+            var nonOverlappingValues = new[] { "esferográfica", "ardósia", "espectáculo" };
+            var target = new DicDrivenTrieSet<char, string>(
+                values,
+                false,
+                this.dicFactory);
+            var actual = target.Overlaps(overlappingValues);
+            Assert.IsTrue(actual);
+
+            actual = target.Overlaps(nonOverlappingValues);
+            Assert.IsFalse(actual);
+
+            var auxiliaryTarget = new DicDrivenTrieSet<char, string>(
+                overlappingValues,
+                false,
+                this.dicFactory);
+            actual = target.Overlaps(auxiliaryTarget);
+            Assert.IsTrue(actual);
+            actual = auxiliaryTarget.Overlaps(target);
+            Assert.IsTrue(actual);
+
+            auxiliaryTarget = new DicDrivenTrieSet<char, string>(
+                nonOverlappingValues,
+                false,
+                this.dicFactory);
+            actual = target.Overlaps(auxiliaryTarget);
+            Assert.IsFalse(actual);
+            actual = auxiliaryTarget.Overlaps(target);
+            Assert.IsFalse(actual);
         }
 
         /// <summary>
@@ -263,15 +468,15 @@
         /// </summary>
         [TestMethod]
         [Description("Tests the set equality function.")]
-        public void DictionaryTrie_SetEqualsTest()
+        public void DicDrivenTrieSet_SetEqualsTest()
         {
             var firstValues = this.GetTestValues();
             var secondValues = this.GetTestValues();
-            var firstTarget = new DictionaryTrie<char, string>(
+            var firstTarget = new DicDrivenTrieSet<char, string>(
                 firstValues,
                 false,
                 this.dicFactory);
-            var secondTarget = new DictionaryTrie<char, string>(
+            var secondTarget = new DicDrivenTrieSet<char, string>(
                 secondValues,
                 false,
                 this.dicFactory);
@@ -284,7 +489,7 @@
 
             // Testa a igualdade com valores diferentes
             var differentValues = this.GetTestOverlappingValues();
-            var differentTarget = new DictionaryTrie<char, string>(
+            var differentTarget = new DicDrivenTrieSet<char, string>(
                 differentValues,
                 false,
                 this.dicFactory);
@@ -298,9 +503,37 @@
         /// </summary>
         [TestMethod]
         [Description("Tests the function that removes all elemnents in both collections.")]
-        public void DictionaryTrie_SymmetricExceptWithTest()
+        public void DicDrivenTrieSet_SymmetricExceptWithTest()
         {
-            Assert.Inconclusive("Test not yet implemented.");
+            // Reocorre ao HashSet para verificar a validade do teste
+            var values = new HashSet<string>( this.GetTestValues());
+            var overalappingValues = new HashSet<string>( this.GetTestOverlappingValues());
+            var expected = new HashSet<string>(values);
+            expected.SymmetricExceptWith(overalappingValues);
+            var target = new DicDrivenTrieSet<char, string>(
+                values,
+                false,
+                this.dicFactory);
+            target.SymmetricExceptWith(overalappingValues);
+            CollectionAssert.AreEquivalent(expected.ToArray(), target);
+
+            target = new DicDrivenTrieSet<char, string>(
+                values,
+                false,
+                this.dicFactory);
+            var overlappingTarget = new DicDrivenTrieSet<char, string>(
+                overalappingValues,
+                false,
+                this.dicFactory);
+            target.SymmetricExceptWith(overlappingTarget);
+            CollectionAssert.AreEquivalent(target, expected.ToArray());
+
+            var expectedTarget = new DicDrivenTrieSet<char, string>(
+                expected,
+                false,
+                this.dicFactory);
+            var actual = target.SetEquals(expectedTarget);
+            Assert.IsTrue(actual);
         }
 
         /// <summary>
@@ -308,9 +541,35 @@
         /// </summary>
         [TestMethod]
         [Description("Tests the union function.")]
-        public void DictionaryTrie_UnionTest()
+        public void DicDrivenTrieSet_UnionTest()
         {
-            Assert.Inconclusive("Test not yet implemented.");
+            var values = this.GetTestValues();
+            var overlappingValues = this.GetTestOverlappingValues();
+            var expected = values.Union(overlappingValues).ToArray();
+            var target = new DicDrivenTrieSet<char, string>(
+                values,
+                false,
+                this.dicFactory);
+            target.UnionWith(overlappingValues);
+            CollectionAssert.AreEquivalent(expected, target);
+
+            target = new DicDrivenTrieSet<char, string>(
+                values,
+                false,
+                this.dicFactory);
+            var overlappingTarget = new DicDrivenTrieSet<char, string>(
+                overlappingValues,
+                false,
+                this.dicFactory);
+            target.UnionWith(overlappingTarget);
+            CollectionAssert.AreEquivalent(expected, target);
+
+            var expectedTarget = new DicDrivenTrieSet<char, string>(
+                expected,
+                false,
+                this.dicFactory);
+            var actual = target.SetEquals(expectedTarget);
+            Assert.IsTrue(actual);
         }
 
         /// <summary>
