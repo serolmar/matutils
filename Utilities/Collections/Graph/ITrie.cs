@@ -11,6 +11,7 @@
     /// </summary>
     /// <typeparam name="LabelType">O tipo dos objectos que constituem as etiquetas.</typeparam>
     /// <typeparam name="ColType">O tipo de objectos associados ao conjunto de etiquetas.</typeparam>
+    /// <typeparam name="ObjectType">O tipo de objectos que constituem as etiquetas.</typeparam>
     public interface ITrie<LabelType, ColType, ObjectType>
         where ColType : IEnumerable<LabelType>
     {

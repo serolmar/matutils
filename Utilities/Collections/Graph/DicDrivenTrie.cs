@@ -7,6 +7,12 @@
     using System.Collections;
     using Utilities.Collections;
 
+    /// <summary>
+    /// Implementa uma árvore associativa cujas arestas são implementadas com base em dicionários.
+    /// </summary>
+    /// <typeparam name="LabelType">O tipo de objectos que constituem as arestas.</typeparam>
+    /// <typeparam name="ColType">O tipo de objectos que constituem a colecção.</typeparam>
+    /// <typeparam name="ObjectType">O tipos de objectos que constituem as entradas da colecção.</typeparam>
     public abstract class ADicDrivenTrie<LabelType, ColType, ObjectType>
         : ITrie<LabelType, ColType, ObjectType>
         where ColType : IEnumerable<LabelType>
@@ -2334,6 +2340,9 @@
             }
         }
 
+        /// <summary>
+        /// Obtém o número de itens adicionados à árvore associativa.
+        /// </summary>
         public int Count
         {
             get
@@ -2617,7 +2626,7 @@
             private DicDrivenTrieDictionary<LabelType, KeyType, ValueType> castedOwner;
 
             /// <summary>
-            /// Instancia novas instâncias de objectos do tipo <see cref="ATrieIterator"/>.
+            /// Instancia novas instâncias de objectos do tipo <see cref="TrieIterator"/>.
             /// </summary>
             /// <param name="owner">A árvore associativa que contém o iterador.</param>
             public TrieIterator(DicDrivenTrieDictionary<LabelType, KeyType, ValueType> owner)

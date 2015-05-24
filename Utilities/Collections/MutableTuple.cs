@@ -166,7 +166,7 @@
         /// <param name="item1">O primeiro elemento do tuplo.</param>
         /// <param name="item2">O segundo elemento do tuplo.</param>
         /// <param name="item3">O terceiro elemento do tuplo.</param>
-        /// <param name="item3">O quarto elemento do tuplo.</param>
+        /// <param name="item4">O quarto elemento do tuplo.</param>
         /// <returns>O tuplo mutável.</returns>
         public static MutableTuple<T1, T2, T3, T4> Create<T1, T2, T3, T4>(
             T1 item1, 
@@ -192,7 +192,7 @@
         /// <param name="item1">O primeiro elemento do tuplo.</param>
         /// <param name="item2">O segundo elemento do tuplo.</param>
         /// <param name="item3">O terceiro elemento do tuplo.</param>
-        /// <param name="item3">O quarto elemento do tuplo.</param>
+        /// <param name="item4">O quarto elemento do tuplo.</param>
         /// <param name="item5">O quinto elemento do tuplo.</param>
         /// <returns>O tuplo mutável.</returns>
         public static MutableTuple<T1, T2, T3, T4, T5> Create<T1, T2, T3, T4, T5>(
@@ -222,7 +222,7 @@
         /// <param name="item1">O primeiro elemento do tuplo.</param>
         /// <param name="item2">O segundo elemento do tuplo.</param>
         /// <param name="item3">O terceiro elemento do tuplo.</param>
-        /// <param name="item3">O quarto elemento do tuplo.</param>
+        /// <param name="item4">O quarto elemento do tuplo.</param>
         /// <param name="item5">O quinto elemento do tuplo.</param>
         /// <param name="item6">O sexto elemento do tuplo.</param>
         /// <returns>O tuplo mutável.</returns>
@@ -256,7 +256,7 @@
         /// <param name="item1">O primeiro elemento do tuplo.</param>
         /// <param name="item2">O segundo elemento do tuplo.</param>
         /// <param name="item3">O terceiro elemento do tuplo.</param>
-        /// <param name="item3">O quarto elemento do tuplo.</param>
+        /// <param name="item4">O quarto elemento do tuplo.</param>
         /// <param name="item5">O quinto elemento do tuplo.</param>
         /// <param name="item6">O sexto elemento do tuplo.</param>
         /// <param name="item7">O sétimo elemento do tuplo.</param>

@@ -633,15 +633,15 @@
         /// <returns>O índice da posição onde o elemento se encontra.</returns>
         private int FindLowestPosition(T objectToInsert)
         {
-            if (elements.Count == 0)
+            if (this.elements.Count == 0)
             {
                 return 0;
             }
-            else if (comparer.Compare(objectToInsert, this.elements[this.elements.Count - 1]) > 0)
+            else if (this.comparer.Compare(objectToInsert, this.elements[this.elements.Count - 1]) > 0)
             {
                 return this.elements.Count;
             }
-            else if (comparer.Compare(objectToInsert, this.elements[0]) <= 0)
+            else if (this.comparer.Compare(objectToInsert, this.elements[0]) <= 0)
             {
                 return 0;
             }

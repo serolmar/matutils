@@ -76,7 +76,7 @@
         /// a ordenação fosse realizada com o algoritmo de ordenação por borbulhamento.
         /// </summary>
         /// <remarks>Aqui é usado o comparador por defeito.</remarks>
-        /// <param name="elements">Os elementos a serem ordenados.</param>
+        /// <param name="collection">Os elementos a serem ordenados.</param>
         /// <returns>O número de trocas ocorridas.</returns>
         public int SortCountSwaps(IList<T> collection)
         {
@@ -94,7 +94,7 @@
         /// Permite ordenar um conjunto de elementos retornando o número de trocas efectuadas caso
         /// a ordenação fosse realizada com o algoritmo de ordenação por borbulhamento.
         /// </summary>
-        /// <param name="elements">Os elementos a serem ordenados.</param>
+        /// <param name="collection">Os elementos a serem ordenados.</param>
         /// <param name="comparer">O comparador.</param>
         /// <returns>O número de trocas ocorridas.</returns>
         public int SortCountSwaps(IList<T> collection, IComparer<T> comparer)
@@ -464,7 +464,7 @@
         /// Ordena uma coleção tomando o comparador por defeito, contando o número de trocas.
         /// </summary>
         /// <param name="collection">A colecçao a ser ordenada.</param>
-        /// <returns>O número de trocas efectuadas durante a ordenação.</retreturns>
+        /// <returns>O número de trocas efectuadas durante a ordenação.</returns>
         public int SortCountSwaps(IList<T> collection)
         {
             if (collection == null)
@@ -482,7 +482,7 @@
         /// </summary>
         /// <param name="collection">A colecção a ser ordenada.</param>
         /// <param name="comparer">O comparador.</param>
-        /// <returns>O número de trocas efectuadas durante a ordenação.</retreturns>
+        /// <returns>O número de trocas efectuadas durante a ordenação.</returns>
         public int SortCountSwaps(IList<T> collection, IComparer<T> comparer)
         {
             if (collection == null)
