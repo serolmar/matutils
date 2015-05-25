@@ -158,8 +158,16 @@
                 }
                 else
                 {
-                    var value = default(MutableTuple<CoeffType>);
-                    throw new NotImplementedException();
+                    var index = this.FindLowestPosition(line, column);
+                    var current = this.elements[index];
+                    if (this.CompareLineAndColumn(line, column, current) == 0)
+                    {
+                        return current.Item3.Item1;
+                    }
+                    else
+                    {
+                        return this.defaultValue;
+                    }
                 }
             }
             set
@@ -181,9 +189,28 @@
                     }
                     else
                     {
-                        var current = default(MutableTuple<CoeffType>);
-                        var key = Tuple.Create(line, column);
-                        throw new NotImplementedException();
+                        var index = this.FindLowestPosition(line, column);
+                        var current = this.elements[index];
+                        if (this.CompareLineAndColumn(line, column, current) == 0)
+                        {
+                            if (this.comparer.Equals(value, this.defaultValue))
+                            {
+                                this.elements.RemoveAt(index);
+                            }
+                            else
+                            {
+                                current.Item3.Item1 = value;
+                            }
+                        }
+                        else
+                        {
+                            if (!this.comparer.Equals(value, this.defaultValue))
+                            {
+                                this.elements.Insert(
+                                    index,
+                                    Tuple.Create(line, column, MutableTuple<CoeffType>.Create(value)));
+                            }
+                        }
                     }
                 }
             }
@@ -369,8 +396,8 @@
         }
 
         /// <summary>
-        /// Encontra a posição onde o elemento especificado se encontra, retornando, em caso
-        /// de empate, a posição do primeiro.
+        /// Encontra a menor posição onde o elemento especificado se encontra, retornando, em caso
+        /// de empate, a posição do primeiro. Caso não exista, retorna a posição onde deverá ser inserido.
         /// </summary>
         /// <param name="line">O número da linha.</param>
         /// <returns>O índice da posição onde o elemento se encontra.</returns>
@@ -392,64 +419,79 @@
             }
             else
             {
-                int low = 0;
-                int high = this.elements.Count - 1;
-                while (low < high)
-                {
-                    int sum = high + low;
-                    int intermediaryIndex = sum / 2;
-                    if (sum % 2 == 0)
-                    {
-                        if (this.CompareLine(line, this.elements[intermediaryIndex]) <= 0)
-                        {
-                            high = intermediaryIndex;
-                        }
-                        else
-                        {
-                            low = intermediaryIndex;
-                        }
-                    }
-                    else
-                    {
-                        if (
-                            this.CompareLine(line, this.elements[intermediaryIndex]) > 0 &&
-                            this.CompareLine(line, this.elements[intermediaryIndex + 1]) <= 0)
-                        {
-                            return intermediaryIndex + 1;
-                        }
-                        else if (
-                            this.CompareLine(line, this.elements[intermediaryIndex]) == 0 &&
-                            this.CompareLine(line, this.elements[intermediaryIndex + 1]) < 0)
-                        {
-                            return intermediaryIndex;
-                        }
-                        else if (this.CompareLine(line, this.elements[intermediaryIndex]) > 0)
-                        {
-                            low = intermediaryIndex;
-                        }
-                        else
-                        {
-                            high = intermediaryIndex;
-                        }
-                    }
-                }
-
-                return low;
+                return this.AuxiliaryFindLowestPosition(line, 0, this.elements.Count - 1);
             }
         }
 
         /// <summary>
-        /// Encontra a posição onde o elemento especificado se encontra.
+        /// Encontra a posição do primeiro elemento cujo valor é igual ao especificado. Caso não exista,
+        /// é retornada a posição onde este poderá ser inserido. A função aplica-se apenas ao caso em que
+        /// o elemento se encontra dentro dos limites dados.
+        /// </summary>
+        /// <param name="line">A linha.</param>
+        /// <param name="low_">O limite inferior do intervalo.</param>
+        /// <param name="high_">O limite superior do intervalo.</param>
+        /// <returns>A posição.</returns>
+        private int AuxiliaryFindLowestPosition(int line, int low_, int high_)
+        {
+            var innerLow = low_;
+            var innerHigh = high_;
+            while (innerLow < innerHigh)
+            {
+                int sum = innerHigh + innerLow;
+                int intermediaryIndex = sum / 2;
+                if (sum % 2 == 0)
+                {
+                    if (this.CompareLine(line, this.elements[intermediaryIndex]) <= 0)
+                    {
+                        innerHigh = intermediaryIndex;
+                    }
+                    else
+                    {
+                        innerLow = intermediaryIndex;
+                    }
+                }
+                else
+                {
+                    if (
+                        this.CompareLine(line, this.elements[intermediaryIndex]) > 0 &&
+                        this.CompareLine(line, this.elements[intermediaryIndex + 1]) <= 0)
+                    {
+                        return intermediaryIndex + 1;
+                    }
+                    else if (
+                        this.CompareLine(line, this.elements[intermediaryIndex]) == 0 &&
+                        this.CompareLine(line, this.elements[intermediaryIndex + 1]) < 0)
+                    {
+                        return intermediaryIndex;
+                    }
+                    else if (this.CompareLine(line, this.elements[intermediaryIndex]) > 0)
+                    {
+                        innerLow = intermediaryIndex;
+                    }
+                    else
+                    {
+                        innerHigh = intermediaryIndex;
+                    }
+                }
+            }
+
+            return innerLow;
+        }
+
+        /// <summary>
+        /// Encontra o elemento a seguir à maior posição onde o elemento especificado se encontra. Se este não existir,
+        /// retorna a posição onde deve ser inserido.
         /// </summary>
         /// <param name="line">O elemento a ser procurado.</param>
         /// <returns>O índice da posição onde o elemento se encontra.</returns>
         private int FindGreatestPosition(int line)
         {
-            if (elements.Count == 0)
+            if (this.elements.Count == 0)
             {
                 return 0;
             }
-            else if (this.CompareLine(line, this.elements[this.elements.Count - 1]) > 0)
+            else if (this.CompareLine(line, this.elements[this.elements.Count - 1]) >= 0)
             {
                 return this.elements.Count;
             }
@@ -459,54 +501,68 @@
             }
             else
             {
-                int low = 0;
-                int high = this.elements.Count - 1;
-                while (low < high)
+                return this.AuxiliaryFindGreatestPosition(line, 0, this.elements.Count - 1);
+            }
+        }
+
+        /// <summary>
+        /// Obtém o índice do elemento que se encontra a seguir ao maior elemento igual ao especificado.
+        /// Se este não existir, retorna a posição onde deverá ser inserido. Esta função é aplicada apenas
+        /// ao caso em que a posição do elemento a procurar se encontra dentro dos limites dados.
+        /// </summary>
+        /// <param name="line">A linha.</param>
+        /// <param name="low">O limite inferior do intervalo de procura.</param>
+        /// <param name="high">O limite superior do intervalo de procura.</param>
+        /// <returns>A posição procurada.</returns>
+        private int AuxiliaryFindGreatestPosition(int line, int low, int high)
+        {
+            var innerLow = low;
+            var innerHigh = high;
+            while (innerLow < innerHigh)
+            {
+                int sum = innerHigh + innerLow;
+                int intermediaryIndex = sum / 2;
+                if (sum % 2 == 0)
                 {
-                    int sum = high + low;
-                    int intermediaryIndex = sum / 2;
-                    if (sum % 2 == 0)
+                    if (this.CompareLine(line, this.elements[intermediaryIndex]) < 0)
                     {
-                        if (this.CompareLine(line, this.elements[intermediaryIndex]) < 0)
-                        {
-                            high = intermediaryIndex;
-                        }
-                        else
-                        {
-                            low = intermediaryIndex;
-                        }
+                        innerHigh = intermediaryIndex;
                     }
                     else
                     {
-                        if (
-                            this.CompareLine(line, this.elements[intermediaryIndex]) > 0 &&
-                            this.CompareLine(line, this.elements[intermediaryIndex + 1]) < 0)
-                        {
-                            return intermediaryIndex + 1;
-                        }
-                        else if (
-                            this.CompareLine(line, this.elements[intermediaryIndex]) == 0 &&
-                            this.CompareLine(line, this.elements[intermediaryIndex + 1]) < 0)
-                        {
-                            return intermediaryIndex;
-                        }
-                        else if (this.CompareLine(line, this.elements[intermediaryIndex + 1]) == 0)
-                        {
-                            low = intermediaryIndex + 1;
-                        }
-                        else if (this.CompareLine(line, this.elements[intermediaryIndex]) < 0)
-                        {
-                            high = intermediaryIndex;
-                        }
-                        else
-                        {
-                            low = intermediaryIndex;
-                        }
+                        innerLow = intermediaryIndex;
                     }
                 }
-
-                return high;
+                else
+                {
+                    if (
+                        this.CompareLine(line, this.elements[intermediaryIndex]) > 0 &&
+                        this.CompareLine(line, this.elements[intermediaryIndex + 1]) < 0)
+                    {
+                        return intermediaryIndex + 1;
+                    }
+                    else if (
+                        this.CompareLine(line, this.elements[intermediaryIndex]) == 0 &&
+                        this.CompareLine(line, this.elements[intermediaryIndex + 1]) < 0)
+                    {
+                        return intermediaryIndex;
+                    }
+                    else if (this.CompareLine(line, this.elements[intermediaryIndex + 1]) == 0)
+                    {
+                        innerLow = intermediaryIndex + 1;
+                    }
+                    else if (this.CompareLine(line, this.elements[intermediaryIndex]) < 0)
+                    {
+                        innerHigh = intermediaryIndex;
+                    }
+                    else
+                    {
+                        innerLow = intermediaryIndex;
+                    }
+                }
             }
+
+            return innerHigh;
         }
 
         /// <summary>
@@ -516,7 +572,99 @@
         /// <returns>O par que contém as posições.</returns>
         private Tuple<int, int> FindBothPositions(int line)
         {
-            throw new NotImplementedException();
+            var elementsCount = this.elements.Count;
+            if (elementsCount == 0)
+            {
+                return Tuple.Create(0, 0);
+            }
+            else
+            {
+                var current = this.elements[elementsCount - 1];
+                var lineComparision = this.CompareLine(line, current);
+                if (lineComparision > 0)
+                {
+                    return Tuple.Create(elementsCount, elementsCount);
+                }
+                else if (lineComparision == 0)
+                {
+                    var high = elementsCount - 1;
+                    var low = high;
+
+                    // Efectua o ciclo para determinar o menor valor.
+                    current = this.elements[0];
+                    lineComparision = this.CompareLine(line, current);
+                    if (lineComparision < 0)
+                    {
+                        low = this.AuxiliaryFindLowestPosition(line, 0, high);
+                    }
+
+                    return Tuple.Create(low, high);
+                }
+                else
+                {
+                    current = this.elements[0];
+                    lineComparision = this.CompareLine(line, current);
+                    if (lineComparision < 0)
+                    {
+                        return Tuple.Create(0, 0);
+                    }
+                    else if (lineComparision == 0)
+                    {
+                        var low = 0;
+                        var high = this.AuxiliaryFindGreatestPosition(line, 0, elementsCount - 1);
+                        return Tuple.Create(low, high);
+                    }
+                    else
+                    {
+                        var auxLow = 0;
+                        var auxHigh = elementsCount - 1;
+                        while (auxLow < auxHigh)
+                        {
+                            int sum = auxHigh + auxLow;
+                            int intermediaryIndex = sum / 2;
+                            if (sum % 2 == 0)
+                            {
+                                if (this.CompareLine(line, this.elements[intermediaryIndex]) < 0)
+                                {
+                                    auxHigh = intermediaryIndex;
+                                }
+                                else
+                                {
+                                    auxLow = intermediaryIndex;
+                                }
+                            }
+                            else
+                            {
+                                if (
+                                    this.CompareLine(line, this.elements[intermediaryIndex]) > 0 &&
+                                    this.CompareLine(line, this.elements[intermediaryIndex + 1]) < 0)
+                                {
+                                    var result = intermediaryIndex + 1;
+                                    return Tuple.Create(result, result);
+                                }
+                                else if (
+                                    this.CompareLine(line, this.elements[intermediaryIndex]) == 0)
+                                {
+                                    // Um elemento foi encontrado.
+                                    var low = this.AuxiliaryFindLowestPosition(line, auxLow, intermediaryIndex);
+                                    var high = this.AuxiliaryFindGreatestPosition(line, intermediaryIndex, auxHigh);
+                                    return Tuple.Create(low, high);
+                                }
+                                else if (this.CompareLine(line, this.elements[intermediaryIndex]) < 0)
+                                {
+                                    auxHigh = intermediaryIndex;
+                                }
+                                else
+                                {
+                                    auxLow = intermediaryIndex;
+                                }
+                            }
+                        }
+
+                        return Tuple.Create(auxLow, auxHigh);
+                    }
+                }
+            }
         }
 
         /// <summary>

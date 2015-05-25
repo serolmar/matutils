@@ -565,7 +565,7 @@
             {
                 return 0;
             }
-            else if (comparer.Compare(objectToInsert, this.elements[this.elements.Count - 1]) > 0)
+            else if (comparer.Compare(objectToInsert, this.elements[this.elements.Count - 1]) >= 0)
             {
                 return this.elements.Count;
             }
