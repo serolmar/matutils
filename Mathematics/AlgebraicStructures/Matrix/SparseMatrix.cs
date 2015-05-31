@@ -158,15 +158,30 @@
                 }
                 else
                 {
-                    var index = this.FindLowestPosition(line, column);
-                    var current = this.elements[index];
-                    if (this.CompareLineAndColumn(line, column, current) == 0)
+                    var elementsCount = this.elements.Count;
+                    if (elementsCount == 0)
                     {
-                        return current.Item3.Item1;
+                        return this.defaultValue;
                     }
                     else
                     {
-                        return this.defaultValue;
+                        var index = this.FindLowestPosition(line, column, 0, elementsCount);
+                        if (index < this.elements.Count)
+                        {
+                            var current = this.elements[index];
+                            if (this.CompareLineAndColumn(line, column, current) == 0)
+                            {
+                                return current.Item3.Item1;
+                            }
+                            else
+                            {
+                                return this.defaultValue;
+                            }
+                        }
+                        else
+                        {
+                            return this.defaultValue;
+                        }
                     }
                 }
             }
@@ -182,32 +197,47 @@
                 }
                 else
                 {
-                    if (this.comparer.Equals(value, this.defaultValue))
+                    var elementsCount = this.elements.Count;
+                    if (elementsCount == 0)
                     {
-                        var key = Tuple.Create(line, column);
-                        throw new NotImplementedException();
+                        if (!this.comparer.Equals(value, this.defaultValue))
+                        {
+                            this.elements.Add(
+                                    Tuple.Create(line, column, MutableTuple<CoeffType>.Create(value)));
+                        }
                     }
                     else
                     {
-                        var index = this.FindLowestPosition(line, column);
-                        var current = this.elements[index];
-                        if (this.CompareLineAndColumn(line, column, current) == 0)
+                        var index = this.FindLowestPosition(line, column, 0, elementsCount);
+                        if (index < this.elements.Count)
                         {
-                            if (this.comparer.Equals(value, this.defaultValue))
+                            var current = this.elements[index];
+                            if (this.CompareLineAndColumn(line, column, current) == 0)
                             {
-                                this.elements.RemoveAt(index);
+                                if (this.comparer.Equals(value, this.defaultValue))
+                                {
+                                    this.elements.RemoveAt(index);
+                                }
+                                else
+                                {
+                                    current.Item3.Item1 = value;
+                                }
                             }
                             else
                             {
-                                current.Item3.Item1 = value;
+                                if (!this.comparer.Equals(value, this.defaultValue))
+                                {
+                                    this.elements.Insert(
+                                        index,
+                                        Tuple.Create(line, column, MutableTuple<CoeffType>.Create(value)));
+                                }
                             }
                         }
                         else
                         {
                             if (!this.comparer.Equals(value, this.defaultValue))
                             {
-                                this.elements.Insert(
-                                    index,
+                                this.elements.Add(
                                     Tuple.Create(line, column, MutableTuple<CoeffType>.Create(value)));
                             }
                         }
@@ -238,66 +268,307 @@
             }
         }
 
+        /// <summary>
+        /// Obtém um enumerador para todas as linhas não nulas da matriz.
+        /// </summary>
+        /// <remarks>
+        /// Caso a matriz seja para ser incluída como entrada em alguns algoritmos, o enumerável deverá
+        /// retornar as linhas em sequência crescente pela chave.
+        /// </remarks>
+        /// <returns>As linhas não nulas da matriz.</returns>
         public IEnumerable<KeyValuePair<int, ISparseMatrixLine<CoeffType>>> GetLines()
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Remove a linha.
+        /// </summary>
+        /// <param name="lineNumber">O número da linha a ser removida.</param>
         public void Remove(int lineNumber)
         {
-            throw new NotImplementedException();
+            var elementsCount = this.elements.Count;
+            if (elementsCount > 0)
+            {
+                var both = this.FindBothPositions(lineNumber, 0, elementsCount);
+            }
         }
 
+        /// <summary>
+        /// Verifica se a matriz esparsa contém a linha especificada.
+        /// </summary>
+        /// <param name="line">A linha.</param>
+        /// <returns>Verdadeiro caso a matriz contenha a linha e falso caso contrário.</returns>
         public bool ContainsLine(int line)
         {
-            throw new NotImplementedException();
+            var elementsCount = this.elements.Count;
+            if (elementsCount == 0)
+            {
+                return false;
+            }
+            else
+            {
+                var index = this.FindLowestPosition(line, 0, elementsCount);
+                if (index < elementsCount)
+                {
+                    var current = this.elements[index];
+                    if (current.Item1 == line)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
+            }
         }
 
+        /// <summary>
+        /// Tenta obter a linha especificada pelo índice.
+        /// </summary>
+        /// <param name="index">O índice da linha.</param>
+        /// <param name="line">A linha.</param>
+        /// <returns>Verdadeiro caso a operação seja bem sucedida e falso caso contrário.</returns>
         public bool TryGetLine(int index, out ISparseMatrixLine<CoeffType> line)
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Obtém as colunas atribuídas à linha especificada.
+        /// </summary>
+        /// <remarks>
+        /// Caso a matriz seja para ser incluída como entrada em alguns algoritmos, o enumerável deverá
+        /// retornar as colunas em sequência crescente pela chave.
+        /// </remarks>
+        /// <param name="line">A linha.</param>
+        /// <returns>As colunas atribuídas.</returns>
         public IEnumerable<KeyValuePair<int, CoeffType>> GetColumns(int line)
         {
-            throw new NotImplementedException();
+            var elementsCount = this.elements.Count;
+            if (elementsCount > 0)
+            {
+
+                var both = this.FindBothPositions(line, 0, elementsCount);
+                var start = both.Item1;
+                var end = both.Item2;
+                for (int i = start; i < end; ++i)
+                {
+                    var current = this.elements[i];
+                    yield return new KeyValuePair<int, CoeffType>(current.Item2, current.Item3.Item1);
+                }
+            }
         }
 
+        /// <summary>
+        /// Obtém o número de linhas ou colunas conforme o valor do argumento
+        /// seja 0 ou 1.
+        /// </summary>
+        /// <param name="dimension">O valor do argumento.</param>
+        /// <returns>O valor número de linhas ou colunas.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// O valor do argumento é diferente de 0 e de 1.
+        /// </exception>
         public int GetLength(int dimension)
         {
-            throw new NotImplementedException();
+            if (dimension == 0)
+            {
+                return this.numberOfLines;
+            }
+            else if (dimension == 1)
+            {
+                return this.numberOfColumns;
+            }
+            else
+            {
+                throw new ArgumentOutOfRangeException("dimension");
+            }
         }
 
+        /// <summary>
+        /// Obtém a submatriz indicada no argumento.
+        /// </summary>
+        /// <param name="lines">As correnadas das linhas que constituem a submatriz.</param>
+        /// <param name="columns">As correnadas das colunas que constituem a submatriz.</param>
+        /// <returns>A submatriz procurada.</returns>
         public IMatrix<CoeffType> GetSubMatrix(int[] lines, int[] columns)
         {
-            throw new NotImplementedException();
+            return new SubMatrix<CoeffType>(this, lines, columns);
         }
 
+        /// <summary>
+        /// Obtém a submatriz indicada no argumento considerado como sequência de inteiros.
+        /// </summary>
+        /// <param name="lines">As correnadas das linhas que constituem a submatriz.</param>
+        /// <param name="columns">As correnadas das colunas que constituem a submatriz.</param>
+        /// <returns>A submatriz procurada.</returns>
         public IMatrix<CoeffType> GetSubMatrix(
             IntegerSequence lines,
             IntegerSequence columns)
         {
-            throw new NotImplementedException();
+            return new IntegerSequenceSubMatrix<CoeffType>(this, lines, columns);
         }
 
+        /// <summary>
+        /// Troca duas linhas da matriz.
+        /// </summary>
+        /// <param name="i">A primeira linha a ser trocada.</param>
+        /// <param name="j">A segunda linha a ser trocada.</param>
         public void SwapLines(int i, int j)
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Troca duas colunas da matriz.
+        /// </summary>
+        /// <param name="i">A primeira coluna a ser trocaada.</param>
+        /// <param name="j">A segunda coluna a ser trocada.</param>
         public void SwapColumns(int i, int j)
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Multiplica os valores da linha pelo escalar definido.
+        /// </summary>
+        /// <param name="line">A linha a ser considerada.</param>
+        /// <param name="scalar">O escalar a ser multiplicado.</param>
+        /// <param name="ring">O objecto responsável pela operações de multiplicação e determinação da unidade aditiva.</param>
         public void ScalarLineMultiplication(int line, CoeffType scalar, IRing<CoeffType> ring)
         {
-            throw new NotImplementedException();
+            if (ring == null)
+            {
+                throw new ArgumentNullException("ring");
+            }
+            else if (line < 0 || line >= this.numberOfLines)
+            {
+                throw new IndexOutOfRangeException("The parameter line is out of bounds.");
+            }
+            else
+            {
+                var elementsCount = this.elements.Count;
+                if (elementsCount > 0)
+                {
+                    var both = this.FindBothPositions(line, 0, elementsCount);
+                    var start = both.Item1;
+                    if (start < elementsCount)
+                    {
+                        var end = both.Item2;
+                        var defaultMultiplied = ring.Multiply(this.defaultValue, scalar);
+                        if (this.comparer.Equals(this.defaultValue, defaultMultiplied))
+                        {
+                            // A multiplicação pelo valor por defeito continua a resultar no valor por defeito
+                            var currentIndex = start;
+                            while (currentIndex < end)
+                            {
+                                var current = this.elements[currentIndex];
+                                var result = ring.Multiply(current.Item3.Item1, scalar);
+                                if (this.comparer.Equals(this.defaultValue, result))
+                                {
+                                    this.elements.RemoveAt(currentIndex);
+                                }
+                                else
+                                {
+                                    current.Item3.Item1 = result;
+                                    ++currentIndex;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            // A multiplicação pelo valor por defeito deixa de ser um valor por defeito
+                            var currentIndex = start;
+                            var column = 0;
+                            while (currentIndex < end)
+                            {
+                                var current = this.elements[currentIndex];
+                                var currentColumn = current.Item2;
+                                while (column < currentColumn)
+                                {
+                                    this.elements.Insert(
+                                        currentIndex,
+                                        Tuple.Create(line, column, MutableTuple.Create(defaultMultiplied)));
+                                    ++column;
+                                    ++currentIndex;
+                                    ++end;
+                                }
+
+                                var result = ring.Multiply(current.Item3.Item1, scalar);
+                                if (this.comparer.Equals(this.defaultValue, result))
+                                {
+                                    this.elements.RemoveAt(currentIndex);
+                                }
+                                else
+                                {
+                                    current.Item3.Item1 = result;
+                                    ++currentIndex;
+                                }
+
+                                ++column;
+                            }
+
+                            // Insere os últimos valores na linha
+                            for (; column < this.numberOfColumns; ++column)
+                            {
+                                this.elements.Insert(
+                                        currentIndex,
+                                        Tuple.Create(line, column, MutableTuple.Create(defaultMultiplied)));
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // A linha é superior a todos os elementos existentes
+                        var multiple = ring.Multiply(this.defaultValue, scalar);
+                        if (!this.comparer.Equals(multiple, this.defaultValue))
+                        {
+                            // O valor obtido terá de ser adicionado para todas as colunas
+                            for (int i = 0; i < this.numberOfColumns; ++i)
+                            {
+                                this.elements.Add(Tuple.Create(
+                                    line,
+                                    i,
+                                    MutableTuple.Create(multiple)));
+                            }
+                        }
+                    }
+                }
+            }
         }
 
+        /// <summary>
+        /// Substitui a linha especificada por uma combinação linear desta com uma outra. Por exemplo, li = a * li + b * lj, isto é,
+        /// a linha i é substituída pela soma do produto de a pela linha i com o produto de b peloa linha j.
+        /// </summary>
+        /// <param name="i">A linha a ser substituída.</param>
+        /// <param name="j">A linha a ser combinada.</param>
+        /// <param name="a">O escalar a ser multiplicado pela primeira linha.</param>
+        /// <param name="b">O escalar a ser multiplicado pela segunda linha.</param>
+        /// <param name="ring">O objecto responsável pelas operações sobre os coeficientes.</param>
         public void CombineLines(int i, int j, CoeffType a, CoeffType b, IRing<CoeffType> ring)
         {
-            throw new NotImplementedException();
+            if (ring == null)
+            {
+                throw new ArgumentNullException("ring");
+            }
+            else if (i < 0 || i >= this.numberOfLines)
+            {
+                throw new ArgumentOutOfRangeException("i");
+            }
+            else if (j < 0 || j >= this.numberOfLines)
+            {
+                throw new ArgumentOutOfRangeException("j");
+            }
+            else
+            {
+
+            }
         }
 
         /// <summary>
@@ -329,28 +600,30 @@
         /// </summary>
         /// <param name="line">O número da linha.</param>
         /// <param name="column">O número da coluna.</param>
+        /// <param name="start">O início do intervalor de procura, inclusivé.</param>
+        /// <param name="end">O final do intervalo de procura, exclusivé.</param>
         /// <returns>O índice da posição onde o elemento se encontra.</returns>
-        private int FindLowestPosition(int line, int column)
+        private int FindLowestPosition(
+            int line,
+            int column,
+            int start,
+            int end)
         {
-            if (this.elements.Count == 0)
+            if (this.CompareLineAndColumn(line, column, this.elements[start]) <= 0)
             {
-                return 0;
+                return start;
             }
             else if (this.CompareLineAndColumn(
                 line,
                 column,
-                this.elements[this.elements.Count - 1]) > 0)
+                this.elements[end - 1]) > 0)
             {
-                return this.elements.Count;
-            }
-            else if (this.CompareLineAndColumn(line, column, this.elements[0]) <= 0)
-            {
-                return 0;
+                return end;
             }
             else
             {
-                int low = 0;
-                int high = this.elements.Count - 1;
+                int low = start;
+                int high = end - 1;
                 while (low < high)
                 {
                     int sum = high + low;
@@ -400,26 +673,24 @@
         /// de empate, a posição do primeiro. Caso não exista, retorna a posição onde deverá ser inserido.
         /// </summary>
         /// <param name="line">O número da linha.</param>
+        /// <param name="start">O início do intervalor de procura, inclusivé.</param>
+        /// <param name="end">O final do intervalo de procura, exclusivé.</param>
         /// <returns>O índice da posição onde o elemento se encontra.</returns>
-        private int FindLowestPosition(int line)
+        private int FindLowestPosition(int line, int start, int end)
         {
-            if (this.elements.Count == 0)
+            if (this.CompareLine(line, this.elements[start]) <= 0)
             {
-                return 0;
+                return start;
             }
             else if (this.CompareLine(
                 line,
-                this.elements[this.elements.Count - 1]) > 0)
+                this.elements[end - 1]) > 0)
             {
-                return this.elements.Count;
-            }
-            else if (this.CompareLine(line, this.elements[0]) <= 0)
-            {
-                return 0;
+                return end;
             }
             else
             {
-                return this.AuxiliaryFindLowestPosition(line, 0, this.elements.Count - 1);
+                return this.AuxiliaryFindLowestPosition(line, start, end - 1);
             }
         }
 
@@ -429,13 +700,16 @@
         /// o elemento se encontra dentro dos limites dados.
         /// </summary>
         /// <param name="line">A linha.</param>
-        /// <param name="low_">O limite inferior do intervalo.</param>
-        /// <param name="high_">O limite superior do intervalo.</param>
+        /// <param name="low">O limite inferior do intervalo.</param>
+        /// <param name="high">O limite superior do intervalo.</param>
         /// <returns>A posição.</returns>
-        private int AuxiliaryFindLowestPosition(int line, int low_, int high_)
+        private int AuxiliaryFindLowestPosition(
+            int line,
+            int low,
+            int high)
         {
-            var innerLow = low_;
-            var innerHigh = high_;
+            var innerLow = low;
+            var innerHigh = high;
             while (innerLow < innerHigh)
             {
                 int sum = innerHigh + innerLow;
@@ -484,24 +758,22 @@
         /// retorna a posição onde deve ser inserido.
         /// </summary>
         /// <param name="line">O elemento a ser procurado.</param>
+        /// <param name="start">O início do intervalor de procura, inclusivé.</param>
+        /// <param name="end">O final do intervalo de procura, exclusivé.</param>
         /// <returns>O índice da posição onde o elemento se encontra.</returns>
-        private int FindGreatestPosition(int line)
+        private int FindGreatestPosition(int line, int start, int end)
         {
-            if (this.elements.Count == 0)
+            if (this.CompareLine(line, this.elements[start]) < 0)
             {
-                return 0;
+                return start;
             }
-            else if (this.CompareLine(line, this.elements[this.elements.Count - 1]) >= 0)
+            else if (this.CompareLine(line, this.elements[end - 1]) >= 0)
             {
-                return this.elements.Count;
-            }
-            else if (this.CompareLine(line, this.elements[0]) < 0)
-            {
-                return 0;
+                return end;
             }
             else
             {
-                return this.AuxiliaryFindGreatestPosition(line, 0, this.elements.Count - 1);
+                return this.AuxiliaryFindGreatestPosition(line, start, end - 1);
             }
         }
 
@@ -569,100 +841,94 @@
         /// Permite determinar ambas as posições, a máxima e a mínima relativas às linhas.
         /// </summary>
         /// <param name="line">A linha.</param>
+        /// <param name="start">O início do intervalor de procura, inclusivé.</param>
+        /// <param name="end">O final do intervalo de procura, exclusivé.</param>
         /// <returns>O par que contém as posições.</returns>
-        private Tuple<int, int> FindBothPositions(int line)
+        private Tuple<int, int> FindBothPositions(int line, int start, int end)
         {
-            var elementsCount = this.elements.Count;
-            if (elementsCount == 0)
+            var current = this.elements[end - 1];
+            var lineComparision = this.CompareLine(line, current);
+            if (lineComparision > 0)
             {
-                return Tuple.Create(0, 0);
+                return Tuple.Create(end, end);
+            }
+            else if (lineComparision == 0)
+            {
+                var high = end - 1;
+                var low = high;
+
+                // Efectua o ciclo para determinar o menor valor.
+                current = this.elements[start];
+                lineComparision = this.CompareLine(line, current);
+                if (lineComparision < 0)
+                {
+                    low = this.AuxiliaryFindLowestPosition(line, start, high);
+                }
+
+                return Tuple.Create(low, high);
             }
             else
             {
-                var current = this.elements[elementsCount - 1];
-                var lineComparision = this.CompareLine(line, current);
-                if (lineComparision > 0)
+                current = this.elements[start];
+                lineComparision = this.CompareLine(line, current);
+                if (lineComparision < 0)
                 {
-                    return Tuple.Create(elementsCount, elementsCount);
+                    return Tuple.Create(start, start);
                 }
                 else if (lineComparision == 0)
                 {
-                    var high = elementsCount - 1;
-                    var low = high;
-
-                    // Efectua o ciclo para determinar o menor valor.
-                    current = this.elements[0];
-                    lineComparision = this.CompareLine(line, current);
-                    if (lineComparision < 0)
-                    {
-                        low = this.AuxiliaryFindLowestPosition(line, 0, high);
-                    }
-
+                    var low = start;
+                    var high = this.AuxiliaryFindGreatestPosition(line, start, end - 1);
                     return Tuple.Create(low, high);
                 }
                 else
                 {
-                    current = this.elements[0];
-                    lineComparision = this.CompareLine(line, current);
-                    if (lineComparision < 0)
+                    var auxLow = start;
+                    var auxHigh = end - 1;
+                    while (auxLow < auxHigh)
                     {
-                        return Tuple.Create(0, 0);
-                    }
-                    else if (lineComparision == 0)
-                    {
-                        var low = 0;
-                        var high = this.AuxiliaryFindGreatestPosition(line, 0, elementsCount - 1);
-                        return Tuple.Create(low, high);
-                    }
-                    else
-                    {
-                        var auxLow = 0;
-                        var auxHigh = elementsCount - 1;
-                        while (auxLow < auxHigh)
+                        int sum = auxHigh + auxLow;
+                        int intermediaryIndex = sum / 2;
+                        if (sum % 2 == 0)
                         {
-                            int sum = auxHigh + auxLow;
-                            int intermediaryIndex = sum / 2;
-                            if (sum % 2 == 0)
+                            if (this.CompareLine(line, this.elements[intermediaryIndex]) < 0)
                             {
-                                if (this.CompareLine(line, this.elements[intermediaryIndex]) < 0)
-                                {
-                                    auxHigh = intermediaryIndex;
-                                }
-                                else
-                                {
-                                    auxLow = intermediaryIndex;
-                                }
+                                auxHigh = intermediaryIndex;
                             }
                             else
                             {
-                                if (
-                                    this.CompareLine(line, this.elements[intermediaryIndex]) > 0 &&
-                                    this.CompareLine(line, this.elements[intermediaryIndex + 1]) < 0)
-                                {
-                                    var result = intermediaryIndex + 1;
-                                    return Tuple.Create(result, result);
-                                }
-                                else if (
-                                    this.CompareLine(line, this.elements[intermediaryIndex]) == 0)
-                                {
-                                    // Um elemento foi encontrado.
-                                    var low = this.AuxiliaryFindLowestPosition(line, auxLow, intermediaryIndex);
-                                    var high = this.AuxiliaryFindGreatestPosition(line, intermediaryIndex, auxHigh);
-                                    return Tuple.Create(low, high);
-                                }
-                                else if (this.CompareLine(line, this.elements[intermediaryIndex]) < 0)
-                                {
-                                    auxHigh = intermediaryIndex;
-                                }
-                                else
-                                {
-                                    auxLow = intermediaryIndex;
-                                }
+                                auxLow = intermediaryIndex;
                             }
                         }
-
-                        return Tuple.Create(auxLow, auxHigh);
+                        else
+                        {
+                            if (
+                                this.CompareLine(line, this.elements[intermediaryIndex]) > 0 &&
+                                this.CompareLine(line, this.elements[intermediaryIndex + 1]) < 0)
+                            {
+                                var result = intermediaryIndex + 1;
+                                return Tuple.Create(result, result);
+                            }
+                            else if (
+                                this.CompareLine(line, this.elements[intermediaryIndex]) == 0)
+                            {
+                                // Um elemento foi encontrado.
+                                var low = this.AuxiliaryFindLowestPosition(line, auxLow, intermediaryIndex);
+                                var high = this.AuxiliaryFindGreatestPosition(line, intermediaryIndex, auxHigh);
+                                return Tuple.Create(low, high);
+                            }
+                            else if (this.CompareLine(line, this.elements[intermediaryIndex]) < 0)
+                            {
+                                auxHigh = intermediaryIndex;
+                            }
+                            else
+                            {
+                                auxLow = intermediaryIndex;
+                            }
+                        }
                     }
+
+                    return Tuple.Create(auxLow, auxHigh);
                 }
             }
         }

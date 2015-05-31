@@ -15,7 +15,8 @@
     /// <typeparam name="T">O tipo dos objectos dos quais se pretende determinar a média.</typeparam>
     /// <typeparam name="P">O tipo dos objectos que irão constituir o resultado.</typeparam>
     /// <typeparam name="Q">O tipo dos objectos que reprsentam a contagem.</typeparam>
-    public class EnumMeanAlgorithm<T, P, Q> : IAlgorithm<IEnumerable<T>, P>
+    public class EnumGeneralizedMeanAlgorithm<T, P, Q>
+        : IAlgorithm<IEnumerable<T>, P>, IAlgorithm<IEnumerable<T>, Q, Func<P, P, P>, Func<Q,P,P>, P>
     {
         /// <summary>
         /// O objecto responsável pela sincronização de linhas de processamento.
@@ -30,7 +31,7 @@
         /// <summary>
         /// O objecto responsável pela adição dos elementos da média.
         /// </summary>
-        private IAdditionOperation<T,T,T> additionOperation;
+        private IAdditionOperation<T, T, T> additionOperation;
 
         /// <summary>
         /// A função que permite dividir os objectos pelo valor do contador.
@@ -48,18 +49,18 @@
         private Func<P, P> inverseFunction;
 
         /// <summary>
-        /// Instancia uma nova instância de objectos do tipo <see cref="EnumMeanAlgorithm{T, P, Q}"/>.
+        /// Instancia uma nova instância de objectos do tipo <see cref="EnumGeneralizedMeanAlgorithm{T, P, Q}"/>.
         /// </summary>
         /// <param name="directFunction">A função directa aplicada na média generalizada.</param>
         /// <param name="inverseFunction">A função inversa aplicada na média generalizada.</param>
         /// <param name="integerDivisionFunction">A função que define a divisão entre os objectos e o contador.</param>
         /// <param name="additionOperation">O objecto responsável pela adição dos elementos.</param>
         /// <param name="integerNumber">O objecto responsável pelos incrementos do contador.</param>
-        public EnumMeanAlgorithm(
+        public EnumGeneralizedMeanAlgorithm(
             Func<T, T> directFunction,
             Func<P, P> inverseFunction,
             Func<T, Q, P> integerDivisionFunction,
-            IAdditionOperation<T,T,T> additionOperation,
+            IAdditionOperation<T, T, T> additionOperation,
             IIntegerNumber<Q> integerNumber)
         {
             if (integerNumber == null)
@@ -120,7 +121,9 @@
         /// </summary>
         public IAdditionOperation<T, T, T> AdditionOperation
         {
-            get { return this.additionOperation;
+            get
+            {
+                return this.additionOperation;
             }
             set
             {
@@ -230,23 +233,151 @@
                     innerInverseFunction = this.inverseFunction;
                 }
 
-                var count = innerIntegerNumber.AdditiveUnity;
-                var innerAditionOper = innerAdditionOperation;
                 var collectionEnum = data.GetEnumerator();
                 if (collectionEnum.MoveNext())
                 {
+                    var count = innerIntegerNumber.MultiplicativeUnity;
                     var res = innerDirectFunction(collectionEnum.Current);
-                    count = innerIntegerNumber.Successor(count);
                     while (collectionEnum.MoveNext())
                     {
                         var current = innerDirectFunction(collectionEnum.Current);
-                        res = innerAditionOper.Add(res, current);
+                        res = innerAdditionOperation.Add(res, current);
                         count = innerIntegerNumber.Successor(count);
                     }
 
                     var result = innerIntegerDivisionFunction(res, count);
                     result = innerInverseFunction(result);
                     return result;
+                }
+                else
+                {
+                    throw new ArgumentException("No data was provided in collection. Can't compute the mean value.");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Determina a média de um conjunto de valores, utilizando blocos de tamanhos definidos.
+        /// </summary>
+        /// <remarks>
+        /// A introdução de blocos no cálculo da média permite aumentar o número de itens, mantendo
+        /// a precisão da estrutura de dados.
+        /// </remarks>
+        /// <param name="data">O conjunto de valores dos quais se pretende obter a média.</param>
+        /// <param name="blockZise">O número de elementos a serem utilizados por bloco.</param>
+        /// <param name="additionFunction">A função de adição para valores intermédios.</param>
+        /// <param name="multiplicationFunction">A função de multiplicação para valores intermédios.</param>
+        /// <returns>O resultado da média.</returns>
+        public P Run(
+            IEnumerable<T> data,
+            Q blockZise,
+            Func<P, P, P> additionFunction,
+            Func<Q,P,P> multiplicationFunction)
+        {
+            if (data == null)
+            {
+                throw new ArgumentNullException("data");
+            }
+            else if (blockZise == null)
+            {
+                throw new ArgumentNullException("blockSize");
+            }
+            else if (additionFunction == null)
+            {
+                throw new ArgumentNullException("additionFunction");
+            }
+            else if (multiplicationFunction == null)
+            {
+                throw new ArgumentNullException("multiplicationFunction");
+            }
+            else if (this.integerNumber.Compare(blockZise, this.integerNumber.AdditiveUnity) <= 0)
+            {
+                throw new ArgumentException("The block size must be at least one.");
+            }
+            else
+            {
+                var innerIntegerNumber = default(IIntegerNumber<Q>);
+                var innerAdditionOperation = default(IAdditionOperation<T, T, T>);
+                var innerIntegerDivisionFunction = default(Func<T, Q, P>);
+                var innerDirectFunction = default(Func<T, T>);
+                var innerInverseFunction = default(Func<P, P>);
+
+                // Para evitar colisões de argumentos em processamento paralelo.
+                lock (this.lockObject)
+                {
+                    innerIntegerNumber = this.integerNumber;
+                    innerAdditionOperation = this.additionOperation;
+                    innerIntegerDivisionFunction = this.integerDivisionFunction;
+                    innerDirectFunction = this.directFunction;
+                    innerInverseFunction = this.inverseFunction;
+                }
+
+                var dataEnum = data.GetEnumerator();
+                if (dataEnum.MoveNext())
+                {
+                    var numberOfBlocks = innerIntegerNumber.AdditiveUnity;
+                    var blockCount = innerIntegerNumber.MultiplicativeUnity;
+                    var blockResult = innerDirectFunction.Invoke(dataEnum.Current);
+                    while (innerIntegerNumber.Compare(blockCount, blockZise) <= 0
+                        && dataEnum.MoveNext())
+                    {
+                        var current = innerDirectFunction.Invoke(dataEnum.Current);
+                        blockResult = innerAdditionOperation.Add(blockResult, current);
+                        blockCount = innerIntegerNumber.Successor(blockCount);
+                    }
+
+                    var result = innerIntegerDivisionFunction.Invoke(blockResult, blockCount);
+                    if (dataEnum.MoveNext())
+                    {
+                        // Um novo bloco é iniciado
+                        numberOfBlocks = innerIntegerNumber.Successor(numberOfBlocks);
+                        var blockMean = result;
+                        blockCount = innerIntegerNumber.MultiplicativeUnity;
+                        blockResult = dataEnum.Current;
+                        while (dataEnum.MoveNext())
+                        {
+                            if (innerIntegerNumber.Compare(blockCount, blockZise) <= 0)
+                            {
+                                // Continua no mesmo bloco
+                                var current = innerDirectFunction.Invoke(dataEnum.Current);
+                                blockResult = innerAdditionOperation.Add(blockResult, current);
+                                blockCount = innerIntegerNumber.Successor(blockCount);
+                            }
+                            else
+                            {
+                                // Um novo bloco é iniciado
+                                numberOfBlocks = innerIntegerNumber.Successor(numberOfBlocks);
+                                var auxiliary = innerIntegerDivisionFunction.Invoke(blockResult, blockCount);
+                                result = additionFunction.Invoke(result, auxiliary);
+
+                                // Actualização do novo bloco
+                                blockCount = innerIntegerNumber.MultiplicativeUnity;
+                                blockResult = dataEnum.Current;
+                            }
+                        }
+
+                        if (innerIntegerNumber.IsMultiplicativeUnity(blockCount))
+                        {
+
+                        }
+                        else if (innerIntegerNumber.Compare(blockCount, blockZise) == 0)
+                        {
+                            numberOfBlocks = innerIntegerNumber.Successor(numberOfBlocks);
+                            var auxiliary = innerIntegerDivisionFunction.Invoke(blockResult, blockCount);
+                            result = additionFunction.Invoke(result, auxiliary);
+                        }
+                        else
+                        {
+
+                        }
+
+                        throw new NotImplementedException();
+                    }
+                    else
+                    {
+                        result = inverseFunction(result);
+                        return result;
+                    }
                 }
                 else
                 {
@@ -265,12 +396,13 @@
     /// </remarks>
     /// <typeparam name="T">O tipo dos objectos dos quais se pretende determinar a média.</typeparam>
     /// <typeparam name="P">O tipo dos objectos que irão constituir o resultado.</typeparam>
-    public class ListMeanAlgorithm<T, P> : IAlgorithm<IList<T>, P>
+    public class ListGeneralizedMeanAlgorithm<T, P> : IAlgorithm<IList<T>, P>
     {
         /// <summary>
         /// O objecto responsável pela sincronização de linhas de processamento.
         /// </summary>
         private object lockObject;
+
         /// <summary>
         /// O objecto responsável pela adição dos elementos da média.
         /// </summary>
@@ -292,13 +424,13 @@
         private Func<P, P> inverseFunction;
 
         /// <summary>
-        /// Instancia uma nova instância de objectos do tipo <see cref="ListMeanAlgorithm{T, P}"/>.
+        /// Instancia uma nova instância de objectos do tipo <see cref="ListGeneralizedMeanAlgorithm{T, P}"/>.
         /// </summary>
         /// <param name="directFunction">A função directa aplicada na média generalizada.</param>
         /// <param name="inverseFunction">A função inversa aplicada na média generalizada.</param>
         /// <param name="integerDivisionFunction">A função que define a divisão entre os objectos e o contador.</param>
         /// <param name="additionOperation">O objecto responsável pela adição dos elementos.</param>
-        public ListMeanAlgorithm(
+        public ListGeneralizedMeanAlgorithm(
             Func<T, T> directFunction,
             Func<P, P> inverseFunction,
             Func<T, int, P> integerDivisionFunction,
