@@ -1,8 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
-MinimumVisualStudioVersion = 10.0.40219.1
+# Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utilities", "Utilities\Utilities.csproj", "{301A8CA6-8B0D-40B5-A6AC-0671FE9EE74D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mathematics", "Mathematics\Mathematics.csproj", "{0C268918-73CB-46FB-93C8-87792CF351FA}"
@@ -10,7 +8,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{0344BDC8-12A7-49D0-8FEC-201FC3D6B960}"
 	ProjectSection(SolutionItems) = preProject
 		Local.testsettings = Local.testsettings
-		MatUtils1.vsmdi = MatUtils1.vsmdi
+		MatUtils4.vsmdi = MatUtils4.vsmdi
 		TraceAndTestImpact.testsettings = TraceAndTestImpact.testsettings
 	EndProjectSection
 EndProject
@@ -27,6 +25,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utilities.Test", "Utilities.Test\Utilities.Test.csproj", "{41E826E2-F97C-4AEA-9696-5CBE4AD98493}"
 EndProject
 Global
+	GlobalSection(TestCaseManagementSettings) = postSolution
+		CategoryFile = MatUtils4.vsmdi
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Debug|Mixed Platforms = Debug|Mixed Platforms
@@ -128,15 +129,12 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{301A8CA6-8B0D-40B5-A6AC-0671FE9EE74D} = {0344BDC8-12A7-49D0-8FEC-201FC3D6B960}
 		{0C268918-73CB-46FB-93C8-87792CF351FA} = {0344BDC8-12A7-49D0-8FEC-201FC3D6B960}
+		{301A8CA6-8B0D-40B5-A6AC-0671FE9EE74D} = {0344BDC8-12A7-49D0-8FEC-201FC3D6B960}
 		{C426013A-DFE9-4DFD-9CB1-B389C6290367} = {0344BDC8-12A7-49D0-8FEC-201FC3D6B960}
 		{4480DDC7-E675-4EC1-912D-64DE05948E54} = {0344BDC8-12A7-49D0-8FEC-201FC3D6B960}
-		{1F0844F1-6095-47AD-9137-A327DEFA9578} = {96A44C57-161B-4FAD-93D8-D76A9E2D0112}
 		{18D06F19-C349-4612-9BA7-4EEB25CD0313} = {96A44C57-161B-4FAD-93D8-D76A9E2D0112}
+		{1F0844F1-6095-47AD-9137-A327DEFA9578} = {96A44C57-161B-4FAD-93D8-D76A9E2D0112}
 		{41E826E2-F97C-4AEA-9696-5CBE4AD98493} = {96A44C57-161B-4FAD-93D8-D76A9E2D0112}
-	EndGlobalSection
-	GlobalSection(TestCaseManagementSettings) = postSolution
-		CategoryFile = MatUtils1.vsmdi
 	EndGlobalSection
 EndGlobal

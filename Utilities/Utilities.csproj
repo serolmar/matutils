@@ -98,6 +98,7 @@
     <Compile Include="Data\Implementations\Files\CSV\StringDataReader.cs" />
     <Compile Include="Data\Implementations\Files\CSV\IntegerDataReader.cs" />
     <Compile Include="Data\Implementations\Files\CSV\TabularItemAdder.cs" />
+    <Compile Include="Data\Implementations\Regions\RectangularRegions.cs" />
     <Compile Include="Data\LogicInterfaces\IDataParseAdder.cs" />
     <Compile Include="Data\LogicInterfaces\IDataReader.cs" />
     <Compile Include="Data\LogicInterfaces\IDataReaderProvider.cs" />
