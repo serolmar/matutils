@@ -16,7 +16,7 @@
     /// <typeparam name="P">O tipo dos objectos que irão constituir o resultado.</typeparam>
     /// <typeparam name="Q">O tipo dos objectos que reprsentam a contagem.</typeparam>
     public class EnumGeneralizedMeanAlgorithm<T, P, Q>
-        : IAlgorithm<IEnumerable<T>, P>, IAlgorithm<IEnumerable<T>, Q, Func<P, P, P>, Func<Q,P,P>, P>
+        : IAlgorithm<IEnumerable<T>, P>
     {
         /// <summary>
         /// O objecto responsável pela sincronização de linhas de processamento.
@@ -31,17 +31,17 @@
         /// <summary>
         /// O objecto responsável pela adição dos elementos da média.
         /// </summary>
-        private IAdditionOperation<T, T, T> additionOperation;
+        private IAdditionOperation<P, P, P> additionOperation;
 
         /// <summary>
         /// A função que permite dividir os objectos pelo valor do contador.
         /// </summary>
-        private Func<T, Q, P> integerDivisionFunction;
+        private Func<P, Q, P> integerDivisionFunction;
 
         /// <summary>
         /// A função directa aplicada na média generalizada.
         /// </summary>
-        private Func<T, T> directFunction;
+        private Func<T, P> directFunction;
 
         /// <summary>
         /// A função inversa aplicada na média generalizada.
@@ -57,10 +57,10 @@
         /// <param name="additionOperation">O objecto responsável pela adição dos elementos.</param>
         /// <param name="integerNumber">O objecto responsável pelos incrementos do contador.</param>
         public EnumGeneralizedMeanAlgorithm(
-            Func<T, T> directFunction,
+            Func<T, P> directFunction,
             Func<P, P> inverseFunction,
-            Func<T, Q, P> integerDivisionFunction,
-            IAdditionOperation<T, T, T> additionOperation,
+            Func<P, Q, P> integerDivisionFunction,
+            IAdditionOperation<P, P, P> additionOperation,
             IIntegerNumber<Q> integerNumber)
         {
             if (integerNumber == null)
@@ -119,7 +119,7 @@
         /// <summary>
         /// O objecto responsável pela adição dos elementos da média.
         /// </summary>
-        public IAdditionOperation<T, T, T> AdditionOperation
+        public IAdditionOperation<P, P, P> AdditionOperation
         {
             get
             {
@@ -141,7 +141,7 @@
         /// <summary>
         ///  Obém ou atribui a função que permite dividir os objectos pelo valor do contador.
         /// </summary>
-        public Func<T, Q, P> IntegerDivisionFunction
+        public Func<P, Q, P> IntegerDivisionFunction
         {
             get
             {
@@ -163,7 +163,7 @@
         /// <summary>
         ///  Obém ou atribui a função directa aplicada na média generalizada.
         /// </summary>
-        public Func<T, T> DirectFunction
+        public Func<T, P> DirectFunction
         {
             get
             {
@@ -218,9 +218,9 @@
             else
             {
                 var innerIntegerNumber = default(IIntegerNumber<Q>);
-                var innerAdditionOperation = default(IAdditionOperation<T, T, T>);
-                var innerIntegerDivisionFunction = default(Func<T, Q, P>);
-                var innerDirectFunction = default(Func<T, T>);
+                var innerAdditionOperation = default(IAdditionOperation<P, P, P>);
+                var innerIntegerDivisionFunction = default(Func<P, Q, P>);
+                var innerDirectFunction = default(Func<T, P>);
                 var innerInverseFunction = default(Func<P, P>);
 
                 // Para evitar colisões de argumentos em processamento paralelo.
@@ -265,14 +265,20 @@
         /// </remarks>
         /// <param name="data">O conjunto de valores dos quais se pretende obter a média.</param>
         /// <param name="blockZise">O número de elementos a serem utilizados por bloco.</param>
-        /// <param name="additionFunction">A função de adição para valores intermédios.</param>
-        /// <param name="multiplicationFunction">A função de multiplicação para valores intermédios.</param>
+        /// <param name="weightDivisionFuntion">
+        /// A função que permite calcular o quociente entre dois números inteiros, retornando o peso
+        /// percentual de cada bloco.
+        /// </param>
+        /// <param name="weightMultiplicationFunction">
+        /// A função que permite multiplicar o quociente pelo resultado da média.
+        /// </param>
         /// <returns>O resultado da média.</returns>
-        public P Run(
+        /// <typeparam name="W">O tipo dos objectos que resultam da divisão dos números inteiros.</typeparam>
+        public P Run<W>(
             IEnumerable<T> data,
             Q blockZise,
-            Func<P, P, P> additionFunction,
-            Func<Q,P,P> multiplicationFunction)
+            Func<Q, Q, W> weightDivisionFuntion,
+            Func<W, P, P> weightMultiplicationFunction)
         {
             if (data == null)
             {
@@ -282,13 +288,13 @@
             {
                 throw new ArgumentNullException("blockSize");
             }
-            else if (additionFunction == null)
+            else if (weightDivisionFuntion == null)
             {
-                throw new ArgumentNullException("additionFunction");
+                throw new ArgumentNullException("weightDivisionFunction");
             }
-            else if (multiplicationFunction == null)
+            else if (weightMultiplicationFunction == null)
             {
-                throw new ArgumentNullException("multiplicationFunction");
+                throw new ArgumentNullException("weightMultiplicationFunction");
             }
             else if (this.integerNumber.Compare(blockZise, this.integerNumber.AdditiveUnity) <= 0)
             {
@@ -297,9 +303,9 @@
             else
             {
                 var innerIntegerNumber = default(IIntegerNumber<Q>);
-                var innerAdditionOperation = default(IAdditionOperation<T, T, T>);
-                var innerIntegerDivisionFunction = default(Func<T, Q, P>);
-                var innerDirectFunction = default(Func<T, T>);
+                var innerAdditionOperation = default(IAdditionOperation<P, P, P>);
+                var innerIntegerDivisionFunction = default(Func<P, Q, P>);
+                var innerDirectFunction = default(Func<T, P>);
                 var innerInverseFunction = default(Func<P, P>);
 
                 // Para evitar colisões de argumentos em processamento paralelo.
@@ -333,7 +339,7 @@
                         numberOfBlocks = innerIntegerNumber.Successor(numberOfBlocks);
                         var blockMean = result;
                         blockCount = innerIntegerNumber.MultiplicativeUnity;
-                        blockResult = dataEnum.Current;
+                        blockResult = innerDirectFunction.Invoke(dataEnum.Current);
                         while (dataEnum.MoveNext())
                         {
                             if (innerIntegerNumber.Compare(blockCount, blockZise) <= 0)
@@ -348,30 +354,33 @@
                                 // Um novo bloco é iniciado
                                 numberOfBlocks = innerIntegerNumber.Successor(numberOfBlocks);
                                 var auxiliary = innerIntegerDivisionFunction.Invoke(blockResult, blockCount);
-                                result = additionFunction.Invoke(result, auxiliary);
+                                result = innerAdditionOperation.Add(result, auxiliary);
 
                                 // Actualização do novo bloco
                                 blockCount = innerIntegerNumber.MultiplicativeUnity;
-                                blockResult = dataEnum.Current;
+                                blockResult = innerDirectFunction.Invoke(dataEnum.Current);
                             }
                         }
 
-                        if (innerIntegerNumber.IsMultiplicativeUnity(blockCount))
-                        {
-
-                        }
-                        else if (innerIntegerNumber.Compare(blockCount, blockZise) == 0)
+                        if (innerIntegerNumber.Compare(blockCount, blockZise) == 0)
                         {
                             numberOfBlocks = innerIntegerNumber.Successor(numberOfBlocks);
                             var auxiliary = innerIntegerDivisionFunction.Invoke(blockResult, blockCount);
-                            result = additionFunction.Invoke(result, auxiliary);
+                            result = innerAdditionOperation.Add(result, auxiliary);
+                            result = innerIntegerDivisionFunction.Invoke(result, numberOfBlocks);
                         }
                         else
                         {
-
+                            var auxCount = innerIntegerNumber.Multiply(numberOfBlocks, blockZise);
+                            var totalItems = innerIntegerNumber.Add(auxCount, blockCount);
+                            var percentage = weightDivisionFuntion.Invoke(auxCount, totalItems);
+                            result = weightMultiplicationFunction.Invoke(percentage, result);
+                            var auxiliary = innerIntegerDivisionFunction.Invoke(blockResult, totalItems);
+                            result = innerAdditionOperation.Add(result, auxiliary);
                         }
 
-                        throw new NotImplementedException();
+                        result = innerInverseFunction.Invoke(result);
+                        return result;
                     }
                     else
                     {
@@ -406,17 +415,17 @@
         /// <summary>
         /// O objecto responsável pela adição dos elementos da média.
         /// </summary>
-        private IAdditionOperation<T, T, T> additionOperation;
+        private IAdditionOperation<P, P, P> additionOperation;
 
         /// <summary>
         /// A função que permite dividir os objectos pelo valor do contador.
         /// </summary>
-        private Func<T, int, P> integerDivisionFunction;
+        private Func<P, int, P> integerDivisionFunction;
 
         /// <summary>
         /// A função directa aplicada na média generalizada.
         /// </summary>
-        private Func<T, T> directFunction;
+        private Func<T, P> directFunction;
 
         /// <summary>
         /// A função inversa aplicada na média generalizada.
@@ -431,10 +440,10 @@
         /// <param name="integerDivisionFunction">A função que define a divisão entre os objectos e o contador.</param>
         /// <param name="additionOperation">O objecto responsável pela adição dos elementos.</param>
         public ListGeneralizedMeanAlgorithm(
-            Func<T, T> directFunction,
+            Func<T, P> directFunction,
             Func<P, P> inverseFunction,
-            Func<T, int, P> integerDivisionFunction,
-            IAdditionOperation<T, T, T> additionOperation)
+            Func<P, int, P> integerDivisionFunction,
+            IAdditionOperation<P, P, P> additionOperation)
         {
             if (additionOperation == null)
             {
@@ -465,7 +474,7 @@
         /// <summary>
         /// O objecto responsável pela adição dos elementos da média.
         /// </summary>
-        public IAdditionOperation<T, T, T> AdditionOperation
+        public IAdditionOperation<P,P,P> AdditionOperation
         {
             get
             {
@@ -487,7 +496,7 @@
         /// <summary>
         ///  Obém ou atribui a função que permite dividir os objectos pelo valor do contador.
         /// </summary>
-        public Func<T, int, P> IntegerDivisionFunction
+        public Func<P, int, P> IntegerDivisionFunction
         {
             get
             {
@@ -509,7 +518,7 @@
         /// <summary>
         ///  Obém ou atribui a função directa aplicada na média generalizada.
         /// </summary>
-        public Func<T, T> DirectFunction
+        public Func<T, P> DirectFunction
         {
             get
             {
@@ -563,9 +572,9 @@
             }
             else
             {
-                var innerAdditionOperation = default(IAdditionOperation<T, T, T>);
-                var innerIntegerDivisionFunction = default(Func<T, int, P>);
-                var innerDirectFunction = default(Func<T, T>);
+                var innerAdditionOperation = default(IAdditionOperation<P, P, P>);
+                var innerIntegerDivisionFunction = default(Func<P, int, P>);
+                var innerDirectFunction = default(Func<T, P>);
                 var innerInverseFunction = default(Func<P, P>);
 
                 // Para evitar colisões de argumentos em processamento paralelo.
@@ -596,6 +605,141 @@
                 else
                 {
                     throw new ArgumentException("No data was provided in collection. Can't compute the mean value.");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Determina a média de um conjunto de valores, utilizando blocos de tamanhos definidos.
+        /// </summary>
+        /// <remarks>
+        /// A introdução de blocos no cálculo da média permite aumentar o número de itens, mantendo
+        /// a precisão da estrutura de dados.
+        /// </remarks>
+        /// <param name="data">O conjunto de valores dos quais se pretende obter a média.</param>
+        /// <param name="blockZise">O número de elementos a serem utilizados por bloco.</param>
+        /// <param name="weightMultiplicationFunction">
+        /// A função que permite multiplicar o quociente pelo resultado da média.
+        /// </param>
+        /// <returns>O resultado da média.</returns>
+        public P Run<W>(
+            IList<T> data,
+            int blockZise,
+            Func<double, P, P> weightMultiplicationFunction)
+        {
+            if (data == null)
+            {
+                throw new ArgumentNullException("data");
+            }
+            else if (blockZise == null)
+            {
+                throw new ArgumentNullException("blockSize");
+            }
+            else if (weightMultiplicationFunction == null)
+            {
+                throw new ArgumentNullException("weightMultiplicationFunction");
+            }
+            else if (blockZise <= 0)
+            {
+                throw new ArgumentException("The block size must be at least one.");
+            }
+            else
+            {
+                var innerAdditionOperation = default(IAdditionOperation<P, P, P>);
+                var innerIntegerDivisionFunction = default(Func<P, int, P>);
+                var innerDirectFunction = default(Func<T, P>);
+                var innerInverseFunction = default(Func<P, P>);
+
+                // Para evitar colisões de argumentos em processamento paralelo.
+                lock (this.lockObject)
+                {
+                    innerAdditionOperation = this.additionOperation;
+                    innerIntegerDivisionFunction = this.integerDivisionFunction;
+                    innerDirectFunction = this.directFunction;
+                    innerInverseFunction = this.inverseFunction;
+                }
+
+                var listCount = data.Count;
+                if (listCount == 0)
+                {
+                    throw new ArgumentException("No data was provided in collection. Can't compute the mean value.");
+                }
+                else
+                {
+                    var nextIndex = blockZise;
+                    if (nextIndex < listCount)
+                    {
+                        var blockResult = innerDirectFunction.Invoke(data[0]);
+                        for (int i = 0; i < nextIndex; ++i)
+                        {
+                            var aux = innerDirectFunction.Invoke(data[i]);
+                            blockResult = innerAdditionOperation.Add(blockResult, aux);
+                        }
+
+                        // Determinação da primeira média
+                        var result = innerIntegerDivisionFunction.Invoke(blockResult, blockZise);
+                        var index = nextIndex;
+                        nextIndex += blockZise;
+                        while (nextIndex < listCount)
+                        {
+                            blockResult = innerDirectFunction.Invoke(data[index]);
+                            ++index;
+                            for (; index < nextIndex; ++index)
+                            {
+                                var aux = innerDirectFunction.Invoke(data[index]);
+                                blockResult = innerAdditionOperation.Add(blockResult, aux);
+                            }
+
+                            blockResult = innerIntegerDivisionFunction.Invoke(blockResult, blockZise);
+                            result = innerAdditionOperation.Add(result, blockResult);
+                            index = nextIndex;
+                            nextIndex += blockZise;
+                        }
+
+                        // Tratamento do último bloco
+                        blockResult = innerDirectFunction.Invoke(data[index]);
+                        for (; index < listCount; ++index)
+                        {
+                            var aux = innerDirectFunction.Invoke(data[index]);
+                            blockResult = innerAdditionOperation.Add(blockResult, aux);
+                        }
+
+                        var blocksNumber = listCount / blockZise;
+                        var count = listCount - index;
+                        if (count == blockZise)
+                        {
+                            // O resultado é igual à média das médias
+                            blockResult = innerIntegerDivisionFunction.Invoke(blockResult, blockZise);
+                            result = innerAdditionOperation.Add(result, blockResult);
+                            result = innerIntegerDivisionFunction.Invoke(result, blocksNumber);
+                            result = innerInverseFunction.Invoke(result);
+                            return result;
+                        }
+                        else
+                        {
+                            // O resultado é igual à média ponderada dos primeiros blocos com o último
+                            var weight = index / (double)listCount;
+                            result = weightMultiplicationFunction.Invoke(weight, result);
+                            blockResult = innerIntegerDivisionFunction.Invoke(blockResult, listCount);
+                            result = innerAdditionOperation.Add(result, blockResult);
+                            result = innerInverseFunction.Invoke(result);
+                            return result;
+                        }
+                    }
+                    else
+                    {
+                        // Retornar apneas a média do primeiro bloco
+                        var result = innerDirectFunction.Invoke(data[0]);
+                        for (int i = 1; i < listCount; ++i)
+                        {
+                            var aux = innerDirectFunction.Invoke(data[i]);
+                            result = innerAdditionOperation.Add(result, aux);
+                        }
+
+                        result = innerIntegerDivisionFunction.Invoke(result, listCount);
+                        result = innerInverseFunction.Invoke(result);
+                        return result;
+                    }
                 }
             }
         }

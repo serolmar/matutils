@@ -21,7 +21,7 @@
         /// <summary>
         /// Mantém a lista dos elementos.
         /// </summary>
-        private List<Tuple<int, int, MutableTuple<CoeffType>>> elements;
+        private List<MutableTuple<int, int, MutableTuple<CoeffType>>> elements;
 
         /// <summary>
         /// O comparador que permite averiguara igualdade com o coeficiente por defeito.
@@ -46,7 +46,7 @@
         {
             this.defaultValue = default(CoeffType);
             this.comparer = EqualityComparer<CoeffType>.Default;
-            this.elements = new List<Tuple<int, int, MutableTuple<CoeffType>>>();
+            this.elements = new List<MutableTuple<int, int, MutableTuple<CoeffType>>>();
         }
 
         /// <summary>
@@ -203,7 +203,7 @@
                         if (!this.comparer.Equals(value, this.defaultValue))
                         {
                             this.elements.Add(
-                                    Tuple.Create(line, column, MutableTuple<CoeffType>.Create(value)));
+                                    MutableTuple.Create(line, column, MutableTuple<CoeffType>.Create(value)));
                         }
                     }
                     else
@@ -229,7 +229,7 @@
                                 {
                                     this.elements.Insert(
                                         index,
-                                        Tuple.Create(line, column, MutableTuple<CoeffType>.Create(value)));
+                                        MutableTuple.Create(line, column, MutableTuple<CoeffType>.Create(value)));
                                 }
                             }
                         }
@@ -238,7 +238,7 @@
                             if (!this.comparer.Equals(value, this.defaultValue))
                             {
                                 this.elements.Add(
-                                    Tuple.Create(line, column, MutableTuple<CoeffType>.Create(value)));
+                                    MutableTuple.Create(line, column, MutableTuple<CoeffType>.Create(value)));
                             }
                         }
                     }
@@ -421,7 +421,66 @@
         /// <param name="j">A segunda linha a ser trocada.</param>
         public void SwapLines(int i, int j)
         {
-            throw new NotImplementedException();
+            if (i < 0 || i >= this.numberOfLines)
+            {
+                throw new ArgumentOutOfRangeException("i");
+            }
+            else if (j < 0 || j >= this.numberOfLines)
+            {
+                throw new ArgumentOutOfRangeException("j");
+            }
+            else
+            {
+                var first = i;
+                var second = j;
+                if (j < i)
+                {
+                    first = j;
+                    second = i;
+                }
+
+                var elementsCount = this.elements.Count;
+                var firstLine = this.FindBothPositions(first, 0, elementsCount);
+                var secondLine = this.FindBothPositions(second, firstLine.Item2, elementsCount);
+                var k = firstLine.Item1;
+                var n = firstLine.Item2;
+                var l = secondLine.Item1;
+                var m = secondLine.Item2;
+                while (k < n && l < m)
+                {
+                    var firstCurrentValue = this.elements[k];
+                    var secondCurrentValue = this.elements[l];
+                    var firstColumCoord = firstCurrentValue.Item2;
+                    var firstColumnValue = firstCurrentValue.Item3.Item1;
+                    firstCurrentValue.Item2 = secondCurrentValue.Item2;
+                    firstCurrentValue.Item3.Item1 = secondCurrentValue.Item3.Item1;
+                    secondCurrentValue.Item2 = firstColumCoord;
+                    secondCurrentValue.Item3.Item1 = firstColumnValue;
+                    ++k;
+                    ++l;
+                }
+
+                // Remove da primeira linha e coloca na segunda
+                while (k < n)
+                {
+                    var firstCurrentValue = this.elements[k];
+                    this.elements.RemoveAt(k);
+                    --n;
+                    --l;
+                    firstCurrentValue.Item1 = second;
+                    this.elements.Insert(l, firstCurrentValue);
+                }
+
+                // Remove da segunda linha e coloca na primeira
+                while (l < m)
+                {
+                    var secondCurrentValue = this.elements[l];
+                    this.elements.RemoveAt(l);
+                    secondCurrentValue.Item2 = first;
+                    this.elements.Insert(k, secondCurrentValue);
+                    ++k;
+                }
+            }
         }
 
         /// <summary>
@@ -431,7 +490,36 @@
         /// <param name="j">A segunda coluna a ser trocada.</param>
         public void SwapColumns(int i, int j)
         {
-            throw new NotImplementedException();
+            if (i < 0 || i >= this.numberOfLines)
+            {
+                throw new ArgumentOutOfRangeException("i");
+            }
+            else if (j < 0 || j >= this.numberOfLines)
+            {
+                throw new ArgumentOutOfRangeException("j");
+            }
+            else
+            {
+                var first = i;
+                var second = j;
+                if (j < i)
+                {
+                    first = j;
+                    second = i;
+                }
+
+                var firstElement = this.elements[0];
+                var firstLineNumber = firstElement.Item1;
+                var firstLineIndex = 0;
+
+                // O número de elementos associados a uma linha é limitado pelo número de colunas
+                var lastLineIndex = this.FindGreatestPosition(
+                    firstLineNumber,
+                    firstLineIndex,
+                    this.numberOfColumns);
+
+                throw new NotImplementedException();
+            }
         }
 
         /// <summary>
@@ -472,6 +560,7 @@
                                 if (this.comparer.Equals(this.defaultValue, result))
                                 {
                                     this.elements.RemoveAt(currentIndex);
+                                    --end;
                                 }
                                 else
                                 {
@@ -493,7 +582,7 @@
                                 {
                                     this.elements.Insert(
                                         currentIndex,
-                                        Tuple.Create(line, column, MutableTuple.Create(defaultMultiplied)));
+                                        MutableTuple.Create(line, column, MutableTuple.Create(defaultMultiplied)));
                                     ++column;
                                     ++currentIndex;
                                     ++end;
@@ -503,6 +592,7 @@
                                 if (this.comparer.Equals(this.defaultValue, result))
                                 {
                                     this.elements.RemoveAt(currentIndex);
+                                    --end;
                                 }
                                 else
                                 {
@@ -518,7 +608,7 @@
                             {
                                 this.elements.Insert(
                                         currentIndex,
-                                        Tuple.Create(line, column, MutableTuple.Create(defaultMultiplied)));
+                                        MutableTuple.Create(line, column, MutableTuple.Create(defaultMultiplied)));
                             }
                         }
                     }
@@ -531,7 +621,7 @@
                             // O valor obtido terá de ser adicionado para todas as colunas
                             for (int i = 0; i < this.numberOfColumns; ++i)
                             {
-                                this.elements.Add(Tuple.Create(
+                                this.elements.Add(MutableTuple.Create(
                                     line,
                                     i,
                                     MutableTuple.Create(multiple)));
@@ -565,9 +655,410 @@
             {
                 throw new ArgumentOutOfRangeException("j");
             }
+            else if (i == j)
+            {
+                var scalar = ring.Add(a, b);
+                this.ScalarLineMultiplication(i, scalar, ring);
+            }
             else
             {
+                var elementsCount = this.elements.Count;
+                if (elementsCount > 0)
+                {
+                    var firstValues = default(Tuple<int, int>);
+                    var secondValues = default(Tuple<int, int>);
+                    if (i < j)
+                    {
+                        // A linha a substituir é anterior à linha a ser combinada
+                        firstValues = this.FindBothPositions(i, 0, elementsCount);
+                        secondValues = this.FindBothPositions(j, firstValues.Item2, elementsCount);
+                    }
+                    else
+                    {
+                        // A linha a substituir é posterior à linha a ser combinada
+                        secondValues = this.FindBothPositions(j, 0, elementsCount);
+                        firstValues = this.FindBothPositions(i, secondValues.Item2, elementsCount);
+                    }
 
+                    // Se a combinação de valores por defeito for um valor por defeito, o cálculo simplifica-se
+                    var firstScalar = ring.Multiply(this.defaultValue, a);
+                    var secondScalar = ring.Multiply(this.defaultValue, b);
+                    var additionValue = ring.Add(firstScalar, secondScalar);
+                    if (this.comparer.Equals(additionValue, this.defaultValue))
+                    {
+                        // Neste caso os valores por defeito são ignorados
+                        var k = firstValues.Item1;
+                        var n = firstValues.Item2;
+                        var l = secondValues.Item1;
+                        var m = secondValues.Item2;
+
+                        while (k < n && l < m)
+                        {
+                            var currentFirst = this.elements[k];
+                            var currentSecond = this.elements[l];
+                            if (currentFirst.Item2 < currentSecond.Item2)
+                            {
+                                var secondCurrentScalar = ring.Multiply(
+                                    b,
+                                    currentSecond.Item3.Item1);
+                                var currentAddition = ring.Add(
+                                    firstScalar,
+                                    secondCurrentScalar);
+                                if (!this.comparer.Equals(this.defaultValue, additionValue))
+                                {
+                                    // A soma não consiste no valor por defeito
+                                    this.elements.Insert(
+                                        k,
+                                        MutableTuple.Create(i, currentSecond.Item2, MutableTuple.Create(currentAddition)));
+
+                                    // Como um elemento foi inserido, todos os índices terão de ser alterados
+                                    ++k;
+                                    ++n;
+                                    ++l;
+                                    ++m;
+                                }
+
+                                ++l;
+                            }
+                            else if (currentFirst.Item2 == currentSecond.Item2)
+                            {
+                                var firstCurrentScalar = ring.Multiply(
+                                    a,
+                                    currentFirst.Item3.Item1);
+                                var secondCurrentScalar = ring.Multiply(
+                                    b,
+                                    currentSecond.Item3.Item1);
+                                var currentAddition = ring.Add(
+                                    firstCurrentScalar,
+                                    secondCurrentScalar);
+                                if (this.comparer.Equals(
+                                    currentAddition,
+                                    this.defaultValue))
+                                {
+                                    // É marcado o item para remoção
+                                    this.elements.RemoveAt(k);
+                                    --k;
+                                    --l;
+                                    --m;
+                                    --n;
+                                }
+                                else
+                                {
+                                    currentFirst.Item3.Item1 = additionValue;
+                                }
+                            }
+                            else
+                            {
+                                var firstCurrentScalar = ring.Multiply(
+                                    a,
+                                    currentFirst.Item3.Item1);
+                                var currentAddition = ring.Add(
+                                    firstCurrentScalar,
+                                    this.defaultValue);
+                                if (this.comparer.Equals(currentAddition, this.defaultValue))
+                                {
+                                    this.elements.RemoveAt(k);
+                                    --k;
+                                    --l;
+                                    --m;
+                                    --n;
+                                }
+                                else
+                                {
+                                    currentFirst.Item3.Item1 = currentAddition;
+                                }
+
+                                ++k;
+                            }
+                        }
+
+                        // Continuação para os termos restantes
+                        while (k < n)
+                        {
+                            var currentFirst = this.elements[k];
+                            var firstCurrentScalar = ring.Multiply(
+                                       a,
+                                       currentFirst.Item3.Item1);
+                            var currentAddition = ring.Add(
+                                firstCurrentScalar,
+                                this.defaultValue);
+                            if (this.comparer.Equals(currentAddition, this.defaultValue))
+                            {
+                                this.elements.RemoveAt(k);
+                                --k;
+                                --l;
+                                --m;
+                                --n;
+                            }
+                            else
+                            {
+                                currentFirst.Item3.Item1 = currentAddition;
+                            }
+
+                            ++k;
+                        }
+
+                        while (l < m)
+                        {
+                            var currentSecond = this.elements[l];
+                            var secondCurrentScalar = ring.Multiply(
+                                       b,
+                                       currentSecond.Item3.Item1);
+                            var currentAddition = ring.Add(
+                                firstScalar,
+                                secondCurrentScalar);
+                            if (!this.comparer.Equals(this.defaultValue, additionValue))
+                            {
+                                // A soma não consiste no valor por defeito
+                                this.elements.Insert(
+                                    k,
+                                    MutableTuple.Create(i, currentSecond.Item2, MutableTuple.Create(currentAddition)));
+
+                                // Como um elemento foi inserido, todos os índices terão de ser alterados
+                                ++k;
+                                ++n;
+                                ++l;
+                                ++m;
+                            }
+
+                            ++l;
+                        }
+                    }
+                    else
+                    {
+                        // Neste caso os valores por defeito não são ignorados
+                        var k = firstValues.Item1;
+                        var n = firstValues.Item2;
+                        var l = secondValues.Item1;
+                        var m = secondValues.Item2;
+
+                        while (k < n && l < m)
+                        {
+                            var currentFirst = this.elements[k];
+                            var currentSecond = this.elements[l];
+                            if (currentFirst.Item2 < currentSecond.Item2)
+                            {
+                                for (int aux = currentFirst.Item2 + 1; aux < currentSecond.Item2; ++aux)
+                                {
+                                    // A soma não consiste no valor por defeito
+                                    this.elements.Insert(
+                                        k,
+                                        MutableTuple.Create(i, aux, MutableTuple.Create(additionValue)));
+
+                                    // Como um elemento foi inserido, todos os índices terão de ser alterados
+                                    ++k;
+                                    ++n;
+                                    ++l;
+                                    ++m;
+                                }
+
+                                var secondCurrentScalar = ring.Multiply(
+                                    b,
+                                    currentSecond.Item3.Item1);
+                                var currentAddition = ring.Add(
+                                    firstScalar,
+                                    secondCurrentScalar);
+                                if (!this.comparer.Equals(this.defaultValue, additionValue))
+                                {
+                                    // A soma não consiste no valor por defeito
+                                    this.elements.Insert(
+                                        k,
+                                        MutableTuple.Create(i, currentSecond.Item2, MutableTuple.Create(currentAddition)));
+
+                                    // Como um elemento foi inserido, todos os índices terão de ser alterados
+                                    ++k;
+                                    ++n;
+                                    ++l;
+                                    ++m;
+                                }
+
+                                ++l;
+                            }
+                            else if (currentFirst.Item2 == currentSecond.Item2)
+                            {
+                                var firstCurrentScalar = ring.Multiply(
+                                    a,
+                                    currentFirst.Item3.Item1);
+                                var secondCurrentScalar = ring.Multiply(
+                                    b,
+                                    currentSecond.Item3.Item1);
+                                var currentAddition = ring.Add(
+                                    firstCurrentScalar,
+                                    secondCurrentScalar);
+                                if (this.comparer.Equals(
+                                    currentAddition,
+                                    this.defaultValue))
+                                {
+                                    // É marcado o item para remoção
+                                    this.elements.RemoveAt(k);
+                                    --k;
+                                    --l;
+                                    --m;
+                                    --n;
+                                }
+                                else
+                                {
+                                    currentFirst.Item3.Item1 = additionValue;
+                                }
+                            }
+                            else
+                            {
+                                for (int aux = currentSecond.Item2 + 1; aux < currentFirst.Item2; ++aux)
+                                {
+                                    // A soma não consiste no valor por defeito
+                                    this.elements.Insert(
+                                        k,
+                                        MutableTuple.Create(i, aux, MutableTuple.Create(additionValue)));
+
+                                    // Como um elemento foi inserido, todos os índices terão de ser alterados
+                                    ++k;
+                                    ++n;
+                                    ++l;
+                                    ++m;
+                                }
+
+                                var firstCurrentScalar = ring.Multiply(
+                                    a,
+                                    currentFirst.Item3.Item1);
+                                var currentAddition = ring.Add(
+                                    firstCurrentScalar,
+                                    this.defaultValue);
+                                if (this.comparer.Equals(currentAddition, this.defaultValue))
+                                {
+                                    this.elements.RemoveAt(k);
+                                    --k;
+                                    --l;
+                                    --m;
+                                    --n;
+                                }
+                                else
+                                {
+                                    currentFirst.Item3.Item1 = currentAddition;
+                                }
+
+                                ++k;
+                            }
+                        }
+
+                        // Continuação para os termos restantes
+                        while (k < n)
+                        {
+                            var currentFirst = this.elements[k];
+                            for (int aux = m; aux < currentFirst.Item2; ++aux)
+                            {
+                                // A soma não consiste no valor por defeito
+                                this.elements.Insert(
+                                    k,
+                                    MutableTuple.Create(i, aux, MutableTuple.Create(additionValue)));
+
+                                // Como um elemento foi inserido, todos os índices terão de ser alterados
+                                ++k;
+                                ++n;
+                                ++l;
+                                ++m;
+                            }
+
+                            var firstCurrentScalar = ring.Multiply(
+                                       a,
+                                       currentFirst.Item3.Item1);
+                            var currentAddition = ring.Add(
+                                firstCurrentScalar,
+                                this.defaultValue);
+                            if (this.comparer.Equals(currentAddition, this.defaultValue))
+                            {
+                                this.elements.RemoveAt(k);
+                                --l;
+                                --m;
+                                --n;
+                            }
+                            else
+                            {
+                                currentFirst.Item3.Item1 = currentAddition;
+                                ++k;
+                            }
+                        }
+
+                        while (l < m)
+                        {
+                            var currentSecond = this.elements[l];
+                            for (int aux = n; aux < currentSecond.Item2; ++aux)
+                            {
+                                // A soma não consiste no valor por defeito
+                                this.elements.Insert(
+                                    k,
+                                    MutableTuple.Create(i, aux, MutableTuple.Create(additionValue)));
+
+                                // Como um elemento foi inserido, todos os índices terão de ser alterados
+                                ++k;
+                                ++n;
+                                ++l;
+                                ++m;
+                            }
+
+                            var secondCurrentScalar = ring.Multiply(
+                                       b,
+                                       currentSecond.Item3.Item1);
+                            var currentAddition = ring.Add(
+                                firstScalar,
+                                secondCurrentScalar);
+                            if (!this.comparer.Equals(this.defaultValue, additionValue))
+                            {
+                                // A soma não consiste no valor por defeito
+                                this.elements.Insert(
+                                    k,
+                                    MutableTuple.Create(i, currentSecond.Item2, MutableTuple.Create(currentAddition)));
+
+                                // Como um elemento foi inserido, todos os índices terão de ser alterados
+                                ++k;
+                                ++n;
+                                ++l;
+                                ++m;
+                            }
+
+                            ++l;
+                        }
+
+                        if (m <= n)
+                        {
+                            for (int aux = k; aux < this.numberOfColumns; ++aux)
+                            {
+                                // A soma não consiste no valor por defeito
+                                this.elements.Insert(
+                                    k,
+                                    MutableTuple.Create(i, aux, MutableTuple.Create(additionValue)));
+                                ++k;
+                            }
+                        }
+                        else
+                        {
+                            for (int aux = l; aux < this.numberOfColumns; ++aux)
+                            {
+                                // A soma não consiste no valor por defeito
+                                this.elements.Insert(
+                                    k,
+                                    MutableTuple.Create(i, aux, MutableTuple.Create(additionValue)));
+                                ++k;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    var firstScalar = ring.Multiply(this.defaultValue, a);
+                    var secondScalar = ring.Multiply(this.defaultValue, b);
+                    var additionValue = ring.Add(firstScalar, secondScalar);
+                    if (!this.comparer.Equals(additionValue, this.defaultValue))
+                    {
+                        // O valor obtido terá de ser adicionado para todas as colunas
+                        for (int k = 0; k < this.numberOfColumns; ++k)
+                        {
+                            this.elements.Add(MutableTuple.Create(
+                                i,
+                                k,
+                                MutableTuple.Create(additionValue)));
+                        }
+                    }
+                }
             }
         }
 
@@ -713,8 +1204,8 @@
             while (innerLow < innerHigh)
             {
                 int sum = innerHigh + innerLow;
-                int intermediaryIndex = sum / 2;
-                if (sum % 2 == 0)
+                int intermediaryIndex = sum >> 2;
+                if ((sum & 1) == 0)
                 {
                     if (this.CompareLine(line, this.elements[intermediaryIndex]) <= 0)
                     {
@@ -850,7 +1341,7 @@
             var lineComparision = this.CompareLine(line, current);
             if (lineComparision > 0)
             {
-                return Tuple.Create(end, end);
+                return MutableTuple.Create(end, end);
             }
             else if (lineComparision == 0)
             {
@@ -865,7 +1356,7 @@
                     low = this.AuxiliaryFindLowestPosition(line, start, high);
                 }
 
-                return Tuple.Create(low, high);
+                return MutableTuple.Create(low, high);
             }
             else
             {
@@ -873,13 +1364,13 @@
                 lineComparision = this.CompareLine(line, current);
                 if (lineComparision < 0)
                 {
-                    return Tuple.Create(start, start);
+                    return MutableTuple.Create(start, start);
                 }
                 else if (lineComparision == 0)
                 {
                     var low = start;
                     var high = this.AuxiliaryFindGreatestPosition(line, start, end - 1);
-                    return Tuple.Create(low, high);
+                    return MutableTuple.Create(low, high);
                 }
                 else
                 {
@@ -907,7 +1398,7 @@
                                 this.CompareLine(line, this.elements[intermediaryIndex + 1]) < 0)
                             {
                                 var result = intermediaryIndex + 1;
-                                return Tuple.Create(result, result);
+                                return MutableTuple.Create(result, result);
                             }
                             else if (
                                 this.CompareLine(line, this.elements[intermediaryIndex]) == 0)
@@ -915,7 +1406,7 @@
                                 // Um elemento foi encontrado.
                                 var low = this.AuxiliaryFindLowestPosition(line, auxLow, intermediaryIndex);
                                 var high = this.AuxiliaryFindGreatestPosition(line, intermediaryIndex, auxHigh);
-                                return Tuple.Create(low, high);
+                                return MutableTuple.Create(low, high);
                             }
                             else if (this.CompareLine(line, this.elements[intermediaryIndex]) < 0)
                             {
@@ -928,9 +1419,21 @@
                         }
                     }
 
-                    return Tuple.Create(auxLow, auxHigh);
+                    return MutableTuple.Create(auxLow, auxHigh);
                 }
             }
+        }
+
+        /// <summary>
+        /// Permite determinar a posição da coluna especificada.
+        /// </summary>
+        /// <param name="column">A coluna.</param>
+        /// <param name="start">O índice a partir do qual se efectua a pesquisa.</param>
+        /// <param name="end">O índice até ao qual é efectuada a pesquisa.</param>
+        /// <returns>O índice onde se encontra a coluna.</returns>
+        private int FindColumn(int column, int start, int end)
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>
