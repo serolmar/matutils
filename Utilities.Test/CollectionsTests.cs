@@ -8,6 +8,9 @@
     using Utilities;
     using Utilities.Collections;
 
+    /// <summary>
+    /// Testa a classe de inserção de elementos ordenados.
+    /// </summary>
     [TestClass]
     public class InsertionSortedColletionTest
     {
@@ -197,7 +200,7 @@
         [Description("Tests the count less than function.")]
         public void InsertionSortedCollection_CountLessThanTest()
         {
-            var insertionValues = new[] { 4, 2, 1, 6, 3, 5, 7, 4, 6, 0, 0, 8, 9, 8, 6, 7};
+            var insertionValues = new[] { 4, 2, 1, 6, 3, 5, 7, 4, 6, 0, 0, 8, 9, 8, 6, 7, 13, 14 };
             var comparer = Comparer<int>.Default;
             var target = new InsertionSortedCollection<int>(comparer, false);
             for (int i = 0; i < insertionValues.Length; ++i)
@@ -211,6 +214,12 @@
                 var actual = target.CountLessThan(i);
                 Assert.AreEqual(counts[i], actual);
             }
+
+            var auxActual = target.CountLessThan(-1);
+            Assert.AreEqual(0, auxActual);
+
+            auxActual = target.CountLessThan(11);
+            Assert.AreEqual(16, auxActual);
         }
 
         /// <summary>
@@ -261,6 +270,198 @@
                     previous = current;
                 }
             }
+        }
+    }
+
+    /// <summary>
+    /// Testa a classe que permite representar uma sequência de inteiros.
+    /// </summary>
+    [TestClass]
+    public class IntegerSequenceTest
+    {
+        /// <summary>
+        /// Testa a função que permite adicionar elementos à colecção.
+        /// </summary>
+        [Description("Tests the append function.")]
+        [TestMethod]
+        public void IntegerSequence_AddTest()
+        {
+            var elements = new int[] { 2, 3, 5, 1, 1, 0, 1, 9, 7, 8, 6, 6, 4 };
+            var expected = new int[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+            var target = new IntegerSequence();
+            for (int i = 0; i < elements.Length; ++i)
+            {
+                target.Add(elements[i]);
+                target.AssertIntegrity();
+            }
+
+            Assert.AreEqual(expected.Length, target.Count);
+            for (int i = 0; i < expected.Length; ++i)
+            {
+                Assert.AreEqual(expected[i], target[i]);
+            }
+
+            var count = 5;
+            target = new IntegerSequence();
+            for (int i = 0; i < count; ++i)
+            {
+                target.Add(i);
+                target.AssertIntegrity();
+                target.Add(i);
+                target.AssertIntegrity();
+            }
+
+            Assert.AreEqual(count, target.Count);
+        }
+
+        /// <summary>
+        /// Testa a função que permite adicionar elementos à colecção segundo intervalos.
+        /// </summary>
+        [Description("Tests the append range function.")]
+        [TestMethod]
+        public void IntegerSequence_AddRangeTest()
+        {
+            var target = new IntegerSequence();
+            target.Add(1, 5);
+            Assert.AreEqual(5, target.Count);
+            target.AssertIntegrity();
+            target.Add(2, 3);
+            Assert.AreEqual(5, target.Count);
+            target.AssertIntegrity();
+            target.Add(0, 0);
+            Assert.AreEqual(6, target.Count);
+            target.AssertIntegrity();
+            target.Add(1, 9);
+            Assert.AreEqual(10, target.Count);
+            target.AssertIntegrity();
+
+            target.Clear();
+            target.Add(0, 4);
+            target.AssertIntegrity();
+            target.Add(10, 14);
+            target.AssertIntegrity();
+            Assert.AreEqual(10, target.Count);
+
+            target.Clear();
+            target.Add(0, 4);
+            target.AssertIntegrity();
+            target.Add(5, 9);
+            target.AssertIntegrity();
+            Assert.AreEqual(10, target.Count);
+        }
+
+        /// <summary>
+        /// Testa a função que permite remover elementos da colecção.
+        /// </summary>
+        [Description("Tests the remove function.")]
+        [TestMethod]
+        public void IntegerSequence_RemoveTest()
+        {
+            var target = new IntegerSequence();
+            var count = 10;
+            target.Add(0, count - 1);
+            Assert.AreEqual(count, target.Count);
+            target.AssertIntegrity();
+            target.Remove(count + 1);
+            Assert.AreEqual(count, target.Count);
+
+            var expected = count - 1;
+            for (int i = 0; i < count; ++i)
+            {
+                target.Remove((i + 5) % count);
+                Assert.AreEqual(expected--, target.Count);
+                target.AssertIntegrity();
+            }
+        }
+
+        /// <summary>
+        /// Testa a função que permite remover elementos da colecção segundo intervalos.
+        /// </summary>
+        [Description("Tests the remove range function.")]
+        [TestMethod]
+        public void IntegerSequence_RemoveRangeTest()
+        {
+            var target = new IntegerSequence();
+            target.Add(0, 9);
+            Assert.AreEqual(10, target.Count);
+            target.AssertIntegrity();
+            target.Remove(5, 13);
+            Assert.AreEqual(5, target.Count);
+            target.AssertIntegrity();
+            target.Remove(2, 3);
+            Assert.AreEqual(3, target.Count);
+            target.AssertIntegrity();
+            target.Remove(-1, 5);
+            Assert.AreEqual(0, target.Count);
+            target.AssertIntegrity();
+
+            target.Add(0, 4);
+            target.Add(10, 14);
+            Assert.AreEqual(10, target.Count);
+            target.Remove(4, 10);
+            Assert.AreEqual(8, target.Count);
+            target.AssertIntegrity();
+            target.Remove(4, 10);
+            Assert.AreEqual(8, target.Count);
+            target.AssertIntegrity();
+
+            target.Clear();
+            target.Add(1, 2);
+            target.Add(4, 5);
+            target.Remove(1, 5);
+            Assert.AreEqual(0, target.Count);
+            target.AssertIntegrity();
+
+            target.Clear();
+            target.Add(1, 2);
+            target.Add(4, 5);
+            target.Remove(0, 6);
+            Assert.AreEqual(0, target.Count);
+            target.AssertIntegrity();
+        }
+
+        /// <summary>
+        /// Testa a função que averiguas e um determinado item está contido na colecção.
+        /// </summary>
+        [Description("Tests the contains function.")]
+        [TestMethod]
+        public void IntegerSequence_ContainsTest()
+        {
+            var target = new IntegerSequence();
+            target.Add(0, 1);
+            target.Add(4, 5);
+            target.Add(8, 9);
+            Assert.IsFalse(target.Contains(-1));
+            Assert.IsTrue(target.Contains(0));
+            Assert.IsTrue(target.Contains(1));
+            Assert.IsFalse(target.Contains(2));
+            Assert.IsFalse(target.Contains(3));
+            Assert.IsTrue(target.Contains(4));
+            Assert.IsTrue(target.Contains(5));
+            Assert.IsFalse(target.Contains(6));
+            Assert.IsFalse(target.Contains(7));
+            Assert.IsTrue(target.Contains(8));
+            Assert.IsTrue(target.Contains(9));
+            Assert.IsFalse(target.Contains(10));
+        }
+
+        /// <summary>
+        /// Testa a função que averiguar se um determinado intervalo está contido na colecção.
+        /// </summary>
+        [Description("Tests the range contains function.")]
+        [TestMethod]
+        public void IntegerSequence_ContainsRangeTest()
+        {
+            var target = new IntegerSequence();
+            target.Add(0, 4);
+            target.Add(10, 13);
+
+            Assert.IsTrue(target.Contains(0, 4));
+            Assert.IsTrue(target.Contains(10, 13));
+            Assert.IsTrue(target.Contains(2, 3));
+            Assert.IsFalse(target.Contains(-1, 5));
+            Assert.IsFalse(target.Contains(2, 6));
+            Assert.IsFalse(target.Contains(5, 9));
         }
     }
 }

@@ -508,17 +508,73 @@
                     second = i;
                 }
 
-                var firstElement = this.elements[0];
-                var firstLineNumber = firstElement.Item1;
+                var length = this.elements.Count;
                 var firstLineIndex = 0;
+                while (firstLineIndex < length)
+                {
+                    var firstElement = this.elements[firstLineIndex];
+                    var firstLineNumber = firstElement.Item1;
 
-                // O número de elementos associados a uma linha é limitado pelo número de colunas
-                var lastLineIndex = this.FindGreatestPosition(
-                    firstLineNumber,
-                    firstLineIndex,
-                    this.numberOfColumns);
+                    // O número de elementos associados a uma linha é limitado pelo número de colunas
+                    var lastLineIndexLimit = firstLineIndex + this.numberOfColumns;
+                    var lastLineIndex = this.FindGreatestPosition(
+                        firstLineNumber,
+                        firstLineIndex,
+                        Math.Min(length, lastLineIndexLimit));
 
-                throw new NotImplementedException();
+                    var firstColumnIndex = this.FindColumn(first, firstLineIndex, lastLineIndex);
+
+                    // Note-se que a segunda coluna vem depois da primeira
+                    if (firstColumnIndex < lastLineIndexLimit)
+                    {
+                        var secondColumnIndex = this.FindColumn(second, firstColumnIndex, lastLineIndex);
+                        if (secondColumnIndex < lastLineIndexLimit)
+                        {
+                            // Ambas as colunas se encontram dentro dos limites
+                            var firstColumnValue = this.elements[firstColumnIndex];
+                            var secondColumnValue = this.elements[secondColumnIndex];
+
+                            if (firstColumnValue.Item2 == first)
+                            {
+                                if (secondColumnValue.Item2 == second)
+                                {
+                                    // Ambas as colunas contêm valores
+                                    var secondValue = secondColumnValue.Item3.Item1;
+                                    secondColumnValue.Item3.Item1 = firstColumnValue.Item3.Item1;
+                                    firstColumnValue.Item3.Item1 = secondValue;
+                                    firstColumnValue.Item2 = second;
+                                    secondColumnValue.Item2 = first;
+                                }
+                                else
+                                {
+                                    // Apenas a primeira coluna contém valores
+                                    this.elements.Insert(secondColumnIndex, firstColumnValue);
+                                    this.elements.RemoveAt(firstColumnIndex);
+                                    firstColumnValue.Item2 = second;
+                                }
+                            }
+                            else if(secondColumnValue.Item2 == second)
+                            {
+                                this.elements.RemoveAt(secondColumnIndex);
+                                this.elements.Insert(firstColumnIndex, secondColumnValue);
+                                secondColumnValue.Item2 = first;
+                            }
+                        }
+                        else
+                        {
+                            // A primeira coluna encontra-se dentro dos limites mas a segunda não
+                            var firstColumnValue = this.elements[firstColumnIndex];
+                            if (firstColumnValue.Item2 == first)
+                            {
+                                this.elements.Insert(secondColumnIndex, firstColumnValue);
+                                this.elements.RemoveAt(firstColumnIndex);
+                                firstColumnValue.Item2 = second;
+                            }
+                        }
+                    }
+
+                    firstLineIndex = lastLineIndex;
+                }
             }
         }
 
@@ -1228,7 +1284,7 @@
                         this.CompareLine(line, this.elements[intermediaryIndex]) == 0 &&
                         this.CompareLine(line, this.elements[intermediaryIndex + 1]) < 0)
                     {
-                        return intermediaryIndex;
+                        high = intermediaryIndex;
                     }
                     else if (this.CompareLine(line, this.elements[intermediaryIndex]) > 0)
                     {
@@ -1433,7 +1489,54 @@
         /// <returns>O índice onde se encontra a coluna.</returns>
         private int FindColumn(int column, int start, int end)
         {
-            throw new NotImplementedException();
+            int low = start;
+            int high = end - 1;
+            while (low < high)
+            {
+                int sum = high + low;
+                int intermediaryIndex = sum / 2;
+                if ((sum & 1) == 0)
+                {
+                    var intermediaryElement = this.elements[intermediaryIndex].Item2;
+                    if (column == intermediaryElement)
+                    {
+                        return intermediaryIndex;
+                    }
+                    else if (column < intermediaryElement)
+                    {
+                        high = intermediaryIndex;
+                    }
+                    else
+                    {
+                        low = intermediaryIndex;
+                    }
+                }
+                else
+                {
+                    var intermediaryElement = this.elements[intermediaryIndex].Item2;
+                    var nextIntermediaryElement = this.elements[intermediaryIndex + 1].Item2;
+                    if (
+                        column > intermediaryElement &&
+                        column <= intermediaryElement)
+                    {
+                        return intermediaryIndex + 1;
+                    }
+                    else if (column == intermediaryElement)
+                    {
+                        return intermediaryIndex;
+                    }
+                    else if (column > intermediaryElement)
+                    {
+                        low = intermediaryIndex;
+                    }
+                    else
+                    {
+                        high = intermediaryIndex;
+                    }
+                }
+            }
+
+            return low;
         }
 
         /// <summary>

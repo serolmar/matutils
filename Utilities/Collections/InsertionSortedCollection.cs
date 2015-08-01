@@ -333,7 +333,7 @@
         /// <returns>Verdadeiro caso o elemento exista e falso caso contrário.</returns>
         public bool Contains(T item)
         {
-            int index = this.FindGreatestPosition(item);
+            int index = this.FindPosition(item);
             if (index >= this.elements.Count || index < 0)
             {
                 return false;
@@ -431,7 +431,22 @@
         {
             var elementsCount = this.elements.Count;
             var position = this.FindGreatestPosition(obj);
-            return elementsCount - position - 1;
+            if (elementsCount == position)
+            {
+                return 0;
+            }
+            else
+            {
+                var current = this.elements[position];
+                if (this.comparer.Compare(current, obj) == 0)
+                {
+                    return elementsCount - position - 1;
+                }
+                else
+                {
+                    return elementsCount - position;
+                }
+            }
         }
 
         /// <summary>
@@ -551,6 +566,83 @@
             for (int i = this.elements.Count - 1; i >= 0; --i)
             {
                 yield return this.elements[i];
+            }
+        }
+
+        /// <summary>
+        /// Determina o índice onde se encontra o objecto especificado ou
+        /// onde este poderá ser inserido.
+        /// </summary>
+        /// <remarks>
+        /// A função retorna ao primeiro objecto encontrado.
+        /// </remarks>
+        /// <param name="obj">O objecto.</param>
+        /// <returns>O índice.</returns>
+        private int FindPosition(T obj)
+        {
+            if (this.elements.Count == 0)
+            {
+                return 0;
+            }
+            else if (this.comparer.Compare(obj, this.elements[this.elements.Count - 1]) > 0)
+            {
+                return this.elements.Count;
+            }
+            else if (this.comparer.Compare(obj, this.elements[0]) <= 0)
+            {
+                return 0;
+            }
+            else
+            {
+                int low = 0;
+                int high = this.elements.Count - 1;
+                while (low < high)
+                {
+                    int sum = high + low;
+                    int intermediaryIndex = sum / 2;
+                    if ((sum & 1) == 0)
+                    {
+                        var intermediaryElement = this.elements[intermediaryIndex];
+                        if (this.comparer.Compare(obj, intermediaryElement) == 0)
+                        {
+                            return intermediaryIndex;
+                        }
+                        else if (this.comparer.Compare(obj, this.elements[intermediaryIndex]) < 0)
+                        {
+                            high = intermediaryIndex;
+                        }
+                        else
+                        {
+                            low = intermediaryIndex;
+                        }
+                    }
+                    else
+                    {
+                        var intermediaryElement = this.elements[intermediaryIndex];
+                        var nextIntermediaryElement = this.elements[intermediaryIndex + 1];
+                        if (
+                            this.comparer.Compare(obj, intermediaryElement) > 0 &&
+                            this.comparer.Compare(obj, nextIntermediaryElement) <= 0)
+                        {
+                            return intermediaryIndex + 1;
+                        }
+                        else if (
+                            this.comparer.Compare(obj, intermediaryElement) == 0)
+                        {
+                            return intermediaryIndex;
+                        }
+                        else if (this.comparer.Compare(obj, intermediaryElement) > 0)
+                        {
+                            low = intermediaryIndex;
+                        }
+                        else
+                        {
+                            high = intermediaryIndex;
+                        }
+                    }
+                }
+
+                return low;
             }
         }
 
@@ -676,7 +768,7 @@
                             this.comparer.Compare(objectToInsert, this.elements[intermediaryIndex]) == 0 &&
                             this.comparer.Compare(objectToInsert, this.elements[intermediaryIndex + 1]) < 0)
                         {
-                            return intermediaryIndex;
+                            high = intermediaryIndex;
                         }
                         else if (this.comparer.Compare(objectToInsert, this.elements[intermediaryIndex]) > 0)
                         {

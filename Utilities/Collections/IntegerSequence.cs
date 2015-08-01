@@ -131,22 +131,12 @@
             }
             else
             {
-                var itemClass = this.ClassifyItem(item);
-                var fromStart = this.GetStartIndexValuePair(item, itemClass);
-                var fromEnd = this.GetEndIndexValuePair(item, itemClass);
-                if (fromStart.Item1 == -1 && fromEnd.Item1 == -1)
+                var itemClass = this.ClassifyItem(item, 0);
+                if (itemClass.Item1 != itemClass.Item2)
                 {
-                    this.sequenceElements.Insert(0, Tuple.Create(fromStart.Item2, fromEnd.Item2));
-                }
-                else if (fromStart.Item1 == this.sequenceElements.Count && fromEnd.Item1 == this.sequenceElements.Count)
-                {
-                    this.sequenceElements.Add(Tuple.Create(fromStart.Item2, fromEnd.Item2));
-                }
-                else
-                {
-                    this.RemoveBetweenIndices(fromStart.Item1, fromEnd.Item1);
-                    this.sequenceElements.Insert(fromStart.Item1,
-                        Tuple.Create(fromStart.Item2, fromEnd.Item2));
+                    var fromStart = this.GetStartIndexValuePair(item, itemClass);
+                    var fromEnd = this.GetEndIndexValuePair(item, itemClass);
+                    this.ProcessAddition(fromStart, fromEnd);
                 }
             }
         }
@@ -179,24 +169,23 @@
             }
             else
             {
-                var itemClass = this.ClassifyItem(start);
-                var fromStart = this.GetStartIndexValuePair(start, itemClass);
-
-                itemClass = this.ClassifyItem(end);
-                var fromEnd = this.GetEndIndexValuePair(end, itemClass);
-                if (fromStart.Item1 == -1 && fromEnd.Item1 == -1)
+                var itemClass = this.ClassifyItem(start, 0);
+                if (itemClass.Item1 == itemClass.Item2)
                 {
-                    this.sequenceElements.Insert(0, Tuple.Create(fromStart.Item2, fromEnd.Item2));
-                }
-                else if (fromStart.Item1 == this.sequenceElements.Count && fromEnd.Item1 == this.sequenceElements.Count)
-                {
-                    this.sequenceElements.Add(Tuple.Create(fromStart.Item2, fromEnd.Item2));
+                    var endItemClass = this.ClassifyItem(end, itemClass.Item2);
+                    if (endItemClass.Item1 != endItemClass.Item2 || itemClass.Item1 != endItemClass.Item1)
+                    {
+                        var fromStart = this.GetStartIndexValuePair(start, itemClass);
+                        var fromEnd = this.GetEndIndexValuePair(end, endItemClass);
+                        this.ProcessAddition(fromStart, fromEnd);
+                    }
                 }
                 else
                 {
-                    this.RemoveBetweenIndices(fromStart.Item1, fromEnd.Item1);
-                    this.sequenceElements.Insert(fromStart.Item1,
-                        Tuple.Create(fromStart.Item2, fromEnd.Item2));
+                    var fromStart = this.GetStartIndexValuePair(start, itemClass);
+                    itemClass = this.ClassifyItem(end, itemClass.Item2);
+                    var fromEnd = this.GetEndIndexValuePair(end, itemClass);
+                    this.ProcessAddition(fromStart, fromEnd);
                 }
             }
         }
@@ -249,8 +238,44 @@
         /// <returns>Verdadeiro caso o item se encontre na colecção e falso caso contrário.</returns>
         public bool Contains(int item)
         {
-            var itemClass = this.ClassifyItem(item);
+            var itemClass = this.ClassifyItem(item, 0);
             return itemClass.Item1 == itemClass.Item2;
+        }
+
+        /// <summary>
+        /// Verifica se o intervalo está completamente contido na colecção.
+        /// </summary>
+        /// <param name="start">O valor correspondente ao início do intervalo.</param>
+        /// <param name="end">O valor correspondente ao final do intervalo.</param>
+        /// <returns>
+        /// Verdadeiro caso o intervalor esteja integralmente contido na colecção e falso caso contrário.
+        /// </returns>
+        public bool Contains(int start, int end)
+        {
+            if (end < start)
+            {
+                return false;
+            }
+            else
+            {
+                var itemClass = this.ClassifyItem(start, 0);
+                if (itemClass.Item1 == itemClass.Item2)
+                {
+                    var endItemClass = this.ClassifyItem(end, itemClass.Item2);
+                    if (endItemClass.Item1 == endItemClass.Item2)
+                    {
+                        return itemClass.Item1 == endItemClass.Item1;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
+            }
         }
 
         /// <summary>
@@ -309,7 +334,7 @@
             }
             else
             {
-                var itemClass = this.ClassifyItem(item);
+                var itemClass = this.ClassifyItem(item, 0);
                 if (itemClass.Item1 == itemClass.Item2)
                 {
                     var value = this.sequenceElements[itemClass.Item1];
@@ -342,8 +367,8 @@
             }
             else
             {
-                var startClassItem = this.ClassifyItem(startItem);
-                var endClassItem = this.ClassifyItem(endItem);
+                var startClassItem = this.ClassifyItem(startItem, 0);
+                var endClassItem = this.ClassifyItem(endItem, startClassItem.Item2);
                 if (startClassItem.Item1 == startClassItem.Item2)
                 {
                     var startValue = this.sequenceElements[startClassItem.Item1];
@@ -437,6 +462,22 @@
         }
 
         /// <summary>
+        /// Obtém um enumerador para o inverso da sequência.
+        /// </summary>
+        /// <returns>O enumerador.</returns>
+        public IEnumerator<int> GetReverseEnumerator()
+        {
+            for (int i = this.sequenceElements.Count - 1; i >= 0; --i)
+            {
+                var currentItem = this.sequenceElements[i];
+                for (int j = currentItem.Item2; j >= currentItem.Item1; --j)
+                {
+                    yield return j;
+                }
+            }
+        }
+
+        /// <summary>
         /// Obtém uma cópia da sequência actual.
         /// </summary>
         /// <returns>A cópia.</returns>
@@ -492,21 +533,58 @@
             }
         }
 
+        #region Funções de teste
+
+        /// <summary>
+        /// Assevera a integridade da colecção.
+        /// </summary>
+        internal void AssertIntegrity()
+        {
+            var elementsCount = this.sequenceElements.Count;
+            if (elementsCount > 0)
+            {
+                var previousValue = this.sequenceElements[0].Item2;
+                for (int i = 1; i < elementsCount; ++i)
+                {
+                    var current = this.sequenceElements[i];
+                    if (current.Item1 <= previousValue)
+                    {
+                        throw new Exception("There is a sequence block which last element is greater than the first item in the next block.");
+                    }
+                    else
+                    {
+                        previousValue = current.Item2;
+                    }
+                }
+            }
+        }
+
+        #endregion Funções de teste
+
+        #region Funções privadas
+
         /// <summary>
         /// Classifica o item como sendo parte de um limite ou do seu exterior.
         /// </summary>
         /// <param name="item">O item a ser classificado.</param>
+        /// <param name="startIndex">O índice de partida.</param>
         /// <returns>O par índice inferior/índice superior ao qual pertence o item.</returns>
-        private Tuple<int, int> ClassifyItem(int item)
+        private Tuple<int, int> ClassifyItem(int item, int startIndex)
         {
-            if (this.sequenceElements.Count == 0)
+            var sequenceElementsCount = this.sequenceElements.Count;
+            if (sequenceElementsCount == 0)
             {
                 return Tuple.Create(-1, 0);
             }
             else
             {
-                var firstIndex = 0;
-                var lastIndex = this.sequenceElements.Count - 1;
+                var firstIndex = startIndex;
+                if (firstIndex == sequenceElementsCount)
+                {
+                    --firstIndex;
+                }
+
+                var lastIndex = sequenceElementsCount - 1;
                 if (firstIndex != lastIndex)
                 {
                     var firstTuple = this.sequenceElements[firstIndex];
@@ -605,7 +683,7 @@
                 {
                     var firstValue = this.sequenceElements[itemClass.Item1];
                     var secondValue = this.sequenceElements[itemClass.Item2];
-                    if (startItem == firstValue.Item2 + 1)
+                    if (startItem <= firstValue.Item2 + 1)
                     {
                         return Tuple.Create(itemClass.Item1, firstValue.Item1);
                     }
@@ -660,6 +738,31 @@
                         return Tuple.Create(itemClass.Item1, endItem);
                     }
                 }
+            }
+        }
+
+        /// <summary>
+        /// Função auxiliar que permite processar a adição de elementos à colecção.
+        /// </summary>
+        /// <param name="fromStart">A informação dos valores iniciais.</param>
+        /// <param name="fromEnd">A informação dos valores finais.</param>
+        private void ProcessAddition(
+            Tuple<int, int> fromStart,
+            Tuple<int, int> fromEnd)
+        {
+            if (fromStart.Item1 == -1 && fromEnd.Item1 == -1)
+            {
+                this.sequenceElements.Insert(0, Tuple.Create(fromStart.Item2, fromEnd.Item2));
+            }
+            else if (fromStart.Item1 == this.sequenceElements.Count && fromEnd.Item1 == this.sequenceElements.Count)
+            {
+                this.sequenceElements.Add(Tuple.Create(fromStart.Item2, fromEnd.Item2));
+            }
+            else
+            {
+                this.RemoveBetweenIndices(fromStart.Item1, fromEnd.Item1);
+                this.sequenceElements.Insert(fromStart.Item1,
+                    Tuple.Create(fromStart.Item2, fromEnd.Item2));
             }
         }
 
@@ -730,5 +833,7 @@
         {
             return this.GetEnumerator();
         }
+
+        #endregion Funções privadas
     }
 }

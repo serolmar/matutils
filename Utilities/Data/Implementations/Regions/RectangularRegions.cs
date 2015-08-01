@@ -6,40 +6,40 @@
     using System.Text;
 
     /// <summary>
-    /// Representa uma região rectangular
+    /// Define uma região de células.
     /// </summary>
-    /// <typeparam name="T">O tipo de objectos que constituem as coordenadas da região rectangular.</typeparam>
-    public class RectangularRegion<T>
+    /// <typeparam name="T">O tipo de objectos que constituem as coordenadas das células.</typeparam>
+    public class MergingRegion<T> : IMergingRegion<T>
     {
+        /// <summary>
+        /// Define o comparador de elementos utilizado nos algoritmos.
+        /// </summary>
+        protected IComparer<T> comparer;
+
         /// <summary>
         /// A coordenada x do canto superior esquerdo.
         /// </summary>
-        private T topLeftX;
+        protected T topLeftX;
 
         /// <summary>
         /// A coordenada y do canto superior esquerdo.
         /// </summary>
-        private T topLeftY;
+        protected T topLeftY;
 
         /// <summary>
         /// A coordenada x do canto inferiror direito.
         /// </summary>
-        private T bottomRightX;
+        protected T bottomRightX;
 
         /// <summary>
         /// A coordenada y do canto inferior direito.
         /// </summary>
-        private T bottomRightY;
+        protected T bottomRightY;
 
         /// <summary>
-        /// Define o comparador de elementos utilizado nos algoritmos.
+        /// Instancia uma nova instância de objectos do tipo <see cref="MergingRegion{T}"/>.
         /// </summary>
-        private IComparer<T> comparer;
-
-        /// <summary>
-        /// Instancia uma nova instância de objectos do tipo <see cref="RectangularRegion{T}"/>
-        /// </summary>
-        public RectangularRegion()
+        public MergingRegion()
         {
             this.topLeftX = default(T);
             this.topLeftY = default(T);
@@ -49,13 +49,13 @@
         }
 
         /// <summary>
-        /// Instancia uma nova instância de objectos do tipo <see cref="RectangularRegion{T}"/>
+        /// Instancia uma nova instância de objectos do tipo <see cref="MergingRegion{T}"/>
         /// </summary>
         /// <param name="topLeftX">A coordenada x do canto superior esquerdo.</param>
         /// <param name="topLeftY">A coordenada y do canto superior esquerdo.</param>
         /// <param name="bottomRightX">A coordenada x do canto inferior direito.</param>
         /// <param name="bottomRightY">A coordenada y do canto inferior direito.</param>
-        public RectangularRegion(
+        public MergingRegion(
             T topLeftX,
             T topLeftY,
             T bottomRightX,
@@ -82,14 +82,14 @@
         }
 
         /// <summary>
-        /// Instancia uma nova instância de objectos do tipo <see cref="RectangularRegion{T}"/>
+        /// Instancia uma nova instância de objectos do tipo <see cref="MergingRegion{T}"/>
         /// </summary>
         /// <param name="topLeftX">A coordenada x do canto superior esquerdo.</param>
         /// <param name="topLeftY">A coordenada y do canto superior esquerdo.</param>
         /// <param name="bottomRightX">A coordenada x do canto inferior direito.</param>
         /// <param name="bottomRightY">A coordenada y do canto inferior direito.</param>
         /// <param name="comparer">O comparador responsável pela comparação das coordenadas.</param>
-        public RectangularRegion(
+        public MergingRegion(
             T topLeftX,
             T topLeftY,
             T bottomRightX,
@@ -120,6 +120,17 @@
                     this.bottomRightX = bottomRightX;
                     this.bottomRightY = bottomRightY;
                 }
+            }
+        }
+
+        /// <summary>
+        /// Obtém o comparador associado às coordenadas.
+        /// </summary>
+        public IComparer<T> Comparer
+        {
+            get
+            {
+                return this.comparer;
             }
         }
 
@@ -214,13 +225,71 @@
                 }
             }
         }
+    }
+
+    /// <summary>
+    /// Representa uma região rectangular
+    /// </summary>
+    /// <typeparam name="T">O tipo de objectos que constituem as coordenadas da região rectangular.</typeparam>
+    public class RectangularRegion<T>
+        : MergingRegion<T>, IRectangularRegion<T>
+    {
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="RectangularRegion{T}"/>
+        /// </summary>
+        public RectangularRegion()
+        {
+        }
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="RectangularRegion{T}"/>
+        /// </summary>
+        /// <param name="topLeftX">A coordenada x do canto superior esquerdo.</param>
+        /// <param name="topLeftY">A coordenada y do canto superior esquerdo.</param>
+        /// <param name="bottomRightX">A coordenada x do canto inferior direito.</param>
+        /// <param name="bottomRightY">A coordenada y do canto inferior direito.</param>
+        public RectangularRegion(
+            T topLeftX,
+            T topLeftY,
+            T bottomRightX,
+            T bottomRightY)
+            : base(
+                topLeftX,
+                topLeftY,
+                bottomRightX,
+                bottomRightY)
+        {
+        }
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="RectangularRegion{T}"/>
+        /// </summary>
+        /// <param name="topLeftX">A coordenada x do canto superior esquerdo.</param>
+        /// <param name="topLeftY">A coordenada y do canto superior esquerdo.</param>
+        /// <param name="bottomRightX">A coordenada x do canto inferior direito.</param>
+        /// <param name="bottomRightY">A coordenada y do canto inferior direito.</param>
+        /// <param name="comparer">O comparador responsável pela comparação das coordenadas.</param>
+        public RectangularRegion(
+            T topLeftX,
+            T topLeftY,
+            T bottomRightX,
+            T bottomRightY,
+            IComparer<T> comparer)
+            : base(
+                topLeftX,
+                topLeftY,
+                bottomRightX,
+                bottomRightY,
+                comparer)
+        {
+        }
 
         /// <summary>
         /// Verifica se existe sobreposição das regiões rectangulares.
         /// </summary>
         /// <param name="other">A outra região rectangular.</param>
         /// <returns>Verdadeiro caso se dê sobreposição e falso caso contrário.</returns>
-        public bool OverLaps(RectangularRegion<T> other)
+        public bool OverLaps(IMergingRegion<T> other)
         {
             if (other == null)
             {
@@ -228,47 +297,19 @@
             }
             else
             {
-                if (this.comparer.Compare(this.topLeftX, other.topLeftX) < 0)
+                if (this.comparer.Compare(this.topLeftX, other.BottomRightX) > 0 ||
+                    this.comparer.Compare(this.bottomRightX, other.TopLeftX) < 0)
                 {
-                    if (this.comparer.Compare(this.topLeftY, other.bottomRightY) <= 0)
-                    {
-                        if (this.comparer.Compare(this.bottomRightX, other.topLeftX) >= 0 &&
-                            this.comparer.Compare(this.bottomRightY, other.topLeftY) >= 0)
-                        {
-                            return true;
-                        }
-                        else
-                        {
-                            return false;
-                        }
-                    }
-                    else
-                    {
-                        return false;
-                    }
+                    return false;
                 }
-                else if (this.comparer.Compare(this.topLeftX, other.bottomRightX) <= 0)
+                else if (this.comparer.Compare(this.topLeftY, other.BottomRightY) > 0 ||
+                   this.comparer.Compare(this.bottomRightY, other.TopLeftY) < 0)
                 {
-                    if (this.comparer.Compare(this.topLeftY, other.bottomRightY) <= 0)
-                    {
-                        if (this.comparer.Compare(this.bottomRightX, other.topLeftX) >= 0 &&
-                            this.comparer.Compare(this.bottomRightY, other.topLeftY) >= 0)
-                        {
-                            return true;
-                        }
-                        else
-                        {
-                            return false;
-                        }
-                    }
-                    else
-                    {
-                        return false;
-                    }
+                    return false;
                 }
                 else
                 {
-                    return false;
+                    return true;
                 }
             }
         }
@@ -282,7 +323,7 @@
         /// </remarks>
         /// <param name="other">A região rectangular a ser intersectada.</param>
         /// <returns>O resultado da intersecção.</returns>
-        public RectangularRegion<T> Intersect(RectangularRegion<T> other)
+        public IRectangularRegion<T> Intersect(IMergingRegion<T> other)
         {
             if (other == null)
             {
@@ -290,27 +331,27 @@
             }
             else
             {
-                if (this.comparer.Compare(this.topLeftX, other.topLeftX) <= 0)
+                if (this.comparer.Compare(this.topLeftX, other.TopLeftX) <= 0)
                 {
-                    if (this.comparer.Compare(this.topLeftY, other.topLeftY) <= 0)
+                    if (this.comparer.Compare(this.topLeftY, other.TopLeftY) <= 0)
                     {
-                        if (this.comparer.Compare(this.bottomRightX, other.topLeftX) >= 0)
+                        if (this.comparer.Compare(this.bottomRightX, other.TopLeftX) >= 0)
                         {
-                            if (this.comparer.Compare(this.bottomRightY, other.topLeftY) >= 0)
+                            if (this.comparer.Compare(this.bottomRightY, other.TopLeftY) >= 0)
                             {
-                                var rectTopLeftX = other.topLeftX;
-                                var rectTopLeftY = other.topLeftY;
+                                var rectTopLeftX = other.TopLeftX;
+                                var rectTopLeftY = other.TopLeftY;
                                 var rectBottomRightX = this.bottomRightX;
                                 var rectBottomRightY = this.bottomRightY;
 
-                                if (this.comparer.Compare(this.bottomRightX, other.bottomRightX) > 0)
+                                if (this.comparer.Compare(this.bottomRightX, other.BottomRightX) > 0)
                                 {
-                                    rectBottomRightX = other.bottomRightX;
+                                    rectBottomRightX = other.BottomRightX;
                                 }
 
-                                if (this.comparer.Compare(this.bottomRightY, other.bottomRightY) > 0)
+                                if (this.comparer.Compare(this.bottomRightY, other.BottomRightY) > 0)
                                 {
-                                    rectBottomRightY = other.bottomRightY;
+                                    rectBottomRightY = other.BottomRightY;
                                 }
 
                                 return new RectangularRegion<T>(
@@ -329,21 +370,21 @@
                             return null;
                         }
                     }
-                    else if (this.comparer.Compare(this.topLeftY, other.bottomRightY) <= 0)
+                    else if (this.comparer.Compare(this.topLeftY, other.BottomRightY) <= 0)
                     {
-                        var rectTopLeftX = other.topLeftX;
+                        var rectTopLeftX = other.TopLeftX;
                         var rectTopLeftY = this.topLeftY;
                         var rectBottomRightX = this.bottomRightX;
                         var rectBottomRightY = this.bottomRightY;
 
-                        if (this.comparer.Compare(this.bottomRightX, other.bottomRightX) > 0)
+                        if (this.comparer.Compare(this.bottomRightX, other.BottomRightX) > 0)
                         {
-                            rectBottomRightX = other.bottomRightX;
+                            rectBottomRightX = other.BottomRightX;
                         }
 
-                        if (this.comparer.Compare(this.bottomRightY, other.bottomRightY) > 0)
+                        if (this.comparer.Compare(this.bottomRightY, other.BottomRightY) > 0)
                         {
-                            rectBottomRightY = other.bottomRightY;
+                            rectBottomRightY = other.BottomRightY;
                         }
 
                         return new RectangularRegion<T>(
@@ -357,25 +398,25 @@
                         return null;
                     }
                 }
-                else if (this.comparer.Compare(this.topLeftX, other.bottomRightX) <= 0)
+                else if (this.comparer.Compare(this.topLeftX, other.BottomRightX) <= 0)
                 {
-                    if (this.comparer.Compare(this.topLeftY, other.topLeftY) <= 0)
+                    if (this.comparer.Compare(this.topLeftY, other.TopLeftY) <= 0)
                     {
-                        if (this.comparer.Compare(this.bottomRightY, other.topLeftY) >= 0)
+                        if (this.comparer.Compare(this.bottomRightY, other.TopLeftY) >= 0)
                         {
                             var rectTopLeftX = this.topLeftX;
-                            var rectTopLeftY = other.topLeftY;
+                            var rectTopLeftY = other.TopLeftY;
                             var rectBottomRightX = this.bottomRightX;
                             var rectBottomRightY = this.bottomRightY;
 
-                            if (this.comparer.Compare(this.bottomRightX, other.bottomRightX) > 0)
+                            if (this.comparer.Compare(this.bottomRightX, other.BottomRightX) > 0)
                             {
-                                rectBottomRightX = other.bottomRightX;
+                                rectBottomRightX = other.BottomRightX;
                             }
 
-                            if (this.comparer.Compare(this.bottomRightY, other.bottomRightY) > 0)
+                            if (this.comparer.Compare(this.bottomRightY, other.BottomRightY) > 0)
                             {
-                                rectBottomRightY = other.bottomRightY;
+                                rectBottomRightY = other.BottomRightY;
                             }
 
                             return new RectangularRegion<T>(
@@ -389,21 +430,21 @@
                             return null;
                         }
                     }
-                    else if (this.comparer.Compare(this.topLeftY, other.bottomRightY) <= 0)
+                    else if (this.comparer.Compare(this.topLeftY, other.BottomRightY) <= 0)
                     {
                         var rectTopLeftX = this.topLeftX;
                         var rectTopLeftY = this.topLeftY;
                         var rectBottomRightX = this.bottomRightX;
                         var rectBottomRightY = this.bottomRightY;
 
-                        if (this.comparer.Compare(this.bottomRightX, other.bottomRightX) > 0)
+                        if (this.comparer.Compare(this.bottomRightX, other.BottomRightX) > 0)
                         {
-                            rectBottomRightX = other.bottomRightX;
+                            rectBottomRightX = other.BottomRightX;
                         }
 
-                        if (this.comparer.Compare(this.bottomRightY, other.bottomRightY) > 0)
+                        if (this.comparer.Compare(this.bottomRightY, other.BottomRightY) > 0)
                         {
-                            rectBottomRightY = other.bottomRightY;
+                            rectBottomRightY = other.BottomRightY;
                         }
 
                         return new RectangularRegion<T>(
@@ -434,9 +475,9 @@
         /// <returns>
         /// O conjunto de regiões que cobrem a região actual com excepção da região definida.
         /// </returns>
-        public List<RectangularRegion<T>> Subtract(
-            RectangularRegion<T> other, 
-            Func<T,T> increment,
+        public List<IRectangularRegion<T>> Subtract(
+            IMergingRegion<T> other,
+            Func<T, T> increment,
             Func<T, T> decrement)
         {
             if (decrement == null)
@@ -445,23 +486,23 @@
             }
             else
             {
-                var result = new List<RectangularRegion<T>>();
+                var result = new List<IRectangularRegion<T>>();
                 if (other == null)
                 {
                     result.Add(this);
                 }
                 else
                 {
-                    if (this.comparer.Compare(this.topLeftX, other.topLeftX) < 0)
+                    if (this.comparer.Compare(this.topLeftX, other.TopLeftX) < 0)
                     {
-                        if (this.comparer.Compare(this.topLeftY, other.topLeftY) < 0)
+                        if (this.comparer.Compare(this.topLeftY, other.TopLeftY) < 0)
                         {
-                            if (this.comparer.Compare(this.bottomRightX, other.topLeftX) >= 0)
+                            if (this.comparer.Compare(this.bottomRightX, other.TopLeftX) >= 0)
                             {
-                                if (this.comparer.Compare(this.bottomRightY, other.topLeftY) >= 0)
+                                if (this.comparer.Compare(this.bottomRightY, other.TopLeftY) >= 0)
                                 {
-                                    var otherTopLeftXDecremented = decrement.Invoke(other.topLeftX);
-                                    var otherTopLeftYDecremented = decrement.Invoke(other.topLeftY);
+                                    var otherTopLeftXDecremented = decrement.Invoke(other.TopLeftX);
+                                    var otherTopLeftYDecremented = decrement.Invoke(other.TopLeftY);
 
                                     // Introdução do rectângulo horizontal superior
                                     result.Add(new RectangularRegion<T>(
@@ -469,42 +510,42 @@
                                         this.topLeftY,
                                         this.bottomRightX,
                                         otherTopLeftYDecremented));
-                                    
+
                                     // Introdução do rectângulo vertical esquerdo
                                     result.Add(new RectangularRegion<T>(
                                         this.topLeftX,
-                                        other.topLeftY,
+                                        other.TopLeftY,
                                         otherTopLeftXDecremented,
                                         this.bottomRightY));
 
-                                    if (this.comparer.Compare(this.bottomRightY, other.bottomRightY) > 0)
+                                    if (this.comparer.Compare(this.bottomRightY, other.BottomRightY) > 0)
                                     {
                                         // Introdução do rectângulo horizontal inferior
-                                        var otherBottomRightYIncremented = increment.Invoke(other.bottomRightY);
+                                        var otherBottomRightYIncremented = increment.Invoke(other.BottomRightY);
                                         result.Add(new RectangularRegion<T>(
-                                            other.topLeftX,
+                                            other.TopLeftX,
                                             otherBottomRightYIncremented,
                                             this.bottomRightX,
                                             this.bottomRightY));
 
-                                        if (this.comparer.Compare(this.bottomRightX, other.bottomRightX) > 0)
+                                        if (this.comparer.Compare(this.bottomRightX, other.BottomRightX) > 0)
                                         {
                                             // Introdução do rectângulo vertical direito
-                                            var otherBottomRightXIncremented = increment.Invoke(other.bottomRightX);
+                                            var otherBottomRightXIncremented = increment.Invoke(other.BottomRightX);
                                             result.Add(new RectangularRegion<T>(
                                                 otherBottomRightXIncremented,
-                                                other.topLeftY,
+                                                other.TopLeftY,
                                                 this.bottomRightX,
-                                                other.bottomRightY));
+                                                other.BottomRightY));
                                         }
                                     }
-                                    else if(this.comparer.Compare(this.bottomRightX, other.bottomRightX) > 0)
+                                    else if (this.comparer.Compare(this.bottomRightX, other.BottomRightX) > 0)
                                     {
                                         // Introdução do rectângulo vertical direito
-                                        var otherBottomRightXIncremented = increment.Invoke(other.bottomRightX);
+                                        var otherBottomRightXIncremented = increment.Invoke(other.BottomRightX);
                                         result.Add(new RectangularRegion<T>(
                                             otherBottomRightXIncremented,
-                                            other.topLeftY,
+                                            other.TopLeftY,
                                             this.bottomRightX,
                                             this.bottomRightY));
                                     }
@@ -519,65 +560,13 @@
                                 result.Add(this);
                             }
                         }
-                        else if (this.comparer.Compare(this.topLeftY, other.bottomRightY) <= 0)
+                        else if (this.comparer.Compare(this.topLeftY, other.BottomRightY) <= 0)
                         {
-                            // Não há rectângulo horizontal superior
-                            var otherTopLeftXDecremented = decrement.Invoke(other.topLeftX);
-                            var otherTopLeftYDecremented = decrement.Invoke(other.topLeftY);
-
-                            // Introdução do rectângulo vertical esquerdo
-                            result.Add(new RectangularRegion<T>(
-                                this.topLeftX,
-                                this.topLeftY,
-                                otherTopLeftXDecremented,
-                                this.bottomRightY));
-
-                            if (this.comparer.Compare(this.bottomRightY, other.bottomRightY) > 0)
+                            if (this.comparer.Compare(this.bottomRightX, other.TopLeftX) >= 0)
                             {
-                                // Introdução do rectângulo horizontal inferior
-                                var otherBottomRightYIncremented = increment.Invoke(other.bottomRightY);
-                                result.Add(new RectangularRegion<T>(
-                                    other.topLeftX,
-                                    otherBottomRightYIncremented,
-                                    this.bottomRightX,
-                                    this.bottomRightY));
-
-                                if (this.comparer.Compare(this.bottomRightX, other.bottomRightX) > 0)
-                                {
-                                    // Introdução do rectângulo vertical direito
-                                    var otherBottomRightXIncremented = increment.Invoke(other.bottomRightX);
-                                    result.Add(new RectangularRegion<T>(
-                                        otherBottomRightXIncremented,
-                                        this.topLeftY,
-                                        this.bottomRightX,
-                                        other.bottomRightY));
-                                }
-                            }
-                            else if (this.comparer.Compare(this.bottomRightX, other.bottomRightX) > 0)
-                            {
-                                // Introdução do rectângulo vertical direito
-                                var otherBottomRightXIncremented = increment.Invoke(other.bottomRightX);
-                                result.Add(new RectangularRegion<T>(
-                                    otherBottomRightXIncremented,
-                                    this.topLeftY,
-                                    this.bottomRightX,
-                                    this.bottomRightY));
-                            }
-                        }
-                        else
-                        {
-                            result.Add(this);
-                        }
-                    }
-                    else if (this.comparer.Compare(this.topLeftX, other.bottomRightX) <= 0)
-                    {
-                        // Não existe rectângulo horizontal superior
-                        if (this.comparer.Compare(this.topLeftY, other.topLeftY) < 0)
-                        {
-                            if (this.comparer.Compare(this.bottomRightY, other.topLeftY) >= 0)
-                            {
-                                var otherTopLeftXDecremented = decrement.Invoke(other.topLeftX);
-                                var otherTopLeftYDecremented = decrement.Invoke(other.topLeftY);
+                                // Não há rectângulo horizontal superior
+                                var otherTopLeftXDecremented = decrement.Invoke(other.TopLeftX);
+                                var otherTopLeftYDecremented = decrement.Invoke(other.TopLeftY);
 
                                 // Introdução do rectângulo vertical esquerdo
                                 result.Add(new RectangularRegion<T>(
@@ -586,31 +575,31 @@
                                     otherTopLeftXDecremented,
                                     this.bottomRightY));
 
-                                if (this.comparer.Compare(this.bottomRightY, other.bottomRightY) > 0)
+                                if (this.comparer.Compare(this.bottomRightY, other.BottomRightY) > 0)
                                 {
                                     // Introdução do rectângulo horizontal inferior
-                                    var otherBottomRightYIncremented = increment.Invoke(other.bottomRightY);
+                                    var otherBottomRightYIncremented = increment.Invoke(other.BottomRightY);
                                     result.Add(new RectangularRegion<T>(
-                                        other.topLeftX,
+                                        other.TopLeftX,
                                         otherBottomRightYIncremented,
                                         this.bottomRightX,
                                         this.bottomRightY));
 
-                                    if (this.comparer.Compare(this.bottomRightX, other.bottomRightX) > 0)
+                                    if (this.comparer.Compare(this.bottomRightX, other.BottomRightX) > 0)
                                     {
                                         // Introdução do rectângulo vertical direito
-                                        var otherBottomRightXIncremented = increment.Invoke(other.bottomRightX);
+                                        var otherBottomRightXIncremented = increment.Invoke(other.BottomRightX);
                                         result.Add(new RectangularRegion<T>(
                                             otherBottomRightXIncremented,
                                             this.topLeftY,
                                             this.bottomRightX,
-                                            other.bottomRightY));
+                                            other.BottomRightY));
                                     }
                                 }
-                                else if (this.comparer.Compare(this.bottomRightX, other.bottomRightX) > 0)
+                                else if (this.comparer.Compare(this.bottomRightX, other.BottomRightX) > 0)
                                 {
                                     // Introdução do rectângulo vertical direito
-                                    var otherBottomRightXIncremented = increment.Invoke(other.bottomRightX);
+                                    var otherBottomRightXIncremented = increment.Invoke(other.BottomRightX);
                                     result.Add(new RectangularRegion<T>(
                                         otherBottomRightXIncremented,
                                         this.topLeftY,
@@ -623,34 +612,92 @@
                                 result.Add(this);
                             }
                         }
-                        else if (this.comparer.Compare(this.topLeftY, other.bottomRightY) <= 0)
+                        else
+                        {
+                            result.Add(this);
+                        }
+                    }
+                    else if (this.comparer.Compare(this.topLeftX, other.BottomRightX) <= 0)
+                    {
+                        if (this.comparer.Compare(this.topLeftY, other.TopLeftY) < 0)
+                        {
+                            if (this.comparer.Compare(this.bottomRightY, other.TopLeftY) >= 0)
+                            {
+                                var otherTopLeftXDecremented = decrement.Invoke(other.TopLeftX);
+                                var otherTopLeftYDecremented = decrement.Invoke(other.TopLeftY);
+
+                                // Introdução do rectângulo horizontal superior
+                                result.Add(new RectangularRegion<T>(
+                                    this.topLeftX,
+                                    this.topLeftY,
+                                    this.bottomRightX,
+                                    otherTopLeftYDecremented));
+
+                                if (this.comparer.Compare(this.bottomRightY, other.BottomRightY) > 0)
+                                {
+                                    // Introdução do rectângulo horizontal inferior
+                                    var otherBottomRightYIncremented = increment.Invoke(other.BottomRightY);
+                                    result.Add(new RectangularRegion<T>(
+                                        this.topLeftX,
+                                        otherBottomRightYIncremented,
+                                        this.bottomRightX,
+                                        this.bottomRightY));
+
+                                    if (this.comparer.Compare(this.bottomRightX, other.BottomRightX) > 0)
+                                    {
+                                        // Introdução do rectângulo vertical direito
+                                        var otherBottomRightXIncremented = increment.Invoke(other.BottomRightX);
+                                        result.Add(new RectangularRegion<T>(
+                                            otherBottomRightXIncremented,
+                                            other.TopLeftY,
+                                            this.bottomRightX,
+                                            other.BottomRightY));
+                                    }
+                                }
+                                else if (this.comparer.Compare(this.bottomRightX, other.BottomRightX) > 0)
+                                {
+                                    // Introdução do rectângulo vertical direito
+                                    var otherBottomRightXIncremented = increment.Invoke(other.BottomRightX);
+                                    result.Add(new RectangularRegion<T>(
+                                        otherBottomRightXIncremented,
+                                        other.TopLeftY,
+                                        this.bottomRightX,
+                                        this.bottomRightY));
+                                }
+                            }
+                            else
+                            {
+                                result.Add(this);
+                            }
+                        }
+                        else if (this.comparer.Compare(this.topLeftY, other.BottomRightY) <= 0)
                         {
                             // Não há rectângulo horizontal superior nem rectângulo vertical esquerdo
-                            if (this.comparer.Compare(this.bottomRightY, other.bottomRightY) > 0)
+                            if (this.comparer.Compare(this.bottomRightY, other.BottomRightY) > 0)
                             {
                                 // Introdução do rectângulo horizontal inferior
-                                var otherBottomRightYIncremented = increment.Invoke(other.bottomRightY);
+                                var otherBottomRightYIncremented = increment.Invoke(other.BottomRightY);
                                 result.Add(new RectangularRegion<T>(
                                     this.topLeftX,
                                     otherBottomRightYIncremented,
                                     this.bottomRightX,
                                     this.bottomRightY));
 
-                                if (this.comparer.Compare(this.bottomRightX, other.bottomRightX) > 0)
+                                if (this.comparer.Compare(this.bottomRightX, other.BottomRightX) > 0)
                                 {
                                     // Introdução do rectângulo vertical direito
-                                    var otherBottomRightXIncremented = increment.Invoke(other.bottomRightX);
+                                    var otherBottomRightXIncremented = increment.Invoke(other.BottomRightX);
                                     result.Add(new RectangularRegion<T>(
                                         otherBottomRightXIncremented,
                                         this.topLeftY,
                                         this.bottomRightX,
-                                        other.bottomRightY));
+                                        other.BottomRightY));
                                 }
                             }
-                            else if (this.comparer.Compare(this.bottomRightX, other.bottomRightX) > 0)
+                            else if (this.comparer.Compare(this.bottomRightX, other.BottomRightX) > 0)
                             {
                                 // Introdução do rectângulo vertical direito
-                                var otherBottomRightXIncremented = increment.Invoke(other.bottomRightX);
+                                var otherBottomRightXIncremented = increment.Invoke(other.BottomRightX);
                                 result.Add(new RectangularRegion<T>(
                                     otherBottomRightXIncremented,
                                     this.topLeftY,
@@ -674,27 +721,138 @@
         }
 
         /// <summary>
-        /// Funde duas regiões rectangulares.
+        /// Funde duas regiões rectangulares quando tal é possível.
         /// </summary>
-        /// <remarks>
-        /// Duas regiões rectangulares podem ser fundidas caso sejam adjacentes
-        /// e os lados de adjacência possuam o mesmo comprimento. A região actual
-        /// absorve a região proporcionada caso se dê intersecção.
-        /// </remarks>
-        /// <param name="other">A região a ser fundida.</param>
-        /// <returns>O para região fundida / parte restante da outra região.</returns>
-        public Tuple<RectangularRegion<T>, RectangularRegion<T>> Union(
-            RectangularRegion<T> other)
+        /// <param name="other">A região rectangular a ser fundida.</param>
+        /// <param name="increment">A função que permite determinar o incremento.</param>
+        /// <param name="decrement">A função que permite determinar o decremento.</param>
+        /// <returns>O resultado da fusão de duas regiões rectangulares.</returns>
+        public IRectangularRegion<T> Merge(
+            IMergingRegion<T> other,
+            Func<T, T> increment,
+            Func<T, T> decrement)
         {
             if (other == null)
             {
-                return Tuple.Create<RectangularRegion<T>, RectangularRegion<T>>(this, null);
+                throw new ArgumentNullException("other");
+            }
+            else if (increment == null)
+            {
+                throw new ArgumentNullException("increment");
+            }
+            else if (decrement == null)
+            {
+                throw new ArgumentNullException("decrement");
             }
             else
             {
-            }
+                if (this.comparer.Compare(
+                    this.topLeftX,
+                    other.TopLeftX) == 0 &&
+                    this.comparer.Compare(
+                    this.bottomRightX,
+                    other.BottomRightX) == 0)
+                {
+                    var otherBottomRightYIncremented = increment.Invoke(
+                        other.BottomRightY);
+                    if (this.comparer.Compare(
+                        this.topLeftY,
+                        otherBottomRightYIncremented) > 0)
+                    {
+                        throw new UtilitiesDataException("Can't merge the provided rectangular regions.");
+                    }
+                    else
+                    {
+                        var otherTopLeftYDecremented = decrement.Invoke(
+                            other.TopLeftY);
+                        if (this.comparer.Compare(
+                            this.BottomRightY,
+                            otherTopLeftYDecremented) < 0)
+                        {
+                            throw new UtilitiesDataException("Can't merge the provided rectangular regions.");
+                        }
+                        else
+                        {
+                            var currentTopLeftY = this.topLeftY;
+                            var currentBottomRightY = this.bottomRightY;
+                            if (this.comparer.Compare(
+                                this.topLeftY,
+                                other.TopLeftY) > 0)
+                            {
+                                currentTopLeftY = other.TopLeftY;
+                            }
 
-            throw new NotImplementedException();
+                            if (this.comparer.Compare(
+                                this.bottomRightY,
+                                other.BottomRightY) < 0)
+                            {
+                                currentBottomRightY = other.BottomRightY;
+                            }
+
+                            return new RectangularRegion<T>(
+                                this.topLeftX,
+                                currentTopLeftY,
+                                this.bottomRightX,
+                                currentBottomRightY);
+                        }
+                    }
+                }
+                else if (this.comparer.Compare(
+                    this.topLeftY,
+                    other.TopLeftY) == 0 &&
+                    this.comparer.Compare(
+                    this.bottomRightY,
+                    other.BottomRightY) == 0)
+                {
+                    var otherBottomRightXIncremented = increment.Invoke(
+                        other.BottomRightX);
+                    if (this.comparer.Compare(
+                        this.topLeftX,
+                        otherBottomRightXIncremented) > 0)
+                    {
+                        throw new UtilitiesDataException("Can't merge the provided rectangular regions.");
+                    }
+                    else
+                    {
+                        var otherTopLeftXDecremented = decrement.Invoke(
+                            other.TopLeftX);
+                        if (this.comparer.Compare(
+                            this.bottomRightX,
+                            otherTopLeftXDecremented) < 0)
+                        {
+                            throw new UtilitiesDataException("Can't merge the provided rectangular regions.");
+                        }
+                        else
+                        {
+                            var currentTopLeftX = this.topLeftX;
+                            var currentBottomRightX = this.bottomRightX;
+                            if (this.comparer.Compare(
+                                this.topLeftX,
+                                other.TopLeftX) > 0)
+                            {
+                                currentTopLeftX = other.TopLeftX;
+                            }
+
+                            if (this.comparer.Compare(
+                                this.bottomRightX,
+                                other.BottomRightX) < 0)
+                            {
+                                currentBottomRightX = other.BottomRightX;
+                            }
+
+                            return new RectangularRegion<T>(
+                                currentTopLeftX,
+                                this.topLeftY,
+                                currentBottomRightX,
+                                this.bottomRightY);
+                        }
+                    }
+                }
+                else
+                {
+                    throw new UtilitiesDataException("Can't merge the provided rectangular regions.");
+                }
+            }
         }
 
         /// <summary>
@@ -784,7 +942,7 @@
     /// Permite determinar se duas regiões rectangulares são iguais.
     /// </summary>
     /// <typeparam name="T">O tipo de objectos que constituem as entradas das regiões rectangulares.</typeparam>
-    public class RectangleEqualityComparer<T> : EqualityComparer<RectangularRegion<T>>
+    public class MergingRegionEqualityComparer<T> : EqualityComparer<IMergingRegion<T>>
     {
         /// <summary>
         /// Mantém um comparador de coordenadas.
@@ -792,21 +950,21 @@
         private IEqualityComparer<T> equalityComparer;
 
         /// <summary>
-        /// Instancia uma nova instância de objectos do tipo <see cref="RectangleEqualityComparer{T}"/>.
+        /// Instancia uma nova instância de objectos do tipo <see cref="MergingRegionEqualityComparer{T}"/>.
         /// </summary>
         /// <remarks>
         /// As coordenadas serão comparadas com base no comparador por defeito.
         /// </remarks>
-        public RectangleEqualityComparer()
+        public MergingRegionEqualityComparer()
         {
             this.equalityComparer = EqualityComparer<T>.Default;
         }
 
         /// <summary>
-        /// Instancia uma nova instância de objectos do tipo <see cref="RectangleEqualityComparer{T}"/>.
+        /// Instancia uma nova instância de objectos do tipo <see cref="MergingRegionEqualityComparer{T}"/>.
         /// </summary>
         /// <param name="equalityComparer">O comparador de coordenadas.</param>
-        public RectangleEqualityComparer(IEqualityComparer<T> equalityComparer)
+        public MergingRegionEqualityComparer(IEqualityComparer<T> equalityComparer)
         {
             if (equalityComparer == null)
             {
@@ -824,7 +982,7 @@
         /// <param name="x">O primeiro rectângulo.</param>
         /// <param name="y">O segundo rectângulo.</param>
         /// <returns>Verdadeiro caso as regiões rectangulares sejam iguais e falso caso contrário.</returns>
-        public override bool Equals(RectangularRegion<T> x, RectangularRegion<T> y)
+        public override bool Equals(IMergingRegion<T> x, IMergingRegion<T> y)
         {
             if (object.ReferenceEquals(x, y))
             {
@@ -852,7 +1010,7 @@
         /// </summary>
         /// <param name="obj">A região rectangular.</param>
         /// <returns>O código confuso.</returns>
-        public override int GetHashCode(RectangularRegion<T> obj)
+        public override int GetHashCode(IMergingRegion<T> obj)
         {
             if (obj == null)
             {
@@ -875,7 +1033,7 @@
     /// Permite comparar duas regiões rectangulares.
     /// </summary>
     /// <typeparam name="T">O tipo dos objectos que constituem as coordenadas das regiões rectangulares.</typeparam>
-    public class RectangleComparer<T> : Comparer<RectangularRegion<T>>
+    public class MergingRegionComparer<T> : Comparer<IMergingRegion<T>>
     {
         /// <summary>
         /// Mantém o comparador das coordenadas.
@@ -883,21 +1041,21 @@
         private IComparer<T> comparer;
 
         /// <summary>
-        /// Instancia uma nova instância de objectos do tipo <see cref="RectangleComparer{T}"/>.
+        /// Instancia uma nova instância de objectos do tipo <see cref="MergingRegionComparer{T}"/>.
         /// </summary>
         /// <remarks>
         /// A comparação das coordenadas será efectuada com o comparador definido por defeito.
         /// </remarks>
-        public RectangleComparer()
+        public MergingRegionComparer()
         {
             this.comparer = Comparer<T>.Default;
         }
 
         /// <summary>
-        /// Instancia uma nova instância de objectos do tipo <see cref="RectangleComparer{T}"/>.
+        /// Instancia uma nova instância de objectos do tipo <see cref="MergingRegionComparer{T}"/>.
         /// </summary>
         /// <param name="comparer">O comparador para as coordenadas.</param>
-        public RectangleComparer(IComparer<T> comparer)
+        public MergingRegionComparer(IComparer<T> comparer)
         {
             if (comparer == null)
             {
@@ -918,7 +1076,7 @@
         /// O valor -1 se a primeira região rectangular for inferior à segunda, 0 se ambas forem iguais e 
         /// 1 caso contrário.
         /// </returns>
-        public override int Compare(RectangularRegion<T> x, RectangularRegion<T> y)
+        public override int Compare(IMergingRegion<T> x, IMergingRegion<T> y)
         {
             if (object.ReferenceEquals(x, y))
             {
