@@ -34,6 +34,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Management" />
     <Reference Include="System.Numerics" />
     <Reference Include="System.Xml.Linq" />
@@ -98,12 +99,20 @@
     <Compile Include="Data\Implementations\Files\CSV\StringDataReader.cs" />
     <Compile Include="Data\Implementations\Files\CSV\IntegerDataReader.cs" />
     <Compile Include="Data\Implementations\Files\CSV\TabularItemAdder.cs" />
+    <Compile Include="Data\Implementations\Files\XML\GeneralXmlReader.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Data\Implementations\Styles\EStyles.cs" />
+    <Compile Include="Data\Implementations\Styles\Styles.cs" />
     <Compile Include="Data\Implementations\Regions\RectangularRegions.cs" />
+    <Compile Include="Data\Implementations\Regions\RectangularRegionsSet.cs" />
     <Compile Include="Data\LogicInterfaces\IDataParseAdder.cs" />
     <Compile Include="Data\LogicInterfaces\IDataReader.cs" />
     <Compile Include="Data\LogicInterfaces\IDataReaderProvider.cs" />
     <Compile Include="Data\LogicInterfaces\IDataValidation.cs" />
     <Compile Include="Data\LogicInterfaces\IDataRowValidation.cs" />
+    <Compile Include="Data\LogicInterfaces\IRegions.cs" />
+    <Compile Include="Data\LogicInterfaces\IStyles.cs" />
     <Compile Include="Data\UtilitiesDataException.cs" />
     <Compile Include="Data\Implementations\TabularLists\TabularListCell.cs" />
     <Compile Include="Data\Implementations\TabularLists\TabularListRow.cs" />
