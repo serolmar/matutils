@@ -631,10 +631,6 @@
             {
                 throw new ArgumentNullException("data");
             }
-            else if (blockZise == null)
-            {
-                throw new ArgumentNullException("blockSize");
-            }
             else if (weightMultiplicationFunction == null)
             {
                 throw new ArgumentNullException("weightMultiplicationFunction");

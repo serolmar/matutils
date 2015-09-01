@@ -6,52 +6,29 @@
     using System.Text;
 
     /// <summary>
-    /// Implementa uma célula de uma tabela.
+    /// Implementa uma célula geral.
     /// </summary>
-    internal class TabularListCell : ITabularCell
+    internal abstract class AGeneralTabularListCell
     {
-        /// <summary>
-        /// O item tabular.
-        /// </summary>
-        protected TabularListsItem parent;
-
         /// <summary>
         /// O número da linha.
         /// </summary>
-        private int rowNumber;
+        protected int rowNumber;
 
         /// <summary>
         /// O número da coluna.
         /// </summary>
-        private int columnNumber;
+        protected int columnNumber;
 
         /// <summary>
-        /// Instancia um novo objecto do tipo <see cref="TabularListCell"/>.
+        /// Instancia uma nova instância de objectos do tipo <see cref="AGeneralTabularListCell"/>.
         /// </summary>
-        /// <param name="rowNumber">O número da linha.</param>
-        /// <param name="columnNumber">O número da coluna.</param>
-        /// <param name="parent">A linha à qual pertence a célula.</param>
-        public TabularListCell(int rowNumber, int columnNumber, TabularListsItem parent)
+        /// <param name="rowNumber">O número da linha onde a célula se encontra.</param>
+        /// <param name="columnNumber">O número da coluna onde a célula se encontra.</param>
+        public AGeneralTabularListCell(int rowNumber, int columnNumber)
         {
             this.rowNumber = rowNumber;
             this.columnNumber = columnNumber;
-            this.parent = parent;
-        }
-
-        /// <summary>
-        /// Obtém ou atribui a linha à qual pertence a célula.
-        /// </summary>
-        /// <value>A linha.</value>
-        public TabularListsItem Parent
-        {
-            get
-            {
-                return this.parent;
-            }
-            set
-            {
-                this.parent = value;
-            }
         }
 
         /// <summary>
@@ -94,7 +71,7 @@
         {
             get
             {
-                var value = this.parent.GetCellValue(this.rowNumber, this.columnNumber);
+                var value = this.GetCellValue(this.rowNumber, this.columnNumber);
                 if (value == null)
                 {
                     return true;
@@ -118,7 +95,7 @@
         {
             get
             {
-                var value = this.parent.GetCellValue(this.rowNumber, this.columnNumber);
+                var value = this.GetCellValue(this.rowNumber, this.columnNumber);
                 if (value == null)
                 {
                     return typeof(object);
@@ -131,16 +108,6 @@
         }
 
         /// <summary>
-        /// Atribui o valor à célula.
-        /// </summary>
-        /// <typeparam name="T">O tipo de dados do valor.</typeparam>
-        /// <param name="value">O valor.</param>
-        public void SetCellValue<T>(T value)
-        {
-            this.parent.SetValue(this.rowNumber, this.columnNumber, value);
-        }
-
-        /// <summary>
         /// Obtém o valor da célula.
         /// </summary>
         /// <typeparam name="T">O tipo de dados do valor.</typeparam>
@@ -148,7 +115,7 @@
         /// <exception cref="UtilitiesDataException">Se o valor da célula não for convertível no tipo proporcionado.</exception>
         public T GetCellValue<T>()
         {
-            var value = this.parent.GetCellValue(this.rowNumber, this.columnNumber);
+            var value = this.GetCellValue(this.rowNumber, this.columnNumber);
             if (value == null)
             {
                 var type = typeof(T);
@@ -181,7 +148,7 @@
         /// <returns>O conteúdo da célula.</returns>
         public string GetAsText()
         {
-            var value = this.parent.GetCellValue(this.rowNumber, this.columnNumber);
+            var value = this.GetCellValue(this.rowNumber, this.columnNumber);
             if (value == null)
             {
                 return string.Empty;
@@ -190,6 +157,103 @@
             {
                 return value.ToString();
             }
+        }
+
+        /// <summary>
+        /// Permite delegar a implementação da função que permite obter o valor da célula
+        /// para as classes descendentes.
+        /// </summary>
+        /// <param name="rowNumber">O número da linha onde a célula se encontra.</param>
+        /// <param name="columnNumber">O número da coluna onde a célula se encontra.</param>
+        /// <returns>O objecto contido na célula.</returns>
+        protected abstract object GetCellValue(int rowNumber, int columnNumber);
+    }
+
+    /// <summary>
+    /// Implementa uma célula só de leitura.
+    /// </summary>
+    internal class ReadonlyTabularListCell
+        : AGeneralTabularListCell, IReadonlyTabularCell
+    {
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="ReadonlyTabularListCell"/>.
+        /// </summary>
+        /// <param name="rowNumber">O número da linha.</param>
+        /// <param name="columnNumber">O número da coluna.</param>
+        public ReadonlyTabularListCell(int rowNumber, int columnNumber)
+            : base(rowNumber, columnNumber) { }
+
+        /// <summary>
+        /// Permite delegar a implementação da função que permite obter o valor da célula
+        /// para as classes descendentes.
+        /// </summary>
+        /// <param name="rowNumber">O número da linha onde a célula se encontra.</param>
+        /// <param name="columnNumber">O número da coluna onde a célula se encontra.</param>
+        /// <returns>O objecto contido na célula.</returns>
+        protected override object GetCellValue(int rowNumber, int columnNumber)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    /// <summary>
+    /// Implementa uma célula de uma tabela.
+    /// </summary>
+    internal class TabularListCell : AGeneralTabularListCell, ITabularCell
+    {
+        /// <summary>
+        /// O item tabular.
+        /// </summary>
+        protected TabularListsItem parent;
+
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="TabularListCell"/>.
+        /// </summary>
+        /// <param name="rowNumber">O número da linha.</param>
+        /// <param name="columnNumber">O número da coluna.</param>
+        /// <param name="parent">A linha à qual pertence a célula.</param>
+        public TabularListCell(int rowNumber, int columnNumber, TabularListsItem parent)
+            : base(rowNumber, columnNumber)
+        {
+            this.parent = parent;
+        }
+
+        /// <summary>
+        /// Obtém ou atribui a linha à qual pertence a célula.
+        /// </summary>
+        /// <value>A linha.</value>
+        public TabularListsItem Parent
+        {
+            get
+            {
+                return this.parent;
+            }
+            set
+            {
+                this.parent = value;
+            }
+        }
+
+        /// <summary>
+        /// Atribui o valor à célula.
+        /// </summary>
+        /// <typeparam name="T">O tipo de dados do valor.</typeparam>
+        /// <param name="value">O valor.</param>
+        public void SetCellValue<T>(T value)
+        {
+            this.parent.SetValue(this.rowNumber, this.columnNumber, value);
+        }
+
+        /// <summary>
+        /// Permite delegar a implementação da função que permite obter o valor da célula
+        /// para as classes descendentes.
+        /// </summary>
+        /// <param name="rowNumber">O número da linha onde a célula se encontra.</param>
+        /// <param name="columnNumber">O número da coluna onde a célula se encontra.</param>
+        /// <returns>O objecto contido na célula.</returns>
+        protected override object GetCellValue(int rowNumber, int columnNumber)
+        {
+            return this.parent.GetCellValue(rowNumber, columnNumber);
         }
     }
 }

@@ -6,9 +6,9 @@
     using System.Text;
 
     /// <summary>
-    /// Define uma célula.
+    /// Define uma célula geral de uma tabela.
     /// </summary>
-    public interface ITabularCell
+    public interface IGeneralTabularCell
     {
         /// <summary>
         /// Obtém o número da linha.
@@ -35,13 +35,6 @@
         Type ValueType { get; }
 
         /// <summary>
-        /// Atribui um valor à célula.
-        /// </summary>
-        /// <typeparam name="T">O tipo do valor a ser atribuído.</typeparam>
-        /// <param name="value">O valor a ser atribuído.</param>
-        void SetCellValue<T>(T value);
-
-        /// <summary>
         /// Obtém o valor da célula.
         /// </summary>
         /// <typeparam name="T">O valor da célula a ser atribuído.</typeparam>
@@ -53,5 +46,25 @@
         /// </summary>
         /// <returns>A representação textual da célula.</returns>
         string GetAsText();
+    }
+
+    /// <summary>
+    /// Define a célula de uma tabela só de leitura.
+    /// </summary>
+    public interface IReadonlyTabularCell : IGeneralTabularCell
+    {
+    }
+
+    /// <summary>
+    /// Define uma célula.
+    /// </summary>
+    public interface ITabularCell : IGeneralTabularCell
+    {
+        /// <summary>
+        /// Atribui um valor à célula.
+        /// </summary>
+        /// <typeparam name="T">O tipo do valor a ser atribuído.</typeparam>
+        /// <param name="value">O valor a ser atribuído.</param>
+        void SetCellValue<T>(T value);
     }
 }

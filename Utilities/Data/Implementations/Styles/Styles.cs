@@ -3346,7 +3346,7 @@
     /// <summary>
     /// O estilo de cada um dos elementos da borda.
     /// </summary>
-    internal class TableBorderItem : IBorderItem
+    public class TableBorderItem : IBorderItem, ICloneable
     {
         #region Campos privados
 
@@ -3396,6 +3396,17 @@
             {
                 return this.colour;
             }
+            set
+            {
+                if (value == null)
+                {
+                    throw new UtilitiesDataException("Property value is null or invalid.");
+                }
+                else
+                {
+                    this.colour = value;
+                }
+            }
         }
 
         /// <summary>
@@ -3406,6 +3417,10 @@
             get
             {
                 return this.style;
+            }
+            set
+            {
+                this.style = value;
             }
         }
 
@@ -3463,7 +3478,7 @@
     /// <summary>
     /// O estilo da borda.
     /// </summary>
-    internal class TableBorder : IBorder
+    public class TableBorder : IBorder, ICloneable
     {
         #region Campos privados
 
@@ -3562,6 +3577,18 @@
             {
                 return this.bottom;
             }
+            set
+            {
+                var innerValue = value as TableBorderItem;
+                if (value == null)
+                {
+                    throw new UtilitiesDataException("Property value null or invalid.");
+                }
+                else
+                {
+                    this.bottom = innerValue;
+                }
+            }
         }
 
         /// <summary>
@@ -3572,6 +3599,18 @@
             get
             {
                 return this.diagonal;
+            }
+            set
+            {
+                var innerValue = value as TableBorderItem;
+                if (value == null)
+                {
+                    throw new UtilitiesDataException("Property value null or invalid.");
+                }
+                else
+                {
+                    this.diagonal = innerValue;
+                }
             }
         }
 
@@ -3584,6 +3623,10 @@
             {
                 return this.diagonalDown;
             }
+            set
+            {
+                this.diagonalDown = value;
+            }
         }
 
         /// <summary>
@@ -3594,6 +3637,10 @@
             get
             {
                 return this.diagonalUp;
+            }
+            set
+            {
+                this.diagonalUp = value;
             }
         }
 
@@ -3606,6 +3653,18 @@
             {
                 return this.left;
             }
+            set
+            {
+                var innerValue = value as TableBorderItem;
+                if (value == null)
+                {
+                    throw new UtilitiesDataException("Property value null or invalid.");
+                }
+                else
+                {
+                    this.left = innerValue;
+                }
+            }
         }
 
         /// <summary>
@@ -3617,6 +3676,18 @@
             {
                 return this.right;
             }
+            set
+            {
+                var innerValue = value as TableBorderItem;
+                if (value == null)
+                {
+                    throw new UtilitiesDataException("Property value null or invalid.");
+                }
+                else
+                {
+                    this.right = innerValue;
+                }
+            }
         }
 
         /// <summary>
@@ -3627,6 +3698,18 @@
             get
             {
                 return this.top;
+            }
+            set
+            {
+                var innerValue = value as TableBorderItem;
+                if (value == null)
+                {
+                    throw new UtilitiesDataException("Property value null or invalid.");
+                }
+                else
+                {
+                    this.top = innerValue;
+                }
             }
         }
 
@@ -3729,7 +3812,7 @@
     /// <summary>
     /// O preenchimento.
     /// </summary>
-    class TableGradientFill : IGradientFill
+    public class TableGradientFill : IGradientFill, ICloneable
     {
         #region Campos
 
@@ -3778,7 +3861,9 @@
         /// <summary>
         /// Instancia um nova instância de objectos do tipo <see cref="TableGradientFill"/>.
         /// </summary>
-        private TableGradientFill() { }
+        private TableGradientFill()
+        {
+        }
 
         /// <summary>
         /// Instancia um nova instância de objectos do tipo <see cref="TableGradientFill"/>.
@@ -3812,6 +3897,10 @@
             {
                 return this.bottom;
             }
+            set
+            {
+                this.bottom = value;
+            }
         }
 
         /// <summary>
@@ -3822,6 +3911,17 @@
             get
             {
                 return this.colour1;
+            }
+            set
+            {
+                if (value == null)
+                {
+                    throw new UtilitiesDataException("Property value is null or invalid.");
+                }
+                else
+                {
+                    this.colour1 = value;
+                }
             }
         }
 
@@ -3834,6 +3934,17 @@
             {
                 return this.colour2;
             }
+            set
+            {
+                if (value == null)
+                {
+                    throw new UtilitiesDataException("Property value is null or invalid.");
+                }
+                else
+                {
+                    this.colour2 = value;
+                }
+            }
         }
 
         /// <summary>
@@ -3844,6 +3955,10 @@
             get
             {
                 return this.degree;
+            }
+            set
+            {
+                this.degree = value;
             }
         }
 
@@ -3856,6 +3971,10 @@
             {
                 return this.left;
             }
+            set
+            {
+                this.left = value;
+            }
         }
 
         /// <summary>
@@ -3866,6 +3985,10 @@
             get
             {
                 return this.right;
+            }
+            set
+            {
+                this.right = value;
             }
         }
 
@@ -3878,6 +4001,10 @@
             {
                 return this.top;
             }
+            set
+            {
+                this.top = value;
+            }
         }
 
         /// <summary>
@@ -3888,6 +4015,10 @@
             get
             {
                 return this.type;
+            }
+            set
+            {
+                this.type = value;
             }
         }
 
@@ -3999,7 +4130,7 @@
     /// <summary>
     /// O preencimento.
     /// </summary>
-    internal class TableFill : IFIll
+    public class TableFill : IFIll, ICloneable
     {
         #region Campos
 
@@ -4073,6 +4204,17 @@
             {
                 return this.backgroundColour;
             }
+            set
+            {
+                if (value == null)
+                {
+                    throw new UtilitiesDataException("Property value is null or invalid.");
+                }
+                else
+                {
+                    this.backgroundColour = value;
+                }
+            }
         }
 
         /// <summary>
@@ -4083,6 +4225,18 @@
             get
             {
                 return this.gradient;
+            }
+            set
+            {
+                var innerValue = value as TableGradientFill;
+                if (innerValue == null)
+                {
+                    throw new UtilitiesDataException("Property value is null or invalid.");
+                }
+                else
+                {
+                    this.gradient = innerValue;
+                }
             }
         }
 
@@ -4095,6 +4249,17 @@
             {
                 return this.patternColour;
             }
+            set
+            {
+                if (value == null)
+                {
+                    throw new UtilitiesDataException("Property value is null or invalid.");
+                }
+                else
+                {
+                    this.patternColour = value;
+                }
+            }
         }
 
         /// <summary>
@@ -4105,6 +4270,10 @@
             get
             {
                 return this.patternType;
+            }
+            set
+            {
+                this.patternType = value;
             }
         }
 
@@ -4180,7 +4349,7 @@
     /// <summary>
     /// O formato numérico.
     /// </summary>
-    internal class TableNumberStyleFormat : IStyleNumberFormat
+    public class TableNumberStyleFormat : IStyleNumberFormat, ICloneable
     {
         #region Campos
 
@@ -4196,6 +4365,7 @@
         /// </summary>
         public TableNumberStyleFormat()
         {
+            this.format = string.Empty;
         }
 
         #region Propriedades
@@ -4208,6 +4378,17 @@
             get
             {
                 return this.format;
+            }
+            set
+            {
+                if (value == null)
+                {
+                    this.format = string.Empty;
+                }
+                else
+                {
+                    this.format = value.Trim();
+                }
             }
         }
 
@@ -4257,7 +4438,7 @@
     /// <summary>
     /// A fonte.
     /// </summary>
-    internal class TableFont : IFont
+    public class TableFont : IFont, ICloneable
     {
         #region Campos
 
@@ -4356,6 +4537,10 @@
             {
                 return this.bold;
             }
+            set
+            {
+                this.bold = value;
+            }
         }
 
         /// <summary>
@@ -4366,6 +4551,17 @@
             get
             {
                 return this.colour;
+            }
+            set
+            {
+                if (value == null)
+                {
+                    throw new UtilitiesDataException("Property value is null or invalid.");
+                }
+                else
+                {
+                    this.colour = value;
+                }
             }
         }
 
@@ -4378,6 +4574,10 @@
             {
                 return this.family;
             }
+            set
+            {
+                this.family = value;
+            }
         }
 
         /// <summary>
@@ -4388,6 +4588,10 @@
             get
             {
                 return this.italic;
+            }
+            set
+            {
+                this.italic = value;
             }
         }
 
@@ -4400,6 +4604,17 @@
             {
                 return this.name;
             }
+            set
+            {
+                if (value == null)
+                {
+                    throw new UtilitiesDataException("Property is null or invalid.");
+                }
+                else
+                {
+                    this.name = value.Trim();
+                }
+            }
         }
 
         /// <summary>
@@ -4410,6 +4625,17 @@
             get
             {
                 return this.scheme;
+            }
+            set
+            {
+                if (scheme == null)
+                {
+                    this.scheme = string.Empty;
+                }
+                else
+                {
+                    this.scheme = value.Trim();
+                }
             }
         }
 
@@ -4422,6 +4648,10 @@
             {
                 return this.size;
             }
+            set
+            {
+                this.size = value;
+            }
         }
 
         /// <summary>
@@ -4432,6 +4662,10 @@
             get
             {
                 return this.strike;
+            }
+            set
+            {
+                this.strike = value;
             }
         }
 
@@ -4444,6 +4678,10 @@
             {
                 return this.underLine;
             }
+            set
+            {
+                this.underLine = value;
+            }
         }
 
         /// <summary>
@@ -4455,6 +4693,10 @@
             {
                 return this.underLineType;
             }
+            set
+            {
+                this.underLineType = value;
+            }
         }
 
         /// <summary>
@@ -4465,6 +4707,10 @@
             get
             {
                 return this.verticalAlign;
+            }
+            set
+            {
+                this.verticalAlign = value;
             }
         }
 
@@ -4612,7 +4858,7 @@
     /// <summary>
     /// O estilo.
     /// </summary>
-    internal class TableStyle : IStyle
+    public class TableStyle : IStyle, ICloneable
     {
         #region Campos
 
@@ -4699,6 +4945,18 @@
             {
                 return this.border;
             }
+            set
+            {
+                var innerValue = value as TableBorder;
+                if (innerValue == null)
+                {
+                    throw new UtilitiesDataException("Property value is null or invalid.");
+                }
+                else
+                {
+                    this.border = innerValue;
+                }
+            }
         }
 
         /// <summary>
@@ -4709,6 +4967,18 @@
             get
             {
                 return this.fill;
+            }
+            set
+            {
+                var innerValue = value as TableFill;
+                if (innerValue == null)
+                {
+                    throw new UtilitiesDataException("Property value is null or invalid.");
+                }
+                else
+                {
+                    this.fill = innerValue;
+                }
             }
         }
 
@@ -4721,6 +4991,18 @@
             {
                 return this.font;
             }
+            set
+            {
+                var innerValue = value as TableFont;
+                if (innerValue == null)
+                {
+                    throw new UtilitiesDataException("Property value is null or invalid.");
+                }
+                else
+                {
+                    this.font = innerValue;
+                }
+            }
         }
 
         /// <summary>
@@ -4731,6 +5013,10 @@
             get
             {
                 return this.horizontalAllignement;
+            }
+            set
+            {
+                this.horizontalAllignement = value;
             }
         }
 
@@ -4743,6 +5029,10 @@
             {
                 return this.indent;
             }
+            set
+            {
+                this.indent = value;
+            }
         }
 
         /// <summary>
@@ -4753,6 +5043,18 @@
             get
             {
                 return this.numberFormat;
+            }
+            set
+            {
+                var innerValue = value as TableNumberStyleFormat;
+                if (innerValue == null)
+                {
+                    throw new UtilitiesDataException("Property value is null or invalid.");
+                }
+                else
+                {
+                    this.numberFormat = innerValue;
+                }
             }
         }
 
@@ -4765,6 +5067,10 @@
             {
                 return this.readingOrder;
             }
+            set
+            {
+                this.readingOrder = value;
+            }
         }
 
         /// <summary>
@@ -4775,6 +5081,10 @@
             get
             {
                 return this.shrinkToFit;
+            }
+            set
+            {
+                this.shrinkToFit = value;
             }
         }
 
@@ -4787,6 +5097,10 @@
             {
                 return this.textRotation;
             }
+            set
+            {
+                this.textRotation = value;
+            }
         }
 
         /// <summary>
@@ -4797,6 +5111,10 @@
             get
             {
                 return this.verticalAlignement;
+            }
+            set
+            {
+                this.verticalAlignement = value;
             }
         }
 
@@ -4809,6 +5127,10 @@
             {
                 return this.wrapText;
             }
+            set
+            {
+                this.wrapText = value;
+            }
         }
 
         /// <summary>
@@ -4819,6 +5141,10 @@
             get
             {
                 return this.name;
+            }
+            set
+            {
+                this.name = value;
             }
         }
 
@@ -4959,6 +5285,269 @@
             result.verticalAlignement = this.verticalAlignement;
             result.wrapText = this.wrapText;
             return result;
+        }
+    }
+
+    /// <summary>
+    /// Implementação de uma colecção de segmentos de texto formatados.
+    /// </summary>
+    public class TableRichTextCollection : IRichTextCollection
+    {
+        /// <summary>
+        /// A colecção dos elementos de texto formatados.
+        /// </summary>
+        private List<TableRichText> tableRichTextElements = new List<TableRichText>();
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="TableRichTextCollection"/>.
+        /// </summary>
+        public TableRichTextCollection()
+        {
+        }
+
+        /// <summary>
+        /// Obtém o número de segmentos de texto na colecção.
+        /// </summary>
+        public int Count
+        {
+            get
+            {
+                return this.tableRichTextElements.Count;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o valor textual da colecção.
+        /// </summary>
+        /// <remarks>O texto irá assumir o formato do primeiro segmento.</remarks>
+        public string Text
+        {
+            get
+            {
+                var text = string.Empty;
+                foreach (var richText in this.tableRichTextElements)
+                {
+                    text += richText.Text;
+                }
+
+                return text;
+            }
+            set
+            {
+                var innerText = value;
+                if (innerText == null)
+                {
+                    innerText = string.Empty;
+                }
+
+                if (this.tableRichTextElements.Count == 0)
+                {
+                    var richTextElement = new TableRichText(innerText, new TableFont(SystemColour.Black), EVerticalAlignementFont.None);
+                    this.tableRichTextElements.Add(richTextElement);
+                }
+                else
+                {
+                    while (this.tableRichTextElements.Count > 1)
+                    {
+                        this.tableRichTextElements.RemoveAt(this.tableRichTextElements.Count - 1);
+                    }
+
+                    this.tableRichTextElements[0].Text = innerText;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Obtém o segmento de texto especificado pelo índice.
+        /// </summary>
+        /// <param name="index">O índice do segmento de texto.</param>
+        /// <returns>O segmento de texto.</returns>
+        public IRichText this[int index]
+        {
+            get
+            {
+                if (index < 0 || index > this.tableRichTextElements.Count)
+                {
+                    throw new ArgumentOutOfRangeException("index");
+                }
+                else
+                {
+                    return this.tableRichTextElements[index];
+                }
+            }
+        }
+
+        /// <summary>
+        /// Add a rich text string.
+        /// </summary>
+        /// <param name="text">The text to add.</param>
+        /// <param name="font">A fonte associada ao segmento de texto.</param>
+        /// <param name="verticalAlignment">O alinhamento vertical do texto.</param>
+        /// <returns>The added rich text item.</returns>
+        public IRichText Add(string text, IFont font, EVerticalAlignementFont verticalAlignment)
+        {
+            if (font == null)
+            {
+                throw new ArgumentNullException("font");
+            }
+            else
+            {
+                var innerText = text;
+                if (text == null)
+                {
+                    innerText = string.Empty;
+                }
+
+                var resultRichText = new TableRichText(innerText, font, verticalAlignment);
+                this.tableRichTextElements.Add(resultRichText);
+                return resultRichText;
+            }
+        }
+
+        /// <summary>
+        /// Limpa a colecção de segmentos de texto formatados.
+        /// </summary>
+        public void Clear()
+        {
+            this.tableRichTextElements.Clear();
+        }
+
+        /// <summary>
+        /// Remove o segmento de texto especificado.
+        /// </summary>
+        /// <param name="item">O segmento de texto.</param>
+        public void Remove(IRichText item)
+        {
+            var innerRichText = item as TableRichText;
+            this.tableRichTextElements.Remove(innerRichText);
+        }
+
+        /// <summary>
+        /// Removes an item at the specific index.
+        /// </summary>
+        /// <param name="index">The index.</param>
+        public void RemoveAt(int index)
+        {
+            if (index < 0 || index > this.tableRichTextElements.Count)
+            {
+                throw new ArgumentOutOfRangeException("index");
+            }
+
+            this.tableRichTextElements.RemoveAt(index);
+        }
+
+        /// <summary>
+        /// Obtém um eumerador para a colecção.
+        /// </summary>
+        /// <returns>O enumerador.</returns>
+        public IEnumerator<IRichText> GetEnumerator()
+        {
+            for (int i = 0; i < this.tableRichTextElements.Count; ++i)
+            {
+                yield return this.tableRichTextElements[i];
+            }
+        }
+
+        /// <summary>
+        /// Obtém o enumerador não-genérico para a colecção.
+        /// </summary>
+        /// <returns>O enumerador.</returns>
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+        {
+            return this.GetEnumerator();
+        }
+    }
+
+    /// <summary>
+    /// Implementação de um 
+    /// </summary>
+    internal class TableRichText : IRichText
+    {
+        /// <summary>
+        /// A fonte do texto.
+        /// </summary>
+        private IFont textFont;
+
+        /// <summary>
+        /// O valor do segmento de texto.
+        /// </summary>
+        private string text;
+
+        /// <summary>
+        /// O alinhamento vertical.
+        /// </summary>
+        private EVerticalAlignementFont verticalAlignement;
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="TableRichText"/>.
+        /// </summary>
+        /// <param name="text">O segmento de texto.</param>
+        /// <param name="font">A fonte.</param>
+        /// <param name="verticalAlign">O alinhamento vertical do texto.</param>
+        public TableRichText(string text, IFont font, EVerticalAlignementFont verticalAlign)
+        {
+            this.textFont = font;
+            this.verticalAlignement = verticalAlign;
+            this.text = text;
+        }
+
+        /// <summary>
+        /// Obtém ou atribui o texto.
+        /// </summary>
+        public string Text
+        {
+            get
+            {
+                if (this.text == null)
+                {
+                    return string.Empty;
+                }
+                else
+                {
+                    return this.text;
+                }
+            }
+            set
+            {
+                this.text = value;
+            }
+        }
+
+        /// <summary>
+        /// Obtém ou atribui a fonte associada ao segmento de texto.
+        /// </summary>
+        public IFont TextFont
+        {
+            get
+            {
+                return this.textFont;
+            }
+            set
+            {
+                if (value == null)
+                {
+                    throw new UtilitiesDataException("The property is null or invalid.");
+                }
+                else
+                {
+                    this.textFont = value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Obtém ou atribui o alinhamento vertical.
+        /// </summary>
+        public EVerticalAlignementFont VerticalAlign
+        {
+            get
+            {
+                return this.verticalAlignement;
+            }
+            set
+            {
+                this.verticalAlignement = value;
+            }
         }
     }
 }

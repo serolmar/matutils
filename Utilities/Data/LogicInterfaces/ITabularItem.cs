@@ -7,16 +7,34 @@
     using Utilities.Collections;
 
     /// <summary>
+    /// Define uma tabela geral.
+    /// </summary>
+    /// <typeparam name="R">O tipo dos objectos que constituem as linhas.</typeparam>
+    /// <typeparam name="L">O tipo dos objectos que constituem as células.</typeparam>
+    public interface IGeneralTabularItem<R, L>
+        : IIndexed<int, R>, IEnumerable<R>
+        where R : IGeneralTabularRow<L>
+        where L: IGeneralTabularCell
+    {
+    }
+
+    /// <summary>
+    /// Define uma tabela só de leitura.
+    /// </summary>
+    public interface IReadonlyTabularItem
+        : IGeneralTabularItem<IReadonlyTabularRow, IReadonlyTabularCell>
+    {
+    }
+
+    /// <summary>
     /// Implementa um item tabular.
     /// </summary>
     /// <remarks>
     /// Um item tabular pode ser uma tabela em memória, uma tabela oriunda de uma base-de-dados
-    /// ou até algum objecto que cujo comportamente se assemelhe ao de uma tabela.
+    /// ou até algum objecto que cujo comportamento se assemelhe ao de uma tabela.
     /// </remarks>
     public interface ITabularItem
-        : IIndexed<int, ITabularRow>, 
-        ITabularItemEvent,
-        IEnumerable<ITabularRow>
+        : IGeneralTabularItem<ITabularRow, ITabularCell>
     {
         /// <summary>
         /// Adiciona uma validação ao item tabular.

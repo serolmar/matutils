@@ -67,7 +67,7 @@
             }
             else
             {
-                this.numberOfColumns = lines;
+                this.numberOfLines = lines;
                 this.numberOfColumns = columns;
             }
         }

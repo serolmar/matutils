@@ -99,9 +99,7 @@
     <Compile Include="Data\Implementations\Files\CSV\StringDataReader.cs" />
     <Compile Include="Data\Implementations\Files\CSV\IntegerDataReader.cs" />
     <Compile Include="Data\Implementations\Files\CSV\TabularItemAdder.cs" />
-    <Compile Include="Data\Implementations\Files\XML\GeneralXmlReader.cs">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="Data\Implementations\Files\Html\HtmlFormattedDataReaderWriter.cs" />
     <Compile Include="Data\Implementations\Styles\EStyles.cs" />
     <Compile Include="Data\Implementations\Styles\Styles.cs" />
     <Compile Include="Data\Implementations\Regions\RectangularRegions.cs" />

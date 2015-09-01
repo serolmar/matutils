@@ -6,9 +6,13 @@
     using System.Text;
 
     /// <summary>
-    /// Classe que permite representar uma tabela por intermédio de listas.
+    /// Implementa uma tabela generalizada.
     /// </summary>
-    public class TabularListsItem : ITabularItem
+    /// <typeparam name="R">O tipo dos objectos que constituem as linhas da tabela.</typeparam>
+    /// <typeparam name="L">O tipo dos objectos que constituem as células da tabela.</typeparam>
+    public abstract class AGeneralTabularListItem<R, L> : IGeneralTabularItem<R, L>
+        where R : IGeneralTabularRow<L>
+        where L : IGeneralTabularCell
     {
         /// <summary>
         /// Mantém a tabela dos elementos.
@@ -21,9 +25,9 @@
         protected List<IDataValidation<int, object>> dataCellValidations;
 
         /// <summary>
-        /// Instancia um novo objecto do tipo <see cref="TabularListsItem"/>.
+        /// Instancia uma nova instância de objectos do tipo <see cref="IGeneralTabularItem{R, L}"/>.
         /// </summary>
-        public TabularListsItem()
+        public AGeneralTabularListItem()
         {
             this.elements = new List<List<object>>();
             this.dataCellValidations = new List<IDataValidation<int, object>>();
@@ -36,7 +40,7 @@
         /// <param name="index">O índice.</param>
         /// <returns>A linha.</returns>
         /// <exception cref="ArgumentOutOfRangeException">Se o índice for negativo.</exception>
-        public ITabularRow this[int index]
+        public R this[int index]
         {
             get
             {
@@ -46,7 +50,7 @@
                 }
                 else
                 {
-                    return new TabularListRow(index, this);
+                    return this.GetRow(index);
                 }
             }
         }
@@ -112,8 +116,174 @@
         {
             this.dataCellValidations.Clear();
         }
+
         #endregion Validações
 
+        /// <summary>
+        /// Obtém o valor não genérico da célula.
+        /// </summary>
+        /// <param name="rowNumber">O número da linha.</param>
+        /// <param name="cellNumber">O número da coluna.</param>
+        /// <returns>O valor da célula.</returns>
+        public object GetCellValue(int rowNumber, int cellNumber)
+        {
+            if (rowNumber >= this.elements.Count)
+            {
+                return null;
+            }
+            else
+            {
+                var currentRow = this.elements[rowNumber];
+                if (cellNumber >= currentRow.Count)
+                {
+                    return null;
+                }
+                else
+                {
+                    return currentRow[cellNumber];
+                }
+            }
+        }
+
+        /// <summary>
+        /// Obtém o número de células na linha especificada.
+        /// </summary>
+        /// <param name="rowNumber">O índice da linha.</param>
+        /// <returns>O número de células na linha.</returns>
+        public int GetRowCount(int rowNumber)
+        {
+            if (rowNumber < 0 || rowNumber > this.elements.Count)
+            {
+                return 0;
+            }
+            else
+            {
+                return this.elements[rowNumber].Count;
+            }
+        }
+
+        /// <summary>
+        /// Obtém um enumerador para a tabela.
+        /// </summary>
+        /// <returns>O enumerador.</returns>
+        public IEnumerator<R> GetEnumerator()
+        {
+            for (int i = 0; i < this.elements.Count; ++i)
+            {
+                yield return this.GetRow(i);
+            }
+        }
+
+        /// <summary>
+        /// Constrói uma representação textual da tabela.
+        /// </summary>
+        /// <returns>A representação textual.</returns>
+        public override string ToString()
+        {
+            var resultBuilder = new StringBuilder();
+            var elementsEnumerator = this.elements.GetEnumerator();
+            if (elementsEnumerator.MoveNext())
+            {
+                var currentLineEnumerator = elementsEnumerator.Current.GetEnumerator();
+                if (currentLineEnumerator.MoveNext())
+                {
+                    resultBuilder.Append(currentLineEnumerator.Current);
+                    while (currentLineEnumerator.MoveNext())
+                    {
+                        resultBuilder.Append("; ");
+                        resultBuilder.Append(currentLineEnumerator.Current);
+                    }
+                }
+
+                while (elementsEnumerator.MoveNext())
+                {
+                    resultBuilder.Append(System.Environment.NewLine);
+                    var currentLinEnum = elementsEnumerator.Current.GetEnumerator();
+                    if (currentLinEnum.MoveNext())
+                    {
+                        resultBuilder.Append(currentLinEnum.Current);
+                        while (currentLinEnum.MoveNext())
+                        {
+                            resultBuilder.Append("; ");
+                            resultBuilder.Append(currentLinEnum.Current);
+                        }
+                    }
+                }
+            }
+
+            return resultBuilder.ToString();
+        }
+
+        /// <summary>
+        /// Obtém a linha especificada pelo índice.
+        /// </summary>
+        /// <param name="rowNumber">O número da linha.</param>
+        /// <returns>A linha.</returns>
+        protected abstract R GetRow(int rowNumber);
+
+        /// <summary>
+        /// Valida uma linha completa.
+        /// </summary>
+        /// <param name="row">A linha a ser validada.</param>
+        /// <param name="validation">A validação.</param>
+        /// <returns>Verdadeiro caso a linha seja válida e falso caso contrário.</returns>
+        protected bool ValidateRow(List<object> row, IDataValidation<int, object> validation)
+        {
+            if (validation.Columns == null)
+            {
+                return validation.Validate(row);
+            }
+            else
+            {
+                var objectsSet = new List<object>();
+                foreach (var currentValidationColumn in validation.Columns)
+                {
+                    var objectValue = default(object);
+                    if (currentValidationColumn < row.Count)
+                    {
+                        objectValue = row[currentValidationColumn];
+                    }
+
+                    objectsSet.Add(objectValue);
+                }
+
+                return validation.Validate(objectsSet);
+            }
+        }
+
+        /// <summary>
+        /// Obtém um enumerador não genérico para a tabela.
+        /// </summary>
+        /// <returns>O enumerador.</returns>
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+        {
+            return this.GetEnumerator();
+        }
+    }
+
+    /// <summary>
+    /// Impelmenta uma tabela só de leitura.
+    /// </summary>
+    public class ReadonlyTabularListItem
+        : AGeneralTabularListItem<IReadonlyTabularRow, IReadonlyTabularCell>, IReadonlyTabularItem
+    {
+        /// <summary>
+        /// Obtém a linha especificada pelo índice.
+        /// </summary>
+        /// <param name="rowNumber">O número da linha.</param>
+        /// <returns>A linha.</returns>
+        protected override IReadonlyTabularRow GetRow(int rowNumber)
+        {
+            return new ReadonlyTabularListRow(rowNumber, this);
+        }
+    }
+
+    /// <summary>
+    /// Classe que permite representar uma tabela por intermédio de listas.
+    /// </summary>
+    public class TabularListsItem 
+        : AGeneralTabularListItem<ITabularRow, ITabularCell>, ITabularItem
+    {
         #region Funções do item tabular
 
         /// <summary>
@@ -818,100 +988,16 @@
             return removedLines;
         }
 
-        /// <summary>
-        /// Obtém o valor não genérico da célula.
-        /// </summary>
-        /// <param name="rowNumber">O número da linha.</param>
-        /// <param name="cellNumber">O número da coluna.</param>
-        /// <returns>O valor da célula.</returns>
-        public object GetCellValue(int rowNumber, int cellNumber)
-        {
-            if (rowNumber >= this.elements.Count)
-            {
-                return null;
-            }
-            else
-            {
-                var currentRow = this.elements[rowNumber];
-                if (cellNumber >= currentRow.Count)
-                {
-                    return null;
-                }
-                else
-                {
-                    return currentRow[cellNumber];
-                }
-            }
-        }
-
-        /// <summary>
-        /// Obtém o número de células na linha especificada.
-        /// </summary>
-        /// <param name="rowNumber">O índice da linha.</param>
-        /// <returns>O número de células na linha.</returns>
-        public int GetRowCount(int rowNumber)
-        {
-            if (rowNumber < 0 || rowNumber > this.elements.Count)
-            {
-                return 0;
-            }
-            else
-            {
-                return this.elements[rowNumber].Count;
-            }
-        }
         #endregion Funções do item tabular
 
         /// <summary>
-        /// Obtém um enumerador para a tabela.
+        /// Obtém a linha associada ao índice.
         /// </summary>
-        /// <returns>O enumerador.</returns>
-        public IEnumerator<ITabularRow> GetEnumerator()
+        /// <param name="rowNumber">O número da linha.</param>
+        /// <returns>A linha.</returns>
+        protected override ITabularRow GetRow(int rowNumber)
         {
-            for (int i = 0; i < this.elements.Count; ++i)
-            {
-                yield return new TabularListRow(i, this);
-            }
-        }
-
-        /// <summary>
-        /// Constrói uma representação textual da tabela.
-        /// </summary>
-        /// <returns>A representação textual.</returns>
-        public override string ToString()
-        {
-            var resultBuilder = new StringBuilder();
-            var elementsEnumerator = this.elements.GetEnumerator();
-            if (elementsEnumerator.MoveNext())
-            {
-                var currentLineEnumerator = elementsEnumerator.Current.GetEnumerator();
-                if (currentLineEnumerator.MoveNext())
-                {
-                    resultBuilder.Append(currentLineEnumerator.Current);
-                    while (currentLineEnumerator.MoveNext())
-                    {
-                        resultBuilder.Append("; ");
-                        resultBuilder.Append(currentLineEnumerator.Current);
-                    }
-                }
-
-                while (elementsEnumerator.MoveNext())
-                {
-                    resultBuilder.Append(System.Environment.NewLine);
-                    var currentLinEnum = elementsEnumerator.Current.GetEnumerator();
-                    if (currentLinEnum.MoveNext())
-                    {
-                        resultBuilder.Append(currentLinEnum.Current);
-                        while (currentLinEnum.MoveNext())
-                        {
-                            resultBuilder.Append("; ");
-                            resultBuilder.Append(currentLinEnum.Current);
-                        }
-                    }
-                }
-            }
-
-            return resultBuilder.ToString();
+            return new TabularListRow(rowNumber, this);
         }
 
         /// <summary>
@@ -935,45 +1021,6 @@
             }
 
             line[cellNumber] = value;
-        }
-
-        /// <summary>
-        /// Valida uma linha completa.
-        /// </summary>
-        /// <param name="row">A linha a ser validada.</param>
-        /// <param name="validation">A validação.</param>
-        /// <returns>Verdadeiro caso a linha seja válida e falso caso contrário.</returns>
-        private bool ValidateRow(List<object> row, IDataValidation<int, object> validation)
-        {
-            if (validation.Columns == null)
-            {
-                return validation.Validate(row);
-            }
-            else
-            {
-                var objectsSet = new List<object>();
-                foreach (var currentValidationColumn in validation.Columns)
-                {
-                    var objectValue = default(object);
-                    if (currentValidationColumn < row.Count)
-                    {
-                        objectValue = row[currentValidationColumn];
-                    }
-
-                    objectsSet.Add(objectValue);
-                }
-
-                return validation.Validate(objectsSet);
-            }
-        }
-
-        /// <summary>
-        /// Obtém um enumerador não genérico para a tabela.
-        /// </summary>
-        /// <returns>O enumerador.</returns>
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-        {
-            return this.GetEnumerator();
         }
 
         #region Eventos associados ao item
