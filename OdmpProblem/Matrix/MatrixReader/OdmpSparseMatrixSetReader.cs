@@ -148,11 +148,11 @@
 
         private void SetStates()
         {
-            this.states.Add(new DelegateStateImplementation<string, string>(0, "Start", this.StartState));
-            this.states.Add(new DelegateStateImplementation<string, string>(1, "End", this.EndState));
-            this.states.Add(new DelegateStateImplementation<string, string>(2, "Inside Brackets", this.InsideBracketsState));
-            this.states.Add(new DelegateStateImplementation<string, string>(3, "Inside Parenthesis", this.InsideParenthesisState));
-            this.states.Add(new DelegateStateImplementation<string, string>(4, "Value", this.ValueState));
+            this.states.Add(new DelegateDrivenState<string, string>(0, "Start", this.StartState));
+            this.states.Add(new DelegateDrivenState<string, string>(1, "End", this.EndState));
+            this.states.Add(new DelegateDrivenState<string, string>(2, "Inside Brackets", this.InsideBracketsState));
+            this.states.Add(new DelegateDrivenState<string, string>(3, "Inside Parenthesis", this.InsideParenthesisState));
+            this.states.Add(new DelegateDrivenState<string, string>(4, "Value", this.ValueState));
         }
 
         /// <summary>
@@ -255,24 +255,28 @@
                 this.currentReadingValues.Add(readed);
             }
 
+            var error = new LogStatus<string, EParseErrorLevel>();
             switch (this.coordState)
             {
                 case 0:
-                    if (!this.componentElementsReader.TryParse(this.currentReadingValues.ToArray(), out this.componentCoord))
+                    this.componentCoord = this.componentElementsReader.Parse(this.currentReadingValues.ToArray(), error);
+                    if (error.HasLogs(EParseErrorLevel.ERROR))
                     {
                         throw new OdmpProblemException(string.Format("Can't parse component coordinate: {0}.", readed.SymbolValue));
                     }
 
                     break;
                 case 1:
-                    if (!this.lineElementsReader.TryParse(this.currentReadingValues.ToArray(), out this.lineCoord))
+                    this.lineCoord = this.lineElementsReader.Parse(this.currentReadingValues.ToArray(), error);
+                    if (error.HasLogs(EParseErrorLevel.ERROR))
                     {
                         throw new OdmpProblemException(string.Format("Can't parse line coordinate: {0}.", readed.SymbolValue));
                     }
 
                     break;
                 case 2:
-                    if (!this.columnElementsReader.TryParse(this.currentReadingValues.ToArray(), out this.columnCoord))
+                    this.columnCoord = this.columnElementsReader.Parse(this.currentReadingValues.ToArray(), error);
+                    if (error.HasLogs(EParseErrorLevel.ERROR))
                     {
                         throw new OdmpProblemException(string.Format("Can't parse column coordinate: {0}.", readed.SymbolValue));
                     }
@@ -314,8 +318,9 @@
                 this.currentReadingValues.Add(readed);
             }
 
-            var value = default(T);
-            if (!this.objectElementsReader.TryParse(this.currentReadingValues.ToArray(), out value))
+            var error = new LogStatus<string,EParseErrorLevel>();
+            var value = this.objectElementsReader.Parse(this.currentReadingValues.ToArray(), error);
+            if (error.HasLogs(EParseErrorLevel.ERROR))
             {
                 throw new OdmpProblemException(string.Format("Can't parse value {0}.", readed.SymbolValue));
             }

@@ -10,7 +10,7 @@
     /// </summary>
     /// <typeparam name="R">O tipo dos objectos que constituem as linhas da tabela.</typeparam>
     /// <typeparam name="L">O tipo dos objectos que constituem as células da tabela.</typeparam>
-    public abstract class AGeneralTabularListItem<R, L> : IGeneralTabularItem<R, L>
+    public abstract class AGeneralTabularListItem<R, L> : IGeneralTabularItem<R>
         where R : IGeneralTabularRow<L>
         where L : IGeneralTabularCell
     {
@@ -25,7 +25,7 @@
         protected List<IDataValidation<int, object>> dataCellValidations;
 
         /// <summary>
-        /// Instancia uma nova instância de objectos do tipo <see cref="IGeneralTabularItem{R, L}"/>.
+        /// Instancia uma nova instância de objectos do tipo <see cref="IGeneralTabularItem{R}"/>.
         /// </summary>
         public AGeneralTabularListItem()
         {
@@ -56,7 +56,7 @@
         }
 
         /// <summary>
-        /// Obtém e atribui o número de linhas na tabela.
+        /// Obtém o número de linhas na tabela.
         /// </summary>
         /// <value>O número de linhas.</value>
         public int Count
@@ -67,15 +67,29 @@
             }
         }
 
+        /// <summary>
+        /// Obtém o número da última linha.
+        /// </summary>
+        public int LastRowNumber
+        {
+            get
+            {
+                return this.elements.Count - 1;
+            }
+        }
+
         #region Validações
 
         /// <summary>
         /// Adiciona uma validação À tabela.
         /// </summary>
         /// <param name="validation">A validação.</param>
+        /// <param name="validateExisting">
+        /// Valor que indica se os itens existentes serão validados.
+        /// </param>
         /// <exception cref="ArgumentNullException">Se a validação for nula.</exception>
         /// <exception cref="UtilitiesDataException">Se a validação falhar para os dados existentes.</exception>
-        public void AddValidation(IDataValidation<int, object> validation)
+        public void AddValidation(IDataValidation<int, object> validation, bool validateExisting = true)
         {
             if (validation == null)
             {
@@ -83,13 +97,16 @@
             }
             else
             {
-                for (int i = 0; i < this.elements.Count; ++i)
+                if (validateExisting)
                 {
-                    if (!this.ValidateRow(this.elements[i], validation))
+                    for (int i = 0; i < this.elements.Count; ++i)
                     {
-                        throw new UtilitiesDataException(string.Format(
-                            "Data row {0} doesn't comply with the provided validation.",
-                            i));
+                        if (!this.ValidateRow(this.elements[i], validation))
+                        {
+                            throw new UtilitiesDataException(string.Format(
+                                "Data row {0} doesn't comply with the provided validation.",
+                                i));
+                        }
                     }
                 }
 
@@ -125,9 +142,13 @@
         /// <param name="rowNumber">O número da linha.</param>
         /// <param name="cellNumber">O número da coluna.</param>
         /// <returns>O valor da célula.</returns>
-        public object GetCellValue(int rowNumber, int cellNumber)
+        public virtual object GetCellValue(int rowNumber, int cellNumber)
         {
-            if (rowNumber >= this.elements.Count)
+            if (rowNumber < 0)
+            {
+                throw new ArgumentOutOfRangeException("cellNumber");
+            }
+            else if (rowNumber >= this.elements.Count)
             {
                 return null;
             }
@@ -150,9 +171,9 @@
         /// </summary>
         /// <param name="rowNumber">O índice da linha.</param>
         /// <returns>O número de células na linha.</returns>
-        public int GetRowCount(int rowNumber)
+        public virtual int ColumnsCount(int rowNumber)
         {
-            if (rowNumber < 0 || rowNumber > this.elements.Count)
+            if (rowNumber < 0 || rowNumber >= this.elements.Count)
             {
                 return 0;
             }
@@ -163,10 +184,27 @@
         }
 
         /// <summary>
+        /// Obtém o número da última coluna na linha especificada.
+        /// </summary>
+        /// <param name="rowNumber">O número da linha.</param>
+        /// <returns>O número da coluna.</returns>
+        public virtual int GetLastColumnNumber(int rowNumber)
+        {
+            if (rowNumber < 0 || rowNumber >= this.elements.Count)
+            {
+                return -1;
+            }
+            else
+            {
+                return this.elements[rowNumber].Count - 1;
+            }
+        }
+
+        /// <summary>
         /// Obtém um enumerador para a tabela.
         /// </summary>
         /// <returns>O enumerador.</returns>
-        public IEnumerator<R> GetEnumerator()
+        public virtual IEnumerator<R> GetEnumerator()
         {
             for (int i = 0; i < this.elements.Count; ++i)
             {
@@ -268,20 +306,279 @@
         : AGeneralTabularListItem<IReadonlyTabularRow, IReadonlyTabularCell>, IReadonlyTabularItem
     {
         /// <summary>
+        /// Isntancia uma nova instância de objectos do tipo <see cref="ReadonlyTabularListItem"/>.
+        /// </summary>
+        /// <remarks>
+        /// Permite realizar instâncias por classes internas à livraria.
+        /// </remarks>
+        internal ReadonlyTabularListItem()
+        {
+        }
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="ReadonlyTabularListItem"/>.
+        /// </summary>
+        /// <param name="items">A lista dos elementos que fazem parte da tabela.</param>
+        public ReadonlyTabularListItem(List<List<object>> items)
+        {
+            if (items == null)
+            {
+                throw new ArgumentNullException("items");
+            }
+            else
+            {
+                this.elements = items;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o contentor para os elementos.
+        /// </summary>
+        internal List<List<object>> Elements
+        {
+            get
+            {
+                return this.elements;
+            }
+        }
+
+        /// <summary>
         /// Obtém a linha especificada pelo índice.
         /// </summary>
         /// <param name="rowNumber">O número da linha.</param>
         /// <returns>A linha.</returns>
         protected override IReadonlyTabularRow GetRow(int rowNumber)
         {
-            return new ReadonlyTabularListRow(rowNumber, this);
+            return new ReadonlyTabularListRow<IReadonlyTabularItem, IReadonlyTabularRow, IReadonlyTabularCell>(
+                rowNumber,
+                this);
+        }
+    }
+
+    /// <summary>
+    /// Implementa uma sub-tabela de uma tabela, especificando as linhas e colunas limite.
+    /// </summary>
+    /// <typeparam name="P">O tipo de objectos que constitui a tabela geral.</typeparam>
+    /// <typeparam name="R">O tipo de objectos que constitui a linha da tabela.</typeparam>
+    /// <typeparam name="L">O tipo de objectos que constitui a coluna da tabela.</typeparam>
+    public class WindowReadonlyTabularItem<P, R, L>
+        : IReadonlyTabularItem
+        where P : IGeneralTabularItem<R>
+        where R : IGeneralTabularRow<L>
+        where L : IGeneralTabularCell
+    {
+        /// <summary>
+        /// O item tabular apontado pela sub-tabela.
+        /// </summary>
+        protected P tabularItem;
+
+        /// <summary>
+        /// A linha incial da sub-tabela.
+        /// </summary>
+        protected int startRow;
+
+        /// <summary>
+        /// O número de linhas considerado na sub-tabela.
+        /// </summary>
+        protected int rowCount;
+
+        /// <summary>
+        /// A linha final da sub-tabela.
+        /// </summary>
+        protected int startColumn;
+
+        /// <summary>
+        /// O número de colunas considerado na sub-tabela.
+        /// </summary>
+        protected int columnCount;
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="WindowReadonlyTabularItem{P,R,L}"/>.
+        /// </summary>
+        /// <param name="tabularItem">A tabela da qual se pretende obter a sub-tabela.</param>
+        /// <param name="startRow">A linha inicial da sub-tabela.</param>
+        /// <param name="rowCount">O número de linhas consideradas na sub-tabela.</param>
+        /// <param name="startColumn">A coluna incial da sub-tabela.</param>
+        /// <param name="columnCount">O número de colunas consideradas na sub-tabela.</param>
+        public WindowReadonlyTabularItem(
+            P tabularItem,
+            int startRow,
+            int rowCount,
+            int startColumn,
+            int columnCount)
+        {
+            if (tabularItem == null)
+            {
+                throw new ArgumentNullException("tabularItem");
+            }
+            else if (startRow < 0)
+            {
+                throw new ArgumentOutOfRangeException("startRow");
+            }
+            else if (rowCount < 0)
+            {
+                throw new ArgumentOutOfRangeException("rowCount");
+            }
+            else if (startColumn < 0)
+            {
+                throw new ArgumentOutOfRangeException("startColumn");
+            }
+            else if (columnCount < 0)
+            {
+                throw new ArgumentOutOfRangeException("endColumn");
+            }
+            else
+            {
+                this.tabularItem = tabularItem;
+                this.startRow = startRow;
+                this.rowCount = rowCount;
+                this.startColumn = startColumn;
+                this.columnCount = columnCount;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o objecto especificado pelo índice.
+        /// </summary>
+        /// <value>
+        /// O objecto.
+        /// </value>
+        /// <param name="index">O índice.</param>
+        /// <returns>O valor.</returns>
+        public IReadonlyTabularRow this[int index]
+        {
+            get
+            {
+                if (index < 0 || index >= this.rowCount)
+                {
+                    throw new ArgumentOutOfRangeException("index");
+                }
+                else
+                {
+                    return new ReadonlyTabularListRow<P, R, L>(index, this.tabularItem);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Obtém o número da última linha.
+        /// </summary>
+        public int LastRowNumber
+        {
+            get
+            {
+                return this.rowCount - 1;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o número de elementos.
+        /// </summary>
+        /// <value>
+        /// O número de elementos.
+        /// </value>
+        public int Count
+        {
+            get
+            {
+                return this.rowCount;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o valor não genérico da célula.
+        /// </summary>
+        /// <param name="rowNumber">O número da linha.</param>
+        /// <returns>O valor da célula.</returns>
+        public int ColumnsCount(int rowNumber)
+        {
+            if (rowNumber < 0 || rowNumber >= this.rowCount)
+            {
+                throw new ArgumentOutOfRangeException("rowNumber");
+            }
+            else
+            {
+                return this.columnCount;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o número da última coluna na linha especificada.
+        /// </summary>
+        /// <param name="rowNumber">O número da linha.</param>
+        /// <returns>O número da coluna.</returns>
+        public int GetLastColumnNumber(int rowNumber)
+        {
+            if (rowNumber < 0 || rowNumber >= this.rowCount)
+            {
+                throw new ArgumentOutOfRangeException("rowNumber");
+            }
+            else
+            {
+                return this.columnCount - 1;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o valor não genérico da célula.
+        /// </summary>
+        /// <param name="rowNumber">O número da linha.</param>
+        /// <param name="cellNumber">O número da coluna.</param>
+        /// <returns>O valor da célula.</returns>
+        public object GetCellValue(int rowNumber, int cellNumber)
+        {
+            if (rowNumber < 0 || rowNumber >= this.rowCount)
+            {
+                throw new IndexOutOfRangeException("rowNumber");
+            }
+            else if (cellNumber < 0 || cellNumber >= this.columnCount)
+            {
+                throw new IndexOutOfRangeException("columnNumber");
+            }
+            else
+            {
+                return this.tabularItem.GetCellValue(
+                    this.startRow + rowNumber,
+                    this.startColumn + cellNumber);
+            }
+        }
+
+        /// <summary>
+        /// Obtém um enumerador para a tabela.
+        /// </summary>
+        /// <returns>O enumerador.</returns>
+        public IEnumerator<IReadonlyTabularRow> GetEnumerator()
+        {
+            for (int i = 0; i < this.rowCount; ++i)
+            {
+                yield return new ReadonlyTabularListRow<WindowReadonlyTabularItem<P, R, L>, IReadonlyTabularRow, IReadonlyTabularCell>(
+                    i,
+                    this);
+            }
+        }
+
+        /// <summary>
+        /// Obtém a linha especificada pelo índice.
+        /// </summary>
+        /// <param name="rowNumber">O número da linha.</param>
+        /// <returns>A linha.</returns>
+        protected IReadonlyTabularRow GetRow(int rowNumber)
+        {
+            return new ReadonlyTabularListRow<WindowReadonlyTabularItem<P, R, L>, IReadonlyTabularRow, IReadonlyTabularCell>(
+                   this.startRow + rowNumber,
+                   this);
+        }
+
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+        {
+            return this.GetEnumerator();
         }
     }
 
     /// <summary>
     /// Classe que permite representar uma tabela por intermédio de listas.
     /// </summary>
-    public class TabularListsItem 
+    public class TabularListsItem
         : AGeneralTabularListItem<ITabularRow, ITabularCell>, ITabularItem
     {
         #region Funções do item tabular
@@ -539,7 +836,7 @@
                     addElementsList.Add(kvp.Value);
                 }
 
-                for (int i= 0; i < this.dataCellValidations.Count; ++i)
+                for (int i = 0; i < this.dataCellValidations.Count; ++i)
                 {
                     var currentValidation = this.dataCellValidations[i];
                     if (currentValidation.Columns == null)

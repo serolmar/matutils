@@ -19,7 +19,7 @@
         /// <summary>
         /// O leitor de alcances multidimensionais.
         /// </summary>
-        private ARangeReader<T, SymbValue, SymbType, InputReader> rangeReader;
+        private ARangeReader<T, SymbValue, SymbType> rangeReader;
 
         /// <summary>
         /// A fábrica responsável pela criação de vectores.
@@ -41,7 +41,7 @@
             else
             {
                 this.vectorFactory = vectorFactory;
-                this.rangeReader = new RangeConfigReader<T, SymbValue, SymbType, InputReader>(
+                this.rangeReader = new RangeConfigReader<T, SymbValue, SymbType>(
                     new int[] { lines});
             }
         }

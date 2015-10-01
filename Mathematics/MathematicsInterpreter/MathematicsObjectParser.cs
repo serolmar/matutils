@@ -17,7 +17,7 @@
         /// <summary>
         /// Os símbolos vazios.
         /// </summary>
-        private string[] voidSymbols = {"blancks"};
+        private string[] voidSymbols = { "blancks" };
 
         /// <summary>
         /// O mediador.
@@ -34,66 +34,68 @@
         }
 
         /// <summary>
-        /// Tenta fazer a leitura.
+        /// Realiza a leitura.
         /// </summary>
+        /// <remarks>
+        /// Se a leitura não for bem-sucedida, os erros de leitura serão registados no diário
+        /// e será retornado o objecto por defeito.
+        /// </remarks>
         /// <param name="symbolListToParse">O vector de símbolos a ser lido.</param>
-        /// <param name="mathematicsObject">O valor que contém a leitura.</param>
-        /// <returns>Verdadeiro se a leitura for bem-sucedida e falso caso contrário.</returns>
-        public bool TryParse(
-            ISymbol<string, string>[] symbolListToParse, 
-            out AMathematicsObject mathematicsObject)
+        /// <param name="errorLogs">O objecto que irá manter o registo do diário da leitura.</param>
+        /// <returns>O valor lido.</returns>
+        public AMathematicsObject Parse(
+            ISymbol<string, string>[] symbolListToParse,
+            ILogStatus<string, EParseErrorLevel> errorLogs)
         {
             var valueReader = new StringReader(symbolListToParse[0].SymbolValue);
             var symbolReader = new StringSymbolReader(valueReader, true);
             this.IgnoreVoids(symbolReader);
 
             var readed = symbolReader.Peek();
-            if (readed.SymbolType == "eof")
+            if (readed.SymbolType == Utils.GetStringSymbolType(EStringSymbolReaderType.EOF))
             {
-                mathematicsObject = new EmptyMathematicsObject();
-                return true;
+                return new EmptyMathematicsObject();
             }
-            else if (readed.SymbolType == "left_parenthesis")
-            {
-            }
-            else if (readed.SymbolType == "left_bracket")
+            else if (readed.SymbolType == Utils.GetStringSymbolType(EStringSymbolReaderType.LEFT_PARENTHESIS))
             {
             }
-            else if (readed.SymbolType == "integer")
+            else if (readed.SymbolType == Utils.GetStringSymbolType(EStringSymbolReaderType.LEFT_BRACKET))
             {
-                mathematicsObject = new IntegerMathematicsObject() { Value = int.Parse(symbolListToParse[0].SymbolValue) };
-                return true;
             }
-            else if (readed.SymbolType == "double")
+            else if (readed.SymbolType == Utils.GetStringSymbolType(EStringSymbolReaderType.INTEGER))
             {
-                mathematicsObject = new DoubleMathematicsObject() { Value = double.Parse(symbolListToParse[0].SymbolValue, CultureInfo.InvariantCulture.NumberFormat) };
-                return true;
+                return new IntegerMathematicsObject() { Value = int.Parse(symbolListToParse[0].SymbolValue) };
             }
-            else if (readed.SymbolType == "string")
+            else if (readed.SymbolType == Utils.GetStringSymbolType(EStringSymbolReaderType.DOUBLE))
             {
-                mathematicsObject = new NameMathematicsObject(symbolListToParse[0].SymbolValue, this.mediator);
-                return true;
+                return new DoubleMathematicsObject()
+                {
+                    Value = double.Parse(
+                        symbolListToParse[0].SymbolValue,
+                        CultureInfo.InvariantCulture.NumberFormat)
+                };
             }
-            else if (readed.SymbolType == "double_quote")
+            else if (readed.SymbolType == Utils.GetStringSymbolType(EStringSymbolReaderType.STRING))
             {
-                mathematicsObject = new StringMathematicsObject() { Value = symbolListToParse[0].SymbolValue };
-                return true;
+                return new NameMathematicsObject(symbolListToParse[0].SymbolValue, this.mediator);
+            }
+            else if (readed.SymbolType == Utils.GetStringSymbolType(EStringSymbolReaderType.DOUBLE_QUOTE))
+            {
+                return new StringMathematicsObject() { Value = symbolListToParse[0].SymbolValue };
             }
             else if (readed.SymbolType == "boolean")
             {
-                mathematicsObject = new BooleanMathematicsObject() { Value = bool.Parse(symbolListToParse[0].SymbolValue) };
-                return true;
+                return new BooleanMathematicsObject() { Value = bool.Parse(symbolListToParse[0].SymbolValue) };
             }
             else
             {
-                mathematicsObject = null;
-                return false;
+                return null;
             }
 
             var lispStyleListParser = LispStyleList<AMathematicsObject>.GetParser(this);
 
-            var rangeReader = new RangeNoConfigReader<AMathematicsObject, string, string, CharSymbolReader<string>>();
-            var multidimensionalRangeParser = new MultiDimensionalRangeReader<AMathematicsObject, string, string, CharSymbolReader<string>>(rangeReader);
+            var rangeReader = new RangeNoConfigReader<AMathematicsObject, string, string>();
+            var multidimensionalRangeParser = new MultiDimensionalRangeReader<AMathematicsObject, string, string>(rangeReader);
             var multidimensionalRange = default(MultiDimensionalRange<AMathematicsObject>);
             var parsed = multidimensionalRangeParser.TryParseRange(symbolReader, this, out multidimensionalRange);
             throw new NotImplementedException();

@@ -8,22 +8,9 @@
     using Utilities;
 
     /// <summary>
-    /// Define um construtor de leitores.
-    /// </summary>
-    public interface ReaderBuilder
-    {
-        /// <summary>
-        /// Constrói um leitor de símbolos a partir de um leitor de texto.
-        /// </summary>
-        /// <param name="input">O leitor de texto.</param>
-        /// <returns>O leitor de símbolos.</returns>
-        SymbolReader<TextReader,string, string> BuildReader(TextReader input);
-    }
-
-    /// <summary>
     /// Implementa um construtor de leitores de símbolos onde estes estão de acordo com a linguagem C++.
     /// </summary>
-    class CppCompliantCharSymbolReaderBuilder : ReaderBuilder
+    class CppCompliantCharSymbolReaderBuilder
     {
         /// <summary>
         /// Constrói o leitor de símbolos a partir de um leitor de texto.

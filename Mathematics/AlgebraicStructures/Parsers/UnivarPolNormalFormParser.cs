@@ -77,6 +77,32 @@
         }
 
         /// <summary>
+        /// Realiza a leitura.
+        /// </summary>
+        /// <remarks>
+        /// Se a leitura não for bem-sucedida, os erros de leitura serão registados no diário
+        /// e será retornado o objecto por defeito.
+        /// </remarks>
+        /// <param name="symbolListToParse">O vector de símbolos a ser lido.</param>
+        /// <param name="errorLogs">O objecto que irá manter o registo do diário da leitura.</param>
+        /// <returns>O valor lido.</returns>
+        public UnivariatePolynomialNormalForm<CoeffType> Parse(
+            ISymbol<string, string>[] symbolListToParse,
+            ILogStatus<string, EParseErrorLevel> errorLogs)
+        {
+            var arrayReader = new ArraySymbolReader<string, string>(
+                symbolListToParse, 
+                Utils.GetStringSymbolType(EStringSymbolReaderType.EOF));
+            var value = default(UnivariatePolynomialNormalForm<CoeffType>);
+            this.polynomialReader.TryParsePolynomial(
+                arrayReader, 
+                this.conversion, 
+                errorLogs, 
+                out value);
+            return value;
+        }
+
+        /// <summary>
         /// Permite registar delimitadores de precedência na expressão.
         /// </summary>
         /// <remarks>

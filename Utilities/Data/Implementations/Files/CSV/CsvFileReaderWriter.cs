@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using System.Globalization;
     using System.Linq;
     using System.Numerics;
     using System.Text;
@@ -13,11 +12,6 @@
     /// </summary>
     public class CsvFileReaderWriter
     {
-        /// <summary>
-        /// Mantém uma referência para a cultura existente por defeito.
-        /// </summary>
-        private CultureInfo currentCulture = CultureInfo.CurrentCulture;
-
         /// <summary>
         /// O separador de colunas no csv.
         /// </summary>
@@ -29,24 +23,38 @@
         private char lineSeparatorChar = '\n';
 
         /// <summary>
-        /// O contentor de leitores de dados.
+        /// Define o delimitador.
         /// </summary>
-        private IDataReaderProvider<IDataReader<string>> dataReaderProvider;
+        private char delimiter = '"';
+
+        /// <summary>
+        /// A função que permite efectuar a leitura dos campos.
+        /// </summary>
+        private Func<int, int, string, object> fieldReader;
 
         /// <summary>
         /// Instancia um novo objecto do tipo <see cref="CsvFileReaderWriter"/>.
         /// </summary>
         public CsvFileReaderWriter()
         {
+            // A função por defeito retorna sempre texto.
+            this.fieldReader = (i, j, t) => t;
         }
 
         /// <summary>
         /// Instancia um novo objecto do tipo <see cref="CsvFileReaderWriter"/>.
         /// </summary>
-        /// <param name="dataReaderProvider">O provedor de leitores de objectos.</param>
-        public CsvFileReaderWriter(IDataReaderProvider<IDataReader<string>> dataReaderProvider)
+        /// <param name="fieldReader">O leitor dos campos.</param>
+        public CsvFileReaderWriter(Func<int, int, string, object> fieldReader)
         {
-            this.dataReaderProvider = dataReaderProvider;
+            if (fieldReader == null)
+            {
+                throw new ArgumentNullException("fieldReader");
+            }
+            else
+            {
+                this.fieldReader = fieldReader;
+            }
         }
 
         /// <summary>
@@ -54,19 +62,26 @@
         /// </summary>
         /// <param name="lineSeparatorChar">O carácter que representa o separador de linhas.</param>
         /// <param name="columnSeparatorChar">O carácter que representa o separador de colunas.</param>
+        /// <param name="delimiter">O carácter delimitador.</param>
         /// <exception cref="UtilitiesDataException">Se os carácteres separadores forem letras ou dígitos.</exception>
-        public CsvFileReaderWriter(char lineSeparatorChar, char columnSeparatorChar)
+        public CsvFileReaderWriter(char lineSeparatorChar, char columnSeparatorChar, char delimiter)
+            : this()
         {
             if (char.IsLetterOrDigit(lineSeparatorChar))
             {
-                throw new UtilitiesDataException("Line separator can't be a letter or digit.");
+                throw new UtilitiesDataException("Line separator can't be a letter nor a digit.");
             }
             else if (char.IsLetterOrDigit(columnSeparatorChar))
             {
-                throw new UtilitiesDataException("Column separator can't be a letter or digit.");
+                throw new UtilitiesDataException("Column separator can't be a letter nor a digit.");
+            }
+            else if (char.IsLetterOrDigit(delimiter))
+            {
+                throw new UtilitiesDataException("Delimtier can't be a letter nor a digit.");
             }
             else
             {
+                this.delimiter = delimiter;
                 this.columnSeparatorChar = columnSeparatorChar;
                 this.lineSeparatorChar = lineSeparatorChar;
             }
@@ -77,31 +92,35 @@
         /// </summary>
         /// <param name="lineSeparatorChar">O carácter que representa o separador de linhas.</param>
         /// <param name="columnSeparatorChar">O carácter que representa o separador de colunas.</param>
-        /// <param name="dataReaderProvider">O provedor de leitores de objectos.</param>
+        /// <param name="delimiter">O carácter delimitador.</param>
+        /// <param name="fieldReader">O leitor de campos.</param>
         public CsvFileReaderWriter(
             char lineSeparatorChar,
             char columnSeparatorChar,
-            IDataReaderProvider<IDataReader<string>> dataReaderProvider)
-            : this(lineSeparatorChar, columnSeparatorChar)
+            char delimiter,
+            Func<int, int, string, object> fieldReader)
         {
-            this.dataReaderProvider = dataReaderProvider;
-        }
-
-        /// <summary>
-        /// Instancia um novo objecto do tipo <see cref="CsvFileReaderWriter"/>.
-        /// </summary>
-        /// <param name="lineSeparatorChar">O carácter que representa o separador de linhas.</param>
-        /// <param name="columnSeparatorChar">O carácter que representa o separador de colunas.</param>
-        /// <param name="cultureInfo">As informações da cultura na leitura dos números.</param>
-        public CsvFileReaderWriter(
-            char lineSeparatorChar,
-            char columnSeparatorChar,
-            CultureInfo cultureInfo)
-            : this(lineSeparatorChar, columnSeparatorChar)
-        {
-            if (cultureInfo != null)
+            if (fieldReader == null)
             {
-                this.currentCulture = cultureInfo;
+                throw new ArgumentNullException("fieldReader");
+            }
+            else if (char.IsLetterOrDigit(lineSeparatorChar))
+            {
+                throw new UtilitiesDataException("Line separator can't be a letter nor a digit.");
+            }
+            else if (char.IsLetterOrDigit(columnSeparatorChar))
+            {
+                throw new UtilitiesDataException("Column separator can't be a letter nor a digit.");
+            }
+            else if (char.IsLetterOrDigit(delimiter))
+            {
+                throw new UtilitiesDataException("Delimiter can't be a letter nor a digit.");
+            }
+            else
+            {
+                this.columnSeparatorChar = columnSeparatorChar;
+                this.lineSeparatorChar = lineSeparatorChar;
+                this.fieldReader = fieldReader;
             }
         }
 
@@ -147,6 +166,50 @@
                 else
                 {
                     this.columnSeparatorChar = value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Obtém o carácter que funciona como delimitador.
+        /// </summary>
+        public char Delimiter
+        {
+            get
+            {
+                return this.delimiter;
+            }
+            set
+            {
+                if (char.IsLetterOrDigit(value))
+                {
+                    throw new UtilitiesDataException("Delimiter separator can't be a letter or digit.");
+                }
+                else
+                {
+                    this.delimiter = value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Obtém ou atribui o leitor de campos.
+        /// </summary>
+        public Func<int, int, string, object> FieldReader
+        {
+            get
+            {
+                return this.fieldReader;
+            }
+            set
+            {
+                if (value == null)
+                {
+                    throw new UtilitiesDataException("A non null value must be provided.");
+                }
+                else
+                {
+                    this.fieldReader = value;
                 }
             }
         }
@@ -205,14 +268,7 @@
             }
             else
             {
-                if (this.dataReaderProvider == null)
-                {
-                    this.ReadCsv(tabularItem, reader);
-                }
-                else
-                {
-                    this.ReadCsv(tabularItem, reader, this.dataReaderProvider);
-                }
+                this.ReadCsv(tabularItem, reader);
             }
         }
 
@@ -303,75 +359,14 @@
         }
 
         /// <summary>
-        /// Completa a leitura do csv.
-        /// </summary>
-        /// <param name="result">O contentor da leitura.</param>
-        /// <param name="reader">O leitor de texto.</param>
-        private void ReadCsv(ITabularItem result, TextReader reader)
-        {
-            var elements = new List<object>();
-            var currentItem = string.Empty;
-            var readed = reader.Read();
-            if (readed != -1)
-            {
-                var readedChar = (char)readed;
-                if (readedChar == this.lineSeparatorChar)
-                {
-                    elements.Add(this.GetValues(currentItem));
-                    result.Add(elements);
-                    currentItem = string.Empty;
-                    elements.Clear();
-                }
-                else if (readedChar == this.columnSeparatorChar)
-                {
-                    elements.Add(this.GetValues(currentItem));
-                    currentItem = string.Empty;
-                }
-                else
-                {
-                    currentItem += readedChar;
-                }
-
-                readed = reader.Read();
-                while (readed != -1)
-                {
-                    readedChar = (char)readed;
-                    if (readedChar == this.lineSeparatorChar)
-                    {
-                        elements.Add(this.GetValues(currentItem));
-                        result.Add(elements);
-                        currentItem = string.Empty;
-                        elements.Clear();
-                    }
-                    else if (readedChar == this.columnSeparatorChar)
-                    {
-                        elements.Add(this.GetValues(currentItem));
-                        currentItem = string.Empty;
-                    }
-                    else
-                    {
-                        currentItem += readedChar;
-                    }
-
-                    readed = reader.Read();
-                }
-
-                elements.Add(this.GetValues(currentItem));
-                result.Add(elements);
-            }
-        }
-
-        /// <summary>
         /// Completa a leitura do csv tendo em conta os leitores individuais de dados.
         /// </summary>
         /// <param name="result">O resultado da leitura.</param>
         /// <param name="reader">O leitor de texto.</param>
-        /// <param name="dataReaderProvider">O contentor de leitores.</param>
         /// <exception cref="UtilitiesDataException">Se a leitura falhar.</exception>
         private void ReadCsv(
             ITabularItem result,
-            TextReader reader,
-            IDataReaderProvider<IDataReader<string>> dataReaderProvider)
+            TextReader reader)
         {
             var elements = new List<object>();
             var currentItem = string.Empty;
@@ -384,38 +379,23 @@
                 if (readedChar == this.lineSeparatorChar)
                 {
                     ++currentLine;
-                    elements.Add(this.GetValues(currentItem));
+                    var element = this.fieldReader.Invoke(currentLine, currentColumn, currentItem);
+                    elements.Add(element);
                     result.Add(elements);
                     currentItem = string.Empty;
                     elements.Clear();
                 }
                 else if (readedChar == this.columnSeparatorChar)
                 {
-                    var dataReader = default(IDataReader<string>);
-                    if (!this.dataReaderProvider.TryGetDataReader(
-                        currentLine,
-                        currentColumn,
-                        out dataReader))
-                    {
-                        throw new UtilitiesDataException(string.Format(
-                            "No data reader was provided for cell with coords ({0},{1}).",
-                            currentLine,
-                            currentColumn));
-                    }
-
-                    var element = default(object);
-                    if (!dataReader.TryRead(currentItem, out element))
-                    {
-                        throw new UtilitiesDataException(string.Format(
-                            "Current data reader can't read text value '{0}' from cell with coords ({1},{2}).",
-                            currentItem,
-                            currentLine,
-                            currentColumn));
-                    }
-
+                    var element = this.fieldReader.Invoke(currentLine, currentColumn, currentItem);
                     elements.Add(element);
                     ++currentColumn;
                     currentItem = string.Empty;
+                }
+                else if (readedChar == this.delimiter)
+                {
+                    currentItem += readedChar;
+                    currentItem += this.GetBetweenDelimiters(reader);
                 }
                 else
                 {
@@ -429,38 +409,23 @@
                     if (readedChar == this.lineSeparatorChar)
                     {
                         ++currentLine;
-                        elements.Add(this.GetValues(currentItem));
+                        var element = this.fieldReader.Invoke(currentLine, currentColumn, currentItem);
+                        elements.Add(element);
                         result.Add(elements);
                         currentItem = string.Empty;
                         elements.Clear();
                     }
                     else if (readedChar == this.columnSeparatorChar)
                     {
-                        var dataReader = default(IDataReader<string>);
-                        if (!this.dataReaderProvider.TryGetDataReader(
-                            currentLine,
-                            currentColumn,
-                            out dataReader))
-                        {
-                            throw new UtilitiesDataException(string.Format(
-                                "No data reader was provided for cell with coords ({0},{1}).",
-                                currentLine,
-                                currentColumn));
-                        }
-
-                        var element = default(object);
-                        if (!dataReader.TryRead(currentItem, out element))
-                        {
-                            throw new UtilitiesDataException(string.Format(
-                                "Current data reader can't read text value '{0}' from cell with coords ({1},{2}).",
-                                currentItem,
-                                currentLine,
-                                currentColumn));
-                        }
-
+                        var element = this.fieldReader.Invoke(currentLine, currentColumn, currentItem);
                         elements.Add(element);
                         ++currentColumn;
                         currentItem = string.Empty;
+                    }
+                    else if (readedChar == this.delimiter)
+                    {
+                        currentItem += readedChar;
+                        currentItem += this.GetBetweenDelimiters(reader);
                     }
                     else
                     {
@@ -470,28 +435,7 @@
                     readed = reader.Read();
                 }
 
-                var outerReader = default(IDataReader<string>);
-                if (!this.dataReaderProvider.TryGetDataReader(
-                    currentLine,
-                    currentColumn,
-                    out outerReader))
-                {
-                    throw new UtilitiesDataException(string.Format(
-                        "No data reader was provided for cell with coords ({0},{1}).",
-                        currentLine,
-                        currentColumn));
-                }
-
-                var outerElement = default(object);
-                if (!outerReader.TryRead(currentItem, out outerElement))
-                {
-                    throw new UtilitiesDataException(string.Format(
-                        "Current data reader can't read text value '{0}' from cell with coords ({1},{2}).",
-                        currentItem,
-                        currentLine,
-                        currentColumn));
-                }
-
+                var outerElement = this.fieldReader.Invoke(currentLine, currentColumn, currentItem);
                 elements.Add(outerElement);
                 currentItem = string.Empty;
                 result.Add(elements);
@@ -499,65 +443,32 @@
         }
 
         /// <summary>
-        /// Tenta ler valores a partir do texto.
+        /// Efectua a leitura dos valores que se encontram no interior dos delimitadores.
         /// </summary>
-        /// <param name="text">O texto.</param>
-        /// <returns>Os valores.</returns>
-        private object GetValues(string text)
+        /// <param name="reader">O leitor de texto.</param>
+        /// <returns>O valor lido entre os delimitadores.</returns>
+        private string GetBetweenDelimiters(TextReader reader)
         {
-            var integerValue = 0;
-            if (int.TryParse(text, out integerValue))
+            var result = string.Empty;
+            var state = true;
+            while (state)
             {
-                return integerValue;
-            }
-            else
-            {
-                var longValue = 0L;
-                if (long.TryParse(text, out longValue))
+                var readed = reader.Read();
+                if (readed == -1)
                 {
-                    return longValue;
+                    state = false;
                 }
                 else
                 {
-                    var bigInteger = default(BigInteger);
-                    if (BigInteger.TryParse(text, out bigInteger))
+                    result += (char)readed;
+                    if (readed == this.delimiter)
                     {
-                        return bigInteger;
-                    }
-                    else
-                    {
-                        var doubleValue = 0.0;
-                        if (double.TryParse(text, out doubleValue))
-                        {
-                            return doubleValue;
-                        }
-                        else
-                        {
-                            var decimalValue = 0.0M;
-                            if (decimal.TryParse(text, out decimalValue))
-                            {
-                                return decimalValue;
-                            }
-                            else
-                            {
-                                var dateTime = default(DateTime);
-                                if (DateTime.TryParse(
-                                    text,
-                                    currentCulture.DateTimeFormat,
-                                    DateTimeStyles.AllowWhiteSpaces | DateTimeStyles.NoCurrentDateDefault,
-                                    out dateTime))
-                                {
-                                    return dateTime;
-                                }
-                                else
-                                {
-                                    return text;
-                                }
-                            }
-                        }
+                        state = false;
                     }
                 }
             }
+
+            return result;
         }
     }
 }

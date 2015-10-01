@@ -20,7 +20,7 @@
         /// <remarks>
         /// O leitor actual efectua leituras de matrizes cujas dimensões são conhecidas.
         /// </remarks>
-        private ConfigMatrixReader<T, string, string, ISymbol<string, string>[]> arrayMatrixReader;
+        private ConfigMatrixReader<T, string, string> arrayMatrixReader;
 
         /// <summary>
         /// O leitor dos elmentos contidos na matriz multidimensional.
@@ -78,7 +78,7 @@
             }
             else
             {
-                this.arrayMatrixReader = new ConfigMatrixReader<T, string, string, ISymbol<string, string>[]>(
+                this.arrayMatrixReader = new ConfigMatrixReader<T, string, string>(
                     numberOfLines,
                     numberOfColumns,
                     matrixFactory);
@@ -87,15 +87,29 @@
         }
 
         /// <summary>
-        /// Experimenta a leitura da matriz a partir de uma lista de símbolos.
+        /// Realiza a leitura.
         /// </summary>
-        /// <param name="symbolListToParse">A lista de símbolos que contém a matriz a ser lida.</param>
-        /// <param name="value">Recebe o resultado da leitura em caso de sucesso.</param>
-        /// <returns>Verdadeiro caso a leitura seja bem-sucedida e falso caso contrário.</returns>
-        public bool TryParse(ISymbol<string, string>[] symbolListToParse, out IMatrix<T> value)
+        /// <remarks>
+        /// Se a leitura não for bem-sucedida, os erros de leitura serão registados no diário
+        /// e será retornado o objecto por defeito.
+        /// </remarks>
+        /// <param name="symbolListToParse">O vector de símbolos a ser lido.</param>
+        /// <param name="errorLogs">O objecto que irá manter o registo do diário da leitura.</param>
+        /// <returns>O valor lido.</returns>
+        public IMatrix<T> Parse(
+            ISymbol<string, string>[] symbolListToParse, 
+            ILogStatus<string, EParseErrorLevel> errorLogs)
         {
-            var arrayReader = new ArraySymbolReader<string, string>(symbolListToParse, "eof");
-            return this.arrayMatrixReader.TryParseMatrix(arrayReader, this.elementsParser, out value);
+            var arrayReader = new ArraySymbolReader<string, string>(
+                symbolListToParse, 
+                Utils.GetStringSymbolType(EStringSymbolReaderType.EOF));
+            var value = default(IMatrix<T>);
+            this.arrayMatrixReader.TryParseMatrix(
+                arrayReader,
+                this.elementsParser, 
+                errorLogs, 
+                out value);
+            return value;
         }
 
         /// <summary>

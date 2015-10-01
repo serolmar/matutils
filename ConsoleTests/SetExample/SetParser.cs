@@ -93,6 +93,78 @@
         }
 
         /// <summary>
+        /// Realiza a leitura.
+        /// </summary>
+        /// <remarks>
+        /// Se a leitura não for bem-sucedida, os erros de leitura serão registados no diário
+        /// e será retornado o objecto por defeito.
+        /// </remarks>
+        /// <param name="symbolListToParse">O vector de símbolos a ser lido.</param>
+        /// <param name="errorLogs">O objecto que irá manter o registo do diário da leitura.</param>
+        /// <returns>O valor lido.</returns>
+        public HashSet<ObjectType> Parse(
+            ISymbol<string, ESymbolSetType>[] symbolListToParse, 
+            ILogStatus<string, EParseErrorLevel> errorLogs)
+        {
+            var value = default(HashSet<ObjectType>);
+            var openSymbol = -1;
+            for (int i = 0; i < symbolListToParse.Length; ++i)
+            {
+                var currentSymbol = symbolListToParse[i];
+                if (currentSymbol.SymbolType == ESymbolSetType.LBRACE)
+                {
+                    openSymbol = i;
+                    i = symbolListToParse.Length;
+                }
+                else if (currentSymbol.SymbolType != ESymbolSetType.SPACE && currentSymbol.SymbolType != ESymbolSetType.CHANGE_LINE)
+                {
+                    i = symbolListToParse.Length;
+                }
+            }
+
+            if (openSymbol == -1)
+            {
+                errorLogs.AddLog(
+                    "Found no open symbol.",
+                    EParseErrorLevel.ERROR);
+            }
+            else
+            {
+                var closeSymbol = -1;
+                for (int i = symbolListToParse.Length - 1; i > openSymbol; --i)
+                {
+                    var currentSymbol = symbolListToParse[i];
+                    if (currentSymbol.SymbolType == ESymbolSetType.RBRACE)
+                    {
+                        closeSymbol = i;
+                        i = openSymbol;
+                    }
+                    else if (currentSymbol.SymbolType != ESymbolSetType.SPACE && currentSymbol.SymbolType != ESymbolSetType.CHANGE_LINE)
+                    {
+                        i = openSymbol;
+                    }
+                }
+
+                if (closeSymbol == -1)
+                {
+                    errorLogs.AddLog(
+                    "Found no close symbol.",
+                    EParseErrorLevel.ERROR);
+                }
+                else
+                {
+                    var elementsNumber = closeSymbol - openSymbol - 1;
+                    var elementsArray = new ISymbol<string, ESymbolSetType>[elementsNumber];
+                    Array.Copy(symbolListToParse, openSymbol + 1, elementsArray, 0, elementsNumber);
+                    var arraySymbolReader = new ArraySymbolReader<string, ESymbolSetType>(elementsArray, ESymbolSetType.EOF);
+                    value = this.expressionReader.Parse(arraySymbolReader, errorLogs);
+                }
+            }
+
+            return value;
+        }
+
+        /// <summary>
         /// Concatena dois conjuntos, isto é, determina a respectiva união.
         /// </summary>
         /// <param name="left">O primeiro conjunto.</param>
@@ -126,25 +198,35 @@
             }
 
             /// <summary>
-            /// Tenta efectuar a leitura de um elemento e encapsulá-lo num conjunto.
+            /// Realiza a leitura.
             /// </summary>
-            /// <param name="symbolListToParse">A lista de símbolos a ler.</param>
-            /// <param name="value">O valor.</param>
-            /// <returns>Verdadeiro caso a leitura seja bem sucedida e falso no caso contrário.</returns>
-            public bool TryParse(ISymbol<string, ESymbolSetType>[] symbolListToParse, out HashSet<ObjectType> value)
+            /// <remarks>
+            /// Se a leitura não for bem-sucedida, os erros de leitura serão registados no diário
+            /// e será retornado o objecto por defeito.
+            /// </remarks>
+            /// <param name="symbolListToParse">O vector de símbolos a ser lido.</param>
+            /// <param name="errorLogs">O objecto que irá manter o registo do diário da leitura.</param>
+            /// <returns>O valor lido.</returns>
+            public HashSet<ObjectType> Parse(
+                ISymbol<string, ESymbolSetType>[] symbolListToParse, 
+                ILogStatus<string, EParseErrorLevel> errorLogs)
             {
-                var parsedObject = default(ObjectType);
-                if (this.elementsParser.TryParse(symbolListToParse, out parsedObject))
+                var value = default(HashSet<ObjectType>);
+                var innerError = new LogStatus<string, EParseErrorLevel>();
+                var parsedObject = this.elementsParser.Parse(symbolListToParse, innerError);
+                
+                if (!innerError.HasLogs(EParseErrorLevel.ERROR))
                 {
                     value = new HashSet<ObjectType>();
                     value.Add(parsedObject);
-                    return true;
                 }
-                else
+
+                foreach (var kvp in innerError.GetLogs())
                 {
-                    value = default(HashSet<ObjectType>);
-                    return false;
+                    errorLogs.AddLog(kvp.Value, kvp.Key);
                 }
+
+                return value;
             }
         }
     }

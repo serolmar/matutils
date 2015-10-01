@@ -25,6 +25,23 @@
 
         static void Main(string[] args)
         {
+            var sortedDic = new SortedList<int, int>();
+            sortedDic.Add(3, 3);
+            sortedDic.Add(2,2);
+            sortedDic.Add(4, 4);
+            sortedDic.Add(5, 5);
+            sortedDic.Add(1, 1);
+
+            foreach (var item in sortedDic)
+            {
+                Console.WriteLine("{0} => {1}", item.Key, item.Value);
+            }
+
+            foreach (var item in sortedDic.Keys)
+            {
+                Console.WriteLine(item);
+            }
+
             Console.WriteLine(((ulong)2 * uint.MaxValue).ToString().Length);
             var readedNumber = string.Empty;
             //using (var textReader = new StreamReader("bigNum.txt"))
@@ -307,12 +324,11 @@
                 comparer,
                 ring);
 
-            var dataProvider = new DataReaderProvider<IParse<double, string, string>>(
-                new DoubleParser<string>());
+            var doubleParser = new DoubleParser<string>();
             var csvParser = new CsvFileParser<List<List<double>>, double, string, string>(
                 "new_line",
                 "semi_colon",
-                dataProvider);
+                (i, j) => doubleParser);
             csvParser.AddIgnoreType("carriage_return");
 
             var upperBounds = new List<List<double>>();
@@ -810,13 +826,12 @@
             var fileInfo = new FileInfo("..\\..\\Files\\Matrix.csv");
             if (fileInfo.Exists)
             {
-                var dataProvider = new DataReaderProvider<IParse<Nullable<double>, string, string>>(
-                        new NullableDoubleParser());
+                var parser = new NullableDoubleParser();
                 var csvParser = new CsvFileParser<TabularListsItem, Nullable<double>, string, string>(
-                    "new_line",
-                    "semi_colon",
-                    dataProvider);
-                csvParser.AddIgnoreType("carriage_return");
+                    Utils.GetStringSymbolType(EStringSymbolReaderType.NEW_LINE),
+                    Utils.GetStringSymbolType(EStringSymbolReaderType.SEMI_COLON),
+                    (i,j)=>parser);
+                csvParser.AddIgnoreType(Utils.GetStringSymbolType(EStringSymbolReaderType.CARRIAGE_RETURN));
 
                 using (var textReader = fileInfo.OpenText())
                 {
@@ -1350,7 +1365,7 @@
                 integerDomain);
 
             var arrayMatrixFactory = new ArrayMatrixFactory<UnivariatePolynomialNormalForm<int>>();
-            var arrayReader = new ConfigMatrixReader<UnivariatePolynomialNormalForm<int>, string, string, CharSymbolReader<string>>(
+            var arrayReader = new ConfigMatrixReader<UnivariatePolynomialNormalForm<int>, string, string>(
                 2,
                 2,
                 arrayMatrixFactory);
@@ -1397,7 +1412,7 @@
                 integerParser,
                 new IntegerDomain());
             var readed = default(Polynomial<int>);
-            var errors = new List<string>();
+            var errors = new LogStatus<string, EParseErrorLevel>();
             var elementConversion = new ElementToElementConversion<int>();
             if (polynomialParser.TryParsePolynomial(inputReader, elementConversion, errors, out readed))
             {
@@ -1405,9 +1420,9 @@
             }
             else
             {
-                foreach (var message in errors)
+                Console.WriteLine("Errors parsing polynomial:");
+                foreach (var message in errors.GetLogs(EParseErrorLevel.ERROR))
                 {
-                    Console.WriteLine("Errors parsing polynomial:");
                     Console.WriteLine(message);
                 }
             }
@@ -1426,7 +1441,7 @@
             var integerParser = new IntegerParser<string>();
 
             var arrayMatrixFactory = new ArrayMatrixFactory<int>();
-            var arrayMatrixReader = new ConfigMatrixReader<int, string, string, CharSymbolReader<string>>(
+            var arrayMatrixReader = new ConfigMatrixReader<int, string, string>(
                 3,
                 3,
                 arrayMatrixFactory);
@@ -1435,7 +1450,7 @@
             arrayMatrixReader.SeparatorSymbType = "comma";
 
             var matrix = default(IMatrix<int>);
-            var errors = new List<string>();
+            var errors = new LogStatus<string, EParseErrorLevel>();
             if (arrayMatrixReader.TryParseMatrix(stringsymbolReader, integerParser, errors, out matrix))
             {
                 Console.WriteLine(matrix);
@@ -1455,10 +1470,13 @@
             }
             else
             {
-                foreach (var message in errors)
+                foreach (var message in errors.GetLogs())
                 {
                     Console.WriteLine("Errors parsing range:");
-                    Console.WriteLine(message);
+                    foreach (var innerMessage in message.Value)
+                    {
+                        Console.WriteLine(innerMessage);
+                    }
                 }
             }
         }
@@ -1473,14 +1491,14 @@
             var stringsymbolReader = new StringSymbolReader(reader, true);
             var integerParser = new IntegerParser<string>();
 
-            var rangeNoConfig = new RangeNoConfigReader<int, string, string, CharSymbolReader<string>>();
+            var rangeNoConfig = new RangeNoConfigReader<int, string, string>();
             rangeNoConfig.MapInternalDelimiters("left_bracket", "right_bracket");
             rangeNoConfig.AddBlanckSymbolType("blancks");
             rangeNoConfig.SeparatorSymbType = "comma";
 
-            var multiDimensionalRangeReader = new MultiDimensionalRangeReader<int, string, string, CharSymbolReader<string>>(rangeNoConfig);
+            var multiDimensionalRangeReader = new MultiDimensionalRangeReader<int, string, string>(rangeNoConfig);
             var range = default(MultiDimensionalRange<int>);
-            var errors = new List<string>();
+            var errors = new LogStatus<string, EParseErrorLevel>();
             if (multiDimensionalRangeReader.TryParseRange(stringsymbolReader, integerParser, errors, out range))
             {
                 var config = new int[][] { new int[] { 1, 1, 4, 3 }, new int[] { 0, 1, 0, 1 } };
@@ -1489,9 +1507,9 @@
             }
             else
             {
-                foreach (var message in errors)
+                Console.WriteLine("Errors parsing range:");
+                foreach (var message in errors.GetLogs(EParseErrorLevel.ERROR))
                 {
-                    Console.WriteLine("Errors parsing range:");
                     Console.WriteLine(message);
                 }
             }

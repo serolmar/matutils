@@ -79,6 +79,7 @@ namespace Utilities
             {
                 return -1;
             }
+
             return 0;
         }
 
@@ -86,7 +87,9 @@ namespace Utilities
     }
 
     /// <summary>
-    /// Comparador funcional de objectos.
+    /// Comparador funcional de objectos, isto é, comparador que permite comparar
+    /// determinados objectos com base num representante obtido após a aplicação de
+    /// uma função.
     /// </summary>
     /// <typeparam name="P">O tipo dos objectos a serem comparados.</typeparam>
     /// <typeparam name="Q">O tipo dos representates.</typeparam>
@@ -193,6 +196,45 @@ namespace Utilities
             var innerX = this.getFunction.Invoke(x);
             var innerY = this.getFunction.Invoke(y);
             return this.comparer.Compare(innerX, innerY);
+        }
+    }
+
+    /// <summary>
+    /// Implementa o comparador de inteiros invertido.
+    /// </summary>
+    /// <typeparam name="CoeffType">O tipo de coeficiente a ser comparado.</typeparam>
+    public class InverseComparer<CoeffType> : Comparer<CoeffType>
+    {
+        /// <summary>
+        /// O coeficiente a ser comparado.
+        /// </summary>
+        private IComparer<CoeffType> coeffsComparer;
+
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="InverseComparer{CoeffType}"/>.
+        /// </summary>
+        /// <param name="coeffsComparer">O comparador de coeficientes.</param>
+        public InverseComparer(IComparer<CoeffType> coeffsComparer)
+        {
+            if (coeffsComparer == null)
+            {
+                this.coeffsComparer = Comparer<CoeffType>.Default;
+            }
+            else
+            {
+                this.coeffsComparer = coeffsComparer;
+            }
+        }
+
+        /// <summary>
+        /// Compara dois inteiros de forma inversa.
+        /// </summary>
+        /// <param name="x">O primeiro elemento a ser comparado.</param>
+        /// <param name="y">O segundo elemento a ser comparado.</param>
+        /// <returns>Retorna -1 caso x seja superior a y, 0 caso sejam iguais e 1 se x for inferior a y.</returns>
+        public override int Compare(CoeffType x, CoeffType y)
+        {
+            return -this.coeffsComparer.Compare(x, y);
         }
     }
 }

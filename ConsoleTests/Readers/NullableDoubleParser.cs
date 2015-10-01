@@ -9,20 +9,35 @@
     /// <summary>
     /// Permite realizar a leitura de valores numéricos e nulo caso não seja possível.
     /// </summary>
-    public class NullableDoubleParser : IParse<Nullable<double>, string,string>
+    public class NullableDoubleParser : IParse<Nullable<double>, string, string>
     {
         private DoubleParser<string> doubleParser = new DoubleParser<string>();
 
-        public bool TryParse(ISymbol<string, string>[] symbolListToParse, out Nullable<double> value)
+        public Nullable<double> Parse(
+            ISymbol<string, string>[] symbolListToParse,
+            ILogStatus<string, EParseErrorLevel> errorLogs)
         {
-            value = default(Nullable<double>);
-            var readed = default(double);
-            if (symbolListToParse.Length > 0 && this.doubleParser.TryParse(symbolListToParse, out readed))
+            var value = default(Nullable<double>);
+            if (errorLogs == null)
             {
-                value = readed;
+                throw new ArgumentNullException("errorLogs");
+            }
+            else if (symbolListToParse == null || symbolListToParse.Length > 0)
+            {
+                errorLogs.AddLog("No symbol was provided.", EParseErrorLevel.ERROR);
+            }
+            else
+            {
+                var innerError = new LogStatus<string, EParseErrorLevel>();
+                value = this.doubleParser.Parse(symbolListToParse, innerError);
+
+                foreach (var kvp in innerError.GetLogs())
+                {
+                    errorLogs.AddLog(kvp.Value, kvp.Key);
+                }
             }
 
-            return true;
+            return value;
         }
     }
 }

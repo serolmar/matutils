@@ -28,7 +28,7 @@
             var reader = new StringReader(arrayString);
             var stringSymbolReader = new StringSymbolReader(reader, false);
             var arrayMatrixFactory = new SparseDictionaryMatrixFactory<double>();
-            var arrayMatrixReader = new ConfigMatrixReader<double, string, string, CharSymbolReader<string>>(
+            var arrayMatrixReader = new ConfigMatrixReader<double, string, string>(
                 lines, 
                 columns, 
                 arrayMatrixFactory);

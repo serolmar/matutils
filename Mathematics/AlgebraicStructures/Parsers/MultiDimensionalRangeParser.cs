@@ -16,7 +16,7 @@
         /// <summary>
         /// O leitor de matrizes multidimensionais.
         /// </summary>
-        private MultiDimensionalRangeReader<T, string, string, ISymbol<string,string>[]> multiDimensionalReader;
+        private MultiDimensionalRangeReader<T, string, string> multiDimensionalReader;
 
         /// <summary>
         /// O leitor dos elmentos contidos na matriz multidimensional.
@@ -36,22 +36,32 @@
             }
             else
             {
-                this.multiDimensionalReader = new MultiDimensionalRangeReader<T, string, string, ISymbol<string, string>[]>(
-                    new RangeNoConfigReader<T, string, string, ISymbol<string, string>[]>());
+                this.multiDimensionalReader = new MultiDimensionalRangeReader<T, string, string>(
+                    new RangeNoConfigReader<T, string, string>());
                 this.elementsParser = elementsParser;
             }
         }
 
         /// <summary>
-        /// Experimenta a leitura da matriz multidimensiona.
+        /// Realiza a leitura.
         /// </summary>
-        /// <param name="symbolListToParse">A lista de símbolos que contém uma representação da matriz.</param>
-        /// <param name="value">Recebe a leitura da matriz.</param>
-        /// <returns>Verdadeiro caso a leitura seja bem-sucedida e falso caso contrário.</returns>
-        public bool TryParse(ISymbol<string, string>[] symbolListToParse, out MultiDimensionalRange<T> value)
+        /// <remarks>
+        /// Se a leitura não for bem-sucedida, os erros de leitura serão registados no diário
+        /// e será retornado o objecto por defeito.
+        /// </remarks>
+        /// <param name="symbolListToParse">O vector de símbolos a ser lido.</param>
+        /// <param name="errorLogs">O objecto que irá manter o registo do diário da leitura.</param>
+        /// <returns>O valor lido.</returns>
+        public MultiDimensionalRange<T> Parse(
+            ISymbol<string, string>[] symbolListToParse, 
+            ILogStatus<string, EParseErrorLevel> errorLogs)
         {
-            var arrayReader = new ArraySymbolReader<string, string>(symbolListToParse, "eof");
-            return this.multiDimensionalReader.TryParseRange(arrayReader, this.elementsParser, out value);
+            var arrayReader = new ArraySymbolReader<string, string>(
+                symbolListToParse, 
+                Utils.GetStringSymbolType(EStringSymbolReaderType.EOF));
+            var value = default(MultiDimensionalRange<T>);
+            this.multiDimensionalReader.TryParseRange(arrayReader, this.elementsParser, errorLogs, out value);
+            return value;
         }
     }
 }

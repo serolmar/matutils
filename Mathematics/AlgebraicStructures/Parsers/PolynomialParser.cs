@@ -67,15 +67,29 @@
         }
 
         /// <summary>
-        /// Experimenta a leitura de um polinómio a partir de uma lista de símbolos.
+        /// Realiza a leitura.
         /// </summary>
-        /// <param name="symbolListToParse">A lista de símbolos.</param>
-        /// <param name="value">O valor que irá receber a leitura.</param>
-        /// <returns>Verdadeiro caso a leitura seja bem-sucedida e falso caso contrário.</returns>
-        public bool TryParse(ISymbol<string, string>[] symbolListToParse, out Polynomial<CoeffType> value)
+        /// <remarks>
+        /// Se a leitura não for bem-sucedida, os erros de leitura serão registados no diário
+        /// e será retornado o objecto por defeito.
+        /// </remarks>
+        /// <param name="symbolListToParse">O vector de símbolos a ser lido.</param>
+        /// <param name="errorLogs">O objecto que irá manter o registo do diário da leitura.</param>
+        /// <returns>O valor lido.</returns>
+        public Polynomial<CoeffType> Parse(
+            ISymbol<string, string>[] symbolListToParse, 
+            ILogStatus<string, EParseErrorLevel> errorLogs)
         {
-            var arrayReader = new ArraySymbolReader<string, string>(symbolListToParse, "eof");
-            return this.polynomialReader.TryParsePolynomial(arrayReader, this.conversion, out value);
+            var arrayReader = new ArraySymbolReader<string, string>(
+                symbolListToParse, 
+                Utils.GetStringSymbolType(EStringSymbolReaderType.EOF));
+            var value = default(Polynomial<CoeffType>);
+            this.polynomialReader.TryParsePolynomial(
+                arrayReader, 
+                this.conversion, 
+                errorLogs, 
+                out value);
+            return value;
         }
     }
 }

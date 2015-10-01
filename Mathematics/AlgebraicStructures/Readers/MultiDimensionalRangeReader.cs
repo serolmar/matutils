@@ -12,20 +12,19 @@
     /// <typeparam name="T">O tipo dos objectos que constituem as entradas dos alcances multidimensionais.</typeparam>
     /// <typeparam name="SymbValue">O tipo dos objectos que costituem os valores dos símbolos.</typeparam>
     /// <typeparam name="SymbType">Os tipos de objectos que constituem os tipos de símbolos.</typeparam>
-    /// <typeparam name="InputReader">O tipo do leitor de entrada..</typeparam>
-    public class MultiDimensionalRangeReader<T, SymbValue, SymbType, InputReader>
+    public class MultiDimensionalRangeReader<T, SymbValue, SymbType>
     {
         /// <summary>
         /// O leitor de alcances multidimensionais.
         /// </summary>
-        private ARangeReader<T, SymbValue, SymbType, InputReader> rangeReader;
+        private ARangeReader<T, SymbValue, SymbType> rangeReader;
 
         /// <summary>
-        /// Instancia um novo objecto do tipo <see cref="MultiDimensionalRangeReader{T, SymbValue, SymbType, InputReader}"/>.
+        /// Instancia um novo objecto do tipo <see cref="MultiDimensionalRangeReader{T, SymbValue, SymbType}"/>.
         /// </summary>
         /// <param name="rangeReader">O leitor de alcances multidimensionais.</param>
         /// <exception cref="ArgumentNullException">Se o leitor de alcances multidimensionais for nulo.</exception>
-        public MultiDimensionalRangeReader(ARangeReader<T, SymbValue, SymbType, InputReader> rangeReader)
+        public MultiDimensionalRangeReader(ARangeReader<T, SymbValue, SymbType> rangeReader)
         {
             if (rangeReader == null)
             {
@@ -45,7 +44,7 @@
         /// <param name="result">Estabelece o alcance multidimensional lido.</param>
         /// <returns>Verdadeiro caso a operação seja bem sucedida e falso caso contrário.</returns>
         public bool TryParseRange(
-            MementoSymbolReader<InputReader, SymbValue, SymbType> reader,
+            IMementoSymbolReader< SymbValue, SymbType> reader,
             IParse<T, SymbValue, SymbType> parser,
             out MultiDimensionalRange<T> result)
         {
@@ -61,9 +60,9 @@
         /// <param name="result">Estabelece o alcance multidimensional lido.</param>
         /// <returns>Verdadeiro caso a operação seja bem sucedida e falso caso contrário.</returns>
         public bool TryParseRange(
-            MementoSymbolReader<InputReader, SymbValue, SymbType> reader,
+            IMementoSymbolReader<SymbValue, SymbType> reader,
             IParse<T, SymbValue, SymbType> parser,
-            List<string> errors,
+            ILogStatus<string,EParseErrorLevel> errors,
             out MultiDimensionalRange<T> result)
         {
             result = default(MultiDimensionalRange<T>);
@@ -74,7 +73,7 @@
                 {
                     foreach (var message in this.rangeReader.ErrorMessages)
                     {
-                        errors.Add(message);
+                        errors.AddLog(message, EParseErrorLevel.ERROR);
                     }
                 }
 

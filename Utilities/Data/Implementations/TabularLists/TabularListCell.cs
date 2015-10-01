@@ -172,16 +172,34 @@
     /// <summary>
     /// Implementa uma célula só de leitura.
     /// </summary>
-    internal class ReadonlyTabularListCell
+    /// <typeparam name="P">O tipo de objectos que constituem a tabela que contém a linha.</typeparam>
+    /// <typeparam name="R">O tipo de objectos que definem as linhas da tabela.</typeparam>
+    /// <typeparam name="L">O tipo de objectos que definem as colunas da tabela.</typeparam>
+    internal class ReadonlyTabularListCell<P, R, L>
         : AGeneralTabularListCell, IReadonlyTabularCell
+        where P : IGeneralTabularItem<R>
+        where R : IGeneralTabularRow<L>
+        where L : IGeneralTabularCell
     {
         /// <summary>
-        /// Instancia uma nova instância de objectos do tipo <see cref="ReadonlyTabularListCell"/>.
+        /// Mantém o item tabular ao qual pertence a célula.
+        /// </summary>
+        protected P owner;
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="ReadonlyTabularListCell{P, R, L}"/>.
         /// </summary>
         /// <param name="rowNumber">O número da linha.</param>
         /// <param name="columnNumber">O número da coluna.</param>
-        public ReadonlyTabularListCell(int rowNumber, int columnNumber)
-            : base(rowNumber, columnNumber) { }
+        /// <param name="owner">O item tabular ao qual pertence a célula.</param>
+        public ReadonlyTabularListCell(
+            int rowNumber,
+            int columnNumber,
+            P owner)
+            : base(rowNumber, columnNumber)
+        {
+            this.owner = owner;
+        }
 
         /// <summary>
         /// Permite delegar a implementação da função que permite obter o valor da célula
@@ -192,19 +210,20 @@
         /// <returns>O objecto contido na célula.</returns>
         protected override object GetCellValue(int rowNumber, int columnNumber)
         {
-            throw new NotImplementedException();
+            return this.owner.GetCellValue(rowNumber, columnNumber);
         }
     }
 
     /// <summary>
     /// Implementa uma célula de uma tabela.
     /// </summary>
-    internal class TabularListCell : AGeneralTabularListCell, ITabularCell
+    internal class TabularListCell
+        : AGeneralTabularListCell, ITabularCell
     {
         /// <summary>
         /// O item tabular.
         /// </summary>
-        protected TabularListsItem parent;
+        protected ITabularItem parent;
 
         /// <summary>
         /// Instancia um novo objecto do tipo <see cref="TabularListCell"/>.
@@ -212,7 +231,7 @@
         /// <param name="rowNumber">O número da linha.</param>
         /// <param name="columnNumber">O número da coluna.</param>
         /// <param name="parent">A linha à qual pertence a célula.</param>
-        public TabularListCell(int rowNumber, int columnNumber, TabularListsItem parent)
+        public TabularListCell(int rowNumber, int columnNumber, ITabularItem parent)
             : base(rowNumber, columnNumber)
         {
             this.parent = parent;
@@ -222,7 +241,7 @@
         /// Obtém ou atribui a linha à qual pertence a célula.
         /// </summary>
         /// <value>A linha.</value>
-        public TabularListsItem Parent
+        public ITabularItem Parent
         {
             get
             {

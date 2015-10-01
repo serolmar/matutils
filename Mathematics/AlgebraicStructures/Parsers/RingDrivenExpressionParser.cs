@@ -58,17 +58,28 @@
         }
 
         /// <summary>
-        /// Tenta fazer a leitura da expressão.
+        /// Realiza a leitura.
         /// </summary>
-        /// <param name="symbolListToParse">O vector de símbolos que representa a expressão.</param>
-        /// <param name="value">O valor lido.</param>
-        /// <returns>Verdadeiro caso a leitura seja realizada com sucesso e falso caso contrário.</returns>
-        public virtual bool TryParse(
+        /// <remarks>
+        /// Se a leitura não for bem-sucedida, os erros de leitura serão registados no diário
+        /// e será retornado o objecto por defeito.
+        /// </remarks>
+        /// <param name="symbolListToParse">O vector de símbolos a ser lido.</param>
+        /// <param name="errorLogs">O objecto que irá manter o registo do diário da leitura.</param>
+        /// <returns>O valor lido.</returns>
+        public virtual ObjectType Parse(
             ISymbol<string, string>[] symbolListToParse, 
-            out ObjectType value)
+            ILogStatus<string, EParseErrorLevel> errorLogs)
         {
-            var arrayReader = new ArraySymbolReader<string, string>(symbolListToParse, "eof");
-            return this.expressionReader.TryParsePolynomial(arrayReader, out value);
+            var arrayReader = new ArraySymbolReader<string, string>(
+                symbolListToParse, 
+                Utils.GetStringSymbolType(EStringSymbolReaderType.EOF));
+            var value = default(ObjectType);
+            this.expressionReader.TryParsePolynomial(
+                arrayReader, 
+                errorLogs, 
+                out value);
+            return value;
         }
 
         /// <summary>

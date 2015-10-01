@@ -8,7 +8,7 @@
     /// <summary>
     /// Implementa uma sequência de inteiros.
     /// </summary>
-    public class IntegerSequence : ICollection<int>, IIndexed<int, int>
+    public class IntegerSequence : ICollection<int>
     {
         /// <summary>
         /// Mantém os elementos da sequência.

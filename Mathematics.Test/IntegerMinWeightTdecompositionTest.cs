@@ -57,12 +57,11 @@
             var csvString = csvStringBuilder.ToString();
             var csvStringReader = new StringReader(csvString);
 
-            var dataProvider = new DataReaderProvider<IParse<int, string, string>>(
-                new IntegerParser<string>());
+            var parser = new IntegerParser<string>();
             var csvParser = new CsvFileParser<ITabularItem, int, string, string>(
                 "new_line",
                 "comma",
-                dataProvider);
+                (i, j) => parser);
             csvParser.AddIgnoreType("space");
             csvParser.AddIgnoreType("carriage_return");
 

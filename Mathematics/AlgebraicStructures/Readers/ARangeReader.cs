@@ -19,8 +19,7 @@ namespace Mathematics
     /// <typeparam name="T">O tipo dos objectos que constituem as entradas dos alcances multidimensionais.</typeparam>
     /// <typeparam name="SymbValue">O tipo dos objectos que costituem os valores dos símbolos.</typeparam>
     /// <typeparam name="SymbType">Os tipos de objectos que constituem os tipos de símbolos.</typeparam>
-    /// <typeparam name="InputReader">O tipo do leitor de entrada..</typeparam>
-    public abstract class ARangeReader<T, SymbValue, SymbType, InputReader>
+    public abstract class ARangeReader<T, SymbValue, SymbType>
     {
         #region Fields
 
@@ -67,7 +66,7 @@ namespace Mathematics
         #endregion
 
         /// <summary>
-        /// Instancia um novo objecto do tipo <see cref="ARangeReader{T, SymbValue, SymbType, InputReader}"/>.
+        /// Instancia um novo objecto do tipo <see cref="ARangeReader{T, SymbValue, SymbType}"/>.
         /// </summary>
         public ARangeReader()
         {
@@ -185,7 +184,7 @@ namespace Mathematics
         /// separador de objectos estiver definido.
         /// </exception>
         public void ReadRangeValues(
-            MementoSymbolReader<InputReader, SymbValue, SymbType> reader,
+            IMementoSymbolReader<SymbValue, SymbType> reader,
             IParse<T, SymbValue, SymbType> parser)
         {
             if (this.hasStarted)
@@ -317,7 +316,7 @@ namespace Mathematics
         /// </summary>
         /// <param name="reader">O leitor de símbolos.</param>
         /// <param name="parser">O leitor de objectos.</param>
-        protected abstract void InnerReadRangeValues(MementoSymbolReader<InputReader, SymbValue, SymbType> reader,
+        protected abstract void InnerReadRangeValues(IMementoSymbolReader<SymbValue, SymbType> reader,
             IParse<T, SymbValue, SymbType> parser);
 
         /// <summary>

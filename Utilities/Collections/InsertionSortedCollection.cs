@@ -368,6 +368,22 @@
         }
 
         /// <summary>
+        /// Remove o elemento que se encontra registado no índice especificado.
+        /// </summary>
+        /// <param name="index">O índice.</param>
+        public void RemoveAt(int index)
+        {
+            if (this.isReadOnly)
+            {
+                throw new CollectionsException("The collection is readonly.");
+            }
+            else
+            {
+                this.elements.RemoveAt(index);
+            }
+        }
+
+        /// <summary>
         /// Limpa a colecção.
         /// </summary>
         public void Clear()
@@ -473,6 +489,32 @@
                 else
                 {
                     index = this.elements.Count;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Obtém o índice do primeiro objecto encontrado na colecção.
+        /// </summary>
+        /// <param name="objectTofind">O objecto a ser encontrado.</param>
+        /// <returns>O índice do objecto caso este exista e -1 caso contrário.</returns>
+        public int IndexOf(T objectTofind)
+        {
+            var result = this.FindLowestPosition(objectTofind);
+            if (result >= this.elements.Count)
+            {
+                return -1;
+            }
+            else
+            {
+                var current = this.elements[result];
+                if (this.comparer.Compare(objectTofind, current) == 0)
+                {
+                    return result;
+                }
+                else
+                {
+                    return -1;
                 }
             }
         }

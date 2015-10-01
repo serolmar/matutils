@@ -33,11 +33,14 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
     <CodeAnalysisDependentAssemblyPaths Condition=" '$(VS100COMNTOOLS)' != '' " Include="$(VS100COMNTOOLS)..\IDE\PrivateAssemblies">
@@ -46,10 +49,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CollectionsTests.cs" />
-    <Compile Include="CsvFileParserTest.cs" />
+    <Compile Include="FileTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RectangularRegionsTest.cs" />
     <Compile Include="SimpleTextSymbolReaderTest.cs" />
+    <Compile Include="TabularItemsTest.cs" />
     <Compile Include="TrieTest.cs" />
   </ItemGroup>
   <ItemGroup>

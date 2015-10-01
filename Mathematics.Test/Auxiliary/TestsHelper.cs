@@ -244,7 +244,7 @@
         {
             var reader = new StringReader(matrixText);
             var stringSymbolReader = new StringSymbolReader(reader, readNegativeNumbers);
-            var arrayMatrixReader = new ConfigMatrixReader<T, string, string, CharSymbolReader<string>>(
+            var arrayMatrixReader = new ConfigMatrixReader<T, string, string>(
                 lines,
                 columns,
                 matrixFactory);

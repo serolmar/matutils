@@ -1103,34 +1103,31 @@
             }
 
             var foundIntersection = true;
-            if (secondX <= firstX + 1
-                && secondY <= firstY + 1)
-            {
-                // É possível não se dar intersecção neste ponto
-                var xCandidates = this.GetXCandiadates(firstX, secondX, mergingRegion.TopLeftX, mergingRegion.BottomRightX);
-                var yCandidates = this.GetYCandiadates(firstY, secondY, mergingRegion.TopLeftY, mergingRegion.BottomRightY);
 
-                var xCandidatesEnum = xCandidates.GetEnumerator();
-                var yCandidateEnum = yCandidates.GetEnumerator();
-                var state = xCandidatesEnum.MoveNext() && yCandidateEnum.MoveNext();
-                foundIntersection = false;
-                while (state)
+            // É possível não se dar intersecção neste ponto
+            var xCandidates = this.GetXCandiadates(firstX, secondX, mergingRegion.TopLeftX, mergingRegion.BottomRightX);
+            var yCandidates = this.GetYCandiadates(firstY, secondY, mergingRegion.TopLeftY, mergingRegion.BottomRightY);
+
+            var xCandidatesEnum = xCandidates.GetEnumerator();
+            var yCandidateEnum = yCandidates.GetEnumerator();
+            var state = xCandidatesEnum.MoveNext() && yCandidateEnum.MoveNext();
+            foundIntersection = false;
+            while (state)
+            {
+                var x = xCandidatesEnum.Current;
+                var y = yCandidateEnum.Current;
+                if (x < y)
                 {
-                    var x = xCandidatesEnum.Current;
-                    var y = yCandidateEnum.Current;
-                    if (x < y)
-                    {
-                        state = xCandidatesEnum.MoveNext();
-                    }
-                    else if (x == y)
-                    {
-                        foundIntersection = true;
-                        state = false;
-                    }
-                    else
-                    {
-                        state = yCandidateEnum.MoveNext();
-                    }
+                    state = xCandidatesEnum.MoveNext();
+                }
+                else if (x == y)
+                {
+                    foundIntersection = true;
+                    state = false;
+                }
+                else
+                {
+                    state = yCandidateEnum.MoveNext();
                 }
             }
 

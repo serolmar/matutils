@@ -13,9 +13,8 @@
     /// <typeparam name="T">O tipo dos objectos que constituem as entradas dos alcances multidimensionais.</typeparam>
     /// <typeparam name="SymbValue">O tipo dos objectos que costituem os valores dos símbolos.</typeparam>
     /// <typeparam name="SymbType">Os tipos de objectos que constituem os tipos de símbolos.</typeparam>
-    /// <typeparam name="InputReader">O tipo do leitor de entrada..</typeparam>
-    public class RangeConfigReader<T, SymbValue, SymbType, InputReader> 
-        : ARangeReader<T, SymbValue, SymbType, InputReader>
+    public class RangeConfigReader<T, SymbValue, SymbType> 
+        : ARangeReader<T, SymbValue, SymbType>
     {
         /// <summary>
         /// O leitor de elementos.
@@ -53,7 +52,7 @@
         private List<IState<SymbValue, SymbType>> stateList = new List<IState<SymbValue, SymbType>>();
 
         /// <summary>
-        /// Instancia um novo objecto do tipo <see cref="RangeConfigReader{T, SymbValue, SymbType, InputReader}"/>.
+        /// Instancia um novo objecto do tipo <see cref="RangeConfigReader{T, SymbValue, SymbType}"/>.
         /// </summary>
         /// <param name="finalConfiguration">A configuração pretendida.</param>
         /// <exception cref="ExpressionReaderException">Se a configuração final for nula.</exception>
@@ -84,7 +83,7 @@
         /// <param name="parser">O leitor de objectos.</param>
         /// <exception cref="ArgumentNullException">Se algum dos argumentos for nulo.</exception>
         protected override void InnerReadRangeValues(
-            MementoSymbolReader<InputReader, SymbValue, SymbType> reader,
+            IMementoSymbolReader<SymbValue, SymbType> reader,
             IParse<T, SymbValue, SymbType> parser)
         {
             if (reader == null)
@@ -126,7 +125,7 @@
         /// Inicia a máquina de estado responsável por realizar a leitura.
         /// </summary>
         /// <param name="reader">O leitor de símbolos.</param>
-        private void RunStateMchine(MementoSymbolReader<InputReader, SymbValue, SymbType> reader)
+        private void RunStateMchine(IMementoSymbolReader<SymbValue, SymbType> reader)
         {
             var stateMchine = new StateMachine<SymbValue, SymbType>(stateList[0], stateList[1]);
             stateMchine.RunMachine(reader);
@@ -146,12 +145,12 @@
         private void InitStates()
         {
             this.stateList.Clear();
-            this.stateList.Add(new DelegateStateImplementation<SymbValue, SymbType>(0, "start", this.StartTransition));
-            this.stateList.Add(new DelegateStateImplementation<SymbValue, SymbType>(1, "end", this.EndTransition));
-            this.stateList.Add(new DelegateStateImplementation<SymbValue, SymbType>(2, "sequence", this.SequenceTransition));
-            this.stateList.Add(new DelegateStateImplementation<SymbValue, SymbType>(3, "element", this.ElementTransition));
-            this.stateList.Add(new DelegateStateImplementation<SymbValue, SymbType>(4, "inside", this.InsideElementDelimitersTransition));
-            this.stateList.Add(new DelegateStateImplementation<SymbValue, SymbType>(5, "operator", this.OperatorTransition));
+            this.stateList.Add(new DelegateDrivenState<SymbValue, SymbType>(0, "start", this.StartTransition));
+            this.stateList.Add(new DelegateDrivenState<SymbValue, SymbType>(1, "end", this.EndTransition));
+            this.stateList.Add(new DelegateDrivenState<SymbValue, SymbType>(2, "sequence", this.SequenceTransition));
+            this.stateList.Add(new DelegateDrivenState<SymbValue, SymbType>(3, "element", this.ElementTransition));
+            this.stateList.Add(new DelegateDrivenState<SymbValue, SymbType>(4, "inside", this.InsideElementDelimitersTransition));
+            this.stateList.Add(new DelegateDrivenState<SymbValue, SymbType>(5, "operator", this.OperatorTransition));
         }
 
         /// <summary>
@@ -302,18 +301,19 @@
                             readedSymbol = reader.Get();
                         }
 
-                        var currentElement = default(T);
-                        if (this.parser.TryParse(this.currentElementSymbols.ToArray(), out currentElement))
-                        {
-                            this.readedElements.Add(currentElement);
-                            reader.UnGet();
-                            return this.stateList[3];
-                        }
-                        else
+                        var error = new LogStatus<string, EParseErrorLevel>();
+                        var currentElement = this.parser.Parse(this.currentElementSymbols.ToArray(), error);
+                        if (error.HasLogs(EParseErrorLevel.ERROR))
                         {
                             this.errorMessages.Add("Can't parse object value.");
                             this.hasErrors = true;
                             return this.stateList[1];
+                        }
+                        else
+                        {
+                            this.readedElements.Add(currentElement);
+                            reader.UnGet();
+                            return this.stateList[3];
                         }
                     }
                     else
@@ -459,18 +459,19 @@
                     this.currentElementSymbols.Add(readedSymbol);
                 }
 
-                var currentElement = default(T);
-                if (this.parser.TryParse(this.currentElementSymbols.ToArray(), out currentElement))
-                {
-                    this.readedElements.Add(currentElement);
-                    this.currentElementSymbols.Clear();
-                    return this.stateList[3];
-                }
-                else
+                var error = new LogStatus<string, EParseErrorLevel>();
+                var currentElement = this.parser.Parse(this.currentElementSymbols.ToArray(), error);
+                if (error.HasLogs(EParseErrorLevel.ERROR))
                 {
                     this.errorMessages.Add("Can't parse object value.");
                     this.hasErrors = true;
                     return this.stateList[1];
+                }
+                else
+                {
+                    this.readedElements.Add(currentElement);
+                    this.currentElementSymbols.Clear();
+                    return this.stateList[3];
                 }
             }
         }
@@ -582,18 +583,19 @@
                             readedSymbol = reader.Get();
                         }
 
-                        var currentElement = default(T);
-                        if (this.parser.TryParse(this.currentElementSymbols.ToArray(), out currentElement))
-                        {
-                            this.readedElements.Add(currentElement);
-                            reader.UnGet();
-                            return this.stateList[3];
-                        }
-                        else
+                        var error = new LogStatus<string, EParseErrorLevel>();
+                        var currentElement = this.parser.Parse(this.currentElementSymbols.ToArray(), error);
+                        if (error.HasLogs(EParseErrorLevel.ERROR))
                         {
                             this.errorMessages.Add("Can't parse object value.");
                             this.hasErrors = true;
                             return this.stateList[1];
+                        }
+                        else
+                        {
+                            this.readedElements.Add(currentElement);
+                            reader.UnGet();
+                            return this.stateList[3];
                         }
                     }
                 }

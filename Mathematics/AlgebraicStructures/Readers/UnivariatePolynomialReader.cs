@@ -139,7 +139,7 @@
         public bool TryParsePolynomial(
             MementoSymbolReader<InputReader, string, string> polynomialReader,
             IConversion<int, T> conversion,
-            List<string> errors,
+            ILogStatus<string,EParseErrorLevel> errors,
             out UnivariatePolynomialNormalForm<T> resultPolynomial)
         {
             if (polynomialReader == null)
@@ -194,8 +194,17 @@
                 expressionReader.AddVoid("carriage_return");
                 expressionReader.AddVoid("new_line");
 
-                var expressionResult = default(ParseUnivarPolynomNormalFormItem<T>);
-                if (expressionReader.TryParse(polynomialReader, errors, out expressionResult))
+                var innerErrors = new LogStatus<string,EParseErrorLevel>();
+                var expressionResult = expressionReader.Parse(polynomialReader, innerErrors);
+                if (innerErrors.HasLogs(EParseErrorLevel.ERROR))
+                {
+                    foreach (var kvp in innerErrors.GetLogs())
+                    {
+                        errors.AddLog(kvp.Value, kvp.Key);
+                    }
+                    return false;
+                }
+                else
                 {
                     if (expressionResult.ValueType == EParsePolynomialValueType.COEFFICIENT)
                     {
@@ -231,15 +240,11 @@
                     {
                         if (errors != null)
                         {
-                            errors.Add("Severe error.");
+                            errors.AddLog("Severe error.", EParseErrorLevel.ERROR);
                         }
 
                         return false;
                     }
-                }
-                else
-                {
-                    return false;
                 }
             }
         }

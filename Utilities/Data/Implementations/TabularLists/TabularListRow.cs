@@ -73,6 +73,17 @@
         }
 
         /// <summary>
+        /// O número da última coluna.
+        /// </summary>
+        public int LastColumnNumber
+        {
+            get
+            {
+                return this.GetLastColumnNumber(this.rowNumber);
+            }
+        }
+
+        /// <summary>
         /// Obtém um enumerador para a linha.
         /// </summary>
         /// <returns>O enumerador.</returns>
@@ -102,6 +113,13 @@
         protected abstract int GetRowCount(int rowNumber);
 
         /// <summary>
+        /// Obtém o número da última coluna na linha actual.
+        /// </summary>
+        /// <param name="rowNumber">O número da linha.</param>
+        /// <returns>O número da última coluna.</returns>
+        protected abstract int GetLastColumnNumber(int rowNumber);
+
+        /// <summary>
         /// Obtém a célula especificada pelo índice.
         /// </summary>
         /// <param name="rowNumber">O número da linha que contém a célula.</param>
@@ -113,20 +131,26 @@
     /// <summary>
     /// Implementa uma tabela só de leitura.
     /// </summary>
-    internal class ReadonlyTabularListRow 
+    /// <typeparam name="P">O tipo de objectos que constituem a tabela que contém a linha.</typeparam>
+    /// <typeparam name="R">O tipo de objectos que definem as linhas da tabela.</typeparam>
+    /// <typeparam name="L">O tipo de objectos que definem as colunas da tabela.</typeparam>
+    internal class ReadonlyTabularListRow<P, R, L>
         : AGeneralTabularListRow<IReadonlyTabularCell>, IReadonlyTabularRow
+        where P : IGeneralTabularItem<R>
+        where R : IGeneralTabularRow<L>
+        where L : IGeneralTabularCell
     {
         /// <summary>
         /// A tabela que contém a linha.
         /// </summary>
-        private ReadonlyTabularListItem parent;
-        
+        private P parent;
+
         /// <summary>
-        /// Instancia uma nova instância de objectos do tipo <see cref="ReadonlyTabularListRow"/>.
+        /// Instancia uma nova instância de objectos do tipo <see cref="ReadonlyTabularListRow{P, R, L}"/>.
         /// </summary>
         /// <param name="rowNumber">O número da linha.</param>
         /// <param name="parent">A tabela que contém a linha.</param>
-        public ReadonlyTabularListRow(int rowNumber, ReadonlyTabularListItem parent)
+        public ReadonlyTabularListRow(int rowNumber, P parent)
             : base(rowNumber)
         {
             this.parent = parent;
@@ -139,7 +163,17 @@
         /// <returns>O número de colunas na linha.</returns>
         protected override int GetRowCount(int rowNumber)
         {
-            return this.parent.GetRowCount(rowNumber);
+            return this.parent.ColumnsCount(rowNumber);
+        }
+
+        /// <summary>
+        /// Obtém o número da última coluna na linha actual.
+        /// </summary>
+        /// <param name="rowNumber">O número da linha.</param>
+        /// <returns>O número da última coluna.</returns>
+        protected override int GetLastColumnNumber(int rowNumber)
+        {
+            return this.parent.GetLastColumnNumber(rowNumber);
         }
 
         /// <summary>
@@ -150,26 +184,29 @@
         /// <returns>A célula.</returns>
         protected override IReadonlyTabularCell GetCell(int rowNumber, int columnNumber)
         {
-            return new ReadonlyTabularListCell(rowNumber, columnNumber);
+            return new ReadonlyTabularListCell<P,R,L>(
+                rowNumber, 
+                columnNumber, 
+                this.parent);
         }
     }
-
     /// <summary>
     /// Implementa uma linha da tabela.
     /// </summary>
-    internal class TabularListRow : AGeneralTabularListRow<ITabularCell>, ITabularRow
+    internal class TabularListRow
+        :AGeneralTabularListRow<ITabularCell>, ITabularRow
     {
         /// <summary>
         /// A tabela que contém a linha.
         /// </summary>
-        protected TabularListsItem parent;
+        protected ITabularItem parent;
 
         /// <summary>
         /// Instancia um novo objecto do tipo <see cref="TabularListRow"/>.
         /// </summary>
         /// <param name="rowNumber">O número da linha.</param>
         /// <param name="parent">A tabela que contém a linha.</param>
-        public TabularListRow(int rowNumber, TabularListsItem parent)
+        public TabularListRow(int rowNumber, ITabularItem parent)
             : base(rowNumber)
         {
             this.parent = parent;
@@ -179,7 +216,7 @@
         /// Obtém ou atribui a tabela à qual pertence a célula.
         /// </summary>
         /// <value>A tablea.</value>
-        public TabularListsItem Parent
+        public ITabularItem Parent
         {
             get
             {
@@ -198,7 +235,17 @@
         /// <returns>O número de colunas na linha.</returns>
         protected override int GetRowCount(int rowNumber)
         {
-            return this.parent.GetRowCount(rowNumber);
+            return this.parent.ColumnsCount(rowNumber);
+        }
+
+        /// <summary>
+        /// Obtém o número da última coluna na linha actual.
+        /// </summary>
+        /// <param name="rowNumber">O número da linha.</param>
+        /// <returns>O número da última coluna.</returns>
+        protected override int GetLastColumnNumber(int rowNumber)
+        {
+            return this.parent.GetLastColumnNumber(rowNumber);
         }
 
         /// <summary>

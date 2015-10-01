@@ -48,7 +48,7 @@
         /// Se o leitor de objectos ou o anel não forem providenciados.
         /// </exception>
         public RingDrivenExpressionReader(
-            IParse<ObjectType, string, string> objectParser, 
+            IParse<ObjectType, string, string> objectParser,
             IRing<ObjectType> ring,
             IIntegerNumber<ObjectType> integerNumber)
         {
@@ -115,7 +115,7 @@
         /// <returns>Verdadeiro caso a leitura seja bem-sucedida e falso caso contrário.</returns>
         public bool TryParsePolynomial(
             MementoSymbolReader<InputReader, string, string> reader,
-            List<string> errors,
+            ILogStatus<string, EParseErrorLevel> errors,
             out ObjectType element)
         {
             if (reader == null)
@@ -164,8 +164,21 @@
                 expressionReader.AddVoid("carriage_return");
                 expressionReader.AddVoid("new_line");
 
-                element = default(ObjectType);
-                return expressionReader.TryParse(reader, errors, out element);
+                var innerErrors = new LogStatus<string, EParseErrorLevel>();
+                element = expressionReader.Parse(reader, innerErrors);
+                foreach (var kvp in innerErrors.GetLogs())
+                {
+                    errors.AddLog(kvp.Value, kvp.Key);
+                }
+
+                if (innerErrors.HasLogs(EParseErrorLevel.ERROR))
+                {
+                    return false;
+                }
+                else
+                {
+                    return true;
+                }
             }
         }
 

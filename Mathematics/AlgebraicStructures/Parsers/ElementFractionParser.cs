@@ -72,23 +72,33 @@
         }
 
         /// <summary>
-        /// Experimenta a leitura da fracção.
+        /// Realiza a leitura.
         /// </summary>
-        /// <param name="symbolListToParse">A lista de símbolos a partir da qual a leitura é realizada.</param>
-        /// <param name="value">Recebe o resultado da leitura.</param>
-        /// <returns>Veradeiro caso a leitura seja bem-sucedida e falso caso contrário.</returns>
-        public bool TryParse(ISymbol<string, string>[] symbolListToParse, out Fraction<ElementType> value)
+        /// <remarks>
+        /// Se a leitura não for bem-sucedida, os erros de leitura serão registados no diário
+        /// e será retornado o objecto por defeito.
+        /// </remarks>
+        /// <param name="symbolListToParse">O vector de símbolos a ser lido.</param>
+        /// <param name="errorLogs">O objecto que irá manter o registo do diário da leitura.</param>
+        /// <returns>O valor lido.</returns>
+        public Fraction<ElementType> Parse(
+            ISymbol<string, string>[] symbolListToParse, 
+            ILogStatus<string, EParseErrorLevel> errorLogs)
         {
-            value = null;
-            var parsedElement = default(ElementType);
-            if (this.elementParser.TryParse(symbolListToParse, out parsedElement))
+            var innerErrorLog = new LogStatus<string, EParseErrorLevel>();
+            var parsed = this.elementParser.Parse(symbolListToParse, innerErrorLog);
+            if (innerErrorLog.HasLogs(EParseErrorLevel.ERROR))
             {
-                value = new Fraction<ElementType>(parsedElement, this.domain.MultiplicativeUnity, this.domain);
-                return true;
+                foreach (var message in innerErrorLog.GetLogs(EParseErrorLevel.ERROR))
+                {
+                    errorLogs.AddLog(message, EParseErrorLevel.ERROR);
+                }
+
+                return default(Fraction<ElementType>);
             }
             else
             {
-                return false;
+                return new Fraction<ElementType>(parsed, this.domain.MultiplicativeUnity, this.domain);
             }
         }
     }

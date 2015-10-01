@@ -646,8 +646,7 @@
         : ADicDrivenTrie<LabelType, ColType, int>,
         ITrie<LabelType, ColType, int>,
         ISet<ColType>,
-        ICollection,
-        IIndexed<int, ColType>
+        ICollection
         where ColType : IEnumerable<LabelType>
     {
 

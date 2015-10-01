@@ -40,7 +40,7 @@
         /// <summary>
         /// O providenciador de leitores.
         /// </summary>
-        private IDataReaderProvider<IParse<ElementsType, SymbValue, SymbType>> provider;
+        private Func<int, int, IParse<ElementsType, SymbValue, SymbType>> provider;
 
         /// <summary>
         /// Os delimitadores.
@@ -98,7 +98,7 @@
         public CsvFileParser(
             SymbType lineSeparator,
             SymbType columnSeparator,
-            IDataReaderProvider<IParse<ElementsType, SymbValue, SymbType>> provider)
+            Func<int, int, IParse<ElementsType, SymbValue, SymbType>> provider)
         {
             if (provider == null)
             {
@@ -283,10 +283,10 @@
         private void InitStates()
         {
             this.states = new List<IState<SymbValue, SymbType>>();
-            this.states.Add(new DelegateStateImplementation<SymbValue, SymbType>(0, "start", this.StartTransition));
-            this.states.Add(new DelegateStateImplementation<SymbValue, SymbType>(1, "end", this.EndTransition));
-            this.states.Add(new DelegateStateImplementation<SymbValue, SymbType>(2, "reading", this.ReadingTransition));
-            this.states.Add(new DelegateStateImplementation<SymbValue, SymbType>(3, "delimiters", this.InsideDelimitersTransition));
+            this.states.Add(new DelegateDrivenState<SymbValue, SymbType>(0, "start", this.StartTransition));
+            this.states.Add(new DelegateDrivenState<SymbValue, SymbType>(1, "end", this.EndTransition));
+            this.states.Add(new DelegateDrivenState<SymbValue, SymbType>(2, "reading", this.ReadingTransition));
+            this.states.Add(new DelegateDrivenState<SymbValue, SymbType>(3, "delimiters", this.InsideDelimitersTransition));
         }
 
         /// <summary>
@@ -312,20 +312,14 @@
                 }
                 else if (symbol.SymbolType.Equals(this.columnSeparator))
                 {
-                    var dataParser = default(IParse<ElementsType, SymbValue, SymbType>);
-                    if (!this.provider.TryGetDataReader(
+                    var dataParser = this.provider(
                         this.currentRowNumber,
-                        this.currentColumnNumber,
-                        out dataParser))
-                    {
-                        throw new UtilitiesDataException(string.Format(
-                            "No data reader was provided for cell with coords ({0},{1}).",
-                            this.currentRowNumber,
-                            this.currentRowNumber));
-                    }
+                        this.currentColumnNumber);
 
-                    var parsed = default(ElementsType);
-                    if (!dataParser.TryParse(this.currentSymbolValues.ToArray(), out parsed))
+                    var error = new LogStatus<string, EParseErrorLevel>();
+                    var parsed = dataParser.Parse(
+                        this.currentSymbolValues.ToArray(), error);
+                    if(error.HasLogs(EParseErrorLevel.ERROR))
                     {
                         throw new UtilitiesDataException(string.Format(
                             "Can't parse value from cell with coords ({0},{1}) with the provided parser.",
@@ -376,20 +370,13 @@
             {
                 if (this.currentSymbolValues.Count > 0 || this.currentRow.Count > 0)
                 {
-                    var dataParser = default(IParse<ElementsType, SymbValue, SymbType>);
-                    if (!this.provider.TryGetDataReader(
+                    var dataParser = this.provider(
                         this.currentRowNumber,
-                        this.currentColumnNumber,
-                        out dataParser))
-                    {
-                        throw new UtilitiesDataException(string.Format(
-                            "No data reader was provided for cell with coords ({0},{1}).",
-                            this.currentRowNumber,
-                            this.currentRowNumber));
-                    }
+                        this.currentColumnNumber);
 
-                    var parsed = default(ElementsType);
-                    if (!dataParser.TryParse(this.currentSymbolValues.ToArray(), out parsed))
+                    var error = new LogStatus<string, EParseErrorLevel>();
+                    var parsed = dataParser.Parse(this.currentSymbolValues.ToArray(), error);
+                    if (error.HasLogs(EParseErrorLevel.ERROR))
                     {
                         throw new UtilitiesDataException(string.Format(
                             "Can't parse value from cell with coords ({0},{1}) with the provided parser.",
@@ -408,25 +395,18 @@
                 var symbol = reader.Get();
                 if (symbol.SymbolType.Equals(this.lineSeparator))
                 {
-                    var dataParser = default(IParse<ElementsType, SymbValue, SymbType>);
-                    if (!this.provider.TryGetDataReader(
+                    var dataParser = this.provider(
                         this.currentRowNumber,
-                        this.currentColumnNumber,
-                        out dataParser))
-                    {
-                        throw new UtilitiesDataException(string.Format(
-                            "No data reader was provided for cell with coords ({0},{1}).",
-                            this.currentRowNumber,
-                            this.currentRowNumber));
-                    }
+                        this.currentColumnNumber);
 
-                    var parsed = default(ElementsType);
-                    if (!dataParser.TryParse(this.currentSymbolValues.ToArray(), out parsed))
+                    var error = new LogStatus<string, EParseErrorLevel>();
+                    var parsed = dataParser.Parse(this.currentSymbolValues.ToArray(), error);
+                    if (error.HasLogs(EParseErrorLevel.ERROR))
                     {
                         throw new UtilitiesDataException(string.Format(
                             "Can't parse value from cell with coords ({0},{1}) with the provided parser.",
                             this.currentRowNumber,
-                            this.currentColumnNumber));
+                            this.currentRowNumber));
                     }
 
                     this.currentRow.Add(parsed);
@@ -439,25 +419,18 @@
                 }
                 else if (symbol.SymbolType.Equals(this.columnSeparator))
                 {
-                    var dataParser = default(IParse<ElementsType, SymbValue, SymbType>);
-                    if (!this.provider.TryGetDataReader(
+                    var dataParser = this.provider(
                         this.currentRowNumber,
-                        this.currentColumnNumber,
-                        out dataParser))
-                    {
-                        throw new UtilitiesDataException(string.Format(
-                            "No data reader was provided for cell with coords ({0},{1}).",
-                            this.currentRowNumber,
-                            this.currentColumnNumber));
-                    }
+                        this.currentColumnNumber);
 
-                    var parsed = default(ElementsType);
-                    if (!dataParser.TryParse(this.currentSymbolValues.ToArray(), out parsed))
+                    var error = new LogStatus<string, EParseErrorLevel>();
+                    var parsed = dataParser.Parse(this.currentSymbolValues.ToArray(), error);
+                    if (error.HasLogs(EParseErrorLevel.ERROR))
                     {
                         throw new UtilitiesDataException(string.Format(
                             "Can't parse value from cell with coords ({0},{1}) with the provided parser.",
                             this.currentRowNumber,
-                            this.currentColumnNumber));
+                            this.currentRowNumber));
                     }
 
                     this.currentRow.Add(parsed);
@@ -499,25 +472,18 @@
                 var topValue = symbolsStack.Pop();
                 if (reader.IsAtEOF())
                 {
-                    var dataParser = default(IParse<ElementsType, SymbValue, SymbType>);
-                    if (!this.provider.TryGetDataReader(
+                    var dataParser = this.provider(
                         this.currentRowNumber,
-                        this.currentColumnNumber,
-                        out dataParser))
-                    {
-                        throw new UtilitiesDataException(string.Format(
-                            "No data reader was provided for cell with coords ({0},{1}).",
-                            this.currentRowNumber,
-                            this.currentColumnNumber));
-                    }
+                        this.currentColumnNumber);
 
-                    var parsed = default(ElementsType);
-                    if (!dataParser.TryParse(this.currentSymbolValues.ToArray(), out parsed))
+                    var error = new LogStatus<string, EParseErrorLevel>();
+                    var parsed = dataParser.Parse(this.currentSymbolValues.ToArray(), error);
+                    if (error.HasLogs(EParseErrorLevel.ERROR))
                     {
                         throw new UtilitiesDataException(string.Format(
                             "Can't parse value from cell with coords ({0},{1}) with the provided parser.",
                             this.currentRowNumber,
-                            this.currentColumnNumber));
+                            this.currentRowNumber));
                     }
 
                     this.currentRow.Add(parsed);

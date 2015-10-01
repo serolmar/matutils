@@ -1,4 +1,4 @@
-﻿namespace Apagame
+﻿namespace Utilities
 {
     using System;
     using System.Collections.Generic;
@@ -940,7 +940,6 @@
         /// Permite ignorar elemento actual.
         /// </summary>
         /// <param name="reader">O leitor de XML.</param>
-        /// <param name="elementName">O nome do elemento.</param>
         private void ReadIgnore(XmlReader reader)
         {
             if (!reader.IsEmptyElement)

@@ -728,8 +728,14 @@
                     ISymbol<string, string>[] symbolListToParse, 
                     out LispStyleList<Q>.ElementList<Q> value)
                 {
-                    Q tempVal = default(Q);
-                    if (this.parserForT.TryParse(symbolListToParse, out tempVal))
+                    var error = new LogStatus<string, EParseErrorLevel>();
+                    Q tempVal = this.parserForT.Parse(symbolListToParse, error);
+                    if (error.HasLogs(EParseErrorLevel.ERROR))
+                    {
+                        value = null;
+                        return false;
+                    }
+                    else
                     {
                         List<LispStyleList<Q>.ElementList<Q>> tempList = new List<LispStyleList<Q>.ElementList<Q>>();
                         tempList.Add(new LispStyleList<Q>.ElementList<Q>() { Element = tempVal, Elements = null });
@@ -741,12 +747,41 @@
 
                         return true;
                     }
-                    else
-                    {
-                        value = null;
-                        return false;
-                    }
                 }
+
+                /// <summary>
+                /// Realiza a leitura.
+                /// </summary>
+                /// <remarks>
+                /// Se a leitura não for bem-sucedida, os erros de leitura serão registados no diário
+                /// e será retornado o objecto por defeito.
+                /// </remarks>
+                /// <param name="symbolListToParse">O vector de símbolos a ser lido.</param>
+                /// <param name="errorLogs">O objecto que irá manter o registo do diário da leitura.</param>
+                /// <returns>O valor lido.</returns>
+                public LispStyleList<Q>.ElementList<Q> Parse(
+                    ISymbol<string, string>[] symbolListToParse, 
+                    ILogStatus<string, EParseErrorLevel> errorLogs)
+                {
+                    throw new NotImplementedException();
+                }
+            }
+
+            /// <summary>
+            /// Realiza a leitura.
+            /// </summary>
+            /// <remarks>
+            /// Se a leitura não for bem-sucedida, os erros de leitura serão registados no diário
+            /// e será retornado o objecto por defeito.
+            /// </remarks>
+            /// <param name="symbolListToParse">O vector de símbolos a ser lido.</param>
+            /// <param name="errorLogs">O objecto que irá manter o registo do diário da leitura.</param>
+            /// <returns>O valor lido.</returns>
+            public LispStyleList<R> Parse(
+                ISymbol<string, string>[] symbolListToParse, 
+                ILogStatus<string, EParseErrorLevel> errorLogs)
+            {
+                throw new NotImplementedException();
             }
         }
     }

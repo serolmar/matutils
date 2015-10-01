@@ -48,23 +48,33 @@
         }
 
         /// <summary>
-        /// Experimenta a leitura de uma fracção simples a partir de uma lista de símbolos.
+        /// Realiza a leitura.
         /// </summary>
-        /// <param name="symbolListToParse">A lista de símbolos.</param>
-        /// <param name="value">O valor que receberá a leitura de fracção.</param>
-        /// <returns>Verdadeiro caso a leitura seja bem-sucedida e falso caso contrário.</returns>
-        public bool TryParse(ISymbol<string, string>[] symbolListToParse, out Fraction<T> value)
+        /// <remarks>
+        /// Se a leitura não for bem-sucedida, os erros de leitura serão registados no diário
+        /// e será retornado o objecto por defeito.
+        /// </remarks>
+        /// <param name="symbolListToParse">O vector de símbolos a ser lido.</param>
+        /// <param name="errorLogs">O objecto que irá manter o registo do diário da leitura.</param>
+        /// <returns>O valor lido.</returns>
+        public Fraction<T> Parse(
+            ISymbol<string, string>[] symbolListToParse, 
+            ILogStatus<string, EParseErrorLevel> errorLogs)
         {
-            var parsedElement = default(T);
-            if (this.elementParser.TryParse(symbolListToParse, out parsedElement))
+            var innerErrors = new LogStatus<string, EParseErrorLevel>();
+            var parsedElement = this.elementParser.Parse(symbolListToParse, innerErrors);
+            foreach (var kvp in innerErrors.GetLogs())
             {
-                value = new Fraction<T>(parsedElement, this.domain.MultiplicativeUnity, this.domain);
-                return true;
+                errorLogs.AddLog(kvp.Value, kvp.Key);
+            }
+
+            if (innerErrors.HasLogs(EParseErrorLevel.ERROR))
+            {
+                return default(Fraction<T>);
             }
             else
             {
-                value = default(Fraction<T>);
-                return false;
+                return new Fraction<T>(parsedElement, this.domain.MultiplicativeUnity, this.domain);
             }
         }
     }

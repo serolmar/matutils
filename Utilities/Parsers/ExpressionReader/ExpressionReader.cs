@@ -60,7 +60,7 @@
         /// <summary>
         /// O mapeamento dos delimitadores internos.
         /// </summary>
-        private Dictionary<SymbType, List<ExpressionCompoundDelimiter<ObjType, SymbType>>> expressionDelimitersTypes = 
+        private Dictionary<SymbType, List<ExpressionCompoundDelimiter<ObjType, SymbType>>> expressionDelimitersTypes =
             new Dictionary<SymbType, List<ExpressionCompoundDelimiter<ObjType, SymbType>>>();
 
         /// <summary>
@@ -128,7 +128,7 @@
         {
             this.errorMessages.Clear();
             StateMachine<SymbValue, SymbType> stateMchine = new StateMachine<SymbValue, SymbType>(
-                this.stateList[0], 
+                this.stateList[0],
                 this.stateList[1]);
             stateMchine.RunMachine(reader);
             if (this.errorMessages.Count > 0)
@@ -163,7 +163,16 @@
         /// <returns>Verdadeiro se a leitura for bem-sucedida e falso caso contrário.</returns>
         public bool TryParse(ISymbolReader<SymbValue, SymbType> reader, out ObjType result)
         {
-            return this.TryParse(reader, null, out result);
+            var error = new LogStatus<string, EParseErrorLevel>();
+            result = this.Parse(reader, error);
+            if (error.HasLogs(EParseErrorLevel.ERROR))
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
         }
 
         /// <summary>
@@ -171,11 +180,10 @@
         /// </summary>
         /// <param name="reader">O leitor de símbolos.</param>
         /// <param name="errors">A lista que contém os erros de leitura.</param>
-        /// <param name="result">A variável que contém o resultado da leitura.</param>
         /// <returns>Verdadeiro se a leitura for bem-sucedida e falso caso contrário.</returns>
-        public bool TryParse(ISymbolReader<SymbValue, SymbType> reader, List<string> errors, out ObjType result)
+        public ObjType Parse(ISymbolReader<SymbValue, SymbType> reader, ILogStatus<string, EParseErrorLevel> errors)
         {
-            result = default(ObjType);
+            var result = default(ObjType);
             this.errorMessages.Clear();
             StateMachine<SymbValue, SymbType> stateMchine = new StateMachine<SymbValue, SymbType>(this.stateList[0], this.stateList[1]);
             stateMchine.RunMachine(reader);
@@ -185,27 +193,27 @@
                 {
                     foreach (var message in this.errorMessages)
                     {
-                        errors.Add(message);
+                        errors.AddLog(message, EParseErrorLevel.ERROR);
                     }
                 }
 
-                return false;
+                return result;
             }
             else
             {
                 if (this.elementStack.Count != 0)
                 {
                     result = this.elementStack.Pop();
-                    return true;
+                    return result;
                 }
                 else
                 {
                     if (errors != null)
                     {
-                        errors.Add("Empty value.");
+                        errors.AddLog("Empty value.", EParseErrorLevel.ERROR);
                     }
 
-                    return false;
+                    return result;
                 }
             }
         }
@@ -329,8 +337,8 @@
         /// Se o delimitador se encontra a ser utilizado em outros cenários.
         /// </exception>
         public void RegisterExpressionDelimiterTypes(
-            SymbType openDelimiter, 
-            SymbType closeDelimiter, 
+            SymbType openDelimiter,
+            SymbType closeDelimiter,
             UnaryOperator<ObjType> delimOp)
         {
             if (this.externalDelimitersTypes.ContainsKey(openDelimiter))
@@ -451,7 +459,7 @@
         /// <param name="closeDelimiterType">O delimitador de fecho.</param>
         /// <returns>O delegado.</returns>
         private ExpressionCompoundDelimiter<ObjType, SymbType> GetDelegateCompoundForPair(
-            SymbType openDelimiterType, 
+            SymbType openDelimiterType,
             SymbType closeDelimiterType)
         {
             var compound = new ExpressionCompoundDelimiter<ObjType, SymbType>() { DelimiterType = closeDelimiterType };
@@ -483,6 +491,7 @@
             {
                 return false;
             }
+
             return this.expressionDelimitersTypes[operatorTypeToMatch].Contains(compound);
         }
 
@@ -731,7 +740,7 @@
         /// </summary>
         /// <param name="reader">O leitor de símbolos.</param>
         /// <returns>O próximo estado.</returns>
-        protected virtual IState< SymbValue, SymbType> StartTransition(ISymbolReader<SymbValue, SymbType> reader)
+        protected virtual IState<SymbValue, SymbType> StartTransition(ISymbolReader<SymbValue, SymbType> reader)
         {
             this.IgnoreVoids(reader);
             if (reader.IsAtEOF())
@@ -778,7 +787,7 @@
         /// </summary>
         /// <param name="reader">O leitor de símbolos.</param>
         /// <returns>O próximo estado.</returns>
-        private IState< SymbValue, SymbType> EndTransition(ISymbolReader<SymbValue, SymbType> reader)
+        private IState<SymbValue, SymbType> EndTransition(ISymbolReader<SymbValue, SymbType> reader)
         {
             return null;
         }
@@ -964,16 +973,17 @@
                             this.currentSymbolValues.Add(readedSymbol);
                             if (this.operatorStack.Count == 0)
                             {
-                                var parsed = default(ObjType);
-                                if (this.parser.TryParse(this.currentSymbolValues.ToArray(), out parsed))
-                                {
-                                    this.elementStack.Push(parsed);
-                                    reader.Get();
-                                }
-                                else
+                                var error = new LogStatus<string, EParseErrorLevel>();
+                                var parsed = parser.Parse(this.currentSymbolValues.ToArray(), error);
+                                if (error.HasLogs(EParseErrorLevel.ERROR))
                                 {
                                     this.errorMessages.Add("Can't parse expression.");
                                     return this.stateList[1];
+                                }
+                                else
+                                {
+                                    this.elementStack.Push(parsed);
+                                    reader.Get();
                                 }
 
                                 return this.stateList[3];
@@ -984,16 +994,17 @@
                                 this.operatorStack.Push(nextStackedOperator);
                                 if (nextStackedOperator.OperatorType != EOperatorType.EXTERNAL_DELIMITER)
                                 {
-                                    var parsed = default(ObjType);
-                                    if (this.parser.TryParse(this.currentSymbolValues.ToArray(), out parsed))
-                                    {
-                                        this.elementStack.Push(parsed);
-                                        reader.Get();
-                                    }
-                                    else
+                                    var error = new LogStatus<string, EParseErrorLevel>();
+                                    var parsed = parser.Parse(this.currentSymbolValues.ToArray(), error);
+                                    if (error.HasLogs(EParseErrorLevel.ERROR))
                                     {
                                         this.errorMessages.Add("Can't parse expression.");
                                         return this.stateList[1];
+                                    }
+                                    else
+                                    {
+                                        this.elementStack.Push(parsed);
+                                        reader.Get();
                                     }
 
                                     return this.stateList[3];
@@ -1040,15 +1051,16 @@
             }
             else
             {
-                var parsed = default(ObjType);
-                if (this.parser.TryParse(this.currentSymbolValues.ToArray(), out parsed))
-                {
-                    this.elementStack.Push(parsed);
-                }
-                else
+                var error = new LogStatus<string, EParseErrorLevel>();
+                var parsed = parser.Parse(this.currentSymbolValues.ToArray(), error);
+                if (error.HasLogs(EParseErrorLevel.ERROR))
                 {
                     this.errorMessages.Add("Can't parse expression.");
                     return this.stateList[1];
+                }
+                else
+                {
+                    this.elementStack.Push(parsed);
                 }
 
                 return this.stateList[3];
@@ -1080,16 +1092,17 @@
             {
                 readedSymbol = reader.Get();
                 this.currentSymbolValues.Add(readedSymbol);
-                var parsed = default(ObjType);
-                if (this.parser.TryParse(this.currentSymbolValues.ToArray(), out parsed))
-                {
-                    this.elementStack.Push(parsed);
-                    reader.Get();
-                }
-                else
+                var error = new LogStatus<string, EParseErrorLevel>();
+                var parsed = parser.Parse(this.currentSymbolValues.ToArray(), error);
+                if (error.HasLogs(EParseErrorLevel.ERROR))
                 {
                     this.errorMessages.Add("Can't parse expression.");
                     return this.stateList[1];
+                }
+                else
+                {
+                    this.elementStack.Push(parsed);
+                    reader.Get();
                 }
 
                 return this.stateList[3];
@@ -1097,5 +1110,110 @@
         }
 
         #endregion
+    }
+
+    /// <summary>
+    /// Compõe o delimitador com a operação que representa.
+    /// </summary>
+    /// <typeparam name="ObjType">O tipo de objecto a ser lido.</typeparam>
+    /// <typeparam name="SymbType">O tipo dos objectos que constituem os tipos de símbolos.</typeparam>
+    internal class ExpressionCompoundDelimiter<ObjType, SymbType>
+    {
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="ExpressionCompoundDelimiter{ObjType, SymbType}"/>.
+        /// </summary>
+        public ExpressionCompoundDelimiter()
+        {
+            this.DelimiterType = default(SymbType);
+        }
+
+        /// <summary>
+        /// Obtém ou atribui o tipo do delimitador.
+        /// </summary>
+        /// <value>
+        /// O tipo do delimitador.
+        /// </value>
+        public SymbType DelimiterType { get; set; }
+
+        /// <summary>
+        /// Obtém ou atribui o operador associado ao delimitador.
+        /// </summary>
+        /// <value>
+        /// O operador.
+        /// </value>
+        public UnaryOperator<ObjType> DelimiterOperator { get; set; }
+
+        /// <summary>
+        /// Determina se o objecto é igual à instância corrente.
+        /// </summary>
+        /// <param name="obj">O objecto.</param>
+        /// <returns>
+        /// Verdadeiro caso o objecto seja igual e falso caso contrário.
+        /// </returns>
+        public override bool Equals(object obj)
+        {
+            var delim = obj as ExpressionCompoundDelimiter<ObjType, SymbType>;
+            if (delim == null)
+            {
+                return base.Equals(obj);
+            }
+            else
+            {
+                return this.DelimiterType.Equals(delim.DelimiterType);
+            }
+        }
+
+        /// <summary>
+        /// Retorna o código confuso para a instância actual.
+        /// </summary>
+        /// <returns>
+        /// O código confuso para a instância utilizado em alguns algoritmos.
+        /// </returns>
+        public override int GetHashCode()
+        {
+            if (this.DelimiterType == null)
+            {
+                return base.GetHashCode();
+            }
+            else
+            {
+                return this.DelimiterType.GetHashCode();
+            }
+        }
+    }
+
+    /// <summary>
+    /// Implementa uma definição de operador.
+    /// </summary>
+    /// <typeparam name="SymbType">O tipo de objecto que define o tipo de símbolo.</typeparam>
+    internal class OperatorDefinition<SymbType>
+    {
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="OperatorDefinition{SymbType}"/>.
+        /// </summary>
+        public OperatorDefinition() { }
+
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="OperatorDefinition{SymbType}"/>.
+        /// </summary>
+        /// <param name="symbol">O símbolo.</param>
+        /// <param name="operatorType">O tipo de operador.( ver <see cref="EOperatorType"/>).</param>
+        public OperatorDefinition(SymbType symbol, EOperatorType operatorType)
+        {
+            this.Symbol = symbol;
+            this.OperatorType = operatorType;
+        }
+
+        /// <summary>
+        /// Obtém ou atribui o tipo de símbolo.
+        /// </summary>
+        /// <value>O tipo do símbolo.</value>
+        public SymbType Symbol { get; set; }
+
+        /// <summary>
+        /// Obtém ou atribui o tipo de operador.
+        /// </summary>
+        /// <value>O tipo de operador.</value>
+        public EOperatorType OperatorType { get; set; }
     }
 }

@@ -23,7 +23,7 @@
             var reader = new StringReader(arrayString);
             var stringSymbolReader = new StringSymbolReader(reader, false);
             var arrayMatrixFactory = new ArrayMatrixFactory<double>();
-            var arrayMatrixReader = new ConfigMatrixReader<double, string, string, CharSymbolReader<string>>(
+            var arrayMatrixReader = new ConfigMatrixReader<double, string, string>(
                 lines, columns, arrayMatrixFactory);
             arrayMatrixReader.MapInternalDelimiters("left_bracket", "right_bracket");
             arrayMatrixReader.AddBlanckSymbolType("blancks");

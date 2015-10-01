@@ -5,6 +5,7 @@
     using System.Linq;
     using System.Text;
     using Utilities.Collections;
+    using Utilities;
 
     /// <summary>
     /// Implementa as operações de espaço vectorial.

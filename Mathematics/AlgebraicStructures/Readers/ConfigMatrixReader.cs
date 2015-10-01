@@ -13,13 +13,12 @@
     /// <typeparam name="T">O tipo dos objectos que constituem as entradas dos alcances multidimensionais.</typeparam>
     /// <typeparam name="SymbValue">O tipo dos objectos que costituem os valores dos símbolos.</typeparam>
     /// <typeparam name="SymbType">Os tipos de objectos que constituem os tipos de símbolos.</typeparam>
-    /// <typeparam name="InputReader">O tipo do leitor de entrada..</typeparam>
-    public class ConfigMatrixReader<T, SymbValue, SymbType, InputReader>
+    public class ConfigMatrixReader<T, SymbValue, SymbType>
     {
         /// <summary>
         /// O leitor de alcances multidimensionais.
         /// </summary>
-        private ARangeReader<T, SymbValue, SymbType, InputReader> rangeReader;
+        private ARangeReader<T, SymbValue, SymbType> rangeReader;
 
         /// <summary>
         /// A fábrica responsável pela criação de matrizes.
@@ -27,7 +26,7 @@
         private IMatrixFactory<T> matrixFactory;
 
         /// <summary>
-        /// Instancia um novo objecto do tipo <see cref="ConfigMatrixReader{T, SymbValue, SymbType, InputReader}"/>.
+        /// Instancia um novo objecto do tipo <see cref="ConfigMatrixReader{T, SymbValue, SymbType}"/>.
         /// </summary>
         /// <param name="lines">O número de linhas.</param>
         /// <param name="columns">O número de colunas.</param>
@@ -42,7 +41,7 @@
             else
             {
                 this.matrixFactory = matrixFactory;
-                this.rangeReader = new RangeConfigReader<T, SymbValue, SymbType, InputReader>(
+                this.rangeReader = new RangeConfigReader<T, SymbValue, SymbType>(
                     new int[] { lines, columns });
             }
         }
@@ -73,7 +72,7 @@
         /// <param name="matrix">Estabelece a matriz lida.</param>
         /// <returns>Verdadeiro caso a operação seja bem sucedida e falso caso contrário.</returns>
         public bool TryParseMatrix(
-            MementoSymbolReader<InputReader, SymbValue, SymbType> reader,
+            IMementoSymbolReader<SymbValue, SymbType> reader,
             IParse<T, SymbValue, SymbType> parser,
             out IMatrix<T> matrix)
         {
@@ -89,7 +88,7 @@
         /// <param name="matrix">Estabelece a matriz lida.</param>
         /// <returns>Verdadeiro caso a operação seja bem sucedida e falso caso contrário.</returns>
         public bool TryParseMatrix(
-            MementoSymbolReader<InputReader, SymbValue, SymbType> reader,
+            IMementoSymbolReader<SymbValue, SymbType> reader,
             IParse<T, SymbValue, SymbType> parser,
             T defaultValue,
             out IMatrix<T> matrix)
@@ -107,9 +106,9 @@
         /// <param name="matrix">Estabelece a matriz lida.</param>
         /// <returns>Verdadeiro caso a operação seja bem sucedida e falso caso contrário.</returns>
         public bool TryParseMatrix(
-            MementoSymbolReader<InputReader, SymbValue, SymbType> reader,
+            IMementoSymbolReader<SymbValue, SymbType> reader,
             IParse<T, SymbValue, SymbType> parser,
-            List<string> errors,
+            ILogStatus<string,EParseErrorLevel> errors,
             T defaultValue,
             out IMatrix<T> matrix)
         {
@@ -121,7 +120,7 @@
                 {
                     foreach (var message in this.rangeReader.ErrorMessages)
                     {
-                        errors.Add(message);
+                        errors.AddLog(message, EParseErrorLevel.ERROR);
                     }
                 }
 
@@ -156,9 +155,9 @@
         /// <param name="matrix">Estabelece a matriz lida.</param>
         /// <returns>Verdadeiro caso a operação seja bem sucedida e falso caso contrário.</returns>
         public bool TryParseMatrix(
-            MementoSymbolReader<InputReader, SymbValue, SymbType> reader,
+            IMementoSymbolReader<SymbValue, SymbType> reader,
             IParse<T, SymbValue, SymbType> parser,
-            List<string> errors,
+            ILogStatus<string,EParseErrorLevel> errors,
             out IMatrix<T> matrix)
         {
             matrix = default(ArrayMatrix<T>);
@@ -169,7 +168,7 @@
                 {
                     foreach (var message in this.rangeReader.ErrorMessages)
                     {
-                        errors.Add(message);
+                        errors.AddLog(message, EParseErrorLevel.ERROR);
                     }
                 }
 

@@ -1,377 +1,959 @@
-﻿//namespace Utilities
-//{
-//    using System;
-//    using System.Collections.Generic;
-//    using System.Linq;
-//    using System.Text;
-//    using System.Xml;
+﻿namespace Utilities
+{
+    using System;
+    using System.Collections.Generic;
+    using System.Data;
+    using System.Dynamic;
+    using System.Linq;
+    using System.Text;
+    using System.Xml;
 
-//    /// <summary>
-//    /// Implementa um leitor e conversor entre estruturas de dados tabulares e tabelas em html.
-//    /// </summary>
-//    public class HtmlCssFormattedDataReaderWriter
-//    {
-//        /// <summary>
-//        /// O css por defeito para a tabela.
-//        /// </summary>
-//        private string defaultTableClassName;
+    /// <summary>
+    /// Permite adicionar atributos ao elemento corrente.
+    /// </summary>
+    public class AttributeSetter
+    {
+        /// <summary>
+        /// O elemento.
+        /// </summary>
+        protected XmlElement currentElement;
 
-//        /// <summary>
-//        /// O css por defeito para a tabela.
-//        /// </summary>
-//        private string defaultBodyClassName;
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="AttributeSetter"/>.
+        /// </summary>
+        internal AttributeSetter() { }
 
-//        /// <summary>
-//        /// O css para o cabeçalho.
-//        /// </summary>
-//        private string defaultHeaderClassName;
+        /// <summary>
+        /// Obtém o elemento actual.
+        /// </summary>
+        internal XmlElement CurrentElement
+        {
+            get
+            {
+                return this.currentElement;
+            }
+            set
+            {
+                this.currentElement = value;
+            }
+        }
 
-//        /// <summary>
-//        /// Função que define o css por linha.
-//        /// </summary>
-//        private Func<int, string> rowStyleProvider;
+        /// <summary>
+        /// Estabelece os valores dos atributos.
+        /// </summary>
+        /// <param name="name">O nome do atributo.</param>
+        /// <param name="value">O valor do atributo.</param>
+        public virtual void SetAttribute(string name, object value)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                throw new ArgumentException("Attribute name can't be null nor empty.");
+            }
+            else if (value == null)
+            {
+                this.currentElement.RemoveAttribute(name);
+            }
+            else
+            {
+                var attributeValue = value.ToString();
+                if (string.IsNullOrWhiteSpace(attributeValue))
+                {
+                    this.currentElement.RemoveAttribute(name.ToLower());
+                }
+                else
+                {
+                    this.currentElement.SetAttribute(name.ToLower(), attributeValue);
+                }
+            }
+        }
+    }
 
-//        /// <summary>
-//        /// Função que define o css por célula.
-//        /// </summary>
-//        private Func<int, int, string> cellStyleProvider;
+    /// <summary>
+    /// Permite lidar com elementos.
+    /// </summary>
+    public class ElementSetter : AttributeSetter
+    {
+        /// <summary>
+        /// Obtém ou atribui o texto do elemento.
+        /// </summary>
+        public virtual string InnerText
+        {
+            get
+            {
+                return this.currentElement.InnerText;
+            }
+            set
+            {
+                this.currentElement.InnerText = value;
+            }
+        }
 
-//        /// <summary>
-//        /// A primeira linha do corpo da tabela.
-//        /// </summary>
-//        private int firstBodyLineNumber = 0;
+        /// <summary>
+        /// Obtém ou atribui o XML interno do elemento.
+        /// </summary>
+        public virtual string InnerXml
+        {
+            get
+            {
+                return this.currentElement.InnerXml;
+            }
+            set
+            {
+                this.currentElement.InnerXml = value;
+            }
+        }
 
-//        /// <summary>
-//        /// Define as células fundidas.
-//        /// </summary>
-//        private NonIntersectingMergingRegionsSet<int, RectangularRegion<int>> mergingRegionSet;
+        /// <summary>
+        /// Cria um elemento com o nome especificado.
+        /// </summary>
+        /// <param name="name">O nome do elemento.</param>
+        /// <returns>O elemento criado.</returns>
+        public virtual XmlElement Create(string name)
+        {
+            return this.currentElement.OwnerDocument.CreateElement(name);
+        }
 
-//        /// <summary>
-//        /// Instancia uma nova instância de objectos do tipo <see cref="TableToHtmlConverter"/>.
-//        /// </summary>
-//        public HtmlCssFormattedDataReaderWriter()
-//        {
-//            this.mergingRegionSet = new NonIntersectingMergingRegionsSet<int, RectangularRegion<int>>();
-//        }
+        /// <summary>
+        /// Adiciona um elemento como descendente do elemento corrente.
+        /// </summary>
+        /// <param name="childElement">O elemento.</param>
+        public virtual void AppendChild(XmlElement childElement)
+        {
+            this.currentElement.AppendChild(childElement);
+        }
+    }
 
-//        /// <summary>
-//        /// Obtém ou atribui o css por defeito para a tabela.
-//        /// </summary>
-//        public string DefaultTableClassName
-//        {
-//            get
-//            {
-//                return this.defaultTableClassName;
-//            }
-//            set
-//            {
-//                this.defaultTableClassName = value;
-//            }
-//        }
+    /// <summary>
+    /// Permite adicionar  atributos a uma coluna, expectuando o "rowspan".
+    /// </summary>
+    public class ValidatedCellElementSetter : ElementSetter
+    {
+        /// <summary>
+        /// Estabelece os valores dos atributos.
+        /// </summary>
+        /// <param name="name">O nome do atributo.</param>
+        /// <param name="value">O valor do atributo.</param>
+        public override void SetAttribute(string name, object value)
+        {
+            if (StringComparer.InvariantCultureIgnoreCase.Equals(
+                name,
+                "rowspan") ||
+                StringComparer.InvariantCultureIgnoreCase.Equals(
+                name,
+                "colspan"))
+            {
+                throw new ArgumentNullException("The attributes rowspan and column span can't be setted for table cell element.");
+            }
+            else
+            {
+                base.SetAttribute(name, value);
+            }
+        }
+    }
 
-//        /// <summary>
-//        /// Obtém ou atribui o estilo por defeito para o corpo da tabela.
-//        /// </summary>
-//        public string DefaultBodyClassName
-//        {
-//            get
-//            {
-//                return this.defaultBodyClassName;
-//            }
-//            set
-//            {
-//                this.defaultBodyClassName = value;
-//            }
-//        }
+    /// <summary>
+    /// Classe base que permite definir todas as configurações.
+    /// </summary>
+    public abstract class HtmlWriter
+    {
+        /// <summary>
+        /// Obtém os atributos para a tabela.
+        /// </summary>
+        protected Action<AttributeSetter> tableAttributes;
 
-//        /// <summary>
-//        /// Obtém ou atribui o estilo por defeito para o cabeçalho.
-//        /// </summary>
-//        public string DefaultHeaderClassName
-//        {
-//            get
-//            {
-//                return this.defaultHeaderClassName;
-//            }
-//            set
-//            {
-//                this.defaultHeaderClassName = value;
-//            }
-//        }
+        /// <summary>
+        /// Obtém os atributos para o elemento do cabeçalho.
+        /// </summary>
+        protected Action<AttributeSetter> tableHeaderAttributes;
 
-//        /// <summary>
-//        /// Obtém a colecção de regiões correspondentes a células que são para fundir.
-//        /// </summary>
-//        public NonIntersectingMergingRegionsSet<int, RectangularRegion<int>> MergingRegionSet
-//        {
-//            get
-//            {
-//                return this.mergingRegionSet;
-//            }
-//        }
+        /// <summary>
+        /// Obtém os atributos para o corpo.
+        /// </summary>
+        protected Action<AttributeSetter> tableBodyAttributes;
 
-//        /// <summary>
-//        /// Obtém a representação da tabela em html.
-//        /// </summary>
-//        /// <param name="table">A tabela.</param>
-//        /// <param name="id">O identificador a ser atribuído à tabela.</param>
-//        /// <param name="offset">O deslocamento a partir da primeira linha do corpo da tabela.</param>
-//        /// <param name="size">O número de linhas do corpo da tabela a serem imprimidas.</param>
-//        /// <returns>A representação html da tabela.</returns>
-//        public string GetHtmlFromTable(ITabularItem table, string id, int offset, int size)
-//        {
-//            return this.GetHtmlFromTable(table, id, offset, size, null);
-//        }
+        /// <summary>
+        /// Obtém os atributos para as linhas do corpo.
+        /// </summary>
+        protected Action<int, AttributeSetter> bodyRowAttributesSetter;
 
-//        /// <summary>
-//        /// Obtém a representação da tabela em html.
-//        /// </summary>
-//        /// <param name="table">A tabela.</param>
-//        /// <param name="id">O identificador a ser atribuído à tabela.</param>
-//        /// <param name="offset">O deslocamento a partir da primeira linha do corpo da tabela.</param>
-//        /// <param name="size">O número de linhas do corpo da tabela a serem imprimidas.</param>
-//        /// <param name="cellFunct">Função que sobrecarrega a escrita da célula.</param>
-//        /// <returns>A representação html da tabela.</returns>
-//        public string GetHtmlFromTable(
-//            ITabularItem table,
-//            string id,
-//            int offset,
-//            int size,
-//            Func<ITabularCell, XmlDocument, XmlNode> cellFunct)
-//        {
-//            if (table == null)
-//            {
-//                throw new ArgumentNullException("table");
-//            }
-//            else if (offset < 0)
-//            {
-//                throw new ArgumentOutOfRangeException("offset");
-//            }
-//            else if (size < 0)
-//            {
-//                throw new ArgumentOutOfRangeException("size");
-//            }
-//            else
-//            {
+        /// <summary>
+        /// Obtém uma conversão dos valores das células para o corpo.
+        /// </summary>
+        protected Action<int, int, object, ElementSetter> bodyCellElement;
 
-//                XmlDocument document = new XmlDocument();
-//                var tableElement = document.CreateElement("Table");
-//                if (this.defaultTableClassName != null)
-//                {
-//                    tableElement.SetAttribute("class", this.defaultTableClassName);
-//                }
+        /// <summary>
+        /// Valor que indica se o texto resultante será identado.
+        /// </summary>
+        protected bool indent;
 
-//                if (!string.IsNullOrEmpty(id))
-//                {
-//                    tableElement.SetAttribute("id", id);
-//                }
-//                else
-//                {
-//                    tableElement.SetAttribute("id", Guid.NewGuid().ToString());
-//                }
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="HtmlWriter"/>.
+        /// </summary>
+        /// <param name="indent">Valor que indica se o texto será identado.</param>
+        public HtmlWriter(bool indent = false)
+        {
+            this.tableAttributes = s => { };
+            this.tableHeaderAttributes = s => { };
+            this.tableBodyAttributes = s => { };
+            this.bodyRowAttributesSetter = (i, s) => { };
+            this.bodyCellElement = (i, j, o, e) =>
+            {
+                if (o != null) { e.InnerText = o.ToString(); }
+            };
 
-//                if (!string.IsNullOrEmpty(table.Name))
-//                {
-//                    tableElement.SetAttribute("name", table.Name);
-//                }
+            this.indent = indent;
+        }
 
-//                var maximumNumberOfColumns = this.GetMaxNumberOfColumns(table);
-//                if (innerTable.Headers.Count > 0)
-//                {
-//                    var tableHeaderElement = document.CreateElement("theader");
-//                    var tableHeaderLine = document.CreateElement("tr");
-//                    if (!string.IsNullOrEmpty(this.headerCss))
-//                    {
-//                        tableHeaderLine.SetAttribute("class", this.headerCss);
-//                    }
+        /// <summary>
+        /// Obtém ou atribui os atributos para a tabela.
+        /// </summary>
+        public Action<AttributeSetter> TableAttributes
+        {
+            get
+            {
+                return this.tableAttributes;
+            }
+            set
+            {
+                if (value == null)
+                {
+                    throw new ArgumentException("Table attributes setter action can't be null.");
+                }
+                else
+                {
+                    this.tableAttributes = value;
+                }
+            }
+        }
 
-//                    foreach (var header in innerTable.Headers)
-//                    {
-//                        var tableHeaderColumn = document.CreateElement("th");
-//                        tableHeaderColumn.InnerText = header.Trim();
-//                        tableHeaderLine.AppendChild(tableHeaderColumn);
-//                    }
+        /// <summary>
+        /// Obtém ou atribui os atributos para o elemento do cabeçalho.
+        /// </summary>
+        public Action<AttributeSetter> TableHeaderAttributes
+        {
+            get
+            {
+                return this.tableHeaderAttributes;
+            }
+            set
+            {
+                if (value == null)
+                {
+                    throw new ArgumentException("Table header attributes setter action can't be null.");
+                }
+                else
+                {
+                    this.tableHeaderAttributes = value;
+                }
+            }
+        }
 
-//                    this.AppendEmptyCells(document, tableHeaderLine, CellType.TH, maximumNumberOfColumns - innerTable.Headers.Count);
-//                    tableHeaderElement.AppendChild(tableHeaderLine);
-//                    tableElement.AppendChild(tableHeaderElement);
-//                }
+        /// <summary>
+        /// Obtém ou atribui os atributos para o corpo.
+        /// </summary>
+        public Action<AttributeSetter> TableBodyAttributes
+        {
+            get
+            {
+                return this.tableBodyAttributes;
+            }
+            set
+            {
+                if (value == null)
+                {
+                    throw new ArgumentException("Table body attributes setter can't be null.");
+                }
+                else
+                {
+                    this.tableBodyAttributes = value;
+                }
+            }
+        }
 
-//                var isAlternatingLine = false;
-//                var tableBodyElement = document.CreateElement("tbody");
-//                for (int index = startLine; index < table.Count && index < endLine; ++index)
-//                {
-//                    var line = table[index];
-//                    var tableLineElement = document.CreateElement("tr");
-//                    if (!string.IsNullOrEmpty(this.alternateLineStyle))
-//                    {
-//                        if (isAlternatingLine)
-//                        {
-//                            tableLineElement.SetAttribute("class", this.alternateLineStyle);
-//                        }
-//                    }
+        /// <summary>
+        /// Obtém ou atribui os atributos para as linhas do corpo.
+        /// </summary>
+        public Action<int, AttributeSetter> BodyRowAttributes
+        {
+            get
+            {
+                return this.bodyRowAttributesSetter;
+            }
+            set
+            {
+                if (value == null)
+                {
+                    throw new ArgumentException("Body row attributes setter can't be null.");
+                }
+                else
+                {
+                    this.bodyRowAttributesSetter = value;
+                }
+            }
+        }
 
-//                    foreach (var column in line)
-//                    {
-//                        var mergedRegion = this.mergingRegionSet.GetMergingRegionForCell(column.RowNumber, column.ColumnNumber);
-//                        if (mergedRegion != null)
-//                        {
-//                            var rowSpan = string.Empty;
-//                            var columnSpan = string.Empty;
-//                            if (column.RowNumber == mergedRegion.StartRow && column.ColumnNumber == mergedRegion.StartColumn)
-//                            {
-//                                if (mergedRegion.EndRow - mergedRegion.StartRow > 0)
-//                                {
-//                                    rowSpan = string.Format("{0}", mergedRegion.EndRow - mergedRegion.StartRow + 1);
-//                                }
+        /// <summary>
+        /// Obtém ou atribui uma conversão dos valores das células para o corpo.
+        /// </summary>
+        public Action<int, int, object, ElementSetter> BodyCellElement
+        {
+            get
+            {
+                return this.bodyCellElement;
+            }
+            set
+            {
+                if (value == null)
+                {
+                    throw new ArgumentException("Body cells values converter can't be null.");
+                }
+                else
+                {
+                    this.bodyCellElement = value;
+                }
+            }
+        }
 
-//                                if (mergedRegion.EndColumn - mergedRegion.StartColumn > 0)
-//                                {
-//                                    columnSpan = string.Format("{0}", mergedRegion.EndColumn - mergedRegion.StartColumn + 1);
-//                                }
+        /// <summary>
+        /// Obtém um valor que indica se o texto resultante será ou não identado.
+        /// </summary>
+        public bool Indent
+        {
+            get
+            {
+                return this.indent;
+            }
+            set
+            {
+                this.indent = value;
+            }
+        }
+    }
 
-//                                if (!string.IsNullOrEmpty(rowSpan) || !string.IsNullOrEmpty(columnSpan))
-//                                {
-//                                    var columnElement = document.CreateElement("td");
-//                                    if (!string.IsNullOrEmpty(column.Style.Name))
-//                                    {
-//                                        string cssCellStyle = string.Empty;
-//                                        if (this.styleToCssMapper.TryGetValue(column.Style.Name, out cssCellStyle))
-//                                        {
-//                                            columnElement.SetAttribute("class", cssCellStyle);
-//                                        }
-//                                    }
+    /// <summary>
+    /// Permite criar uma tabela de html a partir de um leitor <see cref="IDataReader"/>.
+    /// </summary>
+    public class HtmlDataReaderWriter : HtmlWriter
+    {
+        /// <summary>
+        /// Obtém os atributos da linha do cabeçalho.
+        /// </summary>
+        protected Action<AttributeSetter> headerRowAttributes;
 
-//                                    if (!string.IsNullOrEmpty(rowSpan))
-//                                    {
-//                                        columnElement.SetAttribute("rowspan", rowSpan);
-//                                    }
+        /// <summary>
+        /// Obtém o valor da célula convertido.
+        /// </summary>
+        protected Action<int, string, ElementSetter> headerCellElement;
 
-//                                    if (!string.IsNullOrEmpty(columnSpan))
-//                                    {
-//                                        columnElement.SetAttribute("colspan", columnSpan);
-//                                    }
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="HtmlDataReaderWriter"/>.
+        /// </summary>
+        public HtmlDataReaderWriter()
+        {
+            this.headerRowAttributes = s => { };
+            this.headerCellElement = (i, s, e) => e.InnerText = s;
+        }
 
-//                                    if (cellFunct == null)
-//                                    {
-//                                        var node = document.CreateTextNode(column.GetAsText());
-//                                        columnElement.AppendChild(node);
-//                                    }
-//                                    else
-//                                    {
-//                                        try
-//                                        {
-//                                            var node = cellFunct(column, document);
-//                                            columnElement.AppendChild(node);
-//                                        }
-//                                        catch (Exception)
-//                                        {
-//                                            columnElement.AppendChild(document.CreateTextNode("Error in cell."));
-//                                        }
-//                                    }
+        /// <summary>
+        /// Obtém ou atribui os atributos da linha do cabeçalho.
+        /// </summary>
+        public Action<AttributeSetter> HeaderRowAttributes
+        {
+            get
+            {
+                return this.headerRowAttributes;
+            }
+            set
+            {
+                if (value == null)
+                {
+                    throw new ArgumentException("Header row attributes action setter can't be null.");
+                }
+                else
+                {
+                    this.headerRowAttributes = value;
+                }
+            }
+        }
 
-//                                    tableLineElement.AppendChild(columnElement);
-//                                }
-//                            }
-//                        }
-//                        else
-//                        {
-//                            var columnElement = document.CreateElement("td");
-//                            if (!string.IsNullOrEmpty(column.Style.Name))
-//                            {
-//                                string cssCellStyle = string.Empty;
-//                                if (this.styleToCssMapper.TryGetValue(column.Style.Name, out cssCellStyle))
-//                                {
-//                                    columnElement.SetAttribute("class", cssCellStyle);
-//                                }
-//                            }
+        /// <summary>
+        /// Obtém ou atribui o valor da célula convertido.
+        /// </summary>
+        public Action<int, string, ElementSetter> HeaderCellElement
+        {
+            get
+            {
+                return this.headerCellElement;
+            }
+            set
+            {
+                if (value == null)
+                {
+                    throw new ArgumentException("Header cell object converter can't be null.");
+                }
+                else
+                {
+                    this.headerCellElement = value;
+                }
+            }
+        }
 
-//                            if (cellFunct == null)
-//                            {
-//                                var node = document.CreateTextNode(column.GetAsText());
-//                                columnElement.AppendChild(node);
-//                            }
-//                            else
-//                            {
-//                                try
-//                                {
-//                                    var node = cellFunct(column, document);
-//                                    columnElement.AppendChild(node);
-//                                }
-//                                catch (Exception)
-//                                {
-//                                    columnElement.AppendChild(document.CreateTextNode("Error in cell."));
-//                                }
-//                            }
+        /// <summary>
+        /// Obtém html que representa uma tabela a partir de um leitor <see cref="IDataReader"/>.
+        /// </summary>
+        /// <param name="datareader">O leitor.</param>
+        /// <returns>O html como texto.</returns>
+        public string GetHtmlFromDataReader(
+            IDataReader datareader)
+        {
+            if (datareader == null)
+            {
+                throw new ArgumentNullException("dataReader");
+            }
+            else
+            {
+                var tableDocument = new XmlDocument();
+                var attributeSetter = new AttributeSetter();
+                var elementSetter = new ElementSetter();
 
-//                            tableLineElement.AppendChild(columnElement);
-//                        }
-//                    }
+                // Inicializa a tabela
+                var table = tableDocument.CreateElement("table");
+                attributeSetter.CurrentElement = table;
+                this.tableAttributes.Invoke(attributeSetter);
+                tableDocument.AppendChild(table);
 
-//                    tableBodyElement.AppendChild(tableLineElement);
-//                }
+                // Cabeçalho
+                var tableHeader = tableDocument.CreateElement("thead");
+                attributeSetter.CurrentElement = tableHeader;
+                this.tableHeaderAttributes.Invoke(attributeSetter);
+                table.AppendChild(tableHeader);
 
-//                tableElement.AppendChild(tableBodyElement);
-//                document.AppendChild(tableElement);
-//                return document.InnerXml;
-//            }
-//        }
+                // Linhas do cabeçalho
+                var tableRow = tableDocument.CreateElement("tr");
+                attributeSetter.CurrentElement = tableRow;
+                this.headerRowAttributes.Invoke(attributeSetter);
+                tableHeader.AppendChild(tableRow);
 
-//        /// <summary>
-//        /// Obtém o número máximo de colunas na tabela.
-//        /// </summary>
-//        /// <param name="table">A tabela.</param>
-//        /// <param name="start">O número da linha inicial da tabela.</param>
-//        /// <param name="end">O número da linha final da tabela.</param>
-//        /// <returns>O número máximo de colunas.</returns>
-//        private int GetMaxNumberOfColumns(ITabularItem table, int start, int end)
-//        {
-//            var result = 0;
-//            var length = table.Count;
-//            if (start < length)
-//            {
-//                var i = start;
-//                result = table[i].Count;
-//                ++i;
-//                for (; i < length; ++i)
-//                {
-//                    var current = table[i].Count;
-//                    if (current > result)
-//                    {
-//                        result = current;
-//                    }
-//                }
-//            }
+                // Colunas do cabeçalho
+                var fieldCount = datareader.FieldCount;
+                for (int i = 0; i < fieldCount; ++i)
+                {
+                    var columnName = datareader.GetName(i);
+                    var tableCell = tableDocument.CreateElement("th");
+                    elementSetter.CurrentElement = tableCell;
+                    this.headerCellElement.Invoke(i, columnName, elementSetter);
+                    tableRow.AppendChild(tableCell);
+                }
 
-//            return result;
-//        }
+                // Corpo
+                var tableBody = tableDocument.CreateElement("tbody");
+                attributeSetter.CurrentElement = tableBody;
+                this.tableBodyAttributes.Invoke(attributeSetter);
+                table.AppendChild(tableBody);
 
-//        /// <summary>
-//        /// Adenda célculas vazias ao documento.
-//        /// </summary>
-//        /// <param name="lineElement">A linha à qual serão adicionadas células vazias.</param>
-//        /// <param name="cellType">O tipo da célula.</param>
-//        /// <param name="count">O número de elementos a inserir.</param>
-//        private void AppendEmptyCells(
-//            XmlDocument document,
-//            XmlElement lineElement,
-//            CellType cellType, 
-//            int count)
-//        {
-//            for (int i = 0; i < count; ++i)
-//            {
-//                var tableCellElement = document.CreateElement(cellType == CellType.TH ? "th" : "td");
-//                lineElement.AppendChild(tableCellElement);
-//            }
-//        }
+                // Linhas da tabela
+                var line = 0;
+                while (datareader.Read())
+                {
+                    tableRow = tableDocument.CreateElement("tr");
+                    attributeSetter.CurrentElement = tableRow;
+                    this.bodyRowAttributesSetter.Invoke(line, attributeSetter);
+                    tableBody.AppendChild(tableRow);
 
-//        /// <summary>
-//        /// Define o tipo de célula a ser construído.
-//        /// </summary>
-//        private enum CellType
-//        {
-//            TD,
-//            TH
-//        }
-//    }
-//}
+                    for (int i = 0; i < fieldCount; ++i)
+                    {
+                        var tableCell = tableDocument.CreateElement("td");
+                        elementSetter.CurrentElement = tableCell;
+                        this.bodyCellElement.Invoke(
+                            line,
+                            i,
+                            datareader.GetValue(i),
+                            elementSetter);
+                        tableRow.AppendChild(tableCell);
+                    }
+
+                    ++line;
+                }
+
+                // Escreve o xml
+                var resultBuilder = new StringBuilder();
+                XmlWriterSettings settings = new XmlWriterSettings
+                {
+                    Indent = this.indent,
+                    IndentChars = "  ",
+                    NewLineChars = "\r\n",
+                    NewLineHandling = NewLineHandling.Replace,
+                    OmitXmlDeclaration = true
+                };
+
+                using (var writer = XmlWriter.Create(resultBuilder, settings))
+                {
+                    tableDocument.Save(writer);
+                }
+
+                return resultBuilder.ToString();
+            }
+        }
+    }
+
+    /// <summary>
+    /// Criaçao de uma tabela de html a partir de um <see cref="ITabularItem"/>.
+    /// </summary>
+    public class HtmlTableWriter : HtmlWriter
+    {
+        /// <summary>
+        /// O conjunto de regiões que identificam a fusão de células do cabeçalho.
+        /// </summary>
+        NonIntersectingMergingRegionsSet<int, MergingRegion<int>> headerMergingRegions;
+
+        /// <summary>
+        /// O conjunto de regiões que identificam a fusão de células do corpo.
+        /// </summary>
+        NonIntersectingMergingRegionsSet<int, MergingRegion<int>> bodyMergingRegions;
+
+        /// <summary>
+        /// Atribui os atributos a cada linha do cabeçalho.
+        /// </summary>
+        protected Action<int, AttributeSetter> headerRowAttributesSetter;
+
+        /// <summary>
+        /// Obtém o valor da célula convertido.
+        /// </summary>
+        protected Action<int, int, object, ElementSetter> headerCellElement;
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="HtmlTableWriter"/>.
+        /// </summary>
+        public HtmlTableWriter()
+            : base()
+        {
+            this.headerMergingRegions = new NonIntersectingMergingRegionsSet<int, MergingRegion<int>>();
+            this.bodyMergingRegions = new NonIntersectingMergingRegionsSet<int, MergingRegion<int>>();
+            this.headerRowAttributesSetter = (i, s) => { };
+            this.headerCellElement = (i, j, o, e) =>
+            {
+                if (o != null)
+                {
+                    e.InnerText = o.ToString();
+                }
+            };
+        }
+
+        /// <summary>
+        /// Obtém ou atribui a acção que permite estabelecer os atributos das linhas do cabeçalho.
+        /// </summary>
+        public Action<int, AttributeSetter> HeaderRowAttributesSetter
+        {
+            get
+            {
+                return this.headerRowAttributesSetter;
+            }
+            set
+            {
+                if (value == null)
+                {
+                    throw new ArgumentException("Header rows attributes setter can't be null.");
+                }
+                else
+                {
+                    this.headerRowAttributesSetter = value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Obtém ou atribui o valor da célula convertido.
+        /// </summary>
+        public Action<int, int, object, ElementSetter> HeaderCellElement
+        {
+            get
+            {
+                return this.headerCellElement;
+            }
+            set
+            {
+                if (value == null)
+                {
+                    throw new ArgumentException("Header cell object converter can't be null.");
+                }
+                else
+                {
+                    this.headerCellElement = value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Obtém o conjunto de regiões que identificam a fusão de células do cabeçalho.
+        /// </summary>
+        public NonIntersectingMergingRegionsSet<int, MergingRegion<int>> HeaderMergingRegions
+        {
+            get
+            {
+                return this.headerMergingRegions;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o conjunto de regiões que identificam a fusão de células do corpo.
+        /// </summary>
+        public NonIntersectingMergingRegionsSet<int, MergingRegion<int>> BodyMergingRegions
+        {
+            get
+            {
+                return this.bodyMergingRegions;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o html que representa uma tabela a partir de um leitor <see cref="ITabularItem"/>.
+        /// </summary>
+        /// <typeparam name="R">O tipo dos objectos que constituem as linhas.</typeparam>
+        /// <typeparam name="L">O tipo dos objectos que constituem as células.</typeparam>
+        /// <param name="tabularItemHeader">O item tabular que contém o cabeçalho.</param>
+        /// <param name="tabularItemBody">O item tabular que constitui o corpo.</param>
+        /// <returns>O html como texto.</returns>
+        public string GetHtmlFromTableItem<R, L>(
+            IGeneralTabularItem<R> tabularItemHeader,
+            IGeneralTabularItem<R> tabularItemBody)
+            where R : IGeneralTabularRow<L>
+            where L : IGeneralTabularCell
+        {
+            if (tabularItemHeader == null)
+            {
+                throw new ArgumentNullException("tabularItemHeader");
+            }
+            else if (headerMergingRegions == null)
+            {
+                throw new ArgumentNullException("tabularBody");
+            }
+            else
+            {
+                var columnsNumber = Math.Max(
+                    this.GetMaxLastColumnNumber<R, L>(tabularItemHeader),
+                    this.GetMaxLastColumnNumber<R, L>(tabularItemBody)) + 1;
+                var tableDocument = new XmlDocument();
+                var attributeSetter = new AttributeSetter();
+                var elementSetter = new ElementSetter();
+
+                // Inicializa a tabela
+                var table = tableDocument.CreateElement("table");
+                attributeSetter.CurrentElement = table;
+                this.tableAttributes.Invoke(attributeSetter);
+                tableDocument.AppendChild(table);
+
+                // Cabeçalho
+                var tableHeader = tableDocument.CreateElement("thead");
+                attributeSetter.CurrentElement = tableHeader;
+                this.tableHeaderAttributes.Invoke(attributeSetter);
+                table.AppendChild(tableHeader);
+
+                this.PrintTabularItem<R, L>(
+                    "th",
+                    tableHeader,
+                    columnsNumber,
+                    tabularItemHeader,
+                    this.headerMergingRegions);
+
+                // Corpo
+                var tableBody = tableDocument.CreateElement("tbody");
+                attributeSetter.CurrentElement = tableBody;
+                this.tableBodyAttributes.Invoke(attributeSetter);
+                table.AppendChild(tableBody);
+
+                this.PrintTabularItem<R, L>(
+                    "td",
+                    tableBody,
+                    columnsNumber,
+                    tabularItemBody,
+                    this.bodyMergingRegions);
+
+                // Escreve o xml
+                var resultBuilder = new StringBuilder();
+                XmlWriterSettings settings = new XmlWriterSettings
+                {
+                    Indent = this.indent,
+                    IndentChars = "  ",
+                    NewLineChars = "\r\n",
+                    NewLineHandling = NewLineHandling.Replace,
+                    OmitXmlDeclaration = true
+                };
+
+                using (var writer = XmlWriter.Create(resultBuilder, settings))
+                {
+                    tableDocument.Save(writer);
+                }
+
+                return resultBuilder.ToString();
+            }
+        }
+
+        /// <summary>
+        /// Determina o máximo do número de colunas em cada linha.
+        /// </summary>
+        /// <typeparam name="R">O tipo dos objectos que constituem as linhas.</typeparam>
+        /// <typeparam name="L">O tipo dos objectos que constituem as células.</typeparam>
+        /// <param name="tabularItem">O item tabular.</param>
+        /// <returns>O máximo do número de colunas.</returns>
+        private int GetMaxLastColumnNumber<R, L>(
+            IGeneralTabularItem<R> tabularItem)
+            where R : IGeneralTabularRow<L>
+            where L : IGeneralTabularCell
+        {
+            var result = 0;
+            foreach (var row in tabularItem)
+            {
+                var lastColumnNumber = row.LastColumnNumber;
+                if (result < lastColumnNumber)
+                {
+                    result = lastColumnNumber;
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Adenda células do vazias a uma linha do cabeçalho.
+        /// </summary>
+        /// <param name="cellElementName">O nome da célula.</param>
+        /// <param name="lineElement">A linha à qual serão adicionadas células vazias.</param>
+        /// <param name="currentLine">O número da linha de inserção.</param>
+        /// <param name="count">O número de elementos a inserir.</param>
+        /// <param name="linesNumber">O número de linhas na tabela.</param>
+        /// <param name="columnsNumber">O número de colunas.</param>
+        /// <param name="elementSetter">O objecto responsável pela alteração do elemento.</param>
+        /// <param name="mergingRegions">As regiões de fusão de células.</param>
+        private void AppendEmptyCells(
+            string cellElementName,
+            XmlElement lineElement,
+            int currentLine,
+            int count,
+            int linesNumber,
+            int columnsNumber,
+            ValidatedCellElementSetter elementSetter,
+            NonIntersectingMergingRegionsSet<int,MergingRegion<int>> mergingRegions)
+        {
+            for (int i = 0; i < count; ++i)
+            {
+                var mergingRegion = mergingRegions.GetMergingRegionForCell(
+                    i,
+                    currentLine);
+                if (mergingRegion == null)
+                {
+                    var tableCellElement = lineElement.OwnerDocument.CreateElement(cellElementName);
+                    elementSetter.CurrentElement = tableCellElement;
+                    lineElement.AppendChild(tableCellElement);
+
+                    this.headerCellElement.Invoke(
+                        currentLine,
+                        i,
+                        null,
+                        elementSetter);
+                    lineElement.AppendChild(tableCellElement);
+                }
+                else if (mergingRegion.TopLeftX == i)
+                {
+                    var colDifference = mergingRegion.BottomRightX - mergingRegion.TopLeftY;
+                    if (mergingRegion.TopLeftY == currentLine)
+                    {
+                        var tableCellElement = lineElement.OwnerDocument.CreateElement(cellElementName);
+                        elementSetter.CurrentElement = tableCellElement;
+                        lineElement.AppendChild(tableCellElement);
+                        this.headerCellElement.Invoke(
+                        currentLine,
+                        i,
+                        null,
+                        elementSetter);
+
+                        if (colDifference > 0)
+                        {
+                            var colSpan = Math.Min(
+                                colDifference + 1,
+                                columnsNumber - i);
+                            if (colSpan > 1)
+                            {
+                                tableCellElement.SetAttribute("colspan", colSpan.ToString());
+                            }
+                        }
+
+                        var rowDifference = mergingRegion.BottomRightY - mergingRegion.TopLeftY;
+                        if (rowDifference > 0)
+                        {
+                            var rowSpan = Math.Min(
+                                rowDifference + 1,
+                                linesNumber - currentLine);
+                            if (rowSpan > 1)
+                            {
+                                tableCellElement.SetAttribute("rowspan", rowSpan.ToString());
+                            }
+                        }
+                    }
+
+                    i += colDifference;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Imprime um item tabular para o elemento da tabela.
+        /// </summary>
+        /// <typeparam name="R">O tipo dos objectos que constituem as linhas do item tabular.</typeparam>
+        /// <typeparam name="L">O tipo dos objectos que constituem as células do item tabular.</typeparam>
+        /// <param name="cellElementName">O nome do elemento da célula.</param>
+        /// <param name="element">O elemento da tabela que irá conter as linhas.</param>
+        /// <param name="columnsNumber">O número de colunas esperado.</param>
+        /// <param name="tabularItem">O item tabular.</param>
+        /// <param name="mergingRegions">O conjunto de regiões de células fundidas.</param>
+        private void PrintTabularItem<R, L>(
+            string cellElementName,
+            XmlElement element,
+            int columnsNumber,
+            IGeneralTabularItem<R> tabularItem,
+            NonIntersectingMergingRegionsSet<int,MergingRegion<int>> mergingRegions)
+            where R : IGeneralTabularRow<L>
+            where L : IGeneralTabularCell
+        {
+            var attributeSetter = new AttributeSetter();
+            var validatedCellElementSetter = new ValidatedCellElementSetter();
+            var linesNumber = tabularItem.LastRowNumber + 1;
+            var linePointer = 0;
+            foreach (var tabularLine in tabularItem)
+            {
+                var currentLine = tabularLine.RowNumber;
+                for (; linePointer < currentLine; ++linePointer)
+                {
+                    var rowElement = element.OwnerDocument.CreateElement("tr");
+                    attributeSetter.CurrentElement = rowElement;
+                    this.headerRowAttributesSetter.Invoke(
+                        linePointer,
+                        attributeSetter);
+                    this.AppendEmptyCells(
+                        cellElementName,
+                        rowElement,
+                        linePointer,
+                        columnsNumber,
+                        linesNumber,
+                        columnsNumber,
+                        validatedCellElementSetter,
+                        mergingRegions);
+                    element.AppendChild(rowElement);
+                }
+
+                var lineElement = element.OwnerDocument.CreateElement("tr");
+                attributeSetter.CurrentElement = lineElement;
+                this.headerRowAttributesSetter.Invoke(
+                    linePointer,
+                    attributeSetter);
+                var currentCellNumber = 0;
+                foreach (var tabularCell in tabularLine)
+                {
+                    if (currentCellNumber <= tabularCell.ColumnNumber)
+                    {
+                        var emptyCellsCount = tabularCell.ColumnNumber - currentCellNumber;
+                        this.AppendEmptyCells(
+                            cellElementName,
+                            lineElement,
+                            linePointer,
+                            emptyCellsCount,
+                            linesNumber,
+                            columnsNumber,
+                            validatedCellElementSetter,
+                            mergingRegions);
+
+                        var mergingRegion = mergingRegions.GetMergingRegionForCell(
+                            tabularCell.ColumnNumber,
+                            currentLine);
+                        if (mergingRegion == null)
+                        {
+                            var tableCellElement = lineElement.OwnerDocument.CreateElement(cellElementName);
+                            validatedCellElementSetter.CurrentElement = tableCellElement;
+                            lineElement.AppendChild(tableCellElement);
+
+                            this.headerCellElement.Invoke(
+                                currentLine,
+                                tabularCell.ColumnNumber,
+                                tabularCell.GetCellValue<object>(),
+                                validatedCellElementSetter);
+                            lineElement.AppendChild(tableCellElement);
+                            currentCellNumber = tabularCell.ColumnNumber + 1;
+                        }
+                        else if (mergingRegion.TopLeftX == tabularCell.ColumnNumber)
+                        {
+                            var colDifference = mergingRegion.BottomRightX - mergingRegion.TopLeftX;
+                            if (mergingRegion.TopLeftY == currentLine)
+                            {
+                                var tableCellElement = lineElement.OwnerDocument.CreateElement(cellElementName);
+                                validatedCellElementSetter.CurrentElement = tableCellElement;
+                                lineElement.AppendChild(tableCellElement);
+                                this.headerCellElement.Invoke(
+                                    currentLine,
+                                    tabularCell.ColumnNumber,
+                                    tabularCell.GetCellValue<object>(),
+                                    validatedCellElementSetter);
+
+                                if (colDifference > 0)
+                                {
+                                    var colSpan = Math.Min(
+                                        colDifference + 1,
+                                        columnsNumber - tabularCell.ColumnNumber);
+                                    if (colSpan > 1)
+                                    {
+                                        tableCellElement.SetAttribute("colspan", colSpan.ToString());
+                                    }
+                                }
+
+                                var rowDifference = mergingRegion.BottomRightY - mergingRegion.TopLeftY;
+                                if (rowDifference > 0)
+                                {
+                                    var rowSpan = Math.Min(
+                                        rowDifference + 1,
+                                        linesNumber - currentLine);
+                                    if (rowSpan > 1)
+                                    {
+                                        tableCellElement.SetAttribute("rowspan", rowSpan.ToString());
+                                    }
+                                }
+                            }
+
+                            currentCellNumber = tabularCell.ColumnNumber + colDifference + 1;
+                        }
+                    }
+                }
+
+                var finalEmptyCellsCount = columnsNumber - currentCellNumber;
+                this.AppendEmptyCells(
+                        cellElementName,
+                        lineElement,
+                        linePointer,
+                        finalEmptyCellsCount,
+                        linesNumber,
+                        columnsNumber,
+                        validatedCellElementSetter,
+                        mergingRegions);
+
+                element.AppendChild(lineElement);
+                ++linePointer;
+            }
+
+            // Inserção das restantes linhas vazias
+            for (; linePointer < linesNumber; ++linePointer)
+            {
+                var rowElement = element.OwnerDocument.CreateElement("th");
+                attributeSetter.CurrentElement = rowElement;
+                this.headerRowAttributesSetter.Invoke(
+                    linePointer,
+                    attributeSetter);
+                this.AppendEmptyCells(
+                        cellElementName,
+                        rowElement,
+                        linePointer,
+                        columnsNumber,
+                        linesNumber,
+                        columnsNumber,
+                        validatedCellElementSetter,
+                        mergingRegions);
+            }
+        }
+    }
+}

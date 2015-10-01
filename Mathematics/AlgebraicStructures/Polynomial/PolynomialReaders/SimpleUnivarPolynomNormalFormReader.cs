@@ -41,7 +41,7 @@ namespace Mathematics
         /// <param name="variableName">O nome da variável.</param>
         /// <exception cref="MathematicsException">Se um leitor de coeficientes não for providenciado.</exception>
         public SimpleUnivarPolynomNormalFormReader(
-            IParse<CoeffType, string, string> coeffParser, 
+            IParse<CoeffType, string, string> coeffParser,
             IRing<CoeffType> coeffRing,
             string variableName)
         {
@@ -62,24 +62,28 @@ namespace Mathematics
         }
 
         /// <summary>
-        /// Efectua a leitura de um termo polinomial.
+        /// Realiza a leitura.
         /// </summary>
-        /// <param name="symbolListToParse">A lista de símbolos para leitura.</param>
-        /// <param name="pol">A variável que recebe o polinómio lido.</param>
-        /// <returns>Verdadeiro caso a leitura seja bem-sucedida e falso caso contrário.</returns>
-        public bool TryParse(
-            ISymbol<string, string>[] symbolListToParse, 
-            out ParseUnivarPolynomNormalFormItem<CoeffType> pol)
+        /// <remarks>
+        /// Se a leitura não for bem-sucedida, os erros de leitura serão registados no diário
+        /// e será retornado o objecto por defeito.
+        /// </remarks>
+        /// <param name="symbolListToParse">O vector de símbolos a ser lido.</param>
+        /// <param name="errorLogs">O objecto que irá manter o registo do diário da leitura.</param>
+        /// <returns>O valor lido.</returns>
+        public ParseUnivarPolynomNormalFormItem<CoeffType> Parse(
+            ISymbol<string, string>[] symbolListToParse,
+            ILogStatus<string, EParseErrorLevel> errorLogs)
         {
-            pol = null;
-            var parsedCoeff = default(CoeffType);
-            
+            var pol = default(ParseUnivarPolynomNormalFormItem<CoeffType>);
             if (symbolListToParse.Length == 1)
             {
                 var stringValue = symbolListToParse[0].SymbolValue;
                 if (string.IsNullOrWhiteSpace(stringValue))
                 {
-                    return false;
+                    errorLogs.AddLog(
+                        "The variable name can't be null nor empty.",
+                        EParseErrorLevel.ERROR);
                 }
                 else if (char.IsLetter(stringValue[0]))
                 {
@@ -91,59 +95,98 @@ namespace Mathematics
                             1,
                             stringValue,
                             this.coeffRing);
-                        return true;
                     }
-                    else if (this.coeffParser.TryParse(symbolListToParse, out parsedCoeff))
+                    else
+                    {
+                        var coeffError = new LogStatus<string, EParseErrorLevel>();
+                        var parsedCoeff = this.coeffParser.Parse(symbolListToParse, coeffError);
+                        if (!coeffError.HasLogs(EParseErrorLevel.ERROR))
+                        {
+                            pol = new ParseUnivarPolynomNormalFormItem<CoeffType>();
+                            pol.Coeff = parsedCoeff;
+                        }
+
+                        // Poderão existir avisos.
+                        this.CopyLogs(coeffError, errorLogs);
+                    }
+                }
+                else
+                {
+                    var coeffError = new LogStatus<string, EParseErrorLevel>();
+                    var parsedCoeff = this.coeffParser.Parse(symbolListToParse, coeffError);
+                    if (coeffError.HasLogs(EParseErrorLevel.ERROR))
+                    {
+                        var degreeError = new LogStatus<string, EParseErrorLevel>();
+                        var integerValue = this.integerParser.Parse(symbolListToParse, degreeError);
+                        if (degreeError.HasLogs(EParseErrorLevel.ERROR))
+                        {
+                            this.CopyLogs(coeffError, errorLogs);
+                        }
+                        else
+                        {
+                            pol = new ParseUnivarPolynomNormalFormItem<CoeffType>();
+                            pol.Degree = integerValue;
+
+                            // Poderão existir avisos
+                            this.CopyLogs(degreeError, errorLogs);
+                        }
+                    }
+                    else
                     {
                         pol = new ParseUnivarPolynomNormalFormItem<CoeffType>();
                         pol.Coeff = parsedCoeff;
-                        return true;
-                    }
-                    else
-                    {
-                        return false;
+
+                        // Poderão existir avisos.
+                        this.CopyLogs(coeffError, errorLogs);
                     }
                 }
-                else if (this.coeffParser.TryParse(symbolListToParse, out parsedCoeff))
-                {
-                    pol = new ParseUnivarPolynomNormalFormItem<CoeffType>();
-                    pol.Coeff = parsedCoeff;
-                    return true;
-                }
-                else
-                {
-                    var integerValue = 0;
-                    if (this.integerParser.TryParse(symbolListToParse, out integerValue))
-                    {
-                        pol = new ParseUnivarPolynomNormalFormItem<CoeffType>();
-                        pol.Degree = integerValue;
-                        return true;
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
-            }
-            else if (this.coeffParser.TryParse(symbolListToParse, out parsedCoeff))
-            {
-                pol = new ParseUnivarPolynomNormalFormItem<CoeffType>();
-                pol.Coeff = parsedCoeff;
-                return true;
             }
             else
             {
-                var integerValue = 0;
-                if (this.integerParser.TryParse(symbolListToParse, out integerValue))
+                var coeffError = new LogStatus<string, EParseErrorLevel>();
+                var parsedCoeff = this.coeffParser.Parse(symbolListToParse, coeffError);
+                if (coeffError.HasLogs(EParseErrorLevel.ERROR))
                 {
-                    pol = new ParseUnivarPolynomNormalFormItem<CoeffType>();
-                    pol.Degree = integerValue;
-                    return true;
+                    var degreeError = new LogStatus<string, EParseErrorLevel>();
+                    var integerValue = this.integerParser.Parse(symbolListToParse, degreeError);
+                    if (degreeError.HasLogs(EParseErrorLevel.ERROR))
+                    {
+                        this.CopyLogs(coeffError, errorLogs);
+                    }
+                    else
+                    {
+                        pol = new ParseUnivarPolynomNormalFormItem<CoeffType>();
+                        pol.Degree = integerValue;
+
+                        // Poderão existir avisos
+                        this.CopyLogs(degreeError, errorLogs);
+                    }
                 }
                 else
                 {
-                    return false;
+                    pol = new ParseUnivarPolynomNormalFormItem<CoeffType>();
+                    pol.Coeff = parsedCoeff;
+
+                    // Poderão existir avisos.
+                    this.CopyLogs(coeffError, errorLogs);
                 }
+            }
+
+            return pol;
+        }
+
+        /// <summary>
+        /// Copia mensagens entre diários.
+        /// </summary>
+        /// <param name="source">O diário de origem.</param>
+        /// <param name="destination">O diário de destino.</param>
+        private void CopyLogs(
+            ILogStatus<string, EParseErrorLevel> source,
+            ILogStatus<string, EParseErrorLevel> destination)
+        {
+            foreach (var kvp in source.GetLogs())
+            {
+                destination.AddLog(kvp.Value, kvp.Key);
             }
         }
     }
