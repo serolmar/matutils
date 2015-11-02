@@ -115,6 +115,7 @@
     <Compile Include="Events\UpdateEventArgs.cs" />
     <Compile Include="ExpressionBuilders\EWordCharExpressionType.cs" />
     <Compile Include="ExpressionBuilders\ExpressionParsers.cs" />
+    <Compile Include="GenBank\GenBankModel.cs" />
     <Compile Include="GenericException.cs" />
     <Compile Include="Lambda\ELambdaExpressionWordType.cs" />
     <Compile Include="Lambda\SmartFilterLambdaBuilder.cs" />

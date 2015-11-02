@@ -653,7 +653,9 @@
                     tableHeader,
                     columnsNumber,
                     tabularItemHeader,
-                    this.headerMergingRegions);
+                    this.headerMergingRegions,
+                    this.headerRowAttributesSetter,
+                    this.headerCellElement);
 
                 // Corpo
                 var tableBody = tableDocument.CreateElement("tbody");
@@ -666,7 +668,9 @@
                     tableBody,
                     columnsNumber,
                     tabularItemBody,
-                    this.bodyMergingRegions);
+                    this.bodyMergingRegions,
+                    this.bodyRowAttributesSetter,
+                    this.bodyCellElement);
 
                 // Escreve o xml
                 var resultBuilder = new StringBuilder();
@@ -724,6 +728,7 @@
         /// <param name="columnsNumber">O número de colunas.</param>
         /// <param name="elementSetter">O objecto responsável pela alteração do elemento.</param>
         /// <param name="mergingRegions">As regiões de fusão de células.</param>
+        /// <param name="elementsSetter">A função responsável pelo processamento dos elementos.</param>
         private void AppendEmptyCells(
             string cellElementName,
             XmlElement lineElement,
@@ -732,7 +737,8 @@
             int linesNumber,
             int columnsNumber,
             ValidatedCellElementSetter elementSetter,
-            NonIntersectingMergingRegionsSet<int,MergingRegion<int>> mergingRegions)
+            NonIntersectingMergingRegionsSet<int,MergingRegion<int>> mergingRegions,
+            Action<int,int,object,ElementSetter> elementsSetter)
         {
             for (int i = 0; i < count; ++i)
             {
@@ -745,7 +751,7 @@
                     elementSetter.CurrentElement = tableCellElement;
                     lineElement.AppendChild(tableCellElement);
 
-                    this.headerCellElement.Invoke(
+                    elementsSetter.Invoke(
                         currentLine,
                         i,
                         null,
@@ -760,7 +766,7 @@
                         var tableCellElement = lineElement.OwnerDocument.CreateElement(cellElementName);
                         elementSetter.CurrentElement = tableCellElement;
                         lineElement.AppendChild(tableCellElement);
-                        this.headerCellElement.Invoke(
+                        elementsSetter.Invoke(
                         currentLine,
                         i,
                         null,
@@ -805,12 +811,16 @@
         /// <param name="columnsNumber">O número de colunas esperado.</param>
         /// <param name="tabularItem">O item tabular.</param>
         /// <param name="mergingRegions">O conjunto de regiões de células fundidas.</param>
+        /// <param name="attributessSetter">A função responsável pela adição de atributos.</param>
+        /// <param name="elementsSetter">A função responsável pelo processamento de elementos.</param>
         private void PrintTabularItem<R, L>(
             string cellElementName,
             XmlElement element,
             int columnsNumber,
             IGeneralTabularItem<R> tabularItem,
-            NonIntersectingMergingRegionsSet<int,MergingRegion<int>> mergingRegions)
+            NonIntersectingMergingRegionsSet<int,MergingRegion<int>> mergingRegions,
+            Action<int, AttributeSetter> attributessSetter,
+            Action<int,int, object, ElementSetter> elementsSetter)
             where R : IGeneralTabularRow<L>
             where L : IGeneralTabularCell
         {
@@ -825,7 +835,7 @@
                 {
                     var rowElement = element.OwnerDocument.CreateElement("tr");
                     attributeSetter.CurrentElement = rowElement;
-                    this.headerRowAttributesSetter.Invoke(
+                    attributessSetter.Invoke(
                         linePointer,
                         attributeSetter);
                     this.AppendEmptyCells(
@@ -836,13 +846,14 @@
                         linesNumber,
                         columnsNumber,
                         validatedCellElementSetter,
-                        mergingRegions);
+                        mergingRegions,
+                        elementsSetter);
                     element.AppendChild(rowElement);
                 }
 
                 var lineElement = element.OwnerDocument.CreateElement("tr");
                 attributeSetter.CurrentElement = lineElement;
-                this.headerRowAttributesSetter.Invoke(
+                attributessSetter.Invoke(
                     linePointer,
                     attributeSetter);
                 var currentCellNumber = 0;
@@ -859,7 +870,8 @@
                             linesNumber,
                             columnsNumber,
                             validatedCellElementSetter,
-                            mergingRegions);
+                            mergingRegions,
+                            elementsSetter);
 
                         var mergingRegion = mergingRegions.GetMergingRegionForCell(
                             tabularCell.ColumnNumber,
@@ -870,7 +882,7 @@
                             validatedCellElementSetter.CurrentElement = tableCellElement;
                             lineElement.AppendChild(tableCellElement);
 
-                            this.headerCellElement.Invoke(
+                            elementsSetter.Invoke(
                                 currentLine,
                                 tabularCell.ColumnNumber,
                                 tabularCell.GetCellValue<object>(),
@@ -886,7 +898,7 @@
                                 var tableCellElement = lineElement.OwnerDocument.CreateElement(cellElementName);
                                 validatedCellElementSetter.CurrentElement = tableCellElement;
                                 lineElement.AppendChild(tableCellElement);
-                                this.headerCellElement.Invoke(
+                                elementsSetter.Invoke(
                                     currentLine,
                                     tabularCell.ColumnNumber,
                                     tabularCell.GetCellValue<object>(),
@@ -930,7 +942,8 @@
                         linesNumber,
                         columnsNumber,
                         validatedCellElementSetter,
-                        mergingRegions);
+                        mergingRegions,
+                        elementsSetter);
 
                 element.AppendChild(lineElement);
                 ++linePointer;
@@ -952,7 +965,8 @@
                         linesNumber,
                         columnsNumber,
                         validatedCellElementSetter,
-                        mergingRegions);
+                        mergingRegions,
+                        elementsSetter);
             }
         }
     }

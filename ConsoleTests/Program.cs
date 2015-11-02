@@ -25,22 +25,21 @@
 
         static void Main(string[] args)
         {
-            var sortedDic = new SortedList<int, int>();
-            sortedDic.Add(3, 3);
-            sortedDic.Add(2,2);
-            sortedDic.Add(4, 4);
-            sortedDic.Add(5, 5);
-            sortedDic.Add(1, 1);
+            var rectangularRegion = new NonIntersectingMergingRegionsSet<int, IMergingRegion<int>>();
+            rectangularRegion.Add(
+                new MergingRegion<int>(0, 0, 5, 0));
+            rectangularRegion.Add(
+                new MergingRegion<int>(0, 1, 1, 2));
+            rectangularRegion.Add(
+                new MergingRegion<int>(2, 1, 3, 2));
+            rectangularRegion.Add(
+                new MergingRegion<int>(4, 1, 5, 2));
+            rectangularRegion.Add(
+                new MergingRegion<int>(0, 3, 3, 5));
+            rectangularRegion.Add(
+                new MergingRegion<int>(4, 3, 6, 6));
 
-            foreach (var item in sortedDic)
-            {
-                Console.WriteLine("{0} => {1}", item.Key, item.Value);
-            }
-
-            foreach (var item in sortedDic.Keys)
-            {
-                Console.WriteLine(item);
-            }
+            var intersectionRegion = rectangularRegion.GetMergingRegionForCell(0, 4);
 
             Console.WriteLine(((ulong)2 * uint.MaxValue).ToString().Length);
             var readedNumber = string.Empty;

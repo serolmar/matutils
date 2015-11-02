@@ -1281,7 +1281,7 @@
                 }
                 else
                 {
-                    for (int i = edgesCount - 1; i > secondX; --i)
+                    for (int i = edgesCount - 1; i >= secondX; --i)
                     {
                         var regionIndices = this.xEdges[i].Item2;
                         foreach (var regionIndex in regionIndices)
@@ -1385,7 +1385,7 @@
                 }
                 else
                 {
-                    for (int i = yEdgesCount - 1; i > secondY; --i)
+                    for (int i = yEdgesCount - 1; i >= secondY; --i)
                     {
                         var regionIndices = this.yEdges[i].Item2;
                         foreach (var regionIndex in regionIndices)

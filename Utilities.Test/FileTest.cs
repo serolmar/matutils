@@ -351,7 +351,7 @@
             tabularItem.Add(new[] { "A", "B", "C", "D", "E", "F" });
             tabularItem.Add(new[] { "A1", "B1", string.Empty, string.Empty, "E1" });
             tabularItem.Add(new[] { "a" });
-            tabularItem.Add(new[] { "b", "c", "d"});
+            tabularItem.Add(new[] { "b", "c", "d" });
             tabularItem.Add(new object[0]);
             tabularItem.Add(new[] { "e", "f" });
             tabularItem.Add(new[] { string.Empty, string.Empty, string.Empty, string.Empty });
@@ -392,6 +392,131 @@
             var actualHtml = target.GetHtmlFromTableItem<IReadonlyTabularRow, IReadonlyTabularCell>(
                 header,
                 body);
+
+            var headerValues = new[]{
+                new[]{"A","B","C","E","F"},
+                new[]{"A1","B1","E1"}
+            };
+
+            var headerAttributes = new Dictionary<string, string>[headerValues.Length][];
+            for (int i = 0; i < headerValues.Length; ++i)
+            {
+                headerAttributes[i] = new Dictionary<string, string>[headerValues[i].Length];
+                for (int j = 0; j < headerValues[i].Length; ++j)
+                {
+                    headerAttributes[i][j] = new Dictionary<string, string>();
+                }
+            }
+
+            headerAttributes[0][2].Add("rowspan", "2");
+            headerAttributes[0][2].Add("colspan", "2");
+            headerAttributes[1][2].Add("colspan", "2");
+
+            var bodyValues = new[]{
+                new[]{"a"},
+                new[]{"b","d",string.Empty},
+                new string[]{},
+                new[]{"e",string.Empty},
+                new string[]{}
+            };
+
+            var bodyAttributes = new Dictionary<string, string>[bodyValues.Length][];
+            for (int i = 0; i < bodyValues.Length; ++i)
+            {
+                bodyAttributes[i] = new Dictionary<string, string>[bodyValues[i].Length];
+                for (int j = 0; j < bodyValues[i].Length; ++j)
+                {
+                    bodyAttributes[i][j] = new Dictionary<string, string>();
+                }
+            }
+
+            bodyAttributes[0][0].Add("colspan", "6");
+            bodyAttributes[1][0].Add("rowspan", "2");
+            bodyAttributes[1][0].Add("colspan", "2");
+            bodyAttributes[1][1].Add("rowspan", "2");
+            bodyAttributes[1][1].Add("colspan", "2");
+            bodyAttributes[1][2].Add("rowspan", "2");
+            bodyAttributes[1][2].Add("colspan", "2");
+            bodyAttributes[3][0].Add("rowspan", "2");
+            bodyAttributes[3][0].Add("colspan", "4");
+            bodyAttributes[3][1].Add("rowspan", "2");
+            bodyAttributes[3][1].Add("colspan", "2");
+
+            var stringReader = new StringReader(actualHtml);
+            var xmlDocument = new XmlDocument();
+            xmlDocument.Load(stringReader);
+
+            Assert.AreEqual("table", xmlDocument.DocumentElement.Name.ToLower());
+
+            // Teste ao cabeçalho
+            var childNodes = xmlDocument.DocumentElement.GetElementsByTagName("thead");
+            Assert.AreEqual(1, childNodes.Count);
+            var node = childNodes[0];
+            Assert.AreEqual(headerValues.Length, node.ChildNodes.Count);
+            for (int i = 0; i < node.ChildNodes.Count; ++i)
+            {
+                var row = node.ChildNodes[i];
+                Assert.AreEqual("tr", row.Name);
+                Assert.AreEqual(headerValues[i].Length, row.ChildNodes.Count);
+                for (int j = 0; j < headerValues[i].Length; ++j)
+                {
+                    var cell = row.ChildNodes[j];
+                    Assert.AreEqual("th", cell.Name);
+                    Assert.AreEqual(headerValues[i][j], cell.InnerText);
+
+                    Assert.AreEqual(headerAttributes[i][j].Count, cell.Attributes.Count);
+                    foreach (XmlAttribute att in cell.Attributes)
+                    {
+                        if (headerAttributes[i][j].ContainsKey(att.Name))
+                        {
+                            Assert.AreEqual(
+                                headerAttributes[i][j][att.Name],
+                                att.Value);
+                        }
+                        else
+                        {
+                            Assert.Fail(string.Format(
+                                "Found no attribute with the specified name: {0}",
+                                att.Name));
+                        }
+                    }
+                }
+            }
+
+            // Teste ao corpo
+            childNodes = xmlDocument.DocumentElement.GetElementsByTagName("tbody");
+            Assert.AreEqual(1, childNodes.Count);
+            node = childNodes[0];
+            Assert.AreEqual(bodyValues.Length, node.ChildNodes.Count);
+            for (int i = 0; i < node.ChildNodes.Count; ++i)
+            {
+                var row = node.ChildNodes[i];
+                Assert.AreEqual("tr", row.Name);
+                Assert.AreEqual(bodyValues[i].Length, row.ChildNodes.Count);
+                for (int j = 0; j < bodyValues[i].Length; ++j)
+                {
+                    var cell = row.ChildNodes[j];
+                    Assert.AreEqual("td", cell.Name);
+                    Assert.AreEqual(bodyValues[i][j], cell.InnerText);
+
+                    Assert.AreEqual(bodyAttributes[i][j].Count, cell.Attributes.Count);
+                    foreach (XmlAttribute att in cell.Attributes)
+                    {
+                        if (bodyAttributes[i][j].ContainsKey(att.Name))
+                        {
+                            Assert.AreEqual(
+                                bodyAttributes[i][j][att.Name],
+                                att.Value);
+                        }
+                        else
+                        {
+                            Assert.Fail(string.Format(
+                                "Found no attribute with the specified name: {0}",
+                                att.Name));
+                        }
+                    }
+                }
+            }
         }
     }
 
