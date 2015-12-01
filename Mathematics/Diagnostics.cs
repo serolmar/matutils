@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Numerics;
     using System.Text;
 
     /// <summary>
@@ -404,6 +405,158 @@
 
                 return result;
             }
+        }
+
+        /// <summary>
+        /// Obtém a representação hexadecimal de um número.
+        /// </summary>
+        /// <param name="number">
+        /// O número do qual se pretende obter a representação.
+        /// </param>
+        /// <returns>A representação hexadecimal do número.</returns>
+        public static string GetHex(int number)
+        {
+            return number.ToString("X");
+        }
+
+        /// <summary>
+        /// Obtém a representação hexadecimal de um número.
+        /// </summary>
+        /// <param name="number">
+        /// O número do qual se pretende obter a representação.
+        /// </param>
+        /// <returns>A representação hexadecimal do número.</returns>
+        public static string GetHex(uint number)
+        {
+            return number.ToString("X");
+        }
+
+        /// <summary>
+        /// Obtém a representação hexadecimal de um número.
+        /// </summary>
+        /// <param name="number">
+        /// O número do qual se pretende obter a representação.
+        /// </param>
+        /// <returns>A representação hexadecimal do número.</returns>
+        public static string GetHex(long number)
+        {
+            return number.ToString("X");
+        }
+
+        /// <summary>
+        /// Obtém a representação hexadecimal de um número.
+        /// </summary>
+        /// <param name="number">
+        /// O número do qual se pretende obter a representação.
+        /// </param>
+        /// <returns>A representação hexadecimal do número.</returns>
+        public static string GetHex(ulong number)
+        {
+            return number.ToString("X");
+        }
+
+        /// <summary>
+        /// Obtém a representação em termos de inteiros de precisão arbitrária.
+        /// </summary>
+        /// <param name="values">O vector de valore a ser convertido.</param>
+        /// <returns>O resultado da conversão.</returns>
+        public static BigInteger GetBigIntegerRepresentation(
+            uint[] values)
+        {
+            var result = BigInteger.Zero;
+            var i = values.Length - 1;
+            if (i > -1)
+            {
+                result += values[i];
+
+                --i;
+                for (; i > -1; --i)
+                {
+                    result <<= 32;
+                    result += values[i];
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Obtém a representação em termos de inteiros de precisão arbitrária.
+        /// </summary>
+        /// <param name="values">O vector de valore a ser convertido.</param>
+        /// <param name="length">O compriemnto útil do vector.</param>
+        /// <returns>O resultado da conversão.</returns>
+        public static BigInteger GetBigIntegerRepresentation(
+            uint[] values,
+            int length)
+        {
+            var result = BigInteger.Zero;
+            var i = values.Length - 1;
+            if (i > -1)
+            {
+                result += values[i];
+
+                --i;
+                for (; i > -1; --i)
+                {
+                    result <<= 32;
+                    result += values[i];
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Obtém a representação em termos de inteiros de precisão arbitrária.
+        /// </summary>
+        /// <param name="values">O vector de valore a ser convertido.</param>
+        /// <returns>O resultado da conversão.</returns>
+        public static BigInteger GetBigIntegerRepresentation(
+            ulong[] values)
+        {
+            var result = BigInteger.Zero;
+            var i = values.Length - 1;
+            if (i > -1)
+            {
+                result += values[i];
+
+                --i;
+                for (; i > -1; --i)
+                {
+                    result <<= 64;
+                    result += values[i];
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Obtém a representação em termos de inteiros de precisão arbitrária.
+        /// </summary>
+        /// <param name="values">O vector de valore a ser convertido.</param>
+        /// <param name="length">O comprimento útil do vector.</param>
+        /// <returns>O resultado da conversão.</returns>
+        public static BigInteger GetBigIntegerRepresentation(
+            ulong[] values,
+            int length)
+        {
+            var result = BigInteger.Zero;
+            var i = values.Length - 1;
+            if (i > -1)
+            {
+                result += values[i];
+
+                --i;
+                for (; i > -1; --i)
+                {
+                    result <<= 64;
+                    result += values[i];
+                }
+            }
+
+            return result;
         }
     }
 }

@@ -464,4 +464,36 @@
             Assert.IsFalse(target.Contains(5, 9));
         }
     }
+
+    /// <summary>
+    /// Permite realizar testes sobre uma lista de bits.
+    /// </summary>
+    [TestClass]
+    public class BitListTest
+    {
+        /// <summary>
+        /// Testa as funções de escrita e leitura relativas à representação textual
+        /// das listas de bits como números inteiros sem sinal.
+        /// </summary>
+        [Description("Tests the number text representation read and write.")]
+        [TestMethod]
+        public void BitList_NumberReadWriteTextTest()
+        {
+            var textExps = new[] { 
+                "100000001",
+                "0",
+                "198174651938745138169854193845083450139846050298710285720345709345134",
+                "530498734",
+                "2345978654197234651938745"
+            };
+
+            for (int i = 0; i < textExps.Length; ++i)
+            {
+                var expected = textExps[i];
+                var current = BitList.ReadNumeric(expected);
+                var actual = current.ToNumericString();
+                Assert.AreEqual(expected, actual);
+            }
+        }
+    }
 }

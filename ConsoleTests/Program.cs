@@ -25,6 +25,9 @@
 
         static void Main(string[] args)
         {
+            var number = 8;
+            var bitlist = BitList.ReadNumeric(number.ToString());
+
             var rectangularRegion = new NonIntersectingMergingRegionsSet<int, IMergingRegion<int>>();
             rectangularRegion.Add(
                 new MergingRegion<int>(0, 0, 5, 0));

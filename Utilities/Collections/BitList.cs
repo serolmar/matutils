@@ -975,6 +975,37 @@
             }
         }
 
+        /// <summary>
+        /// Permite obter o valor da lista como texto numérico que representa um número
+        /// inteiro sem sinal.
+        /// </summary>
+        /// <remarks>
+        /// O número que representa a lista é o que resulta de considerar o primeiro
+        /// "bit" como sendo o menos significativo.
+        /// </remarks>
+        /// <returns>O valor da lista como texto numérico.</returns>
+        public string ToNumericString()
+        {
+            if (this.elements == null || this.elements.Count == 0)
+            {
+                return string.Empty;
+            }
+            else
+            {
+                var index = this.elements.Count - 1;
+                var resultValue = new List<ulong>() { this.elements[index] };
+                --index;
+                for (; index > -1; --index)
+                {
+                    this.DecimalMultiplyByBinaryPower64(resultValue);
+                    this.DecimalRepAdd(resultValue, this.elements[index]);
+                }
+
+                var result = this.GetDecimalRepresentation(resultValue);
+                return result;
+            }
+        }
+
         #region Operações Lógicas
 
         /// <summary>
@@ -1172,6 +1203,9 @@
         /// Permite fazer a leitura da lista de bits a partir de texto que representa
         /// um número inteiro.
         /// </summary>
+        /// <remarks>
+        /// A leitura é feita do bit menos significativo para o mais significativo.
+        /// </remarks>
         /// <param name="numericText">O texto que representa um número inteiro positivo.</param>
         /// <returns>A lista.</returns>
         /// <exception cref="UtilitiesException">Se o texto for inválido.</exception>
@@ -1464,6 +1498,486 @@
                 ++listCapacity;
             }
             elements = new List<ulong>(listCapacity);
+        }
+
+        /// <summary>
+        /// Adiciona um valor à representação decimal de um número enorme.
+        /// </summary>
+        /// <param name="decimalRepresentation">A representação decimal do número enorme.</param>
+        /// <param name="value">O valor a ser adicionado.</param>
+        private void DecimalRepAdd(List<ulong> decimalRepresentation, ulong value)
+        {
+            var current = decimalRepresentation[0];
+            var sum = this.DecimalRepAdd(current, value);
+            var carry = sum.Item1;
+            if (sum.Item2 < 10000000000000000000ul)
+            {
+                decimalRepresentation[0] = sum.Item2;
+            }
+            else
+            {
+                decimalRepresentation[0] = sum.Item2 - 10000000000000000000ul;
+                ++carry;
+            }
+
+            var length = decimalRepresentation.Count;
+            var index = 1;
+            while (carry > 0ul && index < length)
+            {
+                current = decimalRepresentation[index];
+                sum = this.DecimalRepAdd(current, carry);
+                carry = sum.Item1;
+                if (sum.Item2 < 10000000000000000000ul)
+                {
+                    decimalRepresentation[index] = sum.Item2;
+                }
+                else
+                {
+                    decimalRepresentation[index] = sum.Item2 - 10000000000000000000ul;
+                    ++carry;
+                }
+
+                ++index;
+            }
+
+            if (carry > 0ul)
+            {
+                decimalRepresentation.Add(carry);
+            }
+        }
+
+        /// <summary>
+        /// Multiplica a representação decimal em base 10^19 do número pela potÊncia 2^64.
+        /// </summary>
+        /// <remarks>
+        /// Recorre-se aqui ao caso em que as unidades se encontram nas primeiras posições da lista
+        /// que contém a representação.
+        /// </remarks>
+        /// <param name="decimalRepresentation">A representação decimal do número.</param>
+        private void DecimalMultiplyByBinaryPower64(List<ulong> decimalRepresentation)
+        {
+            var low = 8446744073709551616ul;
+            var previous = decimalRepresentation[0];
+            var prod = this.DecimalRepMultiply(previous, low);
+            decimalRepresentation[0] = prod.Item3;
+            var carries = new List<ulong>();
+            if (prod.Item2 == 0ul)
+            {
+                if (prod.Item1 != 0ul)
+                {
+                    carries.Add(prod.Item2);
+                    carries.Add(prod.Item1);
+                }
+            }
+            else
+            {
+                carries.Add(prod.Item2);
+                if (prod.Item1 != 0ul)
+                {
+                    carries.Add(prod.Item1);
+                }
+            }
+
+            var length = decimalRepresentation.Count;
+            for (int i = 1; i < length; ++i)
+            {
+                var current = decimalRepresentation[i];
+                prod = this.DecimalRepMultiply(current, low);
+                var currentCarry = carries[0];
+                carries.RemoveAt(0);
+
+                var sum = this.DecimalRepAdd(currentCarry, prod.Item3);
+
+                // Propaga todos os transportes
+                var index = 0;
+                var carriesLength = carries.Count;
+                currentCarry = sum.Item1;
+
+                // Propaga o transporte resultante da soma com o primeiro elemento
+                while (currentCarry > 0ul && index < carriesLength)
+                {
+                    var innerSum = this.DecimalRepAdd(carries[index], currentCarry);
+                    carries[index] = innerSum.Item2;
+                    currentCarry = innerSum.Item1;
+                    ++index;
+                }
+
+                if (currentCarry > 0ul)
+                {
+                    carries.Add(currentCarry);
+                }
+
+                // Propaga o transporte resultante do primeiro elemento do produto
+                index = 0;
+                currentCarry = prod.Item2;
+                carriesLength = carries.Count;
+                while (currentCarry > 0ul && index < carriesLength)
+                {
+                    var innerSum = this.DecimalRepAdd(carries[index], currentCarry);
+                    carries[index] = innerSum.Item2;
+                    currentCarry = innerSum.Item1;
+                    ++index;
+                }
+
+                if (currentCarry > 0ul)
+                {
+                    carries.Add(currentCarry);
+                }
+
+                // Propaga o transporte do segundo elemento do produto
+                index = 1;
+                currentCarry = prod.Item1;
+                carriesLength = carries.Count;
+                while (currentCarry > 0ul && index < carriesLength)
+                {
+                    var innerSum = this.DecimalRepAdd(carries[index], currentCarry);
+                    carries[index] = innerSum.Item2;
+                    currentCarry = innerSum.Item1;
+                    ++index;
+                }
+
+                if (currentCarry > 0ul)
+                {
+                    carries.Add(currentCarry);
+                }
+
+                // Realiza a soma com o elemento anterior (2^64 = 1x10^19 + 8446744073709551616)
+                sum = this.DecimalRepAdd(previous, sum.Item2);
+                index = 0;
+                carriesLength = carries.Count;
+                currentCarry = sum.Item1;
+
+                // Propaga o transporte resultante da soma com o primeiro elemento
+                carriesLength = carries.Count;
+                while (currentCarry > 0ul && index < carriesLength)
+                {
+                    var innerSum = this.DecimalRepAdd(carries[index], currentCarry);
+                    carries[index] = innerSum.Item2;
+                    currentCarry = innerSum.Item1;
+                    ++index;
+                }
+
+                if (currentCarry > 0ul)
+                {
+                    carries.Add(currentCarry);
+                }
+
+                decimalRepresentation[i] = sum.Item2;
+                previous = current;
+            }
+
+            length = carries.Count;
+            if (length > 0)
+            {
+                var sum = this.DecimalRepAdd(carries[0], previous);
+                decimalRepresentation.Add(sum.Item2);
+                var index = 1;
+                while (sum.Item1 > 0 && index < length)
+                {
+                    sum = this.DecimalRepAdd(carries[index], sum.Item1);
+                    decimalRepresentation.Add(sum.Item2);
+                    ++index;
+                }
+
+                if (sum.Item1 > 0)
+                {
+                    decimalRepresentation.Add(sum.Item1);
+                }
+                else
+                {
+                    while (index < length)
+                    {
+                        decimalRepresentation.Add(carries[index]);
+                        ++index;
+                    }
+                }
+            }
+            else
+            {
+                decimalRepresentation.Add(previous);
+            }
+        }
+
+        /// <summary>
+        /// Permite adicionar dois números inteiros longos em base binária 2^64, retornando
+        /// o resultado na base 10^19.
+        /// </summary>
+        /// <param name="first">O primeiro número a ser adicionado.</param>
+        /// <param name="second">O segundo número a ser adicionado.</param>
+        /// <returns>O transporte e o valor da soma.</returns>
+        private Tuple<ulong, ulong> DecimalRepAdd(ulong first, ulong second)
+        {
+            checked
+            {
+                var sum = Add(first, second);
+                if (sum.Item1)
+                {
+                    var highRes = 1ul;
+                    var lowRes = sum.Item2;
+                    if (lowRes >= 10000000000000000000ul)
+                    {
+                        ++highRes;
+                        lowRes -= 10000000000000000000ul;
+                    }
+
+                    lowRes += 8446744073709551616ul;
+                    if (lowRes >= 10000000000000000000ul)
+                    {
+                        ++highRes;
+                        lowRes -= 10000000000000000000ul;
+                    }
+
+                    return Tuple.Create(highRes, lowRes);
+                }
+                else
+                {
+                    var highRes = 0ul;
+                    var lowRes = sum.Item2;
+                    if (lowRes >= 10000000000000000000ul)
+                    {
+                        highRes = 1ul;
+                        lowRes -= 10000000000000000000ul;
+                    }
+
+                    return Tuple.Create(highRes, lowRes);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Permite multiplicar dois números longos sem sinal binários, retornando
+        /// o resultado na base 10^19.
+        /// </summary>
+        /// <remarks>
+        /// O algoritmo baseia-se na propriedade de que qualquer número longo sem sinal admite a
+        /// representação {0,1}x10^19+x.
+        /// </remarks>
+        /// <param name="first">O primeiro número a ser multiplicado.</param>
+        /// <param name="second">O segundo número a ser multiplicado.</param>
+        /// <returns>O resultado da multiplicação.</returns>
+        private Tuple<ulong, ulong, ulong> DecimalRepMultiply(ulong first, ulong second)
+        {
+            var firstItem = 0ul;
+            var secondItem = 0ul;
+            var thirdItem = 0ul;
+
+            var prod = this.Multiply(first, second);
+
+            if (prod.Item2 < 10000000000000000000ul)
+            {
+                thirdItem = prod.Item2;
+            }
+            else
+            {
+                thirdItem = prod.Item2 - 10000000000000000000ul;
+                secondItem = 1ul;
+            }
+
+            if (prod.Item1 > 0)
+            {
+                // Nunca ocorre o fenómeno de transporte da primeira vez
+                if (prod.Item1 < 10000000000000000000ul)
+                {
+                    secondItem += prod.Item1;
+                }
+                else
+                {
+                    secondItem += prod.Item1 - 10000000000000000000ul;
+                    firstItem = 1ul;
+                }
+
+                do
+                {
+                    prod = this.Multiply(prod.Item1, 8446744073709551616);
+
+                    // Termo de ordem baixa
+                    if (prod.Item2 < 10000000000000000000ul)
+                    {
+                        var sum = this.DecimalRepAdd(thirdItem, prod.Item2);
+                        thirdItem = sum.Item2;
+                        if (sum.Item1 > 0)
+                        {
+                            sum = this.DecimalRepAdd(sum.Item1, secondItem);
+                            secondItem = sum.Item2;
+                            firstItem += sum.Item1;
+                        }
+                    }
+                    else
+                    {
+                        // Ocorrência de transporte
+                        if (secondItem == 999999999999999999ul)
+                        {
+                            secondItem = 0ul;
+                            ++firstItem;
+                        }
+                        else
+                        {
+                            ++secondItem;
+                        }
+
+                        var sum = this.DecimalRepAdd(thirdItem, prod.Item2 - 10000000000000000000ul);
+                        thirdItem = sum.Item2;
+                        if (sum.Item1 > 0)
+                        {
+                            sum = this.DecimalRepAdd(sum.Item1, secondItem);
+                            secondItem = sum.Item2;
+                            firstItem += sum.Item1;
+                        }
+                    }
+
+                    // Termo de ordem alta
+                    if (prod.Item1 < 10000000000000000000ul)
+                    {
+                        var sum = this.DecimalRepAdd(secondItem, prod.Item1);
+                        secondItem = sum.Item2;
+                        if (sum.Item1 > 0)
+                        {
+                            firstItem += sum.Item1;
+                        }
+                    }
+                    else
+                    {
+                        ++firstItem;
+                    }
+
+                } while (prod.Item1 > 2);
+
+                // Termina a operação, adidicionando o produto final
+                var finalProd = prod.Item1 * 8446744073709551616;
+                if (finalProd < 10000000000000000000ul)
+                {
+                    var sum = this.DecimalRepAdd(thirdItem, finalProd);
+                    thirdItem = sum.Item2;
+                    if (sum.Item1 > 0)
+                    {
+                        sum = this.DecimalRepAdd(sum.Item1, secondItem);
+                        secondItem = sum.Item2;
+                        firstItem += sum.Item1;
+                    }
+                }
+                else
+                {
+                    if (secondItem == 999999999999999999ul)
+                    {
+                        secondItem = 0ul;
+                        ++firstItem;
+                    }
+                    else
+                    {
+                        ++secondItem;
+                    }
+
+                    var sum = this.DecimalRepAdd(thirdItem, finalProd - 10000000000000000000ul);
+                    thirdItem = sum.Item2;
+                    if (sum.Item1 > 0)
+                    {
+                        sum = this.DecimalRepAdd(sum.Item1, secondItem);
+                        secondItem = sum.Item2;
+                        firstItem += sum.Item1;
+                    }
+                }
+            }
+
+            return Tuple.Create(firstItem, secondItem, thirdItem);
+        }
+
+        /// <summary>
+        /// Função auxiliar que permite escrever a representação textual de um número representado em notação
+        /// decimal na base 10000000000000000000.
+        /// </summary>
+        /// <param name="decimalRep">A representação decimal como vector de longos sem sinal.</param>
+        /// <returns>A representação textual do número.</returns>
+        private string GetDecimalRepresentation(List<ulong> decimalRep)
+        {
+            var length = decimalRep.Count;
+            var index = length - 1;
+            var result = decimalRep[index].ToString();
+            if (result.Length > 19)
+            {
+                result = result.Substring(0, 19);
+            }
+
+            --index;
+            for (; index > -1; --index)
+            {
+                var next = decimalRep[index].ToString();
+                var additional = 19 - next.Length;
+                if (additional > 0)
+                {
+                    for (int i = 0; i < additional; ++i)
+                    {
+                        next = "0" + next;
+                    }
+                }
+                else if (additional < 0)
+                {
+                    next = next.Substring(0, 19);
+                }
+
+                result += next;
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Permite adicionar dois números longos sem sinal, determinando o transporte caso esta soma exceda
+        /// o tamanho da variável.
+        /// </summary>
+        /// <remarks>
+        /// É importante notar que, numa soma, o valor do transporte é sempre unitário.
+        /// </remarks>
+        /// <param name="first">O primeiro número a ser adicionado.</param>
+        /// <param name="second">O segundo número a ser adicionado.</param>
+        /// <returns>O par transporte/valor da soma.</returns>
+        private static Tuple<bool, ulong> Add(ulong first, ulong second)
+        {
+            unchecked
+            {
+                return Tuple.Create((~first | 1) < second, first + second);
+            }
+        }
+
+        /// <summary>
+        /// Multiplica dois números longos sem sinal, incluindo o transporte caso este exceda
+        /// o tamanho da variável.
+        /// </summary>
+        /// <param name="first">O primeiro número a ser multiplicado.</param>
+        /// <param name="second">O segundo número a ser multiplicado.</param>
+        /// <returns>O resultado da multiplicação.</returns>
+        private Tuple<ulong, ulong> Multiply(ulong first, ulong second)
+        {
+            checked
+            {
+                var firstLow = 0xFFFFFFFF & first;
+                var firstHigh = first >> 32;
+                var secondLow = 0xFFFFFFFF & second;
+                var secondHigh = second >> 32;
+
+                var z2 = firstHigh * secondHigh;
+                var z0 = firstLow * secondLow;
+                var mediumRes = Add(firstHigh * secondLow, firstLow * secondHigh);
+                var z1 = mediumRes.Item2;
+
+                var highz = z1 >> 32;
+                var lowz = z1 << 32;
+
+                var sumLowRes = Add(z0, lowz);
+                var lowRes = sumLowRes.Item2;
+                var highRes = z2 + highz;
+
+                if (sumLowRes.Item1)
+                {
+                    ++highRes;
+                }
+
+                if (mediumRes.Item1)
+                {
+                    highRes += 0x100000000;
+                }
+
+                return Tuple.Create(highRes, lowRes);
+            }
         }
 
         /// <summary>

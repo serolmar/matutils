@@ -391,7 +391,7 @@
         }
 
         /// <summary>
-        /// Testa a função que permite determinar o quociente e o resto da divisão de um núemro
+        /// Testa a função que permite determinar o quociente e o resto da divisão de um número
         /// de dois símbolos por um número de um símbolo na base 2^64.
         /// </summary>
         [Description("Tests the division of a two symbol big integer number by a single symbol number in base 2^64")]
@@ -927,14 +927,531 @@
         }
 
         #endregion Testes à sobrecarga de operadores para a classe UlongArrayBigInt
+    }
 
+    /// <summary>
+    /// Permite testar as funções definidas no provedor de funções que operam
+    /// sobre números inteiros de precisão arbitrária.
+    /// </summary>
+    [TestClass]
+    public class BigIntegerOperationsProvidersTest
+    {
+        /// <summary>
+        /// Testa a função que permite averiguar a existência de diferenças
+        /// entre dois vectores do mesmo tamanho.
+        /// </summary>
+        [Description("Tests same length non shifted find function.")]
         [TestMethod]
-        public void TestWithAlg()
+        public void BigIntegerOpsProvs_SameLenNoShiftFindTest()
         {
-            var target = new TestWithAlg();
-            var dividend = new ulong[] { 8, 0, 8, 6, 8 };
-            var divisor = new ulong[] { 9, 8, 9 };
-            var result = target.SequentialQuotientAndRemainder(dividend, divisor);
+            var target = new UlongBigIntegerSequentialQuotAndRemAlg();
+
+            // Sem diferenças
+            var firstArray = new ulong[]{
+                0xAB25134948BCDDFE,
+                0x8374628492837462,
+                0xBBFFAADDEECC1122
+            };
+
+            var secondArray = new ulong[]{
+                0xAB25134948BCDDFE,
+                0x8374628492837462,
+                0xBBFFAADDEECC1122
+            };
+
+            var actual = target.InternalFindSameLengthDifference(
+                firstArray,
+                secondArray);
+            Assert.AreEqual(-1, actual);
+
+            // Com diferenças
+            firstArray = new ulong[]{
+                0xAB25134948BCDDFE,
+                0x8374628492837462,
+                0xBBFFAADDEECC1122
+            };
+
+            secondArray = new ulong[]{
+                0xAB25134948BCDDFE,
+                0x8374628492837462,
+                0xBBFFAADDEECC1121
+            };
+
+            actual = target.InternalFindSameLengthDifference(
+                firstArray,
+                secondArray);
+            Assert.AreEqual(2, actual);
+        }
+
+        /// <summary>
+        /// Testa todas as funções que permitem determinar as diferenças após um deslocamento.
+        /// </summary>
+        [Description("Tests same length shifted find function.")]
+        [TestMethod]
+        public void BigIntegerOpsProvs_SameLenShiftedFindTest()
+        {
+            var target = new UlongBigIntegerSequentialQuotAndRemAlg();
+
+            // Testa dois vectores iguais com o mesmo comprimento
+            var firstItemArray = new ulong[3] { 
+                0xA1000BC150000300,
+                0xEFFFF09829420AA1,
+                0xB3123
+            };
+
+            var secondItemArray = new ulong[3] { 
+                0xA1A1000BC1500003,
+                0x23EFFFF09829420A,
+                0xB31
+            };
+
+            var actual = target.InternalFindSameLengthDifference(
+                firstItemArray,
+                secondItemArray,
+                3,
+                8);
+            Assert.AreEqual(-1, actual);
+
+            // Testa dois vectores com diferença no item de índcie 1 e o mesmo comprimento
+            firstItemArray = new ulong[3] { 
+                0xA1000BC150000300,
+                0xEFFFF09829420AA1,
+                0xB3123
+            };
+
+            secondItemArray = new ulong[3] { 
+                0xA1A1000BC1500003,
+                0x23EFBFF09829420A,
+                0xB31
+            };
+
+            actual = target.InternalFindSameLengthDifference(
+                firstItemArray,
+                secondItemArray,
+                3,
+                8);
+            Assert.AreEqual(1, actual);
+        }
+
+        /// <summary>
+        /// Testa a função que permite averiguar a existência de diferenças entre dois
+        /// vectores sem a necessidade de aplicar um deslocamento ao nível da variável.
+        /// </summary>
+        [Description("Tests the different length no shift find function.")]
+        [TestMethod]
+        public void BigIntegerOpsProvs_DiffLenNoShiftFindTest()
+        {
+            var target = new UlongBigIntegerSequentialQuotAndRemAlg();
+
+            // Não existe diferenças no segundo argumento
+            var firstItemArray = new ulong[]{
+                0xA1000BC150000300,
+                0xEFFFF09829420AA1,
+                0xB31234462ABAFDCE,
+                0xB1CA31231632789A,
+                0xB1C3,
+                0xAAFFBBCCDDEE1121
+            };
+
+            var secondItemArray = new ulong[]{
+                0xB31234462ABAFDCE,
+                0xB1CA31231632789A,
+                0xB1C3,
+                0xAAFFBBCCDDEE1121,
+                0xA1000BC150000300,
+                0xEFFFF09829420AA1,
+                0xB31234462ABAFDCE,
+                0xB1CA31231632789A,
+                0xB1C3,
+                0xAAFFBBCCDDEE1121
+            };
+
+            var actual = target.InternalFindOtherLengthDifference(
+                firstItemArray,
+                5,
+                secondItemArray,
+                3);
+            Assert.AreEqual(1, actual);
+
+            // Existe uma diferença no segundo argumento
+            // Não existe diferenças no segundo argumento
+            firstItemArray = new ulong[]{
+                0xA1000BC150000300,
+                0xEFFFF09829420AA1,
+                0xB31234462ABAFDCE,
+                0xB1CA31231632789A,
+                0xB1C3,
+                0xAAFFBBCCDDEE1121
+            };
+
+            secondItemArray = new ulong[]{
+                0xB31234462ABAFDCE,
+                0xB1CA31231632789A,
+                0xB1C2,
+                0xAAFFBBCCDDEE1121,
+                0xA1000BC150000300,
+                0xEFFFF09829420AA1,
+                0xB31234462ABAFDCE,
+                0xB1CA31231632789A,
+                0xB1C3,
+                0xAAFFBBCCDDEE1121
+            };
+
+            actual = target.InternalFindOtherLengthDifference(
+                firstItemArray,
+                5,
+                secondItemArray,
+                3);
+            Assert.AreEqual(4, actual);
+        }
+
+        /// <summary>
+        /// Testa a função que permite averiguar a existência de diferenças entre dois
+        /// vectores sem a necessidade de aplicar um deslocamento ao nível da variável.
+        /// </summary>
+        [Description("Tests the different length no shift find function.")]
+        [TestMethod]
+        public void BigIntegerOpsProvs_DiffLenShiftFindTest()
+        {
+            var target = new UlongBigIntegerSequentialQuotAndRemAlg();
+
+            // Não existe diferenças no segundo argumento
+            var firstItemArray = new ulong[]{
+                0xA1000BC150000300,
+                0xEFFFF09829420AA1,
+                0xB31234462ABAFD00,
+                0xB1CA31231632789A,
+                0xB1C3,
+                0xAAFFBBCCDDEE1121
+            };
+
+            var secondItemArray = new ulong[]{
+                0x9AB31234462ABAFD,
+                0xC3B1CA3123163278,
+                0xB1,
+                0xAAFFBBCCDDEE1121,
+                0xA1000BC150000300,
+                0xEFFFF09829420AA1,
+                0xB31234462ABAFDCE,
+                0xB1CA31231632789A,
+                0xB1C3,
+                0xAAFFBBCCDDEE1121
+            };
+
+            var actual = target.InternalFindOtherLengthDifference(
+                firstItemArray,
+                5,
+                secondItemArray,
+                3,
+                8);
+            Assert.AreEqual(1, actual);
+
+            // Não existe diferenças no segundo argumento
+            firstItemArray = new ulong[]{
+                0xA1000BC150000300,
+                0xEFFFF09829420AA1,
+                0xB31234462ABAFD00,
+                0xB1CA31231632789A,
+                0xB1C3,
+                0xAAFFBBCCDDEE1121
+            };
+
+            secondItemArray = new ulong[]{
+                0x9AB31234462ABAFD,
+                0xC3B1CA3123163271,
+                0xB1,
+                0xAAFFBBCCDDEE1121,
+                0xA1000BC150000300,
+                0xEFFFF09829420AA1,
+                0xB31234462ABAFDCE,
+                0xB1CA31231632789A,
+                0xB1C3,
+                0xAAFFBBCCDDEE1121
+            };
+
+            actual = target.InternalFindOtherLengthDifference(
+                firstItemArray,
+                5,
+                secondItemArray,
+                3,
+                8);
+            Assert.AreEqual(3, actual);
+        }
+
+        /// <summary>
+        /// Testa a função que permite averiguar a existência de diferenças entre dois
+        /// vectores após um deslocamento negativo ao nível da variável.
+        /// </summary>
+        [Description("Tests the different length negative shift find function.")]
+        [TestMethod]
+        public void BigIntegerOpsProvs_DiffLenNegativeShiftFindTest()
+        {
+            var target = new UlongBigIntegerSequentialQuotAndRemAlg();
+
+            // Não existe diferenças no segundo argumento
+            var firstItemArray = new ulong[]{
+                0xA1000BC150000300,
+                0xEFFFF09829420AA1,
+                0xB31234462ABAFDCE,
+                0xB1CA31231632789A,
+                0xB1C3,
+                0xAAFFBBCCDDEE1121
+            };
+
+            var secondItemArray = new ulong[]{
+                0x1234462ABAFDCE00,
+                0xCA31231632789AB3,
+                0xB1C3B1,
+                0xAAFFBBCCDDEE1121,
+                0xA1000BC150000300,
+                0xEFFFF09829420AA1,
+                0xB31234462ABAFDCE,
+                0xB1CA31231632789A,
+                0xB1C3,
+                0xAAFFBBCCDDEE1121
+            };
+
+            var actual = target.InternalFindOtherLengthDiffNegativeShift(
+                firstItemArray,
+                5,
+                secondItemArray,
+                3,
+                8);
+            Assert.AreEqual(1, actual);
+
+            firstItemArray = new ulong[]{
+                0xA1000BC150000300,
+                0xEFFFF09829420AA1,
+                0xB31234462ABAFDCE,
+                0xB1CA31231632789A,
+                0xB1C3,
+                0xAAFFBBCCDDEE1121
+            };
+
+            secondItemArray = new ulong[]{
+                0x1234462ABAFDC400,
+                0xCA31231632789AB3,
+                0xB1C3B1,
+                0xAAFFBBCCDDEE1121,
+                0xA1000BC150000300,
+                0xEFFFF09829420AA1,
+                0xB31234462ABAFDCE,
+                0xB1CA31231632789A,
+                0xB1C3,
+                0xAAFFBBCCDDEE1121
+            };
+
+            actual = target.InternalFindOtherLengthDiffNegativeShift(
+                firstItemArray,
+                5,
+                secondItemArray,
+                3,
+                8);
+            Assert.AreEqual(2, actual);
+        }
+
+        /// <summary>
+        /// Testa a função que permite determinar a diferença entre representações,
+        /// considerando que não existe deslocamento e os vectores têm o mesmo tamanho.
+        /// </summary>
+        [Description("Tests the same length subtract function with no shift.")]
+        [TestMethod]
+        public void BigIntegerOpsProvs_SameLengthNoShiftSubtractTest()
+        {
+            var target = new UlongBigIntegerSequentialQuotAndRemAlg();
+
+            // Sem diferenças
+            var firstArray = new ulong[]{
+                0xAB25134948BCDDFE,
+                0x8374628492837462,
+                0xBBFFAADDEECC1122
+            };
+
+            var secondArray = new ulong[]{
+                0xAB25134948BCDDFE,
+                0x8374628492837462,
+                0xBBFFAADDEECC1122
+            };
+
+            var actual = target.InternalSubtractSameLength(
+                firstArray,
+                secondArray,
+                3,
+                firstArray);
+            Assert.AreEqual(0, actual);
+
+            // Com diferenças
+            firstArray = new ulong[]{
+                0xAB25134948BCDDFE,
+                0x8374628492837462,
+                0xBBFFAADDEECC1122
+            };
+
+            secondArray = new ulong[]{
+                0xAB25134948BCDDFF,
+                0x8374428434837462,
+                0xBBFFAADDEECC1122
+            };
+
+            // Resultado esperado da diferença
+            var firstInteger = Diagnostics.GetBigIntegerRepresentation(
+                firstArray);
+            var secondInteger = Diagnostics.GetBigIntegerRepresentation(
+                secondArray);
+            var expectedDifference = firstInteger - secondInteger;
+
+            actual = target.InternalSubtractSameLength(
+                firstArray,
+                secondArray,
+                3,
+                firstArray);
+
+            Assert.AreEqual(2, actual);
+
+            var acutalDifference = Diagnostics.GetBigIntegerRepresentation(
+                firstArray);
+            Assert.AreEqual(expectedDifference, acutalDifference);
+        }
+
+        /// <summary>
+        /// Testa a função que permite determinar a diferença entre representações,
+        /// considerando que existe deslocamento positivo e os vectores têm o mesmo comprimento.
+        /// </summary>
+        [Description("Tests the same length subtract function with positive shift.")]
+        [TestMethod]
+        public void BigIntegerOpsProvs_SameLengthPosShiftSubtractTest()
+        {
+            var target = new UlongBigIntegerSequentialQuotAndRemAlg();
+
+            // Sem diferenças
+            var firstArray = new ulong[]{
+                0x25134948BCDDFE00,
+                0x74628492837462AB,
+                0xFFAADDEECC112283
+            };
+
+            var secondArray = new ulong[]{
+                0xAB25134948BCDDFE,
+                0x8374628492837462,
+                0xFFAADDEECC1122
+            };
+
+            var actual = target.InternalSubtractSameLength(
+                firstArray,
+                secondArray,
+                3,
+                8,
+                firstArray);
+            Assert.AreEqual(0, actual);
+
+            // Com diferenças
+            firstArray = new ulong[]{
+                0x25134948BCDDFE00,
+                0x74628492837462AB,
+                0xFFAADDEECC112283
+            };
+
+            secondArray = new ulong[]{
+                0x9B25134948BCDDFE,
+                0x8374628492837462,
+                0xFFAADDEECC1122
+            };
+
+            // Resultado esperado da diferença
+            var firstInteger = Diagnostics.GetBigIntegerRepresentation(
+                firstArray);
+            var secondInteger = Diagnostics.GetBigIntegerRepresentation(
+                secondArray);
+            secondInteger <<= 8;
+            var expectedDifference = firstInteger - secondInteger;
+
+            actual = target.InternalSubtractSameLength(
+                firstArray,
+                secondArray,
+                3,
+                8,
+                firstArray);
+            Assert.AreEqual(2, actual);
+
+            var acutalDifference = Diagnostics.GetBigIntegerRepresentation(
+                firstArray);
+            Assert.AreEqual(expectedDifference, acutalDifference);
+
+        }
+
+        /// <summary>
+        /// Testa a função que permite determinar a diferença entre representações,
+        /// considerando que não existe deslocamento e os vectores têm comprimentos diferentes.
+        /// </summary>
+        [Description("Tests subtract function with different length and no shift.")]
+        [TestMethod]
+        public void BigIntegerOpsProvs_DiffLengthNoShiftSubtract()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Testa a função que permite determinar a diferença entre representações,
+        /// considerando que existe deslocamento positivo e os vectores têm comprimentos diferentes.
+        /// </summary>
+        [Description("Tests subtract function with different length and positive shift.")]
+        [TestMethod]
+        public void BigIntegerOpsProvs_DiffLengthPosShiftSubtract()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Testa a função que permite determinar a diferença entre representações,
+        /// considerando que existe deslocamento negativo e os vectores têm comprimentos diferentes.
+        /// </summary>
+        [Description("Tests subtract function with different length and negative shift.")]
+        [TestMethod]
+        public void BigIntegerOpsProvs_DiffLengthNegShiftSubtract()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Testa a função que permite determinar a diferença inversa entre representações,
+        /// considerando que existe deslocamento positivo e os vectores têm o mesmo comprimento.
+        /// </summary>
+        /// <remarks>
+        /// Entenda-se, por diferença inversa, a diferença entre o segundo argumento e o primeiro.
+        /// </remarks>
+        [Description("Tests the same length inverse subtract function with positive shift.")]
+        [TestMethod]
+        public void BigIntegerOpsProvs_SameLengthPosShiftInvSubtractTest()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Testa a função que permite determinar a diferença inversa entre representações,
+        /// considerando que existe deslocamento positivo e os vectores têm comprimentos diferentes.
+        /// </summary>
+        /// <remarks>
+        /// Entenda-se, por diferença inversa, a diferença entre o segundo argumento e o primeiro.
+        /// </remarks>
+        [Description("Tests the different length inverse subtract function with positive shift.")]
+        [TestMethod]
+        public void BigIntegerOpsProvs_DiffLengthPosShiftInvSubtractTest()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Testa a função que permite determinar a diferença inversa entre representações,
+        /// considerando que existe deslocamento positivo e os vectores têm comprimentos diferentes.
+        /// </summary>
+        /// <remarks>
+        /// Entenda-se, por diferença inversa, a diferença entre o segundo argumento e o primeiro.
+        /// </remarks>
+        [Description("Tests the different length inverse subtract function with positive shift.")]
+        [TestMethod]
+        public void BigIntegerOpsProvs_DiffLengthNegShiftInvSubtractTest()
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -213,12 +213,44 @@
                 }
                 else
                 {
+                    var lengthDiff = dividendLength - divisorLength;
                     var dividendHigh = MathFunctions.GetHighestSettedBitIndex(
                         dividend[dividendLength - 1]);
                     var divisorHigh = MathFunctions.GetHighestSettedBitIndex(
                         divisor[divisorLength - 1]);
                     if (dividendHigh < divisorHigh)
                     {
+                        var quo = new ulong[lengthDiff];
+                        var shift = divisorHigh - dividendHigh;
+                        quo[lengthDiff - 1] = 1UL << (64 - shift);
+
+                        var foundIndex = this.FindOtherLengthDiffNegativeShift(
+                            dividend,
+                            dividendLength,
+                            divisor,
+                            divisorLength,
+                            shift);
+                        if (foundIndex < lengthDiff)
+                        {
+                            // Conta certa
+                            return Tuple.Create<ulong[], ulong[]>(null, quo);
+                        }
+                        else
+                        {
+                            var currentDividend = dividend[foundIndex];
+                            var currentDivisor = divisor[foundIndex - lengthDiff];
+
+
+                            ++foundIndex;
+                            var remainder = new ulong[foundIndex];
+
+                            return this.ProcessDiffLengthValues(
+                                remainder,
+                                foundIndex,
+                                divisor,
+                                quo,
+                                true);
+                        }
                     }
                     else if (dividendHigh == divisorHigh)
                     {
@@ -232,6 +264,312 @@
             }
         }
 
+        #region Funções internas
+
+        /// <summary>
+        /// Função interna para efeito de testes.
+        /// </summary>
+        /// <param name="dividend">O dividendo.</param>
+        /// <param name="divisor">O divisor.</param>
+        /// <returns>O índice da primeira diferença.</returns>
+        internal int InternalFindSameLengthDifference(
+            ulong[] dividend,
+            ulong[] divisor)
+        {
+            return this.FindSameLengthDifference(dividend, divisor);
+        }
+
+        /// <summary>
+        /// Função interna para efeito de testes.
+        /// </summary>
+        /// <param name="dividend">O dividendo.</param>
+        /// <param name="divisor">O divisor.</param>
+        /// <param name="length">O número de itens válidos em cada vector.</param>
+        /// <param name="smallDivisorShift">O deslocamento.</param>
+        /// <returns>O índice do vector do dividendo onde ocorre a diferença.</returns>
+        internal int InternalFindSameLengthDifference(
+            ulong[] dividend,
+            ulong[] divisor,
+            int length,
+            int smallDivisorShift)
+        {
+            return this.FindSameLengthDifference(
+                dividend,
+                divisor,
+                length,
+                smallDivisorShift);
+        }
+
+        /// <summary>
+        /// Função interna para efeito de testes.
+        /// </summary>
+        /// <param name="dividend">O dividendo.</param>
+        /// <param name="dividendLength">O número de itens válidos no dividendo.</param>
+        /// <param name="divisor">O divisor.</param>
+        /// <param name="divisorLength">O número de itens válidos no divisor.</param>
+        /// <returns>O índice da diferença.</returns>
+        internal int InternalFindOtherLengthDifference(
+            ulong[] dividend,
+            int dividendLength,
+            ulong[] divisor,
+            int divisorLength)
+        {
+            return this.FindOtherLengthDifference(
+                dividend,
+                dividendLength,
+                divisor,
+                divisorLength);
+        }
+
+        /// <summary>
+        /// Função interna para efeito de testes.
+        /// </summary>
+        /// <param name="dividend">O dividendo.</param>
+        /// <param name="dividendLength">O número de itens válidos no dividendo.</param>
+        /// <param name="divisor">O divisor.</param>
+        /// <param name="divisorLength">O número de itens válidos no divisor.</param>
+        /// <param name="smallDivisorShift">O deslocamento.</param>
+        /// <returns>O índice do vector do dividendo onde ocorre a diferença.</returns>
+        internal int InternalFindOtherLengthDifference(
+            ulong[] dividend,
+            int dividendLength,
+            ulong[] divisor,
+            int divisorLength,
+            int smallDivisorShift)
+        {
+            return this.FindOtherLengthDifference(
+                dividend,
+                dividendLength,
+                divisor,
+                divisorLength,
+                smallDivisorShift);
+        }
+
+        /// <summary>
+        /// Função interna para efeito de testes.
+        /// </summary>
+        /// <param name="dividend">O dividendo.</param>
+        /// <param name="dividendLength">O número de itens válidos no dividendo.</param>
+        /// <param name="divisor">O divisor.</param>
+        /// <param name="divisorLength">O número de itens válidos no divisor.</param>
+        /// <param name="divShiftMagnitude">O deslocamento para a direita.</param>
+        /// <returns>O índice do vector do dividendo onde ocorre a diferença.</returns>
+        internal int InternalFindOtherLengthDiffNegativeShift(
+            ulong[] dividend,
+            int dividendLength,
+            ulong[] divisor,
+            int divisorLength,
+            int divShiftMagnitude)
+        {
+            return this.FindOtherLengthDiffNegativeShift(
+                dividend,
+                dividendLength,
+                divisor,
+                divisorLength,
+                divShiftMagnitude);
+        }
+
+        /// <summary>
+        ///  Função interna para efeito de testes.
+        /// </summary>
+        /// <param name="minuend">O minuendo.</param>
+        /// <param name="subtrahend">O subtraendo.</param>
+        /// <param name="length">O comprimento dos vectores.</param>
+        /// <param name="outDifference">O vector que contém o resultado.</param>
+        /// <returns>O tamanho do resultado no vector proporcionado.</returns>
+        internal int InternalSubtractSameLength(
+            ulong[] minuend,
+            ulong[] subtrahend,
+            int length,
+            ulong[] outDifference)
+        {
+            return this.SubtractSameLength(
+                minuend,
+                subtrahend,
+                length,
+                outDifference);
+        }
+
+        /// <summary>
+        ///  Função interna para efeito de testes.
+        /// </summary>
+        /// <param name="minuend">O minuendo.</param>
+        /// <param name="subtrahend">O subtraendo.</param>
+        /// <param name="length">O número de itens válidos em cada vector.</param>
+        /// <param name="subtrahendShift">O deslocamento aplicado ao subtraendo.</param>
+        /// <param name="outDifference">O vector que contém o resultado.</param>
+        /// <returns>O tamanho do resultado no vector proporcionado.</returns>
+        internal int InternalSubtractSameLength(
+            ulong[] minuend,
+            ulong[] subtrahend,
+            int length,
+            int subtrahendShift,
+            ulong[] outDifference)
+        {
+            return this.SubtractSameLength(
+                minuend,
+                subtrahend,
+                length,
+                subtrahendShift,
+                outDifference);
+        }
+
+        /// <summary>
+        ///  Função interna para efeito de testes.
+        /// </summary>
+        /// <param name="minuend">O minuendo.</param>
+        /// <param name="minuendShift">O deslocamento aplicado ao minuendo.</param>
+        /// <param name="subtrahend">O subtraendo.</param>
+        /// <param name="length">O número de itens válidos em cada vector.</param>
+        /// <param name="outDifference">O vector que contém o resultado.</param>
+        /// <returns>O tamanho do resultado no vector proporcionado.</returns>
+        internal int InternalInvSubtractSameLength(
+            ulong[] minuend,
+            int minuendShift,
+            ulong[] subtrahend,
+            int length,
+            ulong[] outDifference)
+        {
+            return this.InvSubtractSameLength(
+                minuend,
+                minuendShift,
+                subtrahend,
+                length,
+                outDifference);
+        }
+
+        /// <summary>
+        /// Função interna para efeito de testes.
+        /// </summary>
+        /// <param name="minuend">O dividendo.</param>
+        /// <param name="minuendLength">O número de itens do dividendo.</param>
+        /// <param name="subtrahend">O subtraendo.</param>
+        /// <param name="subtrahendOffset">O deslocamento do divisor.</param>
+        /// <param name="outDifference">O vector que contém o resultado.</param>
+        /// <returns>O tamanho do resultado no vector proporcionado.</returns>
+        internal int InternalSubtractDiffLength(
+            ulong[] minuend,
+            int minuendLength,
+            ulong[] subtrahend,
+            int subtrahendOffset,
+            ulong[] outDifference)
+        {
+            return this.SubtractDiffLength(
+                minuend,
+                minuendLength,
+                subtrahend,
+                subtrahendOffset,
+                outDifference);
+        }
+
+        /// <summary>
+        /// Função interna para efeito de testes.
+        /// </summary>
+        /// <param name="minuend">O minuendo.</param>
+        /// <param name="minuendLength">O comprimento do minuendo.</param>
+        /// <param name="subtraend">O subtraendo.</param>
+        /// <param name="subtraendOffset">O deslocamento do subtraendo.</param>
+        /// <param name="subtraendNegativeShift">A rotação do subtraendo.</param>
+        /// <param name="outDifference">O vector que contém a diferença.</param>
+        /// <returns>O tamanho do vector que contém resultados válidos.</returns>
+        internal int InternalSubtractDiffLengthNegativeShift(
+            ulong[] minuend,
+            int minuendLength,
+            ulong[] subtraend,
+            int subtraendOffset,
+            int subtraendNegativeShift,
+            ulong[] outDifference)
+        {
+            return this.SubtractDiffLengthNegativeShift(
+                minuend,
+                minuendLength,
+                subtraend,
+                subtraendOffset,
+                subtraendNegativeShift,
+                outDifference);
+        }
+
+        /// <summary>
+        /// Função interna para efeito de testes.
+        /// </summary>
+        /// <param name="minuend">O minuendo.</param>
+        /// <param name="minuendOffset">O deslocamento do minuendo.</param>
+        /// <param name="subtrahend">O subtraendo.</param>
+        /// <param name="subtrahendLength">O tamanho do subtraendo.</param>
+        /// <param name="outDifference">O vector que contém o resultado.</param>
+        /// <returns>O tamanho do resultado no vector proporcionado.</returns>
+        internal int InternalInvSubtractDiffLength(
+            ulong[] minuend,
+            int minuendOffset,
+            ulong[] subtrahend,
+            int subtrahendLength,
+            ulong[] outDifference)
+        {
+            return this.InvSubtractDiffLength(
+                minuend,
+                minuendOffset,
+                subtrahend,
+                subtrahendLength,
+                outDifference);
+        }
+
+        /// <summary>
+        /// Função interna para efeito de testes.
+        /// </summary>
+        /// <param name="minuend">O minuendo.</param>
+        /// <param name="minuendLength">O tamanho do minuendo.</param>
+        /// <param name="subtrahend">O subtraendo.</param>
+        /// <param name="subtrahendOffset">O deslocamento do subtraendo.</param>
+        /// <param name="subtrahendShift">A rotação do subtraendo.</param>
+        /// <param name="outDifference">O vector que contém o resultado.</param>
+        /// <returns>O tamanho do resultado no vector proporcionado.</returns>
+        internal int InternalSubtractDiffLength(
+            ulong[] minuend,
+            int minuendLength,
+            ulong[] subtrahend,
+            int subtrahendOffset,
+            int subtrahendShift,
+            ulong[] outDifference)
+        {
+            return this.SubtractDiffLength(
+                minuend,
+                minuendLength,
+                subtrahend,
+                subtrahendOffset,
+                outDifference);
+        }
+
+        /// <summary>
+        /// Função interna para efeito de testes.
+        /// </summary>
+        /// <param name="minuend">O minuendo.</param>
+        /// <param name="minuendOffset">O deslocamento do minuendo.</param>
+        /// <param name="minuendShift">A rotação do minuendo.</param>
+        /// <param name="subtrahend">O subtraendo.</param>
+        /// <param name="subtrahendLength">O tamanho do subtraendo.</param>
+        /// <param name="outDifference">O vector que contém o resultado.</param>
+        /// <returns>O tamanho do resultado no vector proporcionado.</returns>
+        internal int InternalInvSubtractDiffLength(
+            ulong[] minuend,
+            int minuendOffset,
+            int minuendShift,
+            ulong[] subtrahend,
+            int subtrahendLength,
+            ulong[] outDifference)
+        {
+            return this.InternalInvSubtractDiffLength(
+                minuend,
+                minuendOffset,
+                minuendShift,
+                subtrahend,
+                subtrahendLength,
+                outDifference);
+        }
+
+        #endregion Funções internas
+
+        #region Funções privadas
+
         /// <summary>
         /// Executa o processo da divisão sobre valores representados por vectores
         /// com o mesmo comprimento.
@@ -244,7 +582,6 @@
         /// <param name="divisor">O vector que contém o divisor.</param>
         /// <param name="currengQuotientValue">O valor do quociente actual.</param>
         /// <param name="sign">O sinal actual.</param>
-        /// <param name="divisorShift">O deslocamento menor a ser aplicado ao divisor.</param>
         /// <returns>O quociente.</returns>
         private Tuple<ulong[], ulong[]> ProcessSameLengthValues(
             ulong[] remainder,
@@ -361,12 +698,22 @@
             int divisorLength)
         {
             var result = -1;
-            for (int i = dividendLength - 1, j = divisorLength - 1; j > -1; --i, --j)
+            var i = dividendLength - 1;
+            var j = divisorLength - 1;
+            for (; j > -1; --i, --j)
             {
                 if (dividend[i] != divisor[j])
                 {
+                    return i;
+                }
+            }
+
+            for (; i > -1; --i)
+            {
+                if (dividend[i] != 0)
+                {
                     result = i;
-                    j = -1;
+                    i = -1;
                 }
             }
 
@@ -438,16 +785,23 @@
             var i = dividendLength - 1;
             var j = divisorLength - 1;
             var shiftDiv = divisor[j] >> divShiftMagnitude;
+            if (shiftDiv != dividend[i])
+            {
+                return i;
+            }
+
+            shiftDiv = divisor[j] << (64 - divShiftMagnitude);
+            --i;
             --j;
             for (; j > -1; --i, --j)
             {
-                shiftDiv |= (divisor[j] << (64 - divShiftMagnitude));
+                shiftDiv |= (divisor[j] >> divShiftMagnitude);
                 if (shiftDiv != dividend[i])
                 {
                     return i;
                 }
 
-                shiftDiv = divisor[j] >> divShiftMagnitude;
+                shiftDiv = divisor[j] << (64 - divShiftMagnitude);
             }
 
             if (shiftDiv == dividend[i])
@@ -472,7 +826,6 @@
             int length,
             ulong[] outDifference)
         {
-            var result = 0;
             var carry = false;
             var complement = ~subtrahend[0];
             var sum = MathFunctions.Add(minuend[0], complement);
@@ -502,7 +855,6 @@
                     {
                         outDifference[i] = sum.Item2 + 1;
                         carry = sum.Item1;
-                        result = i;
                     }
                 }
                 else
@@ -512,8 +864,16 @@
                 }
             }
 
-            ++result;
-            return result;
+            var result = length - 1;
+            for (; result > -1; --result)
+            {
+                if (outDifference[result] != 0)
+                {
+                    return result + 1;
+                }
+            }
+
+            return result + 1;
         }
 
         /// <summary>
@@ -532,8 +892,6 @@
             int subtrahendShift,
             ulong[] outDifference)
         {
-            var result = 0;
-            var subtrahendLength = subtrahend.Length;
             var carry = false;
             var complement = subtrahend[0];
             var shiftCarry = complement >> (64 - subtrahendShift);
@@ -551,7 +909,7 @@
             }
 
             outDifference[0] = complement;
-            for (int i = 1; i < subtrahendLength; ++i)
+            for (int i = 1; i < length; ++i)
             {
                 var currentSubtrahend = subtrahend[i];
                 complement = (currentSubtrahend << subtrahendShift) | shiftCarry;
@@ -569,7 +927,6 @@
                     {
                         outDifference[i] = sum.Item2 + 1;
                         carry = sum.Item1;
-                        result = i;
                     }
                 }
                 else
@@ -579,8 +936,16 @@
                 }
             }
 
-            ++result;
-            return result;
+            var result = length - 1;
+            for (; result > -1; --result)
+            {
+                if (outDifference[result] != 0)
+                {
+                    return result + 1;
+                }
+            }
+
+            return result + 1;
         }
 
         /// <summary>
@@ -603,8 +968,6 @@
             int length,
             ulong[] outDifference)
         {
-            var result = 0;
-            var subtrahendLength = subtrahend.Length;
             var carry = false;
             var currentMinuend = minuend[0];
             var shiftCarry = currentMinuend >> (64 - minuendShift);
@@ -622,7 +985,7 @@
             }
 
             outDifference[0] = complement;
-            for (int i = 1; i < subtrahendLength; ++i)
+            for (int i = 1; i < length; ++i)
             {
                 currentMinuend = minuend[i];
                 var tempCarry = currentMinuend >> (64 - minuendShift);
@@ -641,7 +1004,6 @@
                     {
                         outDifference[i] = sum.Item2 + 1;
                         carry = sum.Item1;
-                        result = i;
                     }
                 }
                 else
@@ -651,8 +1013,16 @@
                 }
             }
 
-            ++result;
-            return result;
+            var result = length - 1;
+            for (; result > -1; --result)
+            {
+                if (outDifference[result] != 0)
+                {
+                    return result + 1;
+                }
+            }
+
+            return result + 1;
         }
 
         /// <summary>
@@ -675,7 +1045,6 @@
             int subtrahendOffset,
             ulong[] outDifference)
         {
-            var result = 0;
             var carry = false;
             var i = subtrahendOffset;
             var j = 0;
@@ -709,7 +1078,6 @@
                     {
                         outDifference[i] = sum.Item2 + 1;
                         carry = sum.Item1;
-                        result = i;
                     }
                 }
                 else
@@ -719,8 +1087,38 @@
                 }
             }
 
-            ++result;
-            return result;
+            var result = minuendLength - 1;
+            for (; result > -1; --result)
+            {
+                if (outDifference[result] != 0)
+                {
+                    return result + 1;
+                }
+            }
+
+            return result + 1;
+        }
+
+        /// <summary>
+        /// Determina a diferença entre dois números onde o subtraendo se encontra
+        /// sujeito a um deslocamento para a esquerda e subsequente rotação para a direita.
+        /// </summary>
+        /// <param name="minuend">O minuendo.</param>
+        /// <param name="minuendLength">O comprimento do minuendo.</param>
+        /// <param name="subtraend">O subtraendo.</param>
+        /// <param name="subtraendOffset">O deslocamento do subtraendo.</param>
+        /// <param name="subtraendNegativeShift">A rotação do subtraendo.</param>
+        /// <param name="outDifference">O vector que contém a diferença.</param>
+        /// <returns>O tamanho do vector que contém resultados válidos.</returns>
+        private int SubtractDiffLengthNegativeShift(
+            ulong[] minuend,
+            int minuendLength,
+            ulong[] subtraend,
+            int subtraendOffset,
+            int subtraendNegativeShift,
+            ulong[] outDifference)
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -740,7 +1138,6 @@
             int subtrahendLength,
             ulong[] outDifference)
         {
-            var result = 0;
             var carry = false;
             var i = 0;
 
@@ -756,7 +1153,6 @@
                 {
                     carry = true;
                     outDifference[i] = ~currentSubtrahend + 1;
-                    result = i;
                 }
 
                 ++i;
@@ -774,7 +1170,6 @@
                         else
                         {
                             outDifference[i] = currentSubtrahend + 1;
-                            result = i;
                         }
                     }
                     else
@@ -788,7 +1183,6 @@
                         {
                             carry = true;
                             outDifference[i] = ~currentSubtrahend + 1;
-                            result = i;
                         }
                     }
                 }
@@ -810,7 +1204,6 @@
                     {
                         outDifference[i] = sum.Item2 + 1;
                         carry = sum.Item1;
-                        result = i;
                     }
                 }
                 else
@@ -820,7 +1213,16 @@
                 }
             }
 
-            return result;
+            var result = subtrahendLength - 1;
+            for (; result > -1; --result)
+            {
+                if (outDifference[result] != 0)
+                {
+                    return result + 1;
+                }
+            }
+
+            return result + 1;
         }
 
         /// <summary>
@@ -842,7 +1244,6 @@
             int subtrahendShift,
             ulong[] outDifference)
         {
-            var result = 0;
             var carry = false;
             var i = subtrahendOffset;
             var j = 0;
@@ -880,7 +1281,6 @@
                     {
                         outDifference[i] = sum.Item2 + 1;
                         carry = sum.Item1;
-                        result = i;
                     }
                 }
                 else
@@ -890,8 +1290,16 @@
                 }
             }
 
-            ++result;
-            return result;
+            var result = minuendLength - 1;
+            for (; result > -1; --result)
+            {
+                if (outDifference[result] != 0)
+                {
+                    return result + 1;
+                }
+            }
+
+            return result + 1;
         }
 
         /// <summary>
@@ -913,7 +1321,6 @@
             int subtrahendLength,
             ulong[] outDifference)
         {
-            var result = 0;
             var carry = false;
             var i = 0;
 
@@ -929,7 +1336,6 @@
                 {
                     carry = true;
                     outDifference[i] = ~currentSubtrahend + 1;
-                    result = i;
                 }
 
                 ++i;
@@ -947,7 +1353,6 @@
                         else
                         {
                             outDifference[i] = currentSubtrahend + 1;
-                            result = i;
                         }
                     }
                     else
@@ -961,7 +1366,6 @@
                         {
                             carry = true;
                             outDifference[i] = ~currentSubtrahend + 1;
-                            result = i;
                         }
                     }
                 }
@@ -985,7 +1389,6 @@
                 {
                     outDifference[i] = sum.Item2 + 1;
                     carry = sum.Item1;
-                    result = i;
                 }
             }
             else
@@ -1015,7 +1418,6 @@
                     {
                         outDifference[i] = sum.Item2 + 1;
                         carry = sum.Item1;
-                        result = i;
                     }
                 }
                 else
@@ -1025,7 +1427,18 @@
                 }
             }
 
-            return result;
+            var result = subtrahendLength - 1;
+            for (; result > -1; --result)
+            {
+                if (outDifference[result] != 0)
+                {
+                    return result + 1;
+                }
+            }
+
+            return result + 1;
         }
+
+        #endregion Funções privadas
     }
 }
