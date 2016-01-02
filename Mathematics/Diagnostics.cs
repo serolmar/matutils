@@ -67,7 +67,7 @@
             {
                 var result = string.Empty;
                 var temp = value;
-                var mask = (uint.MaxValue >> 1) + 1;
+                var mask = (ulong.MaxValue >> 1) + 1;
                 for (int i = 0; i < 64; ++i)
                 {
                     var separator = string.Empty;
@@ -490,21 +490,28 @@
             uint[] values,
             int length)
         {
-            var result = BigInteger.Zero;
-            var i = values.Length - 1;
-            if (i > -1)
+            if (length > values.Length)
             {
-                result += values[i];
-
-                --i;
-                for (; i > -1; --i)
-                {
-                    result <<= 32;
-                    result += values[i];
-                }
+                throw new ArgumentOutOfRangeException("length");
             }
+            else
+            {
+                var result = BigInteger.Zero;
+                var i = values.Length - 1;
+                if (i > -1)
+                {
+                    result += values[i];
 
-            return result;
+                    --i;
+                    for (; i > -1; --i)
+                    {
+                        result <<= 32;
+                        result += values[i];
+                    }
+                }
+
+                return result;
+            }
         }
 
         /// <summary>
@@ -543,7 +550,7 @@
             int length)
         {
             var result = BigInteger.Zero;
-            var i = values.Length - 1;
+            var i = length - 1;
             if (i > -1)
             {
                 result += values[i];
@@ -554,6 +561,65 @@
                     result <<= 64;
                     result += values[i];
                 }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Obtém a representação de um inteiro de precisão arbitrária como sendo um vector
+        /// de inteiros longos, ignorando o sinal.
+        /// </summary>
+        /// <param name="value">O inteiro de precisão arbitrária.</param>
+        /// <returns>A reprsentação como sendo um vector de inteiros longos.</returns>
+        public static ulong[] GetUlongArrayRepresentation(BigInteger value)
+        {
+            var pow = BigInteger.Pow(2, 64);
+            var resultList = new List<ulong>();
+            var remainder = default(BigInteger);
+            var quotient = BigInteger.DivRem(value, pow, out remainder);
+            while (!quotient.IsZero)
+            {
+                resultList.Add((ulong)remainder);
+                quotient = BigInteger.DivRem(quotient, pow, out remainder);
+            }
+
+            resultList.Add((ulong)remainder);
+            return resultList.ToArray();
+        }
+
+        /// <summary>
+        /// Permite realizar testes intermédios aos valores dos quocientes sucessivos
+        /// e dos restos.
+        /// </summary>
+        /// <param name="divisor">O vector que contém o divisor.</param>
+        /// <param name="quotient">O vector que contém o quociente.</param>
+        /// <param name="remainder">O vector que contém o resto.</param>
+        /// <param name="remainderLength">O número de entradas válidas no resto.</param>
+        /// <param name="sign">O sinal associado ao resto.</param>
+        /// <returns>O número de precisão arbitrária resultante.</returns>
+        public static BigInteger TestQuot(
+            ulong[] divisor,
+            ulong[] quotient,
+            ulong[] remainder,
+            int remainderLength,
+            bool sign)
+        {
+            var result = GetBigIntegerRepresentation(
+                divisor);
+            result *= GetBigIntegerRepresentation(
+                quotient);
+            if (sign)
+            {
+                result += GetBigIntegerRepresentation(
+                    remainder,
+                    remainderLength);
+            }
+            else
+            {
+                result -= GetBigIntegerRepresentation(
+                       remainder,
+                       remainderLength);
             }
 
             return result;
