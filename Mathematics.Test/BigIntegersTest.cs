@@ -935,7 +935,7 @@
     /// sobre números inteiros de precisão arbitrária.
     /// </summary>
     [TestClass]
-    public class BigIntegerOperationsProvidersTest
+    public class UlongBigIntegerSequentialQuotAndRemAlgTest
     {
         /// <summary>
         /// Testa a função de divisão do providenciador do algoritmo.
@@ -1060,20 +1060,37 @@
                 0xBBFFAADDEECC1123
             };
 
-            var firstInteger = Diagnostics.GetBigIntegerRepresentation(
-                firstArray);
-            var secondInteger = Diagnostics.GetBigIntegerRepresentation(
-                secondArray);
-            var remainder = default(BigInteger);
-            var quotient = BigInteger.DivRem(firstInteger, secondInteger, out remainder);
+            this.AssertArrays(firstArray, secondArray, target);
 
-            actual = target.Run(firstArray, secondArray);
-            var actualQuot = Diagnostics.GetBigIntegerRepresentation(
-                actual.Item1);
-            var actualRem = Diagnostics.GetBigIntegerRepresentation(
-                actual.Item2);
-            Assert.AreEqual(quotient, actualQuot);
-            Assert.AreEqual(remainder, actualRem);
+            // Ambos os termos com um número superior de dígitos
+            firstArray = new ulong[] { 
+                0x25134948BCDDFE00,
+                0x74628492837462AB,
+                0xFFAADDEECC112383
+            };
+
+            secondArray = new ulong[]{
+                0xAB25134948BCDDFE,
+                0x8374628492837461,
+                0xFFFAADDEECC1123
+            };
+
+            this.AssertArrays(firstArray, secondArray, target);
+
+            // Ambos os termos com um número superior de dígitos
+            firstArray = new ulong[] { 
+                0x25134948BCDDFE00,
+                0x74628492837462AB,
+                0xFFAADDEECC112383
+            };
+
+            secondArray = new ulong[]{
+                0x1AB25134948BCDEF,
+                0x3837462849283746,
+                0xFFAADDEECC11238
+            };
+
+            this.AssertArrays(firstArray, secondArray, target);
         }
 
         /// <summary>
@@ -1107,21 +1124,136 @@
                 0xA1000BC150000300
             };
 
-            var firstInteger = Diagnostics.GetBigIntegerRepresentation(
-                firstItemArray);
-            var secondInteger = Diagnostics.GetBigIntegerRepresentation(
-                secondItemArray);
-            var expectedRem = default(BigInteger);
-            var expectedQuo = BigInteger.DivRem(firstInteger, secondInteger, out expectedRem);
+            this.AssertArrays(firstItemArray, secondItemArray, target);
 
-            var actual = target.Run(firstItemArray, secondItemArray);
-            var actualQuo = Diagnostics.GetBigIntegerRepresentation(
-                actual.Item1);
-            var actualRem = Diagnostics.GetBigIntegerRepresentation(
-                actual.Item2);
+            // Entra em outro ponto na função principal
+            firstItemArray = new ulong[]{
+                0xA1000BC150000300,
+                0xEFFFF09829420AA1,
+                0xB31234462ABAFDCE,
+                0xB1CA31231632789A,
+                0xB1C3,
+                0xAAFFBBCCDDEE1121,
+                0xEFFFF09829420AA1,
+                0xB31234462ABAFDCE,
+                0xB1CA31231632789A,
+                0xB1C3,
+                0xAAFFBBCCDDEE1121
+            };
 
-            Assert.AreEqual(expectedQuo, actualQuo);
-            Assert.AreEqual(expectedRem, actualRem);
+            secondItemArray = new ulong[]{
+                0xB31234462ABAFDCE,
+                0xB1CA31231632789A,
+                0xB1C3,
+                0xAAFFBBCCDDEE1121,
+                0xAB000BC150000300
+            };
+
+            this.AssertArrays(firstItemArray, secondItemArray, target);
+
+            // Entra em outro ponto na função principal
+            firstItemArray = new ulong[]{
+                0xA1000BC150000300,
+                0xEFFFF09829420AA1,
+                0xB31234462ABAFDCE,
+                0xB1CA31231632789A,
+                0xB1C3,
+                0xAAFFBBCCDDEE1121,
+                0xEFFFF09829420AA1,
+                0xB31234462ABAFDCE,
+                0xB1CA31231632789A,
+                0xB1C3,
+                0xAAFFBBCCDDEE1121
+            };
+
+            secondItemArray = new ulong[]{
+                0xB31234462ABAFDCE,
+                0xB1CA31231632789A,
+                0xB1C3,
+                0xAAFFBBCCDDEE1121,
+                0xA000BC150000300
+            };
+
+            this.AssertArrays(firstItemArray, secondItemArray, target);
+
+            // Início com resto pequeno e negativo
+            firstItemArray = new ulong[]{
+                ulong.MaxValue,
+                0,
+                0,
+                0,
+                0,
+                0xA
+            };
+
+            secondItemArray = new ulong[]{
+                1,
+                0,
+                0,
+                0,
+                0xA
+            };
+
+            this.AssertArrays(firstItemArray, secondItemArray, target);
+
+            // Início com resto pequeno e negativo
+            firstItemArray = new ulong[]{
+                ulong.MaxValue >> 32,
+                0,
+                0,
+                0,
+                0,
+                0xA
+            };
+
+            secondItemArray = new ulong[]{
+                1,
+                0,
+                0,
+                0,
+                0xA0
+            };
+
+            this.AssertArrays(firstItemArray, secondItemArray, target);
+
+            // Valor arbitrário
+            firstItemArray = new ulong[]{
+                1235344623,
+                44573563,
+                26257346834,
+                4256254,
+                437356,
+                24574687,
+                950594567,
+                06978957,
+                4236358,
+                568095678956,
+                4345735684,
+                358357835673,
+                24567367,
+                8456784679,
+                5895,
+                34367,
+                4578,
+                256254,
+                2456724672,
+                123451567
+            };
+
+            secondItemArray = new ulong[]{
+                12340750,
+                46735673,
+                236245,
+                356735,
+                580569,
+                1245134,
+                2456245,
+                35683,
+                2354622346,
+                356378563
+            };
+
+            this.AssertArrays(firstItemArray, secondItemArray, target);
         }
 
         /// <summary>
@@ -2134,6 +2266,44 @@
                 firstItemArray,
                 actual);
             Assert.AreEqual(expectedValue, actualValue);
+
+            firstItemArray = new ulong[]{
+                12903433358339145166,
+                12811106116774819994,
+                45507,
+                12321773594080055585,
+                720588865278051072
+            };
+
+            secondItemArray = new ulong[]{
+                11601285565005169408,
+                17293805630443883169,
+                12903433358339145166,
+                12811106116774819994,
+                1091186364059404611,
+                17004739501506593194,
+                8054644782783969661,
+                219926020547987717,
+                5587372488305614881,
+                2,
+                10
+            };
+
+            firstValue = Diagnostics.GetBigIntegerRepresentation(
+                firstItemArray) * BigInteger.Pow(2, 4 * 64 + 3);
+            secondValue = Diagnostics.GetBigIntegerRepresentation(
+                secondItemArray,
+                9);
+            expectedValue = firstValue - secondValue;
+            actual = target.InternalInvSubtractDiffLength(
+                firstItemArray,
+                4,
+                3,
+                secondItemArray,
+                9,
+                secondItemArray);
+            actualValue = Diagnostics.GetBigIntegerRepresentation(secondItemArray, actual);
+            Assert.AreEqual(expectedValue, actualValue);
         }
 
         /// <summary>
@@ -2373,8 +2543,61 @@
             var target = new UlongBigIntegerSequentialQuotAndRemAlg();
 
             var firstItemArray = new ulong[]{
-
+                1,
+                0,
+                0,
+                0,
+                160
             };
+
+            var secondItemArray = new ulong[]{
+                1152921500311879681,
+                0,
+                0,
+                0,
+                0
+            };
+
+            var firstInteger = Diagnostics.GetBigIntegerRepresentation(firstItemArray);
+            var secondInteger = Diagnostics.GetBigIntegerRepresentation(secondItemArray, 1);
+            var expectedValue = firstInteger - secondInteger;
+
+            var actual = target.InternalGeneralSubtract(
+                firstItemArray,
+                firstItemArray.Length,
+                secondItemArray,
+                1,
+                secondItemArray);
+            var actualValue = Diagnostics.GetBigIntegerRepresentation(secondItemArray, actual);
+            Assert.AreEqual(expectedValue, actualValue);
+        }
+
+        /// <summary>
+        /// Averigua a validade da determinação do quociente e do resto
+        /// para dois vectores.
+        /// </summary>
+        /// <param name="firstArray">O vector que representa o dividendo.</param>
+        /// <param name="secondArray">O vector que representa o divisor.</param>
+        /// <param name="target">O objecto responsável pelo algoritmo.</param>
+        private void AssertArrays(
+            ulong[] firstArray,
+            ulong[] secondArray,
+            UlongBigIntegerSequentialQuotAndRemAlg target)
+        {
+            var firstInteger = Diagnostics.GetBigIntegerRepresentation(
+                firstArray);
+            var secondInteger = Diagnostics.GetBigIntegerRepresentation(
+                secondArray);
+            var remainder = default(BigInteger);
+            var quotient = BigInteger.DivRem(firstInteger, secondInteger, out remainder);
+
+            var actual = target.Run(firstArray, secondArray);
+            var actualQuot = Diagnostics.GetBigIntegerRepresentation(
+                actual.Item1);
+            var actualRem = Diagnostics.GetBigIntegerRepresentation(
+                actual.Item2);
+            Assert.AreEqual(quotient, actualQuot);
+            Assert.AreEqual(remainder, actualRem);
         }
     }
 }

@@ -496,4 +496,142 @@
             }
         }
     }
+
+    /// <summary>
+    /// Permite realizar testes sobre os algoritmos de ordenação.
+    /// </summary>
+    [TestClass]
+    public class SortersTests
+    {
+        /// <summary>
+        /// Testa o algoritmo de ordenação baseado numa pilha.
+        /// </summary>
+        [Description("Tests the heap sort function.")]
+        [TestMethod]
+        public void HeapSorter_SortTest()
+        {
+            // Testa o algoritmo que utiliza uma pilha.
+            var heapSorter = new HeapSorter<int>();
+            this.TestSort(heapSorter);
+        }
+
+        /// <summary>
+        /// Testa o algoritmo de ordenação por borbulhamento.
+        /// </summary>
+        [Description("Tests the bubble sort function")]
+        [TestMethod]
+        public void BubbleSorter_SortTest()
+        {
+            var bubbleSorter = new BubbleSorter<int>();
+            this.TestSort(bubbleSorter);
+        }
+
+        /// <summary>
+        /// Testa a função de ordenação por fusão de sub-colecções.
+        /// </summary>
+        [Description("Tests the merge sort function")]
+        [TestMethod]
+        public void MergeSorter_SortTest()
+        {
+            var mergeSorter = new MergeSorter<int>();
+            this.TestSort(mergeSorter);
+        }
+
+        /// <summary>
+        /// Testa a função de ordenação rápida.
+        /// </summary>
+        [Description("Tests the quick sort function.")]
+        [TestMethod]
+        public void QuickSorter_SortTest()
+        {
+            var quickSorter = new QuickSorter<int>();
+            this.TestSort(quickSorter);
+        }
+
+        /// <summary>
+        /// Testa o algoritmo de ordenação por inserção.
+        /// </summary>
+        [Description("Tests the insertion sort function.")]
+        [TestMethod]
+        public void InsertionSorter_SortTest()
+        {
+            var insertionSorter = new InsertionSorter<int>();
+            this.TestSort(insertionSorter);
+        }
+
+        /// <summary>
+        /// Testa o algoritmo de ordenação por pesquisa binária.
+        /// </summary>
+        [Description("Tests the binary search insertion sort function.")]
+        [TestMethod]
+        public void BinarySearchInsertionSorter_SortTest()
+        {
+            var binarySearchInsertionSorter = new BinarySearchInsertionSorter<int>();
+            this.TestSort(binarySearchInsertionSorter);
+        }
+
+        /// <summary>
+        /// Testa qualquer algoritmo de ordenação desde que seja proporcionado
+        /// por uma determinada interface.
+        /// </summary>
+        /// <param name="sorter">O ordenador a ser testado.</param>
+        private void TestSort(ISorter<int> sorter)
+        {
+            // Nenhum elemento na colecção - o teste consiste em não se dar erro.
+            var collection = new int[0];
+            sorter.Sort(collection);
+
+            // Um elemento na colecção
+            collection = new int[1] { 0 };
+            sorter.Sort(collection);
+            Assert.AreEqual(0, collection[0]);
+
+            // Dois elementos na colecção na ordem inversa
+            collection = new int[] { 2, 1 };
+            sorter.Sort(collection);
+            Assert.AreEqual(1, collection[0]);
+            Assert.AreEqual(2, collection[1]);
+
+            // Todos diferentes mas ordenados
+            collection = new int[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+            sorter.Sort(collection);
+            this.AssertOrdered(collection);
+
+            //Todos diferentes com ordenação arbitrária
+            collection = new int[] { 6, 2, 7, 4, 5, 6, 9, 0, 1, 3, 8 };
+            sorter.Sort(collection);
+            this.AssertOrdered(collection);
+
+            // Com repetidos mas ordenados
+            collection = new int[] { 0, 0, 1, 1, 1, 2, 2, 3, 3, 3, 3 };
+            sorter.Sort(collection);
+            this.AssertOrdered(collection);
+
+            // Com repetidos mas desordenados
+            collection = new int[] { 0, 1, 0, 1, 2, 3, 2, 1, 3, 3, 3 };
+            sorter.Sort(collection);
+            this.AssertOrdered(collection);
+        }
+
+        /// <summary>
+        /// Função que permite averiguar se um vector se encontra ordenado.
+        /// </summary>
+        /// <param name="collection">O vector.</param>
+        private void AssertOrdered(int[] collection)
+        {
+            var count = collection.Length;
+            var i = 0;
+            if (i < count)
+            {
+                var current = collection[0];
+                ++i;
+                for (; i < count; ++i)
+                {
+                    var next = collection[i];
+                    Assert.IsTrue(current <= next);
+                    current = next;
+                }
+            } 
+        }
+    }
 }

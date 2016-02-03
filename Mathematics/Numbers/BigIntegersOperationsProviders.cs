@@ -107,7 +107,7 @@
                         else if (comparision == -1)
                         {
                             var remainderLength = firstDiff + 1;
-                            var remainder = new ulong[remainderLength];
+                            var remainder = new ulong[Math.Max(divisor.Length, remainderLength)];
                             var length = this.InvSubtractSameLength(
                                     divisor,
                                     shift,
@@ -118,42 +118,20 @@
                             {
                                 // O resultado pode ser determinado, sendo negativo o sinal do resto
                                 --quo;
-                                if (shift == 1)
-                                {
-                                    length = this.SubtractSameLength(
-                                        dividend,
+                                length = this.SubtractSameLength(
                                         divisor,
-                                        dividend.Length,
+                                        remainder,
+                                        divisor.Length,
                                         remainder);
-                                    if (length < dividendLength)
-                                    {
-                                        var remRes = new ulong[length];
-                                        Array.Copy(remainder, remRes, length);
-                                        return Tuple.Create<ulong[], ulong[]>(new[] { quo }, remRes);
-                                    }
-                                    else
-                                    {
-                                        return Tuple.Create<ulong[], ulong[]>(new[] { quo }, remainder);
-                                    }
+                                if (length < dividendLength)
+                                {
+                                    var remRes = new ulong[length];
+                                    Array.Copy(remainder, remRes, length);
+                                    return Tuple.Create<ulong[], ulong[]>(new[] { quo }, remRes);
                                 }
                                 else
                                 {
-                                    length = this.SubtractSameLength(
-                                        dividend,
-                                        divisor,
-                                        dividendLength,
-                                        shift - 1,
-                                        remainder);
-                                    if (length < dividendLength)
-                                    {
-                                        var remRes = new ulong[length];
-                                        Array.Copy(remainder, remRes, length);
-                                        return Tuple.Create<ulong[], ulong[]>(new[] { quo }, remRes);
-                                    }
-                                    else
-                                    {
-                                        return Tuple.Create<ulong[], ulong[]>(new[] { quo }, remainder);
-                                    }
+                                    return Tuple.Create<ulong[], ulong[]>(new[] { quo }, remainder);
                                 }
                             }
                             else
@@ -278,7 +256,7 @@
                         else
                         {
                             var remainderLength = foundIndex + 1;
-                            var remainder = new ulong[remainderLength];
+                            var remainder = new ulong[Math.Max(divisor.Length, remainderLength)];
                             var length = this.InvSubtractDiffLengthNegShift(
                                     divisor,
                                     lengthDiff,
@@ -288,6 +266,13 @@
                                     remainder);
                             if (length < divisor.Length)
                             {
+                                this.DecrementQuo(quo, 0);
+                                length = this.GeneralSubtract(
+                                    divisor,
+                                    divisor.Length,
+                                    remainder,
+                                    length,
+                                    remainder);
                                 if (length < remainder.Length)
                                 {
                                     var remRes = new ulong[length];
@@ -385,7 +370,7 @@
                         else
                         {
                             var remainderLength = foundIndex + 1;
-                            var remainder = new ulong[remainderLength];
+                            var remainder = new ulong[Math.Max(divisor.Length, remainderLength)];
                             var length = this.InvSubtractDiffLength(
                                     divisor,
                                     lengthDiff,
@@ -394,6 +379,13 @@
                                     remainder);
                             if (length < divisor.Length)
                             {
+                                this.DecrementQuo(quo, 0); // Sinal negativo
+                                length = this.GeneralSubtract(
+                                    divisor,
+                                    divisor.Length,
+                                    remainder,
+                                    length,
+                                    remainder);
                                 if (length < remainder.Length)
                                 {
                                     var remRes = new ulong[length];
@@ -428,10 +420,9 @@
                     else
                     {
                         // Estabelece a primeira aproximação para o quociente
-                        ++lengthDiff;
-                        var quo = new ulong[lengthDiff];
+                        var quo = new ulong[lengthDiff + 1];
                         var shift = dividendHigh - divisorHigh;
-                        quo[lengthDiff - 1] = 1UL << shift;
+                        quo[lengthDiff] = 1UL << shift;
 
                         // Deslocamentos negativos
                         var foundIndex = default(int);
@@ -479,7 +470,7 @@
                                     remainderLength,
                                     divisor,
                                     quo,
-                                    false);
+                                    true);
                             }
                             else
                             {
@@ -488,13 +479,13 @@
                                     length,
                                     divisor,
                                     quo,
-                                    false);
+                                    true);
                             }
                         }
                         else
                         {
                             var remainderLength = foundIndex + 1;
-                            var remainder = new ulong[remainderLength];
+                            var remainder = new ulong[Math.Max(divisor.Length, remainderLength)];
                             var length = this.InvSubtractDiffLength(
                                     divisor,
                                     lengthDiff,
@@ -504,6 +495,13 @@
                                     remainder);
                             if (length < divisor.Length)
                             {
+                                this.DecrementQuo(quo, 0);
+                                length = this.GeneralSubtract(
+                                    divisor,
+                                    divisor.Length,
+                                    remainder,
+                                    length,
+                                    remainder);
                                 if (length < remainder.Length)
                                 {
                                     var remRes = new ulong[length];
@@ -538,6 +536,7 @@
                 }
             }
         }
+
         #region Funções internas
 
         /// <summary>
@@ -973,6 +972,7 @@
                         remainder[length - 1]);
             var divisorHigh = MathFunctions.GetHighestSettedBitIndex(
                 divisor[length - 1]);
+
             while (dividendHigh >= divisorHigh)
             {
                 if (dividendHigh == divisorHigh)
@@ -1025,8 +1025,8 @@
                             {
                                 // Nenhuma actualização é aplicada ao quociente
                                 var resultLength = this.GeneralSubtract(
-                                    currengQuotientValue,
-                                    currengQuotientValue.Length,
+                                    divisor,
+                                    divisor.Length,
                                     remainder,
                                     innerLength,
                                     remainder);
@@ -1058,8 +1058,8 @@
                             else
                             {
                                 var resultLength = this.GeneralSubtract(
-                                       currengQuotientValue,
-                                       currengQuotientValue.Length,
+                                       divisor,
+                                       divisor.Length,
                                        remainder,
                                        innerLength,
                                        remainder);
@@ -1188,8 +1188,8 @@
                             if (innerLength < length)
                             {
                                 var resultLength = this.GeneralSubtract(
-                                   currengQuotientValue,
-                                   currengQuotientValue.Length,
+                                   divisor,
+                                   divisor.Length,
                                    remainder,
                                    length,
                                    remainder);
@@ -1232,8 +1232,8 @@
                             if (innerLength < length)
                             {
                                 var resultLength = this.GeneralSubtract(
-                                   currengQuotientValue,
-                                   currengQuotientValue.Length,
+                                   divisor,
+                                   divisor.Length,
                                    remainder,
                                    length,
                                    remainder);
@@ -1280,9 +1280,43 @@
                 }
             }
 
-            return Tuple.Create(
-                this.GetTrimmedVector(currengQuotientValue),
-                remainder);
+            if (innerSign)
+            {
+                if (remainder.Length == length)
+                {
+                    return Tuple.Create(
+                        this.GetTrimmedVector(currengQuotientValue),
+                        remainder);
+                }
+                else
+                {
+                    return Tuple.Create(
+                        this.GetTrimmedVector(currengQuotientValue),
+                        this.GetTrimmedVector(remainder, length));
+                }
+            }
+            else
+            {
+                this.DecrementQuo(currengQuotientValue, 0);
+                var resultLength = this.GeneralSubtract(
+                                   divisor,
+                                   divisor.Length,
+                                   remainder,
+                                   length,
+                                   remainder);
+                if (remainder.Length == length)
+                {
+                    return Tuple.Create(
+                    this.GetTrimmedVector(currengQuotientValue),
+                    remainder);
+                }
+                else
+                {
+                    return Tuple.Create(
+                    this.GetTrimmedVector(currengQuotientValue),
+                    this.GetTrimmedVector(remainder, resultLength));
+                }
+            }
         }
 
         /// <summary>
@@ -2428,51 +2462,55 @@
             }
 
             outDifference[i] = complement;
-            ++i;
-            ++j;
             var lastIndex = minuendLength - 1;
-            for (; i < lastIndex; ++i, ++j)
+            if (i < lastIndex)
             {
-                complement = aux;
-                aux = subtrahend[j];
-                complement = (complement >> subtraendNegativeShift) | (aux << (64 - subtraendNegativeShift));
+                ++i;
+                ++j;
+                for (; i < lastIndex; ++i, ++j)
+                {
+                    complement = aux;
+                    aux = subtrahend[j];
+                    complement = (complement >> subtraendNegativeShift) | (aux << (64 - subtraendNegativeShift));
+                    complement = ~complement;
+                    sum = MathFunctions.Add(complement, minuend[i]);
+                    if (carry)
+                    {
+                        if (sum.Item2 == 0xFFFFFFFFFFFFFFFF)
+                        {
+                            outDifference[i] = 0;
+                            carry = true;
+                        }
+                        else
+                        {
+                            outDifference[i] = sum.Item2 + 1;
+                            carry = sum.Item1;
+                        }
+                    }
+                    else
+                    {
+                        outDifference[i] = sum.Item2;
+                        carry = sum.Item1;
+                    }
+                }
+
+
+                complement = aux >> subtraendNegativeShift;
+                if (j < subtrahend.Length)
+                {
+                    complement |= (subtrahend[j] << (64 - subtraendNegativeShift));
+                }
+
                 complement = ~complement;
                 sum = MathFunctions.Add(complement, minuend[i]);
                 if (carry)
                 {
-                    if (sum.Item2 == 0xFFFFFFFFFFFFFFFF)
-                    {
-                        outDifference[i] = 0;
-                        carry = true;
-                    }
-                    else
-                    {
-                        outDifference[i] = sum.Item2 + 1;
-                        carry = sum.Item1;
-                    }
+                    outDifference[i] = sum.Item2 + 1;
                 }
                 else
                 {
                     outDifference[i] = sum.Item2;
-                    carry = sum.Item1;
                 }
-            }
-
-            complement = aux >> subtraendNegativeShift;
-            if (j < subtrahend.Length)
-            {
-                complement |= (subtrahend[j] << (64 - subtraendNegativeShift));
-            }
-
-            complement = ~complement;
-            sum = MathFunctions.Add(complement, minuend[i]);
-            if (carry)
-            {
-                outDifference[i] = sum.Item2 + 1;
-            }
-            else
-            {
-                outDifference[i] = sum.Item2;
             }
 
             var result = minuendLength - 1;
@@ -2730,6 +2768,7 @@
                     // Não ocorre transporte
                     for (; i < minuendOffset; ++i)
                     {
+                        currentSubtrahend = subtrahend[i];
                         outDifference[i] = ~currentSubtrahend;
                     }
 
@@ -2902,14 +2941,45 @@
                 carry = sum.Item1;
             }
 
-            ++i;
-            ++j;
             var lastLength = subtrahendLength - 1;
-            for (; i < lastLength; ++i, ++j)
+            if (i < lastLength)
             {
-                var tempAux = minuend[j];
-                current = (aux >> minuendShift) | (tempAux << (64 - minuendShift));
-                aux = tempAux;
+                ++i;
+                ++j;
+                for (; i < lastLength; ++i, ++j)
+                {
+                    var tempAux = minuend[j];
+                    current = (aux >> minuendShift) | (tempAux << (64 - minuendShift));
+                    aux = tempAux;
+                    complement = ~subtrahend[i];
+                    sum = MathFunctions.Add(complement, current);
+                    if (carry)
+                    {
+                        if (sum.Item2 == 0xFFFFFFFFFFFFFFFF)
+                        {
+                            outDifference[i] = 0;
+                            carry = true;
+                        }
+                        else
+                        {
+                            outDifference[i] = sum.Item2 + 1;
+                            carry = sum.Item1;
+                        }
+                    }
+                    else
+                    {
+                        outDifference[i] = sum.Item2;
+                        carry = sum.Item1;
+                    }
+                }
+
+                // Última execução do ciclo
+                current = aux >> minuendShift;
+                if (j < minuend.Length)
+                {
+                    current |= (minuend[j] << (64 - minuendShift));
+                }
+
                 complement = ~subtrahend[i];
                 sum = MathFunctions.Add(complement, current);
                 if (carry)
@@ -2930,34 +3000,6 @@
                     outDifference[i] = sum.Item2;
                     carry = sum.Item1;
                 }
-            }
-
-            // Última execução do ciclo
-            current = aux >> minuendShift;
-            if (j < minuend.Length)
-            {
-                current |= (minuend[j] << (64 - minuendShift));
-            }
-
-            complement = ~subtrahend[i];
-            sum = MathFunctions.Add(complement, current);
-            if (carry)
-            {
-                if (sum.Item2 == 0xFFFFFFFFFFFFFFFF)
-                {
-                    outDifference[i] = 0;
-                    carry = true;
-                }
-                else
-                {
-                    outDifference[i] = sum.Item2 + 1;
-                    carry = sum.Item1;
-                }
-            }
-            else
-            {
-                outDifference[i] = sum.Item2;
-                carry = sum.Item1;
             }
 
             var result = subtrahendLength - 1;
@@ -3009,7 +3051,7 @@
 
             outDifference[i] = complement;
             ++i;
-            for (; i < subtrahendLength; ++i)
+            for (; i < minuendLength; ++i)
             {
                 complement = ~subtrahend[i];
                 sum = MathFunctions.Add(complement, minuend[i]);
