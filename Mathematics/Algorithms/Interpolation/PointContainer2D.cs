@@ -6,7 +6,6 @@
     using System.Linq;
     using System.Text;
     using Utilities;
-    using Utilities.Collections;
 
     /// <summary>
     /// Um contentor de pontos bidimensionais.

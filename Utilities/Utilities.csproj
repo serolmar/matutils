@@ -44,7 +44,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Collections\CollectionEqualityComparers.cs" />
     <Compile Include="Collections\Affectations\CombinationAffector.cs" />
     <Compile Include="Collections\Affectations\CombinationBoxAffector.cs" />
     <Compile Include="Collections\Affectations\FastAfector.cs" />
@@ -57,7 +56,6 @@
     <Compile Include="Collections\BcdCodeGenerator.cs" />
     <Compile Include="Collections\BitList.cs" />
     <Compile Include="Collections\CollectionsException.cs" />
-    <Compile Include="Collections\Factories\CollectionFactories.cs" />
     <Compile Include="Collections\GeneralMapper.cs" />
     <Compile Include="Collections\Graph\DicDrivenTrie.cs" />
     <Compile Include="Collections\Graph\Edge.cs" />
@@ -75,11 +73,18 @@
     <Compile Include="Collections\Graph\VertexValuePair.cs" />
     <Compile Include="Collections\InsertionSortedCollection.cs" />
     <Compile Include="Collections\IntegerSequence.cs" />
-    <Compile Include="Collections\Interfaces\IFactory.cs" />
     <Compile Include="Collections\Interfaces\IIndexed.cs" />
+    <Compile Include="Collections\Interfaces\IMatrix.cs" />
+    <Compile Include="Collections\Interfaces\IMultidimensionalRange.cs" />
+    <Compile Include="Collections\Interfaces\IVector.cs" />
     <Compile Include="Collections\LispStyleList.cs" />
+    <Compile Include="Collections\Matrices.cs" />
+    <Compile Include="Collections\MultiDimensionalRange.cs" />
     <Compile Include="Collections\MutableTuple.cs" />
     <Compile Include="Collections\Sort.cs" />
+    <Compile Include="Collections\SpecialMatrices.cs" />
+    <Compile Include="Collections\SpecialVectors.cs" />
+    <Compile Include="Collections\Vectors.cs" />
     <Compile Include="Comparers.cs" />
     <Compile Include="Cuda\CudaApi.cs" />
     <Compile Include="Cuda\CudaCallbacks.cs" />
@@ -116,9 +121,12 @@
     <Compile Include="ExpressionBuilders\EWordCharExpressionType.cs" />
     <Compile Include="ExpressionBuilders\ExpressionParsers.cs" />
     <Compile Include="GenBank\GenBankModel.cs" />
+    <Compile Include="GenBank\GenBankReader.cs" />
     <Compile Include="GenericException.cs" />
     <Compile Include="Lambda\ELambdaExpressionWordType.cs" />
     <Compile Include="Lambda\SmartFilterLambdaBuilder.cs" />
+    <Compile Include="Parsers\Collections\MatrixReader.cs" />
+    <Compile Include="Parsers\Collections\MultiDimensionalRangeReaders.cs" />
     <Compile Include="Parsers\EStringSymbolReaderType.cs" />
     <Compile Include="Parsers\ExpressionReader\EOperatorType.cs" />
     <Compile Include="Parsers\ExpressionReader\SOperatorPrecedence.cs" />

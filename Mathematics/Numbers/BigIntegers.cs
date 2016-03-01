@@ -9,7 +9,7 @@
     using System.Text.RegularExpressions;
     using System.Threading.Tasks;
     using Mathematics;
-    using Utilities.Collections;
+    using Utilities;
 
     /// <summary>
     /// Representa um número inteiro grande como sendo um vector de inteiros longos

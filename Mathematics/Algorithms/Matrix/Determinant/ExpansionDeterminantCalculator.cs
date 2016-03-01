@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
-    using Utilities.Collections;
+    using Utilities;
 
     /// <summary>
     /// Calcula o determinante de uma matriz com base na expansão em sub-matrizes.

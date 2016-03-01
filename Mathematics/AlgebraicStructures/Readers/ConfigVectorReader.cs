@@ -74,7 +74,7 @@
         public bool TryParseVector(
             MementoSymbolReader<InputReader, SymbValue, SymbType> reader,
             IParse<T, SymbValue, SymbType> parser,
-            out IVector<T> vector)
+            out IMathVector<T> vector)
         {
             return this.TryParseVector(reader, parser, null, out vector);
         }
@@ -91,9 +91,9 @@
             MementoSymbolReader<InputReader, SymbValue, SymbType> reader,
             IParse<T, SymbValue, SymbType> parser,
             List<string> errors,
-            out IVector<T> vector)
+            out IMathVector<T> vector)
         {
-            vector = default(IVector<T>);
+            vector = default(IMathVector<T>);
             this.rangeReader.ReadRangeValues(reader, parser);
             if (this.rangeReader.HasErrors)
             {
@@ -178,7 +178,7 @@
         /// <param name="vector">O vector.</param>
         /// <param name="lines">O número de linhas lidas.</param>
         /// <param name="elements">A lista dos elementos.</param>
-        private void SetupResultVector(IVector<T> vector, int lines, ReadOnlyCollection<T> elements)
+        private void SetupResultVector(IMathVector<T> vector, int lines, ReadOnlyCollection<T> elements)
         {
             var currentLine = -1;
             for (int i = 0; i < lines; ++i)

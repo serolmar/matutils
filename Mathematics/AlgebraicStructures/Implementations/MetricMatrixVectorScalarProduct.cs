@@ -14,7 +14,7 @@
     /// </remarks>
     /// <typeparam name="CoeffType">O tipo de dados que consituem as entradas dos vectores.</typeparam>
     public class MetricMatrixVectorScalarProduct<CoeffType> 
-        : IScalarProductSpace<IVector<CoeffType>, CoeffType>
+        : IScalarProductSpace<IMathVector<CoeffType>, CoeffType>
     {
         /// <summary>
         /// O anel responsável pelas operações sobre os coeficientes.
@@ -24,7 +24,7 @@
         /// <summary>
         /// A matriz que contém os coeficientes métricos.
         /// </summary>
-        private IMatrix<CoeffType> metricMatrix;
+        private IMathMatrix<CoeffType> metricMatrix;
 
         /// <summary>
         /// O comparador de coeficientes.
@@ -45,7 +45,7 @@
         /// Se a matriz dos coeficientes métricos não for quadrada.
         /// </exception>
         public MetricMatrixVectorScalarProduct(
-            IMatrix<CoeffType> metricMatrix,
+            IMathMatrix<CoeffType> metricMatrix,
             IComparer<CoeffType> comparer, 
             IRing<CoeffType> ring)
         {
@@ -97,7 +97,7 @@
         /// <value>
         /// A matriz dos coeficientes métricos.
         /// </value>
-        public IMatrix<CoeffType> MetricMatrix
+        public IMathMatrix<CoeffType> MetricMatrix
         {
             get
             {
@@ -111,7 +111,7 @@
         /// <param name="left">O primeiro vector.</param>
         /// <param name="right">O segundo vector.</param>
         /// <returns>O resultado do produto escalar.</returns>
-        public CoeffType Multiply(IVector<CoeffType> left, IVector<CoeffType> right)
+        public CoeffType Multiply(IMathVector<CoeffType> left, IMathVector<CoeffType> right)
         {
             if (left == null)
             {

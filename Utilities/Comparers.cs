@@ -12,78 +12,469 @@ namespace Utilities
     using System.Text;
 
     /// <summary>
-    /// Implementa um comparador lexicográfico de colecções.
+    /// Implementa um comparador de igualdade sobre colecções de elementos tendo em conta a ordem.
     /// </summary>
-    /// <typeparam name="T">O tipo de elementos na colecção a comparar.</typeparam>
-    public class LexicographicalComparer<T> : IComparer<ICollection<T>>
+    /// <typeparam name="CoeffType">O tipo de objectos que constituem os elmentos das colecções.</typeparam>
+    public class OrderedEqualityColComparer<CoeffType>
+        : EqualityComparer<IEnumerable<CoeffType>>
     {
         /// <summary>
-        /// O comparador de elementos.
+        /// O comparador de coeficientes.
         /// </summary>
-        private IComparer<T> comparer;
+        private IEqualityComparer<CoeffType> coeffComparer;
 
         /// <summary>
-        /// Instancia uma nova instância da classe <see cref="LexicographicalComparer{T}"/>.
+        /// Instancia um novo objecto do tipo <see cref="OrderedEqualityColComparer{CoeffType}"/>.
         /// </summary>
-        /// <param name="comparer">O comparador de elementos.</param>
-        public LexicographicalComparer(IComparer<T> comparer)
+        public OrderedEqualityColComparer()
         {
-            if (comparer == null)
+            this.coeffComparer = EqualityComparer<CoeffType>.Default;
+        }
+
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="OrderedEqualityColComparer{CoeffType}"/>.
+        /// </summary>
+        /// <param name="coeffComparer">O comparador de coeficientes.</param>
+        public OrderedEqualityColComparer(IEqualityComparer<CoeffType> coeffComparer)
+        {
+            if (coeffComparer == null)
             {
-                this.comparer = Comparer<T>.Default;
+                this.coeffComparer = EqualityComparer<CoeffType>.Default;
             }
             else
             {
-                this.comparer = comparer;
+                this.coeffComparer = coeffComparer;
             }
         }
 
-        #region IComparer<ICollection<T>> Members
-
         /// <summary>
-        /// Compara dois objectos e retorna um valor que indica se um é menor, maior ou igual a outro.
+        /// Determina se dois objectos são iguais.
         /// </summary>
         /// <param name="x">O primeiro objecto a ser comparado.</param>
         /// <param name="y">O segundo objecto a ser comparado.</param>
         /// <returns>
-        /// O valor 1 se o primeiro for maior do que o segundo, 0 se ambos forem iguais e -1 se o primeiro for
-        /// menor do que o segundo.
+        /// Verdadeiro se os objetos forem iguais e falso caso contrário.
         /// </returns>
-        public int Compare(ICollection<T> x, ICollection<T> y)
+        public override bool Equals(IEnumerable<CoeffType> x, IEnumerable<CoeffType> y)
         {
-            IEnumerator<T> xEnum = x.GetEnumerator();
-            IEnumerator<T> yEnum = y.GetEnumerator();
-            bool xMoveNext = xEnum.MoveNext();
-            bool yMoveNext = yEnum.MoveNext();
-            while (xMoveNext && yMoveNext)
+            if (ReferenceEquals(x, y))
             {
-                if (this.comparer.Compare(xEnum.Current, yEnum.Current) < 0)
+                return true;
+            }
+            else if (x == null || y == null)
+            {
+                return false;
+            }
+            else
+            {
+                var xEnumerator = x.GetEnumerator();
+                var yEnumerator = y.GetEnumerator();
+                var xState = xEnumerator.MoveNext();
+                var yState = yEnumerator.MoveNext();
+                while (xState && yState)
+                {
+                    if (!this.coeffComparer.Equals(xEnumerator.Current, yEnumerator.Current))
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        xState = xEnumerator.MoveNext();
+                        yState = yEnumerator.MoveNext();
+                    }
+                }
+
+                if (xState || yState)
+                {
+                    return false;
+                }
+                else
+                {
+                    return true;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Retorna um código confuso para o objecto.
+        /// </summary>
+        /// <param name="obj">O objecto.</param>
+        /// <returns>
+        /// Um código confuso para o objecto utilizado em alguns algoritmos.
+        /// </returns>
+        public override int GetHashCode(IEnumerable<CoeffType> obj)
+        {
+            if (obj == null)
+            {
+                return typeof(IEnumerable<CoeffType>).GetHashCode();
+            }
+            else
+            {
+                var res = 19;
+                foreach (var item in obj)
+                {
+                    if (item == null)
+                    {
+                        res = res * 31;
+                    }
+                    else
+                    {
+                        res = res * 31 + item.GetHashCode();
+                    }
+                }
+
+                return res;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Implementa um comparador de igualdade sobre colecções de elementos numa ordema arbitrária.
+    /// </summary>
+    /// <typeparam name="CoeffType">O tipo de objectos que constituem os elmentos das colecções.</typeparam>
+    public class UnorderedEqualityColComparer<CoeffType>
+        : EqualityComparer<IEnumerable<CoeffType>>
+    {
+        /// <summary>
+        /// O comparador de coeficientes.
+        /// </summary>
+        private IEqualityComparer<CoeffType> coeffComparer;
+
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="UnorderedEqualityColComparer{CoeffType}"/>.
+        /// </summary>
+        public UnorderedEqualityColComparer()
+        {
+            this.coeffComparer = EqualityComparer<CoeffType>.Default;
+        }
+
+        /// <summary>
+        /// Instancia um novo objecto do tipo <see cref="UnorderedEqualityColComparer{CoeffType}"/>.
+        /// </summary>
+        /// <param name="coeffComparer">O comparador de coeficientes.</param>
+        public UnorderedEqualityColComparer(IEqualityComparer<CoeffType> coeffComparer)
+        {
+            if (coeffComparer == null)
+            {
+                this.coeffComparer = EqualityComparer<CoeffType>.Default;
+            }
+            else
+            {
+                this.coeffComparer = coeffComparer;
+            }
+        }
+
+        /// <summary>
+        /// Determina se dois objectos são iguais.
+        /// </summary>
+        /// <param name="x">O primeiro objecto a ser comparado.</param>
+        /// <param name="y">O segundo objecto a ser comparado.</param>
+        /// <returns>
+        /// Verdadeiro se os objetos forem iguais e falso caso contrário.
+        /// </returns>
+        public override bool Equals(IEnumerable<CoeffType> x, IEnumerable<CoeffType> y)
+        {
+            if (ReferenceEquals(x, y))
+            {
+                return true;
+            }
+            else if (x == null || y == null)
+            {
+                return false;
+            }
+            else
+            {
+                var xCounts = this.CountItems(x);
+                var yCounts = this.CountItems(y);
+                if (xCounts.Count == yCounts.Count)
+                {
+                    foreach (var xCount in xCounts)
+                    {
+                        var existing = default(int);
+                        if (yCounts.TryGetValue(xCount.Key, out existing))
+                        {
+                            if (existing != xCount.Value)
+                            {
+                                return false;
+                            }
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }
+
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Retorna um código confuso para o objecto.
+        /// </summary>
+        /// <param name="obj">O objecto.</param>
+        /// <returns>
+        /// Um código confuso para o objecto utilizado em alguns algoritmos.
+        /// </returns>
+        public override int GetHashCode(IEnumerable<CoeffType> obj)
+        {
+            if (obj == null)
+            {
+                return typeof(IEnumerable<CoeffType>).GetHashCode();
+            }
+            else
+            {
+                var result = 17;
+                var countItems = this.CountItems(obj);
+                foreach (var countKvp in countItems)
+                {
+                    result ^= (countKvp.Value * countKvp.Key.GetHashCode());
+                }
+
+                return result;
+            }
+        }
+
+        /// <summary>
+        /// Conta os itens existentes na colecção.
+        /// </summary>
+        /// <param name="collection">A colecção.</param>
+        /// <returns>A contagem dos itens.</returns>
+        private Dictionary<CoeffType, int> CountItems(IEnumerable<CoeffType> collection)
+        {
+            var result = new Dictionary<CoeffType, int>(this.coeffComparer);
+            foreach (var item in collection)
+            {
+                var existing = default(int);
+                if (result.TryGetValue(item, out existing))
+                {
+                    ++existing;
+                    result[item] = existing;
+                }
+                else
+                {
+                    result.Add(item, 1);
+                }
+            }
+
+            return result;
+        }
+    }
+
+    /// <summary>
+    /// Implementa um comparador lexicográfico sobre uma colecção.
+    /// </summary>
+    /// <typeparam name="CoeffType">O comparador dos coeficientes.</typeparam>
+    public class CollectionLexicographicComparer<CoeffType>
+        : Comparer<IEnumerable<CoeffType>>
+    {
+        /// <summary>
+        /// O comparador de coeficientes.
+        /// </summary>
+        private IComparer<CoeffType> coeffComparer;
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="CollectionLexicographicComparer{CoeffType}"/>.
+        /// </summary>
+        public CollectionLexicographicComparer()
+        {
+            this.coeffComparer = Comparer<CoeffType>.Default;
+        }
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="CollectionLexicographicComparer{CoeffType}"/>.
+        /// </summary>
+        /// <param name="coeffComparer">O comparador de coeficientes.</param>
+        public CollectionLexicographicComparer(IComparer<CoeffType> coeffComparer)
+        {
+            if (coeffComparer == null)
+            {
+                throw new ArgumentNullException("coeffComparer");
+            }
+            else
+            {
+                this.coeffComparer = coeffComparer;
+            }
+        }
+
+        /// <summary>
+        /// Compara duas colecções.
+        /// </summary>
+        /// <param name="x">A primeira colecção na comparação.</param>
+        /// <param name="y">A segunda colecção na comparação.</param>
+        /// <returns>
+        /// O valor 1 caso a primeira colecção seja superior à segunda, -1 caso a primeira colecção
+        /// seja inferior à segunda e 0 caso sejam iguais.
+        /// </returns>
+        public override int Compare(
+            IEnumerable<CoeffType> x,
+            IEnumerable<CoeffType> y)
+        {
+            if (x == null)
+            {
+                if (y == null)
+                {
+                    return 0;
+                }
+                else
                 {
                     return -1;
                 }
-                else if (this.comparer.Compare(xEnum.Current, yEnum.Current) > 0)
+            }
+            else if (y == null)
+            {
+                return 1;
+            }
+            else
+            {
+                var xEnum = x.GetEnumerator();
+                var yEnum = x.GetEnumerator();
+                var xState = xEnum.MoveNext();
+                var yState = yEnum.MoveNext();
+                while (xState && yState)
+                {
+                    var comparision = this.coeffComparer.Compare(
+                        xEnum.Current,
+                        yEnum.Current);
+                    if (comparision == 0)
+                    {
+                        xState = xEnum.MoveNext();
+                        yState = yEnum.MoveNext();
+                    }
+                    else
+                    {
+                        return comparision;
+                    }
+                }
+
+                if (xState)
                 {
                     return 1;
                 }
 
-                xMoveNext = xEnum.MoveNext();
-                yMoveNext = yEnum.MoveNext();
-            }
+                if (yState)
+                {
+                    return -1;
+                }
 
-            if (xMoveNext)
+                return 0;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Implementa um comparador que permite ordenar itens de acordo
+    /// com o seu comprimento e ordem lexicográfica.
+    /// </summary>
+    /// <typeparam name="CoeffType">O tipo de objectos a serem comparados.</typeparam>
+    public class CollectionShortLexComparer<CoeffType>
+        : Comparer<IEnumerable<CoeffType>>
+    {
+        /// <summary>
+        /// O comparador de objectos.
+        /// </summary>
+        private IComparer<CoeffType> coeffsComparer;
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="CollectionShortLexComparer{CoeffType}"/>.
+        /// </summary>
+        public CollectionShortLexComparer()
+        {
+            this.coeffsComparer = Comparer<CoeffType>.Default;
+        }
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="CollectionShortLexComparer{CoeffType}"/>.
+        /// </summary>
+        /// <param name="coeffsComparer">O comparador de coeficientes.</param>
+        public CollectionShortLexComparer(Comparer<CoeffType> coeffsComparer)
+        {
+            if (coeffsComparer == null)
+            {
+                throw new ArgumentNullException("coeffsComparer");
+            }
+            else
+            {
+                this.coeffsComparer = coeffsComparer;
+            }
+        }
+
+        /// <summary>
+        /// Compara duas colecções.
+        /// </summary>
+        /// <param name="x">A primeira colecção na comparação.</param>
+        /// <param name="y">A segunda colecção na comparação.</param>
+        /// <returns>
+        /// O valor 1 caso a primeira colecção seja superior à segunda, -1 caso a primeira colecção
+        /// seja inferior à segunda e 0 caso sejam iguais.
+        /// </returns>
+        public override int Compare(
+            IEnumerable<CoeffType> x,
+            IEnumerable<CoeffType> y)
+        {
+            if (x == null)
+            {
+                if (y == null)
+                {
+                    return 0;
+                }
+                else
+                {
+                    return -1;
+                }
+            }
+            else if (y == null)
             {
                 return 1;
             }
-
-            if (yMoveNext)
+            else
             {
-                return -1;
+                var xEnum = x.GetEnumerator();
+                var yEnum = y.GetEnumerator();
+                var xState = xEnum.MoveNext();
+                var yState = yEnum.MoveNext();
+                var state = xState && yState;
+                var comparision = 0;
+                while (state)
+                {
+                    comparision = this.coeffsComparer.Compare(
+                        xEnum.Current,
+                        yEnum.Current);
+                    xState = xEnum.MoveNext();
+                    yState = yEnum.MoveNext();
+                    if (comparision != 0)
+                    {
+                        state = false;
+                    }
+                    else
+                    {
+                        state = xState && yState;
+                    }
+                }
+
+                while (xState && yState)
+                {
+                    xState = xEnum.MoveNext();
+                    yState = yEnum.MoveNext();
+                }
+
+                if (xState)
+                {
+                    return 1;
+                }
+
+                if (yState)
+                {
+                    return -1;
+                }
+
+                return comparision;
             }
-
-            return 0;
         }
-
-        #endregion
     }
 
     /// <summary>

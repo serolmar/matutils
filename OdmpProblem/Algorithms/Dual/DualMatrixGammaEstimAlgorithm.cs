@@ -11,7 +11,7 @@
     /// </summary>
     /// <typeparam name="ElementType">O tipo de dados dos custos.</typeparam>
     public class DualMatrixGammaEstimAlgorithm<ElementType>
-        : IAlgorithm<SparseDictionaryMatrix<ElementType>, DualHeuristicAlgInput<ElementType>, ElementType>
+        : IAlgorithm<SparseDictionaryMathMatrix<ElementType>, DualHeuristicAlgInput<ElementType>, ElementType>
     {
         /// <summary>
         /// O anel responsável pelas operações.
@@ -41,7 +41,7 @@
         }
 
         public ElementType Run(
-            SparseDictionaryMatrix<ElementType> matrix, 
+            SparseDictionaryMathMatrix<ElementType> matrix, 
             DualHeuristicAlgInput<ElementType> input)
         {
             if (matrix == null)

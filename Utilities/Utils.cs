@@ -8,7 +8,7 @@
     using System.Runtime.InteropServices;
     using System.Text;
     using System.Threading.Tasks;
-    using Utilities.Collections;
+    using Utilities;
     using System.Numerics;
 
     /// <summary>

@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
+    using Utilities;
 
     /// <summary>
     /// Implementa funções que definem uma álgebra sobre matrizes.

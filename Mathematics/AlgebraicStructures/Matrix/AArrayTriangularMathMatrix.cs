@@ -9,7 +9,7 @@
     /// Permite desenvolver uma matriz triangular.
     /// </summary>
     /// <typeparam name="CoeffType">O tipo de coeficientes que constituem as entradas das matrizes.</typeparam>
-    public abstract class AArrayTriangularMatrix<CoeffType> : ArrayMatrix<CoeffType>, ISquareMatrix<CoeffType>
+    public abstract class AArrayTriangularMathMatrix<CoeffType> : ArrayMathMatrix<CoeffType>, ISquareMathMatrix<CoeffType>
     {
         /// <summary>
         /// Mantém o valor por defeito.
@@ -17,20 +17,20 @@
         protected CoeffType defaultValue;
 
         /// <summary>
-        /// Cria instâncias de objectos do tipo <see cref="AArrayTriangularMatrix{CoeffType}"/>.
+        /// Cria instâncias de objectos do tipo <see cref="AArrayTriangularMathMatrix{CoeffType}"/>.
         /// </summary>
         /// <param name="dimension">A dimensão da matriz.</param>
-        public AArrayTriangularMatrix(int dimension)
+        public AArrayTriangularMathMatrix(int dimension)
             : base(dimension, dimension)
         {
         }
 
         /// <summary>
-        /// Cria instâncias de objectos do tipo <see cref="AArrayTriangularMatrix{CoeffType}"/>.
+        /// Cria instâncias de objectos do tipo <see cref="AArrayTriangularMathMatrix{CoeffType}"/>.
         /// </summary>
         /// <param name="dimension">A dimensão da matriz.</param>
         /// <param name="defaultValue">O valor por defeito.</param>
-        public AArrayTriangularMatrix(int dimension, CoeffType defaultValue)
+        public AArrayTriangularMathMatrix(int dimension, CoeffType defaultValue)
             : base(dimension, dimension, defaultValue)
         {
         }

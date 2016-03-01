@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
-    using Utilities.Collections;
+    using Utilities;
 
     /// <summary>
     /// Representa a entrada para o algoritmo do simplex quando este se encontra escrito
@@ -27,7 +27,7 @@
         /// <summary>
         /// A função objectivo.
         /// </summary>
-        protected IVector<ObjectiveCoeffType> objectiveFunction;
+        protected IMathVector<ObjectiveCoeffType> objectiveFunction;
 
         /// <summary>
         /// O custo actual.
@@ -37,12 +37,12 @@
         /// <summary>
         /// A matriz das restrições.
         /// </summary>
-        protected IMatrix<ConstraintsType> constraintsMatrix;
+        protected IMathMatrix<ConstraintsType> constraintsMatrix;
 
         /// <summary>
         /// O vector das restrições.
         /// </summary>
-        protected IVector<ConstraintsType> constraintsVector;
+        protected IMathVector<ConstraintsType> constraintsVector;
 
         /// <summary>
         /// Permite criar uma instância de entrada para o algoritmo do simplex na forma normal de minimização. 
@@ -61,10 +61,10 @@
         public SimplexInput(
             int[] basicVariables,
             int[] nonBasicVariables,
-            IVector<ObjectiveCoeffType> objectiveFunction,
+            IMathVector<ObjectiveCoeffType> objectiveFunction,
             ObjectiveCoeffType cost,
-            IMatrix<ConstraintsType> constraintsMatrix,
-            IVector<ConstraintsType> constraintsVector)
+            IMathMatrix<ConstraintsType> constraintsMatrix,
+            IMathVector<ConstraintsType> constraintsVector)
         {
             if (basicVariables == null)
             {
@@ -149,7 +149,7 @@
         /// Obtém a função objectivo.
         /// </summary>
         /// <value>A função objectivo.</value>
-        public IVector<ObjectiveCoeffType> ObjectiveFunction
+        public IMathVector<ObjectiveCoeffType> ObjectiveFunction
         {
             get
             {
@@ -184,7 +184,7 @@
         /// Obtém a matriz das restrições.
         /// </summary>
         /// <value>A martiz das restrições.</value>
-        public IMatrix<ConstraintsType> ConstraintsMatrix
+        public IMathMatrix<ConstraintsType> ConstraintsMatrix
         {
             get
             {
@@ -196,7 +196,7 @@
         /// Obtém o vector das restrições.
         /// </summary>
         /// <value>O vector dos coeficientes independentes das restrições.</value>
-        public IVector<ConstraintsType> ConstraintsVector
+        public IMathVector<ConstraintsType> ConstraintsVector
         {
             get
             {

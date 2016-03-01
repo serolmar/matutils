@@ -5,7 +5,7 @@
     using System.Collections.ObjectModel;
     using System.Linq;
     using System.Text;
-    using Utilities.Collections;
+    using Utilities;
     using Mathematics.Algorithms;
 
     /// <summary>

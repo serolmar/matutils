@@ -274,8 +274,8 @@
         /// <returns>A variável caso exista e -1 caso contrário.</returns>
         private int GetNextLeavingVariable(
             int enteringVariable,
-            IMatrix<CoeffType> constraintsMatrix,
-            IVector<CoeffType> constraintsVector)
+            IMathMatrix<CoeffType> constraintsMatrix,
+            IMathVector<CoeffType> constraintsVector)
         {
             var result = -1;
             var value = this.coeffsField.AdditiveUnity;
@@ -348,8 +348,8 @@
         private void ProcessReduction(
             int enteringVariable,
             int leavingVariable,
-            IMatrix<CoeffType> constraintsMatrix,
-            IVector<CoeffType> constraintsVector)
+            IMathMatrix<CoeffType> constraintsMatrix,
+            IMathVector<CoeffType> constraintsVector)
         {
             // Actualiza a linha pivô
             var multiplicativeProduct = constraintsMatrix[leavingVariable, enteringVariable];
@@ -474,9 +474,9 @@
             int[] basicVariables,
             int[] nonBasicVariables,
             CoeffType currentCost,
-            IVector<CoeffType> objective,
-            IMatrix<CoeffType> constraintsMatrix,
-            IVector<CoeffType> constraintsVector)
+            IMathVector<CoeffType> objective,
+            IMathMatrix<CoeffType> constraintsMatrix,
+            IMathVector<CoeffType> constraintsVector)
         {
             var result = currentCost;
             var multiplicativeProduct = this.coeffsField.AdditiveInverse(objective[enteringVariable]);
@@ -542,9 +542,9 @@
             int[] basicVariables,
             int[] nonBasicVariables,
             SimplexMaximumNumberField<CoeffType> currentCost,
-            IVector<SimplexMaximumNumberField<CoeffType>> objective,
-            IMatrix<CoeffType> constraintsMatrix,
-            IVector<CoeffType> constraintsVector)
+            IMathVector<SimplexMaximumNumberField<CoeffType>> objective,
+            IMathMatrix<CoeffType> constraintsMatrix,
+            IMathVector<CoeffType> constraintsVector)
         {
             var result = currentCost;
             var multiplicativeProduct = this.GetAdditiveInverse(objective[enteringVariable]);
@@ -666,7 +666,7 @@
         private SimplexOutput<CoeffType> BuildSolution(
             int[] basicVariables,
             int[] nonBasicVariables,
-            IVector<CoeffType> constraintsVector,
+            IMathVector<CoeffType> constraintsVector,
             CoeffType cost
             )
         {
@@ -699,7 +699,7 @@
         private SimplexOutput<CoeffType> BuildSolution(
             int[] basicVariables,
             int[] nonBasicVariables,
-            IVector<CoeffType> constraintsVector,
+            IMathVector<CoeffType> constraintsVector,
             SimplexMaximumNumberField<CoeffType> cost
             )
         {

@@ -11,7 +11,7 @@
     /// </summary>
     /// <typeparam name="CoeffType">O tipo dos coeficientes na matriz.</typeparam>
     public class LinearRelaxationAlgorithm<CoeffType>
-        : IAlgorithm<SparseDictionaryMatrix<CoeffType>, int, CoeffType[]>
+        : IAlgorithm<SparseDictionaryMathMatrix<CoeffType>, int, CoeffType[]>
     {
         /// <summary>
         /// Mantém o corpo responsável pelas operações.
@@ -57,7 +57,7 @@
         /// <param name="costs">A matriz dos custos.</param>
         /// <param name="numberOfMedians">O número de medianas a serem escolhidas.</param>
         /// <returns>O resultado da relaxação.</returns>
-        public CoeffType[] Run(SparseDictionaryMatrix<CoeffType> costs, int numberOfMedians)
+        public CoeffType[] Run(SparseDictionaryMathMatrix<CoeffType> costs, int numberOfMedians)
         {
             if (costs == null)
             {
@@ -109,7 +109,7 @@
                 this.FillVariablesSelectors(nonBasicVariables, basicVariables, linesLength);
 
                 // Preencimento da matriz das restrições
-                var constraintsMatrix = new ArrayMatrix<CoeffType>(
+                var constraintsMatrix = new ArrayMathMatrix<CoeffType>(
                     constraintsNumber,
                     constraintsNumber,
                     this.coeffsField.AdditiveUnity);
@@ -161,7 +161,7 @@
                 }
 
                 // Preenchimento do vector independente das restrições
-                var vector = new ArrayVector<CoeffType>(constraintsNumber, this.coeffsField.AdditiveUnity);
+                var vector = new ArrayMathVector<CoeffType>(constraintsNumber, this.coeffsField.AdditiveUnity);
                 lastLine = constraintsNumber - 1;
                 for (int i = numberXVars; i < lastLine; ++i)
                 {
@@ -179,7 +179,7 @@
                 var simplexInput = new SimplexInput<CoeffType, SimplexMaximumNumberField<CoeffType>>(
                     basicVariables,
                     nonBasicVariables,
-                    new ArrayVector<SimplexMaximumNumberField<CoeffType>>(objectiveFunction.ToArray()),
+                    new ArrayMathVector<SimplexMaximumNumberField<CoeffType>>(objectiveFunction.ToArray()),
                     new SimplexMaximumNumberField<CoeffType>(this.coeffsField.AdditiveUnity, sumVector),
                     constraintsMatrix,
                     vector);

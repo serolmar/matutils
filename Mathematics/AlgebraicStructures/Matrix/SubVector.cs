@@ -5,18 +5,18 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
-    using Utilities.Collections;
+    using Utilities;
 
     /// <summary>
     /// Representa um sub-vector definido com base nos índices.
     /// </summary>
     /// <typeparam name="CoeffType">O tipo de objectos que constituem as entradas dos vectores.</typeparam>
-    internal class SubVector<CoeffType> : IVector<CoeffType>
+    internal class SubVector<CoeffType> : IMathVector<CoeffType>
     {
         /// <summary>
         /// O vector original.
         /// </summary>
-        private IVector<CoeffType> vector;
+        private IMathVector<CoeffType> vector;
 
         /// <summary>
         /// Os índices que definem o sub-vector.
@@ -29,7 +29,7 @@
         /// <param name="vector">The vector.</param>
         /// <param name="subVectorIndices">The sub vector indices.</param>
         /// <exception cref="ArgumentNullException">subVectorIndices</exception>
-        public SubVector(IVector<CoeffType> vector, int[] subVectorIndices)
+        public SubVector(IMathVector<CoeffType> vector, int[] subVectorIndices)
         {
             if (subVectorIndices == null)
             {

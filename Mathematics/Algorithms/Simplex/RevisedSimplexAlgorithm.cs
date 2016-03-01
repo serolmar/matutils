@@ -95,7 +95,7 @@
             }
             else
             {
-                var sparseMatrix = data.ConstraintsMatrix as ISparseMatrix<CoeffType>;
+                var sparseMatrix = data.ConstraintsMatrix as ISparseMathMatrix<CoeffType>;
                 if (sparseMatrix != null)
                 {
                     if (!this.coeffsField.IsAdditiveUnity(sparseMatrix.DefaultValue))
@@ -105,7 +105,7 @@
                     }
                 }
 
-                sparseMatrix = data.InverseBasisMatrix as ISparseMatrix<CoeffType>;
+                sparseMatrix = data.InverseBasisMatrix as ISparseMathMatrix<CoeffType>;
                 if (sparseMatrix != null)
                 {
                     if (!this.coeffsField.IsAdditiveUnity(sparseMatrix.DefaultValue))
@@ -202,7 +202,7 @@
             }
             else
             {
-                var sparseMatrix = data.ConstraintsMatrix as ISparseMatrix<CoeffType>;
+                var sparseMatrix = data.ConstraintsMatrix as ISparseMathMatrix<CoeffType>;
                 if (sparseMatrix != null)
                 {
                     if (!this.coeffsField.IsAdditiveUnity(sparseMatrix.DefaultValue))
@@ -212,7 +212,7 @@
                     }
                 }
 
-                sparseMatrix = data.InverseBasisMatrix as ISparseMatrix<CoeffType>;
+                sparseMatrix = data.InverseBasisMatrix as ISparseMathMatrix<CoeffType>;
                 if (sparseMatrix != null)
                 {
                     if (!this.coeffsField.IsAdditiveUnity(sparseMatrix.DefaultValue))
@@ -327,8 +327,8 @@
         /// <returns>O vector dual utilizado para determinar os valores dos custos.</returns>
         private CoeffType[] ComputeDualVector(
             SortedSet<int> nonBasicCostsIndices,
-            ISquareMatrix<CoeffType> inverseMatrix,
-            IVector<CoeffType> objectiveFunction,
+            ISquareMathMatrix<CoeffType> inverseMatrix,
+            IMathVector<CoeffType> objectiveFunction,
             int[] basicVariables)
         {
             var result = new CoeffType[basicVariables.Length];
@@ -362,8 +362,8 @@
         /// <returns>O vector dual utilizado para determinar os valores dos custos.</returns>
         private SimplexMaximumNumberField<CoeffType>[] ComputeDualVector(
             SortedSet<int> nonBasicCostsIndices,
-            ISquareMatrix<CoeffType> inverseMatrix,
-            IVector<SimplexMaximumNumberField<CoeffType>> objectiveFunction,
+            ISquareMathMatrix<CoeffType> inverseMatrix,
+            IMathVector<SimplexMaximumNumberField<CoeffType>> objectiveFunction,
             int[] basicVariables)
         {
             var result = new SimplexMaximumNumberField<CoeffType>[basicVariables.Length];
@@ -402,8 +402,8 @@
         /// <returns>O índice da variável a entrar.</returns>
         private int GetNextEnteringVariable(
             CoeffType[] dualVector,
-            IMatrix<CoeffType> constraintsMatrix,
-            IVector<CoeffType> objectiveFunction,
+            IMathMatrix<CoeffType> constraintsMatrix,
+            IMathVector<CoeffType> objectiveFunction,
             int[] nonBasicVariables)
         {
             var result = -1;
@@ -465,8 +465,8 @@
         /// <returns>O índice da variável a entrar.</returns>
         private int GetNextEnteringVariable(
             SimplexMaximumNumberField<CoeffType>[] dualVector,
-            IMatrix<CoeffType> constraintsMatrix,
-            IVector<SimplexMaximumNumberField<CoeffType>> objectiveFunction,
+            IMathMatrix<CoeffType> constraintsMatrix,
+            IMathVector<SimplexMaximumNumberField<CoeffType>> objectiveFunction,
             int[] nonBasicVariables)
         {
             var result = -1;
@@ -566,9 +566,9 @@
         /// <returns>A próxima variável de saída.</returns>
         private int GetNextLeavingVariable(
             int enteringVariable,
-            IMatrix<CoeffType> constraintsMatrix,
+            IMathMatrix<CoeffType> constraintsMatrix,
             CoeffType[] constraintsVector,
-            ISquareMatrix<CoeffType> inverseBasisMatrix,
+            ISquareMathMatrix<CoeffType> inverseBasisMatrix,
             CoeffType[] etaVector)
         {
             // Calcula os coeficientes e coloca-os no vector eta.
@@ -628,7 +628,7 @@
         /// <param name="etaVector">O vector eta.</param>
         private void UpdateInverseMatrix(
             int leavingVariableIndex,
-            ISquareMatrix<CoeffType> inverseMatrix,
+            ISquareMathMatrix<CoeffType> inverseMatrix,
             CoeffType[] etaVector)
         {
             // Actualiza o valor de eta
@@ -721,7 +721,7 @@
             CoeffType dataCost,
             CoeffType[] dualVector,
             CoeffType[] computedConstraintsVector,
-            IVector<CoeffType> constraintsVector)
+            IMathVector<CoeffType> constraintsVector)
         {
             var nonBasicLength = nonBasicVariables.Length;
             var basicLength = basicVariables.Length;
@@ -770,7 +770,7 @@
             SimplexMaximumNumberField<CoeffType> dataCost,
             SimplexMaximumNumberField<CoeffType>[] dualVector,
             CoeffType[] computedConstraintsVector,
-            IVector<CoeffType> constraintsVector)
+            IMathVector<CoeffType> constraintsVector)
         {
             var nonBasicLength = nonBasicVariables.Length;
             var basicLength = basicVariables.Length;
@@ -823,12 +823,12 @@
         /// <param name="constraintsVector">O vector dos termos independentes original.</param>
         /// <param name="result">O contentor para os resultados.</param>
         private void ComputeConstraintsVector(
-            ISquareMatrix<CoeffType> inverseMatrix,
-            IVector<CoeffType> constraintsVector,
+            ISquareMathMatrix<CoeffType> inverseMatrix,
+            IMathVector<CoeffType> constraintsVector,
             CoeffType[] result)
         {
             var basicLength = inverseMatrix.GetLength(0);
-            var inverseSparseMatrix = inverseMatrix as ISparseMatrix<CoeffType>;
+            var inverseSparseMatrix = inverseMatrix as ISparseMathMatrix<CoeffType>;
             if (inverseSparseMatrix == null)
             {
                 Parallel.For(0, basicLength, i =>
@@ -876,8 +876,8 @@
         /// <param name="etaVector">O vector eta.</param>
         private void ComputeVariableCoefficients(
             int enteringVariable,
-            IMatrix<CoeffType> constraintsMatrix,
-            ISquareMatrix<CoeffType> inverseMatrix,
+            IMathMatrix<CoeffType> constraintsMatrix,
+            ISquareMathMatrix<CoeffType> inverseMatrix,
             CoeffType[] etaVector)
         {
             var length = constraintsMatrix.GetLength(1);
@@ -886,7 +886,7 @@
                 var entryIndex = enteringVariable - length;
 
                 // O vector conterá a entrada respectiva na matriz inversa.
-                var sparseInverseMatrix = inverseMatrix as ISparseMatrix<CoeffType>;
+                var sparseInverseMatrix = inverseMatrix as ISparseMathMatrix<CoeffType>;
                 length = etaVector.Length;
                 if (sparseInverseMatrix == null)
                 {
@@ -911,10 +911,10 @@
             else
             {
                 length = inverseMatrix.GetLength(0);
-                var sparseContraintsMatrix = constraintsMatrix as ISparseMatrix<CoeffType>;
+                var sparseContraintsMatrix = constraintsMatrix as ISparseMathMatrix<CoeffType>;
                 if (sparseContraintsMatrix == null)
                 {
-                    var sparseInverseMatrix = inverseMatrix as ISparseMatrix<CoeffType>;
+                    var sparseInverseMatrix = inverseMatrix as ISparseMathMatrix<CoeffType>;
                     if (sparseInverseMatrix == null)
                     {
                         Parallel.For(0, length, i =>
@@ -956,7 +956,7 @@
                 }
                 else
                 {
-                    var sparseInverseMatrix = inverseMatrix as ISparseMatrix<CoeffType>;
+                    var sparseInverseMatrix = inverseMatrix as ISparseMathMatrix<CoeffType>;
                     if (sparseInverseMatrix == null)
                     {
                         Parallel.For(0, length, i =>

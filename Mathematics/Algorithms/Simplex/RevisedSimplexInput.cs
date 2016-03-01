@@ -17,7 +17,7 @@
         /// <summary>
         /// A matriz de base inversa que é utilizada durante o processo algorítmico.
         /// </summary>
-        protected ISquareMatrix<ConstraintsType> inverseBasisMatrix;
+        protected ISquareMathMatrix<ConstraintsType> inverseBasisMatrix;
 
         /// <summary>
         /// Permite criar uma instância de entrada para o algoritmo do simplex na forma normal. 
@@ -37,11 +37,11 @@
         public RevisedSimplexInput(
             int[] basicVariables,
             int[] nonBasicVariables,
-            IVector<ObjectiveCoeffType> objectiveFunction,
+            IMathVector<ObjectiveCoeffType> objectiveFunction,
             ObjectiveCoeffType cost,
-            IMatrix<ConstraintsType> constraintsMatrix,
-            IVector<ConstraintsType> constraintsVector,
-            ISquareMatrix<ConstraintsType> inverseBasisMatrix)
+            IMathMatrix<ConstraintsType> constraintsMatrix,
+            IMathVector<ConstraintsType> constraintsVector,
+            ISquareMathMatrix<ConstraintsType> inverseBasisMatrix)
             : base(
                 basicVariables,
                 nonBasicVariables,
@@ -67,7 +67,7 @@
         /// <summary>
         /// Obtém a matriz de base inversa que é utilizada no processo algorítmico.
         /// </summary>
-        public ISquareMatrix<ConstraintsType> InverseBasisMatrix
+        public ISquareMathMatrix<ConstraintsType> InverseBasisMatrix
         {
             get
             {

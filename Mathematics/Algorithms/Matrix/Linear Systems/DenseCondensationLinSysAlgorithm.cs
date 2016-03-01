@@ -10,7 +10,7 @@
     /// </summary>
     /// <typeparam name="ElementType">O tipo de objectos que constituem os coeficientes.</typeparam>
     public class DenseCondensationLinSysAlgorithm<ElementType>
-        : IAlgorithm<IMatrix<ElementType>, IMatrix<ElementType>, LinearSystemSolution<ElementType>>
+        : IAlgorithm<IMathMatrix<ElementType>, IMathMatrix<ElementType>, LinearSystemSolution<ElementType>>
     {
         /// <summary>
         /// O corpo responsável pelas operações.
@@ -20,7 +20,7 @@
         /// <summary>
         /// O algoritmo responsável pela condensação das matrizes.
         /// </summary>
-        IAlgorithm<IMatrix<ElementType>, IMatrix<ElementType>, bool> condensationAlgorithm;
+        IAlgorithm<IMathMatrix<ElementType>, IMathMatrix<ElementType>, bool> condensationAlgorithm;
 
         /// <summary>
         /// Instancia um novo objecto do tipo <see cref="DenseCondensationLinSysAlgorithm{ElementType}"/>.
@@ -48,8 +48,8 @@
         /// <param name="independentVector">O vector independente.</param>
         /// <returns>A solução do sistema.</returns>
         public LinearSystemSolution<ElementType> Run(
-            IMatrix<ElementType> coefficientsMatrix,
-            IMatrix<ElementType> independentVector)
+            IMathMatrix<ElementType> coefficientsMatrix,
+            IMathMatrix<ElementType> independentVector)
         {
             this.condensationAlgorithm.Run(coefficientsMatrix, independentVector);
             var result = new LinearSystemSolution<ElementType>();
@@ -58,7 +58,7 @@
             var currentPivotLine = 0;
             var currentPivotColumn = 0;
             var lastNonZeroColumn = -1;
-            var independentSolutionVector = new ArrayVector<ElementType>(matrixColumns, this.field.AdditiveUnity);
+            var independentSolutionVector = new ArrayMathVector<ElementType>(matrixColumns, this.field.AdditiveUnity);
             while (currentPivotLine < matrixLines && currentPivotColumn < matrixColumns)
             {
                 var pivotValue = coefficientsMatrix[currentPivotLine, currentPivotColumn];
@@ -66,7 +66,7 @@
                 {
                     if (this.field.IsAdditiveUnity(independentSolutionVector[currentPivotLine]))
                     {
-                        var basisVector = new ArrayVector<ElementType>(matrixColumns,this.field.AdditiveUnity);
+                        var basisVector = new ArrayMathVector<ElementType>(matrixColumns,this.field.AdditiveUnity);
                         basisVector[currentPivotColumn] = this.field.AdditiveInverse(
                             this.field.MultiplicativeUnity);
                         var i = currentPivotLine - 1;

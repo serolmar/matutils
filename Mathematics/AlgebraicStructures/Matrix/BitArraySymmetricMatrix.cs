@@ -5,12 +5,12 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
-    using Utilities.Collections;
+    using Utilities;
 
     /// <summary>
     /// Matrix simétrica representada por um vector de bits.
     /// </summary>
-    public class BitArraySymmetricMatrix : ISquareMatrix<bool>
+    public class BitArraySymmetricMatrix : ISquareMathMatrix<bool>
     {
         /// <summary>
         /// O valor por defeito.

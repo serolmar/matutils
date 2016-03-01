@@ -5,18 +5,18 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
-    using Utilities.Collections;
+    using Utilities;
 
     /// <summary>
     /// Representa uma linha de matriz como sendo um vector.
     /// </summary>
     /// <typeparam name="CoeffType">O tipo dos objectos que constituem as entradas da matriz.</typeparam>
-    internal class MatrixRowVector<CoeffType> : IVector<CoeffType>
+    internal class MatrixRowVector<CoeffType> : IMathVector<CoeffType>
     {
         /// <summary>
         /// A matriz da qual é extraída a linha como sendo um vector.
         /// </summary>
-        private IMatrix<CoeffType> matrix;
+        private IMathMatrix<CoeffType> matrix;
 
         /// <summary>
         /// O número da linha.
@@ -29,7 +29,7 @@
         /// <param name="lineNumber">O número da linha.</param>
         /// <param name="matrix">A matriz da qual é extraída a linha como sendo um vector.</param>
         /// <exception cref="ArgumentOutOfRangeException">Se a matriz for nula.</exception>
-        public MatrixRowVector(int lineNumber, IMatrix<CoeffType> matrix)
+        public MatrixRowVector(int lineNumber, IMathMatrix<CoeffType> matrix)
         {
             if (lineNumber < 0)
             {

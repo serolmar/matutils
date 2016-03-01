@@ -16,7 +16,7 @@
         /// </summary>
         /// <param name="length">O tamanho do vector.</param>
         /// <returns>O vector criado.</returns>
-        IVector<CoeffType> CreateVector(int length);
+        IMathVector<CoeffType> CreateVector(int length);
 
         /// <summary>
         /// Cria um vector com o tamanho e o valor por defeito especificados.
@@ -24,6 +24,6 @@
         /// <param name="length">O tamanho do vector.</param>
         /// <param name="defaultValue">O valor por defeito.</param>
         /// <returns>O vector criado.</returns>
-        IVector<CoeffType> CreateVector(int length, CoeffType defaultValue);
+        IMathVector<CoeffType> CreateVector(int length, CoeffType defaultValue);
     }
 }

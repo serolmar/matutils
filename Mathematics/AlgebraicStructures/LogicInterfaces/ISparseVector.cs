@@ -8,7 +8,7 @@
     /// <summary>
     /// Define as propriedades e métodos essenciais a um vector esparso.
     /// </summary>
-    public interface ISparseVector<ObjectType> : IVector<ObjectType>
+    public interface ISparseVector<ObjectType> : IMathVector<ObjectType>
     {
         /// <summary>
         /// Obtém o valor por defeito.

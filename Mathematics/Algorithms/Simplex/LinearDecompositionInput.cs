@@ -19,12 +19,12 @@
         /// <summary>
         /// Define as arestas admmissíveis actuais.
         /// </summary>
-        protected IVector<ObjectiveCoeffType>[] initialDecompositionPoints;
+        protected IMathVector<ObjectiveCoeffType>[] initialDecompositionPoints;
 
         /// <summary>
         /// A função objectivo.
         /// </summary>
-        protected IVector<ObjectiveCoeffType> objectiveFunction;
+        protected IMathVector<ObjectiveCoeffType> objectiveFunction;
 
         /// <summary>
         /// O custo actual.
@@ -44,7 +44,7 @@
         /// <summary>
         /// A matriz de base inversa que é utilizada durante o processo algorítmico.
         /// </summary>
-        protected ISquareMatrix<ConstraintsType> inverseBasisMatrix;
+        protected ISquareMathMatrix<ConstraintsType> inverseBasisMatrix;
 
         /// <summary>
         /// Cria uma instância de objectos do tipo <see cref="LinearDecompositionInput{ConstraintsType, ObjectiveCoeffType}"/>
@@ -56,12 +56,12 @@
         /// <param name="decomposedConstraints">As restrições dos vários problemas decompostos.</param>
         /// <param name="inverseBasisMatrix">A matriz de base inversa.</param>
         public LinearDecompositionInput(
-            IVector<ObjectiveCoeffType>[] initialDecompositionPoints,
-            IVector<ObjectiveCoeffType> objectiveFunction,
+            IMathVector<ObjectiveCoeffType>[] initialDecompositionPoints,
+            IMathVector<ObjectiveCoeffType> objectiveFunction,
             ObjectiveCoeffType cost,
             LinearConstraintsInput<ConstraintsType> masterConstraints,
             LinearConstraintsInput<ConstraintsType>[] decomposedConstraints,
-            ISquareMatrix<ConstraintsType> inverseBasisMatrix)
+            ISquareMathMatrix<ConstraintsType> inverseBasisMatrix)
         {
             this.ValidateArguments(
                 initialDecompositionPoints,
@@ -81,7 +81,7 @@
         /// <summary>
         /// Obtém ou atribui as arestas admmissíveis actuais.
         /// </summary>
-        public IVector<ObjectiveCoeffType>[] InitialDecompositionPoints
+        public IMathVector<ObjectiveCoeffType>[] InitialDecompositionPoints
         {
             get
             {
@@ -92,7 +92,7 @@
         /// <summary>
         /// Obtém ou atribui a função objectivo.
         /// </summary>
-        public IVector<ObjectiveCoeffType> ObjectiveFunction
+        public IMathVector<ObjectiveCoeffType> ObjectiveFunction
         {
             get
             {
@@ -136,7 +136,7 @@
         /// <summary>
         /// Obtém ou atribui a matriz de base inversa que é utilizada durante o processo algorítmico.
         /// </summary>
-        public ISquareMatrix<ConstraintsType> InverseBasisMatrix
+        public ISquareMathMatrix<ConstraintsType> InverseBasisMatrix
         {
             get
             {
@@ -154,12 +154,12 @@
         /// <param name="decomposedConstraints">As restrições dos vários problemas decompostos.</param>
         /// <param name="inverseBasisMatrix">A matriz de base inversa.</param>
         private void ValidateArguments(
-            IVector<ObjectiveCoeffType>[] initialDecompositionPoints,
-            IVector<ObjectiveCoeffType> objectiveFunction,
+            IMathVector<ObjectiveCoeffType>[] initialDecompositionPoints,
+            IMathVector<ObjectiveCoeffType> objectiveFunction,
             ObjectiveCoeffType cost,
             LinearConstraintsInput<ConstraintsType> masterConstraints,
             LinearConstraintsInput<ConstraintsType>[] decomposedConstraints,
-            ISquareMatrix<ConstraintsType> inverseBasisMatrix)
+            ISquareMathMatrix<ConstraintsType> inverseBasisMatrix)
         {
             if (initialDecompositionPoints == null)
             {

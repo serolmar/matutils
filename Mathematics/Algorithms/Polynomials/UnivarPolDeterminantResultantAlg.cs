@@ -22,7 +22,7 @@
         /// <summary>
         /// O algoritmo responsável pelo cáclculo de determinantes.
         /// </summary>
-        IAlgorithm<ISquareMatrix<CoeffType>, UnivariatePolynomialNormalForm<CoeffType>> determinantAlg;
+        IAlgorithm<ISquareMathMatrix<CoeffType>, UnivariatePolynomialNormalForm<CoeffType>> determinantAlg;
 
         /// <summary>
         /// Instancia um novo objecto do tipo <see cref="UnivarPolDeterminantResultantAlg{CoeffType}"/>.
@@ -75,7 +75,7 @@
             {
                 var n = first.Degree;
                 var m = second.Degree;
-                var squareMatrix = new ArraySquareMatrix<CoeffType>(m + n, this.ring.AdditiveUnity);
+                var squareMatrix = new ArraySquareMathMatrix<CoeffType>(m + n, this.ring.AdditiveUnity);
                 for (int i = 0; i < m; ++i)
                 {
                     for (int j = 0; j < first.Terms.Count; ++j)

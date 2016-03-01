@@ -9,7 +9,7 @@
     /// Aplica o produto escalar a dois vectores.
     /// </summary>
     /// <typeparam name="CoeffType">O tipo de coeficientes que constituem as entradas do vector.</typeparam>
-    public class OrthoVectorScalarProduct<CoeffType> : IScalarProductSpace<IVector<CoeffType>, CoeffType>
+    public class OrthoVectorScalarProduct<CoeffType> : IScalarProductSpace<IMathVector<CoeffType>, CoeffType>
     {
         /// <summary>
         /// O anel responsável pelas operações sobre os coeficientes.
@@ -72,7 +72,7 @@
         /// <param name="left">O primeiro vector a ser multiplicado.</param>
         /// <param name="right">O segundo vector a ser multiplicado.</param>
         /// <returns>O valor da multiplicação escalar.</returns>
-        public CoeffType Multiply(IVector<CoeffType> left, IVector<CoeffType> right)
+        public CoeffType Multiply(IMathVector<CoeffType> left, IMathVector<CoeffType> right)
         {
             if (left == null)
             {

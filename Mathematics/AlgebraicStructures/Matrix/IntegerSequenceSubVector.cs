@@ -5,18 +5,18 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
-    using Utilities.Collections;
+    using Utilities;
 
     /// <summary>
     /// Representa um sub-vector especificado por uma sequência de inteiros.
     /// </summary>
     /// <typeparam name="CoeffType">O tiop de objectos que constituem as entradas dos vectores.</typeparam>
-    internal class IntegerSequenceSubVector<CoeffType> : IVector<CoeffType>
+    internal class IntegerSequenceSubVector<CoeffType> : IMathVector<CoeffType>
     {
         /// <summary>
         /// O vector principal.
         /// </summary>
-        private IVector<CoeffType> vector;
+        private IMathVector<CoeffType> vector;
 
         /// <summary>
         /// Os índices que definem o sub-vector.
@@ -29,7 +29,7 @@
         /// <param name="vector">O vector principal.</param>
         /// <param name="indicesSequence">A sequência de inteiros que define o sub-vector.</param>
         /// <exception cref="ArgumentNullException">Se o vector proporcionado for nulo.</exception>
-        public IntegerSequenceSubVector(IVector<CoeffType> vector, IntegerSequence indicesSequence)
+        public IntegerSequenceSubVector(IMathVector<CoeffType> vector, IntegerSequence indicesSequence)
         {
             if (vector == null)
             {

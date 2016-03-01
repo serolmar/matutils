@@ -5,13 +5,13 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
-    using Utilities.Collections;
+    using Utilities;
 
     /// <summary>
     /// Representa o vector de valores nulos relativamente a um monóide.
     /// </summary>
     /// <typeparam name="CoeffType">O tipo de coeficiente.</typeparam>
-    public class ZeroVector<CoeffType> : IVector<CoeffType>
+    public class ZeroVector<CoeffType> : IMathVector<CoeffType>
     {
         /// <summary>
         /// O monóide responsável pela determinação do valor nulo.

@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
-    using Utilities.Collections;
+    using Utilities;
 
     /// <summary>
     /// Permite determinar o polinómio característico de uma matriz sem necessitar
@@ -12,7 +12,7 @@
     /// </summary>
     /// <typeparam name="ElementType">O tipo das entradas da matriz.</typeparam>
     public class FastDivisionFreeCharPolynomCalculator<ElementType>
-        : IAlgorithm<ISquareMatrix<ElementType>, UnivariatePolynomialNormalForm<ElementType>>
+        : IAlgorithm<ISquareMathMatrix<ElementType>, UnivariatePolynomialNormalForm<ElementType>>
     {
         /// <summary>
         /// O nome da variável.
@@ -53,7 +53,7 @@
         /// </summary>
         /// <param name="data">A matriz.</param>
         /// <returns>O polinómio característico.</returns>
-        public UnivariatePolynomialNormalForm<ElementType> Run(ISquareMatrix<ElementType> data)
+        public UnivariatePolynomialNormalForm<ElementType> Run(ISquareMathMatrix<ElementType> data)
         {
             if (data == null)
             {
@@ -104,7 +104,7 @@
                     var subMatrixSequence = new IntegerSequence();
                     var singleValueSequence = new IntegerSequence();
 
-                    IMatrix<ElementType> multiplicationMatrix = new ArrayMatrix<ElementType>(
+                    IMatrix<ElementType> multiplicationMatrix = new ArrayMathMatrix<ElementType>(
                         lines + 1,
                         lines,
                         this.ring.AdditiveUnity);
@@ -126,7 +126,7 @@
                         subMatrixSequence.Add(currentDimension + 1, lines - 1);
                         singleValueSequence.Add(currentDimension);
                         var otherLines = lines - currentDimension;
-                        var otherMultiplicationMatrix = new ArrayMatrix<ElementType>(
+                        var otherMultiplicationMatrix = new ArrayMathMatrix<ElementType>(
                             otherLines + 1, 
                             otherLines, 
                             this.ring.AdditiveUnity);
@@ -145,7 +145,7 @@
                         ++currentDimension;
                     }
 
-                    var lastOtherMultiplicationMatrix = new ArrayMatrix<ElementType>(
+                    var lastOtherMultiplicationMatrix = new ArrayMathMatrix<ElementType>(
                             2, 
                             1, 
                             this.ring.AdditiveUnity);
@@ -180,7 +180,7 @@
         /// <param name="multiplicator">O objecto responsável pela multiplicação de matrizes.</param>
         /// <param name="multiplicationMatrix">A matriz que comporta o resultado da multiplicação.</param>
         private void FillMultiplicationMatrix(
-            IMatrix<ElementType> data,
+            IMathMatrix<ElementType> data,
             ElementType diagonalElement,
             IntegerSequence subMatrixSequence,
             IntegerSequence singleValueSequence,

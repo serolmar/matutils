@@ -121,7 +121,7 @@
                 true);
 
             // Introdução da função objectivo.
-            var inputObjectiveFunction = new ArrayVector<SimplexMaximumNumberField<double>>(2);
+            var inputObjectiveFunction = new ArrayMathVector<SimplexMaximumNumberField<double>>(2);
             inputObjectiveFunction[0] = new SimplexMaximumNumberField<double>(
                 -3,
                 -3);
@@ -184,7 +184,7 @@
                 true);
 
             // Introdução da função objectivo.
-            var inputObjectiveFunction = new ArrayVector<SimplexMaximumNumberField<double>>(3);
+            var inputObjectiveFunction = new ArrayMathVector<SimplexMaximumNumberField<double>>(3);
             inputObjectiveFunction[0] = new SimplexMaximumNumberField<double>(
                 0.4,
                 -1.1);

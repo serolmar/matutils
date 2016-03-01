@@ -23,7 +23,7 @@
         /// <summary>
         /// O algoritmo responsável pela resolução de sistemas de equações lineares.
         /// </summary>
-        private IAlgorithm<IMatrix<CoeffType>, IMatrix<CoeffType>, LinearSystemSolution<CoeffType>> linearSystemSolver;
+        private IAlgorithm<IMathMatrix<CoeffType>, IMathMatrix<CoeffType>, LinearSystemSolution<CoeffType>> linearSystemSolver;
 
         /// <summary>
         /// Instancia um novo objecto do tipo <see cref="FiniteFieldPolFactorizationAlgorithm{CoeffType}"/>.
@@ -36,7 +36,7 @@
         /// Se algum dos argumentos for nulo.
         /// </exception>
         public FiniteFieldPolFactorizationAlgorithm(
-            IAlgorithm<IMatrix<CoeffType>, IMatrix<CoeffType>, LinearSystemSolution<CoeffType>> linearSystemSolver,
+            IAlgorithm<IMathMatrix<CoeffType>, IMathMatrix<CoeffType>, LinearSystemSolution<CoeffType>> linearSystemSolver,
             IIntegerNumber<CoeffType> integerNumber)
         {
             if (integerNumber == null)
@@ -185,7 +185,7 @@
                     inverseAlgorithm);
 
                 var degree = polynom.Degree;
-                var arrayMatrix = new ArrayMatrix<CoeffType>(degree, degree, integerModule.AdditiveUnity);
+                var arrayMatrix = new ArrayMathMatrix<CoeffType>(degree, degree, integerModule.AdditiveUnity);
                 arrayMatrix[0, 0] = integerModule.AdditiveUnity;
                 var pol = new UnivariatePolynomialNormalForm<CoeffType>(
                     integerModule.MultiplicativeUnity,
@@ -289,7 +289,7 @@
         /// <param name="variableName">O nome da variável.</param>
         /// <returns>O polinómio.</returns>
         private UnivariatePolynomialNormalForm<CoeffType> GetPolynomial(
-            IVector<CoeffType> vector,
+            IMathVector<CoeffType> vector,
             IModularField<CoeffType> module,
             string variableName)
         {

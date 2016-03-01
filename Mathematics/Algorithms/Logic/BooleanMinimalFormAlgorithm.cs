@@ -5,7 +5,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
-    using Utilities.Collections;
+    using Utilities;
 
     /// <summary>
     /// Implementa o algoritmo habitual para simplificação de expressões lógicas colocadas na forma

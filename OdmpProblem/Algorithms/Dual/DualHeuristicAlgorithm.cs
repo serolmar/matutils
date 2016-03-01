@@ -5,12 +5,13 @@
     using System.Linq;
     using System.Text;
     using Mathematics;
+    using Utilities;
 
     /// <summary>
     /// Responsável pela aplicação do algoritmo dual.
     /// </summary>
     public class DualHeuristicAlgorithm<ElementType>
-        : IAlgorithm<int, SparseDictionaryMatrix<ElementType>, DualHeuristicAlgInput<ElementType>, ElementType>
+        : IAlgorithm<int, SparseDictionaryMathMatrix<ElementType>, DualHeuristicAlgInput<ElementType>, ElementType>
     {
         /// <summary>
         /// O anel responsável pelas operações sobre os elementos.
@@ -25,7 +26,7 @@
         /// <summary>
         /// O objecto responsável pela inicialização das variáveis.
         /// </summary>
-        private IAlgorithm<SparseDictionaryMatrix<ElementType>, DualHeuristicAlgInput<ElementType>, ElementType>
+        private IAlgorithm<SparseDictionaryMathMatrix<ElementType>, DualHeuristicAlgInput<ElementType>, ElementType>
             dualGammaEstimAlgorithm;
 
         public DualHeuristicAlgorithm(IComparer<ElementType> comparer, IRing<ElementType> ring)
@@ -61,7 +62,7 @@
         /// <returns>O custo aproximado pela heurística.</returns>
         public ElementType Run(
             int refsNumber,
-            SparseDictionaryMatrix<ElementType> matrix,
+            SparseDictionaryMathMatrix<ElementType> matrix,
             DualHeuristicAlgInput<ElementType> input)
         {
             if (refsNumber < 1)
@@ -92,7 +93,7 @@
         /// <returns>O valor do custo dual.</returns>
         private ElementType Process(
             int refsNumber,
-            SparseDictionaryMatrix<ElementType> matrix,
+            SparseDictionaryMathMatrix<ElementType> matrix,
             DualHeuristicAlgInput<ElementType> input)
         {
             var multiplicativeSymmetric = this.ring.AdditiveInverse(this.ring.MultiplicativeUnity);
@@ -193,7 +194,7 @@
         private ElementType GetBigDelta(
             DualHeuristicAlgInput<ElementType> input,
             KeyValuePair<int, ISparseMatrixLine<ElementType>> line,
-            SparseDictionaryMatrix<ElementType> component)
+            SparseDictionaryMathMatrix<ElementType> component)
         {
             var result = this.ring.Add(input.Gamma, this.ring.AdditiveInverse(input.Taus[line.Key]));
             foreach (var otherLine in component.GetLines())

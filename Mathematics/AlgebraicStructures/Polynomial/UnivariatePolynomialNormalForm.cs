@@ -445,7 +445,7 @@ namespace Mathematics
         /// <exception cref="MathematicsException">
         /// Se o polinómio contiver coeficientes que não estejam no domínio especificado.
         /// </exception>
-        public IVector<CoeffType> GetRootPowerSums(IEuclidenDomain<CoeffType> domain)
+        public IMathVector<CoeffType> GetRootPowerSums(IEuclidenDomain<CoeffType> domain)
         {
             if (domain == null)
             {
@@ -456,7 +456,7 @@ namespace Mathematics
                 var termsEnumerator = this.terms.GetEnumerator();
                 if (termsEnumerator.MoveNext())
                 {
-                    var result = new ArrayVector<CoeffType>(this.Degree, domain.AdditiveUnity);
+                    var result = new ArrayMathVector<CoeffType>(this.Degree, domain.AdditiveUnity);
                     var topTerm = termsEnumerator.Current.Value;
                     var topDegree = termsEnumerator.Current.Key;
                     if (topDegree == 0)
@@ -555,7 +555,7 @@ namespace Mathematics
                 }
                 else
                 {
-                    return new ArrayVector<CoeffType>(0, domain.AdditiveUnity);
+                    return new ArrayMathVector<CoeffType>(0, domain.AdditiveUnity);
                 }
             }
         }
@@ -567,7 +567,7 @@ namespace Mathematics
         /// <param name="vectorFactory">A fábrica responsável pela instanciação de vectores.</param>
         /// <returns>O vector com o valor da soma das potências.</returns>
         /// <exception cref="ArgumentNullException">Se algum dos argumentos for nulo.</exception>
-        public IVector<CoeffType> GetRootPowerSums(
+        public IMathVector<CoeffType> GetRootPowerSums(
             IField<CoeffType> field, 
             IVectorFactory<CoeffType> vectorFactory)
         {
@@ -670,7 +670,7 @@ namespace Mathematics
         /// <param name="vectorFactory">A fábrica responsável pela criação de vectores.</param>
         /// <returns>O vector com o valor da soma das potências.</returns>
         /// <exception cref="ArgumentNullException">Se o corpo ou a fábrica de vectores forem nulos.</exception>
-        public IVector<CoeffType> GetRootPowerSums(
+        public IMathVector<CoeffType> GetRootPowerSums(
             int number,
             IField<CoeffType> field,
             IVectorFactory<CoeffType> vectorFactory)

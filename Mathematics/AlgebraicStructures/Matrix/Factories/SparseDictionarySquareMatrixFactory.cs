@@ -20,11 +20,11 @@
         /// <param name="columns">O número de colunas.</param>
         /// <returns>A matriz esparsa.</returns>
         /// <exception cref="ArgumentException">If the number of lines doesn't match the number of columns.</exception>
-        public IMatrix<ObjectType> CreateMatrix(int lines, int columns)
+        public IMathMatrix<ObjectType> CreateMatrix(int lines, int columns)
         {
             if (lines == columns)
             {
-                return new SparseDictionarySquareMatrix<ObjectType>(lines);
+                return new SparseDictionarySquareMathMatrix<ObjectType>(lines);
             }
             else
             {
@@ -40,11 +40,11 @@
         /// <param name="defaultValue">O valor por defeito.</param>
         /// <returns>A matriz esparsa.</returns>
         /// <exception cref="ArgumentException">If the number of lines doesn't match the number of columns.</exception>
-        public IMatrix<ObjectType> CreateMatrix(int lines, int columns, ObjectType defaultValue)
+        public IMathMatrix<ObjectType> CreateMatrix(int lines, int columns, ObjectType defaultValue)
         {
             if (lines == columns)
             {
-                return new SparseDictionarySquareMatrix<ObjectType>(lines, defaultValue);
+                return new SparseDictionarySquareMathMatrix<ObjectType>(lines, defaultValue);
             }
             else
             {

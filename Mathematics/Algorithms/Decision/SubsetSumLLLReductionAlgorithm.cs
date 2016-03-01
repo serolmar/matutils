@@ -31,7 +31,7 @@
         /// <summary>
         /// O objecto responsável pelo produto escalar.
         /// </summary>
-        IScalarProductSpace<IVector<NearestCoeffFieldType>, NearestCoeffFieldType> scalarProd;
+        IScalarProductSpace<IMathVector<NearestCoeffFieldType>, NearestCoeffFieldType> scalarProd;
 
         /// <summary>
         /// O comparador de objectos que pertencem ao corpo.
@@ -58,7 +58,7 @@
         /// </exception>
         public SubsetSumLLLReductionAlgorithm(
             IVectorFactory<NearestCoeffFieldType> vectorFactory,
-            IScalarProductSpace<IVector<NearestCoeffFieldType>, NearestCoeffFieldType> scalarProd,
+            IScalarProductSpace<IMathVector<NearestCoeffFieldType>, NearestCoeffFieldType> scalarProd,
             INearest<NearestCoeffFieldType, NearestCoeffFieldType> nearest,
             IComparer<NearestCoeffFieldType> fieldComparer,
             IConversion<CoeffType, NearestCoeffFieldType> converter,
@@ -135,7 +135,7 @@
                         this.vectorFactory,
                         this.nearestField);
 
-                    var lllReductionAlg = new LLLBasisReductionAlgorithm<IVector<NearestCoeffFieldType>, NearestCoeffFieldType, CoeffType>(
+                    var lllReductionAlg = new LLLBasisReductionAlgorithm<IMathVector<NearestCoeffFieldType>, NearestCoeffFieldType, CoeffType>(
                         vectorSpace,
                         this.scalarProd,
                         this.nearest,
@@ -143,7 +143,7 @@
                         );
 
                     // Constrói o conjunto de vectores a serem reduzidos.
-                    var vectorSet = new IVector<NearestCoeffFieldType>[coefficientValues.Length + 1];
+                    var vectorSet = new IMathVector<NearestCoeffFieldType>[coefficientValues.Length + 1];
                     for (int i = 0; i < coefficientValues.Length; ++i)
                     {
                         var createdVector = this.vectorFactory.CreateVector(
@@ -183,7 +183,7 @@
         /// <returns>A solução.</returns>
         private CoeffType[] GetSolution(
             CoeffType[] coeffs,
-            IVector<NearestCoeffFieldType>[] possibleSolutions)
+            IMathVector<NearestCoeffFieldType>[] possibleSolutions)
         {
             var result = default(CoeffType[]);
             var lastPosition = coeffs.Length;

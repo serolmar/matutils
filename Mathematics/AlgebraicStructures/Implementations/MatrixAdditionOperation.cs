@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
+    using Utilities;
 
     /// <summary>
     /// Implementa as operações de adição sobre matrizes.

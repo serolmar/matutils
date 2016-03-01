@@ -4,12 +4,13 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
+    using Utilities;
 
     /// <summary>
     /// Define as operações essenciais num algoritmo que permita calcular determinantes de matrizes.
     /// </summary>
     /// <typeparam name="ElementsType">O tipo de objectos que constituem as entradas das matrizes.</typeparam>
-    public abstract class ADeterminant<ElementsType> : IAlgorithm<IMatrix<ElementsType>, ElementsType>
+    public abstract class ADeterminant<ElementsType> : IAlgorithm<IMathMatrix<ElementsType>, ElementsType>
     {
         /// <summary>
         /// O anel responsável pelas operações sobre as entradas das matrizes.
@@ -39,7 +40,7 @@
         /// <param name="data">A matriz.</param>
         /// <returns>O determinante da matriz.</returns>
         /// <exception cref="MathematicsException">Se a matriz não for quadrada.</exception>
-        public ElementsType Run(IMatrix<ElementsType> data)
+        public ElementsType Run(IMathMatrix<ElementsType> data)
         {
             if (data == null)
             {

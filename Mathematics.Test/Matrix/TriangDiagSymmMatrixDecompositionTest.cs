@@ -1,6 +1,6 @@
 ﻿namespace Mathematics.Test
 {
-    using Utilities.Collections;
+    using Utilities;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using System;
 
@@ -70,9 +70,9 @@
         /// </summary>
         /// <param name="integerDomain">O objecto responsável pelas operações sobre os números inteiros.</param>
         /// <returns>A matriz.</returns>
-        private ArraySquareMatrix<Fraction<int>> GetDefaulMatrix(IntegerDomain integerDomain)
+        private ArraySquareMathMatrix<Fraction<int>> GetDefaulMatrix(IntegerDomain integerDomain)
         {
-            var result = new ArraySquareMatrix<Fraction<int>>(3);
+            var result = new ArraySquareMathMatrix<Fraction<int>>(3);
 
             // Primeira linha
             result[0, 0] = new Fraction<int>(4, 1, integerDomain);

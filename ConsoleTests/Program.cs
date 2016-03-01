@@ -7,16 +7,15 @@
     using System.Diagnostics;
     using System.IO;
     using System.Linq;
+    using System.Linq.Expressions;
     using System.Numerics;
     using System.Runtime.InteropServices;
     using System.Text;
     using System.Threading.Tasks;
     using Mathematics;
     using Mathematics.MathematicsInterpreter;
-    using Utilities.Collections;
     using Utilities;
     using Utilities.Cuda;
-    using System.Linq.Expressions;
     using OdmpProblem;
 
     class Program
@@ -24,6 +23,34 @@
         delegate void Temp();
 
         static void Main(string[] args)
+        {
+            var fileInfo = new FileInfo("Teste\\gbvrt60.txt");
+            if (fileInfo.Exists)
+            {
+                using (var fileStream = fileInfo.OpenRead())
+                {
+                    using (var textReader = new StreamReader(
+                        fileStream,
+                        Encoding.UTF8))
+                    {
+                        var genBankReader = new GenBankReader(textReader);
+                        while (genBankReader.ReadNext())
+                        {
+                            var currentReaded = genBankReader.Current;
+                            Console.WriteLine("Nome do locus: {0}", currentReaded.Locus.LocusName);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                Console.WriteLine("O ficheiro não existe.");
+            }
+
+            Console.ReadKey();
+        }
+
+        static void Lixo1()
         {
             var number = 8;
             var bitlist = BitList.ReadNumeric(number.ToString());
@@ -143,7 +170,6 @@
 
             Console.WriteLine("k={0:X}", k);
             Console.WriteLine("l={0:X}", l);
-            Console.ReadKey();
         }
 
         static void TempCuda()
@@ -532,7 +558,7 @@
                 using (var fileStream = fileInfo.OpenRead())
                 {
                     var sparseMatrixSet = odmpReader.Read(fileStream);
-                    var componentsList = new List<ISparseMatrix<double>>();
+                    var componentsList = new List<ISparseMathMatrix<double>>();
                     foreach (var odmpMatrix in sparseMatrixSet)
                     {
                         var firstLine = odmpMatrix.FirstOrDefault();
@@ -544,7 +570,7 @@
                         else
                         {
                             var linesNumber = firstLine.Last().Column + 1;
-                            var matrix = new SparseDictionaryMatrix<double>(
+                            var matrix = new SparseDictionaryMathMatrix<double>(
                                 linesNumber,
                                 linesNumber,
                                 double.MaxValue);
@@ -832,7 +858,7 @@
                 var csvParser = new CsvFileParser<TabularListsItem, Nullable<double>, string, string>(
                     Utils.GetStringSymbolType(EStringSymbolReaderType.NEW_LINE),
                     Utils.GetStringSymbolType(EStringSymbolReaderType.SEMI_COLON),
-                    (i,j)=>parser);
+                    (i, j) => parser);
                 csvParser.AddIgnoreType(Utils.GetStringSymbolType(EStringSymbolReaderType.CARRIAGE_RETURN));
 
                 using (var textReader = fileInfo.OpenText())
@@ -842,7 +868,7 @@
 
                     csvParser.Parse(symbolReader, table, new TabularItemAdder<Nullable<double>>());
 
-                    var costs = new SparseDictionaryMatrix<Nullable<double>>(table.Count, table.Count, null);
+                    var costs = new SparseDictionaryMathMatrix<Nullable<double>>(table.Count, table.Count, null);
                     for (int i = 0; i < table.Count; ++i)
                     {
                         var currentLine = table[i];
@@ -1236,8 +1262,8 @@
             var fractionParser = new FieldDrivenExpressionParser<Fraction<int>>(
                 new SimpleElementFractionParser<int>(integerParser, integerDomain),
                 fractionField);
-            var firstVector = default(IVector<Fraction<int>>);
-            var secondVector = default(IVector<Fraction<int>>);
+            var firstVector = default(IMathVector<Fraction<int>>);
+            var secondVector = default(IMathVector<Fraction<int>>);
             var vectorFactory = new ArrayVectorFactory<Fraction<int>>();
 
             var vectorReader = new ConfigVectorReader<Fraction<int>, string, string, CharSymbolReader<string>>(
@@ -1263,7 +1289,7 @@
                         new FractionComparer<int>(Comparer<int>.Default, integerDomain),
                         fractionField);
 
-                    var thirdVector = new ArrayVector<Fraction<int>>(2);
+                    var thirdVector = new ArrayMathVector<Fraction<int>>(2);
                     thirdVector[0] = new Fraction<int>(1, 1, integerDomain);
                     thirdVector[1] = new Fraction<int>(1, 1, integerDomain);
                     var generator = new VectorSpaceGenerator<Fraction<int>>(2);
@@ -1285,7 +1311,7 @@
                         Comparer<int>.Default,
                         integerDomain);
                     var nearest = new FractionNearestInteger(integerDomain);
-                    var lllReductionAlg = new LLLBasisReductionAlgorithm<IVector<Fraction<int>>,
+                    var lllReductionAlg = new LLLBasisReductionAlgorithm<IMathVector<Fraction<int>>,
                                                                          Fraction<int>,
                                                                          int>(
                            vectorSpace,
@@ -1294,7 +1320,7 @@
                            new FractionComparer<int>(Comparer<int>.Default, integerDomain));
 
                     var lllReduced = lllReductionAlg.Run(
-                        new IVector<Fraction<int>>[] { firstVector, secondVector },
+                        new IMathVector<Fraction<int>>[] { firstVector, secondVector },
                         new Fraction<int>(4, 3, integerDomain));
 
                     for (int i = 0; i < lllReduced.Length; ++i)
@@ -1318,7 +1344,7 @@
                 }
             }
 
-            var sparseDictionaryMatrix = new SparseDictionaryMatrix<int>(10, 10);
+            var sparseDictionaryMatrix = new SparseDictionaryMathMatrix<int>(10, 10);
             Console.WriteLine(
                 "Linhas: {0}; Colunas: {1}",
                 sparseDictionaryMatrix.GetLength(0),
@@ -1367,16 +1393,17 @@
                 integerDomain);
 
             var arrayMatrixFactory = new ArrayMatrixFactory<UnivariatePolynomialNormalForm<int>>();
-            var arrayReader = new ConfigMatrixReader<UnivariatePolynomialNormalForm<int>, string, string>(
+            var arrayReader = new ConfigMatrixReader<
+                UnivariatePolynomialNormalForm<int>, IMathMatrix<UnivariatePolynomialNormalForm<int>>,
+                string, string>(
                 2,
-                2,
-                arrayMatrixFactory);
+                2);
             arrayReader.MapInternalDelimiters("left_bracket", "right_bracket");
             arrayReader.AddBlanckSymbolType("blancks");
             arrayReader.SeparatorSymbType = "comma";
 
-            var readed = default(IMatrix<UnivariatePolynomialNormalForm<int>>);
-            if (arrayReader.TryParseMatrix(inputReader, univariatePolParser, out readed))
+            var readed = default(IMathMatrix<UnivariatePolynomialNormalForm<int>>);
+            if (arrayReader.TryParseMatrix(inputReader, univariatePolParser, (i,j)=>arrayMatrixFactory.CreateMatrix(i,j), out readed))
             {
                 var polynomialRing = new UnivarPolynomRing<int>("x", integerDomain);
                 var permutationDeterminant = new PermutationDeterminantCalculator<UnivariatePolynomialNormalForm<int>>(
@@ -1443,17 +1470,21 @@
             var integerParser = new IntegerParser<string>();
 
             var arrayMatrixFactory = new ArrayMatrixFactory<int>();
-            var arrayMatrixReader = new ConfigMatrixReader<int, string, string>(
+            var arrayMatrixReader = new ConfigMatrixReader<int, ArrayMathMatrix<int>, string, string>(
                 3,
-                3,
-                arrayMatrixFactory);
+                3);
             arrayMatrixReader.MapInternalDelimiters("left_bracket", "right_bracket");
             arrayMatrixReader.AddBlanckSymbolType("blancks");
             arrayMatrixReader.SeparatorSymbType = "comma";
 
-            var matrix = default(IMatrix<int>);
+            var matrix = default(ArrayMathMatrix<int>);
             var errors = new LogStatus<string, EParseErrorLevel>();
-            if (arrayMatrixReader.TryParseMatrix(stringsymbolReader, integerParser, errors, out matrix))
+            if (arrayMatrixReader.TryParseMatrix(
+                stringsymbolReader,
+                integerParser,
+                errors,
+                (i, j) => new ArrayMathMatrix<int>(i, j),
+                out matrix))
             {
                 Console.WriteLine(matrix);
 

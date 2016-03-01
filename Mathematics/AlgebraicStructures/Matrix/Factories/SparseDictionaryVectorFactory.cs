@@ -16,9 +16,9 @@
         /// </summary>
         /// <param name="length">O tamanho do vector.</param>
         /// <returns>O vector criado.</returns>
-        public IVector<CoeffType> CreateVector(int length)
+        public IMathVector<CoeffType> CreateVector(int length)
         {
-            return new SparseDictionaryVector<CoeffType>(length);
+            return new SparseDictionaryMathVector<CoeffType>(length);
         }
 
         /// <summary>
@@ -27,9 +27,9 @@
         /// <param name="length">O tamanho do vector.</param>
         /// <param name="defaultValue">O valor por defeito.</param>
         /// <returns>O vector criado.</returns>
-        public IVector<CoeffType> CreateVector(int length, CoeffType defaultValue)
+        public IMathVector<CoeffType> CreateVector(int length, CoeffType defaultValue)
         {
-            return new SparseDictionaryVector<CoeffType>(length, defaultValue);
+            return new SparseDictionaryMathVector<CoeffType>(length, defaultValue);
         }
     }
 }

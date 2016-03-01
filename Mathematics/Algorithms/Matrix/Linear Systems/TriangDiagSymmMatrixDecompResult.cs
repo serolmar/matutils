@@ -15,12 +15,12 @@
         /// <summary>
         /// A matriz triangular superior que integra a factorização.
         /// </summary>
-        private IMatrix<CoeffType> upperTriangularMatrix;
+        private IMathMatrix<CoeffType> upperTriangularMatrix;
 
         /// <summary>
         /// A matriz diagonal.
         /// </summary>
-        private IMatrix<CoeffType> diagonalMatrix;
+        private IMathMatrix<CoeffType> diagonalMatrix;
 
         /// <summary>
         /// Cria uma nova instância de um objecto do tipo <see cref="TriangDiagSymmMatrixDecompResult{CoeffType}"/>.
@@ -28,8 +28,8 @@
         /// <param name="upperTriangularMatrix">A matriz triangular inferior.</param>
         /// <param name="diagonalMatrix">A matriz diagonal.</param>
         internal TriangDiagSymmMatrixDecompResult(
-            IMatrix<CoeffType> upperTriangularMatrix,
-            IMatrix<CoeffType> diagonalMatrix)
+            IMathMatrix<CoeffType> upperTriangularMatrix,
+            IMathMatrix<CoeffType> diagonalMatrix)
         {
             this.upperTriangularMatrix = upperTriangularMatrix;
             this.diagonalMatrix = diagonalMatrix;
@@ -38,7 +38,7 @@
         /// <summary>
         /// Obtém a matriz triagular superior que integra a factorizalão.
         /// </summary>
-        public IMatrix<CoeffType> UpperTriangularMatrix
+        public IMathMatrix<CoeffType> UpperTriangularMatrix
         {
             get
             {
@@ -49,7 +49,7 @@
         /// <summary>
         /// Obtém a matriz diagonal.
         /// </summary>
-        public IMatrix<CoeffType> DiagonalMatrix
+        public IMathMatrix<CoeffType> DiagonalMatrix
         {
             get
             {

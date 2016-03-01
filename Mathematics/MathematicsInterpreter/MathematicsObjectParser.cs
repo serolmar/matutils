@@ -2,12 +2,11 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using System.IO;
     using System.Linq;
     using System.Text;
     using Utilities;
-    using Utilities.Collections;
-    using System.Globalization;
 
     /// <summary>
     /// Implementa um leitor de objectos matemáticos.
@@ -97,7 +96,10 @@
             var rangeReader = new RangeNoConfigReader<AMathematicsObject, string, string>();
             var multidimensionalRangeParser = new MultiDimensionalRangeReader<AMathematicsObject, string, string>(rangeReader);
             var multidimensionalRange = default(MultiDimensionalRange<AMathematicsObject>);
-            var parsed = multidimensionalRangeParser.TryParseRange(symbolReader, this, out multidimensionalRange);
+            var parsed = multidimensionalRangeParser.TryParseRange(
+                symbolReader, 
+                this, 
+                out multidimensionalRange);
             throw new NotImplementedException();
         }
 

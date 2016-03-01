@@ -234,7 +234,7 @@
         /// <param name="elementParser">O leitor de elementos.</param>
         /// <param name="readNegativeNumbers">Indica se são lidos os números negativos.</param>
         /// <returns>A matriz.</returns>
-        public static IMatrix<T> ReadMatrix<T>(
+        public static IMathMatrix<T> ReadMatrix<T>(
             int lines, 
             int columns, 
             string matrixText, 
@@ -244,16 +244,15 @@
         {
             var reader = new StringReader(matrixText);
             var stringSymbolReader = new StringSymbolReader(reader, readNegativeNumbers);
-            var arrayMatrixReader = new ConfigMatrixReader<T, string, string>(
+            var arrayMatrixReader = new ConfigMatrixReader<T, IMathMatrix<T>, string, string>(
                 lines,
-                columns,
-                matrixFactory);
+                columns);
             arrayMatrixReader.MapInternalDelimiters("left_bracket", "right_bracket");
             arrayMatrixReader.AddBlanckSymbolType("blancks");
             arrayMatrixReader.SeparatorSymbType = "comma";
 
-            var matrix = default(IMatrix<T>);
-            if (arrayMatrixReader.TryParseMatrix(stringSymbolReader, elementParser, out matrix))
+            var matrix = default(IMathMatrix<T>);
+            if (arrayMatrixReader.TryParseMatrix(stringSymbolReader, elementParser, (i,j)=>matrixFactory.CreateMatrix(i,j), out matrix))
             {
                 return matrix;
             }
@@ -273,7 +272,7 @@
         /// <param name="elementParser">O leitor de elementos.</param>
         /// <param name="readNegativeNumbers">Indica se são lidos os números negativos.</param>
         /// <returns></returns>
-        public static IVector<T> ReadVector<T>(
+        public static IMathVector<T> ReadVector<T>(
             int dimension,
             string vectorText,
             IVectorFactory<T> vectorFactory,
@@ -289,7 +288,7 @@
             arrayVectorReader.AddBlanckSymbolType("blancks");
             arrayVectorReader.SeparatorSymbType = "comma";
 
-            var vector = default(IVector<T>);
+            var vector = default(IMathVector<T>);
             if (arrayVectorReader.TryParseVector(stringSymbolReader, elementParser, out vector))
             {
                 return vector;

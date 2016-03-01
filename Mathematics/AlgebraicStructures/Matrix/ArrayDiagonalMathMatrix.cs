@@ -4,13 +4,13 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
-    using Utilities.Collections;
+    using Utilities;
 
     /// <summary>
     /// Matriz cujos elementos na diagonal são suportados por um vector.
     /// </summary>
     /// <typeparam name="CoeffType">O tipo dos objectos que constituem as entradas da matriz.</typeparam>
-    class ArrayDiagonalMatrix<CoeffType> : ISquareMatrix<CoeffType>
+    class ArrayDiagonalMathMatrix<CoeffType> : ISquareMathMatrix<CoeffType>
     {
         /// <summary>
         /// O valor por defeito.
@@ -23,10 +23,10 @@
         private CoeffType[] diagonalElements;
 
         /// <summary>
-        /// Cria instâncias de objectos do tipo <see cref="ArrayDiagonalMatrix{CoeffType}"/>.
+        /// Cria instâncias de objectos do tipo <see cref="ArrayDiagonalMathMatrix{CoeffType}"/>.
         /// </summary>
         /// <param name="dimension">A dimensão da matriz.</param>
-        public ArrayDiagonalMatrix(int dimension)
+        public ArrayDiagonalMathMatrix(int dimension)
         {
             if (dimension < 0)
             {
@@ -39,11 +39,11 @@
         }
 
         /// <summary>
-        /// Cria instâncias de objectos do tipo <see cref="ArrayDiagonalMatrix{CoeffType}"/>.
+        /// Cria instâncias de objectos do tipo <see cref="ArrayDiagonalMathMatrix{CoeffType}"/>.
         /// </summary>
         /// <param name="dimension">A dimensão da matriz.</param>
         /// <param name="defaultValue">O valor por defeito.</param>
-        public ArrayDiagonalMatrix(int dimension, CoeffType defaultValue)
+        public ArrayDiagonalMathMatrix(int dimension, CoeffType defaultValue)
         {
             if (dimension < 0)
             {

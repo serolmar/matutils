@@ -10,7 +10,7 @@
     /// Implementa o algoritmo de inicialização.
     /// </summary>
     public class DualHeuristicInitAlgorithm<ElementType>
-        : IAlgorithm<SparseDictionaryMatrix<ElementType>, 
+        : IAlgorithm<SparseDictionaryMathMatrix<ElementType>, 
                      GreedyAlgSolution<ElementType>, 
                      DualHeuristicAlgInput<ElementType>, bool>
     {
@@ -49,7 +49,7 @@
         /// <param name="dualInput">A entrada para o algoritmo dual propriamente dito.</param>
         /// <returns>Verdadeiro caso o algoritmo seja bem sucedido e falso caso contrário.</returns>
         public bool Run(
-            SparseDictionaryMatrix<ElementType> matrix, 
+            SparseDictionaryMathMatrix<ElementType> matrix, 
             GreedyAlgSolution<ElementType> greedySolution, 
             DualHeuristicAlgInput<ElementType> dualInput)
         {

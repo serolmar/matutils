@@ -12,7 +12,7 @@
     /// <typeparam name="ElementType">O tipo de dados.</typeparam>
     public class DualComponentsHeuristicAlgorithm<ElementType>
         : IAlgorithm<int, 
-                     List<SparseDictionaryMatrix<ElementType>>, 
+                     List<SparseDictionaryMathMatrix<ElementType>>, 
                      List<DualHeuristicAlgInput<ElementType>>, ElementType>
     {
         /// <summary>
@@ -28,7 +28,7 @@
         /// <summary>
         /// O objecto responsáel pela aplicação do algoritmo dual a cada uma das componentes em particular.
         /// </summary>
-        private IAlgorithm<int, SparseDictionaryMatrix<ElementType>, DualHeuristicAlgInput<ElementType>, ElementType>
+        private IAlgorithm<int, SparseDictionaryMathMatrix<ElementType>, DualHeuristicAlgInput<ElementType>, ElementType>
             dualAlgorithm;
 
         public DualComponentsHeuristicAlgorithm(IComparer<ElementType> comparer, IRing<ElementType> ring)
@@ -64,7 +64,7 @@
         /// <returns>O custo aproximado pela heurística.</returns>
         public ElementType Run(
             int refsNumber,
-            List<SparseDictionaryMatrix<ElementType>> matrices, 
+            List<SparseDictionaryMathMatrix<ElementType>> matrices, 
             List<DualHeuristicAlgInput<ElementType>> inputs)
         {
             if(matrices == null){

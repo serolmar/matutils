@@ -5,7 +5,7 @@
     using System.Linq;
     using System.Text;
     using Mathematics;
-    using Utilities.Collections;
+    using Utilities;
 
     /// <summary>
     /// Implementa o algoritmo que permite obter uma solução a partir de outra.
@@ -16,7 +16,7 @@
     /// </remarks>
     public class GreedyCorrectorAlgorithm<ElementType> :
         IAlgorithm<int,
-                   SparseDictionaryMatrix<ElementType>, 
+                   SparseDictionaryMathMatrix<ElementType>, 
                    GreedyAlgSolution<ElementType>, 
                    ElementType[],
                    GreedyAlgSolution<ElementType>>
@@ -36,7 +36,7 @@
         /// </summary>
         private IAlgorithm<
                             IntegerSequence,
-                            SparseDictionaryMatrix<ElementType>,
+                            SparseDictionaryMathMatrix<ElementType>,
                             ElementType[],
                             Tuple<int, ElementType>> directRefGetAlgorithm;
 
@@ -45,7 +45,7 @@
         /// </summary>
         private IAlgorithm<
                             IntegerSequence,
-                            SparseDictionaryMatrix<ElementType>,
+                            SparseDictionaryMathMatrix<ElementType>,
                             ElementType[],
                             Tuple<int, ElementType>> inverseRefGetAlgorithm;
 
@@ -84,7 +84,7 @@
         /// </returns>
         public GreedyAlgSolution<ElementType> Run(
             int refsNumber, 
-            SparseDictionaryMatrix<ElementType> matrix, 
+            SparseDictionaryMathMatrix<ElementType> matrix, 
             GreedyAlgSolution<ElementType> initialSolution, 
             ElementType[] initialLineBoard)
         {

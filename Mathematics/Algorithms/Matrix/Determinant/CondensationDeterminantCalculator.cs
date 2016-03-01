@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Mathematics.Algorithms;
+using Utilities;
 
 namespace Mathematics
 {
@@ -49,7 +50,7 @@ namespace Mathematics
             else
             {
                 // Copia a matriz uma vez que o algoritmo a vai alterar
-                var temporaryArray = new ArrayMatrix<ObjectType>(matrixDimension, matrixDimension);
+                var temporaryArray = new ArrayMathMatrix<ObjectType>(matrixDimension, matrixDimension);
                 for (int i = 0; i < matrixDimension; ++i)
                 {
                     for (int j = 0; j < matrixDimension; ++j)
@@ -127,7 +128,7 @@ namespace Mathematics
         /// <param name="startLine">A linha onde é iniciada a pesquisa.</param>
         /// <param name="data">A matriz.</param>
         /// <returns>A linha cujo pivô seja não nulo e -1 caso não exista.</returns>
-        private int GetNextNonEmptyPivotLineNumber(int startLine, IMatrix<ObjectType> data)
+        private int GetNextNonEmptyPivotLineNumber(int startLine, IMathMatrix<ObjectType> data)
         {
             var result = -1;
             var matrixDimension = data.GetLength(0);
@@ -150,7 +151,7 @@ namespace Mathematics
         /// <param name="divisors">A lista de factores.</param>
         /// <param name="sign">O sinal.</param>
         /// <returns>O resultado do cálculo.</returns>
-        private ObjectType GetDeterminantValue(ArrayMatrix<ObjectType> triangularMatrix, List<ObjectType> divisors, bool sign)
+        private ObjectType GetDeterminantValue(ArrayMathMatrix<ObjectType> triangularMatrix, List<ObjectType> divisors, bool sign)
         {
             var dimensions = triangularMatrix.GetLength(0);
             var result = triangularMatrix[0, 0];

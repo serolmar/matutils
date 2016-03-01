@@ -4,13 +4,13 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
-    using Utilities.Collections;
+    using Utilities;
 
     /// <summary>
     /// Representa uma matriz constante cujas entradas são os elementos nulos de um monóide.
     /// </summary>
     /// <typeparam name="ElementType">O tipo de dados contidos na matriz.</typeparam>
-    public class ZeroMatrix<ElementType> : IMatrix<ElementType>
+    public class ZeroMatrix<ElementType> : IMathMatrix<ElementType>
     {
         /// <summary>
         /// O monóide responsável por determinar o elemento nulo.

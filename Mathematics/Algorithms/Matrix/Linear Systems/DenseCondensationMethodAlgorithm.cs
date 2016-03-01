@@ -10,7 +10,7 @@
     /// </summary>
     /// <typeparam name="ElementType">O tipo de dados dos coeficientes.</typeparam>
     public class DenseCondensationMethodAlgorithm<ElementType>
-        : IAlgorithm<IMatrix<ElementType>, IMatrix<ElementType>, bool>
+        : IAlgorithm<IMathMatrix<ElementType>, IMathMatrix<ElementType>, bool>
     {
         /// <summary>
         /// O corpo responsável pelas operações.
@@ -49,8 +49,8 @@
         /// Se o número de linhas da matriz não conicidir com o tamanho do vector.
         /// </exception>
         public bool Run(
-            IMatrix<ElementType> initialMatrix,
-            IMatrix<ElementType> finalMatrix)
+            IMathMatrix<ElementType> initialMatrix,
+            IMathMatrix<ElementType> finalMatrix)
         {
             if (initialMatrix == null)
             {
@@ -233,7 +233,7 @@
         /// <param name="pivotColumn">O coluna pivô.</param>
         /// <param name="data">A matriz.</param>
         /// <returns>A linha cujo pivô seja não nulo e -1 caso não exista.</returns>
-        private int GetNextNonEmptyPivotLineNumber(int startLine, int pivotColumn, IMatrix<ElementType> data)
+        private int GetNextNonEmptyPivotLineNumber(int startLine, int pivotColumn, IMathMatrix<ElementType> data)
         {
             var result = -1;
             var matrixDimension = data.GetLength(0);

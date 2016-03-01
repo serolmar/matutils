@@ -5,7 +5,7 @@
     using System.Linq;
     using System.Text;
     using System.Collections;
-    using Utilities.Collections;
+    using Utilities;
 
     /// <summary>
     /// Implementa uma árvore associativa cujas arestas são implementadas com base em dicionários.
@@ -20,7 +20,7 @@
         /// <summary>
         /// Fábrica responsável pela criação dos objectos de mapeamento.
         /// </summary>
-        protected IFactory<IDictionary<LabelType, TrieNode>> factory;
+        protected Func<IDictionary<LabelType, TrieNode>> factory;
 
         /// <summary>
         /// Mantém uma referência para a raiz.
@@ -91,17 +91,16 @@
         public ADicDrivenTrie()
         {
             this.activeIterators = new HashSet<ATrieIterator>();
-            this.factory =
-                new DictionaryEqualityComparerFactory<LabelType,
-                    TrieNode>(
-                EqualityComparer<LabelType>.Default);
+            Func<int> temp = () => 1;
+            this.factory = () => new Dictionary<LabelType,
+                    TrieNode>(EqualityComparer<LabelType>.Default);
         }
 
         /// <summary>
         /// Instancia uma nova instância de objectos do tipos <see cref="ADicDrivenTrie{LabelType, ColType, ObjectType}"/>.
         /// </summary>
         /// <param name="factory">A fábrica responsável pela criação dos contentores.</param>
-        public ADicDrivenTrie(IFactory<IDictionary<LabelType, TrieNode>> factory)
+        public ADicDrivenTrie(Func<IDictionary<LabelType, TrieNode>> factory)
         {
             if (factory == null)
             {
@@ -161,13 +160,17 @@
         /// <summary>
         /// Adiciona uma colecção, associando um índice, caso esta não exista.
         /// </summary>
-        /// <param name="item">O item a ser adicionado.</param>
+        /// <param name="colEnumerator">O enumerador a ser adicionado.</param>
         /// <param name="associatedIndex">O índice que ficará associado.</param>
-        /// <returns>Verdadeiro caso a adição seja bem sucedida e falso caso contrário.</returns>
-        protected bool AddIfNotExists(ColType item, int associatedIndex)
+        /// <returns>
+        /// O índice do objecto encontrado ou o índice que ficará associado
+        /// se o objecto for inexistente.
+        /// </returns>
+        protected virtual int AddIfNotExists(
+            IEnumerator<LabelType> colEnumerator, 
+            int associatedIndex)
         {
             var currentNode = this.root;
-            var colEnumerator = item.GetEnumerator();
             var state = colEnumerator.MoveNext();
             var aux = state;
             while (aux)
@@ -198,12 +201,12 @@
             if (currentNode.NodeNumber == -1)
             {
                 currentNode.NodeNumber = associatedIndex;
-                return true;
+                return associatedIndex;
             }
             else
             {
                 // O item já existe.
-                return false;
+                return currentNode.NodeNumber;
             }
         }
 
@@ -414,10 +417,10 @@
             /// </summary>
             /// <param name="factory">A fábrica responsável pela criação dos dicionários.</param>
             public TrieNode(
-                IFactory<IDictionary<LabelType, TrieNode>> factory)
+                Func<IDictionary<LabelType, TrieNode>> factory)
             {
                 this.nodeNumber = -1;
-                this.childNodes = factory.Create();
+                this.childNodes = factory.Invoke();
             }
 
             /// <summary>
@@ -427,7 +430,7 @@
             /// <param name="factory">A fábrica responsável pela criação dos dicionários.</param>
             public TrieNode(
                 int nodeNumber,
-                IFactory<IDictionary<LabelType, TrieNode>> factory)
+                Func<IDictionary<LabelType, TrieNode>> factory)
                 : this(factory)
             {
                 this.nodeNumber = nodeNumber;
@@ -653,7 +656,7 @@
         /// <summary>
         /// Mantém uma lista com todos os elementos adicionados.
         /// </summary>
-        private List<ColType> elements;
+        protected List<ColType> elements;
 
         /// <summary>
         /// Instancia uma nova instância de objectos do tipo <see cref="DicDrivenTrieSet{LabelType, ColType}"/>
@@ -661,6 +664,7 @@
         public DicDrivenTrieSet()
             : base()
         {
+            this.root = new TrieNode(this.factory);
             this.readOnly = false;
             this.elements = new List<ColType>();
         }
@@ -669,7 +673,7 @@
         /// Instancia uma nova instância de objectos do tipo <see cref="DicDrivenTrieSet{LabelType, ColType}"/>
         /// </summary>
         /// <param name="factory">A fábrica responsável pela criação dos contentores.</param>
-        public DicDrivenTrieSet(IFactory<IDictionary<LabelType,
+        public DicDrivenTrieSet(Func<IDictionary<LabelType,
             TrieNode>> factory)
             : base(factory)
         {
@@ -686,7 +690,7 @@
         public DicDrivenTrieSet(
             IEnumerable<ColType> cols,
             bool isReadOnly,
-            IFactory<IDictionary<LabelType, TrieNode>> factory)
+            Func<IDictionary<LabelType, TrieNode>> factory)
             : this(factory)
         {
             if (cols == null)
@@ -701,8 +705,8 @@
                 // Adiciona cada uma das colecções à lista.
                 foreach (var col in cols)
                 {
-                    var result = this.AddIfNotExists(col, elementsCount);
-                    if (result)
+                    var result = this.AddIfNotExists(col.GetEnumerator(), elementsCount);
+                    if (result == elementsCount)
                     {
                         this.elements.Add(col);
                         ++elementsCount;
@@ -791,7 +795,7 @@
             else
             {
                 var associatedIndex = this.elements.Count;
-                if (this.AddIfNotExists(item, associatedIndex))
+                if (this.AddIfNotExists(item.GetEnumerator(), associatedIndex) == associatedIndex)
                 {
                     this.elements.Add(item);
                     return true;
@@ -1923,8 +1927,8 @@
                 var elementsCount = this.elements.Count;
                 foreach (var col in other)
                 {
-                    var result = this.AddIfNotExists(col, elementsCount);
-                    if (result)
+                    var result = this.AddIfNotExists(col.GetEnumerator(), elementsCount);
+                    if (result == elementsCount)
                     {
                         ++elementsCount;
                         this.elements.Add(col);
@@ -2270,12 +2274,12 @@
         /// <summary>
         /// Mantém a lista das chaves.
         /// </summary>
-        private List<KeyType> keys;
+        protected List<KeyType> keys;
 
         /// <summary>
         /// Mantém a lista dos valores.
         /// </summary>
-        private List<ValueType> values;
+        protected List<ValueType> values;
 
         /// <summary>
         /// Instancia novas instâncias de objectos do tipo <see cref="DicDrivenTrieDictionary{LabelType, KeyType, ValueType}"/>.
@@ -2292,7 +2296,7 @@
         /// </summary>
         /// <param name="factory">A fábrica responsável pela criação dos contentores de nós.</param>
         public DicDrivenTrieDictionary(
-            IFactory<IDictionary<LabelType, TrieNode>> factory)
+            Func<IDictionary<LabelType, TrieNode>> factory)
             : base(factory)
         {
             this.keys = new List<KeyType>();
@@ -2397,7 +2401,7 @@
             else
             {
                 var count = this.keys.Count;
-                if (this.AddIfNotExists(key, count))
+                if (this.AddIfNotExists(key.GetEnumerator(), count) == count)
                 {
                     this.keys.Add(key);
                     this.values.Add(value);

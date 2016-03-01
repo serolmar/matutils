@@ -79,7 +79,8 @@
             }
         }
 
-        public IOdmpMatrixSet<ComponentType, LineType, ColumnType, T> Read(Stream stream,
+        public IOdmpMatrixSet<ComponentType, LineType, ColumnType, T> Read(
+            Stream stream,
             T defaultValue = default(T),
             IEqualityComparer<ComponentType> componentComparer = null,
             IEqualityComparer<LineType> lineComparer = null,

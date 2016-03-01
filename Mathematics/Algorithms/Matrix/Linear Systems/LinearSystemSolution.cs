@@ -19,18 +19,18 @@
         /// <summary>
         /// O vector que corresponde à solução particular.
         /// </summary>
-        private IVector<ElementType> vector;
+        private IMathVector<ElementType> vector;
 
         /// <summary>
         /// A base associada ao sistema homogéneo correspondente.
         /// </summary>
-        private List<IVector<ElementType>> vectorSpaceBasis = new List<IVector<ElementType>>();
+        private List<IMathVector<ElementType>> vectorSpaceBasis = new List<IMathVector<ElementType>>();
 
         /// <summary>
         /// Obtém e atribui o vector que contém a solução particular.
         /// </summary>
         /// <value>O vector que contém a solução particular.</value>
-        public IVector<ElementType> Vector
+        public IMathVector<ElementType> Vector
         {
             get
             {
@@ -47,7 +47,7 @@
         /// correspondente.
         /// </summary>
         /// <value>A base.</value>
-        public List<IVector<ElementType>> VectorSpaceBasis
+        public List<IMathVector<ElementType>> VectorSpaceBasis
         {
             get
             {

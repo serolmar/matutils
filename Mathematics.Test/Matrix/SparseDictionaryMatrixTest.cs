@@ -1,6 +1,6 @@
 ﻿namespace Mathematics.Test
 {
-    using Utilities.Collections;
+    using Utilities;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using System;
     using System.Linq;
@@ -581,9 +581,9 @@
         /// </remarks>
         /// <param name="defaultValue">O valor por defeito.</param>
         /// <returns>A matriz de teste.</returns>
-        private SparseDictionaryMatrix<Fraction<int>> GetDefaultMatrix(Fraction<int> defaultValue)
+        private SparseDictionaryMathMatrix<Fraction<int>> GetDefaultMatrix(Fraction<int> defaultValue)
         {
-            var result = new SparseDictionaryMatrix<Fraction<int>>(5, 5, defaultValue);
+            var result = new SparseDictionaryMathMatrix<Fraction<int>>(5, 5, defaultValue);
             var integerDomain = new IntegerDomain();
 
             // Primeira linha.
@@ -614,7 +614,7 @@
         /// </summary>
         /// <param name="line">A linha a ser ignorada.</param>
         /// <param name="matrix">A matriz a ser verificada.</param>
-        private void AssertLinesExcept(int line, SparseDictionaryMatrix<Fraction<int>> matrix)
+        private void AssertLinesExcept(int line, SparseDictionaryMathMatrix<Fraction<int>> matrix)
         {
             var lineDimension = matrix.GetLength(0);
             var columnDimension = matrix.GetLength(1);
@@ -643,7 +643,7 @@
         /// <param name="line">A linha.</param>
         /// <param name="matrix">A matriz.</param>
         /// <returns>O vector com as entradas correspondentes à linha da matriz especificada.</returns>
-        private T[] GetLineAsArray<T>(int line, SparseDictionaryMatrix<T> matrix)
+        private T[] GetLineAsArray<T>(int line, SparseDictionaryMathMatrix<T> matrix)
         {
             var matrixColumnsNumber = matrix.GetLength(1);
             var currentMatrixLine =default(ISparseMatrixLine<T>);
@@ -708,7 +708,7 @@
         /// <param name="secondFactor">O factor afecto à linha a ser combinada.</param>
         /// <param name="ring">O anel responsável pelas operações sobre os coeficientes.</param>
         private void AssertTarget<T>(
-            SparseDictionaryMatrix<T> target,
+            SparseDictionaryMathMatrix<T> target,
             T firstFactor,
             T secondFactor,
             IRing<T> ring)

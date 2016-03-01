@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
-    using Collections;
 
     /// <summary>
     /// Define um conjunto de regiões rectangulares que não se intersectam.

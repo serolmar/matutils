@@ -9,23 +9,23 @@
     /// Representa uma matriz triangular inferior.
     /// </summary>
     /// <typeparam name="CoeffType">O tipo de objectos que constituem as entradas das matrizes.</typeparam>
-    public class ArrayTriangLowerMatrix<CoeffType> : AArrayTriangularMatrix<CoeffType>
+    public class ArrayTriangLowerMathMatrix<CoeffType> : AArrayTriangularMathMatrix<CoeffType>
     {
         /// <summary>
-        /// Cria instâncias de objectos do tipo <see cref="ArrayTriangLowerMatrix{ObjectType}"/>.
+        /// Cria instâncias de objectos do tipo <see cref="ArrayTriangLowerMathMatrix{ObjectType}"/>.
         /// </summary>
         /// <param name="dimension">A dimensão da matriz.</param>
-        public ArrayTriangLowerMatrix(int dimension)
+        public ArrayTriangLowerMathMatrix(int dimension)
             : base(dimension)
         {
         }
 
         /// <summary>
-        /// Cria instâncias de objectos do tipo <see cref="ArrayTriangLowerMatrix{ObjectType}"/>.
+        /// Cria instâncias de objectos do tipo <see cref="ArrayTriangLowerMathMatrix{ObjectType}"/>.
         /// </summary>
         /// <param name="dimension">A dimensão da matriz.</param>
         /// <param name="defaultValue">O valor por defeito.</param>
-        public ArrayTriangLowerMatrix(int dimension, CoeffType defaultValue)
+        public ArrayTriangLowerMathMatrix(int dimension, CoeffType defaultValue)
             : base(dimension, defaultValue)
         {
         }

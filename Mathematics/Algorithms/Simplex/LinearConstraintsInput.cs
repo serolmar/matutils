@@ -16,12 +16,12 @@
         /// <summary>
         /// A matriz das restrições.
         /// </summary>
-        private IMatrix<ConstraintsType> constraintsMatrix;
+        private IMathMatrix<ConstraintsType> constraintsMatrix;
 
         /// <summary>
         /// O vector dos coeficientes independentes das restrições.
         /// </summary>
-        private IVector<ConstraintsType> constraintsVector;
+        private IMathVector<ConstraintsType> constraintsVector;
 
         /// <summary>
         /// Cria uma nova instância de um objecto do tipo <see cref="LinearConstraintsInput{ConstraintsType}"/>.
@@ -29,8 +29,8 @@
         /// <param name="constraintsMatrix">A matriz das restrições.</param>
         /// <param name="constraintsVector">O vector dos coeficientes independentes das restrições.</param>
         public LinearConstraintsInput(
-            IMatrix<ConstraintsType> constraintsMatrix,
-            IVector<ConstraintsType> constraintsVector)
+            IMathMatrix<ConstraintsType> constraintsMatrix,
+            IMathVector<ConstraintsType> constraintsVector)
         {
             if (constraintsMatrix == null)
             {
@@ -54,7 +54,7 @@
         /// <summary>
         /// Obtém a matriz das restrições.
         /// </summary>
-        public IMatrix<ConstraintsType> ConstraintsMatrix
+        public IMathMatrix<ConstraintsType> ConstraintsMatrix
         {
             get
             {
@@ -65,7 +65,7 @@
         /// <summary>
         /// Obtém o vector dos coeficientes independentes das restrições.
         /// </summary>
-        private IVector<ConstraintsType> ConstraintsVector
+        private IMathVector<ConstraintsType> ConstraintsVector
         {
             get
             {

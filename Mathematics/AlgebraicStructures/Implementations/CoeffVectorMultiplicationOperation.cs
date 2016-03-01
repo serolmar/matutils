@@ -11,7 +11,7 @@
     /// <typeparam name="CoeffType">O tipo de coeficiente.</typeparam>
     /// <typeparam name="CoeffVectorType">O tipo de coeficientes no vector.</typeparam>
     public class CoeffVectorMultiplicationOperation<CoeffType, CoeffVectorType>
-        : IMultiplicationOperation<CoeffType, IVector<CoeffVectorType>, IVector<CoeffVectorType>>
+        : IMultiplicationOperation<CoeffType, IMathVector<CoeffVectorType>, IMathVector<CoeffVectorType>>
     {
         /// <summary>
         /// A fábrica que permite criar instâncias de vectores.
@@ -55,7 +55,7 @@
         /// <param name="right">O vector a ser multiplicado.</param>
         /// <returns>O resultado da multiplicação.</returns>
         /// <exception cref="ArgumentNullException">Caso um dos argumentos seja nulo.</exception>
-        public IVector<CoeffVectorType> Multiply(CoeffType left, IVector<CoeffVectorType> right)
+        public IMathVector<CoeffVectorType> Multiply(CoeffType left, IMathVector<CoeffVectorType> right)
         {
             if (left == null)
             {

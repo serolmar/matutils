@@ -7,7 +7,6 @@
     using System.Text;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Utilities;
-    using Utilities.Collections;
 
     /// <summary>
     /// Permite implementar testes aos conjuntos tabulares.

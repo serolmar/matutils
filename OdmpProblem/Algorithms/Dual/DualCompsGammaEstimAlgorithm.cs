@@ -11,7 +11,7 @@
     /// </summary>
     /// <typeparam name="ElementType">O tipo de dados dos custos.</typeparam>
     public class DualCompsGammaEstimAlgorithm<ElementType>
-        :IAlgorithm<List<SparseDictionaryMatrix<ElementType>>, 
+        :IAlgorithm<List<SparseDictionaryMathMatrix<ElementType>>, 
                     List<DualHeuristicAlgInput<ElementType>>, List<ElementType>>
     {
         /// <summary>
@@ -24,7 +24,7 @@
         /// </summary>
         private IComparer<ElementType> comparer;
 
-        IAlgorithm<SparseDictionaryMatrix<ElementType>, DualHeuristicAlgInput<ElementType>, ElementType>
+        IAlgorithm<SparseDictionaryMathMatrix<ElementType>, DualHeuristicAlgInput<ElementType>, ElementType>
             initializeAlgorithm;
 
         public DualCompsGammaEstimAlgorithm(IComparer<ElementType> comparer, IRing<ElementType> ring)
@@ -54,7 +54,7 @@
         /// <param name="inputs">Os dados de entrada.</param>
         /// <returns>A lista das variáveis gama calculadas por componente.</returns>
         public List<ElementType> Run(
-            List<SparseDictionaryMatrix<ElementType>> matrices, 
+            List<SparseDictionaryMathMatrix<ElementType>> matrices, 
             List<DualHeuristicAlgInput<ElementType>> inputs)
         {
             if (matrices == null)

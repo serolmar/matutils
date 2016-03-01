@@ -96,31 +96,59 @@
     <Compile Include="AlgebraicStructures\LogicInterfaces\INaturalNumber.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\INearest.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\INormSpace.cs" />
-    <Compile Include="AlgebraicStructures\LogicInterfaces\ISparseVector.cs" />
-    <Compile Include="AlgebraicStructures\LogicInterfaces\ISquareMatrix.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\IUniqueFactorizationDomain.cs" />
-    <Compile Include="AlgebraicStructures\Matrix\AArrayTriangularMatrix.cs" />
-    <Compile Include="AlgebraicStructures\Matrix\ArrayDiagonalMatrix.cs" />
-    <Compile Include="AlgebraicStructures\Matrix\Factories\ArrayTriangularLowerMatrixFactory.cs" />
-    <Compile Include="AlgebraicStructures\Matrix\ArraySquareMatrix.cs" />
-    <Compile Include="AlgebraicStructures\Matrix\Factories\ArraySquareMatrixFactory.cs" />
-    <Compile Include="AlgebraicStructures\Matrix\ArrayTriangLowerMatrix.cs" />
-    <Compile Include="AlgebraicStructures\Matrix\ArrayTriangUpperMatrix.cs" />
+    <Compile Include="AlgebraicStructures\Matrix\AArrayTriangularMathMatrix.cs" />
+    <Compile Include="AlgebraicStructures\Matrix\ArrayDiagonalMathMatrix.cs" />
+    <Compile Include="AlgebraicStructures\Matrix\ArraySquareMathMatrix.cs" />
+    <Compile Include="AlgebraicStructures\Matrix\ArrayTriangLowerMathMatrix.cs" />
+    <Compile Include="AlgebraicStructures\Matrix\ArrayTriangUpperMathMatrix.cs" />
     <Compile Include="AlgebraicStructures\Matrix\ArrayVector.cs" />
     <Compile Include="AlgebraicStructures\Matrix\ArrayVectorFactory.cs" />
     <Compile Include="AlgebraicStructures\Matrix\BitArraySymmetricMatrix.cs" />
-    <Compile Include="AlgebraicStructures\Matrix\BitMatrix.cs" />
-    <Compile Include="AlgebraicStructures\Matrix\Factories\ArrayTriangUpperMatrixFactory.cs" />
-    <Compile Include="AlgebraicStructures\Matrix\Factories\ArrayDiagonalMatrixFactory.cs" />
+    <Compile Include="AlgebraicStructures\Matrix\BitMathMatrix.cs" />
+    <Compile Include="AlgebraicStructures\Matrix\Factories\ArrayBitMatrixFactory.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="AlgebraicStructures\Matrix\Factories\ArrayDiagonalMatrixFactory.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="AlgebraicStructures\Matrix\Factories\ArrayMatrixFactory.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="AlgebraicStructures\Matrix\Factories\ArraySquareMatrixFactory.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="AlgebraicStructures\Matrix\Factories\ArrayTriangularLowerMatrixFactory.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="AlgebraicStructures\Matrix\Factories\ArrayTriangUpperMatrixFactory.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="AlgebraicStructures\Matrix\Factories\IMatrixFactory.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="AlgebraicStructures\Matrix\Factories\ISquareMatrixFactory.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="AlgebraicStructures\Matrix\Factories\IVectorFactory.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="AlgebraicStructures\Matrix\Factories\SparseDictionaryMatrixFactory.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="AlgebraicStructures\Matrix\Factories\SparseDictionarySquareMatrixFactory.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="AlgebraicStructures\Matrix\Factories\SparseDictionaryVectorFactory.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="AlgebraicStructures\Matrix\IMatrixGroup.cs" />
-    <Compile Include="AlgebraicStructures\Matrix\SparseDictionarySquareMatrix.cs" />
-    <Compile Include="AlgebraicStructures\Matrix\Factories\SparseDictionarySquareMatrixFactory.cs" />
-    <Compile Include="AlgebraicStructures\Matrix\SparseMatrix.cs" />
+    <Compile Include="AlgebraicStructures\Matrix\SparseDictionarySquareMathMatrix.cs" />
+    <Compile Include="AlgebraicStructures\Matrix\SparseMathMatrix.cs" />
     <Compile Include="AlgebraicStructures\Parsers\FieldDrivenExpressionParser.cs" />
     <Compile Include="AlgebraicStructures\Parsers\RingDrivenExpressionParser.cs" />
     <Compile Include="AlgebraicStructures\Parsers\SimpleElementFractionParser.cs" />
     <Compile Include="AlgebraicStructures\Readers\ConfigVectorReader.cs" />
-    <Compile Include="AlgebraicStructures\Matrix\IntegerSequenceSubVector.cs" />
     <Compile Include="AlgebraicStructures\Implementations\OrthoVectorScalarProduct.cs" />
     <Compile Include="AlgebraicStructures\Implementations\Factories\UnivarPolEuclideanDomainFactory.cs" />
     <Compile Include="AlgebraicStructures\Implementations\Factories\UnivarPolynomRingFactory.cs" />
@@ -138,49 +166,30 @@
     <Compile Include="AlgebraicStructures\LogicInterfaces\IEuclideanDomain.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\IField.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\IGroup.cs" />
-    <Compile Include="AlgebraicStructures\LogicInterfaces\IMatrix.cs" />
+    <Compile Include="AlgebraicStructures\LogicInterfaces\IMathMatrix.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\IModularField.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\IMonoid.cs" />
-    <Compile Include="AlgebraicStructures\LogicInterfaces\IMultiDimensionalRange.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\IMultiplication.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\IMultiplicationOperation.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\IRing.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\IScalarProductSpace.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\ISemigroup.cs" />
-    <Compile Include="AlgebraicStructures\LogicInterfaces\ISparseMatrix.cs" />
-    <Compile Include="AlgebraicStructures\LogicInterfaces\ISparseMatrixLine.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\Factories\IUnivarPolDomainFactory.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\Factories\IUnivarPolRingFactory.cs" />
-    <Compile Include="AlgebraicStructures\LogicInterfaces\IVector.cs" />
+    <Compile Include="AlgebraicStructures\LogicInterfaces\IMathVector.cs" />
     <Compile Include="AlgebraicStructures\LogicInterfaces\IVectorSpace.cs" />
-    <Compile Include="AlgebraicStructures\Matrix\ArrayBitMatrix.cs" />
-    <Compile Include="AlgebraicStructures\Matrix\Factories\ArrayBitMatrixFactory.cs" />
-    <Compile Include="AlgebraicStructures\Matrix\ArrayMatrix.cs" />
-    <Compile Include="AlgebraicStructures\Matrix\Factories\ArrayMatrixFactory.cs" />
-    <Compile Include="AlgebraicStructures\Parsers\ConfigMatrixParser.cs" />
-    <Compile Include="AlgebraicStructures\Readers\ConfigMatrixReader.cs" />
-    <Compile Include="AlgebraicStructures\Matrix\IdentityMatrix.cs" />
-    <Compile Include="AlgebraicStructures\Matrix\Factories\IMatrixFactory.cs" />
-    <Compile Include="AlgebraicStructures\Matrix\IntegerSequenceSubMatrix.cs" />
-    <Compile Include="AlgebraicStructures\Matrix\Factories\IVectorFactory.cs" />
+    <Compile Include="AlgebraicStructures\Matrix\ArrayBitMathMatrix.cs" />
+    <Compile Include="AlgebraicStructures\Matrix\ArrayMathMatrix.cs" />
+    <Compile Include="AlgebraicStructures\Matrix\IdentityMathMatrix.cs" />
     <Compile Include="AlgebraicStructures\Matrix\MatrixColumnVector.cs" />
     <Compile Include="AlgebraicStructures\Matrix\MatrixRowVector.cs" />
-    <Compile Include="AlgebraicStructures\Matrix\SparseDictionaryMatrix.cs" />
-    <Compile Include="AlgebraicStructures\Matrix\Factories\SparseDictionaryMatrixFactory.cs" />
-    <Compile Include="AlgebraicStructures\Matrix\SparseDictionaryMatrixLine.cs" />
-    <Compile Include="AlgebraicStructures\Matrix\SparseDictionaryVector.cs" />
-    <Compile Include="AlgebraicStructures\Matrix\Factories\SparseDictionaryVectorFactory.cs" />
-    <Compile Include="AlgebraicStructures\Matrix\SubMatrix.cs" />
-    <Compile Include="AlgebraicStructures\Matrix\SubVector.cs" />
-    <Compile Include="AlgebraicStructures\Matrix\TransposeMatrix.cs" />
+    <Compile Include="AlgebraicStructures\Matrix\SparseDictionaryMathMatrix.cs" />
+    <Compile Include="AlgebraicStructures\Matrix\SparseDictionaryMathVector.cs" />
     <Compile Include="AlgebraicStructures\Matrix\VectorSpaceGenerator.cs" />
     <Compile Include="AlgebraicStructures\Matrix\ZeroMatrix.cs" />
     <Compile Include="AlgebraicStructures\Matrix\ZeroVector.cs" />
-    <Compile Include="AlgebraicStructures\MultiDimensionalRange\MultiDimensionalRange.cs" />
-    <Compile Include="AlgebraicStructures\Parsers\MultiDimensionalRangeParser.cs" />
+    <Compile Include="AlgebraicStructures\MultiDimensionalRange\MultiDimensionalMathRange.cs" />
     <Compile Include="AlgebraicStructures\Readers\FieldDrivenExpressionReader.cs" />
-    <Compile Include="AlgebraicStructures\Readers\MultiDimensionalRangeReader.cs" />
-    <Compile Include="AlgebraicStructures\MultiDimensionalRange\SubMultiDimensionalRange.cs" />
     <Compile Include="AlgebraicStructures\Polynomial\CoefficientComparer.cs" />
     <Compile Include="AlgebraicStructures\Polynomial\CoefficientDegreePair.cs" />
     <Compile Include="AlgebraicStructures\Polynomial\DegreeEqualityComparer.cs" />
@@ -203,10 +212,6 @@
     <Compile Include="AlgebraicStructures\Polynomial\SymmetricPolynomialDegreeEqualityComparer.cs" />
     <Compile Include="AlgebraicStructures\Polynomial\UnivariatePolynomialNormalForm.cs" />
     <Compile Include="AlgebraicStructures\Polynomial\UnivarPolynomNormalFormEqualityComparer.cs" />
-    <Compile Include="AlgebraicStructures\Readers\ARangeReader.cs" />
-    <Compile Include="AlgebraicStructures\Readers\RangeConfigReader.cs" />
-    <Compile Include="AlgebraicStructures\Readers\RangeNoConfigReader.cs" />
-    <Compile Include="AlgebraicStructures\Readers\RangeReaderMementoManager.cs" />
     <Compile Include="Algorithms\Decision\SubsetSumLLLReductionAlgorithm.cs" />
     <Compile Include="Algorithms\Graph\EdgeListGraphMathExtension.cs" />
     <Compile Include="Algorithms\Interpolation\BaseInterpolator.cs" />
@@ -299,7 +304,6 @@
     <Compile Include="BacheBezoutResult.cs" />
     <Compile Include="Numbers\BigDecimalNumber.cs" />
     <Compile Include="Diagnostics.cs" />
-    <Compile Include="AlgebraicStructures\Matrix\Factories\ISquareMatrixFactory.cs" />
     <Compile Include="MathematicsInterpreter\EMathematicsInterpreterStatus.cs" />
     <Compile Include="MathematicsInterpreter\EScopeType.cs" />
     <Compile Include="MathematicsInterpreter\ExpressionInterpreterException.cs" />

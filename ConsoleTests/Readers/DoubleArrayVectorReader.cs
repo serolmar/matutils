@@ -16,7 +16,7 @@
         /// <param name="lines">O tamanho do vector.</param>
         /// <param name="vectorString">O texto que representa o vector.</param>
         /// <returns>O vector.</returns>
-        public IVector<double> ReadVector(int length, string vectorString)
+        public IMathVector<double> ReadVector(int length, string vectorString)
         {
             var integerParser = new DoubleExpressionParser();
             var vectorFactory = new ArrayVectorFactory<double>();
@@ -29,7 +29,7 @@
             vectorReader.AddBlanckSymbolType("blancks");
             vectorReader.SeparatorSymbType = "comma";
 
-            var vector = default(IVector<double>);
+            var vector = default(IMathVector<double>);
             if (vectorReader.TryParseVector(stringSymbolReader, integerParser, out vector))
             {
                 return vector;

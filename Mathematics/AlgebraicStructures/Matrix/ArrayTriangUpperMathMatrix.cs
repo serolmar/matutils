@@ -9,23 +9,23 @@
     /// Representa um matriz triangular superior.
     /// </summary>
     /// <typeparam name="CoeffType">O tipo de objectos que constituem as entradas das matrizes.</typeparam>
-    public class ArrayTriangUpperMatrix<CoeffType> : AArrayTriangularMatrix<CoeffType>
+    public class ArrayTriangUpperMathMatrix<CoeffType> : AArrayTriangularMathMatrix<CoeffType>
     {
         /// <summary>
-        /// Cria instâncias de objectos do tipo <see cref="ArrayTriangUpperMatrix{ObjectType}"/>.
+        /// Cria instâncias de objectos do tipo <see cref="ArrayTriangUpperMathMatrix{ObjectType}"/>.
         /// </summary>
         /// <param name="dimension">A dimensão da matriz.</param>
-        public ArrayTriangUpperMatrix(int dimension)
+        public ArrayTriangUpperMathMatrix(int dimension)
             : base(dimension)
         {
         }
 
         /// <summary>
-        /// Cria instâncias de objectos do tipo <see cref="ArrayTriangUpperMatrix{ObjectType}"/>.
+        /// Cria instâncias de objectos do tipo <see cref="ArrayTriangUpperMathMatrix{ObjectType}"/>.
         /// </summary>
         /// <param name="dimension">A dimensão da matriz.</param>
         /// <param name="defaultValue">O valor por defeito.</param>
-        public ArrayTriangUpperMatrix(int dimension, CoeffType defaultValue)
+        public ArrayTriangUpperMathMatrix(int dimension, CoeffType defaultValue)
             : base(dimension, defaultValue)
         {
         }

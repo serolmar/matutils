@@ -4,12 +4,12 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
-    using Utilities.Collections;
+    using Utilities;
 
     /// <summary>
     /// Representa uma matriz de bits como um vector de listas de "bits".
     /// </summary>
-    public class ArrayBitMatrix : IMatrix<int>
+    public class ArrayBitMathMatrix : IMathMatrix<int>
     {
         /// <summary>
         /// O valor por defeito.
@@ -27,23 +27,23 @@
         private int columnsNumber;
 
         /// <summary>
-        /// Cria instâncias de objectos do tipo <see cref="ArrayBitMatrix"/>.
+        /// Cria instâncias de objectos do tipo <see cref="ArrayBitMathMatrix"/>.
         /// </summary>
         /// <param name="lines">O número de linhas da matriz.</param>
         /// <param name="columns">O número de colunas da matriz.</param>
-        public ArrayBitMatrix(int lines, int columns)
+        public ArrayBitMathMatrix(int lines, int columns)
             : this(lines, columns, 0)
         {
         }
 
         /// <summary>
-        /// Cria instâncias de objectos do tipo <see cref="ArrayBitMatrix"/>.
+        /// Cria instâncias de objectos do tipo <see cref="ArrayBitMathMatrix"/>.
         /// </summary>
         /// <param name="lines">O número de linhas da matriz.</param>
         /// <param name="columns">O número de colunas da matriz.</param>
         /// <param name="defaultValue">O valor pode defeito.</param>
         /// <exception cref="ArgumentException">Se o número de linhas ou de colunas for negativo.</exception>
-        public ArrayBitMatrix(int lines, int columns, int defaultValue)
+        public ArrayBitMathMatrix(int lines, int columns, int defaultValue)
         {
             if (lines < 0)
             {
@@ -453,7 +453,7 @@
         /// <exception cref="ArgumentException">
         /// Se as dimensões da matriz a adicionar não conicidirem com as dimensões da matriz corrente.
         /// </exception>
-        public ArrayBitMatrix AddModuloTwo(ArrayBitMatrix right)
+        public ArrayBitMathMatrix AddModuloTwo(ArrayBitMathMatrix right)
         {
             if (right == null)
             {
@@ -469,7 +469,7 @@
             }
             else
             {
-                var result = new ArrayBitMatrix(this.elementsList.Length, this.columnsNumber, this.defaultValue);
+                var result = new ArrayBitMathMatrix(this.elementsList.Length, this.columnsNumber, this.defaultValue);
                 for (int i = 0; i < this.elementsList.Length; ++i)
                 {
                     var currentThisMatrixLine = this.elementsList[i];
@@ -541,7 +541,7 @@
         /// <exception cref="MathematicsException">
         /// Se o número de linhas da matriz corrente não coincidir com o número de colunas da matriz a multplicar.
         /// </exception>
-        public ArrayBitMatrix MultiplyModuloTwo(ArrayBitMatrix right)
+        public ArrayBitMathMatrix MultiplyModuloTwo(ArrayBitMathMatrix right)
         {
             if (right == null)
             {
@@ -554,7 +554,7 @@
             }
             else
             {
-                var result = new ArrayBitMatrix(this.elementsList.Length, right.columnsNumber, 0);
+                var result = new ArrayBitMathMatrix(this.elementsList.Length, right.columnsNumber, 0);
                 for (int i = 0; i < this.elementsList.Length; ++i)
                 {
                     var currentLeftLine = this.elementsList[i];

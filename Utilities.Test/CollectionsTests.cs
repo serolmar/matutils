@@ -6,7 +6,6 @@
     using System.Linq;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Utilities;
-    using Utilities.Collections;
 
     /// <summary>
     /// Testa a classe de inserção de elementos ordenados.
@@ -511,7 +510,7 @@
         public void HeapSorter_SortTest()
         {
             // Testa o algoritmo que utiliza uma pilha.
-            var heapSorter = new HeapSorter<int>();
+            var heapSorter = new HeapSorter<uint>();
             this.TestSort(heapSorter);
         }
 
@@ -522,7 +521,7 @@
         [TestMethod]
         public void BubbleSorter_SortTest()
         {
-            var bubbleSorter = new BubbleSorter<int>();
+            var bubbleSorter = new BubbleSorter<uint>();
             this.TestSort(bubbleSorter);
         }
 
@@ -533,7 +532,7 @@
         [TestMethod]
         public void MergeSorter_SortTest()
         {
-            var mergeSorter = new MergeSorter<int>();
+            var mergeSorter = new MergeSorter<uint>();
             this.TestSort(mergeSorter);
         }
 
@@ -544,7 +543,7 @@
         [TestMethod]
         public void QuickSorter_SortTest()
         {
-            var quickSorter = new QuickSorter<int>();
+            var quickSorter = new QuickSorter<uint>();
             this.TestSort(quickSorter);
         }
 
@@ -555,7 +554,7 @@
         [TestMethod]
         public void InsertionSorter_SortTest()
         {
-            var insertionSorter = new InsertionSorter<int>();
+            var insertionSorter = new InsertionSorter<uint>();
             this.TestSort(insertionSorter);
         }
 
@@ -566,8 +565,104 @@
         [TestMethod]
         public void BinarySearchInsertionSorter_SortTest()
         {
-            var binarySearchInsertionSorter = new BinarySearchInsertionSorter<int>();
+            var binarySearchInsertionSorter = new BinarySearchInsertionSorter<uint>();
             this.TestSort(binarySearchInsertionSorter);
+        }
+
+        /// <summary>
+        /// Testa a função de ordenação para inteiros.
+        /// </summary>
+        [Description("Tests the integer counting sorter sort function.")]
+        [TestMethod]
+        public void CountingSorter_SortTest()
+        {
+            var countingSorter = new CountingSorter();
+            this.TestSort(countingSorter);
+        }
+
+        /// <summary>
+        /// Testa o algoritmo de ordenação por contagem.
+        /// </summary>
+        [Description("Tests the counting sorter sort funtion.")]
+        [TestMethod]
+        public void CountingSorterT_SortTest()
+        {
+            var countingSorter = new CountingSorter<uint>(i => i);
+            this.TestSort(countingSorter);
+        }
+
+        /// <summary>
+        /// Testa o algoritmo iterativo da ordenação lexicográfica baseada na
+        /// divisão.
+        /// </summary>
+        [Description("Tests the iterative LSD radix sorter sort function.")]
+        [TestMethod]
+        public void IterativeLsdRadixSorter_SortTest()
+        {
+            var target = new IterativeLsdRadixSorter(3);
+            this.TestSort(target);
+
+            target = new IterativeLsdRadixSorter(2);
+            this.TestSort(target);
+
+            target = new IterativeLsdRadixSorter(100);
+            this.TestSort(target);
+        }
+
+        /// <summary>
+        /// Testa a função de ordenação lexicográfica baseada na árvore associativa.
+        /// </summary>
+        [Description("Tests the trie based lexicographic sorter sort function.")]
+        [TestMethod]
+        public void TrieLexicographicCollectionSorter_SortTest()
+        {
+            var target = new TrieLexicographicCollectionSorter<char, string>(
+                s => s);
+            var comparer = StringComparer.InvariantCulture;
+            this.TestSort(target, comparer);
+        }
+
+        /// <summary>
+        /// Testa a função de ordenação lexicográfica dependente do comprimento
+        /// baseada na árvore associativa.
+        /// </summary>
+        [Description("Tests the trie based shortlex sorter sort function.")]
+        [TestMethod]
+        public void TrieShortLexCollectionSorter_SortTest()
+        {
+            var target = new TrieLexicographicCollectionSorter<char, string>(
+                s => s,
+                TrieLexicographicCollectionSorter<char, string>.OrderingType.SHORTLEX);
+            var comparer = new CollectionShortLexComparer<char>();
+            this.TestSort(target, comparer);
+        }
+
+        /// <summary>
+        /// Testa a ordenação de inteiros com base na ordenação lexicográfica dependente
+        /// do comprimento e na decomposição dos números inteiros de acordo com uma base
+        /// especificada.
+        /// </summary>
+        /// <remarks>
+        /// Trata-se do exemplo de aplicação da árvore associativa à ordenação de inteiros.
+        /// Convém notar que a implementação que resulta é eficiente apenas para valores pequenos
+        /// da base.
+        /// </remarks>
+        [Description("Tests the integer sort based on shortlex trie sort function.")]
+        [TestMethod]
+        public void TrieShortLexCollectionSorter_IntegerSortTest()
+        {
+            var integerEnumerable = new UintRadixEnumerator(3, 0);
+
+            // O enumerável definido será sempre reutilizado durante o processo.
+            var target = new TrieLexicographicCollectionSorter<uint, uint>(
+                i =>
+                {
+                    integerEnumerable.Number = i;
+                    return integerEnumerable;
+                },
+                TrieLexicographicCollectionSorter<uint, uint>.OrderingType.SHORTLEX);
+
+            this.TestSort(target);
         }
 
         /// <summary>
@@ -575,49 +670,135 @@
         /// por uma determinada interface.
         /// </summary>
         /// <param name="sorter">O ordenador a ser testado.</param>
-        private void TestSort(ISorter<int> sorter)
+        private void TestSort(ISorter<uint> sorter)
         {
             // Nenhum elemento na colecção - o teste consiste em não se dar erro.
-            var collection = new int[0];
+            var collection = new uint[0];
             sorter.Sort(collection);
 
             // Um elemento na colecção
-            collection = new int[1] { 0 };
+            collection = new uint[1] { 0 };
             sorter.Sort(collection);
-            Assert.AreEqual(0, collection[0]);
+            Assert.AreEqual(0U, collection[0]);
 
             // Dois elementos na colecção na ordem inversa
-            collection = new int[] { 2, 1 };
+            collection = new uint[] { 2, 1 };
             sorter.Sort(collection);
-            Assert.AreEqual(1, collection[0]);
-            Assert.AreEqual(2, collection[1]);
+            Assert.AreEqual(1U, collection[0]);
+            Assert.AreEqual(2U, collection[1]);
 
             // Todos diferentes mas ordenados
-            collection = new int[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+            collection = new uint[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
             sorter.Sort(collection);
             this.AssertOrdered(collection);
 
             //Todos diferentes com ordenação arbitrária
-            collection = new int[] { 6, 2, 7, 4, 5, 6, 9, 0, 1, 3, 8 };
+            collection = new uint[] { 6, 2, 7, 4, 5, 6, 9, 0, 1, 3, 8 };
             sorter.Sort(collection);
             this.AssertOrdered(collection);
 
             // Com repetidos mas ordenados
-            collection = new int[] { 0, 0, 1, 1, 1, 2, 2, 3, 3, 3, 3 };
+            collection = new uint[] { 0, 0, 1, 1, 1, 2, 2, 3, 3, 3, 3 };
             sorter.Sort(collection);
             this.AssertOrdered(collection);
 
             // Com repetidos mas desordenados
-            collection = new int[] { 0, 1, 0, 1, 2, 3, 2, 1, 3, 3, 3 };
+            collection = new uint[] { 0, 1, 0, 1, 2, 3, 2, 1, 3, 3, 3 };
             sorter.Sort(collection);
             this.AssertOrdered(collection);
+        }
+
+        /// <summary>
+        /// Testa qualquer algoritmo de ordenação no que concerne ao texto.
+        /// </summary>
+        /// <param name="sorter">O ordenador.</param>
+        /// <param name="comparer">O comparador.</param>
+        private void TestSort(
+            ISorter<string> sorter,
+            IComparer<string> comparer)
+        {
+            var collection = new string[0];
+            sorter.Sort(collection);
+
+            // Um elemento vazio na colecção
+            collection = new[] { string.Empty };
+            sorter.Sort(collection);
+            Assert.AreEqual(string.Empty, collection[0]);
+
+            // Um elemento não vazio na colecção
+            collection = new[] { "abc" };
+            sorter.Sort(collection);
+            Assert.AreEqual("abc", collection[0]);
+
+            // Dois elementos na ordem inversa
+            collection = new[] { "abc", string.Empty };
+            sorter.Sort(collection);
+            this.AssertOrdered(collection, comparer);
+
+            // Elementos na ordem correcta com a ordenação habitual
+            collection = new[]{
+                "aa",
+                "aa",
+                "aa",
+                "ab",
+                "b",
+                "baa",
+                "bac",
+                "c",
+                "cabcd",
+                "cb"
+            };
+
+            sorter.Sort(collection);
+            this.AssertOrdered(collection, comparer);
+
+            // Elementos na ordem correcta com a ordenação por comprimento
+            collection = new[]{
+                "b",
+                "c",
+                "aa",
+                "aa",
+                "aa",
+                "ab",
+                "cb",
+                "baa",
+                "bac",
+                "cabcd"
+            };
+
+            sorter.Sort(collection);
+            this.AssertOrdered(collection, comparer);
+
+            // Elementos numa ordem arbitrária
+            collection = new[]{
+                "bac",
+                "c",
+                "aa",
+                "aa",
+                "ab",
+                "aa",
+                "b",
+                "cabcd",
+                "cb",
+                "baa",
+                "aab",
+                "baa",
+                "baa",
+                "acb",
+                "aa",
+                "b",
+                "b"
+            };
+
+            sorter.Sort(collection);
+            this.AssertOrdered(collection, comparer);
         }
 
         /// <summary>
         /// Função que permite averiguar se um vector se encontra ordenado.
         /// </summary>
         /// <param name="collection">O vector.</param>
-        private void AssertOrdered(int[] collection)
+        private void AssertOrdered(uint[] collection)
         {
             var count = collection.Length;
             var i = 0;
@@ -631,7 +812,133 @@
                     Assert.IsTrue(current <= next);
                     current = next;
                 }
-            } 
+            }
+        }
+
+        /// <summary>
+        /// Função que permite averiguar se um vector se encontra ordenado.
+        /// </summary>
+        /// <param name="collection">O vector.</param>
+        /// <param name="comparer">O comparador de elementos.</param>
+        private void AssertOrdered<T>(
+            T[] collection,
+            IComparer<T> comparer)
+        {
+            var count = collection.Length;
+            var i = 0;
+            if (i < count)
+            {
+                var current = collection[0];
+                ++i;
+                for (; i < count; ++i)
+                {
+                    var next = collection[i];
+                    Assert.IsTrue(comparer.Compare(current, next) <= 0);
+                    current = next;
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Define um enumerador que permite realizar um teste sobre a ordenação 
+    /// de inteiros com base numa árvore associativa.
+    /// </summary>
+    public class UintRadixEnumerator : IEnumerable<uint>
+    {
+        /// <summary>
+        /// Obtém a base da decomposição.
+        /// </summary>
+        private uint radix;
+
+        /// <summary>
+        /// O número relativo ao iterador.
+        /// </summary>
+        private uint number;
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="UintRadixEnumerator"/>.
+        /// </summary>
+        /// <param name="radix">A base da decompsição.</param>
+        /// <param name="number">O número a ser decomposto.</param>
+        public UintRadixEnumerator(uint radix, uint number)
+        {
+            if (radix < 2)
+            {
+                throw new ArgumentOutOfRangeException("Radix must be a number greater than 1.");
+            }
+            else
+            {
+                this.radix = radix;
+                this.number = number;
+            }
+        }
+
+        /// <summary>
+        /// Obtém ou atribui a base da decomposição.
+        /// </summary>
+        public uint Radix
+        {
+            get
+            {
+                return this.radix;
+            }
+            set
+            {
+                if (value < 2)
+                {
+                    throw new ArgumentOutOfRangeException("Radix must be a number greater than 1.");
+                }
+                else
+                {
+                    this.radix = value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Obtém ou atribui o número do iterador.
+        /// </summary>
+        public uint Number
+        {
+            get
+            {
+                return this.number;
+            }
+            set
+            {
+                this.number = value;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o enumerador para o enumerável.
+        /// </summary>
+        /// <returns>O enumerador.</returns>
+        public IEnumerator<uint> GetEnumerator()
+        {
+            var innerRadix = this.radix;
+            var innerNumber = this.number;
+            var aux = new List<uint>();
+            while (innerNumber > 0)
+            {
+                aux.Add(innerNumber % radix);
+                innerNumber /= innerRadix;
+            }
+
+            for (int i = aux.Count - 1; i > -1; --i)
+            {
+                yield return aux[i];
+            }
+        }
+
+        /// <summary>
+        /// Otbém o enumerador não genérico para o enumerável.
+        /// </summary>
+        /// <returns>O enumerador não genérico.</returns>
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+        {
+            return this.GetEnumerator();
         }
     }
 }

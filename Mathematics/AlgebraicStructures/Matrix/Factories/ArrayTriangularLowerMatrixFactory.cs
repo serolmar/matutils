@@ -16,9 +16,9 @@
         /// </summary>
         /// <param name="dimension">A dimensão.</param>
         /// <returns>A matriz triangular inferior.</returns>
-        public IMatrix<CoeffType> CreateMatrix(int dimension)
+        public IMathMatrix<CoeffType> CreateMatrix(int dimension)
         {
-            return new ArrayTriangLowerMatrix<CoeffType>(dimension);
+            return new ArrayTriangLowerMathMatrix<CoeffType>(dimension);
         }
 
         /// <summary>
@@ -27,9 +27,9 @@
         /// <param name="dimension">A dimensão.</param>
         /// <param name="defaultValue">O valor por defeito.</param>
         /// <returns>A matriz triagular inferior.</returns>
-        public IMatrix<CoeffType> CreateMatrix(int dimension, CoeffType defaultValue)
+        public IMathMatrix<CoeffType> CreateMatrix(int dimension, CoeffType defaultValue)
         {
-            return new ArrayTriangLowerMatrix<CoeffType>(dimension, defaultValue);
+            return new ArrayTriangLowerMathMatrix<CoeffType>(dimension, defaultValue);
         }
     }
 }

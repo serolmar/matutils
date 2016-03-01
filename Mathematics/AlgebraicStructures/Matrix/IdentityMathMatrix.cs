@@ -4,13 +4,13 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
-    using Utilities.Collections;
+    using Utilities;
 
     /// <summary>
     /// Representa ma matriz identidade.
     /// </summary>
     /// <typeparam name="ElementType">O tipo de objectos que consituem os argumentos.</typeparam>
-    public class IdentityMatrix<ElementType> : IMatrix<ElementType>
+    public class IdentityMathMatrix<ElementType> : IMathMatrix<ElementType>
     {
         /// <summary>
         /// O anel responsável pela indicação das unidades aditiva e multiplicativa.
@@ -23,13 +23,13 @@
         private int dimensions;
 
         /// <summary>
-        /// Cria instâncias de objectos do tipo <see cref="IdentityMatrix{ElementType}"/>.
+        /// Cria instâncias de objectos do tipo <see cref="IdentityMathMatrix{ElementType}"/>.
         /// </summary>
         /// <param name="dimensions">A dimensão da matriz.</param>
         /// <param name="ring">O anel responsável pelas operações sobre os coeficientes.</param>
         /// <exception cref="ArgumentNullException">Se o anel for nulo.</exception>
         /// <exception cref="ArgumentOutOfRangeException">Se a dimensão for negativa.</exception>
-        public IdentityMatrix(int dimensions, IRing<ElementType> ring)
+        public IdentityMathMatrix(int dimensions, IRing<ElementType> ring)
         {
             if (ring == null)
             {

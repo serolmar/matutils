@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
+    using Utilities;
 
     /// <summary>
     /// Obtém a solução do sistema Ax = b onde A corresponde a uma matriz simétrica.
@@ -11,7 +12,7 @@
     /// <typeparam name="ElementType">O tipo de elementos que constituem as entradas das matrizes.</typeparam>
     /// <typeparam name="FieldType">O tipo de objectos responsáveis pelas operações sobre as entradas das matrizes.</typeparam>
     public class SequentialLanczosAlgorithm<ElementType, FieldType> :
-        IAlgorithm<ISquareMatrix<ElementType>, IMatrix<ElementType>, IMatrix<ElementType>>
+        IAlgorithm<ISquareMathMatrix<ElementType>, IMatrix<ElementType>, IMatrix<ElementType>>
         where FieldType : IField<ElementType>
     {
         /// <summary>
@@ -107,7 +108,7 @@
         /// Se o número de colunas da matriz de sistema e o tamano do vector independente não coincidirem.
         /// </exception>
         public IMatrix<ElementType> Run(
-            ISquareMatrix<ElementType> linearSystemMatrix, 
+            ISquareMathMatrix<ElementType> linearSystemMatrix,
             IMatrix<ElementType> independentVector)
         {
             if (linearSystemMatrix == null)
@@ -138,14 +139,16 @@
                         // TODO: Concluir um objecto responsável pelo produto de matrizes quadradas.
                         innerLinearSystemMatrix = this.multiplicationOperation.Multiply(
                             transposed,
-                            innerLinearSystemMatrix) as ISquareMatrix<ElementType>;
+                            innerLinearSystemMatrix) as ISquareMathMatrix<ElementType>;
                         innerIndependentVector = this.multiplicationOperation.Multiply(
                             transposed,
                             independentVector);
                     }
 
                     var w0 = innerIndependentVector;
-                    var resultVector = this.matrixFactory.CreateMatrix(
+
+                    // TODO: ver este ponto aquando da alteração das fábricas.
+                    IMatrix<ElementType> resultVector = this.matrixFactory.CreateMatrix(
                         linearSystemColumns,
                         1,
                         this.field.AdditiveUnity);
@@ -281,7 +284,9 @@
                 transposedVector,
                 systemVector)[0, 0];
             coeff = this.field.Multiply(coeff, this.field.MultiplicativeInverse(chi));
-            var result = this.matrixFactory.CreateMatrix(
+            
+            // TODO: ver este ponto aquando da alteração das fábricas
+            IMatrix<ElementType> result = this.matrixFactory.CreateMatrix(
                 currentVector.GetLength(0),
                 1,
                 this.field.AdditiveUnity);

@@ -459,7 +459,7 @@
         /// <param name="conversion">O conversor que permite converter entre o grau e os números inteiros.</param>
         /// <returns>O vector com o valor da soma das potências.</returns>
         /// <exception cref="ArgumentNullException">Se pelo meno um dos argumentos for nulo.</exception>
-        public IMatrix<CoeffType> GetRootPowerSums(
+        public IMathMatrix<CoeffType> GetRootPowerSums(
             IField<CoeffType> field,
             IConversion<int, DegreeType> conversion)
         {
@@ -477,7 +477,7 @@
             }
             else
             {
-                var result = new ArrayMatrix<CoeffType>(
+                var result = new ArrayMathMatrix<CoeffType>(
                     conversion.DirectConversion(this.Degree), 1, field.AdditiveUnity);
                 var termsEnumerator = this.terms.GetEnumerator();
                 if (termsEnumerator.MoveNext())
@@ -486,7 +486,7 @@
                     var topDegree = conversion.DirectConversion(termsEnumerator.Current.Key);
                     if (topDegree == 0)
                     {
-                        return new ArrayMatrix<CoeffType>(0, 0, field.AdditiveUnity);
+                        return new ArrayMathMatrix<CoeffType>(0, 0, field.AdditiveUnity);
                     }
                     else if (termsEnumerator.MoveNext())
                     {
@@ -549,7 +549,7 @@
                 }
                 else
                 {
-                    return new ArrayMatrix<CoeffType>(0, 0, field.AdditiveUnity);
+                    return new ArrayMathMatrix<CoeffType>(0, 0, field.AdditiveUnity);
                 }
 
                 return result;

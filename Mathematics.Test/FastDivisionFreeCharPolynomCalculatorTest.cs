@@ -41,7 +41,7 @@
                 true);
             var fastDivFreeCharacPolAlg = new FastDivisionFreeCharPolynomCalculator<int>(variableName, integerDomain);
             var expected = TestsHelper.ReadUnivarPolynomial("x^3-6*x^2+3*x+18", integerDomain, integerParser, conversion, variableName);
-            var actual = fastDivFreeCharacPolAlg.Run(matrix as ISquareMatrix<int>);
+            var actual = fastDivFreeCharacPolAlg.Run(matrix as ISquareMathMatrix<int>);
             Assert.AreEqual(expected, actual);
         }
 
@@ -62,7 +62,7 @@
                 integerParser);
             var fastDivFreeCharacPolAlg = new FastDivisionFreeCharPolynomCalculator<BigInteger>(variableName, integerDomain);
             var expected = TestsHelper.ReadUnivarPolynomial("1*x^3+-1140480954*x^2-58754054577367644*x+4689162494877443109176", integerDomain, integerParser, conversion, variableName);
-            var actual = fastDivFreeCharacPolAlg.Run(matrix as ISquareMatrix<BigInteger>);
+            var actual = fastDivFreeCharacPolAlg.Run(matrix as ISquareMathMatrix<BigInteger>);
             Assert.AreEqual(expected, actual);
         }
     }

@@ -64,7 +64,7 @@
             var systemSolver = new SequentialLanczosAlgorithm<Fraction<BigInteger>, FractionField<BigInteger>>(
                         matrixFactory,
                         fractionField);
-            var squareMatrix = (coeffsMatrix as ArrayMatrix<Fraction<BigInteger>>).AsSquare();
+            var squareMatrix = (coeffsMatrix as ArrayMathMatrix<Fraction<BigInteger>>).AsSquare();
             var actual = systemSolver.Run(squareMatrix, vectorMatrix);
 
             for (int i = 0; i < 3; ++i)

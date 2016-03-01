@@ -229,35 +229,35 @@ namespace Mathematics.Test
             var longMatrixConversion = new CantConvertConversion<int, IMatrix<long>>();
             var bigIntegerMatrixConversion = new CantConvertConversion<int, IMatrix<BigInteger>>();
 
-            var integerMatrixConfigParser = new ConfigMatrixParser<int>(
+            var integerMatrixConfigParser = new ConfigMatrixParser<int, IMatrix<int>>(
                 integerParser,
                 2,
                 2,
-                integerSquareArrayMatrixfactory);
+                (i, j)=>integerSquareArrayMatrixfactory.CreateMatrix(i,j));
             integerMatrixConfigParser.SeparatorSymbType = "comma";
             integerMatrixConfigParser.MapInternalDelimiters("left_bracket", "right_bracket");
             integerMatrixConfigParser.AddBlanckSymbolType("blancks");
 
-            var longMatrixConfigParser = new ConfigMatrixParser<long>(
+            var longMatrixConfigParser = new ConfigMatrixParser<long, IMatrix<long>>(
                 longParser,
                 2,
                 2,
-                longSquareArrayMatrixFactory);
+                (i,j)=>longSquareArrayMatrixFactory.CreateMatrix(i,j));
             longMatrixConfigParser.SeparatorSymbType = "comma";
             longMatrixConfigParser.MapInternalDelimiters("left_bracket", "right_bracket");
             longMatrixConfigParser.AddBlanckSymbolType("blancks");
 
-            var bigIntegerMatrixConfigParser = new ConfigMatrixParser<BigInteger>(
+            var bigIntegerMatrixConfigParser = new ConfigMatrixParser<BigInteger,IMatrix<BigInteger>>(
                 bigIntegerParser,
                 2,
                 2,
-                bigIntegerSquareArrayMatrixfactory);
+                (i,j)=>bigIntegerSquareArrayMatrixfactory.CreateMatrix(i,j));
             bigIntegerMatrixConfigParser.SeparatorSymbType = "comma";
             bigIntegerMatrixConfigParser.MapInternalDelimiters("left_bracket", "right_bracket");
             bigIntegerMatrixConfigParser.AddBlanckSymbolType("blancks");
 
             // Leitura dos polinómios e subsequente teste.
-            var integerPolynomial = TestsHelper.ReadUnivarPolynomial(
+            var integerPolynomial = TestsHelper.ReadUnivarPolynomial<IMatrix<int>>(
                 polynomialText,
                 integerGenericMatrixRing,
                 integerMatrixConfigParser,

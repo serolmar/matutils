@@ -5,7 +5,6 @@
     using System.Linq;
     using System.Text;
     using Utilities;
-    using Utilities.Collections;
 
     /// <summary>
     /// Define um interpolador básico.

@@ -15,7 +15,7 @@
             TriangDiagSymmMatrixDecompResult<CoeffType>,
             ISquareMatrixFactory<CoeffType>,
             IField<CoeffType>,
-            IMatrix<CoeffType>>
+            IMathMatrix<CoeffType>>
     {
         /// <summary>
         /// Determina a inversa da matriz correspondente à decomposição especificada.
@@ -25,7 +25,7 @@
         /// <param name="field">O corpo responsável pelas operações sobre os objectos.</param>
         /// <returns>A inversa da matriz associada à decomposição.</returns>
         /// <exception cref="ArgumentNullException">Se algums dos argumentos for nulo.</exception>
-        public IMatrix<CoeffType> Run(
+        public IMathMatrix<CoeffType> Run(
             TriangDiagSymmMatrixDecompResult<CoeffType> decompositionResult,
             ISquareMatrixFactory<CoeffType> matrixFactory,
             IField<CoeffType> field)
@@ -110,7 +110,7 @@
         /// Estabelece os valores na parte trangular inferior da matriz.
         /// </summary>
         /// <param name="matrix">A matriz.</param>
-        private void SetLowerTerms(IMatrix<CoeffType> matrix)
+        private void SetLowerTerms(IMathMatrix<CoeffType> matrix)
         {
             var dimension = matrix.GetLength(0);
             for (int i = 0; i < dimension; ++i)

@@ -10,12 +10,12 @@
     /// Representa o gerador de um sub-espaço vectorial.
     /// </summary>
     /// <typeparam name="CoeffType">O tipo de valores do espaço.</typeparam>
-    public class VectorSpaceGenerator<CoeffType> : IList<IVector<CoeffType>>
+    public class VectorSpaceGenerator<CoeffType> : IList<IMathVector<CoeffType>>
     {
         /// <summary>
         /// Os vectores que constituem a base do espaço vectorial.
         /// </summary>
-        private List<IVector<CoeffType>> basisVectors;
+        private List<IMathVector<CoeffType>> basisVectors;
 
         /// <summary>
         /// O número de entradas dos vectores permitidos.
@@ -37,7 +37,7 @@
             }
             else
             {
-                this.basisVectors = new List<IVector<CoeffType>>();
+                this.basisVectors = new List<IMathVector<CoeffType>>();
                 this.vectorSpaceDimension = vectorSpaceDimension;
             }
         }
@@ -49,7 +49,7 @@
         /// <param name="basisVectors">Uma lista inicial de vectores da base.</param>
         private VectorSpaceGenerator(
             int vectorSpaceDimension, 
-            List<IVector<CoeffType>> basisVectors)
+            List<IMathVector<CoeffType>> basisVectors)
         {
             this.vectorSpaceDimension = vectorSpaceDimension;
             this.basisVectors = basisVectors;
@@ -67,7 +67,7 @@
         /// Se o espaço corrente for só de leitura ou as dimensões do vector não coincidirem com a dimensão
         /// estabelecida para o espaço vectorial corrente.
         /// </exception>
-        public IVector<CoeffType> this[int index]
+        public IMathVector<CoeffType> this[int index]
         {
             get
             {
@@ -123,7 +123,7 @@
         /// </summary>
         /// <param name="item">O vector a ser procudrado.</param>
         /// <returns>O índice da posição da primeira ocorrência do vector.</returns>
-        public int IndexOf(IVector<CoeffType> item)
+        public int IndexOf(IMathVector<CoeffType> item)
         {
             return this.basisVectors.IndexOf(item);
         }
@@ -134,7 +134,7 @@
         /// <param name="item">O vector a ser procurado.</param>
         /// <param name="index">O índice de partida.</param>
         /// <returns>O índice da primeira ocorrência do vector.</returns>
-        public int IndexOf(IVector<CoeffType> item, int index)
+        public int IndexOf(IMathVector<CoeffType> item, int index)
         {
             return this.basisVectors.IndexOf(item, index);
         }
@@ -146,7 +146,7 @@
         /// <param name="index">O índice de partida na pesquisa.</param>
         /// <param name="count">O número de vectores a serem pesquisados.</param>
         /// <returns>O índice da posição da primeira ocorrência.</returns>
-        public int IndexOf(IVector<CoeffType> item, int index, int count)
+        public int IndexOf(IMathVector<CoeffType> item, int index, int count)
         {
             return this.basisVectors.IndexOf(item, index, count);
         }
@@ -156,7 +156,7 @@
         /// </summary>
         /// <param name="item">O vector a ser procurado.</param>
         /// <returns>O índice da posição da sua última ocorrência.</returns>
-        public int LastIndexOf(IVector<CoeffType> item)
+        public int LastIndexOf(IMathVector<CoeffType> item)
         {
             return this.basisVectors.LastIndexOf(item);
         }
@@ -167,7 +167,7 @@
         /// <param name="item">O vector a ser procurado.</param>
         /// <param name="index">O índice de partida.</param>
         /// <returns>O índice da última ocorrência do vector.</returns>
-        public int LastIndexOf(IVector<CoeffType> item, int index)
+        public int LastIndexOf(IMathVector<CoeffType> item, int index)
         {
             return this.basisVectors.LastIndexOf(item, index);
         }
@@ -179,7 +179,7 @@
         /// <param name="index">O índice de partida na pesquisa.</param>
         /// <param name="count">O número de vectores a serem pesquisados.</param>
         /// <returns>O índice da posição da última ocorrência.</returns>
-        public int LastIndexOf(IVector<CoeffType> item, int index, int count)
+        public int LastIndexOf(IMathVector<CoeffType> item, int index, int count)
         {
             return this.basisVectors.LastIndexOf(item, index, count);
         }
@@ -196,7 +196,7 @@
         /// <exception cref="ArgumentNullException">
         /// Se o item for nulo.
         /// </exception>
-        public void Insert(int index, IVector<CoeffType> item)
+        public void Insert(int index, IMathVector<CoeffType> item)
         {
             if (this.IsReadOnly)
             {
@@ -226,7 +226,7 @@
         /// Se o espaço corrente for só de leitura ou a dimensão do vector não coincidor com
         /// a dimensão permitida pelo espaço vectorial corrente.
         /// </exception>
-        public void InsertRange(int index, IEnumerable<IVector<CoeffType>> collection)
+        public void InsertRange(int index, IEnumerable<IMathVector<CoeffType>> collection)
         {
             if (this.IsReadOnly)
             {
@@ -276,7 +276,7 @@
         /// a dimensão permitida pelo espaço vectorial corrente.
         /// </exception>
         /// <exception cref="ArgumentNullException">Se o item for nulo.</exception>
-        public void Add(IVector<CoeffType> item)
+        public void Add(IMathVector<CoeffType> item)
         {
             if (this.IsReadOnly)
             {
@@ -305,7 +305,7 @@
         /// a dimensão permitida pelo espaço vectorial corrente.
         /// </exception>
         /// <exception cref="ArgumentNullException">Se a colecção for nula.</exception>
-        public void AddRange(IEnumerable<IVector<CoeffType>> collection)
+        public void AddRange(IEnumerable<IMathVector<CoeffType>> collection)
         {
             if (this.IsReadOnly)
             {
@@ -353,7 +353,7 @@
         /// </remarks>
         /// <param name="item">O vector.</param>
         /// <returns>Verdadeiro caso o vector se encontre na base e falso caso contrário.</returns>
-        public bool Contains(IVector<CoeffType> item)
+        public bool Contains(IMathVector<CoeffType> item)
         {
             return this.basisVectors.Contains(item);
         }
@@ -365,7 +365,7 @@
         /// <param name="item">O vector.</param>
         /// <param name="comparer">O comparador.</param>
         /// <returns>Verdadeiro caso o vector se encontre  na base e falso caso contrário.</returns>
-        public bool Contains(IVector<CoeffType> item, IEqualityComparer<IVector<CoeffType>> comparer)
+        public bool Contains(IMathVector<CoeffType> item, IEqualityComparer<IMathVector<CoeffType>> comparer)
         {
             return this.basisVectors.Contains(item, comparer);
         }
@@ -378,7 +378,7 @@
         /// <param name="item">O vector.</param>
         /// <param name="coeffComparer">O comparador de coeficientes.</param>
         /// <returns>Verdadeoro caso o vector se encontre na base e falso caso contrário.</returns>
-        public bool Contains(IVector<CoeffType> item, IEqualityComparer<CoeffType> coeffComparer)
+        public bool Contains(IMathVector<CoeffType> item, IEqualityComparer<CoeffType> coeffComparer)
         {
             var innerComparer = coeffComparer;
             if (innerComparer == null)
@@ -393,7 +393,7 @@
         /// Copia o conteúdo da base para um vector de memória.
         /// </summary>
         /// <param name="array">O vector de memória.</param>
-        public void CopyTo(IVector<CoeffType>[] array)
+        public void CopyTo(IMathVector<CoeffType>[] array)
         {
             this.basisVectors.CopyTo(array);
         }
@@ -404,7 +404,7 @@
         /// </summary>
         /// <param name="array">O vector de memória.</param>
         /// <param name="arrayIndex">O índice da posição a iniciar a cópia.</param>
-        public void CopyTo(IVector<CoeffType>[] array, int arrayIndex)
+        public void CopyTo(IMathVector<CoeffType>[] array, int arrayIndex)
         {
             this.basisVectors.CopyTo(array, arrayIndex);
         }
@@ -418,7 +418,7 @@
         /// <param name="array">O vector de memória.</param>
         /// <param name="arrayIndex">O índice inicial da posição no vector de memória.</param>
         /// <param name="count">O número de elementos a serem copiados.</param>
-        public void CopyTo(int index, IVector<CoeffType>[] array, int arrayIndex, int count)
+        public void CopyTo(int index, IMathVector<CoeffType>[] array, int arrayIndex, int count)
         {
             this.basisVectors.CopyTo(index, array, arrayIndex, count);
         }
@@ -429,7 +429,7 @@
         /// </summary>
         /// <param name="match">O predicado.</param>
         /// <returns>Verdadeiro caso exista algum vector e falso caso contrário.</returns>
-        public bool Exists(Predicate<IVector<CoeffType>> match)
+        public bool Exists(Predicate<IMathVector<CoeffType>> match)
         {
             return this.basisVectors.Exists(match);
         }
@@ -439,7 +439,7 @@
         /// </summary>
         /// <param name="match">O predicado.</param>
         /// <returns>O vector que obedeça aos critérios.</returns>
-        public IVector<CoeffType> Find(Predicate<IVector<CoeffType>> match)
+        public IMathVector<CoeffType> Find(Predicate<IMathVector<CoeffType>> match)
         {
             return this.basisVectors.Find(match);
         }
@@ -449,7 +449,7 @@
         /// </summary>
         /// <param name="match">O predicado.</param>
         /// <returns>A lista com todos os vectores.</returns>
-        public List<IVector<CoeffType>> FindAll(Predicate<IVector<CoeffType>> match)
+        public List<IMathVector<CoeffType>> FindAll(Predicate<IMathVector<CoeffType>> match)
         {
             return this.basisVectors.FindAll(match);
         }
@@ -459,7 +459,7 @@
         /// </summary>
         /// <param name="match">O predicado.</param>
         /// <returns>O índice da posição da primeira ocorrência.</returns>
-        public int FindIndex(Predicate<IVector<CoeffType>> match)
+        public int FindIndex(Predicate<IMathVector<CoeffType>> match)
         {
             return this.basisVectors.FindIndex(match);
         }
@@ -470,7 +470,7 @@
         /// <param name="startIndex">O ídndice onde é iniciada a procura.</param>
         /// <param name="match">O predicado.</param>
         /// <returns>O índice da posição da primeira ocorrência.</returns>
-        public int FindIndex(int startIndex, Predicate<IVector<CoeffType>> match)
+        public int FindIndex(int startIndex, Predicate<IMathVector<CoeffType>> match)
         {
             return this.basisVectors.FindIndex(startIndex, match);
         }
@@ -482,7 +482,7 @@
         /// <param name="count">O número de vectores a serem pesquisados.</param>
         /// <param name="match">O predicado.</param>
         /// <returns>O índice da posição da primeira ocorrência.</returns>
-        public int FindIndex(int startIndex, int count, Predicate<IVector<CoeffType>> match)
+        public int FindIndex(int startIndex, int count, Predicate<IMathVector<CoeffType>> match)
         {
             return this.basisVectors.FindIndex(startIndex, count, match);
         }
@@ -492,7 +492,7 @@
         /// </summary>
         /// <param name="match">O predicado.</param>
         /// <returns>O vector.</returns>
-        public IVector<CoeffType> FindLast(Predicate<IVector<CoeffType>> match)
+        public IMathVector<CoeffType> FindLast(Predicate<IMathVector<CoeffType>> match)
         {
             return this.FindLast(match);
         }
@@ -502,7 +502,7 @@
         /// </summary>
         /// <param name="match">O predicado.</param>
         /// <returns>O índice da posição da última ocorrência.</returns>
-        public int FindLastIndex(Predicate<IVector<CoeffType>> match)
+        public int FindLastIndex(Predicate<IMathVector<CoeffType>> match)
         {
             return this.basisVectors.FindLastIndex(match);
         }
@@ -513,7 +513,7 @@
         /// <param name="startIndex">O ídndice onde é iniciada a procura.</param>
         /// <param name="match">O predicado.</param>
         /// <returns>O índice da posição da última ocorrência.</returns>
-        public int FindLastIndex(int startIndex, Predicate<IVector<CoeffType>> match)
+        public int FindLastIndex(int startIndex, Predicate<IMathVector<CoeffType>> match)
         {
             return this.basisVectors.FindLastIndex(startIndex, match);
         }
@@ -525,7 +525,7 @@
         /// <param name="count">O número de vectores a serem pesquisados.</param>
         /// <param name="match">O predicado.</param>
         /// <returns>O índice da posição da última ocorrência.</returns>
-        public int FindLastIndex(int startIndex, int count, Predicate<IVector<CoeffType>> match)
+        public int FindLastIndex(int startIndex, int count, Predicate<IMathVector<CoeffType>> match)
         {
             return this.basisVectors.FindLastIndex(startIndex, count, match);
         }
@@ -534,7 +534,7 @@
         /// Aplica uma acção a cada um dos vectores da base.
         /// </summary>
         /// <param name="action">A acção.</param>
-        public void Foreach(Action<IVector<CoeffType>> action)
+        public void Foreach(Action<IMathVector<CoeffType>> action)
         {
             this.basisVectors.ForEach(action);
         }
@@ -545,7 +545,7 @@
         /// <param name="item">O vector a ser removido.</param>
         /// <returns>Verdadeiro caso a operação seja bem sucedida e falso caso contrário.</returns>
         /// <exception cref="MathematicsException">Se o espaço vectorial corrente for só de leitura.</exception>
-        public bool Remove(IVector<CoeffType> item)
+        public bool Remove(IMathVector<CoeffType> item)
         {
             if (this.IsReadOnly)
             {
@@ -563,7 +563,7 @@
         /// <param name="match">O predicado.</param>
         /// <returns>O número de vectores removidos.</returns>
         /// <exception cref="MathematicsException">Se o espaço vectorial corrente for só de leitura.</exception>
-        public int RemoveAll(Predicate<IVector<CoeffType>> match)
+        public int RemoveAll(Predicate<IMathVector<CoeffType>> match)
         {
             if (this.IsReadOnly)
             {
@@ -598,7 +598,7 @@
         /// </summary>
         /// <param name="match">O preicado.</param>
         /// <returns>Verdadeiro caso todos os elmentos satisfaçam o predicado e falso caso contrário.</returns>
-        public bool TrueForAll(Predicate<IVector<CoeffType>> match)
+        public bool TrueForAll(Predicate<IMathVector<CoeffType>> match)
         {
             return this.basisVectors.TrueForAll(match);
         }
@@ -607,7 +607,7 @@
         /// Obtém um enumerador para todos os vectores da base.
         /// </summary>
         /// <returns>O enumerador.</returns>
-        public IEnumerator<IVector<CoeffType>> GetEnumerator()
+        public IEnumerator<IMathVector<CoeffType>> GetEnumerator()
         {
             return this.basisVectors.GetEnumerator();
         }
@@ -655,8 +655,8 @@
         /// <exception cref="ArgumentNullException">Se algum dos argumentos for nulo.</exception>
         public VectorSpaceGenerator<CoeffType> GetOrthogonalizedBase(
             IField<CoeffType> coefficientsField,
-            IVectorSpace<CoeffType, IVector<CoeffType>> vectorSpace,
-            IScalarProductSpace<IVector<CoeffType>, CoeffType> scalarProduct)
+            IVectorSpace<CoeffType, IMathVector<CoeffType>> vectorSpace,
+            IScalarProductSpace<IMathVector<CoeffType>, CoeffType> scalarProduct)
         {
             if (coefficientsField == null)
             {
@@ -672,7 +672,7 @@
             }
             else
             {
-                var result = new List<IVector<CoeffType>>();
+                var result = new List<IMathVector<CoeffType>>();
 
                 // Mantém a lista de resultados intermédios
                 var intermediaryResults = new List<CoeffType>();
@@ -805,8 +805,8 @@
         /// <param name="comparer">O comparador.</param>
         /// <returns></returns>
         private bool CompareVectors(
-            IVector<CoeffType> first, 
-            IVector<CoeffType> second,
+            IMathVector<CoeffType> first, 
+            IMathVector<CoeffType> second,
             IEqualityComparer<CoeffType> comparer)
         {
             for (int i = 0; i < this.vectorSpaceDimension; ++i)

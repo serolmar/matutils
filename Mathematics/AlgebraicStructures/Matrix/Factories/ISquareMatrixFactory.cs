@@ -16,7 +16,7 @@
         /// </summary>
         /// <param name="dimension">A dimensão.</param>
         /// <returns>A matriz quadrada.</returns>
-        IMatrix<ObjectType> CreateMatrix(int dimension);
+        IMathMatrix<ObjectType> CreateMatrix(int dimension);
 
         /// <summary>
         /// Cria uma matriz quadrada com a dimensão especificada.
@@ -24,6 +24,6 @@
         /// <param name="dimension">A dimensão da matriz.</param>
         /// <param name="defaultValue">O valor que surgirá por defeito.</param>
         /// <returns>A matriz quadrada.</returns>
-        IMatrix<ObjectType> CreateMatrix(int dimension, ObjectType defaultValue);
+        IMathMatrix<ObjectType> CreateMatrix(int dimension, ObjectType defaultValue);
     }
 }

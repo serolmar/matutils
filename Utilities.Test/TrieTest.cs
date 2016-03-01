@@ -12,8 +12,8 @@
         /// <summary>
         /// Fábrica responsável pela criação dos dicionários.
         /// </summary>
-        private DictionaryEqualityComparerFactory<char, DicDrivenTrieSet<char, string>.TrieNode> dicFactory =
-            new DictionaryEqualityComparerFactory<char, DicDrivenTrieSet<char, string>.TrieNode>(
+        private Func<IDictionary<char, DicDrivenTrieSet<char,string>.TrieNode>> dicFactory = () =>
+            new Dictionary<char, DicDrivenTrieSet<char, string>.TrieNode>(
                 EqualityComparer<char>.Default);
 
         /// <summary>
@@ -570,6 +570,119 @@
                 this.dicFactory);
             var actual = target.SetEquals(expectedTarget);
             Assert.IsTrue(actual);
+        }
+
+        /// <summary>
+        /// Testa o iterador associado a uma árvore associativa.
+        /// </summary>
+        [Description("Tests the iterator from trie set.")]
+        [TestMethod]
+        public void DicDrivenTrieSet_IteratorTest()
+        {
+            var target = new DicDrivenTrieSet<char, string>();
+            target.Add("Isto");
+            target.Add("um");
+            target.Add("teste");
+            target.Add("iterador");
+            target.Add("associativa");
+
+            var text = "Isto constitui um teste ao iterador da árvore associativa.";
+            var expected = new[]{
+                true,
+                false,
+                true,
+                true,
+                false,
+                true,
+                false,
+                false,
+                true
+            };
+
+            #region Verifica Existência
+
+            var iterator = target.GetIterator();
+            var length = text.Length;
+            var actual = new List<bool>();
+            var state = 0;
+            var i = -1;
+            while (state != -1)
+            {
+                ++i;
+                if (state == 0)
+                {
+                    if (i < length)
+                    {
+                        var current = text[i];
+                        if (current != ' ' && current != '.')
+                        {
+                            iterator.Reset();
+                            if (iterator.GoForward(current))
+                            {
+                                state = 1;
+                            }
+                            else
+                            {
+                                // Ignora a palavra.
+                                actual.Add(false);
+                                iterator.Reset();
+                                state = 2;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        state = -1;
+                    }
+                }
+                else if (state == 1)
+                {
+                    if (i < length)
+                    {
+                        var current = text[i];
+                        if (current == ' ' || current == '.')
+                        {
+                            actual.Add(true);
+                            iterator.Reset();
+                            state = 0;
+                        }
+                        else
+                        {
+                            if (!iterator.GoForward(current))
+                            {
+                                // Ignora a palavra.
+                                actual.Add(false);
+                                iterator.Reset();
+                                state = 2;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        actual.Add(true);
+                        state = -1;
+                    }
+                }
+                else
+                {
+                    if (i < length)
+                    {
+                        var current = text[i];
+                        if (current == ' ' || current == '.')
+                        {
+                            state = 0;
+                        }
+                    }
+                    else
+                    {
+                        state = -1;
+                    }
+                }
+            }
+
+            #endregion Verifica Existência
+
+            CollectionAssert.AreEquivalent(expected, actual);
         }
 
         /// <summary>

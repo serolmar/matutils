@@ -4,14 +4,13 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
-    using Utilities.Collections;
     using Utilities;
 
     /// <summary>
     /// Implementa as operações de espaço vectorial.
     /// </summary>
     /// <typeparam name="CoeffType">O tipo dos objectos que constituem as entradas dos vectores.</typeparam>
-    public class VectorSpace<CoeffType> : IVectorSpace<CoeffType, IVector<CoeffType>>
+    public class VectorSpace<CoeffType> : IVectorSpace<CoeffType, IMathVector<CoeffType>>
     {
         /// <summary>
         /// A dimensão dos vectores tratados pelo espaço actual.
@@ -65,7 +64,7 @@
                 this.dimension = dimension;
                 this.field = field;
                 this.vectorFactory = vectorFactory;
-                this.orderedColComparer = new OrderedColEqualityComparer<CoeffType>(field);
+                this.orderedColComparer = new OrderedEqualityColComparer<CoeffType>(field);
             }
         }
 
@@ -103,7 +102,7 @@
         /// <value>
         /// A unidade aditiva.
         /// </value>
-        public IVector<CoeffType> AdditiveUnity
+        public IMathVector<CoeffType> AdditiveUnity
         {
             get
             {
@@ -121,9 +120,9 @@
         /// <exception cref="MathematicsException">
         /// Se a dimensão do vector não coincidir com a dimensão
         /// definda para o espaço vectorial corrente.</exception>
-        public IVector<CoeffType> MultiplyScalar(
+        public IMathVector<CoeffType> MultiplyScalar(
             CoeffType coefficientElement, 
-            IVector<CoeffType> vectorSpaceElement)
+            IMathVector<CoeffType> vectorSpaceElement)
         {
             if (coefficientElement == null)
             {
@@ -159,7 +158,7 @@
         /// Se a dimensão do vector não coincidir com a dimensão definida para o espaço
         /// vectorial.
         /// </exception>
-        public IVector<CoeffType> AdditiveInverse(IVector<CoeffType> number)
+        public IMathVector<CoeffType> AdditiveInverse(IMathVector<CoeffType> number)
         {
             if (number == null)
             {
@@ -191,7 +190,7 @@
         /// Se a dimensão do vector não coincidir com a dimensão definida para o espaço
         /// vectorial.
         /// </exception>
-        public bool IsAdditiveUnity(IVector<CoeffType> value)
+        public bool IsAdditiveUnity(IMathVector<CoeffType> value)
         {
             if (value == null)
             {
@@ -215,7 +214,7 @@
         /// <returns>
         /// Verdadeiro se ambos os vectores forem iguais e falso caso contrário.
         /// </returns>
-        public bool Equals(IVector<CoeffType> x, IVector<CoeffType> y)
+        public bool Equals(IMathVector<CoeffType> x, IMathVector<CoeffType> y)
         {
             return this.orderedColComparer.Equals(x, y);
         }
@@ -227,7 +226,7 @@
         /// <returns>
         /// O código confuso do vector adequado à utilização em alguns algoritmos habituais.
         /// </returns>
-        public int GetHashCode(IVector<CoeffType> obj)
+        public int GetHashCode(IMathVector<CoeffType> obj)
         {
             return this.orderedColComparer.GetHashCode(obj);
         }
@@ -243,7 +242,7 @@
         /// Se a dimensão do vector não coincidir com a dimensão definida para o espaço
         /// vectorial.
         /// </exception>
-        public IVector<CoeffType> Add(IVector<CoeffType> left, IVector<CoeffType> right)
+        public IMathVector<CoeffType> Add(IMathVector<CoeffType> left, IMathVector<CoeffType> right)
         {
             if (left == null)
             {

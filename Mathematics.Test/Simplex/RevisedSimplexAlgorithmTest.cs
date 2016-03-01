@@ -57,7 +57,7 @@
                 inverseMatrixText, 
                 squareMatrixFactory, 
                 doubleElementsParser, 
-                true) as ISquareMatrix<double>;
+                true) as ISquareMathMatrix<double>;
 
             // Leitura do vector de restrições.
             var vectorFactory = new ArrayVectorFactory<double>();
@@ -132,7 +132,7 @@
                 inverseMatrixText,
                 squareMatrixFactory,
                 doubleElementsParser,
-                true) as ISquareMatrix<double>;
+                true) as ISquareMathMatrix<double>;
 
             // Leitura do vector de restrições.
             var vectorFactory = new ArrayVectorFactory<double>();
@@ -144,7 +144,7 @@
                 true);
 
             // Introdução da função objectivo.
-            var inputObjectiveFunction = new ArrayVector<SimplexMaximumNumberField<double>>(2);
+            var inputObjectiveFunction = new ArrayMathVector<SimplexMaximumNumberField<double>>(2);
             inputObjectiveFunction[0] = new SimplexMaximumNumberField<double>(
                 -3,
                 -3);
@@ -282,7 +282,7 @@
         /// <param name="matrixFactory">O objecto responsável pela criação de matrizes.</param>
         /// <param name="defaultvalue">O valor por defeito.</param>
         /// <returns>A matriz.</returns>
-        private ISquareMatrix<double> GenerateTestInverseMatrix(
+        private ISquareMathMatrix<double> GenerateTestInverseMatrix(
             IMatrixFactory<double> matrixFactory,
             double defaultvalue)
         {
@@ -312,7 +312,7 @@
             result[3, 2] = 2.0;
             result[3, 3] = 1.0;
 
-            return result as ISquareMatrix<double>;
+            return result as ISquareMathMatrix<double>;
         }
 
         /// <summary>
@@ -328,7 +328,7 @@
         /// <param name="matrixFactory">O objecto responsável pela criação de matrizes.</param>
         /// <param name="defaultValue">O valor por defeito.</param>
         /// <returns>O vector gerado.</returns>
-        private IMatrix<double> GenerateTestConstraintsMatrix(
+        private IMathMatrix<double> GenerateTestConstraintsMatrix(
             IMatrixFactory<double> matrixFactory,
             double defaultValue)
         {

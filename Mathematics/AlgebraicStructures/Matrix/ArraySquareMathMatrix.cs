@@ -9,27 +9,27 @@
     /// Representa uma matriz quadrada.
     /// </summary>
     /// <typeparam name="CoeffType">O tipo de objectos que constituem as entradas das matrizes.</typeparam>
-    public class ArraySquareMatrix<CoeffType> : ArrayMatrix<CoeffType>, ISquareMatrix<CoeffType>
+    public class ArraySquareMathMatrix<CoeffType> : ArrayMathMatrix<CoeffType>, ISquareMathMatrix<CoeffType>
     {
         /// <summary>
-        /// Cria instâncias de obejctos do tipo <see cref="ArraySquareMatrix{CoeffType}"/>
+        /// Cria instâncias de obejctos do tipo <see cref="ArraySquareMathMatrix{CoeffType}"/>
         /// </summary>
         /// <param name="dimension">A dimensão da matriz.</param>
-        public ArraySquareMatrix(int dimension) : base(dimension, dimension) { }
+        public ArraySquareMathMatrix(int dimension) : base(dimension, dimension) { }
 
         /// <summary>
-        /// Cria instâncias de obejctos do tipo <see cref="ArraySquareMatrix{CoeffType}"/>
+        /// Cria instâncias de obejctos do tipo <see cref="ArraySquareMathMatrix{CoeffType}"/>
         /// </summary>
         /// <param name="dimension">A dimensão da matriz.</param>
         /// <param name="defaultValue">O valor por defeito.</param>
-        public ArraySquareMatrix(int dimension, CoeffType defaultValue) : base(dimension, dimension, defaultValue) { }
+        public ArraySquareMathMatrix(int dimension, CoeffType defaultValue) : base(dimension, dimension, defaultValue) { }
 
         /// <summary>
-        /// Cria instâncias de obejctos do tipo <see cref="ArraySquareMatrix{CoeffType}"/>
+        /// Cria instâncias de obejctos do tipo <see cref="ArraySquareMathMatrix{CoeffType}"/>
         /// </summary>
         /// <param name="elements">O contentor de coeficientes.</param>
         /// <param name="dimension">A dimensão da matriz.</param>
-        internal ArraySquareMatrix(CoeffType[][] elements, int dimension)
+        internal ArraySquareMathMatrix(CoeffType[][] elements, int dimension)
             : base(elements, dimension, dimension) { }
 
         /// <summary>

@@ -4,12 +4,12 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
-    using Utilities.Collections;
+    using Utilities;
 
     /// <summary>
     /// Representa uma matriz de bits cujo contentor consiste num vector de bits do sistema.
     /// </summary>
-    public class BitMatrix : IMatrix<int>
+    public class BitMathMatrix : IMathMatrix<int>
     {
         /// <summary>
         /// O número de linhas.
@@ -27,11 +27,11 @@
         private BitList[] bitMatrix;
 
         /// <summary>
-        /// Cria instâncias de objectos do tipo <see cref="BitMatrix"/>.
+        /// Cria instâncias de objectos do tipo <see cref="BitMathMatrix"/>.
         /// </summary>
         /// <param name="line">O número de linhas da matriz.</param>
         /// <param name="column">O número de colunas da matriz.</param>
-        public BitMatrix(int line, int column)
+        public BitMathMatrix(int line, int column)
         {
             if (line < 0)
             {
@@ -55,13 +55,13 @@
         }
 
         /// <summary>
-        /// Cria instâncias de objectos do tipo <see cref="BitMatrix"/>.
+        /// Cria instâncias de objectos do tipo <see cref="BitMathMatrix"/>.
         /// </summary>
         /// <param name="line">O número de linhas da matriz.</param>
         /// <param name="column">O número de colunas da matriz.</param>
         /// <param name="defaultValue">O valor pode defeito.</param>
         /// <exception cref="ArgumentOutOfRangeException">Se o número de linhas ou de colunas for negativo.</exception>
-        public BitMatrix(int line, int column, int defaultValue)
+        public BitMathMatrix(int line, int column, int defaultValue)
         {
             if (line < 0)
             {
@@ -206,7 +206,7 @@
         /// <param name="lines">As correnadas das linhas que constituem a submatriz.</param>
         /// <param name="columns">As correnadas das colunas que constituem a submatriz.</param>
         /// <returns>A submatriz procurada.</returns>
-        public IMatrix<int> GetSubMatrix(Utilities.Collections.IntegerSequence lines, Utilities.Collections.IntegerSequence columns)
+        public IMatrix<int> GetSubMatrix(Utilities.IntegerSequence lines, Utilities.IntegerSequence columns)
         {
             return new IntegerSequenceSubMatrix<int>(this, lines, columns);
         }
@@ -218,7 +218,7 @@
         /// <returns>O resultado da soma.</returns>
         /// <exception cref="ArgumentNullException">Se o argumento for nulo.</exception>
         /// <exception cref="ArgumentException">Se as dimensões da matriz a adicionar não coincidir com as dimensões da matriz corrente.</exception>
-        public BitMatrix Sum(BitMatrix right)
+        public BitMathMatrix Sum(BitMathMatrix right)
         {
             if (right == null)
             {
@@ -229,7 +229,7 @@
                 if (this.numberOfLines == right.numberOfLines &&
                     this.numberOfColumns == right.numberOfColumns)
                 {
-                    var result = new BitMatrix(
+                    var result = new BitMathMatrix(
                         this.numberOfLines,
                         this.numberOfColumns);
                     for (int i = 0; i < this.numberOfLines; ++i)
@@ -256,7 +256,7 @@
         /// <returns>O resultado do produto.</returns>
         /// <exception cref="ArgumentNullException">Se o argumento for nulo.</exception>
         /// <exception cref="ArgumentException">Se as dimensões da matriz a adicionar não coincidir com as dimensões da matriz corrente.</exception>
-        public BitMatrix Multiply(BitMatrix right)
+        public BitMathMatrix Multiply(BitMathMatrix right)
         {
             if (right == null)
             {
@@ -274,7 +274,7 @@
                 {
                     var firstDimension = this.numberOfLines;
                     var secondDimension = right.numberOfColumns;
-                    var result = new BitMatrix(
+                    var result = new BitMathMatrix(
                         firstDimension,
                         secondDimension);
                     for (int i = 0; i < firstDimension; ++i)

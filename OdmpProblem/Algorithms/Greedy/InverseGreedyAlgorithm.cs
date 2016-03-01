@@ -6,18 +6,18 @@
     using System.Text;
     using System.Threading.Tasks;
     using Mathematics;
-    using Utilities.Collections;
+    using Utilities;
 
     public class InverseGreedyAlgorithm<ElementType>
-        : IAlgorithm<List<SparseDictionaryMatrix<ElementType>>, int, GreedyAlgSolution<ElementType>[]>,
-        IAlgorithm<List<SparseDictionaryMatrix<ElementType>>, IEnumerable<GreedyAlgSolution<ElementType>[]>>
+        : IAlgorithm<List<SparseDictionaryMathMatrix<ElementType>>, int, GreedyAlgSolution<ElementType>[]>,
+        IAlgorithm<List<SparseDictionaryMathMatrix<ElementType>>, IEnumerable<GreedyAlgSolution<ElementType>[]>>
     {
         /// <summary>
         /// Mantém o algoritmo que permite a obtenção da próxima referência.
         /// </summary>
         private IAlgorithm<
                             IntegerSequence,
-                            SparseDictionaryMatrix<ElementType>,
+                            SparseDictionaryMathMatrix<ElementType>,
                             ElementType[],
                             Tuple<int, ElementType>> refGetAlgorithm;
 
@@ -36,7 +36,7 @@
             IRing<ElementType> ring,
             IAlgorithm<
                             IntegerSequence,
-                            SparseDictionaryMatrix<ElementType>,
+                            SparseDictionaryMathMatrix<ElementType>,
                             ElementType[],
                             Tuple<int, ElementType>> refGetAlgorithm)
         {
@@ -69,7 +69,7 @@
         /// <param name="refsNumber">O número de referências a serem escolhidas.</param>
         /// <returns>O conjunto de soluções por matriz.</returns>
         public GreedyAlgSolution<ElementType>[] Run(
-            List<SparseDictionaryMatrix<ElementType>> matrices, 
+            List<SparseDictionaryMathMatrix<ElementType>> matrices, 
             int refsNumber)
         {
             if (matrices == null)
@@ -122,7 +122,7 @@
         /// </summary>
         /// <param name="matrices">As matrizes.</param>
         /// <returns>O enumerador.</returns>
-        public IEnumerable<GreedyAlgSolution<ElementType>[]> Run(List<SparseDictionaryMatrix<ElementType>> matrices)
+        public IEnumerable<GreedyAlgSolution<ElementType>[]> Run(List<SparseDictionaryMathMatrix<ElementType>> matrices)
         {
             var lineBoards = this.SetupBoards(matrices);
             var result = this.SetupResults(lineBoards);
@@ -171,7 +171,7 @@
         /// </summary>
         /// <param name="matrices">O conjunto de matrizes.</param>
         /// <returns>O conjunto de linhsa condensadas.</returns>
-        private ElementType[][] SetupBoards(List<SparseDictionaryMatrix<ElementType>> matrices)
+        private ElementType[][] SetupBoards(List<SparseDictionaryMathMatrix<ElementType>> matrices)
         {
             var result = new ElementType[matrices.Count][];
             for (int i = 0; i < matrices.Count; ++i)
@@ -215,7 +215,7 @@
         /// <param name="boards">A lista de linhas condensadas por matriz.</param>
         /// <returns>As referências.</returns>
         private Tuple<int, ElementType>[] GetFirstRefs(
-            List<SparseDictionaryMatrix<ElementType>> matrices,
+            List<SparseDictionaryMathMatrix<ElementType>> matrices,
             GreedyAlgSolution<ElementType>[] currentSolutions,
             ElementType[][] boards)
         {
@@ -236,7 +236,7 @@
         /// </summary>
         /// <param name="matrix">A matriz.</param>
         /// <returns>O custo.</returns>
-        private ElementType GetMatrixInitialCost(SparseDictionaryMatrix<ElementType> matrix)
+        private ElementType GetMatrixInitialCost(SparseDictionaryMathMatrix<ElementType> matrix)
         {
             var result = this.ring.AdditiveUnity;
             if (matrix.GetLength(0) > 0)
@@ -257,7 +257,7 @@
         /// </summary>
         /// <param name="matrices">O número de matrizes.</param>
         /// <returns>O número de vértices.</returns>
-        private int CountVertices(List<SparseDictionaryMatrix<ElementType>> matrices)
+        private int CountVertices(List<SparseDictionaryMathMatrix<ElementType>> matrices)
         {
             var result = 0;
             for (int i = 0; i < matrices.Count; ++i)

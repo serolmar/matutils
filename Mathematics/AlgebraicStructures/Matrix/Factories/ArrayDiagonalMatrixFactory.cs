@@ -16,9 +16,9 @@
         /// </summary>
         /// <param name="dimension">A dimensão.</param>
         /// <returns>A matriz quadrada.</returns>
-        public IMatrix<CoeffType> CreateMatrix(int dimension)
+        public IMathMatrix<CoeffType> CreateMatrix(int dimension)
         {
-            return new ArrayDiagonalMatrix<CoeffType>(dimension);
+            return new ArrayDiagonalMathMatrix<CoeffType>(dimension);
         }
 
         /// <summary>
@@ -27,9 +27,9 @@
         /// <param name="dimension">A dimensão da matriz.</param>
         /// <param name="defaultValue">O valor que surgirá por defeito.</param>
         /// <returns>A matriz quadrada.</returns>
-        public IMatrix<CoeffType> CreateMatrix(int dimension, CoeffType defaultValue)
+        public IMathMatrix<CoeffType> CreateMatrix(int dimension, CoeffType defaultValue)
         {
-            return new ArrayDiagonalMatrix<CoeffType>(dimension, defaultValue);
+            return new ArrayDiagonalMathMatrix<CoeffType>(dimension, defaultValue);
         }
     }
 }

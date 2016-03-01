@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Utilities.Collections
+namespace Utilities
 {
     /// <summary>
     /// Implementa de uma forma geral um distribuidor que constrói

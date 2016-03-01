@@ -12,6 +12,11 @@
     public enum EGenBankDivision
     {
         /// <summary>
+        /// Não se encontra definido.
+        /// </summary>
+        NOT_DEF = 0,
+
+        /// <summary>
         /// Sequências de primatas.
         /// </summary>
         PRI = 1,
@@ -103,10 +108,36 @@
     }
 
     /// <summary>
+    /// O alinhamento da sequência.
+    /// </summary>
+    public enum EAlignment
+    {
+        /// <summary>
+        /// Não se encontra definido.
+        /// </summary>
+        NOT_DEF = 0,
+
+        /// <summary>
+        /// Alinhamento linear.
+        /// </summary>
+        LINEAR = 1,
+
+        /// <summary>
+        /// Alinhamento circular.
+        /// </summary>
+        CIRCULAR = 2
+    }
+
+    /// <summary>
     /// Possibilidades para a classificação do campo CDS.
     /// </summary>
-    public enum ECdsFeatureClass
+    public enum EFeatureClass
     {
+        /// <summary>
+        /// Não se encontra definido.
+        /// </summary>
+        NOT_DEF = 0,
+
         /// <summary>
         /// Completas.
         /// </summary>
@@ -120,7 +151,219 @@
         /// <summary>
         /// Parcial na terminação 3'.
         /// </summary>
-        PARTIAL_3 = 2
+        PARTIAL_3 = 2,
+
+        /// <summary>
+        /// Indica o gene se encontra na banda complementar.
+        /// </summary>
+        COMPLEMENT = 3
+    }
+
+    /// <summary>
+    /// Define o modelo de leitura do GenBank.
+    /// </summary>
+    public class GenBankModel
+    {
+        /// <summary>
+        /// Informação do locus.
+        /// </summary>
+        private Locus locus;
+
+        /// <summary>
+        /// A descrição.
+        /// </summary>
+        private string descritpion;
+
+        /// <summary>
+        /// Informação de adesão.
+        /// </summary>
+        private string accession;
+
+        /// <summary>
+        /// Informação da versão.
+        /// </summary>
+        private VersionDesecription version;
+
+        /// <summary>
+        /// Palavras chave.
+        /// </summary>
+        private string keywords;
+
+        /// <summary>
+        /// Informação sobre a fonte.
+        /// </summary>
+        private SourceDescription source;
+
+        /// <summary>
+        /// As referências bibliográficas.
+        /// </summary>
+        private List<ReferenceDescription> references;
+
+        /// <summary>
+        /// Descriçção das características.
+        /// </summary>
+        private string featuresDescritpion = string.Empty;
+
+        /// <summary>
+        /// As características.
+        /// </summary>
+        private List<Tuple<string, AttributedFeatures>> features;
+
+        /// <summary>
+        /// A origem.
+        /// </summary>
+        private string origin;
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="GenBankModel"/>.
+        /// </summary>
+        public GenBankModel()
+        {
+            this.references = new List<ReferenceDescription>();
+            this.features = new List<Tuple<string,AttributedFeatures>>();
+        }
+
+        /// <summary>
+        /// Obtém ou atribui a informação do locus.
+        /// </summary>
+        public Locus Locus
+        {
+            get
+            {
+                return this.locus;
+            }
+            set
+            {
+                this.locus = value;
+            }
+        }
+
+        /// <summary>
+        /// Obtém ou atribui a descrição.
+        /// </summary>
+        public string Descritpion
+        {
+            get
+            {
+                return this.descritpion;
+            }
+            set
+            {
+                this.descritpion = value;
+            }
+        }
+
+        /// <summary>
+        /// Obtém ou atribui a informação de adesão.
+        /// </summary>
+        public string Accession
+        {
+            get
+            {
+                return this.accession;
+            }
+            set
+            {
+                this.accession = value;
+            }
+        }
+
+        /// <summary>
+        /// Obtém ou atribui a informação da versão.
+        /// </summary>
+        public VersionDesecription Version
+        {
+            get
+            {
+                return this.version;
+            }
+            set
+            {
+                this.version = value;
+            }
+        }
+
+        /// <summary>
+        /// Obtém ou atribui as palavras chave.
+        /// </summary>
+        public string Keywords
+        {
+            get
+            {
+                return this.keywords;
+            }
+            set
+            {
+                this.keywords = value;
+            }
+        }
+
+        /// <summary>
+        /// Obtém ou atribui a informação da fonte.
+        /// </summary>
+        public SourceDescription Source
+        {
+            get
+            {
+                return this.source;
+            }
+            set
+            {
+                this.source = value;
+            }
+        }
+
+        /// <summary>
+        /// Obtém a lista de referências.
+        /// </summary>
+        public List<ReferenceDescription> References
+        {
+            get
+            {
+                return this.references;
+            }
+        }
+
+        /// <summary>
+        /// Obtém e atribui a descrição das características.
+        /// </summary>
+        public string FeaturesDescription
+        {
+            get
+            {
+                return this.featuresDescritpion;
+            }
+            set
+            {
+                this.featuresDescritpion = value;
+            }
+        }
+
+        /// <summary>
+        /// Obtém a lista de características.
+        /// </summary>
+        public List<Tuple<string, AttributedFeatures>> Features
+        {
+            get
+            {
+                return this.features;
+            }
+        }
+
+        /// <summary>
+        /// Obtém ou atribui a origem.
+        /// </summary>
+        public string Origin
+        {
+            get
+            {
+                return this.origin;
+            }
+            set
+            {
+                this.origin = value;
+            }
+        }
     }
 
     /// <summary>
@@ -137,17 +380,22 @@
         /// <summary>
         /// Número de pares de bases de nucleótidos.
         /// </summary>
-        private string sequenceLength;
+        private string sequenceLength = string.Empty;
 
         /// <summary>
         /// O tipo da molécula que foi sequenciada.
         /// </summary>
-        private string moleculeType;
+        private string moleculeType = string.Empty;
+
+        /// <summary>
+        /// O alinhamento.
+        /// </summary>
+        private EAlignment alignemnt = EAlignment.NOT_DEF;
 
         /// <summary>
         /// A divisão GenBank à qual o registo pertence.
         /// </summary>
-        private EGenBankDivision genBankDivision;
+        private EGenBankDivision genBankDivision = EGenBankDivision.NOT_DEF;
 
         /// <summary>
         /// A data de modificação.
@@ -197,6 +445,21 @@
             set
             {
                 this.moleculeType = value;
+            }
+        }
+
+        /// <summary>
+        /// Obtém ou atribui o alinhamento da sequência.
+        /// </summary>
+        public EAlignment Alignement
+        {
+            get
+            {
+                return this.alignemnt;
+            }
+            set
+            {
+                this.alignemnt = value;
             }
         }
 
@@ -351,7 +614,7 @@
         /// <summary>
         /// A lista de autores.
         /// </summary>
-        private List<string> authors;
+        private string authors;
 
         /// <summary>
         /// O título da publicação.
@@ -369,16 +632,10 @@
         private string pubmedId;
 
         /// <summary>
-        /// Informação de contacto do submissor.
-        /// </summary>
-        private string directSubmission;
-
-        /// <summary>
         /// Instancia uma nova instância de objectos do tipo <see cref="ReferenceDescription"/>.
         /// </summary>
         public ReferenceDescription()
         {
-            this.authors = new List<string>();
         }
 
         /// <summary>
@@ -429,11 +686,15 @@
         /// <summary>
         /// Obtém a lista de autores.
         /// </summary>
-        public List<string> Authors
+        public string Authors
         {
             get
             {
                 return this.authors;
+            }
+            set
+            {
+                this.authors = value;
             }
         }
 
@@ -481,21 +742,6 @@
                 this.pubmedId = value;
             }
         }
-
-        /// <summary>
-        /// Obtém ou atribui a informação de contacto do submissor.
-        /// </summary>
-        public string DirectSubmission
-        {
-            get
-            {
-                return this.directSubmission;
-            }
-            set
-            {
-                this.directSubmission = value;
-            }
-        }
     }
 
     /// <summary>
@@ -503,6 +749,11 @@
     /// </summary>
     public class AttributedFeatures
     {
+        /// <summary>
+        /// O atributo associado à característica.
+        /// </summary>
+        protected string attribute;
+
         /// <summary>
         /// O mapeamento de atributos e valores que caracterizam a fonte.
         /// </summary>
@@ -515,6 +766,21 @@
         {
             this.attributes = new Dictionary<string, string>(
                StringComparer.InvariantCultureIgnoreCase);
+        }
+
+        /// <summary>
+        /// Obtém e atribui o valor do atributo.
+        /// </summary>
+        public string Attribute
+        {
+            get
+            {
+                return this.attribute;
+            }
+            set
+            {
+                this.attribute = value;
+            }
         }
 
         /// <summary>
@@ -546,6 +812,11 @@
         protected int endBase;
 
         /// <summary>
+        /// O tipo de codificação.
+        /// </summary>
+        protected EFeatureClass featureClass;
+
+        /// <summary>
         /// Obtém ou atribui número da base inicial.
         /// </summary>
         public int StartBase
@@ -574,22 +845,11 @@
                 this.endBase = value;
             }
         }
-    }
-
-    /// <summary>
-    /// Define a codificação da sequência.
-    /// </summary>
-    public class FeaturesCds : AttributedBaseDescFeatures
-    {
-        /// <summary>
-        /// O tipo de codificação.
-        /// </summary>
-        protected ECdsFeatureClass featureClass;
 
         /// <summary>
         /// Obtém o tipo da codificação.
         /// </summary>
-        public ECdsFeatureClass FeatureClass
+        public EFeatureClass FeatureClass
         {
             get
             {

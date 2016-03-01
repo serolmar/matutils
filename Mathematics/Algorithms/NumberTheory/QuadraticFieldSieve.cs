@@ -15,7 +15,7 @@
         /// <summary>
         /// Algoritmo que permite resolver o sistema de equações.
         /// </summary>
-        private IAlgorithm<IMatrix<int>, IMatrix<int>, LinearSystemSolution<int>>
+        private IAlgorithm<IMathMatrix<int>, IMathMatrix<int>, LinearSystemSolution<int>>
             linearSystemAlgorithm;
 
         /// <summary>
@@ -411,9 +411,9 @@
         /// <param name="matrixList">A matriz original.</param>
         /// <param name="primesList">A lista dos primos.</param>
         /// <returns>A matriz de "bits".</returns>
-        private ArrayBitMatrix GetBitMatrixFromList(List<int[]> matrixList, List<int> primesList)
+        private ArrayBitMathMatrix GetBitMatrixFromList(List<int[]> matrixList, List<int> primesList)
         {
-            var matrix = new ArrayBitMatrix(primesList.Count, matrixList.Count, 0);
+            var matrix = new ArrayBitMathMatrix(primesList.Count, matrixList.Count, 0);
             for (int i = 0; i < primesList.Count; ++i)
             {
                 for (int j = 0; j < matrixList.Count; ++j)

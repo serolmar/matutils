@@ -13,7 +13,7 @@
     /// <typeparam name="CoeffType">O tipo dos coeficientes que constituem as entradas das matrizes.</typeparam>
     public class TriangDiagSymmMatrixDecomposition<CoeffType>
         : IAlgorithm<
-            ISquareMatrix<CoeffType>,
+            ISquareMathMatrix<CoeffType>,
             IField<CoeffType>,
             ISquareMatrixFactory<CoeffType>,
             ISquareMatrixFactory<CoeffType>,
@@ -36,7 +36,7 @@
         /// <param name="diagonalMatrixFactory">A fábrica para o contentor da matriz diagonal.</param>
         /// <returns>As matrizes triangular e diagonal.</returns>
         public TriangDiagSymmMatrixDecompResult<CoeffType> Run(
-            ISquareMatrix<CoeffType> matrix,
+            ISquareMathMatrix<CoeffType> matrix,
             IField<CoeffType> field,
             ISquareMatrixFactory<CoeffType> upperTriangularMatrixFactory,
             ISquareMatrixFactory<CoeffType> diagonalMatrixFactory)

@@ -4,47 +4,17 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
-    using Utilities.Collections;
+    using Utilities;
 
     /// <summary>
     /// Implementa uma matriz esparsa com base em dicionários.
     /// </summary>
     /// <typeparam name="ObjectType">O tipo de objectos que constituem os argumentos.</typeparam>
-    public class SparseDictionaryMatrix<ObjectType> : ISparseMatrix<ObjectType>
+    public class SparseDictionaryMathMatrix<ObjectType>
+        : SparseDictionaryMatrix<ObjectType>, ISparseMathMatrix<ObjectType>
     {
         /// <summary>
-        /// O objecto responsável pela sicronização de fluxos de execução.
-        /// </summary>
-        private object lockObject = new object();
-
-        /// <summary>
-        /// O objecto a ser retornado quando o índice não foi definido.
-        /// </summary>
-        private ObjectType defaultValue;
-
-        /// <summary>
-        /// O valor que sucede o número da última linha introduzida.
-        /// </summary>
-        private int afterLastLine;
-
-        /// <summary>
-        /// O valor que sucede o número da última coluna introduzida.
-        /// </summary>
-        private int afterLastColumn;
-
-        /// <summary>
-        /// Mantém o comparador para a verficação do valor por defeito.
-        /// </summary>
-        private IEqualityComparer<ObjectType> objectComparer;
-
-        /// <summary>
-        /// As linhas da matriz.
-        /// </summary>
-        private SortedDictionary<int, ISparseMatrixLine<ObjectType>> matrixLines =
-            new SortedDictionary<int, ISparseMatrixLine<ObjectType>>(Comparer<int>.Default);
-
-        /// <summary>
-        /// Cria instâncias e objectos do tipo <see cref="SparseDictionaryMatrix{ObjectType}"/>.
+        /// Cria instâncias e objectos do tipo <see cref="SparseDictionaryMathMatrix{ObjectType}"/>.
         /// </summary>
         /// <param name="lines">O número de linhas.</param>
         /// <param name="columns">O número de colunas.</param>
@@ -52,589 +22,40 @@
         /// <exception cref="ArgumentOutOfRangeException">
         /// Se o número de linhas ou o número de colunas for negativo.
         /// </exception>
-        public SparseDictionaryMatrix(int lines, int columns, ObjectType defaultValue)
-            : this(defaultValue)
-        {
-            if (lines < 0)
-            {
-                throw new ArgumentOutOfRangeException("line");
-            }
-            else if (columns < 0)
-            {
-                throw new ArgumentOutOfRangeException("column");
-            }
-            else
-            {
-                this.afterLastLine = lines;
-                this.afterLastColumn = columns;
-            }
-        }
+        public SparseDictionaryMathMatrix(int lines, int columns, ObjectType defaultValue)
+            : base(lines, columns, defaultValue) { }
 
         /// <summary>
-        /// Instancia uma nova instância de objectos do tipo <see cref="SparseDictionaryMatrix{ObjectType}"/>.
+        /// Instancia uma nova instância de objectos do tipo <see cref="SparseDictionaryMathMatrix{ObjectType}"/>.
         /// </summary>
         /// <param name="lines">O número de linhas.</param>
         /// <param name="columns">O número de colunas.</param>
         /// <param name="defaultValue">O valor por defeito.</param>
         /// <param name="comparer">O comparador que permite verificar a igualdade com o valor por defeito..</param>
-        public SparseDictionaryMatrix(
+        public SparseDictionaryMathMatrix(
             int lines,
             int columns,
             ObjectType defaultValue,
             IEqualityComparer<ObjectType> comparer)
-            : this(lines, columns, defaultValue)
-        {
-            if (comparer == null)
-            {
-                throw new ArgumentNullException("comparer");
-            }
-            else
-            {
-                this.objectComparer = comparer;
-            }
-        }
+            : base(lines, columns, defaultValue, comparer) { }
 
         /// <summary>
-        /// Cria instâncias e objectos do tipo <see cref="SparseDictionaryMatrix{ObjectType}"/>.
+        /// Cria instâncias e objectos do tipo <see cref="SparseDictionaryMathMatrix{ObjectType}"/>.
         /// </summary>
         /// <param name="lines">O número de linhas.</param>
         /// <param name="columns">O número de colunas.</param>
         /// <exception cref="ArgumentOutOfRangeException">
         /// Se o número de linhas ou o número de colunas for negativo.
         /// </exception>
-        public SparseDictionaryMatrix(int lines, int columns)
-            : this(default(ObjectType))
-        {
-            if (lines < 0)
-            {
-                throw new ArgumentOutOfRangeException("line");
-            }
-            else if (columns < 0)
-            {
-                throw new ArgumentOutOfRangeException("column");
-            }
-            else
-            {
-                this.afterLastLine = lines;
-                this.afterLastColumn = columns;
-            }
-        }
+        public SparseDictionaryMathMatrix(int lines, int columns)
+            : base(lines, columns) { }
 
         /// <summary>
-        /// Cria instâncias e objectos do tipo <see cref="SparseDictionaryMatrix{ObjectType}"/>.
+        /// Cria instâncias e objectos do tipo <see cref="SparseDictionaryMathMatrix{ObjectType}"/>.
         /// </summary>
         /// <param name="defaultValue">O valor por defeito.</param>
-        public SparseDictionaryMatrix(ObjectType defaultValue)
-        {
-            this.defaultValue = defaultValue;
-            this.objectComparer = EqualityComparer<ObjectType>.Default;
-        }
-
-        /// <summary>
-        /// Obtém e atribui o valor da entrada especificada.
-        /// </summary>
-        /// <param name="line">A coordenada da linha onde a entrada se encontra.</param>
-        /// <param name="column">A coordenada da coluna onde a entrada se encontra.</param>
-        /// <returns>O valor da entrada.</returns>
-        /// <exception cref="ArgumentOutOfRangeException">
-        /// Se o número de linhas ou o número de colunas for negativo ou não for inferior ao tamanho
-        /// da dimensão respectiva.
-        /// </exception>
-        public ObjectType this[int line, int column]
-        {
-            get
-            {
-                if (line < 0 || line >= this.afterLastLine)
-                {
-                    throw new ArgumentOutOfRangeException("line");
-                }
-                else if (column < 0 || column >= this.afterLastColumn)
-                {
-                    throw new ArgumentOutOfRangeException("column");
-                }
-                else
-                {
-                    var currentLine = default(ISparseMatrixLine<ObjectType>);
-                    lock (this.lockObject)
-                    {
-                        if (this.matrixLines.TryGetValue(line, out currentLine))
-                        {
-                            var currentColumn = default(ObjectType);
-                            if (currentLine.TryGetColumnValue(column, out currentColumn))
-                            {
-                                return currentColumn;
-                            }
-                            else
-                            {
-                                return defaultValue;
-                            }
-                        }
-                        else
-                        {
-                            return this.defaultValue;
-                        }
-                    }
-                }
-            }
-            set
-            {
-                if (line < 0 || line >= this.afterLastLine)
-                {
-                    throw new ArgumentOutOfRangeException("line");
-                }
-                else if (column < 0 || column >= this.afterLastColumn)
-                {
-                    throw new ArgumentOutOfRangeException("column");
-                }
-                else
-                {
-
-                    if (!this.objectComparer.Equals(value, this.defaultValue))
-                    {
-                        var currentLine = default(ISparseMatrixLine<ObjectType>);
-                        lock (this.lockObject)
-                        {
-                            if (this.matrixLines.TryGetValue(line, out currentLine))
-                            {
-                                currentLine[column] = value;
-                            }
-                            else
-                            {
-                                var newLine = new SparseDictionaryMatrixLine<ObjectType>(this);
-                                newLine[column] = value;
-                                this.matrixLines.Add(line, newLine);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Obtém a linha pelo respectivo valor.
-        /// </summary>
-        /// <param name="line">O índice.</param>
-        /// <returns>A linha caso exista.</returns>
-        /// <exception cref="ArgumentOutOfRangeException">
-        /// Se a linha especificada for negativa ou não for inferior ao número de linhas.
-        /// </exception>
-        /// <exception cref="MathematicsException">Se a linha não existir.</exception>
-        public ISparseMatrixLine<ObjectType> this[int line]
-        {
-            get
-            {
-                if (line < 0 || line >= this.afterLastLine)
-                {
-                    throw new ArgumentOutOfRangeException("line");
-                }
-                else
-                {
-                    var currentLine = default(ISparseMatrixLine<ObjectType>);
-                    lock (this.lockObject)
-                    {
-                        if (this.matrixLines.TryGetValue(line, out currentLine))
-                        {
-                            return currentLine;
-                        }
-                        else
-                        {
-                            throw new MathematicsException("Line doesn't exist.");
-                        }
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Obtém o valor por defeito.
-        /// </summary>
-        /// <value>
-        /// O valor por defeito.
-        /// </value>
-        public ObjectType DefaultValue
-        {
-            get
-            {
-                return this.defaultValue;
-            }
-        }
-
-        /// <summary>
-        /// Obtém o número de linhas com entradas diferentes do valor por defeito.
-        /// </summary>
-        /// <value>
-        /// O número de linhas com entradas diferentes do valor por defeito.
-        /// </value>
-        public int NumberOfLines
-        {
-            get
-            {
-                return this.matrixLines.Count;
-            }
-        }
-
-        /// <summary>
-        /// Exapande a matriz um número específico de vezes.
-        /// </summary>
-        /// <param name="numberOfLines">O número de linhas a acrescentar.</param>
-        /// <param name="numberOfColumns">O número de colunas a acrescentar.</param>
-        /// <exception cref="ArgumentException">Se o número de linhas for negativo.</exception>
-        public void ExpandMatrix(int numberOfLines, int numberOfColumns)
-        {
-            if (numberOfLines < 0)
-            {
-                throw new ArgumentException("The number of lines must be non-negative.");
-            }
-            else if (numberOfColumns < 0)
-            {
-                throw new ArgumentException("The number of columns must be non-negative.");
-            }
-            else
-            {
-                this.afterLastLine += numberOfLines;
-                this.afterLastColumn += numberOfColumns;
-            }
-        }
-
-        /// <summary>
-        /// Verifica se se trata de uma matriz simétrica.
-        /// </summary>
-        /// <param name="equalityComparer">O comparador das entradas.</param>
-        /// <returns>Verdadeiro caso se trate de uma matriz simétrica e falso no caso contrário.</returns>
-        public bool IsSymmetric(IEqualityComparer<ObjectType> equalityComparer)
-        {
-            var innerEqualityComparer = equalityComparer;
-            if (innerEqualityComparer == null)
-            {
-                innerEqualityComparer = EqualityComparer<ObjectType>.Default;
-            }
-
-            if (this.afterLastLine != this.afterLastColumn)
-            {
-                return false;
-            }
-            else
-            {
-                foreach (var line in this.matrixLines)
-                {
-                    foreach (var column in line.Value)
-                    {
-                        if (line.Key != column.Key)
-                        {
-                            var entryLine = default(ISparseMatrixLine<ObjectType>);
-                            if (this.matrixLines.TryGetValue(column.Key, out entryLine))
-                            {
-                                var entry = default(ObjectType);
-                                if (entryLine.TryGetColumnValue(line.Key, out entry))
-                                {
-                                    return innerEqualityComparer.Equals(column.Value, entry);
-                                }
-                                else
-                                {
-                                    return innerEqualityComparer.Equals(column.Value, this.defaultValue);
-                                }
-                            }
-                            else
-                            {
-                                return innerEqualityComparer.Equals(column.Value, this.defaultValue);
-                            }
-                        }
-                    }
-                }
-
-                // A matriz nula é simétrica
-                return true;
-            }
-        }
-
-        /// <summary>
-        /// Obtém um enumerador para todas as linhas com valores diferentes do valor por defeito.
-        /// </summary>
-        /// <returns>O enumerador para as linhas.</returns>
-        public IEnumerable<KeyValuePair<int, ISparseMatrixLine<ObjectType>>> GetLines()
-        {
-            return this.matrixLines;
-        }
-
-        /// <summary>
-        /// Remove a linha especificada pelo número.
-        /// </summary>
-        /// <param name="lineNumber">O número da linha a ser removida.</param>
-        public void Remove(int lineNumber)
-        {
-            if (lineNumber >= 0)
-            {
-                lock (this.lockObject)
-                {
-                    this.matrixLines.Remove(lineNumber);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Obtém o número de linhas ou colunas da matriz.
-        /// </summary>
-        /// <param name="dimension">Zero caso seja pretendido o número de linhas e um caso seja pretendido
-        /// o número de colunas.
-        /// </param>
-        /// <returns>O número de entradas na respectiva dimensão.</returns>
-        /// <exception cref="ArgumentOutOfRangeException">
-        /// Se a dimensão for diferente de zero ou um.
-        /// </exception>
-        public int GetLength(int dimension)
-        {
-            if (dimension == 0)
-            {
-                return this.afterLastLine;
-            }
-            else if (dimension == 1)
-            {
-                return this.afterLastColumn;
-            }
-            else
-            {
-                throw new ArgumentOutOfRangeException("Matrix dimension value must be one of 0 or 1.");
-            }
-        }
-
-        /// <summary>
-        /// Obtém a submatriz indicada no argumento.
-        /// </summary>
-        /// <param name="lines">As correnadas das linhas que constituem a submatriz.</param>
-        /// <param name="columns">As correnadas das colunas que constituem a submatriz.</param>
-        /// <returns>A submatriz procurada.</returns>
-        public IMatrix<ObjectType> GetSubMatrix(int[] lines, int[] columns)
-        {
-            return new SubMatrix<ObjectType>(this, lines, columns);
-        }
-
-        /// <summary>
-        /// Obtém a submatriz indicada no argumento considerado como sequência de inteiros.
-        /// </summary>
-        /// <param name="lines">As correnadas das linhas que constituem a submatriz.</param>
-        /// <param name="columns">As correnadas das colunas que constituem a submatriz.</param>
-        /// <returns>A submatriz procurada.</returns>
-        public IMatrix<ObjectType> GetSubMatrix(IntegerSequence lines, IntegerSequence columns)
-        {
-            return new IntegerSequenceSubMatrix<ObjectType>(this, lines, columns);
-        }
-
-        /// <summary>
-        /// Troca duas linhas da matriz.
-        /// </summary>
-        /// <remarks>
-        /// Se uma linha a trocar exceder o tamanho actual da matriz, esta é aumentada na proporção correcta.
-        /// </remarks>
-        /// <param name="i">A primeira linha a ser trocada.</param>
-        /// <param name="j">A segunda linha a ser trocada.</param>
-        /// <exception cref="IndexOutOfRangeException">
-        /// Se um dos números de linhas for negativo.
-        /// </exception>
-        public void SwapLines(int i, int j)
-        {
-            if (i < 0)
-            {
-                throw new IndexOutOfRangeException("Index i must be non negative.");
-            }
-            else if (j < 0)
-            {
-                throw new IndexOutOfRangeException("Index j must be non-negative.");
-            }
-            else
-            {
-                lock (this.lockObject)
-                {
-                    var firstLine = default(ISparseMatrixLine<ObjectType>);
-                    if (this.matrixLines.TryGetValue(i, out firstLine))
-                    {
-                        var secondLine = default(ISparseMatrixLine<ObjectType>);
-                        if (this.matrixLines.TryGetValue(j, out secondLine))
-                        {
-                            this.matrixLines[i] = secondLine;
-                            this.matrixLines[j] = firstLine;
-                        }
-                        else
-                        {
-                            this.matrixLines.Remove(i);
-                            this.matrixLines.Add(j, firstLine);
-                            if (j >= this.afterLastLine)
-                            {
-                                this.afterLastLine = j + 1;
-                            }
-                            else if (i == this.afterLastLine - 1)
-                            {
-                                var maximumIndex = 0;
-                                foreach (var kvp in this.matrixLines)
-                                {
-                                    if (kvp.Key > maximumIndex)
-                                    {
-                                        maximumIndex = kvp.Key;
-                                    }
-                                }
-
-                                this.afterLastLine = maximumIndex + 1;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        var secondLine = default(ISparseMatrixLine<ObjectType>);
-                        if (this.matrixLines.TryGetValue(j, out secondLine))
-                        {
-                            this.matrixLines.Remove(j);
-                            this.matrixLines.Add(i, secondLine);
-                            if (i >= this.afterLastLine)
-                            {
-                                this.afterLastLine = i + 1;
-                            }
-                            else if (j == this.afterLastLine - 1)
-                            {
-                                var maximumIndex = 0;
-                                foreach (var kvp in this.matrixLines)
-                                {
-                                    if (kvp.Key > maximumIndex)
-                                    {
-                                        maximumIndex = kvp.Key;
-                                    }
-                                }
-
-                                this.afterLastLine = maximumIndex + 1;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Troca duas colunas da matriz.
-        /// </summary>
-        /// <param name="i">A primeira coluna a ser trocada.</param>
-        /// <param name="j">A segunda coluna a ser trocada.</param>
-        /// <exception cref="IndexOutOfRangeException">
-        /// Se um dos números de colunas for negativo.
-        /// </exception>
-        public void SwapColumns(int i, int j)
-        {
-            if (i < 0 || i >= this.afterLastColumn)
-            {
-                throw new IndexOutOfRangeException("i");
-            }
-            else if (j < 0 || j >= this.afterLastColumn)
-            {
-                throw new IndexOutOfRangeException("j");
-            }
-            else
-            {
-                lock (this.lockObject)
-                {
-                    foreach (var lineKvp in this.matrixLines)
-                    {
-                        var lineDictionary = lineKvp.Value;
-                        var firstLineEntry = default(ObjectType);
-                        if (lineDictionary.TryGetColumnValue(i, out firstLineEntry))
-                        {
-                            var secondLineEntry = default(ObjectType);
-                            if (lineDictionary.TryGetColumnValue(j, out secondLineEntry))
-                            {
-                                lineDictionary[i] = secondLineEntry;
-                                lineDictionary[j] = firstLineEntry;
-                            }
-                            else
-                            {
-                                lineDictionary.Remove(i);
-                                lineDictionary[j] = firstLineEntry;
-                            }
-                        }
-                        else
-                        {
-                            var secondLineEntry = default(ObjectType);
-                            if (lineDictionary.TryGetColumnValue(j, out secondLineEntry))
-                            {
-                                lineDictionary.Remove(j);
-                                lineDictionary[i] = secondLineEntry;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Verifica se a matriz esparsa contém a linha especificada.
-        /// </summary>
-        /// <param name="line">A linha.</param>
-        /// <returns>Verdadeiro caso a matriz contenha a linha e falso caso contrário.</returns>
-        public bool ContainsLine(int line)
-        {
-            lock (this.lockObject)
-            {
-                return this.matrixLines.ContainsKey(line);
-            }
-        }
-
-        /// <summary>
-        /// Tenta obter a linha especificada pelo índice.
-        /// </summary>
-        /// <param name="index">O índice da linha.</param>
-        /// <param name="line">A linha.</param>
-        /// <returns>Verdadeiro caso a operação seja bem sucedida e falso caso contrário.</returns>
-        public bool TryGetLine(int index, out ISparseMatrixLine<ObjectType> line)
-        {
-            var setLine = default(ISparseMatrixLine<ObjectType>);
-            if (index < 0 || index >= this.afterLastLine)
-            {
-                line = setLine;
-                return false;
-            }
-            else
-            {
-                lock (this.lockObject)
-                {
-                    if (this.matrixLines.TryGetValue(index, out setLine))
-                    {
-                        line = setLine;
-                        return true;
-                    }
-                    else
-                    {
-                        line = setLine;
-                        return false;
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Obtém as colunas atribuídas à linha especificada.
-        /// </summary>
-        /// <param name="line">A linha.</param>
-        /// <returns>As colunas atribuídas.</returns>
-        /// <exception cref="ArgumentOutOfRangeException">
-        /// Se o número da linha for negativo ou for superior ao número da última linha.
-        /// </exception>
-        public IEnumerable<KeyValuePair<int, ObjectType>> GetColumns(int line)
-        {
-            if (line < 0 || line >= this.afterLastLine)
-            {
-                throw new ArgumentOutOfRangeException("line");
-            }
-            else
-            {
-                var lineElement = default(ISparseMatrixLine<ObjectType>);
-                lock (this.lockObject)
-                {
-                    if (this.matrixLines.TryGetValue(line, out lineElement))
-                    {
-                        return lineElement.GetColumns();
-                    }
-                    else
-                    {
-                        return Enumerable.Empty<KeyValuePair<int, ObjectType>>();
-                    }
-                }
-            }
-        }
+        public SparseDictionaryMathMatrix(ObjectType defaultValue)
+            : base(defaultValue) { }
 
         /// <summary>
         /// Multiplica os valores da linha pelo escalar definido.
@@ -868,7 +289,8 @@
                                 otherMatrixElements.Add(kvp.Key, scalar);
                             }
 
-                            this.matrixLines[line] = new SparseDictionaryMatrixLine<ObjectType>(otherMatrixElements, this);
+                            this.matrixLines[line] = new ASparseDictionaryMatrix<ObjectType,ISparseMatrixLine<ObjectType>>
+                                .SparseMatrixLine(otherMatrixElements, this);
                         }
                         else if (!ring.IsMultiplicativeUnity(scalar))
                         {
@@ -893,7 +315,8 @@
                                 }
                             }
 
-                            this.matrixLines[line] = new SparseDictionaryMatrixLine<ObjectType>(otherMatrixElements, this);
+                            this.matrixLines[line] = new ASparseDictionaryMatrix<ObjectType,ISparseMatrixLine<ObjectType>>
+                                .SparseMatrixLine(otherMatrixElements, this);
                         }
                     }
                 }
@@ -925,7 +348,8 @@
                                 }
                             }
 
-                            this.matrixLines[line] = new SparseDictionaryMatrixLine<ObjectType>(otherMatrixElements, this);
+                            this.matrixLines[line] = new ASparseDictionaryMatrix<ObjectType, ISparseMatrixLine<ObjectType>>
+                                .SparseMatrixLine(otherMatrixElements, this);
                         }
                     }
                 }
@@ -943,7 +367,8 @@
                                 otherMatrixElements.Add(i, scalar);
                             }
 
-                            this.matrixLines[line] = new SparseDictionaryMatrixLine<ObjectType>(otherMatrixElements, this);
+                            this.matrixLines[line] = new ASparseDictionaryMatrix<ObjectType, ISparseMatrixLine<ObjectType>>
+                                .SparseMatrixLine(otherMatrixElements, this);
                         }
                         else if (!ring.IsMultiplicativeUnity(scalar))
                         {
@@ -980,7 +405,8 @@
                                 otherMatrixElements.Add(i, multiplicationValue);
                             }
 
-                            this.matrixLines[line] = new SparseDictionaryMatrixLine<ObjectType>(otherMatrixElements, this);
+                            this.matrixLines[line] = new ASparseDictionaryMatrix<ObjectType, ISparseMatrixLine<ObjectType>>
+                                .SparseMatrixLine(otherMatrixElements, this);
                         }
                     }
                     else
@@ -1001,7 +427,10 @@
                             }
                         }
 
-                        this.matrixLines.Add(line, new SparseDictionaryMatrixLine<ObjectType>(otherMatrixElements, this));
+                        this.matrixLines.Add(
+                            line, 
+                            new ASparseDictionaryMatrix<ObjectType,ISparseMatrixLine<ObjectType>>
+                                .SparseMatrixLine(otherMatrixElements, this));
                     }
                 }
             }
@@ -1060,30 +489,6 @@
             }
         }
 
-        /// <summary>
-        /// Obtém um enumerador genérico para a matriz.
-        /// </summary>
-        /// <returns>O enumeador genérico.</returns>
-        public IEnumerator<ObjectType> GetEnumerator()
-        {
-            foreach (var lineKvp in this.matrixLines)
-            {
-                foreach (var columnKvp in lineKvp.Value)
-                {
-                    yield return columnKvp.Value;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Obtém um enumerador não genérico para a matriz.
-        /// </summary>
-        /// <returns>O enumeador não genérico.</returns>
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-        {
-            return this.GetEnumerator();
-        }
-
         #region Private Methods
 
         /// <summary>
@@ -1099,8 +504,8 @@
             int combinationLineNumber,
             ISparseMatrixLine<ObjectType> combinationLine)
         {
-            var replacementLineEnum = replacementLine.GetEnumerator();
-            var combinationLineEnum = combinationLine.GetEnumerator();
+            var replacementLineEnum = replacementLine.GetColumns().GetEnumerator();
+            var combinationLineEnum = combinationLine.GetColumns().GetEnumerator();
             var replacementEnumState = replacementLineEnum.MoveNext();
             var combinationState = combinationLineEnum.MoveNext();
 
@@ -1166,8 +571,8 @@
                     var otherMatrixElements = new SortedDictionary<int, ObjectType>(
                     Comparer<int>.Default);
 
-                    var replacementLineEnum = replacementLine.GetEnumerator();
-                    var combinationLineEnum = combinationLine.GetEnumerator();
+                    var replacementLineEnum = replacementLine.GetColumns().GetEnumerator();
+                    var combinationLineEnum = combinationLine.GetColumns().GetEnumerator();
                     var replacementEnumState = replacementLineEnum.MoveNext();
                     var combinationState = combinationLineEnum.MoveNext();
                     if (ring.IsAdditiveUnity(a))
@@ -1215,7 +620,8 @@
                                 combinationState = combinationLineEnum.MoveNext();
                             }
 
-                            otherMatrixElements = (replacementLine as SparseDictionaryMatrixLine<ObjectType>).MatrixEntries;
+                            otherMatrixElements = (replacementLine as ASparseDictionaryMatrix<ObjectType, ISparseMatrixLine<ObjectType>>
+                                .SparseMatrixLine).MatrixEntries;
                         }
                         else
                         {
@@ -1383,8 +789,8 @@
                         if (ring.IsMultiplicativeUnity(b)) // As linhas são somadas.
                         {
                             var otherMatrixElements = new SortedDictionary<int, ObjectType>(Comparer<int>.Default);
-                            var replacementLineEnum = replacementLine.GetEnumerator();
-                            var combinationLineEnum = combinationLine.GetEnumerator();
+                            var replacementLineEnum = replacementLine.GetColumns().GetEnumerator();
+                            var combinationLineEnum = combinationLine.GetColumns().GetEnumerator();
                             var replacementEnumState = replacementLineEnum.MoveNext();
                             var combinationState = combinationLineEnum.MoveNext();
                             var state = replacementEnumState && combinationState;
@@ -1432,8 +838,8 @@
                         else
                         {
                             var otherMatrixElements = new SortedDictionary<int, ObjectType>(Comparer<int>.Default);
-                            var replacementLineEnum = replacementLine.GetEnumerator();
-                            var combinationLineEnum = combinationLine.GetEnumerator();
+                            var replacementLineEnum = replacementLine.GetColumns().GetEnumerator();
+                            var combinationLineEnum = combinationLine.GetColumns().GetEnumerator();
                             var replacementEnumState = replacementLineEnum.MoveNext();
                             var combinationState = combinationLineEnum.MoveNext();
                             var state = replacementEnumState && combinationState;
@@ -1485,8 +891,8 @@
                     else if (ring.IsMultiplicativeUnity(b))
                     {
                         var otherMatrixElements = new SortedDictionary<int, ObjectType>(Comparer<int>.Default);
-                        var replacementLineEnum = replacementLine.GetEnumerator();
-                        var combinationLineEnum = combinationLine.GetEnumerator();
+                        var replacementLineEnum = replacementLine.GetColumns().GetEnumerator();
+                        var combinationLineEnum = combinationLine.GetColumns().GetEnumerator();
                         var replacementEnumState = replacementLineEnum.MoveNext();
                         var combinationState = combinationLineEnum.MoveNext();
                         var state = replacementEnumState && combinationState;
@@ -1537,8 +943,8 @@
                     else
                     {
                         var otherMatrixElements = new SortedDictionary<int, ObjectType>(Comparer<int>.Default);
-                        var replacementLineEnum = replacementLine.GetEnumerator();
-                        var combinationLineEnum = combinationLine.GetEnumerator();
+                        var replacementLineEnum = replacementLine.GetColumns().GetEnumerator();
+                        var combinationLineEnum = combinationLine.GetColumns().GetEnumerator();
                         var replacementEnumState = replacementLineEnum.MoveNext();
                         var combinationState = combinationLineEnum.MoveNext();
                         var state = replacementEnumState && combinationState;
@@ -1691,7 +1097,7 @@
 
                             // Neste ponto é importante multiplicar os valores por defeito.
                             var defaultValueProduct = ring.Multiply(this.defaultValue, b);
-                            var combEnum = combinationLine.GetEnumerator();
+                            var combEnum = combinationLine.GetColumns().GetEnumerator();
                             var k = 0;
                             while (combEnum.MoveNext())
                             {
@@ -1743,7 +1149,7 @@
                         {
                             var otherMatrixElements = new SortedDictionary<int, ObjectType>(Comparer<int>.Default);
                             var defaultValueProduct = ring.Multiply(this.defaultValue, a);
-                            var replaceEnum = replacementLine.GetEnumerator();
+                            var replaceEnum = replacementLine.GetColumns().GetEnumerator();
                             var k = 0;
                             while (replaceEnum.MoveNext())
                             {
@@ -1768,8 +1174,8 @@
                         if (ring.IsMultiplicativeUnity(b)) // As linhas somam-se.
                         {
                             var otherMatrixElements = new SortedDictionary<int, ObjectType>(Comparer<int>.Default);
-                            var replaceEnum = replacementLine.GetEnumerator();
-                            var combineEnum = combinationLine.GetEnumerator();
+                            var replaceEnum = replacementLine.GetColumns().GetEnumerator();
+                            var combineEnum = combinationLine.GetColumns().GetEnumerator();
                             var replaceState = replaceEnum.MoveNext();
                             var combineState = combineEnum.MoveNext();
                             var state = replaceState && combineState;
@@ -1929,8 +1335,8 @@
                         else // Soma da linha i com um múltiplo da linha j.
                         {
                             var otherMatrixElements = new SortedDictionary<int, ObjectType>(Comparer<int>.Default);
-                            var replaceEnum = replacementLine.GetEnumerator();
-                            var combineEnum = combinationLine.GetEnumerator();
+                            var replaceEnum = replacementLine.GetColumns().GetEnumerator();
+                            var combineEnum = combinationLine.GetColumns().GetEnumerator();
                             var replaceState = replaceEnum.MoveNext();
                             var combineState = combineEnum.MoveNext();
                             var state = replaceState && combineState;
@@ -2093,8 +1499,8 @@
                     else if (ring.IsMultiplicativeUnity(b)) // Soma de um múltiplo da linha i com a linha j.
                     {
                         var otherMatrixElements = new SortedDictionary<int, ObjectType>(Comparer<int>.Default);
-                        var replaceEnum = replacementLine.GetEnumerator();
-                        var combineEnum = combinationLine.GetEnumerator();
+                        var replaceEnum = replacementLine.GetColumns().GetEnumerator();
+                        var combineEnum = combinationLine.GetColumns().GetEnumerator();
                         var replaceState = replaceEnum.MoveNext();
                         var combineState = combineEnum.MoveNext();
                         var state = replaceState && combineState;
@@ -2258,8 +1664,8 @@
                     else // Adiciona múltiplos de ambas as linhas.
                     {
                         var otherMatrixElements = new SortedDictionary<int, ObjectType>(Comparer<int>.Default);
-                        var replaceEnum = replacementLine.GetEnumerator();
-                        var combineEnum = combinationLine.GetEnumerator();
+                        var replaceEnum = replacementLine.GetColumns().GetEnumerator();
+                        var combineEnum = combinationLine.GetColumns().GetEnumerator();
                         var replaceState = replaceEnum.MoveNext();
                         var combineState = combineEnum.MoveNext();
                         var state = replaceState && combineState;
@@ -2707,8 +2113,8 @@
                     var otherMatrixElements = new SortedDictionary<int, ObjectType>(
                     Comparer<int>.Default);
 
-                    var replacementLineEnum = replacementLine.GetEnumerator();
-                    var combinationLineEnum = combinationLine.GetEnumerator();
+                    var replacementLineEnum = replacementLine.GetColumns().GetEnumerator();
+                    var combinationLineEnum = combinationLine.GetColumns().GetEnumerator();
                     var replacementEnumState = replacementLineEnum.MoveNext();
                     var combinationState = combinationLineEnum.MoveNext();
                     if (ring.IsAdditiveUnity(a))
@@ -2756,7 +2162,8 @@
                                 combinationState = combinationLineEnum.MoveNext();
                             }
 
-                            otherMatrixElements = (replacementLine as SparseDictionaryMatrixLine<ObjectType>).MatrixEntries;
+                            otherMatrixElements = (replacementLine as ASparseDictionaryMatrix<ObjectType,ISparseMatrixLine<ObjectType>>
+                                .SparseMatrixLine).MatrixEntries;
                         }
                         else
                         {
@@ -2829,7 +2236,8 @@
                         }
                     }
 
-                    this.matrixLines[i] = new SparseDictionaryMatrixLine<ObjectType>(otherMatrixElements, this);
+                    this.matrixLines[i] = new ASparseDictionaryMatrix<ObjectType, ISparseMatrixLine<ObjectType>>
+                                .SparseMatrixLine(otherMatrixElements, this);
                 }
                 else if (replacementLine.Any())
                 {
@@ -2891,7 +2299,8 @@
                                 otherMatrixElements.Add(line.Key, line.Value);
                             }
 
-                            this.matrixLines[i] = new SparseDictionaryMatrixLine<ObjectType>(otherMatrixElements, this);
+                            this.matrixLines[i] = new ASparseDictionaryMatrix<ObjectType, ISparseMatrixLine<ObjectType>>
+                                .SparseMatrixLine(otherMatrixElements, this);
                         }
                         else if (!ring.IsAdditiveUnity(b)) // A linha i passa a ser múltipla da linha j.
                         {
@@ -2902,7 +2311,8 @@
                                 otherMatrixElements.Add(line.Key, valueToAdd);
                             }
 
-                            this.matrixLines[i] = new SparseDictionaryMatrixLine<ObjectType>(otherMatrixElements, this);
+                            this.matrixLines[i] = new ASparseDictionaryMatrix<ObjectType, ISparseMatrixLine<ObjectType>>
+                                .SparseMatrixLine(otherMatrixElements, this);
                         }
                     }
                     else if (ring.IsAdditiveUnity(b))
@@ -2917,7 +2327,8 @@
                                 otherMatrixElements.Add(line.Key, valueToAdd);
                             }
 
-                            this.matrixLines[i] = new SparseDictionaryMatrixLine<ObjectType>(otherMatrixElements, this);
+                            this.matrixLines[i] = new ASparseDictionaryMatrix<ObjectType, ISparseMatrixLine<ObjectType>>
+                                .SparseMatrixLine(otherMatrixElements, this);
                         }
                     }
                     else if (ring.IsMultiplicativeUnity(a))
@@ -2925,8 +2336,8 @@
                         if (ring.IsMultiplicativeUnity(b)) // As linhas são somadas.
                         {
                             var otherMatrixElements = new SortedDictionary<int, ObjectType>(Comparer<int>.Default);
-                            var replacementLineEnum = replacementLine.GetEnumerator();
-                            var combinationLineEnum = combinationLine.GetEnumerator();
+                            var replacementLineEnum = replacementLine.GetColumns().GetEnumerator();
+                            var combinationLineEnum = combinationLine.GetColumns().GetEnumerator();
                             var replacementEnumState = replacementLineEnum.MoveNext();
                             var combinationState = combinationLineEnum.MoveNext();
                             var state = replacementEnumState && combinationState;
@@ -2969,13 +2380,14 @@
                                 combinationState = combinationLineEnum.MoveNext();
                             }
 
-                            this.matrixLines[i] = new SparseDictionaryMatrixLine<ObjectType>(otherMatrixElements, this);
+                            this.matrixLines[i] = new ASparseDictionaryMatrix<ObjectType, ISparseMatrixLine<ObjectType>>
+                                .SparseMatrixLine(otherMatrixElements, this);
                         }
                         else
                         {
                             var otherMatrixElements = new SortedDictionary<int, ObjectType>(Comparer<int>.Default);
-                            var replacementLineEnum = replacementLine.GetEnumerator();
-                            var combinationLineEnum = combinationLine.GetEnumerator();
+                            var replacementLineEnum = replacementLine.GetColumns().GetEnumerator();
+                            var combinationLineEnum = combinationLine.GetColumns().GetEnumerator();
                             var replacementEnumState = replacementLineEnum.MoveNext();
                             var combinationState = combinationLineEnum.MoveNext();
                             var state = replacementEnumState && combinationState;
@@ -3021,14 +2433,15 @@
                                 combinationState = combinationLineEnum.MoveNext();
                             }
 
-                            this.matrixLines[i] = new SparseDictionaryMatrixLine<ObjectType>(otherMatrixElements, this);
+                            this.matrixLines[i] = new ASparseDictionaryMatrix<ObjectType, ISparseMatrixLine<ObjectType>>
+                                .SparseMatrixLine(otherMatrixElements, this);
                         }
                     }
                     else if (ring.IsMultiplicativeUnity(b))
                     {
                         var otherMatrixElements = new SortedDictionary<int, ObjectType>(Comparer<int>.Default);
-                        var replacementLineEnum = replacementLine.GetEnumerator();
-                        var combinationLineEnum = combinationLine.GetEnumerator();
+                        var replacementLineEnum = replacementLine.GetColumns().GetEnumerator();
+                        var combinationLineEnum = combinationLine.GetColumns().GetEnumerator();
                         var replacementEnumState = replacementLineEnum.MoveNext();
                         var combinationState = combinationLineEnum.MoveNext();
                         var state = replacementEnumState && combinationState;
@@ -3074,13 +2487,14 @@
                             combinationState = combinationLineEnum.MoveNext();
                         }
 
-                        this.matrixLines[i] = new SparseDictionaryMatrixLine<ObjectType>(otherMatrixElements, this);
+                        this.matrixLines[i] = new ASparseDictionaryMatrix<ObjectType, ISparseMatrixLine<ObjectType>>
+                                .SparseMatrixLine(otherMatrixElements, this);
                     }
                     else
                     {
                         var otherMatrixElements = new SortedDictionary<int, ObjectType>(Comparer<int>.Default);
-                        var replacementLineEnum = replacementLine.GetEnumerator();
-                        var combinationLineEnum = combinationLine.GetEnumerator();
+                        var replacementLineEnum = replacementLine.GetColumns().GetEnumerator();
+                        var combinationLineEnum = combinationLine.GetColumns().GetEnumerator();
                         var replacementEnumState = replacementLineEnum.MoveNext();
                         var combinationState = combinationLineEnum.MoveNext();
                         var state = replacementEnumState && combinationState;
@@ -3129,7 +2543,8 @@
                             combinationState = combinationLineEnum.MoveNext();
                         }
 
-                        this.matrixLines[i] = new SparseDictionaryMatrixLine<ObjectType>(otherMatrixElements, this);
+                        this.matrixLines[i] = new ASparseDictionaryMatrix<ObjectType, ISparseMatrixLine<ObjectType>>
+                                .SparseMatrixLine(otherMatrixElements, this);
                     }
                 }
                 else // Existe a linha a ser substituída mas não existe a linha a combinar.
@@ -3148,7 +2563,8 @@
                             otherMatrixElements.Add(currentLine.Key, valueToAdd);
                         }
 
-                        this.matrixLines[i] = new SparseDictionaryMatrixLine<ObjectType>(otherMatrixElements, this);
+                        this.matrixLines[i] = new ASparseDictionaryMatrix<ObjectType, ISparseMatrixLine<ObjectType>>
+                                .SparseMatrixLine(otherMatrixElements, this);
                     }
                 }
             }
@@ -3166,7 +2582,8 @@
                             otherMatrixElements.Add(currentLine.Key, currentLine.Value);
                         }
 
-                        this.matrixLines.Add(i, new SparseDictionaryMatrixLine<ObjectType>(otherMatrixElements, this));
+                        this.matrixLines.Add(i, new ASparseDictionaryMatrix<ObjectType, ISparseMatrixLine<ObjectType>>
+                                .SparseMatrixLine(otherMatrixElements, this));
                     }
                     else if (!ring.IsAdditiveUnity(b))
                     {
@@ -3178,7 +2595,8 @@
                             otherMatrixElements.Add(currentLine.Key, valueToAdd);
                         }
 
-                        this.matrixLines.Add(i, new SparseDictionaryMatrixLine<ObjectType>(otherMatrixElements, this));
+                        this.matrixLines.Add(i, new ASparseDictionaryMatrix<ObjectType, ISparseMatrixLine<ObjectType>>
+                                .SparseMatrixLine(otherMatrixElements, this));
                     }
                 }
             }
@@ -3216,7 +2634,8 @@
                                 otherMatrixElements.Add(k, ring.AdditiveUnity);
                             }
 
-                            this.matrixLines[i] = new SparseDictionaryMatrixLine<ObjectType>(otherMatrixElements, this);
+                            this.matrixLines[i] = new ASparseDictionaryMatrix<ObjectType, ISparseMatrixLine<ObjectType>>
+                                .SparseMatrixLine(otherMatrixElements, this);
                         }
                         else if (ring.IsMultiplicativeUnity(b)) // A linha i passa a ser uma cópia da linha j.
                         {
@@ -3226,7 +2645,8 @@
                                 otherMatrixElements.Add(line.Key, line.Value);
                             }
 
-                            this.matrixLines[i] = new SparseDictionaryMatrixLine<ObjectType>(otherMatrixElements, this);
+                            this.matrixLines[i] = new ASparseDictionaryMatrix<ObjectType, ISparseMatrixLine<ObjectType>>
+                                .SparseMatrixLine(otherMatrixElements, this);
                         }
                         else if (!ring.IsAdditiveUnity(b)) // A linha i passa a ser múltipla da linha j.
                         {
@@ -3234,7 +2654,7 @@
 
                             // Neste ponto é importante multiplicar os valores por defeito.
                             var defaultValueProduct = ring.Multiply(this.defaultValue, b);
-                            var combEnum = combinationLine.GetEnumerator();
+                            var combEnum = combinationLine.GetColumns().GetEnumerator();
                             var k = 0;
                             while (combEnum.MoveNext())
                             {
@@ -3272,7 +2692,8 @@
 
                             if (otherMatrixElements.Any())
                             {
-                                this.matrixLines[i] = new SparseDictionaryMatrixLine<ObjectType>(otherMatrixElements, this);
+                                this.matrixLines[i] = new ASparseDictionaryMatrix<ObjectType, ISparseMatrixLine<ObjectType>>
+                                .SparseMatrixLine(otherMatrixElements, this);
                             }
                             else
                             {
@@ -3286,7 +2707,7 @@
                         {
                             var otherMatrixElements = new SortedDictionary<int, ObjectType>(Comparer<int>.Default);
                             var defaultValueProduct = ring.Multiply(this.defaultValue, a);
-                            var replaceEnum = replacementLine.GetEnumerator();
+                            var replaceEnum = replacementLine.GetColumns().GetEnumerator();
                             var k = 0;
                             while (replaceEnum.MoveNext())
                             {
@@ -3311,8 +2732,8 @@
                         if (ring.IsMultiplicativeUnity(b)) // As linhas somam-se.
                         {
                             var otherMatrixElements = new SortedDictionary<int, ObjectType>(Comparer<int>.Default);
-                            var replaceEnum = replacementLine.GetEnumerator();
-                            var combineEnum = combinationLine.GetEnumerator();
+                            var replaceEnum = replacementLine.GetColumns().GetEnumerator();
+                            var combineEnum = combinationLine.GetColumns().GetEnumerator();
                             var replaceState = replaceEnum.MoveNext();
                             var combineState = combineEnum.MoveNext();
                             var state = replaceState && combineState;
@@ -3462,7 +2883,8 @@
 
                             if (otherMatrixElements.Any())
                             {
-                                this.matrixLines[i] = new SparseDictionaryMatrixLine<ObjectType>(otherMatrixElements, this);
+                                this.matrixLines[i] = new ASparseDictionaryMatrix<ObjectType, ISparseMatrixLine<ObjectType>>
+                                .SparseMatrixLine(otherMatrixElements, this);
                             }
                             else
                             {
@@ -3472,8 +2894,8 @@
                         else // Soma da linha i com um múltiplo da linha j.
                         {
                             var otherMatrixElements = new SortedDictionary<int, ObjectType>(Comparer<int>.Default);
-                            var replaceEnum = replacementLine.GetEnumerator();
-                            var combineEnum = combinationLine.GetEnumerator();
+                            var replaceEnum = replacementLine.GetColumns().GetEnumerator();
+                            var combineEnum = combinationLine.GetColumns().GetEnumerator();
                             var replaceState = replaceEnum.MoveNext();
                             var combineState = combineEnum.MoveNext();
                             var state = replaceState && combineState;
@@ -3625,7 +3047,8 @@
 
                             if (otherMatrixElements.Any())
                             {
-                                this.matrixLines[i] = new SparseDictionaryMatrixLine<ObjectType>(otherMatrixElements, this);
+                                this.matrixLines[i] = new ASparseDictionaryMatrix<ObjectType, ISparseMatrixLine<ObjectType>>
+                                .SparseMatrixLine(otherMatrixElements, this);
                             }
                             else
                             {
@@ -3636,8 +3059,8 @@
                     else if (ring.IsMultiplicativeUnity(b)) // Soma de um múltiplo da linha i com a linha j.
                     {
                         var otherMatrixElements = new SortedDictionary<int, ObjectType>(Comparer<int>.Default);
-                        var replaceEnum = replacementLine.GetEnumerator();
-                        var combineEnum = combinationLine.GetEnumerator();
+                        var replaceEnum = replacementLine.GetColumns().GetEnumerator();
+                        var combineEnum = combinationLine.GetColumns().GetEnumerator();
                         var replaceState = replaceEnum.MoveNext();
                         var combineState = combineEnum.MoveNext();
                         var state = replaceState && combineState;
@@ -3791,7 +3214,8 @@
 
                         if (otherMatrixElements.Any())
                         {
-                            this.matrixLines[i] = new SparseDictionaryMatrixLine<ObjectType>(otherMatrixElements, this);
+                            this.matrixLines[i] = new ASparseDictionaryMatrix<ObjectType, ISparseMatrixLine<ObjectType>>
+                                .SparseMatrixLine(otherMatrixElements, this);
                         }
                         else
                         {
@@ -3801,8 +3225,8 @@
                     else // Adiciona múltiplos de ambas as linhas.
                     {
                         var otherMatrixElements = new SortedDictionary<int, ObjectType>(Comparer<int>.Default);
-                        var replaceEnum = replacementLine.GetEnumerator();
-                        var combineEnum = combinationLine.GetEnumerator();
+                        var replaceEnum = replacementLine.GetColumns().GetEnumerator();
+                        var combineEnum = combinationLine.GetColumns().GetEnumerator();
                         var replaceState = replaceEnum.MoveNext();
                         var combineState = combineEnum.MoveNext();
                         var state = replaceState && combineState;
@@ -3960,7 +3384,8 @@
 
                         if (otherMatrixElements.Any())
                         {
-                            this.matrixLines[i] = new SparseDictionaryMatrixLine<ObjectType>(otherMatrixElements, this);
+                            this.matrixLines[i] = new ASparseDictionaryMatrix<ObjectType, ISparseMatrixLine<ObjectType>>
+                                .SparseMatrixLine(otherMatrixElements, this);
                         }
                         else
                         {
@@ -3978,7 +3403,8 @@
                             otherMatrixElements.Add(k, ring.AdditiveUnity);
                         }
 
-                        this.matrixLines[i] = new SparseDictionaryMatrixLine<ObjectType>(otherMatrixElements, this);
+                        this.matrixLines[i] = new ASparseDictionaryMatrix<ObjectType, ISparseMatrixLine<ObjectType>>
+                                .SparseMatrixLine(otherMatrixElements, this);
                     }
                     else if (ring.IsMultiplicativeUnity(a))
                     {
@@ -4013,7 +3439,8 @@
 
                             if (otherMatrixElements.Any())
                             {
-                                this.matrixLines[i] = new SparseDictionaryMatrixLine<ObjectType>(otherMatrixElements, this);
+                                this.matrixLines[i] = new ASparseDictionaryMatrix<ObjectType, ISparseMatrixLine<ObjectType>>
+                                .SparseMatrixLine(otherMatrixElements, this);
                             }
                             else
                             {
@@ -4057,7 +3484,8 @@
 
                         if (otherMatrixElements.Any())
                         {
-                            this.matrixLines[i] = new SparseDictionaryMatrixLine<ObjectType>(otherMatrixElements, this);
+                            this.matrixLines[i] = new ASparseDictionaryMatrix<ObjectType, ISparseMatrixLine<ObjectType>>
+                                .SparseMatrixLine(otherMatrixElements, this);
                         }
                         else
                         {
@@ -4082,7 +3510,8 @@
                                 otherMatrixElements.Add(k, ring.AdditiveUnity);
                             }
 
-                            this.matrixLines.Add(i, new SparseDictionaryMatrixLine<ObjectType>(otherMatrixElements, this));
+                            this.matrixLines.Add(i, new ASparseDictionaryMatrix<ObjectType, ISparseMatrixLine<ObjectType>>
+                                .SparseMatrixLine(otherMatrixElements, this));
                         }
                         else if (ring.IsMultiplicativeUnity(b)) // É acrescentada uma cópia da linha j.
                         {
@@ -4092,7 +3521,8 @@
                                 otherMatrixElements.Add(entry.Key, entry.Value);
                             }
 
-                            this.matrixLines.Add(i, new SparseDictionaryMatrixLine<ObjectType>(otherMatrixElements, this));
+                            this.matrixLines.Add(i, new ASparseDictionaryMatrix<ObjectType, ISparseMatrixLine<ObjectType>>
+                                .SparseMatrixLine(otherMatrixElements, this));
                         }
                         else // É acrescentado um múltiplo da linha j.
                         {
@@ -4125,7 +3555,8 @@
 
                             if (otherMatrixElements.Any())
                             {
-                                this.matrixLines.Add(i, new SparseDictionaryMatrixLine<ObjectType>(otherMatrixElements, this));
+                                this.matrixLines.Add(i, new ASparseDictionaryMatrix<ObjectType, ISparseMatrixLine<ObjectType>>
+                                .SparseMatrixLine(otherMatrixElements, this));
                             }
                         }
                     }
@@ -4160,7 +3591,8 @@
 
                         if (otherMatrixElements.Any())
                         {
-                            this.matrixLines.Add(i, new SparseDictionaryMatrixLine<ObjectType>(otherMatrixElements, this));
+                            this.matrixLines.Add(i, new ASparseDictionaryMatrix<ObjectType, ISparseMatrixLine<ObjectType>>
+                                .SparseMatrixLine(otherMatrixElements, this));
                         }
                     }
                     else
@@ -4196,7 +3628,8 @@
 
                         if (otherMatrixElements.Any())
                         {
-                            this.matrixLines.Add(i, new SparseDictionaryMatrixLine<ObjectType>(otherMatrixElements, this));
+                            this.matrixLines.Add(i, new ASparseDictionaryMatrix<ObjectType, ISparseMatrixLine<ObjectType>>
+                                .SparseMatrixLine(otherMatrixElements, this));
                         }
                     }
                 }
@@ -4212,7 +3645,8 @@
                             otherMatrixElements.Add(k, defaultValueToAdd);
                         }
 
-                        this.matrixLines.Add(i, new SparseDictionaryMatrixLine<ObjectType>(otherMatrixElements, this));
+                        this.matrixLines.Add(i, new ASparseDictionaryMatrix<ObjectType, ISparseMatrixLine<ObjectType>>
+                                .SparseMatrixLine(otherMatrixElements, this));
                     }
                 }
             }
@@ -4225,16 +3659,15 @@
         /// <param name="values">O conjunto de valores.</param>
         private void SetLine(int index, SortedDictionary<int, ObjectType> values)
         {
-            lock (this.lockObject)
+            if (this.matrixLines.ContainsKey(index))
             {
-                if (this.matrixLines.ContainsKey(index))
-                {
-                    this.matrixLines[index] = new SparseDictionaryMatrixLine<ObjectType>(values, this);
-                }
-                else
-                {
-                    this.matrixLines.Add(index, new SparseDictionaryMatrixLine<ObjectType>(values, this));
-                }
+                this.matrixLines[index] = new ASparseDictionaryMatrix<ObjectType, ISparseMatrixLine<ObjectType>>
+                            .SparseMatrixLine(values, this);
+            }
+            else
+            {
+                this.matrixLines.Add(index, new ASparseDictionaryMatrix<ObjectType, ISparseMatrixLine<ObjectType>>
+                            .SparseMatrixLine(values, this));
             }
         }
 

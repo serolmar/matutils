@@ -11,8 +11,10 @@
     /// estabelecida.
     /// </summary>
     /// <typeparam name="T">O tipo de objectos que constituem os coeficientes.</typeparam>
-    public class ConfigMatrixParser<T> :
-        IParse<IMatrix<T>, string, string>
+    /// <typeparam name="M">O tipo de objectos que constituem as matrizes.</typeparam>
+    public class ConfigMatrixParser<T, M> :
+        IParse<M, string, string>
+        where M : IMatrix<T>
     {
         /// <summary>
         /// O leitor de matrizes.
@@ -20,12 +22,17 @@
         /// <remarks>
         /// O leitor actual efectua leituras de matrizes cujas dimensões são conhecidas.
         /// </remarks>
-        private ConfigMatrixReader<T, string, string> arrayMatrixReader;
+        private ConfigMatrixReader<T,M, string, string> arrayMatrixReader;
 
         /// <summary>
         /// O leitor dos elmentos contidos na matriz multidimensional.
         /// </summary>
         private IParse<T, string, string> elementsParser;
+
+        /// <summary>
+        /// O objecto responsável pela criação da matriz.
+        /// </summary>
+        Func<int, int, M> matrixFactory;
 
         /// <summary>
         /// Obtém e atribui o tipo de símbolo que separa os itens da matriz multidimensional.
@@ -57,8 +64,8 @@
         public ConfigMatrixParser(
             IParse<T, string, string> elementsParser, 
             int numberOfLines, 
-            int numberOfColumns, 
-            IMatrixFactory<T> matrixFactory)
+            int numberOfColumns,
+            Func<int, int, M> matrixFactory)
         {
             if (matrixFactory == null)
             {
@@ -78,10 +85,10 @@
             }
             else
             {
-                this.arrayMatrixReader = new ConfigMatrixReader<T, string, string>(
+                this.arrayMatrixReader = new ConfigMatrixReader<T, M, string, string>(
                     numberOfLines,
-                    numberOfColumns,
-                    matrixFactory);
+                    numberOfColumns);
+                this.matrixFactory = matrixFactory;
                 this.elementsParser = elementsParser;
             }
         }
@@ -96,18 +103,19 @@
         /// <param name="symbolListToParse">O vector de símbolos a ser lido.</param>
         /// <param name="errorLogs">O objecto que irá manter o registo do diário da leitura.</param>
         /// <returns>O valor lido.</returns>
-        public IMatrix<T> Parse(
+        public M Parse(
             ISymbol<string, string>[] symbolListToParse, 
             ILogStatus<string, EParseErrorLevel> errorLogs)
         {
             var arrayReader = new ArraySymbolReader<string, string>(
                 symbolListToParse, 
                 Utils.GetStringSymbolType(EStringSymbolReaderType.EOF));
-            var value = default(IMatrix<T>);
+            var value = default(M);
             this.arrayMatrixReader.TryParseMatrix(
                 arrayReader,
-                this.elementsParser, 
+                this.elementsParser,
                 errorLogs, 
+                this.matrixFactory,
                 out value);
             return value;
         }

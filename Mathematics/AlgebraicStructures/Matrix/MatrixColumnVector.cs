@@ -5,18 +5,18 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
-    using Utilities.Collections;
+    using Utilities;
 
     /// <summary>
     /// Representa uma coluna de matriz como sendo um vector.
     /// </summary>
     /// <typeparam name="CoeffType">O tipo de obejctos que constituem as entradas das matrizes.</typeparam>
-    internal class MatrixColumnVector<CoeffType> : IVector<CoeffType>
+    internal class MatrixColumnVector<CoeffType> : IMathVector<CoeffType>
     {
         /// <summary>
         /// A matriz da qual é extraído o vector coluna.
         /// </summary>
-        private IMatrix<CoeffType> matrix;
+        private IMathMatrix<CoeffType> matrix;
 
         /// <summary>
         /// O número da coluna.
@@ -29,7 +29,7 @@
         /// <param name="columnNumber">O número da coluna.</param>
         /// <param name="matrix">A matriz da qual se considera a coluna como sendo vector.</param>
         /// <exception cref="ArgumentOutOfRangeException">Se a matriz for nula.</exception>
-        public MatrixColumnVector(int columnNumber, IMatrix<CoeffType> matrix)
+        public MatrixColumnVector(int columnNumber, IMathMatrix<CoeffType> matrix)
         {
             if (columnNumber < 0)
             {

@@ -18,7 +18,7 @@
         /// <param name="columns">O número de colunas.</param>
         /// <returns>A matriz.</returns>
         /// <exception cref="MathematicsException">Se o número de linhas for diferente do número de colunas.</exception>
-        public IMatrix<ObjectType> CreateMatrix(int lines, int columns)
+        public IMathMatrix<ObjectType> CreateMatrix(int lines, int columns)
         {
             if (lines != columns)
             {
@@ -26,7 +26,7 @@
             }
             else
             {
-                return new ArraySquareMatrix<ObjectType>(lines);
+                return new ArraySquareMathMatrix<ObjectType>(lines);
             }
         }
 
@@ -38,7 +38,7 @@
         /// <param name="defaultValue">O valor por defeito.</param>
         /// <returns>A matriz.</returns>
         /// <exception cref="MathematicsException">Se o número de linhas for diferente do número de colunas.</exception>
-        public IMatrix<ObjectType> CreateMatrix(int lines, int columns, ObjectType defaultValue)
+        public IMathMatrix<ObjectType> CreateMatrix(int lines, int columns, ObjectType defaultValue)
         {
             if (lines != columns)
             {
@@ -46,7 +46,7 @@
             }
             else
             {
-                return new ArraySquareMatrix<ObjectType>(lines, defaultValue);
+                return new ArraySquareMathMatrix<ObjectType>(lines, defaultValue);
             }
         }
 
@@ -55,9 +55,9 @@
         /// </summary>
         /// <param name="dimension">A dimensão da matriz.</param>
         /// <returns>A matriz.</returns>
-        public IMatrix<ObjectType> CreateMatrix(int dimension)
+        public IMathMatrix<ObjectType> CreateMatrix(int dimension)
         {
-            return new ArraySquareMatrix<ObjectType>(dimension);
+            return new ArraySquareMathMatrix<ObjectType>(dimension);
         }
 
         /// <summary>
@@ -66,9 +66,9 @@
         /// <param name="dimension">A dimensão da matriz.</param>
         /// <param name="defaultValue">O valor por defeito.</param>
         /// <returns>A matriz.</returns>
-        public IMatrix<ObjectType> CreateMatrix(int dimension, ObjectType defaultValue)
+        public IMathMatrix<ObjectType> CreateMatrix(int dimension, ObjectType defaultValue)
         {
-            return new ArraySquareMatrix<ObjectType>(dimension, defaultValue);
+            return new ArraySquareMathMatrix<ObjectType>(dimension, defaultValue);
         }
     }
 }

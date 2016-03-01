@@ -1,4 +1,4 @@
-﻿namespace Utilities.Collections
+﻿namespace Utilities
 {
     using System;
     using System.Collections;
@@ -72,8 +72,8 @@
             if (items != null)
             {
                 this.elements.AddRange(items);
-                var sorter = new MergeSorter<T>();
-                sorter.Sort(this.elements, this.comparer);
+                var sorter = new MergeSorter<T>(this.comparer);
+                sorter.Sort(this.elements);
             }
         }
 
@@ -123,8 +123,8 @@
             if (items != null)
             {
                 this.elements.AddRange(items);
-                var sorter = new MergeSorter<T>();
-                sorter.Sort(this.elements, this.comparer);
+                var sorter = new MergeSorter<T>(this.comparer);
+                sorter.Sort(this.elements);
             }
         }
 

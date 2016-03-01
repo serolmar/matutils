@@ -7,14 +7,13 @@
     using System.Text;
     using Mathematics;
     using Utilities;
-    using Utilities.Collections;
 
     /// <summary>
     /// Permite obter uma correcção ao resultado proveniente da relaxação linear. 
     /// </summary>
     /// <typeparam name="CoeffType">O tipo de coeficientes que corresponde à saída da relaxação linear.</typeparam>
     public class LinearRelRoundCorrectorAlg<CoeffType>
-        : IAlgorithm<CoeffType[], ISparseMatrix<CoeffType>, int, GreedyAlgSolution<CoeffType>>
+        : IAlgorithm<CoeffType[], ISparseMathMatrix<CoeffType>, int, GreedyAlgSolution<CoeffType>>
     {
         /// <summary>
         /// O corpo responsável pelas operações sobre os coeficientes.
@@ -80,7 +79,7 @@
         /// <returns>A solução construída a partir da aproximação.</returns>
         public GreedyAlgSolution<CoeffType> Run(
             CoeffType[] approximateMedians,
-            ISparseMatrix<CoeffType> costs,
+            ISparseMathMatrix<CoeffType> costs,
             int niter)
         {
             if (approximateMedians == null)
@@ -251,7 +250,7 @@
         /// <returns>O valor do custo associado à escolha.</returns>
         private CoeffType ComputeCost(
             IntegerSequence chosen,
-            ISparseMatrix<CoeffType> costs,
+            ISparseMathMatrix<CoeffType> costs,
             CoeffType[] solutionBoard,
             BitArray marked)
         {
@@ -337,7 +336,7 @@
             int replacementMedian,
             int medianToBeReplaced,
             IntegerSequence existingMedians,
-            ISparseMatrix<CoeffType> costs,
+            ISparseMathMatrix<CoeffType> costs,
             CoeffType[] currentSolutionBoard,
             CoeffType[] replacementSolutionBoard)
         {
@@ -421,7 +420,7 @@
             IntegerSequence chosen,
             int exceptLine,
             int column,
-            ISparseMatrix<CoeffType> costs)
+            ISparseMathMatrix<CoeffType> costs)
         {
             var result = default(CoeffType);
             var chosenEnumerator = chosen.GetEnumerator();

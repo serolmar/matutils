@@ -5,7 +5,7 @@
     using System.Linq;
     using System.Text;
     using Mathematics;
-    using Utilities.Collections;
+    using Utilities;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -13,7 +13,7 @@
     /// </summary>
     /// <typeparam name="ElementType">O tipo de dados utilizado na matriz dos custos.</typeparam>
     public class InverseGreedyRefGetAlgorithm<ElementType>
-        : IAlgorithm<IntegerSequence, SparseDictionaryMatrix<ElementType>, ElementType[], Tuple<int, ElementType>>
+        : IAlgorithm<IntegerSequence, SparseDictionaryMathMatrix<ElementType>, ElementType[], Tuple<int, ElementType>>
     {
         /// <summary>
         /// O objecto utilizado para bloquear os processos.
@@ -78,7 +78,7 @@
         /// <returns>O índice da linha correspondente à próxima referência bem como a perda respectiva.</returns>
         public Tuple<int, ElementType> Run(
             IntegerSequence chosenReferences,
-            SparseDictionaryMatrix<ElementType> currentMatrix,
+            SparseDictionaryMathMatrix<ElementType> currentMatrix,
             ElementType[] currentLineBoard)
         {
             var result = -1;
@@ -150,7 +150,7 @@
 
         private ElementType GetMinimumSum(
             IntegerSequence chosenReferences, 
-            SparseDictionaryMatrix<ElementType> currentMatrix, 
+            SparseDictionaryMathMatrix<ElementType> currentMatrix, 
             ElementType[] currentLineBoard, 
             IEnumerable<KeyValuePair<int, ISparseMatrixLine<ElementType>>> lines, 
             int chosenSolution)

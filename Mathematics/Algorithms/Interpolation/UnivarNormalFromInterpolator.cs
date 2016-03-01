@@ -7,7 +7,6 @@
     using System.Text;
     using System.Threading.Tasks;
     using Utilities;
-    using Utilities.Collections;
 
     /// <summary>
     /// Permite construir o polinómio interpolador na forma normal.

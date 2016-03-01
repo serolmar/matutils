@@ -3243,7 +3243,6 @@
         /// nulos de maior ordem.
         /// </summary>
         /// <param name="vector">O vector.</param>
-        /// <param name="length">O comprimento do vector.</param>
         /// <returns>O vector resultante.</returns>
         private ulong[] GetTrimmedVector(ulong[] vector)
         {

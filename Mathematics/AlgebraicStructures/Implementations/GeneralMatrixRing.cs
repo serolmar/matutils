@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
+    using Utilities;
 
     /// <summary>
     /// Define operações de anel sobre matrizes genéricas.
@@ -39,7 +40,7 @@
         {
             if (matrixFactory == null)
             {
-                throw new ArgumentNullException("matrixMult");
+                throw new ArgumentNullException("matrixFactory");
             }
             else
             {
@@ -61,7 +62,7 @@
         {
             get
             {
-                return new IdentityMatrix<CoeffType>(this.lines, this.coeffsRing);
+                return new IdentityMathMatrix<CoeffType>(this.lines, this.coeffsRing);
             }
         }
 
