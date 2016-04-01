@@ -11,6 +11,7 @@
     using System.Numerics;
     using System.Runtime.InteropServices;
     using System.Text;
+    using System.Xml;
     using System.Threading.Tasks;
     using Mathematics;
     using Mathematics.MathematicsInterpreter;
@@ -24,6 +25,123 @@
 
         static void Main(string[] args)
         {
+            try
+            {
+                var factor = 1034 * 1024.0;
+                var memInfo = Utils.GetMemoryInfo();
+                Console.WriteLine("Free physical memory: {0}", memInfo.FreePhysicalMemory / factor);
+                Console.WriteLine("Free virtual memory: {0}", memInfo.FreeVirtualMemory / factor);
+                Console.WriteLine("Total visible memory: {0}", memInfo.TotalVisibleMemorySize / factor);
+
+                var configuration = System.Configuration.ConfigurationManager.OpenExeConfiguration(System.Configuration.ConfigurationUserLevel.None);
+                var configurationSection = configuration.GetSection("runtime");
+                var raw = configurationSection.SectionInformation.GetRawXml();
+                if (!string.IsNullOrWhiteSpace(raw))
+                {
+                    var reader = new StringReader(raw);
+                    var document = new XmlDocument();
+                    document.Load(reader);
+
+                    var elements = document.GetElementsByTagName("gcAllowVeryLargeObjects");
+                    if (elements.Count == 1)
+                    {
+                        var enabled = ((XmlElement)elements[0]).GetAttribute("enabled");
+                        var outEnabled = false;
+                        if (bool.TryParse(enabled, out outEnabled))
+                        {
+                            Console.WriteLine("Ligado");
+                        }
+                        else
+                        {
+                            Console.WriteLine("Desligado");
+                        }
+                    }
+                }
+
+                //var r = new long[int.MaxValue / 2];
+                var nr = (long)402653184;
+
+                Console.WriteLine("Tentativa de instanciação de um objecto.");
+                var temp = new GeneralLongArray<long>(nr);
+
+                Console.WriteLine("O vector foi instanciado com {0} posições.", nr);
+                for (var i = 0L; i < nr; ++i)
+                {
+                    temp[i] = i;
+                }
+
+                Console.WriteLine("Os valores foram atribuídos.");
+                for (var i = 0L; i < nr; ++i)
+                {
+                    if (temp[i] != i) throw new Exception();
+                }
+
+                Console.WriteLine("Os valores foram comparados.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("{0}: {1}", ex.GetType().Name, ex.Message);
+            }
+
+            //Console.WriteLine();
+            //Console.WriteLine("Press any key to continue...");
+            //Console.ReadKey();
+        }
+
+        static void Lixo3()
+        {
+            var fileInfo = new FileInfo(@"Teste\mcca.mtx");
+            if (fileInfo.Exists)
+            {
+                using (var fileStream = fileInfo.OpenRead())
+                {
+                    using (var textReader = new StreamReader(
+                        fileStream,
+                        Encoding.UTF8))
+                    {
+                        var symbolReader = new StringSymbolReader(
+                            textReader,
+                            true,
+                            false);
+                        var longParser = new LongParser<string>();
+                        var doubleParser = new DoubleParser<string>(
+                            System.Globalization.NumberStyles.Number | System.Globalization.NumberStyles.AllowExponent,
+                            System.Globalization.NumberFormatInfo.InvariantInfo);
+                        var matrix = default(CoordinateSparseMathMatrix<double>);
+                        var matrixReader = new CoordMatrixMarketReader<double>(
+                            (l, c, e) => { matrix = new CoordinateSparseMathMatrix<double>(l, c, 0); },
+                            (l, c, e) => matrix[l - 1, c - 1] = e);
+                        var res = matrixReader.Parse(
+                            symbolReader,
+                            longParser,
+                            doubleParser,
+                            new GeneralMapper<string, string>());
+                        foreach (var log in res.GetLogs(EParseErrorLevel.ERROR))
+                        {
+                            Console.WriteLine(log);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                Console.WriteLine("O ficheiro não existe.");
+            }
+        }
+
+        static void Lixo2()
+        {
+            // Valor máximo permitido: 536870897 = int.MaxValue / 4 - int.MaxValue / (1 << 27) + int.MaxValue / (1 << 30) - inteiros
+            //var temp = new int[536870897];
+            //var temp1 = new long[268435448];
+            //var temp2 = new BigInteger[134217724];
+            //var temp3 = new IntegerSequence[134217724];
+            //var temp4 = new int[20][];
+            //for (int i = 0; i < 20; ++i)
+            //{
+            //    temp4[i] = new int[536870897];
+            //}
+
             var fileInfo = new FileInfo("Teste\\gbvrt60.txt");
             if (fileInfo.Exists)
             {
@@ -46,8 +164,6 @@
             {
                 Console.WriteLine("O ficheiro não existe.");
             }
-
-            Console.ReadKey();
         }
 
         static void Lixo1()
@@ -558,7 +674,7 @@
                 using (var fileStream = fileInfo.OpenRead())
                 {
                     var sparseMatrixSet = odmpReader.Read(fileStream);
-                    var componentsList = new List<ISparseMathMatrix<double>>();
+                    var componentsList = new List<ILongSparseMathMatrix<double>>();
                     foreach (var odmpMatrix in sparseMatrixSet)
                     {
                         var firstLine = odmpMatrix.FirstOrDefault();
@@ -1403,7 +1519,7 @@
             arrayReader.SeparatorSymbType = "comma";
 
             var readed = default(IMathMatrix<UnivariatePolynomialNormalForm<int>>);
-            if (arrayReader.TryParseMatrix(inputReader, univariatePolParser, (i,j)=>arrayMatrixFactory.CreateMatrix(i,j), out readed))
+            if (arrayReader.TryParseMatrix(inputReader, univariatePolParser, (i, j) => arrayMatrixFactory.CreateMatrix(i, j), out readed))
             {
                 var polynomialRing = new UnivarPolynomRing<int>("x", integerDomain);
                 var permutationDeterminant = new PermutationDeterminantCalculator<UnivariatePolynomialNormalForm<int>>(

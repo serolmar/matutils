@@ -13,7 +13,7 @@
     /// </summary>
     /// <typeparam name="CoeffType">O tipo de coeficientes que corresponde à saída da relaxação linear.</typeparam>
     public class LinearRelRoundCorrectorAlg<CoeffType>
-        : IAlgorithm<CoeffType[], ISparseMathMatrix<CoeffType>, int, GreedyAlgSolution<CoeffType>>
+        : IAlgorithm<CoeffType[], ILongSparseMathMatrix<CoeffType>, int, GreedyAlgSolution<CoeffType>>
     {
         /// <summary>
         /// O corpo responsável pelas operações sobre os coeficientes.
@@ -79,7 +79,7 @@
         /// <returns>A solução construída a partir da aproximação.</returns>
         public GreedyAlgSolution<CoeffType> Run(
             CoeffType[] approximateMedians,
-            ISparseMathMatrix<CoeffType> costs,
+            ILongSparseMathMatrix<CoeffType> costs,
             int niter)
         {
             if (approximateMedians == null)
@@ -250,14 +250,14 @@
         /// <returns>O valor do custo associado à escolha.</returns>
         private CoeffType ComputeCost(
             IntegerSequence chosen,
-            ISparseMathMatrix<CoeffType> costs,
+            ILongSparseMathMatrix<CoeffType> costs,
             CoeffType[] solutionBoard,
             BitArray marked)
         {
             var resultCost = this.coeffsField.AdditiveUnity;
             foreach (var item in chosen)
             {
-                var currentCostLine = default(ISparseMatrixLine<CoeffType>);
+                var currentCostLine = default(ILongSparseMatrixLine<CoeffType>);
                 if (costs.TryGetLine(item, out currentCostLine))
                 {
                     foreach (var column in currentCostLine.GetColumns())
@@ -336,7 +336,7 @@
             int replacementMedian,
             int medianToBeReplaced,
             IntegerSequence existingMedians,
-            ISparseMathMatrix<CoeffType> costs,
+            ILongSparseMathMatrix<CoeffType> costs,
             CoeffType[] currentSolutionBoard,
             CoeffType[] replacementSolutionBoard)
         {
@@ -358,7 +358,7 @@
                 this.coeffsField.AdditiveInverse(boardValue));
 
             // Remove a linha a ser substituída.
-            var currentRow = default(ISparseMatrixLine<CoeffType>);
+            var currentRow = default(ILongSparseMatrixLine<CoeffType>);
             if (costs.TryGetLine(medianToBeReplaced, out currentRow))
             {
                 foreach (var column in currentRow.GetColumns())
@@ -420,7 +420,7 @@
             IntegerSequence chosen,
             int exceptLine,
             int column,
-            ISparseMathMatrix<CoeffType> costs)
+            ILongSparseMathMatrix<CoeffType> costs)
         {
             var result = default(CoeffType);
             var chosenEnumerator = chosen.GetEnumerator();
@@ -432,7 +432,7 @@
                 var currentChosen = chosenEnumerator.Current;
                 if (currentChosen != exceptLine)
                 {
-                    var currentLine = default(ISparseMatrixLine<CoeffType>);
+                    var currentLine = default(ILongSparseMatrixLine<CoeffType>);
                     if (costs.TryGetLine(currentChosen, out currentLine))
                     {
                         var columnValue = default(CoeffType);
@@ -465,7 +465,7 @@
                     var currentChosen = chosenEnumerator.Current;
                     if (currentChosen != exceptLine)
                     {
-                        var currentLine = default(ISparseMatrixLine<CoeffType>);
+                        var currentLine = default(ILongSparseMatrixLine<CoeffType>);
                         if (costs.TryGetLine(currentChosen, out currentLine))
                         {
                             var columnValue = default(CoeffType);

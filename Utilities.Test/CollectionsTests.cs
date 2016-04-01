@@ -841,6 +841,63 @@
     }
 
     /// <summary>
+    /// Testa as colecções generalizadas.
+    /// </summary>
+    [TestClass]
+    public class GeneralizedCollectionsTest
+    {
+        /// <summary>
+        /// Testa a atribuição da ordenação generalizada em ambos os sentidos.
+        /// </summary>
+        [Description("Tests the long system array attribution.")]
+        [TestMethod]
+        public void GeneralizedCollections_LongSystemArrayGeneralTest()
+        {
+            // Testa a nulidade de uma atribuição.
+            int[] array = null;
+            LongSystemArray<int> longArray = array;
+            Assert.IsNull(longArray);
+            Assert.IsTrue(array == longArray);
+            Assert.IsFalse(array != longArray);
+            Assert.IsTrue(longArray == array);
+            Assert.IsFalse(longArray != array);
+            var otherArray = array;
+            Assert.IsTrue(otherArray == longArray);
+            Assert.IsFalse(otherArray != longArray);
+
+            // Testa a atribuição.
+            array = new int[5];
+            var random = new Random();
+            for (int i = 0; i < 5; ++i)
+            {
+                array[i] = random.Next();
+            }
+
+            longArray = array;
+            Assert.AreEqual(5, longArray.Count);
+            Assert.AreEqual(5L, longArray.LongCount);
+            Assert.IsTrue(array == longArray);
+            Assert.IsTrue(longArray == array);
+            otherArray = array;
+            Assert.IsTrue(otherArray == longArray);
+            Assert.IsTrue(longArray.Equals(array));
+            Assert.IsTrue(longArray.Equals(otherArray));
+            Assert.AreEqual(array.GetHashCode(), longArray.GetHashCode());
+            Assert.AreEqual(longArray.GetHashCode(), otherArray.GetHashCode());
+
+            for (var i = 0; i < longArray.Count; ++i)
+            {
+                Assert.AreEqual(array[i], longArray[i]);
+            }
+
+            for (var i = 0L; i < longArray.LongCount; ++i)
+            {
+                Assert.AreEqual(array[i], longArray[i]);
+            }
+        }
+    }
+
+    /// <summary>
     /// Define um enumerador que permite realizar um teste sobre a ordenação 
     /// de inteiros com base numa árvore associativa.
     /// </summary>

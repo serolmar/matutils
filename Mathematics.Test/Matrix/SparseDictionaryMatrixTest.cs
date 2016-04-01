@@ -646,7 +646,7 @@
         private T[] GetLineAsArray<T>(int line, SparseDictionaryMathMatrix<T> matrix)
         {
             var matrixColumnsNumber = matrix.GetLength(1);
-            var currentMatrixLine =default(ISparseMatrixLine<T>);
+            var currentMatrixLine =default(ILongSparseMatrixLine<T>);
             var result = new T[matrixColumnsNumber];
             if (matrix.TryGetLine(line, out currentMatrixLine))
             {
@@ -726,7 +726,7 @@
 
                 target.CombineLines(firstLine, secondLine, firstFactor, secondFactor, ring);
 
-                var targetLine = default(ISparseMatrixLine<T>);
+                var targetLine = default(ILongSparseMatrixLine<T>);
                 if (target.TryGetLine(firstLine, out targetLine))
                 {
                     for (int i = 0; i < numberOfColumns; ++i)

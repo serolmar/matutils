@@ -33,6 +33,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Management" />
@@ -56,6 +57,7 @@
     <Compile Include="Collections\BcdCodeGenerator.cs" />
     <Compile Include="Collections\BitList.cs" />
     <Compile Include="Collections\CollectionsException.cs" />
+    <Compile Include="Collections\GeneralizedCollections.cs" />
     <Compile Include="Collections\GeneralMapper.cs" />
     <Compile Include="Collections\Graph\DicDrivenTrie.cs" />
     <Compile Include="Collections\Graph\Edge.cs" />
@@ -73,6 +75,7 @@
     <Compile Include="Collections\Graph\VertexValuePair.cs" />
     <Compile Include="Collections\InsertionSortedCollection.cs" />
     <Compile Include="Collections\IntegerSequence.cs" />
+    <Compile Include="Collections\Interfaces\IGeneralizedCollections.cs" />
     <Compile Include="Collections\Interfaces\IIndexed.cs" />
     <Compile Include="Collections\Interfaces\IMatrix.cs" />
     <Compile Include="Collections\Interfaces\IMultidimensionalRange.cs" />
@@ -86,6 +89,7 @@
     <Compile Include="Collections\SpecialVectors.cs" />
     <Compile Include="Collections\Vectors.cs" />
     <Compile Include="Comparers.cs" />
+    <Compile Include="Configuration\ConfigurationsSections.cs" />
     <Compile Include="Cuda\CudaApi.cs" />
     <Compile Include="Cuda\CudaCallbacks.cs" />
     <Compile Include="Cuda\CudaConstants.cs" />

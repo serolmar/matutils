@@ -193,7 +193,7 @@
         /// <returns>O valor da estimativa.</returns>
         private ElementType GetBigDelta(
             DualHeuristicAlgInput<ElementType> input,
-            KeyValuePair<int, ISparseMatrixLine<ElementType>> line,
+            KeyValuePair<int, ILongSparseMatrixLine<ElementType>> line,
             SparseDictionaryMathMatrix<ElementType> component)
         {
             var result = this.ring.Add(input.Gamma, this.ring.AdditiveInverse(input.Taus[line.Key]));

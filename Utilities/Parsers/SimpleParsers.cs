@@ -48,11 +48,16 @@
                 }
                 else
                 {
-                    var firstSymbol = symbolListToParse[0];
-                    if (!int.TryParse(firstSymbol.SymbolValue, out value))
+                    var resultBuilder = new StringBuilder();
+                    for (int i = 0; i < symbolListToParse.Length; ++i)
+                    {
+                        resultBuilder.Append(symbolListToParse[i].SymbolValue);
+                    }
+
+                    if (!int.TryParse(resultBuilder.ToString(), out value))
                     {
                         errorLogs.AddLog(
-                            string.Format("Invalid integer symbol: {0}", firstSymbol.SymbolValue),
+                            string.Format("Invalid integer symbol: {0}", resultBuilder.ToString()),
                             EParseErrorLevel.ERROR);
                     }
                 }
@@ -137,15 +142,20 @@
                 }
                 else
                 {
-                    var firstValue = symbolListToParse[0];
+                    var resultBuilder = new StringBuilder();
+                    for (int i = 0; i < symbolListToParse.Length; ++i)
+                    {
+                        resultBuilder.Append(symbolListToParse[i].SymbolValue);
+                    }
+
                     if (!double.TryParse(
-                        firstValue.SymbolValue,
+                        resultBuilder.ToString(),
                         this.numberStyles,
                         this.formatProvider,
                         out value))
                     {
                         errorLogs.AddLog(
-                            string.Format("Invalid double symbol value: {0}", firstValue.SymbolValue),
+                            string.Format("Invalid double symbol value: {0}", resultBuilder.ToString()),
                             EParseErrorLevel.ERROR);
                     }
                 }
@@ -196,11 +206,16 @@
                 }
                 else
                 {
-                    var firstSymbol = symbolListToParse[0];
-                    if (!long.TryParse(firstSymbol.SymbolValue, out value))
+                    var resultBuilder = new StringBuilder();
+                    for (int i = 0; i < symbolListToParse.Length; ++i)
+                    {
+                        resultBuilder.Append(symbolListToParse[i].SymbolValue);
+                    }
+
+                    if (!long.TryParse(resultBuilder.ToString(), out value))
                     {
                         errorLogs.AddLog(
-                            string.Format("Invalid integer symbol: {0}", firstSymbol.SymbolValue),
+                            string.Format("Invalid integer symbol: {0}", resultBuilder.ToString()),
                             EParseErrorLevel.ERROR);
                     }
                 }

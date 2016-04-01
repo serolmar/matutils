@@ -11,7 +11,7 @@
     /// Implementa o algoritmo de compatibilidade sobre uma componente.
     /// </summary>
     public class OdmpCompatibilityGreedyAlgorithm<CostsType>
-        : IAlgorithm<int, List<ISparseMathMatrix<CostsType>>, GreedyAlgSolution<CostsType>[]>
+        : IAlgorithm<int, List<ILongSparseMathMatrix<CostsType>>, GreedyAlgSolution<CostsType>[]>
     {
         /// <summary>
         /// O anel responsável pelas operações sobre os custos.
@@ -53,7 +53,7 @@
         /// <param name="mediansNumber">O número de medianas a serem escolhidas.</param>
         /// <param name="costsMatrix">A matriz de custos.</param>
         /// <returns>O resultado da execução do algoritmo.</returns>
-        public GreedyAlgSolution<CostsType>[] Run(int mediansNumber, List<ISparseMathMatrix<CostsType>> costsMatrix)
+        public GreedyAlgSolution<CostsType>[] Run(int mediansNumber, List<ILongSparseMathMatrix<CostsType>> costsMatrix)
         {
             if (mediansNumber < costsMatrix.Count)
             {
@@ -165,7 +165,7 @@
         private GreedyAlgSolution<CostsType>[] GetSolution(
             CostsType[] resultCosts,
             List<CoordsElement>[] variables,
-            List<ISparseMathMatrix<CostsType>> costsMatrices)
+            List<ILongSparseMathMatrix<CostsType>> costsMatrices)
         {
             var result = new GreedyAlgSolution<CostsType>[variables.Length];
             for (int i = 0; i < result.Length; ++i)
@@ -254,7 +254,7 @@
         /// A matriz de compatibilidade ordenada de acordo como os elementos se encontram na matriz.
         /// </returns>
         private BitArraySymmetricMatrix GetCompatibilityMatrix(
-            ISparseMathMatrix<CostsType> costsMatrix,
+            ILongSparseMathMatrix<CostsType> costsMatrix,
             InsertionSortedCollection<CoordsElement> sortedElements)
         {
             // Efectua a contagem de elementos atribuídos na matriz.
@@ -347,7 +347,7 @@
         /// </summary>
         /// <param name="costsMatrix">A lista dos custos por componente.</param>
         /// <returns>O número total de nós.</returns>
-        private int CountNodes(List<ISparseMathMatrix<CostsType>> costsMatrix)
+        private int CountNodes(List<ILongSparseMathMatrix<CostsType>> costsMatrix)
         {
             var result = 0;
             for (int i = 0; i < costsMatrix.Count; ++i)

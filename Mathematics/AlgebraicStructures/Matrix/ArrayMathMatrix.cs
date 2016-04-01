@@ -20,7 +20,7 @@
         /// <param name="elements">O contentor com os elementos.</param>
         /// <param name="numberOfLines">O número de linhas.</param>
         /// <param name="numberOfColumns">O número de colunas.</param>
-        internal ArrayMathMatrix(ObjectType[][] elements, int numberOfLines, int numberOfColumns)
+        internal ArrayMathMatrix(ObjectType[][] elements, long numberOfLines, long numberOfColumns)
             : base(numberOfLines, numberOfColumns)
         {
             this.elements = elements;
@@ -32,7 +32,7 @@
         /// <param name="line">O número de linhas.</param>
         /// <param name="column">O número de colunas.</param>
         /// <exception cref="ArgumentOutOfRangeException">Se o número de linhas ou colunas for negativo.</exception>
-        public ArrayMathMatrix(int line, int column)
+        public ArrayMathMatrix(long line, long column)
             : base(line, column) { }
 
         /// <summary>
@@ -42,7 +42,7 @@
         /// <param name="column">O número de colunas.</param>
         /// <param name="defaultValue">O valor por defeito.</param>
         /// <exception cref="ArgumentOutOfRangeException">Se o número de linhas ou colunas for negativo.</exception>
-        public ArrayMathMatrix(int line, int column, ObjectType defaultValue)
+        public ArrayMathMatrix(long line, long column, ObjectType defaultValue)
             : base(line, column, defaultValue) { }
 
         /// <summary>

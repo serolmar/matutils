@@ -134,6 +134,27 @@
         }
 
         /// <summary>
+        /// Obtém e atribui o valor da entrada especificada.
+        /// </summary>
+        /// <param name="line">A coordenada da linha onde a entrada se encontra.</param>
+        /// <param name="column">A coordenada da coluna onde a entrada se encontra.</param>
+        /// <returns>O valor da entrada.</returns>
+        /// <exception cref="IndexOutOfRangeException">
+        /// Se o índice da linha ou da coluna for inferior a zero não for inferior ao tamanho da dimensão.
+        /// </exception>
+        public int this[long line, long column]
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+            set
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        /// <summary>
         /// Obtém o número de linhas ou colunas da matriz.
         /// </summary>
         /// <param name="dimension">Zero caso seja pretendido o número de linhas e um caso seja pretendido
@@ -160,6 +181,21 @@
         }
 
         /// <summary>
+        /// Obtém o número de linhas ou colunas da matriz.
+        /// </summary>
+        /// <param name="dimension">Zero caso seja pretendido o número de linhas e um caso seja pretendido
+        /// o número de colunas.
+        /// </param>
+        /// <returns>O número de entradas na respectiva dimensão.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// Se a dimensão for inferior a zero ou não for inferior ao número de dimensões.
+        /// </exception>
+        public long GetLongLength(int dimension)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
         /// Obtém a submatriz indicada no argumento.
         /// </summary>
         /// <param name="lines">As correnadas das linhas que constituem a submatriz.</param>
@@ -168,6 +204,17 @@
         public IMatrix<int> GetSubMatrix(int[] lines, int[] columns)
         {
             return new SubMatrix<int>(this, lines, columns);
+        }
+
+        /// <summary>
+        /// Obtém a submatriz indicada no argumento.
+        /// </summary>
+        /// <param name="lines">As correnadas das linhas que constituem a submatriz.</param>
+        /// <param name="columns">As correnadas das colunas que constituem a submatriz.</param>
+        /// <returns>A submatriz procurada.</returns>
+        public IMatrix<int> GetSubMatrix(long[] lines, long[] columns)
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -205,6 +252,19 @@
                 this.elementsList[i] = this.elementsList[j];
                 this.elementsList[j] = swapLine;
             }
+        }
+
+        /// <summary>
+        /// Troca duas linhas da matriz.
+        /// </summary>
+        /// <param name="i">A primeira linha a ser trocada.</param>
+        /// <param name="j">A segunda linha a ser trocada.</param>
+        /// <exception cref="IndexOutOfRangeException">
+        /// Se o índice de cada linha for inferior a zero não for inferior ao tamanho da dimensão.
+        /// </exception>
+        public void SwapLines(long i, long j)
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -277,6 +337,19 @@
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Troca duas colunas da matriz.
+        /// </summary>
+        /// <param name="i">A primeira coluna a ser trocaada.</param>
+        /// <param name="j">A segunda coluna a ser trocada.</param>
+        /// <exception cref="IndexOutOfRangeException">
+        /// Se o índice de cada coluna for inferior a zero não for inferior ao tamanho da dimensão.
+        /// </exception>
+        public void SwapColumns(long i, long j)
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>

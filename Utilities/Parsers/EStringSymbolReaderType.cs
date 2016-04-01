@@ -306,23 +306,48 @@
         DOT = 58,
 
         /// <summary>
+        /// %
+        /// </summary>
+        MOD = 59,
+
+        /// <summary>
+        /// Espaço.
+        /// </summary>
+        SPACE = 60,
+
+        /// <summary>
         /// Mundança de linha.
         /// </summary>
-        NEW_LINE = 59,
+        NEW_LINE = 61,
 
         /// <summary>
         /// Mudança de linha com arrasto.
         /// </summary>
-        CARRIAGE_RETURN = 60,
+        CARRIAGE_RETURN = 62,
+
+        /// <summary>
+        /// /*
+        /// </summary>
+        START_COMMENT = 63,
+
+        /// <summary>
+        /// */
+        /// </summary>
+        END_COMMENT = 64,
+
+        /// <summary>
+        /// //
+        /// </summary>
+        LINE_COMENT = 65,
 
         /// <summary>
         /// Qualquer.
         /// </summary>
-        ANY = 61,
+        ANY = 66,
 
         /// <summary>
         /// O fim do ficheiro.
         /// </summary>
-        EOF = 62,
+        EOF = 67,
     }
 }

@@ -152,7 +152,7 @@
             IntegerSequence chosenReferences, 
             SparseDictionaryMathMatrix<ElementType> currentMatrix, 
             ElementType[] currentLineBoard, 
-            IEnumerable<KeyValuePair<int, ISparseMatrixLine<ElementType>>> lines, 
+            IEnumerable<KeyValuePair<int, ILongSparseMatrixLine<ElementType>>> lines, 
             int chosenSolution)
         {
             var sum = this.ring.AdditiveUnity;
@@ -185,7 +185,7 @@
 
         private ElementType GetMinimumCover(
             IntegerSequence chosenReferences, 
-            IEnumerable<KeyValuePair<int, ISparseMatrixLine<ElementType>>> lines, 
+            IEnumerable<KeyValuePair<int, ILongSparseMatrixLine<ElementType>>> lines, 
             int solutionValue)
         {
             var minimumCover = default(ElementType);

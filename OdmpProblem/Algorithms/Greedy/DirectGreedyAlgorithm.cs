@@ -9,15 +9,15 @@
     using Utilities;
 
     public class DirectGreedyAlgorithm<ElementType>
-        : IAlgorithm<List<ISparseMathMatrix<ElementType>>, int, GreedyAlgSolution<ElementType>[]>,
-        IAlgorithm<List<ISparseMathMatrix<ElementType>>, IEnumerable<GreedyAlgSolution<ElementType>[]>>
+        : IAlgorithm<List<ILongSparseMathMatrix<ElementType>>, int, GreedyAlgSolution<ElementType>[]>,
+        IAlgorithm<List<ILongSparseMathMatrix<ElementType>>, IEnumerable<GreedyAlgSolution<ElementType>[]>>
     {
         /// <summary>
         /// Mantém o algoritmo que permite a obtenção da próxima referência.
         /// </summary>
         private IAlgorithm<
                             IntegerSequence,
-                            ISparseMathMatrix<ElementType>,
+                            ILongSparseMathMatrix<ElementType>,
                             ElementType[],
                             Tuple<int, ElementType>> refGetAlgorithm;
 
@@ -60,7 +60,7 @@
         /// <param name="refsNumber">O número de referências a serem escolhidas.</param>
         /// <returns>O conjunto de soluções por matriz.</returns>
         public GreedyAlgSolution<ElementType>[] Run(
-            List<ISparseMathMatrix<ElementType>> matrices,
+            List<ILongSparseMathMatrix<ElementType>> matrices,
             int refsNumber)
         {
             if (matrices == null)
@@ -115,7 +115,7 @@
         /// <param name="matrices">As matrizes.</param>
         /// <returns>O enumerador.</returns>
         public IEnumerable<GreedyAlgSolution<ElementType>[]> Run(
-            List<ISparseMathMatrix<ElementType>> matrices)
+            List<ILongSparseMathMatrix<ElementType>> matrices)
         {
             var lineBoards = this.SetupBoards(matrices);
             var result = this.SetupResults(lineBoards);
@@ -164,7 +164,7 @@
         /// </summary>
         /// <param name="matrices">O conjunto de matrizes.</param>
         /// <returns>O conjunto de linhsa condensadas.</returns>
-        private ElementType[][] SetupBoards(List<ISparseMathMatrix<ElementType>> matrices)
+        private ElementType[][] SetupBoards(List<ILongSparseMathMatrix<ElementType>> matrices)
         {
             var result = new ElementType[matrices.Count][];
             for (int i = 0; i < matrices.Count; ++i)
@@ -219,7 +219,7 @@
         /// <param name="boards">A lista de linhas condensadas por matriz.</param>
         /// <returns>As referências.</returns>
         private Tuple<int, ElementType>[] GetFirstRefs(
-            List<ISparseMathMatrix<ElementType>> matrices,
+            List<ILongSparseMathMatrix<ElementType>> matrices,
             GreedyAlgSolution<ElementType>[] currentSolutions,
             ElementType[][] boards)
         {

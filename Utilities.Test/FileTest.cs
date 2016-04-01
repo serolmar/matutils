@@ -521,6 +521,171 @@
     }
 
     /// <summary>
+    /// Testa a classe para leitura de uma lista de coordenadas do tipo MatrixMarket.
+    /// </summary>
+    [TestClass]
+    public class MatrixReaderTest
+    {
+        /// <summary>
+        /// Testa a leitura do leitor de triplos de coordenadas bidimensionais e valor.
+        /// </summary>
+        [Description("Tests the coordinates list reader.")]
+        [TestMethod]
+        public void CoordinatesListReader_MoveNextTest()
+        {
+            // Testa a leitura de inteiros mapeados por coordenadas inteiras.
+            var textBuilder = new StringBuilder();
+            textBuilder.AppendLine("%Isto é um comentário.");
+            textBuilder.AppendLine(" /*Comentário 1*/ 0  /*Comentário 2*/  0  /*Comentário 3  */0  /*Comentário.*/  ");
+            textBuilder.AppendLine("1 1 3");
+            textBuilder.AppendLine("1230 40 500");
+            var expected = new List<Tuple<int, int, int>>(){
+                Tuple.Create(0,0,0),
+                Tuple.Create(1,1,3),
+                Tuple.Create(1230, 40, 500)
+            };
+
+            var stringReader = new StringReader(textBuilder.ToString());
+            var reader = new StringSymbolReader(stringReader, true, false);
+            var integerParser = new IntegerParser<string>();
+            var target = new CoordinatesListReader<int, int, int, string, string>(
+                integerParser,
+                integerParser,
+                integerParser,
+                Utils.GetStringSymbolType(EStringSymbolReaderType.NEW_LINE),
+                Utils.GetStringSymbolType(EStringSymbolReaderType.SPACE),
+                reader);
+            target.RegisterCommentDelimiter(
+                Utils.GetStringSymbolType(EStringSymbolReaderType.MOD),
+                Utils.GetStringSymbolType(EStringSymbolReaderType.NEW_LINE));
+            target.RegisterCommentDelimiter(
+            Utils.GetStringSymbolType(EStringSymbolReaderType.START_COMMENT),
+                Utils.GetStringSymbolType(EStringSymbolReaderType.END_COMMENT));
+            target.AddBlanck(Utils.GetStringSymbolType(EStringSymbolReaderType.CARRIAGE_RETURN));
+
+            var index = 0;
+            while (target.MoveNext())
+            {
+                var expectedItem = expected[index++];
+                var actual = target.Current;
+                Assert.AreEqual(expectedItem.Item1, actual.Line);
+                Assert.AreEqual(expectedItem.Item2, actual.Column);
+                Assert.AreEqual(expectedItem.Item3, actual.Element);
+            }
+
+            // Testa a leitura de números de precisão dupla
+            // e cujas coordenadas são dadas por expressões algébricas sobre inteiros
+            textBuilder.Clear();
+            textBuilder.AppendLine("%Isto é um comentário.");
+            textBuilder.AppendLine(" /*Comentário 1*/ (1-1)  /*Comentário 2*/  ( ( 2 - 3 )*(3-4+1))  /*Comentário 3  */.1  /*Comentário.*/  ");
+            textBuilder.AppendLine("1 1 .03");
+            textBuilder.AppendLine("((5-2+1)^2) /*Comentário*/ ((3-1)^4) 2.05");
+            var secondExpected = new List<Tuple<int, int, double>>()
+            {
+                Tuple.Create(0, 0, 0.1),
+                Tuple.Create(1,1,0.03),
+                Tuple.Create(16,16,2.05)
+            };
+
+            stringReader = new StringReader(textBuilder.ToString());
+            reader = new StringSymbolReader(stringReader, false, false);
+            var integerExpressionParser = new IntegerExpressionParser();
+            var doubleParser = new DoubleParser<string>(
+                System.Globalization.NumberStyles.Number,
+                System.Globalization.NumberFormatInfo.InvariantInfo);
+            var secondTarget = new CoordinatesListReader<int, int, double, string, string>(
+                integerExpressionParser,
+                integerExpressionParser,
+                doubleParser,
+                Utils.GetStringSymbolType(EStringSymbolReaderType.NEW_LINE),
+                Utils.GetStringSymbolType(EStringSymbolReaderType.SPACE),
+                reader);
+            secondTarget.RegisterDelimiter(
+                Utils.GetStringSymbolType(EStringSymbolReaderType.LEFT_PARENTHESIS),
+                Utils.GetStringSymbolType(EStringSymbolReaderType.RIGHT_PARENTHESIS));
+            secondTarget.RegisterCommentDelimiter(
+                Utils.GetStringSymbolType(EStringSymbolReaderType.MOD),
+                Utils.GetStringSymbolType(EStringSymbolReaderType.NEW_LINE));
+            secondTarget.RegisterCommentDelimiter(
+                Utils.GetStringSymbolType(EStringSymbolReaderType.START_COMMENT),
+                Utils.GetStringSymbolType(EStringSymbolReaderType.END_COMMENT));
+            secondTarget.AddBlanck(Utils.GetStringSymbolType(EStringSymbolReaderType.CARRIAGE_RETURN));
+
+            index = 0;
+            while (target.MoveNext())
+            {
+                var expectedItem = expected[index++];
+                var actual = target.Current;
+                Assert.AreEqual(expectedItem.Item1, actual.Line);
+                Assert.AreEqual(expectedItem.Item2, actual.Column);
+                Assert.AreEqual(expectedItem.Item3, actual.Element);
+            }
+
+            // Teste à leitura de uma matriz com erros
+            textBuilder.Clear();
+            textBuilder.AppendLine("Isto é um comentário.");
+            textBuilder.AppendLine("(1) (2) (3.0) 1)");
+            textBuilder.AppendLine("(1++1) (2-3) 2.0");
+            textBuilder.AppendLine("(1) (2)");
+            textBuilder.AppendLine(" /*Comentário 1*/ (1-1)  /*Comentário 2*/  ( ( 2 - 3 )*(3-4+1))  /*Comentário 3  */.1  /*Comentário.*/  ");
+            textBuilder.AppendLine("1 1 .03");
+            textBuilder.AppendLine("((5-2+1)^2) /*Comentário*/ ((3-1)^4) 2.05");
+            secondExpected = new List<Tuple<int, int, double>>()
+            {
+                Tuple.Create(0,0,0.0),
+                Tuple.Create(0,0,0.0),
+                Tuple.Create(0,0,0.0),
+                Tuple.Create(0,0,0.0),
+                Tuple.Create(0, 0, 0.1),
+                Tuple.Create(1,1,0.03),
+                Tuple.Create(16,16,2.05)
+            };
+
+            var errors = new[] { true, true, true, true, false, false, false };
+
+            stringReader = new StringReader(textBuilder.ToString());
+            reader = new StringSymbolReader(stringReader, false, false);
+            secondTarget = new CoordinatesListReader<int, int, double, string, string>(
+                integerExpressionParser,
+                integerExpressionParser,
+                doubleParser,
+                Utils.GetStringSymbolType(EStringSymbolReaderType.NEW_LINE),
+                Utils.GetStringSymbolType(EStringSymbolReaderType.SPACE),
+                reader);
+            secondTarget.RegisterDelimiter(
+                Utils.GetStringSymbolType(EStringSymbolReaderType.LEFT_PARENTHESIS),
+                Utils.GetStringSymbolType(EStringSymbolReaderType.RIGHT_PARENTHESIS));
+            secondTarget.RegisterCommentDelimiter(
+                Utils.GetStringSymbolType(EStringSymbolReaderType.MOD),
+                Utils.GetStringSymbolType(EStringSymbolReaderType.NEW_LINE));
+            secondTarget.RegisterCommentDelimiter(
+                Utils.GetStringSymbolType(EStringSymbolReaderType.START_COMMENT),
+                Utils.GetStringSymbolType(EStringSymbolReaderType.END_COMMENT));
+            secondTarget.AddBlanck(Utils.GetStringSymbolType(EStringSymbolReaderType.CARRIAGE_RETURN));
+            while (secondTarget.MoveNext())
+            {
+                var currentError = errors[index];
+                var actual = secondTarget.Current;
+                if (currentError)
+                {
+                    Assert.IsTrue(actual.HasError);
+                }
+                else
+                {
+                    var expectedItem = secondExpected[index];
+                    Assert.AreEqual(expectedItem.Item1, actual.Line);
+                    Assert.AreEqual(expectedItem.Item2, actual.Column);
+                    Assert.AreEqual(expectedItem.Item3, actual.Element);
+                }
+
+                ++index;
+            }
+
+            Assert.AreEqual(secondExpected.Count, index);
+        }
+    }
+
+    /// <summary>
     /// Representa um valor qualquer.
     /// </summary>
     /// <typeparam name="T">O tipo do valor.</typeparam>

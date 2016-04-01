@@ -121,6 +121,27 @@
         }
 
         /// <summary>
+        /// Obtém e atribui o valor da entrada especificada.
+        /// </summary>
+        /// <param name="line">A coordenada da linha onde a entrada se encontra.</param>
+        /// <param name="column">A coordenada da coluna onde a entrada se encontra.</param>
+        /// <returns>O valor da entrada.</returns>
+        /// <exception cref="IndexOutOfRangeException">
+        /// Se o índice da linha ou da coluna for negativo ou não for inferior ao tamanho da dimensão.
+        /// </exception>
+        public CoeffType this[long line, long column]
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+            set
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        /// <summary>
         /// Verifica se se trata de uma matriz simétrica.
         /// </summary>
         /// <param name="equalityComparer">O comparador das entradas.</param>
@@ -143,6 +164,18 @@
         }
 
         /// <summary>
+        /// Obtém o número de linhas ou colunas da matriz.
+        /// </summary>
+        /// <param name="dimension">Zero caso seja pretendido o número de linhas e um caso seja pretendido
+        /// o número de colunas.
+        /// </param>
+        /// <returns>O número de entradas na respectiva dimensão.</returns>
+        public long GetLongLength(int dimension)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
         /// Obtém a submatriz indicada no argumento.
         /// </summary>
         /// <param name="lines">As correnadas das linhas que constituem a submatriz.</param>
@@ -151,6 +184,17 @@
         public IMatrix<CoeffType> GetSubMatrix(int[] lines, int[] columns)
         {
             return new SubMatrix<CoeffType>(this, lines, columns);
+        }
+
+        /// <summary>
+        /// Obtém a submatriz indicada no argumento.
+        /// </summary>
+        /// <param name="lines">As correnadas das linhas que constituem a submatriz.</param>
+        /// <param name="columns">As correnadas das colunas que constituem a submatriz.</param>
+        /// <returns>A submatriz procurada.</returns>
+        public IMatrix<CoeffType> GetSubMatrix(long[] lines, long[] columns)
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -175,6 +219,16 @@
         }
 
         /// <summary>
+        /// Troca duas linhas da matriz.
+        /// </summary>
+        /// <param name="i">A primeira linha a ser trocada.</param>
+        /// <param name="j">A segunda linha a ser trocada.</param>
+        public void SwapLines(long i, long j)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
         /// Troca duas colunas da matriz.
         /// </summary>
         /// <param name="i">A primeira coluna a ser trocaada.</param>
@@ -182,6 +236,16 @@
         public void SwapColumns(int i, int j)
         {
             throw new MathematicsException("Can't swap columns in a diagonal matrix.");
+        }
+
+        /// <summary>
+        /// Troca duas colunas da matriz.
+        /// </summary>
+        /// <param name="i">A primeira coluna a ser trocaada.</param>
+        /// <param name="j">A segunda coluna a ser trocada.</param>
+        public void SwapColumns(long i, long j)
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>

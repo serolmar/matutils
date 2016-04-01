@@ -20,7 +20,7 @@
         /// Cria instâncias de objectos do tipo <see cref="AArrayTriangularMathMatrix{CoeffType}"/>.
         /// </summary>
         /// <param name="dimension">A dimensão da matriz.</param>
-        public AArrayTriangularMathMatrix(int dimension)
+        public AArrayTriangularMathMatrix(long dimension)
             : base(dimension, dimension)
         {
         }
@@ -30,7 +30,7 @@
         /// </summary>
         /// <param name="dimension">A dimensão da matriz.</param>
         /// <param name="defaultValue">O valor por defeito.</param>
-        public AArrayTriangularMathMatrix(int dimension, CoeffType defaultValue)
+        public AArrayTriangularMathMatrix(long dimension, CoeffType defaultValue)
             : base(dimension, dimension, defaultValue)
         {
         }
@@ -111,7 +111,7 @@
         /// </summary>
         /// <param name="line">O número de linhas da matriz.</param>
         /// <param name="column">O número de colunas da matriz.</param>
-        protected override void InitializeMatrix(int line, int column)
+        protected override void InitializeMatrix(long line, long column)
         {
             this.defaultValue = default(CoeffType);
             this.elements = new CoeffType[line][];
@@ -133,7 +133,7 @@
         /// <param name="line">O número de linhas.</param>
         /// <param name="column">O número de colunas.</param>
         /// <param name="defaultValue">O valor por defeito.</param>
-        protected override void InitializeMatrix(int line, int column, CoeffType defaultValue)
+        protected override void InitializeMatrix(long line, long column, CoeffType defaultValue)
         {
             this.defaultValue = defaultValue;
             this.elements = new CoeffType[line][];

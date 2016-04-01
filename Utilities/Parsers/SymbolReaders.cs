@@ -1292,6 +1292,7 @@
                     this.currentSymbol = symbol;
                     break;
             }
+
             symbol = reader.Peek();
             if (symbol.SymbolType.Equals("times") && this.currentSymbol.SymbolType.Equals("times"))
             {
@@ -1301,6 +1302,13 @@
             {
                 return this.stateList[3];
             }
+            else if (symbol.SymbolType.Equals("right_bar"))
+            {
+                this.currentSymbol.SymbolType = "end_comment";
+                this.currentSymbol.SymbolValue = "*/";
+                reader.Get();
+            }
+
             return this.stateList[16];
         }
 
@@ -1319,7 +1327,24 @@
             {
                 return this.stateList[3];
             }
-            return this.stateList[16];
+            else if (symbol.SymbolType.Equals("times"))
+            {
+                reader.Get();
+                this.currentSymbol.SymbolValue = "/*";
+                this.currentSymbol.SymbolType = "start_comment";
+                return this.stateList[16];
+            }
+            else if (symbol.SymbolType.Equals("over"))
+            {
+                reader.Get();
+                this.currentSymbol.SymbolValue = "//";
+                this.currentSymbol.SymbolType = "line_comment";
+                return this.stateList[16];
+            }
+            else
+            {
+                return this.stateList[16];
+            }
         }
 
         /// <summary>
@@ -1344,6 +1369,7 @@
                     this.currentSymbol = symbol;
                     break;
             }
+
             symbol = reader.Peek();
             if (symbol.SymbolType.Equals("algarism"))
             {

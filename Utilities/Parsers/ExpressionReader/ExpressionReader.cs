@@ -127,6 +127,9 @@
         public ObjType Parse(ISymbolReader<SymbValue, SymbType> reader)
         {
             this.errorMessages.Clear();
+            this.elementStack.Clear();
+            this.operatorStack.Clear();
+            this.currentSymbolValues.Clear();
             StateMachine<SymbValue, SymbType> stateMchine = new StateMachine<SymbValue, SymbType>(
                 this.stateList[0],
                 this.stateList[1]);
@@ -185,6 +188,9 @@
         {
             var result = default(ObjType);
             this.errorMessages.Clear();
+            this.elementStack.Clear();
+            this.operatorStack.Clear();
+            this.currentSymbolValues.Clear();
             StateMachine<SymbValue, SymbType> stateMchine = new StateMachine<SymbValue, SymbType>(this.stateList[0], this.stateList[1]);
             stateMchine.RunMachine(reader);
             if (this.errorMessages.Count > 0)

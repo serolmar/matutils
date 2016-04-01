@@ -104,6 +104,36 @@
         }
 
         /// <summary>
+        /// Obtém ou atribui o valor na posição da matriz especificada pelos índices.
+        /// </summary>
+        /// <remarks>
+        /// Apenas o zero associado ao monóide pode ser introduzido. Todos os outros valores irão resultar
+        /// numa excepção.
+        /// </remarks>
+        /// <value>
+        /// O valor nulo.
+        /// </value>
+        /// <param name="line">O número da linha.</param>
+        /// <param name="column">O número da coluna.</param>
+        /// <returns></returns>
+        /// <exception cref="IndexOutOfRangeException">
+        /// Se o número da linha ou o número da coluna for negativo ou não for inferior ao tamanho da dimensão
+        /// respectiva.
+        /// </exception>
+        /// <exception cref="MathematicsException">Se algum valor diferente de zero for atribuído.</exception>
+        public ElementType this[long line, long column]
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+            set
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        /// <summary>
         /// Obtém o número de linhas ou colunas da matriz.
         /// </summary>
         /// <param name="dimension">Zero caso seja pretendido o número de linhas e um caso seja pretendido
@@ -128,6 +158,19 @@
         }
 
         /// <summary>
+        /// Obtém o número de linhas ou colunas da matriz.
+        /// </summary>
+        /// <param name="dimension">Zero caso seja pretendido o número de linhas e um caso seja pretendido
+        /// o número de colunas.
+        /// </param>
+        /// <returns>O número de entradas na respectiva dimensão.</returns>
+        /// <exception cref="ArgumentException">Se o valor da dimensão diferir de zero ou um.</exception>
+        public long GetLongLength(int dimension)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
         /// Obtém a submatriz indicada no argumento.
         /// </summary>
         /// <param name="lines">As correnadas das linhas que constituem a submatriz.</param>
@@ -136,6 +179,17 @@
         public IMatrix<ElementType> GetSubMatrix(int[] lines, int[] columns)
         {
             return new SubMatrix<ElementType>(this, lines, columns);
+        }
+
+        /// <summary>
+        /// Obtém a submatriz indicada no argumento.
+        /// </summary>
+        /// <param name="lines">As correnadas das linhas que constituem a submatriz.</param>
+        /// <param name="columns">As correnadas das colunas que constituem a submatriz.</param>
+        /// <returns>A submatriz procurada.</returns>
+        public IMatrix<ElementType> GetSubMatrix(long[] lines, long[] columns)
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -167,6 +221,16 @@
         }
 
         /// <summary>
+        /// A troca de linhas deixa a matriz nula invariante.
+        /// </summary>
+        /// <param name="i">A primeira linha a ser trocada.</param>
+        /// <param name="j">A segunda linha a ser trocada.</param>
+        public void SwapLines(long i, long j)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
         /// A troca de colunas deixa a matriz nula invariante.
         /// </summary>
         /// <param name="i">A primeira coluna a ser trocada.</param>
@@ -181,6 +245,16 @@
             {
                 throw new IndexOutOfRangeException("Index must be non-negative and less than the number of lines.");
             }
+        }
+
+        /// <summary>
+        /// A troca de colunas deixa a matriz nula invariante.
+        /// </summary>
+        /// <param name="i">A primeira coluna a ser trocada.</param>
+        /// <param name="j">A segunda coluna a ser trocada.</param>
+        public void SwapColumns(long i, long j)
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>

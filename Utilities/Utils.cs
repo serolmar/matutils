@@ -36,8 +36,8 @@
             "double_colon","bitwise_and","double_and","and_equal","bitwise_or","double_or","or_equal","less_than","double_less","triple_less",
             "less_equal","great_than","double_great","triple_great","great_equal","left_parenthesis","right_parenthesis","left_bracket","right_bracket","double_quote",
             "quote", "left_bar","semi_colon","comma","tild","hat","question_mark","exclamation_mark","left_brace","right_brace",
-            "at", "cardinal","dollar","pound","chapter","euro", "underscore", "right_bar", "point", "new_line",
-            "carriage_return", "any", "eof"};
+            "at", "cardinal","dollar","pound","chapter","euro", "underscore", "right_bar", "point", "mod", "space", "new_line",
+            "carriage_return", "start_comment", "end_comment", "line_comment", "any", "eof"};
 
         /// <summary>
         /// Obtém o estado actual da máquina.
@@ -224,6 +224,62 @@
                 }
             }
         }
+
+        /// <summary>
+        /// Obtém a memória virtual disponível em KB.
+        /// </summary>
+        /// <returns>A memória virtual.</returns>
+        public static MemoryInfo GetMemoryInfo()
+        {
+            var operatingSystemVersion = Environment.OSVersion;
+            var platform = operatingSystemVersion.Platform;
+            switch (platform)
+            {
+                case PlatformID.Win32NT:
+                case PlatformID.Win32S:
+                case PlatformID.Win32Windows:
+                case PlatformID.WinCE:
+                    var managementObjectSearcher = new ManagementObjectSearcher(
+                        "Select FreePhysicalMemory, FreeVirtualMemory, TotalVisibleMemorySize from Win32_OperatingSystem");
+                    var systemCollection = managementObjectSearcher.Get();
+                    var systemCollectionEnumerator = systemCollection.GetEnumerator();
+                    if (systemCollectionEnumerator.MoveNext())
+                    {
+                        var freePhysicalMemory = 0L;
+                        var freeVirtualMemory = 0L;
+                        var totalVisibleMemory = 0L;
+
+                        var currentSearch = systemCollectionEnumerator.Current;
+                        var currentValue = currentSearch["FreePhysicalMemory"];
+                        freePhysicalMemory = long.Parse(currentValue.ToString());
+
+                        currentValue = currentSearch["FreeVirtualMemory"];
+                        freeVirtualMemory = long.Parse(currentValue.ToString());
+
+                        currentValue = currentSearch["TotalVisibleMemorySize"];
+                        totalVisibleMemory = long.Parse(currentValue.ToString());
+
+                        return new MemoryInfo()
+                        {
+                            FreePhysicalMemory = freePhysicalMemory,
+                            FreeVirtualMemory = freeVirtualMemory,
+                            TotalVisibleMemorySize = totalVisibleMemory
+                        };
+                    }
+                    else
+                    {
+                        throw new UtilitiesDataException("Can't query the system for processor info.");
+                    }
+                case PlatformID.MacOSX:
+                    throw new UtilitiesException("Unsupported platform: MacOSX");
+                case PlatformID.Unix:
+                    throw new UtilitiesException("Unsupported platform: Unix");
+                case PlatformID.Xbox:
+                    throw new UtilitiesException("Unsupported platform: Xbox");
+                default:
+                    throw new UtilitiesException("Unknown platform.");
+            }
+        }
     }
 
     /// <summary>
@@ -241,6 +297,11 @@
         /// Número de núcleos.
         /// </summary>
         private int cores;
+
+        /// <summary>
+        /// A memória física total.
+        /// </summary>
+        private long totalPhysicalMemory;
 
         /// <summary>
         /// Instancia um nova instância de objectos do tipo <see cref="MachineInfo"/>.
@@ -269,6 +330,17 @@
             get
             {
                 return this.cores;
+            }
+        }
+
+        /// <summary>
+        /// Otbém a memória física total.
+        /// </summary>
+        private long TotalPhysicalMemory
+        {
+            get
+            {
+                return this.totalPhysicalMemory;
             }
         }
 
@@ -305,22 +377,26 @@
         {
             // Consulta o número de processadores.
             var managementObjectSearcher = new ManagementObjectSearcher(
-                "Select numberofprocessors from Win32_ComputerSystem");
+                "Select NumberOfProcessors, TotalPhysicalMemory from Win32_ComputerSystem");
             var systemCollection = managementObjectSearcher.Get();
             var systemCollectionEnumerator = systemCollection.GetEnumerator();
             if (systemCollectionEnumerator.MoveNext())
             {
-                var currentValue = systemCollectionEnumerator.Current["numberofprocessors"];
+                var currentSearch = systemCollectionEnumerator.Current;
+                var currentValue = currentSearch["NumberOfProcessors"];
                 this.processors = int.Parse(currentValue.ToString());
+
+                currentValue = currentSearch["TotalPhysicalMemory"];
+                this.totalPhysicalMemory = long.Parse(currentValue.ToString());
 
                 // Consulta o número de núcleos de processamento.
                 managementObjectSearcher = new ManagementObjectSearcher(
-                    "Select numberofcores from Win32_Processor");
+                    "Select NumberOfCores from Win32_Processor");
                 systemCollection = managementObjectSearcher.Get();
                 var numberOfCores = 0;
                 foreach (var systemInfo in systemCollection)
                 {
-                    numberOfCores += int.Parse(systemInfo["numberofcores"].ToString());
+                    numberOfCores += int.Parse(systemInfo["NumberOfCores"].ToString());
                 }
 
                 this.cores = numberOfCores;
@@ -328,6 +404,72 @@
             else
             {
                 throw new UtilitiesDataException("Can't query the system for processor info.");
+            }
+        }
+    }
+
+    /// <summary>
+    /// Mantém a informação sobre o estado da memória.
+    /// </summary>
+    public struct MemoryInfo
+    {
+        /// <summary>
+        /// A quantidade de memória física livre (KB).
+        /// </summary>
+        private long freePhysicalMemory;
+
+        /// <summary>
+        /// A quantidade de memória virtual livre (KB).
+        /// </summary>
+        private long freeVirtualMemory;
+
+        /// <summary>
+        /// O tamanho total da memória visível (KB).
+        /// </summary>
+        private long totalVisibleMemorySize;
+
+        /// <summary>
+        /// Obtém a quantidade de memória física livre (KB).
+        /// </summary>
+        public long FreePhysicalMemory
+        {
+            get
+            {
+                return this.freePhysicalMemory;
+            }
+            internal set
+            {
+                this.freePhysicalMemory = value;
+            }
+        }
+
+        /// <summary>
+        /// Obtém a quantidade de memória virtual livre.
+        /// </summary>
+        public long FreeVirtualMemory
+        {
+            get
+            {
+                return this.freeVirtualMemory;
+            }
+            internal set
+            {
+                this.freeVirtualMemory = value;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o tamanho total da memória visível.
+        /// </summary>
+        public long TotalVisibleMemorySize
+        {
+            get
+            {
+                return this.totalVisibleMemorySize;
+            }
+            internal set
+            {
+                this.totalVisibleMemorySize = value;
             }
         }
     }

@@ -51,7 +51,7 @@
     /// </remarks>
     /// <typeparam name="ObjectSetType">O tipo dos objectos do conjunto de partida.</typeparam>
     /// <typeparam name="TargetSetType">O tipo de objectos do conjunto de chegada.</typeparam>
-    public class GeneralMapper<ObjectSetType, TargetSetType>
+    public class GeneralMapper<ObjectSetType, TargetSetType> : IEnumerable<ObjectTargetPair<ObjectSetType, TargetSetType>>
     {
         /// <summary>
         /// Permite mapear os objectos do conjunto de partida aos do conjunto de chegada.
@@ -125,6 +125,28 @@
         }
 
         /// <summary>
+        /// Obtém o comparador de elementos no conjunto dos objectos.
+        /// </summary>
+        public IEqualityComparer<ObjectSetType> ObjectComparer
+        {
+            get
+            {
+                return this.mappObjectToTarget.Comparer;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o comparador de elementos no conjunto das imagens.
+        /// </summary>
+        public IEqualityComparer<TargetSetType> TargetComparer
+        {
+            get
+            {
+                return this.mappTargetToObject.Comparer;
+            }
+        }
+
+        /// <summary>
         /// Adiciona um mapeamento.
         /// </summary>
         /// <param name="obj">O objecto de partida.</param>
@@ -168,7 +190,7 @@
         /// </summary>
         /// <param name="obj">O objecto..</param>
         /// <returns>O conjunto de objectos mapeados.</returns>
-        public  ReadOnlyCollection<TargetSetType> TargetFor(ObjectSetType obj)
+        public ReadOnlyCollection<TargetSetType> TargetFor(ObjectSetType obj)
         {
             List<TargetSetType> result = null;
             if (!this.mappObjectToTarget.TryGetValue(obj, out result))
@@ -196,6 +218,45 @@
         }
 
         /// <summary>
+        /// Remove o mapeamento entre o objecto especificado e a respectiva imagem.
+        /// </summary>
+        /// <param name="obj">O objecto.</param>
+        /// <param name="target">A imagem.</param>
+        public void RemoveMap(ObjectSetType obj, TargetSetType target)
+        {
+            var innerTarget = default(List<TargetSetType>);
+            if (this.mappObjectToTarget.TryGetValue(obj, out innerTarget))
+            {
+                var listCount = innerTarget.Count;
+                var targetComparer = this.mappTargetToObject.Comparer;
+                for (int i = 0; i < listCount; ++i)
+                {
+                    if (targetComparer.Equals(
+                        innerTarget[i],
+                        target))
+                    {
+                        innerTarget.RemoveAt(i);
+                        i = listCount;
+                    }
+                }
+
+                var innerObject = this.mappTargetToObject[target];
+                listCount = innerObject.Count;
+                var objectComparer = this.mappObjectToTarget.Comparer;
+                for (int i = 0; i < listCount; ++i)
+                {
+                    if (objectComparer.Equals(
+                        innerObject[i],
+                        obj))
+                    {
+                        innerObject.RemoveAt(i);
+                        i = listCount;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
         /// Determina se um objecto se encontra no conjunto de partida.
         /// </summary>
         /// <param name="obj">O objecto.</param>
@@ -213,6 +274,44 @@
         public bool ContainsTarget(TargetSetType target)
         {
             return this.mappTargetToObject.ContainsKey(target);
+        }
+
+        /// <summary>
+        /// Elimina todos os mapeamentos da colecção.
+        /// </summary>
+        public void Clear()
+        {
+            this.mappObjectToTarget.Clear();
+            this.mappTargetToObject.Clear();
+        }
+
+        /// <summary>
+        /// Obtém o enumerador para a colecção.
+        /// </summary>
+        /// <returns>O enumerador.</returns>
+        public IEnumerator<ObjectTargetPair<ObjectSetType, TargetSetType>> GetEnumerator()
+        {
+            foreach (var kvp in this.mappObjectToTarget)
+            {
+                var key = kvp.Key;
+                var value = kvp.Value;
+                foreach (var item in value)
+                {
+                    yield return new ObjectTargetPair<ObjectSetType, TargetSetType>(
+                        key,
+                        item);
+
+                }
+            }
+        }
+
+        /// <summary>
+        /// Obtém o enumerador não genérico para a colecção.
+        /// </summary>
+        /// <returns>O enumerador não genérico.</returns>
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+        {
+            return this.GetEnumerator();
         }
     }
 

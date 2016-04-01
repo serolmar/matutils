@@ -13,7 +13,7 @@
     /// </summary>
     /// <typeparam name="ElementType">O tipo de dados utilizado na matriz dos custos.</typeparam>
     public class DirectGreedyRefGetAlgorithm<ElementType>
-        : IAlgorithm<IntegerSequence, ISparseMathMatrix<ElementType>, ElementType[], Tuple<int, ElementType>>
+        : IAlgorithm<IntegerSequence, ILongSparseMathMatrix<ElementType>, ElementType[], Tuple<int, ElementType>>
     {
         /// <summary>
         /// O objecto utilizado para bloquear os processos.
@@ -78,10 +78,10 @@
         /// <returns>O índice da linha corresponde à próxima referência bem como o ganho respectivo.</returns>
         public Tuple<int, ElementType> Run(
             IntegerSequence chosenReferences,
-            ISparseMathMatrix<ElementType> currentMatrix,
+            ILongSparseMathMatrix<ElementType> currentMatrix,
             ElementType[] currentLineBoard)
         {
-            var result = default(KeyValuePair<int, ISparseMatrixLine<ElementType>>);
+            var result = default(KeyValuePair<int, ILongSparseMatrixLine<ElementType>>);
             var lines = currentMatrix.GetLines();
             var currentMaxGain = this.ring.AdditiveInverse(this.ring.MultiplicativeUnity);
             var foundRef = false;

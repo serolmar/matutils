@@ -29,7 +29,7 @@
         /// </summary>
         /// <param name="elements">O contentor de coeficientes.</param>
         /// <param name="dimension">A dimensão da matriz.</param>
-        internal ArraySquareMathMatrix(CoeffType[][] elements, int dimension)
+        internal ArraySquareMathMatrix(CoeffType[][] elements, long dimension)
             : base(elements, dimension, dimension) { }
 
         /// <summary>
