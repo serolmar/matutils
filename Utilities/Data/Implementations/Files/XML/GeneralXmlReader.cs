@@ -79,9 +79,9 @@
         /// <param name="minimum">O mínimo de elementos do tipo que se espera encontrar.</param>
         /// <param name="maximum">O máximo de elementos do tipo que se espera encontrar.</param>
         /// <returns>O leitor.</returns>
-        IXmlElementReader<T, P> RegisterElementReader(
+        IXmlElementReader<T, Q> RegisterElementReader<Q>(
             Action<T, string> textAction,
-            Func<T, P> attachFunction,
+            Func<T, Q> attachFunction,
             string elementName,
             bool ignoreNotRegisteredElements,
             bool ignoreOrder,
@@ -406,9 +406,9 @@
         /// <param name="minimum">O mínimo de elementos do tipo que podem ser encontrados.</param>
         /// <param name="maximum">O número máximo de elmentos do tipo que podem ser encontrados.</param>
         /// <returns>O leitor de elementos.</returns>
-        public IXmlElementReader<T, P> RegisterElementReader(
+        public IXmlElementReader<T, Q> RegisterElementReader<Q>(
             Action<T, string> textAction,
-            Func<T, P> attachFunction,
+            Func<T, Q> attachFunction,
             string elementName,
             bool ignoreNotRegisteredElements,
             bool ignoreOrder,
@@ -428,7 +428,7 @@
                 }
                 else
                 {
-                    var element = new ElementReader<T, P>(
+                    var element = new ElementReader<T, Q>(
                     textAction,
                     attachFunction,
                     elementName,
@@ -994,6 +994,123 @@
     }
 
     /// <summary>
+    /// Implementa um leitor de objectos a partir de XML.
+    /// </summary>
+    /// <typeparam name="T">O tipo dos objectos a serem lidos.</typeparam>
+    public class RootObjectReader<T>
+    {
+
+        /// <summary>
+        /// O leitor do objecto representado pela raiz.
+        /// </summary>
+        private IXmlElementReader<object, T> rootReader;
+
+        /// <summary>
+        /// O nome da raiz a ser considerada.
+        /// </summary>
+        private string rootName;
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="RootObjectReader{T}"/>.
+        /// </summary>
+        /// <param name="rootName">O nome da raiz do documento.</param>
+        /// <param name="ignoreNotRegisteredElements">
+        /// Valor que indica se poderão ser ignorados os elementos não registados.
+        /// </param>
+        /// <param name="ignoreOrder">
+        /// Valor que indica se a ordem poderá ou não ser ignorada.
+        /// </param>
+        /// <param name="ignoreNotRegisteredAttributes">
+        /// Valor que indica se poderão ser ignorados os atributos não registados.
+        /// </param>
+        public RootObjectReader(
+            string rootName,
+            bool ignoreNotRegisteredElements,
+            bool ignoreOrder,
+            bool ignoreNotRegisteredAttributes)
+        {
+            if (string.IsNullOrWhiteSpace(rootName))
+            {
+                throw new ArgumentException("The root name can't be null nor empty.");
+            }
+            else
+            {
+                this.rootName = rootName;
+                this.rootReader = new ElementReader<object, T>(
+                    (t, v) => { },
+                    t => { return (T)t; },
+                    rootName,
+                    ignoreNotRegisteredElements,
+                    ignoreOrder,
+                    ignoreNotRegisteredAttributes);
+
+            }
+        }
+
+        /// <summary>
+        /// Otbém o leitor do objecto representado pela raiz.
+        /// </summary>
+        public IXmlElementReader<object, T> RootReader
+        {
+            get
+            {
+                return this.rootReader;
+            }
+        }
+
+        /// <summary>
+        /// Realiza a leitura sobre o leitor de XML.
+        /// </summary>
+        /// <param name="reader">O leitor de XML.</param>
+        /// <param name="update">O objecto a ser actualizado.</param>
+        public void ReadRoot(XmlReader reader, T update)
+        {
+            if (reader == null)
+            {
+                throw new ArgumentNullException("reader");
+            }
+            else
+            {
+                var status = true;
+                var foundElement = false;
+                while (status)
+                {
+                    if (reader.NodeType == XmlNodeType.Element)
+                    {
+                        foundElement = true;
+                        status = false;
+                    }
+                    else
+                    {
+                        status = reader.Read();
+                    }
+                }
+
+                if (foundElement)
+                {
+                    if (StringComparer.InvariantCultureIgnoreCase.Equals(
+                        reader.Name,
+                        this.rootName))
+                    {
+                        this.rootReader.Read(reader, update);
+                    }
+                    else
+                    {
+                        throw new Exception(string.Format(
+                           "Expected '{0}' as root element but found '{1}'. Maybe the XML reader was already started.",
+                           this.rootName,
+                           reader.Name));
+                    }
+                }
+                else
+                {
+                    throw new Exception("No element was found in the provided XML reader. Maybe the XML reader was already started.");
+                }
+            }
+        }
+    }
+
+    /// <summary>
     /// Implementa um leitor de documentos XML no qual a ordem não importa.
     /// </summary>
     /// <typeparam name="T">O tipo de objectos que constituem os contentores.</typeparam>
@@ -1108,7 +1225,7 @@
         /// Valor que indica se os atributos não registados podem ser ignorados.
         /// </param>
         /// <returns></returns>
-        public IXmlReader RegisterElementReader<P>(
+        public IXmlElementReader<T, P> RegisterElementReader<P>(
             Action<T, string> textAction,
             Func<T, P> attachFunction,
             string elementName,

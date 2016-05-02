@@ -27,6 +27,13 @@
         {
             try
             {
+                var mi = Utils.GetMemoryInfo();
+
+                Console.WriteLine(int.MaxValue);
+                var resSec = Utils.GetRuntimeConfiguration();
+
+                var configSection = new System.Configuration.ConfigurationPropertyAttribute("");
+
                 var factor = 1034 * 1024.0;
                 var memInfo = Utils.GetMemoryInfo();
                 Console.WriteLine("Free physical memory: {0}", memInfo.FreePhysicalMemory / factor);

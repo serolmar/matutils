@@ -2,14 +2,17 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Configuration;
+    using System.IO;
     using System.Linq;
     using System.Globalization;
     using System.Management;
+    using System.Numerics;
+    using System.Reflection;
     using System.Runtime.InteropServices;
     using System.Text;
     using System.Threading.Tasks;
-    using Utilities;
-    using System.Numerics;
+    using System.Xml;
 
     /// <summary>
     /// Implementa uma série de funções auxiliares.
@@ -245,19 +248,19 @@
                     var systemCollectionEnumerator = systemCollection.GetEnumerator();
                     if (systemCollectionEnumerator.MoveNext())
                     {
-                        var freePhysicalMemory = 0L;
-                        var freeVirtualMemory = 0L;
-                        var totalVisibleMemory = 0L;
+                        var freePhysicalMemory = 0UL;
+                        var freeVirtualMemory = 0UL;
+                        var totalVisibleMemory = 0UL;
 
                         var currentSearch = systemCollectionEnumerator.Current;
                         var currentValue = currentSearch["FreePhysicalMemory"];
-                        freePhysicalMemory = long.Parse(currentValue.ToString());
+                        freePhysicalMemory = ulong.Parse(currentValue.ToString());
 
                         currentValue = currentSearch["FreeVirtualMemory"];
-                        freeVirtualMemory = long.Parse(currentValue.ToString());
+                        freeVirtualMemory = ulong.Parse(currentValue.ToString());
 
                         currentValue = currentSearch["TotalVisibleMemorySize"];
-                        totalVisibleMemory = long.Parse(currentValue.ToString());
+                        totalVisibleMemory = ulong.Parse(currentValue.ToString());
 
                         return new MemoryInfo()
                         {
@@ -279,6 +282,406 @@
                 default:
                     throw new UtilitiesException("Unknown platform.");
             }
+        }
+
+        /// <summary>
+        /// Obtém a configuração da secção de runtime da máquina.
+        /// </summary>
+        /// <returns>O objecto que representa a secção.</returns>
+        public static RuntimeConfigurationSection GetRuntimeConfiguration()
+        {
+            var result = new RuntimeConfigurationSection();
+
+            // Estabelecimento do leitor.
+            var xmlReader = new RootObjectReader<RuntimeConfigurationSection>(
+                "runtime",
+                true,
+                true,
+                true);
+            ConfigReader(xmlReader.RootReader);
+
+            // Considera o configurador da máquina
+            var config = ConfigurationManager.OpenMachineConfiguration();
+            var configSection = (IgnoreSection)config.GetSection("runtime");
+            var rawConfig = configSection.SectionInformation.GetRawXml();
+
+            if (!string.IsNullOrWhiteSpace(rawConfig))
+            {
+                var textReader = new StringReader(rawConfig);
+                var reader = XmlReader.Create(textReader);
+                xmlReader.ReadRoot(reader, result);
+            }
+
+            // Considera o configurador local
+            config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+            configSection = (IgnoreSection)config.GetSection("runtime");
+            rawConfig = configSection.SectionInformation.GetRawXml();
+
+            if (!string.IsNullOrWhiteSpace(rawConfig))
+            {
+                var textReader = new StringReader(rawConfig);
+                var reader = XmlReader.Create(textReader);
+                xmlReader.ReadRoot(reader, result);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Configura o leitor para efectuar a leitura.
+        /// </summary>
+        /// <param name="elementReader">O leitor.</param>
+        private static void ConfigReader(
+            IXmlElementReader<object, RuntimeConfigurationSection> elementReader)
+        {
+            RegisterBooleanAttributeReader(
+                "enabled",
+                RegisterElement(
+                    "alwaysFlowImpersonationPolicy",
+                    elementReader,
+                    t => ((RuntimeConfigurationSection)t).AlwaysFlowsImpersonationPolicy),
+                (a, v) => ((AlwaysFlowsImpersonationPolicy)a).Enabled = v);
+
+            RegisterElement(
+                "appDomainManagerAssembly",
+                elementReader,
+                t => ((RuntimeConfigurationSection)t).AppDomainManagerAssembly)
+            .AttributesReader.RegisterAttribute(
+                "value",
+                (o, s) => ((AppDomainManagerAssembly)o).Value = s,
+                true);
+
+            RegisterElement(
+                "appDomainManagerType",
+                elementReader,
+                t => ((RuntimeConfigurationSection)t).AppDomainManagerType)
+            .AttributesReader.RegisterAttribute(
+                "value",
+                (o, s) => ((AppDomainManagerAssembly)o).Value = s,
+                true);
+
+            RegisterBooleanAttributeReader(
+                "enabled",
+                RegisterElement(
+                    "appDomainResourceMonitoring",
+                    elementReader,
+                    t => ((RuntimeConfigurationSection)t).AppDomainResourceMonitoring),
+                (a, v) => ((AppDomainResourceMonitoring)a).Enabled = v);
+
+            var appDomainResReader = RegisterElement(
+                    "assemblyBinding",
+                    elementReader,
+                    t => ((RuntimeConfigurationSection)t).AssemblyBinding);
+            appDomainResReader.AttributesReader.RegisterAttribute("xmlns", (t, a) => ((AssemblyBinding)t).Xmlns = a, true);
+            appDomainResReader.AttributesReader.RegisterAttribute("appliesTo", (t, a) => ((AssemblyBinding)t).AppliesTo = a, false);
+
+            RegisterBooleanAttributeReader(
+                "enabled",
+                RegisterElement(
+                    "bypassTrustedAppStrongNames",
+                    elementReader,
+                    t => ((RuntimeConfigurationSection)t).BypassTrustedAppStrongNames),
+                (a, v) => ((BypassTrustedAppStrongNames)a).Enabled = v);
+
+            RegisterBooleanAttributeReader(
+                "developerInstallation",
+                RegisterElement(
+                    "developmentMode",
+                    elementReader,
+                    t => ((RuntimeConfigurationSection)t).DevelopmentMode),
+                (a, v) => ((DevelopmentMode)a).DeveloperInstallation = v);
+
+            RegisterShortAttributeReader(
+                    "enabled",
+                RegisterElement(
+                    "disableCachingBindingFailures",
+                    elementReader,
+                    t => ((RuntimeConfigurationSection)t).DisableCachingBindingFailures),
+                (a, v) => ((DisableCachingBindingFailures)a).Enabled = v);
+
+            RegisterShortAttributeReader(
+                "enabled",
+                RegisterElement(
+                    "disableCommitThreadStack",
+                    elementReader,
+                    t => ((RuntimeConfigurationSection)t).DisableCommitThreadStack),
+                (a, v) => ((DisableCommitThreadStack)a).Enabled = v);
+
+            RegisterShortAttributeReader(
+                "enabled",
+                RegisterElement(
+                    "disableFusionUpdatesFromADManager",
+                    elementReader,
+                    t => ((RuntimeConfigurationSection)t).DisableFusionUpdatesFromADManager),
+                (a, v) => ((DisableFusionUpdatesFromADManager)a).Enabled = v);
+
+            RegisterBooleanAttributeReader(
+                "enabled",
+                RegisterElement(
+                    "enforceFIPSPolicy",
+                    elementReader,
+                    t => ((RuntimeConfigurationSection)t).EnforceFIPSPolicy),
+                (a, v) => ((EnforceFIPSPolicy)a).Enabled = v);
+
+            RegisterBooleanAttributeReader(
+                "enabled",
+                RegisterElement(
+                    "etwEnable",
+                    elementReader,
+                    t => ((RuntimeConfigurationSection)t).EtwEnable),
+                (a, v) => ((EtwEnable)a).Enabled = v);
+
+            RegisterBooleanAttributeReader(
+                "enabled",
+                RegisterElement(
+                    "forcePerformanceCounterUniqueSharedMemoryReads",
+                    elementReader,
+                    t => ((RuntimeConfigurationSection)t).ForcePerformanceCounterUniqueSharedMemoryReads),
+                (a, v) => ((ForcePerformanceCounterUniqueSharedMemoryReads)a).Enabled = v);
+
+            RegisterBooleanAttributeReader(
+                "enabled",
+                RegisterElement(
+                    "gcAllowVeryLargeObjects",
+                    elementReader,
+                    t => ((RuntimeConfigurationSection)t).GcAllowVeryLargeObjects),
+                (a, v) => ((GcAllowVeryLargeObjects)a).Enabled = v);
+
+            RegisterBooleanAttributeReader(
+                "enabled",
+                RegisterElement(
+                    "gcConcurrent",
+                    elementReader,
+                    t => ((RuntimeConfigurationSection)t).GcConcurrent),
+                (a, v) => ((GcConcurrent)a).Enabled = v);
+
+            RegisterBooleanAttributeReader(
+                "enabled",
+                RegisterElement(
+                    "GCCpuGroup",
+                    elementReader,
+                    t => ((RuntimeConfigurationSection)t).GCCpuGroup),
+                (a, v) => ((GCCpuGroup)a).Enabled = v);
+
+            RegisterBooleanAttributeReader(
+                "enabled",
+                RegisterElement(
+                    "gcServer",
+                    elementReader,
+                    t => ((RuntimeConfigurationSection)t).GcServer),
+                (a, v) => ((GcServer)a).Enabled = v);
+
+            RegisterBooleanAttributeReader(
+                "enabled",
+                RegisterElement(
+                    "generatePublisherEvidence",
+                    elementReader,
+                    t => ((RuntimeConfigurationSection)t).GeneratePublisherEvidence),
+                (a, v) => ((GeneratePublisherEvidence)a).Enabled = v);
+
+            RegisterBooleanAttributeReader(
+                "enabled",
+                RegisterElement(
+                    "legacyImpersonationPolicy",
+                    elementReader,
+                    t => ((RuntimeConfigurationSection)t).LegacyImpersonationPolicy),
+                (a, v) => ((LegacyImpersonationPolicy)a).Enabled = v);
+
+            RegisterBooleanAttributeReader(
+                "enabled",
+                RegisterElement(
+                    "loadFromRemoteSources",
+                    elementReader,
+                    t => ((RuntimeConfigurationSection)t).LoadFromRemoteSources),
+                (a, v) => ((LoadFromRemoteSources)a).Enabled = v);
+
+            RegisterBooleanAttributeReader(
+                "enabled",
+                RegisterElement(
+                    "NetFx40_LegacySecurityPolicy",
+                    elementReader,
+                    t => ((RuntimeConfigurationSection)t).NetFx40_LegacySecurityPolicy),
+                (a, v) => ((NetFx40_LegacySecurityPolicy)a).Enabled = v);
+
+            RegisterShortAttributeReader(
+                "enabled",
+                RegisterElement(
+                    "NetFx40_PInvokeStackResilience",
+                    elementReader,
+                    t => ((RuntimeConfigurationSection)t).NetFx40_PInvokeStackResilience),
+                (a, v) => ((NetFx40_PInvokeStackResilience)a).Enabled = v);
+
+            RegisterShortAttributeReader(
+                "enabled",
+                RegisterElement(
+                    "NetFx45_CultureAwareComparerGetHashCode_LongStrings",
+                    elementReader,
+                    t => ((RuntimeConfigurationSection)t).NetFx45_CultureAwareComparerGetHashCode_LongStrings),
+                (a, v) => ((NetFx45_CultureAwareComparerGetHashCode_LongStrings)a).Enabled = v);
+
+            RegisterBooleanAttributeReader(
+                "enabled",
+                RegisterElement(
+                    "PreferComInsteadOfManagedRemoting",
+                    elementReader,
+                    t => ((RuntimeConfigurationSection)t).PreferComInsteadOfManagedRemoting),
+                (a, v) => ((PreferComInsteadOfManagedRemoting)a).Enabled = v);
+
+            RegisterBooleanAttributeReader(
+                "enabled",
+                RegisterElement(
+                    "relativeBindForResources",
+                    elementReader,
+                    t => ((RuntimeConfigurationSection)t).RelativeBindForResources),
+                (a, v) => ((RelativeBindForResources)a).Enabled = v);
+
+            RegisterBooleanAttributeReader(
+                "enabled",
+                RegisterElement(
+                    "shadowCopyVerifyByTimestamp",
+                    elementReader,
+                    t => ((RuntimeConfigurationSection)t).ShadowCopyVerifyByTimestamp),
+                (a, v) => ((ShadowCopyVerifyByTimestamp)a).Enabled = v);
+
+            var supportPortReader = RegisterElement(
+                    "supportPortability",
+                    elementReader,
+                    t => ((RuntimeConfigurationSection)t).SupportPortability);
+            RegisterBooleanAttributeReader(
+                "enabled",
+                supportPortReader,
+                (a, v) => ((SupportPortability)a).Enabled = v);
+            supportPortReader.AttributesReader.RegisterAttribute(
+                "PKT",
+                (a, v) => ((SupportPortability)a).Pkt = v,
+                true);
+
+            RegisterBooleanAttributeReader(
+                "enabled",
+                RegisterElement(
+                    "Thread_UseAllCpuGroups",
+                    elementReader,
+                    t => ((RuntimeConfigurationSection)t).Thread_UseAllCpuGroups),
+                (a, v) => ((Thread_UseAllCpuGroups)a).Enabled = v);
+
+            RegisterBooleanAttributeReader(
+                "enabled",
+                RegisterElement(
+                    "ThrowUnobservedTaskExceptions",
+                    elementReader,
+                    t => ((RuntimeConfigurationSection)t).ThrowUnobservedTaskExceptions),
+                (a, v) => ((ThrowUnobservedTaskExceptions)a).Enabled = v);
+
+            RegisterBooleanAttributeReader(
+                "enabled",
+                RegisterElement(
+                    "TimeSpan_LegacyFormatMode",
+                    elementReader,
+                    t => ((RuntimeConfigurationSection)t).TimeSpan_LegacyFormatMode),
+                (a, v) => ((TimeSpan_LegacyFormatMode)a).Enabled = v);
+
+            RegisterShortAttributeReader(
+                "enabled",
+                RegisterElement(
+                    "UseRandomizedStringHashAlgorithm",
+                    elementReader,
+                    t => ((RuntimeConfigurationSection)t).UseRandomizedStringHashAlgorithm),
+                (a, v) => ((UseRandomizedStringHashAlgorithm)a).Enabled = v);
+
+            RegisterBooleanAttributeReader(
+                "enabled",
+                RegisterElement(
+                    "UseSmallInternalThreadStacks",
+                    elementReader,
+                    t => ((RuntimeConfigurationSection)t).UseSmallInternalThreadStacks),
+                (a, v) => ((UseSmallInternalThreadStacks)a).Enabled = v);
+        }
+
+        /// <summary>
+        /// Facilita o registo de um elemento.
+        /// </summary>
+        /// <typeparam name="T">O tipo de objectos que constituem o elemento ascendente.</typeparam>
+        /// <typeparam name="P">O tipo dos objectos que constituem o elemento descedente.</typeparam>
+        /// <typeparam name="Q">O tipo dos objectos que constituem os elementos </typeparam>
+        /// <param name="name">O nome do elemento.</param>
+        /// <param name="elementReader">O leitor do elemento ascedente.</param>
+        /// <param name="attachAction">A acção associada ao leitor dos descendentes.</param>
+        /// <returns>O leitor do elemento descendente.</returns>
+        private static IXmlElementReader<T, Q> RegisterElement<T, P, Q>(
+            string name,
+            IXmlElementReader<T, P> elementReader,
+            Func<T, Q> attachAction)
+        {
+            var result = elementReader.RegisterElementReader<Q>(
+                (t, v) => { },
+                attachAction,
+                name,
+                true,
+                true,
+                true,
+                0,
+                1);
+            return result;
+        }
+
+        /// <summary>
+        /// Regista um leitor de atributos baseado numa variável verdadeiro/falso.
+        /// </summary>
+        /// <typeparam name="T">O tipo de objectos que constituem os elementos ascendentes.</typeparam>
+        /// <typeparam name="P">O tipo de objectos que constituem os elementos descendentes.</typeparam>
+        /// <param name="name">O nome do atributo.</param>
+        /// <param name="elementReader">O leitor de elementos a ser configurado.</param>
+        /// <param name="action">A acção de atribuição do valor lido.</param>
+        private static void RegisterBooleanAttributeReader<T, P>(
+            string name,
+            IXmlElementReader<T, P> elementReader,
+            Action<T, bool> action)
+        {
+            elementReader.AttributesReader.RegisterAttribute(
+                name,
+                (t, v) =>
+                {
+                    var result = default(bool);
+                    if (bool.TryParse(v, out result))
+                    {
+                        action.Invoke(t, result);
+                    }
+                    else
+                    {
+                        throw new UtilitiesException("Parse error.");
+                    }
+                },
+                    true);
+        }
+
+        /// <summary>
+        /// Regista um leitor de atribuitos baseados numa variável inteira de precisão simples.
+        /// </summary>
+        /// <typeparam name="T">O tipo de objectos que constituem os elementos ascendentes.</typeparam>
+        /// <typeparam name="P">O tipo de objectos que constituem os elementos descendentes.</typeparam>
+        /// <param name="name">O nome do atributo.</param>
+        /// <param name="elementsReader">O leitor de elementos a ser configurado.</param>
+        /// <param name="action">A acção de atribuição do valor lido.</param>
+        private static void RegisterShortAttributeReader<T, P>(
+            string name,
+            IXmlElementReader<T, P> elementsReader,
+            Action<T, short> action)
+        {
+            elementsReader.AttributesReader.RegisterAttribute(
+                name,
+                (t, v) =>
+                {
+                    var result = default(short);
+                    if (short.TryParse(v, out result))
+                    {
+                        action.Invoke(t, result);
+                    }
+                    else
+                    {
+                        throw new UtilitiesException("Parse error.");
+                    }
+                },
+                    true);
         }
     }
 
@@ -416,22 +819,22 @@
         /// <summary>
         /// A quantidade de memória física livre (KB).
         /// </summary>
-        private long freePhysicalMemory;
+        private ulong freePhysicalMemory;
 
         /// <summary>
         /// A quantidade de memória virtual livre (KB).
         /// </summary>
-        private long freeVirtualMemory;
+        private ulong freeVirtualMemory;
 
         /// <summary>
         /// O tamanho total da memória visível (KB).
         /// </summary>
-        private long totalVisibleMemorySize;
+        private ulong totalVisibleMemorySize;
 
         /// <summary>
         /// Obtém a quantidade de memória física livre (KB).
         /// </summary>
-        public long FreePhysicalMemory
+        public ulong FreePhysicalMemory
         {
             get
             {
@@ -446,7 +849,7 @@
         /// <summary>
         /// Obtém a quantidade de memória virtual livre.
         /// </summary>
-        public long FreeVirtualMemory
+        public ulong FreeVirtualMemory
         {
             get
             {
@@ -461,7 +864,7 @@
         /// <summary>
         /// Obtém o tamanho total da memória visível.
         /// </summary>
-        public long TotalVisibleMemorySize
+        public ulong TotalVisibleMemorySize
         {
             get
             {

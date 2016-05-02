@@ -895,6 +895,100 @@
                 Assert.AreEqual(array[i], longArray[i]);
             }
         }
+
+        /// <summary>
+        /// Efectua um teste geral à ordenação que pode assumir um tamanho
+        /// arbitrário de acordo com uma arquitectura de 64 bits.
+        /// </summary>
+        [Description("Tests the general long array functions.")]
+        [TestMethod]
+        public void GeneralizedCollections_GeneralLongArrayGeneralTest()
+        {
+            GeneralLongArray<int>.MaxBinaryPower = 3;
+            GeneralLongArray<int>.ObjMaxBinaryPower = 2;
+
+            for (int i = 0; i < 50; ++i)
+            {
+                var target = new GeneralLongArray<int>(i);
+                Assert.IsTrue(target.AssertSizes(), "The computed sizes don't match array configuration.");
+                this.FillArray(target);
+                this.AssertArray(target);
+            }
+        }
+
+        /// <summary>
+        /// Testa a função que estabelece a nova capacidade para uma lista.
+        /// </summary>
+        [Description("Tests the new capacity function.")]
+        [TestMethod]
+        public void GeneralizedCollections_GeneralLongListNewCapacityTest()
+        {
+            GeneralLongList<int>.MaxBinaryPower = 2;
+            GeneralLongList<int>.ObjMaxBinaryPower = 1;
+
+            var target = new GeneralLongList<int>();
+            for (int i = 0; i < 10; ++i)
+            {
+                for (int j = 0; j < 20; ++j)
+                {
+                    target.Capacity = i;
+                    Assert.IsTrue(target.AssertSizes(), "The computed sizes don't match array configuration.");
+                    target.Capacity = j;
+                    var assertion = target.AssertSizes();
+                    Assert.IsTrue(assertion, "The computed sizes don't match array configuration.");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Preenche cada entrada da ordenação com o valor correspondente ao seu índice.
+        /// </summary>
+        /// <param name="generalArray">A ordenação a ser preenchida.</param>
+        private void FillArray(GeneralLongArray<int> generalArray)
+        {
+            for (var i = 0; i < generalArray.Count; ++i)
+            {
+                generalArray[i] = i;
+            }
+        }
+
+        /// <summary>
+        /// Verifica se o valor atribuído a cada entrada de uma ordenação coincide com
+        /// o respectivo índice.
+        /// </summary>
+        /// <param name="generalArray">A ordenação.</param>
+        private void AssertArray(GeneralLongArray<int> generalArray)
+        {
+            for (var i = 0; i < generalArray.Count; ++i)
+            {
+                Assert.AreEqual(i, generalArray[i]);
+            }
+        }
+
+        // <summary>
+        /// Preenche cada entrada da lista com o valor correspondente ao seu índice.
+        /// </summary>
+        /// <param name="generalList">A lista a ser preenchida.</param>
+        private void FillList(GeneralLongList<int> generalList)
+        {
+            for (var i = 0; i < generalList.Count; ++i)
+            {
+                generalList[i] = i;
+            }
+        }
+
+        /// <summary>
+        /// Verifica se o valor atribuído a cada entrada de uma lista coincide com
+        /// o respectivo índice.
+        /// </summary>
+        /// <param name="generalList">A lista.</param>
+        private void AsserList(GeneralLongList<int> generalList)
+        {
+            for (var i = 0; i < generalList.Count; ++i)
+            {
+                Assert.AreEqual(i, generalList[i]);
+            }
+        }
     }
 
     /// <summary>
