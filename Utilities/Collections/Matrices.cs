@@ -1,4 +1,10 @@
-﻿namespace Utilities
+﻿// -----------------------------------------------------------------------
+// <copyright file="Matrices.cs" company="Sérgio O. Marques">
+// Ver licença do projecto.
+// </copyright>
+// -----------------------------------------------------------------------
+
+namespace Utilities
 {
     using System;
     using System.Collections.Generic;

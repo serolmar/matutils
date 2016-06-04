@@ -1,4 +1,10 @@
-﻿namespace Utilities
+﻿// -----------------------------------------------------------------------
+// <copyright file="GeneralizedCollections.cs" company="Sérgio O. Marques">
+// Ver licença do projecto.
+// </copyright>
+// -----------------------------------------------------------------------
+
+namespace Utilities
 {
     using System;
     using System.Collections.Generic;
@@ -641,6 +647,12 @@
         private static uint generalMask;
 
         /// <summary>
+        /// Variável que indica se se irá avaliar a memória disponível
+        /// em caso de instância.
+        /// </summary>
+        private bool assertMemory;
+
+        /// <summary>
         /// Mantém os elementos.
         /// </summary>
         private T[][][] elements;
@@ -707,17 +719,38 @@
         /// <summary>
         /// Instancia uma nova instância de objectos do tipo <see cref="GeneralLongArray{T}"/>.
         /// </summary>
-        public GeneralLongArray()
+        /// <remarks>
+        /// A instanciação de uma ordenação geral suficientemente grande pode causar problemas de memória.
+        /// É conveniente avaliar a quantidade de memória disponível visível para o utilizador antes
+        /// de proceder à instanciação de listas muito grandes. Se o parâmetro <see cref="assertMemory"/> estiver
+        /// activo, esta validação será efectuada internamente.
+        /// </remarks>
+        /// <param name="assertMemory">
+        /// Valor que indica se é necessário verficiar se existe memória
+        /// suficiente para continuar a instanciação.
+        /// </param>
+        public GeneralLongArray(bool assertMemory = true)
         {
             this.elements = emptyArray;
             this.length = 0;
+            this.assertMemory = assertMemory;
         }
 
         /// <summary>
         /// Instancia uma nova instância de objectos do tipo <see cref="GeneralLongArray{T}"/>.
         /// </summary>
+        /// <remarks>
+        /// A instanciação de uma lista geral suficientemente grande pode causar problemas de memória.
+        /// É conveniente avaliar a ordenação de memória disponível visível para o utilizador antes
+        /// de proceder à instanciação de listas muito grandes. Se o parâmetro <see cref="assertMemory"/> estiver
+        /// activo, esta validação será efectuada internamente.
+        /// </remarks>
         /// <param name="length">O tamanho do vector.</param>
-        public GeneralLongArray(int length)
+        /// <param name="assertMemory">
+        /// Valor que indica se é necessário verficiar se existe memória
+        /// suficiente para continuar a instanciação.
+        /// </param>
+        public GeneralLongArray(int length, bool assertMemory = true)
         {
             if (length < 0)
             {
@@ -725,6 +758,7 @@
             }
             else
             {
+                this.assertMemory = assertMemory;
                 this.AssertVisibleMemory((ulong)length);
                 this.Instantiate((ulong)length);
             }
@@ -733,9 +767,20 @@
         /// <summary>
         /// Instancia uma nova instância de objectos do tipo <see cref="GeneralLongArray{T}"/>.
         /// </summary>
+        /// <remarks>
+        /// A instanciação de uma ordenação geral suficientemente grande pode causar problemas de memória.
+        /// É conveniente avaliar a quantidade de memória disponível visível para o utilizador antes
+        /// de proceder à instanciação de listas muito grandes. Se o parâmetro <see cref="assertMemory"/> estiver
+        /// activo, esta validação será efectuada internamente.
+        /// </remarks>
         /// <param name="length">O tamanho do vector.</param>
-        public GeneralLongArray(uint length)
+        /// <param name="assertMemory">
+        /// Valor que indica se é necessário verficiar se existe memória
+        /// suficiente para continuar a instanciação.
+        /// </param>
+        public GeneralLongArray(uint length, bool assertMemory = true)
         {
+            this.assertMemory = assertMemory;
             this.AssertVisibleMemory(length);
             this.Instantiate(length);
         }
@@ -743,8 +788,18 @@
         /// <summary>
         /// Instancia uma nova instância de objectos do tipo <see cref="GeneralLongArray{T}"/>.
         /// </summary>
+        /// <remarks>
+        /// A instanciação de uma ordenação geral suficientemente grande pode causar problemas de memória.
+        /// É conveniente avaliar a quantidade de memória disponível visível para o utilizador antes
+        /// de proceder à instanciação de listas muito grandes. Se o parâmetro <see cref="assertMemory"/> estiver
+        /// activo, esta validação será efectuada internamente.
+        /// </remarks>
         /// <param name="length">O tamanho do vector.</param>
-        public GeneralLongArray(long length)
+        /// <param name="assertMemory">
+        /// Valor que indica se é necessário verficiar se existe memória
+        /// suficiente para continuar a instanciação.
+        /// </param>
+        public GeneralLongArray(long length, bool assertMemory = true)
         {
             if (length < 0)
             {
@@ -752,6 +807,7 @@
             }
             else
             {
+                this.assertMemory = assertMemory;
                 this.AssertVisibleMemory((ulong)length);
                 this.Instantiate((ulong)length);
             }
@@ -760,9 +816,20 @@
         /// <summary>
         /// Instancia uma nova instância de objectos do tipo <see cref="GeneralLongArray{T}"/>.
         /// </summary>
+        /// <remarks>
+        /// A instanciação de uma ordenação geral suficientemente grande pode causar problemas de memória.
+        /// É conveniente avaliar a quantidade de memória disponível visível para o utilizador antes
+        /// de proceder à instanciação de listas muito grandes. Se o parâmetro <see cref="assertMemory"/> estiver
+        /// activo, esta validação será efectuada internamente.
+        /// </remarks>
         /// <param name="length">O tamanho do vector.</param>
-        public GeneralLongArray(ulong length)
+        /// <param name="assertMemory">
+        /// Valor que indica se é necessário verficiar se existe memória
+        /// suficiente para continuar a instanciação.
+        /// </param>
+        public GeneralLongArray(ulong length, bool assertMemory = true)
         {
+            this.assertMemory = assertMemory;
             this.AssertVisibleMemory((ulong)length);
             this.Instantiate((ulong)length);
         }
@@ -1124,7 +1191,22 @@
         /// <returns>O índice se o item existir e -1 caso contrário.</returns>
         public long LongIndexOf(T item)
         {
-            return this.IndexOfAux(item);
+            var result = default(ulong);
+            if (this.TryGetIndexOfAux(item, out result))
+            {
+                if (result > long.MaxValue)
+                {
+                    throw new CollectionsException("The index value is too big. Please use TryGetIndexOf function instead.");
+                }
+                else
+                {
+                    return (long)result;
+                }
+            }
+            else
+            {
+                return -1L;
+            }
         }
 
         /// <summary>
@@ -1134,15 +1216,33 @@
         /// <returns>O índice se o item existir e -1 caso contrário.</returns>
         public int IndexOf(T item)
         {
-            var result = this.IndexOfAux(item);
-            if (result > int.MaxValue)
+            var result = default(ulong);
+            if (this.TryGetIndexOfAux(item, out result))
             {
-                throw new CollectionsException("The index value is too big. Please use LongIndexOf function.");
+                if (result > int.MaxValue)
+                {
+                    throw new CollectionsException("The index value is too big. Please use LongIndexOf function instead.");
+                }
+                else
+                {
+                    return (int)result;
+                }
             }
             else
             {
-                return (int)result;
+                return -1;
             }
+        }
+
+        /// <summary>
+        /// Tenta obter o índice da primeira ocorrência do item especificado.
+        /// </summary>
+        /// <param name="item">O item.</param>
+        /// <param name="index">O índice da primeira ocorrência do item.</param>
+        /// <returns>Verdadeiro se o item se encontrar na colecção e falso caso contrário.</returns>
+        private bool TryGetIndexOf(T item, out ulong index)
+        {
+            return this.TryGetIndexOfAux(item, out index);
         }
 
         /// <summary>
@@ -1335,7 +1435,73 @@
             Array array,
             long[] dimensions)
         {
-            throw new NotImplementedException();
+            if (array == null)
+            {
+                throw new ArgumentNullException("array");
+            }
+            else if (dimensions == null)
+            {
+                throw new ArgumentNullException("dimensions");
+            }
+            else
+            {
+                var rank = dimensions.LongLength;
+                if (rank == 0)
+                {
+                    if (this.length != 0)
+                    {
+                        throw new ArgumentException(
+                            "Destination array was not long enough. Check destIndex and length, and the array's lower bounds.");
+                    }
+                }
+                else if (rank == 1)
+                {
+                    var firstLength = this.elements.Length;
+                    var currentIndex = dimensions[0];
+                    for (int i = 0; i < firstLength; ++i)
+                    {
+                        var curr = this.elements[i];
+                        var secondLength = curr.Length;
+                        for (int j = 0; j < secondLength; ++j)
+                        {
+                            var elem = curr[j];
+                            var thirdLength = elem.Length;
+                            Array.Copy(elem, 0, array, currentIndex, thirdLength);
+                            currentIndex += thirdLength;
+                        }
+                    }
+                }
+                else
+                {
+                    this.AssertArrayStructure(array, dimensions);
+                    var indexes = new long[rank];
+                    var arrays = new Array[rank];
+                    Array.Copy(dimensions, indexes, rank);
+                    var currentArray = array;
+                    arrays[0] = currentArray;
+                    for (var i = 1L; i < rank; ++i)
+                    {
+                        var innerArray = (Array)currentArray.GetValue(indexes[i - 1]);
+                        arrays[i] = innerArray;
+                        currentArray = innerArray;
+                    }
+
+                    var elementsLength = this.elements.LongLength;
+                    for (var i = 0L; i < elementsLength; ++i)
+                    {
+                        var currElem = this.elements[i];
+                        var currElemLength = currElem.LongLength;
+                        for (var j = 0L; j < currElemLength; ++j)
+                        {
+                            var current = currElem[j];
+                            this.CopyCurrentArray(
+                                current,
+                                arrays,
+                                indexes);
+                        }
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -1405,38 +1571,41 @@
         /// <param name="size">O tamanho da colecção.</param>
         private void AssertVisibleMemory(ulong size)
         {
-            var memory = Utils.GetMemoryInfo().TotalVisibleMemorySize;
-            var factor = 64UL;
-            var objType = typeof(T);
-            if (objType == typeof(byte) ||
-                    objType == typeof(sbyte) ||
-                    objType == typeof(bool))
+            if (this.assertMemory)
             {
-                factor = 1024;
-            }
-            else if (objType == typeof(char)
-                || objType == typeof(short)
-                || objType == typeof(ushort))
-            {
-                factor = 512;
-            }
-            else if (objType == typeof(int)
-                || objType == typeof(uint)
-                || objType == typeof(double))
-            {
-                factor = 256;
-            }
-            else if (objType == typeof(long)
-                || objType == typeof(ulong)
-                || objType == typeof(double))
-            {
-                factor = 128;
-            }
+                var memory = Utils.GetMemoryInfo().TotalVisibleMemorySize;
+                var factor = 64UL;
+                var objType = typeof(T);
+                if (objType == typeof(byte) ||
+                        objType == typeof(sbyte) ||
+                        objType == typeof(bool))
+                {
+                    factor = 1024;
+                }
+                else if (objType == typeof(char)
+                    || objType == typeof(short)
+                    || objType == typeof(ushort))
+                {
+                    factor = 512;
+                }
+                else if (objType == typeof(int)
+                    || objType == typeof(uint)
+                    || objType == typeof(double))
+                {
+                    factor = 256;
+                }
+                else if (objType == typeof(long)
+                    || objType == typeof(ulong)
+                    || objType == typeof(double))
+                {
+                    factor = 128;
+                }
 
-            var itemsNumber = memory * factor;
-            if (itemsNumber < size)
-            {
-                throw new UtilitiesException("There is no visbile memory available to proceed.");
+                var itemsNumber = memory * factor;
+                if (itemsNumber < size)
+                {
+                    throw new OutOfMemoryException("There is no visbile memory available to proceed.");
+                }
             }
         }
 
@@ -1553,32 +1722,155 @@
         }
 
         /// <summary>
-        /// Obtém o índice do primeiro elemento igual ao item.
+        /// Tenta obter o índice da primeira ocorrência do item especificado.
         /// </summary>
         /// <param name="item">O item.</param>
-        /// <returns>
-        /// O índice do primeiro item encontrado e -1 caso este não esteja contido no vector.
-        /// </returns>
-        private long IndexOfAux(T item)
+        /// <param name="index">O índice da primeira ocorrência do item.</param>
+        /// <returns>Verdadeiro se o item se encontrar na colecção e falso caso contrário.</returns>
+        private bool TryGetIndexOfAux(T item, out ulong index)
         {
+            var firstLength = (ulong)this.elements.Length;
             var generalSize = generalMask + 1;
-            var firstLength = this.elements.Length;
-            for (int i = 0; i < firstLength; ++i)
+            for (var i = 0UL; i < firstLength; ++i)
             {
                 var secondElem = this.elements[i];
-                var secondLength = secondElem.Length;
-                for (int j = 0; j < secondLength; ++j)
+                var secondLength = (ulong)secondElem.Length;
+                for (var j = 0UL; j < secondLength; ++j)
                 {
-                    var index = Array.IndexOf(secondElem, item);
-                    if (index > -1)
+                    var innerIndex = Array.IndexOf(secondElem, item);
+                    if (innerIndex > -1)
                     {
-                        var result = ((long)i * generalSize + j) * (mask + 1) + index;
-                        return result;
+                        checked
+                        {
+                            index = (i * generalSize + j) * (mask + 1) + (ulong)innerIndex;
+                            return true;
+                        }
                     }
                 }
             }
 
-            return -1L;
+            index = 0;
+            return false;
+        }
+
+        /// <summary>
+        /// Verifica a validade da estrutura da ordenação.
+        /// </summary>
+        /// <param name="array">A ordenação.</param>
+        /// <param name="dimensions">A descrição das dimensões.</param>
+        private void AssertArrayStructure(
+            Array array,
+            long[] dimensions)
+        {
+            var rank = dimensions.Length;
+            var objType = array.GetType();
+            for (var i = 0; i < rank; ++i)
+            {
+                if (objType.IsArray && objType.GetArrayRank() == 1)
+                {
+                    objType = objType.GetElementType();
+                }
+                else
+                {
+                    throw new UtilitiesException(string.Format(
+                        "Array must be rank one at level {0}.",
+                        i));
+                }
+            }
+
+            if (!objType.IsAssignableFrom(typeof(T)))
+            {
+                throw new ArrayTypeMismatchException("Source array type cannot be assigned to destination array type.");
+            }
+        }
+
+        /// <summary>
+        /// Realiza a cópia de uma ordenação para um conjunto de ordenações.
+        /// </summary>
+        /// <param name="array">A ordenação de partida.</param>
+        /// <param name="arrays">A definição das ordenações de destino.</param>
+        /// <param name="indexes">
+        /// Os índices que definem o estado das ordenações de destino.
+        /// </param>
+        private void CopyCurrentArray(
+            T[] array,
+            Array[] arrays,
+            long[] indexes)
+        {
+            var rank = arrays.LongLength;
+            var indexPointer = rank - 1;
+            var currentIndex = indexes[indexPointer];
+            var currentArray = arrays[indexPointer];
+            var arrayLength = array.LongLength;
+            var arrayIndex = 0L;
+            while (arrayLength > 0)
+            {
+                var difference = currentArray.LongLength - currentIndex;
+                if (difference < arrayLength)
+                {
+                    Array.Copy(
+                        array,
+                        arrayIndex,
+                        currentArray,
+                        currentIndex,
+                        difference);
+                    arrayLength -= difference;
+                    arrayIndex += difference;
+
+                    // Actualiza o estado dos índices
+                    var state = true;
+                    while (state)
+                    {
+                        --indexPointer;
+                        if (indexPointer < 0)
+                        {
+                            throw new ArgumentException(
+                                "Destination array was not long enough. Check destIndex and length, and the array's lower bounds.");
+                        }
+                        else
+                        {
+                            currentIndex = indexes[indexPointer];
+                            currentArray = arrays[indexPointer];
+                            var currentArrayLength = currentArray.LongLength;
+                            ++currentIndex;
+                            if (currentIndex < currentArrayLength)
+                            {
+                                indexes[indexPointer] = currentIndex;
+                                ++indexPointer;
+                                var innerArray = (Array)currentArray.GetValue(currentIndex);
+                                arrays[indexPointer] = innerArray;
+                                indexes[indexPointer] = 0L;
+                                currentArray = innerArray;
+                                ++indexPointer;
+                                for (; indexPointer < rank; ++indexPointer)
+                                {
+                                    innerArray = (Array)currentArray.GetValue(0);
+                                    arrays[indexPointer] = innerArray;
+                                    indexes[indexPointer] = 0L;
+                                    currentArray = innerArray;
+                                }
+
+                                --indexPointer;
+                                currentIndex = 0;
+                                state = false;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    Array.Copy(
+                        array,
+                        arrayIndex,
+                        currentArray,
+                        currentIndex,
+                        arrayLength);
+                    currentIndex += arrayLength;
+                    indexes[indexPointer] = currentIndex;
+
+                    arrayLength = 0;
+                }
+            }
         }
 
         #endregion Funções privadas
@@ -1621,6 +1913,12 @@
         /// a uma lista cuja capacidade inicial é nula.
         /// </summary>
         private static ulong defaultCapacity = 1024;
+
+        /// <summary>
+        /// Variável que indica se se irá avaliar a memória disponível
+        /// em caso de instância.
+        /// </summary>
+        private bool assertMemory = true;
 
         /// <summary>
         /// Mantém os elementos.
@@ -1709,18 +2007,39 @@
         /// <summary>
         /// Instancia uma nova instância de objectos do tipo <see cref="GeneralLongList{T}"/>.
         /// </summary>
-        public GeneralLongList()
+        /// <remarks>
+        /// A instanciação de uma ordenação geral suficientemente grande pode causar problemas de memória.
+        /// É conveniente avaliar a quantidade de memória disponível visível para o utilizador antes
+        /// de proceder à instanciação de listas muito grandes. Se o parâmetro <see cref="assertMemory"/> estiver
+        /// activo, esta validação será efectuada internamente.
+        /// </remarks>
+        /// <param name="assertMemory">
+        /// Valor que indica se é necessário verficiar se existe memória
+        /// suficiente para continuar a instanciação.
+        /// </param>
+        public GeneralLongList(bool assertMemory = true)
         {
             this.length = 0;
             this.capacity = 0;
             this.elements = emptyArray;
+            this.assertMemory = assertMemory;
         }
 
         /// <summary>
         /// Instancia uma nova instância de objectos do tipo <see cref="GeneralLongList{T}"/>.
         /// </summary>
+        /// <remarks>
+        /// A instanciação de uma ordenação geral suficientemente grande pode causar problemas de memória.
+        /// É conveniente avaliar a quantidade de memória disponível visível para o utilizador antes
+        /// de proceder à instanciação de listas muito grandes. Se o parâmetro <see cref="assertMemory"/> estiver
+        /// activo, esta validação será efectuada internamente.
+        /// </remarks>
         /// <param name="capacity">O valor da capacidade da lista.</param>
-        public GeneralLongList(int capacity)
+        /// <param name="assertMemory">
+        /// Valor que indica se é necessário verficiar se existe memória
+        /// suficiente para continuar a instanciação.
+        /// </param>
+        public GeneralLongList(int capacity, bool assertMemory = true)
         {
             if (capacity < 0)
             {
@@ -1728,6 +2047,7 @@
             }
             else
             {
+                this.assertMemory = assertMemory;
                 this.AssertVisibleMemory((ulong)capacity);
                 this.Instantiate((ulong)capacity);
                 this.length = 0;
@@ -1740,44 +2060,20 @@
         /// <summary>
         /// Instancia uma nova instância de objectos do tipo <see cref="GeneralLongList{T}"/>.
         /// </summary>
+        /// <remarks>
+        /// A instanciação de uma ordenação geral suficientemente grande pode causar problemas de memória.
+        /// É conveniente avaliar a quantidade de memória disponível visível para o utilizador antes
+        /// de proceder à instanciação de listas muito grandes. Se o parâmetro <see cref="assertMemory"/> estiver
+        /// activo, esta validação será efectuada internamente.
+        /// </remarks>
         /// <param name="capacity">O valor da capacidade da lista.</param>
-        public GeneralLongList(uint capacity)
+        /// <param name="assertMemory">
+        /// Valor que indica se é necessário verficiar se existe memória
+        /// suficiente para continuar a instanciação.
+        /// </param>
+        public GeneralLongList(uint capacity, bool assertMemory = true)
         {
-            this.AssertVisibleMemory(capacity);
-            this.Instantiate(capacity);
-            this.length = 0;
-            this.firstDimLength = 0;
-            this.secondDimLength = 0;
-            this.thirdDimLength = 0;
-        }
-
-        /// <summary>
-        /// Instancia uma nova instância de objectos do tipo <see cref="GeneralLongList{T}"/>.
-        /// </summary>
-        /// <param name="capacity">O valor da capacidade da lista.</param>
-        public GeneralLongList(long capacity)
-        {
-            if (capacity < 0)
-            {
-                throw new ArgumentOutOfRangeException("capacity");
-            }
-            else
-            {
-                this.AssertVisibleMemory((ulong)capacity);
-                this.Instantiate((ulong)capacity);
-                this.length = 0;
-                this.firstDimLength = 0;
-                this.secondDimLength = 0;
-                this.thirdDimLength = 0;
-            }
-        }
-
-        /// <summary>
-        /// Instancia uma nova instância de objectos do tipo <see cref="GeneralLongList{T}"/>.
-        /// </summary>
-        /// <param name="capacity">O valor da capacidade da lista.</param>
-        public GeneralLongList(ulong capacity)
-        {
+            this.assertMemory = assertMemory;
             this.AssertVisibleMemory(capacity);
             this.Instantiate(capacity);
             this.length = 0;
@@ -1790,6 +2086,68 @@
         /// Instancia uma nova instância de objectos do tipo <see cref="GeneralLongList{T}"/>.
         /// </summary>
         /// <remarks>
+        /// A instanciação de uma ordenação geral suficientemente grande pode causar problemas de memória.
+        /// É conveniente avaliar a quantidade de memória disponível visível para o utilizador antes
+        /// de proceder à instanciação de listas muito grandes. Se o parâmetro <see cref="assertMemory"/> estiver
+        /// activo, esta validação será efectuada internamente.
+        /// </remarks>
+        /// <param name="capacity">O valor da capacidade da lista.</param>
+        /// <param name="assertMemory">
+        /// Valor que indica se é necessário verficiar se existe memória
+        /// suficiente para continuar a instanciação.
+        /// </param>
+        public GeneralLongList(long capacity, bool assertMemory = true)
+        {
+            if (capacity < 0)
+            {
+                throw new ArgumentOutOfRangeException("capacity");
+            }
+            else
+            {
+                this.assertMemory = assertMemory;
+                this.AssertVisibleMemory((ulong)capacity);
+                this.Instantiate((ulong)capacity);
+                this.length = 0;
+                this.firstDimLength = 0;
+                this.secondDimLength = 0;
+                this.thirdDimLength = 0;
+            }
+        }
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="GeneralLongList{T}"/>.
+        /// </summary>
+        /// <remarks>
+        /// A instanciação de uma ordenação geral suficientemente grande pode causar problemas de memória.
+        /// É conveniente avaliar a quantidade de memória disponível visível para o utilizador antes
+        /// de proceder à instanciação de listas muito grandes. Se o parâmetro <see cref="assertMemory"/> estiver
+        /// activo, esta validação será efectuada internamente.
+        /// </remarks>
+        /// <param name="capacity">O valor da capacidade da lista.</param>
+        /// <param name="assertMemory">
+        /// Valor que indica se é necessário verficiar se existe memória
+        /// suficiente para continuar a instanciação.
+        /// </param>
+        public GeneralLongList(ulong capacity, bool assertMemory = true)
+        {
+            this.assertMemory = assertMemory;
+            this.AssertVisibleMemory(capacity);
+            this.Instantiate(capacity);
+            this.length = 0;
+            this.firstDimLength = 0;
+            this.secondDimLength = 0;
+            this.thirdDimLength = 0;
+        }
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="GeneralLongList{T}"/>.
+        /// </summary>
+        /// <remarks>
+        /// A instanciação de uma ordenação geral suficientemente grande pode causar problemas de memória.
+        /// É conveniente avaliar a quantidade de memória disponível visível para o utilizador antes
+        /// de proceder à instanciação de listas muito grandes. Se o parâmetro <see cref="assertMemory"/> estiver
+        /// activo, esta validação será efectuada internamente.
+        /// 
         /// A lista criada será populada com os elementos contidos na colecção. De modo a manter-se a compatibilidade
         /// com o CLR (Common Language Runtime), caso seja passada um objecto do tipo <see cref="ICollection{T}"/>,
         /// a respectiva cópia será realizada por intermédio da chamada à função de cópia definida. Assim, caso o número
@@ -1797,7 +2155,11 @@
         /// ou não será bem sucedida.
         /// </remarks>
         /// <param name="collection">A colecção.</param>
-        public GeneralLongList(IEnumerable<T> collection)
+        /// <param name="assertMemory">
+        /// Valor que indica se é necessário verficiar se existe memória
+        /// suficiente para continuar a instanciação.
+        /// </param>
+        public GeneralLongList(IEnumerable<T> collection, bool assertMemory = true)
         {
             if (collection == null)
             {
@@ -1805,6 +2167,7 @@
             }
             else
             {
+                this.assertMemory = assertMemory;
                 var longCollection = collection as ILongCollection<T>;
                 if (longCollection == null)
                 {
@@ -2356,14 +2719,21 @@
         /// <returns>O índice se o item existir e -1 caso contrário.</returns>
         public int IndexOf(T item)
         {
-            var result = this.IndexOfAux(item);
-            if (result > int.MaxValue)
+            var result = default(ulong);
+            if (this.TryGetIndexOfAux(item, out result))
             {
-                throw new CollectionsException("The index value is too big. Please use LongIndexOf function.");
+                if (result > int.MaxValue)
+                {
+                    throw new CollectionsException("The index value is too big. Please use LongIndexOf function.");
+                }
+                else
+                {
+                    return (int)result;
+                }
             }
             else
             {
-                return (int)result;
+                return -1;
             }
         }
 
@@ -2374,8 +2744,33 @@
         /// <returns>O índice se o item existir e -1 caso contrário.</returns>
         public long LongIndexOf(T item)
         {
-            var result = this.IndexOfAux(item);
-            return result;
+            var result = default(ulong);
+            if (this.TryGetIndexOfAux(item, out result))
+            {
+                if (result > long.MaxValue)
+                {
+                    throw new CollectionsException("The index value is too big. Please use TryGetIndexOf function instead.");
+                }
+                else
+                {
+                    return (long)result;
+                }
+            }
+            else
+            {
+                return -1;
+            }
+        }
+
+        /// <summary>
+        /// Tenta obter o índice da primeira ocorrência do item especificado.
+        /// </summary>
+        /// <param name="item">O item.</param>
+        /// <param name="index">O índice da primeira ocorrência do item.</param>
+        /// <returns>Verdadeiro se o item se encontrar na colecção e falso caso contrário.</returns>
+        public bool TryGetIndexOf(T item, out ulong index)
+        {
+            return this.TryGetIndexOfAux(item, out index);
         }
 
         /// <summary>
@@ -2516,7 +2911,9 @@
         /// <param name="item">O item a ser adicionado.</param>
         public void Add(T item)
         {
-            throw new NotImplementedException();
+            this.InnerInsert(
+                this.length,
+                item);
         }
 
         /// <summary>
@@ -2562,7 +2959,36 @@
         /// <param name="arrayIndex">O índice a partir do qual é efectuada a cópia.</param>
         public void CopyTo(T[] array, int arrayIndex)
         {
-            throw new NotImplementedException();
+            var firstLength = this.firstDimLength;
+            var currentIndex = arrayIndex;
+            for (var i = 0UL; i < firstLength; ++i)
+            {
+                var curr = this.elements[i];
+                var secondLength = curr.Length;
+                for (int j = 0; j < secondLength; ++j)
+                {
+                    var elem = curr[j];
+                    var thirdLength = elem.Length;
+                    Array.Copy(elem, 0, array, currentIndex, thirdLength);
+                    currentIndex += thirdLength;
+                }
+            }
+
+            var outerSecondlength = this.secondDimLength;
+            var outerCurr = this.elements[firstLength];
+            for (var i = 0UL; i < outerSecondlength; ++i)
+            {
+                var thirdCurr = outerCurr[i];
+                var thirdLength = thirdCurr.Length;
+                Array.Copy(thirdCurr, 0, array, currentIndex, thirdLength);
+                currentIndex += thirdLength;
+            }
+
+            if ((long)outerSecondlength < outerCurr.LongLength)
+            {
+                var outerThirdCurr = outerCurr[outerSecondlength];
+                Array.Copy(outerThirdCurr, 0, array, currentIndex, (long)this.thirdDimLength);
+            }
         }
 
         /// <summary>
@@ -2576,7 +3002,103 @@
             Array array,
             long[] dimensions)
         {
-            throw new NotImplementedException();
+            if (array == null)
+            {
+                throw new ArgumentNullException("array");
+            }
+            else if (dimensions == null)
+            {
+                throw new ArgumentNullException("dimensions");
+            }
+            else
+            {
+                var rank = dimensions.LongLength;
+                if (rank == 0)
+                {
+                    if (this.length != 0)
+                    {
+                        throw new ArgumentException(
+                            "Destination array was not long enough. Check destIndex and length, and the array's lower bounds.");
+                    }
+                }
+                else if (rank == 1)
+                {
+                    var firstLength = this.elements.Length;
+                    var currentIndex = dimensions[0];
+                    for (int i = 0; i < firstLength; ++i)
+                    {
+                        var curr = this.elements[i];
+                        var secondLength = curr.Length;
+                        for (int j = 0; j < secondLength; ++j)
+                        {
+                            var elem = curr[j];
+                            var thirdLength = elem.Length;
+                            Array.Copy(elem, 0, array, currentIndex, thirdLength);
+                            currentIndex += thirdLength;
+                        }
+                    }
+                }
+                else
+                {
+                    var size = mask + 1;
+                    var generalSize = generalMask + 1;
+                    this.AssertArrayStructure(array, dimensions);
+                    var indexes = new long[rank];
+                    var arrays = new Array[rank];
+                    Array.Copy(dimensions, indexes, rank);
+                    var currentArray = array;
+                    arrays[0] = currentArray;
+                    for (var i = 1L; i < rank; ++i)
+                    {
+                        var innerArray = (Array)currentArray.GetValue(indexes[i - 1]);
+                        arrays[i] = innerArray;
+                        currentArray = innerArray;
+                    }
+
+                    // Rever
+                    var elementsLength = this.firstDimLength;
+                    if (elementsLength > 0)
+                    {
+                        --elementsLength;
+                        for (var i = 0UL; i < elementsLength; ++i)
+                        {
+                            var currElem = this.elements[i];
+                            for (var j = 0L; j < generalSize; ++j)
+                            {
+                                var current = currElem[j];
+                                this.CopyCurrentArray(
+                                    current,
+                                    size,
+                                    arrays,
+                                    indexes);
+                            }
+                        }
+                    }
+
+                    var outerCurrElemn = this.elements[elementsLength];
+                    elementsLength = this.secondDimLength;
+                    if (elementsLength > 0)
+                    {
+                        --elementsLength;
+                        for (var i = 0UL; i < elementsLength; ++i)
+                        {
+                            var innerCurrent = outerCurrElemn[i];
+                            this.CopyCurrentArray(
+                                innerCurrent,
+                                size,
+                                arrays,
+                                indexes);
+                        }
+                    }
+
+                    var lastArray = outerCurrElemn[elementsLength];
+                    this.CopyCurrentArray(
+                        lastArray,
+                        (long)this.thirdDimLength,
+                        arrays,
+                        indexes);
+                }
+            }
         }
 
         /// <summary>
@@ -2586,7 +3108,16 @@
         /// <returns>Verdadeiro se o item for removido com sucesso e falso caso contrário.</returns>
         public bool Remove(T item)
         {
-            throw new NotImplementedException();
+            var index = default(ulong);
+            if (this.TryGetIndexOfAux(item, out index))
+            {
+                this.InnerRemoveAt(index);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         /// <summary>
@@ -2595,7 +3126,21 @@
         /// <returns>O enumerador.</returns>
         public IEnumerator<T> GetEnumerator()
         {
-            throw new NotImplementedException();
+            var firstLength = this.elements.Length;
+            for (int i = 0; i < firstLength; ++i)
+            {
+                var curr = this.elements[i];
+                var secondLength = curr.Length;
+                for (int j = 0; j < secondLength; ++j)
+                {
+                    var elem = curr[j];
+                    var thirdLength = elem.Length;
+                    for (int k = 0; k < thirdLength; ++k)
+                    {
+                        yield return elem[k];
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -2604,7 +3149,7 @@
         /// <returns>O enumerador não genérico.</returns>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
-            throw new NotImplementedException();
+            return this.GetEnumerator();
         }
 
         #region Funções internas para testes
@@ -2648,6 +3193,8 @@
                 this.ExpandCapacity(this.length + 1);
             }
 
+            var size = mask + 1;
+            var generalSize = generalMask + 1;
             if (index < this.length)
             {
                 // Copia os elementos a partir do índice
@@ -2655,8 +3202,14 @@
                 var firstDim = index >> maxBinaryPower;
                 if (firstDim == 0)
                 {
-                    // Move os elementos
-
+                    this.InsertMoveItems(
+                        this.elements,
+                        0,
+                        0,
+                        thirdDim,
+                        this.firstDimLength,
+                        this.secondDimLength,
+                        this.thirdDimLength);
 
                     this.elements[0][0][thirdDim] = item;
                 }
@@ -2664,10 +3217,41 @@
                 {
                     var secondDim = firstDim & generalMask;
                     firstDim >>= objMaxBinaryPower;
+                    this.InsertMoveItems(
+                        this.elements,
+                        firstDim,
+                        secondDim,
+                        thirdDim,
+                        this.firstDimLength,
+                        this.secondDimLength,
+                        this.thirdDimLength);
+                    this.elements[firstDim][secondDim][thirdDim] = item;
+                }
+            }
+            else
+            {
+                var firstIndex = this.firstDimLength;
+                var secondIndex = this.secondDimLength;
+                var thirdIndex = this.thirdDimLength;
+
+                if (thirdIndex < size)
+                {
+                    this.elements[firstIndex][secondIndex][thirdIndex] = item;
+                }
+                else
+                {
+                    if (secondIndex < generalSize)
+                    {
+                        this.elements[firstIndex][secondIndex][0] = item;
+                    }
+                    else
+                    {
+                        this.elements[firstIndex][0][0] = item;
+                    }
                 }
             }
 
-            throw new NotImplementedException();
+            this.IncrementLength();
         }
 
         /// <summary>
@@ -2676,7 +3260,431 @@
         /// <param name="index">O índice do item a ser removido.</param>
         private void InnerRemoveAt(ulong index)
         {
-            throw new NotImplementedException();
+            var size = mask + 1;
+            var generalSize = generalMask + 1;
+            if (index < this.length)
+            {
+                var firstEnd = this.firstDimLength;
+                var secondEnd = this.secondDimLength;
+                var thirdEnd = this.thirdDimLength;
+                if (thirdEnd == 0)
+                {
+                    thirdEnd = mask;
+                    if (secondEnd == 0)
+                    {
+                        secondEnd = generalMask;
+                        --firstEnd;
+                    }
+                    else
+                    {
+                        --secondEnd;
+                    }
+                }
+                else
+                {
+                    --thirdEnd;
+                }
+
+                var thirdDim = index & mask;
+                var firstDim = index >> maxBinaryPower;
+                if (firstDim == 0)
+                {
+                    this.RemoveMoveItems(
+                        this.elements,
+                        0,
+                        0,
+                        thirdDim,
+                        firstEnd,
+                        secondEnd,
+                        thirdEnd);
+                    this.elements[firstEnd][secondEnd][thirdEnd] = default(T);
+                }
+                else
+                {
+                    var secondDim = firstDim & generalMask;
+                    firstDim >>= objMaxBinaryPower;
+                    this.RemoveMoveItems(
+                        this.elements,
+                        firstDim,
+                        secondDim,
+                        thirdDim,
+                        firstEnd,
+                        secondEnd,
+                        thirdEnd);
+                    this.elements[firstEnd][secondEnd][thirdEnd] = default(T);
+                }
+
+                this.DecrementLength();
+            }
+            else
+            {
+                throw new ArgumentOutOfRangeException("index");
+            }
+        }
+
+        /// <summary>
+        /// Move os itens para inserção.
+        /// </summary>
+        /// <param name="items">Os itens a serem movidos.</param>
+        /// <param name="firstStart">A primeira dimensão inicial.</param>
+        /// <param name="secondStart">A segunda dimensão inicial.</param>
+        /// <param name="thirdStart">A terceira dimensão inicial.</param>
+        /// <param name="firstEndLength">A primeira dimensão final.</param>
+        /// <param name="secondEndLength">A segunda dimensão final.</param>
+        /// <param name="thirdEndLength">A terceira dimensão final.</param>
+        private void InsertMoveItems(
+            T[][][] items,
+            ulong firstStart,
+            ulong secondStart,
+            ulong thirdStart,
+            ulong firstEndLength,
+            ulong secondEndLength,
+            ulong thirdEndLength)
+        {
+            if (firstStart == firstEndLength)
+            {
+                var secondCurrent = items[firstStart];
+                this.InsertMoveItemsFinal(
+                        secondCurrent,
+                        secondStart,
+                        thirdStart,
+                        secondEndLength,
+                        thirdEndLength);
+            }
+            else
+            {
+                var firstIndex = firstStart;
+                var secondCurrent = items[firstIndex];
+                var carriage = this.InsertMoveItems(
+                        secondCurrent,
+                        secondStart,
+                        thirdStart);
+                ++firstIndex;
+                for (; firstIndex < firstEndLength; ++firstIndex)
+                {
+                    secondCurrent = items[firstIndex];
+                    var innerCarriage = this.InsertMoveItems(
+                        secondCurrent,
+                        0,
+                        0);
+                    secondCurrent[0][0] = carriage;
+                    carriage = innerCarriage;
+                }
+
+                secondCurrent = items[firstIndex];
+                this.InsertMoveItemsFinal(
+                        secondCurrent,
+                        0,
+                        0,
+                        secondEndLength,
+                        thirdEndLength);
+                this.elements[firstIndex][0][0] = carriage;
+            }
+        }
+
+        /// <summary>
+        /// Move os itens para remoção.
+        /// </summary>
+        /// <param name="items">Os itens a serem movidos.</param>
+        /// <param name="firstStart">A primeira dimensão inicial.</param>
+        /// <param name="secondStart">A segunda dimensão inicial.</param>
+        /// <param name="thirdStart">A terceira dimensão inicial.</param>
+        /// <param name="firstLastIndex">A primeira dimensão final.</param>
+        /// <param name="secondLastIndex">A segunda dimensão final.</param>
+        /// <param name="thirdLastIndex">A terceira dimensão final.</param>
+        private void RemoveMoveItems(
+            T[][][] items,
+            ulong firstStart,
+            ulong secondStart,
+            ulong thirdStart,
+            ulong firstLastIndex,
+            ulong secondLastIndex,
+            ulong thirdLastIndex)
+        {
+            var lastIndex = firstLastIndex;
+            if (firstStart == lastIndex)
+            {
+                var secondCurrent = items[firstStart];
+                this.RemoveMoveItemsFinal(
+                        secondCurrent,
+                        secondStart,
+                        thirdStart,
+                        secondLastIndex,
+                        thirdLastIndex);
+            }
+            else
+            {
+                var secondCurrent = items[lastIndex];
+                var carriage = this.RemoveMoveItems(
+                        secondCurrent,
+                        secondLastIndex,
+                        thirdLastIndex);
+                --lastIndex;
+                for (; lastIndex > firstStart; --lastIndex)
+                {
+                    secondCurrent = items[lastIndex];
+                    var innerCarriage = this.RemoveMoveItems(
+                        secondCurrent,
+                        generalMask,
+                        mask);
+                    secondCurrent[generalMask][mask] = carriage;
+                    carriage = innerCarriage;
+                }
+
+                secondCurrent = items[lastIndex];
+                this.RemoveMoveItemsFinal(
+                        secondCurrent,
+                        secondStart,
+                        thirdStart,
+                        generalMask,
+                        mask);
+                this.elements[lastIndex][generalMask][mask] = carriage;
+            }
+        }
+
+        /// <summary>
+        /// Move os itens para inserção.
+        /// </summary>
+        /// <param name="items">Os itens a serem movidos.</param>
+        /// <param name="startSecondDim">A segunda dimensão inicial.</param>
+        /// <param name="startThirdDim">A terceira dimensão inicial.</param>
+        /// <returns>O valor do item que resta no final da ordenação dupla.</returns>
+        private T InsertMoveItems(
+            T[][] items,
+            ulong startSecondDim,
+            ulong startThirdDim)
+        {
+            var generalSize = generalMask + 1;
+            var secondIndex = startSecondDim;
+            var thirdCurrent = items[secondIndex];
+            var result = this.InsertMoveItems(
+                thirdCurrent,
+                startThirdDim);
+            ++secondIndex;
+            for (; secondIndex < generalSize; ++secondIndex)
+            {
+                var thirdNext = items[secondIndex];
+                var innerResult = this.InsertMoveItems(
+                    thirdNext,
+                    0);
+                thirdNext[0] = result;
+                thirdCurrent = thirdNext;
+                result = innerResult;
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Move os itens para remoção.
+        /// </summary>
+        /// <param name="items">Os itens a serem movidos.</param>
+        /// <param name="secondLastIndex">A segunda dimensão final.</param>
+        /// <param name="thirdLastIndex">A terceira dimensão final.</param>
+        /// <returns>O valor do item que resta no final da ordenação dupla.</returns>
+        private T RemoveMoveItems(
+            T[][] items,
+            ulong secondLastIndex,
+            ulong thirdLastIndex)
+        {
+            var secondIndex = secondLastIndex;
+            var thirdCurrent = items[secondIndex];
+            var result = this.RemoveMoveItems(
+                thirdCurrent,
+                thirdLastIndex);
+
+            for (; secondIndex > 0; )
+            {
+                --secondIndex;
+                var thirdNext = items[secondIndex];
+                var innerResult = this.RemoveMoveItems(
+                    thirdNext,
+                    mask);
+                thirdNext[mask] = result;
+                thirdCurrent = thirdNext;
+                result = innerResult;
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Move os itens para inserção.
+        /// </summary>
+        /// <param name="items">Os itens a serem movidos.</param>
+        /// <param name="startSecondDim">A segunda dimensão inicial.</param>
+        /// <param name="startThirdDim">A terceira dimensão inicial.</param>
+        /// <param name="secondDimLength">O comprimento da segunda dimensão final.</param>
+        /// <param name="thirdDimLength">O comprimento da terceira dimensão final.</param>
+        private void InsertMoveItemsFinal(
+            T[][] items,
+            ulong startSecondDim,
+            ulong startThirdDim,
+            ulong secondDimLength,
+            ulong thirdDimLength)
+        {
+            if (startSecondDim == secondDimLength)
+            {
+                var thirdCurrent = items[startSecondDim];
+                this.InsertMoveItemsFinal(
+                    thirdCurrent,
+                    startThirdDim,
+                    thirdDimLength - startThirdDim);
+            }
+            else
+            {
+                var secondIndex = startSecondDim;
+                var thirdCurrent = items[secondIndex];
+                var carriage = this.InsertMoveItems(
+                       thirdCurrent,
+                       startThirdDim);
+                ++secondIndex;
+                for (; secondIndex < secondDimLength; ++secondIndex)
+                {
+                    thirdCurrent = items[secondIndex];
+                    var innerCarriage = this.InsertMoveItems(
+                        thirdCurrent,
+                        0L);
+                    thirdCurrent[0] = carriage;
+                    carriage = innerCarriage;
+                }
+
+                thirdCurrent = items[secondIndex];
+                this.InsertMoveItemsFinal(
+                    thirdCurrent,
+                    0,
+                    thirdDimLength);
+                thirdCurrent[0] = carriage;
+            }
+        }
+
+        /// <summary>
+        /// Move os itens para remoção.
+        /// </summary>
+        /// <param name="items">Os itens a serem movidos.</param>
+        /// <param name="startSecondDim">A segunda dimensão inicial.</param>
+        /// <param name="startThirdDim">A terceira dimensão inicial.</param>
+        /// <param name="secondLastIndex">A segunda dimensão final.</param>
+        /// <param name="thirdLastIndex">A terceira dimensão final.</param>
+        private void RemoveMoveItemsFinal(
+            T[][] items,
+            ulong startSecondDim,
+            ulong startThirdDim,
+            ulong secondLastIndex,
+            ulong thirdLastIndex)
+        {
+            if (startSecondDim == secondLastIndex)
+            {
+                var thirdCurrent = items[startSecondDim];
+                this.RemoveMoveItemsFinal(
+                    thirdCurrent,
+                    startThirdDim,
+                    thirdLastIndex - startThirdDim);
+            }
+            else
+            {
+                var secondIndex = secondLastIndex;
+                var thirdCurrent = items[secondIndex];
+                var carriage = this.RemoveMoveItems(
+                       thirdCurrent,
+                       thirdLastIndex);
+                --secondIndex;
+                for (; secondIndex > 0; --secondIndex)
+                {
+                    thirdCurrent = items[secondIndex];
+                    var innerCarriage = this.RemoveMoveItems(
+                        thirdCurrent,
+                        mask);
+                    thirdCurrent[mask] = carriage;
+                    carriage = innerCarriage;
+                }
+
+                thirdCurrent = items[secondIndex];
+                this.RemoveMoveItemsFinal(
+                    thirdCurrent,
+                    startThirdDim,
+                    mask - startThirdDim);
+                thirdCurrent[mask] = carriage;
+            }
+        }
+
+        /// <summary>
+        /// Move os itens para inserão.
+        /// </summary>
+        /// <param name="items">Os itens a serem movidos.</param>
+        /// <param name="startThirdDim">A terceira diemnsão inicial.</param>
+        /// <returns>O item que resta no final da ordenação.</returns>
+        private T InsertMoveItems(
+            T[] items,
+            ulong startThirdDim)
+        {
+            var result = items[mask];
+            Array.Copy(
+                items,
+                (long)startThirdDim,
+                items,
+                (long)(startThirdDim + 1),
+                (long)(mask - startThirdDim));
+            return result;
+        }
+
+        /// <summary>
+        /// Move os itens para remoção.
+        /// </summary>
+        /// <param name="items">Os itens a serem movidos.</param>
+        /// <param name="lastThirdIndex">A terceira dimensão final.</param>
+        /// <returns>O item que resta no final da ordenação.</returns>
+        private T RemoveMoveItems(
+            T[] items,
+            ulong lastThirdIndex)
+        {
+            var result = items[0];
+            Array.Copy(
+                items,
+                1,
+                items,
+                0,
+                (long)lastThirdIndex);
+
+            return result;
+        }
+
+        /// <summary>
+        /// Move os itens para inserção.
+        /// </summary>
+        /// <param name="items">Os itens a serem movidos.</param>
+        /// <param name="startThirdDim">A terceira dimensão inicial.</param>
+        /// <param name="thirdDimLength">O comprimento da terceira dimensão.</param>
+        private void InsertMoveItemsFinal(
+            T[] items,
+            ulong startThirdDim,
+            ulong thirdDimLength)
+        {
+            Array.Copy(
+                items,
+                (long)startThirdDim,
+                items,
+                (long)(startThirdDim + 1),
+                (long)thirdDimLength);
+        }
+
+        /// <summary>
+        /// Move os itens para inserção.
+        /// </summary>
+        /// <param name="items">Os itens a serem movidos.</param>
+        /// <param name="startThirdDim">A terceira dimensão inicial.</param>
+        /// <param name="lastThirdIndex">A terceira dimensão final.</param>
+        private void RemoveMoveItemsFinal(
+            T[] items,
+            ulong startThirdDim,
+            ulong lastThirdIndex)
+        {
+            Array.Copy(
+                items,
+                (long)(startThirdDim + 1),
+                items,
+                (long)startThirdDim,
+                (long)lastThirdIndex);
         }
 
         /// <summary>
@@ -2741,8 +3749,17 @@
         {
             if (this.capacity < minimum)
             {
-                var maximumNumber = this.GetMaximumAllocation();
-                if (this.capacity > (maximumNumber >> 1))
+                var maximumNumber = ulong.MaxValue;
+                if (this.assertMemory)
+                {
+                    maximumNumber = this.GetMaximumAllocation();
+                }
+
+                if (maximumNumber <= this.capacity)
+                {
+                    throw new OutOfMemoryException("There is visible available memory to proceed.");
+                }
+                else if (this.capacity > (maximumNumber >> 1))
                 {
                     this.capacity = minimum < maximumNumber ? minimum : maximumNumber;
                 }
@@ -2754,7 +3771,7 @@
                 else
                 {
                     var aux = this.capacity << 1;
-                    var newCapacity = minimum < aux ? minimum : aux;
+                    var newCapacity = aux < minimum ? minimum : aux;
                     this.IncreaseCapacityTo(newCapacity);
                 }
             }
@@ -2804,10 +3821,13 @@
         /// <param name="size">O tamanho da colecção.</param>
         private void AssertVisibleMemory(ulong size)
         {
-            var itemsNumber = this.GetMaximumAllocation();
-            if (itemsNumber < size)
+            if (this.assertMemory)
             {
-                throw new UtilitiesException("There is no visbile memory available to proceed.");
+                var itemsNumber = this.GetMaximumAllocation();
+                if (itemsNumber < size)
+                {
+                    throw new OutOfMemoryException("There is no engough visible memory to proceed.");
+                }
             }
         }
 
@@ -2925,32 +3945,35 @@
         }
 
         /// <summary>
-        /// Obtém o índice do primeiro elemento igual ao item.
+        /// Tenta obter o índice da primeira ocorrência do item especificado.
         /// </summary>
         /// <param name="item">O item.</param>
-        /// <returns>
-        /// O índice do primeiro item encontrado e -1 caso este não esteja contido no vector.
-        /// </returns>
-        private long IndexOfAux(T item)
+        /// <param name="index">O índice da primeira ocorrência do item.</param>
+        /// <returns>Verdadeiro se o item se encontrar na colecção e falso caso contrário.</returns>
+        private bool TryGetIndexOfAux(T item, out ulong index)
         {
-            var firstLength = this.elements.Length;
+            var firstLength = (ulong)this.elements.Length;
             var generalSize = generalMask + 1;
-            for (int i = 0; i < firstLength; ++i)
+            for (var i = 0UL; i < firstLength; ++i)
             {
                 var secondElem = this.elements[i];
-                var secondLength = secondElem.Length;
-                for (int j = 0; j < secondLength; ++j)
+                var secondLength = (ulong)secondElem.Length;
+                for (var j = 0UL; j < secondLength; ++j)
                 {
-                    var index = Array.IndexOf(secondElem, item);
-                    if (index > -1)
+                    var innerIndex = Array.IndexOf(secondElem, item);
+                    if (innerIndex > -1)
                     {
-                        var result = ((long)i * generalSize + j) * (mask + 1) + index;
-                        return result;
+                        checked
+                        {
+                            index = (i * generalSize + j) * (mask + 1) + (ulong)innerIndex;
+                            return true;
+                        }
                     }
                 }
             }
 
-            return -1L;
+            index = 0;
+            return false;
         }
 
         /// <summary>
@@ -3608,18 +4631,175 @@
         }
 
         /// <summary>
+        /// Verifica a validade da estrutura da ordenação.
+        /// </summary>
+        /// <param name="array">A ordenação.</param>
+        /// <param name="dimensions">A descrição das dimensões.</param>
+        private void AssertArrayStructure(
+            Array array,
+            long[] dimensions)
+        {
+            var rank = dimensions.Length;
+            var objType = array.GetType();
+            for (var i = 0; i < rank; ++i)
+            {
+                if (objType.IsArray && objType.GetArrayRank() == 1)
+                {
+                    objType = objType.GetElementType();
+                }
+                else
+                {
+                    throw new UtilitiesException(string.Format(
+                        "Array must be rank one at level {0}.",
+                        i));
+                }
+            }
+
+            if (!objType.IsAssignableFrom(typeof(T)))
+            {
+                throw new ArrayTypeMismatchException("Source array type cannot be assigned to destination array type.");
+            }
+        }
+
+        /// <summary>
+        /// Realiza a cópia de uma ordenação para um conjunto de ordenações.
+        /// </summary>
+        /// <param name="array">A ordenação de partida.</param>
+        /// <param name="length">O tamanho do vector a ser copiado.</param>
+        /// <param name="arrays">A definição das ordenações de destino.</param>
+        /// <param name="indexes">
+        /// Os índices que definem o estado das ordenações de destino.
+        /// </param>
+        private void CopyCurrentArray(
+            T[] array,
+            long length,
+            Array[] arrays,
+            long[] indexes)
+        {
+            var rank = arrays.LongLength;
+            var indexPointer = rank - 1;
+            var currentIndex = indexes[indexPointer];
+            var currentArray = arrays[indexPointer];
+            var arrayLength = length;
+            var arrayIndex = 0L;
+            while (arrayLength > 0)
+            {
+                var difference = currentArray.LongLength - currentIndex;
+                if (difference < arrayLength)
+                {
+                    Array.Copy(
+                        array,
+                        arrayIndex,
+                        currentArray,
+                        currentIndex,
+                        difference);
+                    arrayLength -= difference;
+                    arrayIndex += difference;
+
+                    // Actualiza o estado dos índices
+                    var state = true;
+                    while (state)
+                    {
+                        --indexPointer;
+                        if (indexPointer < 0)
+                        {
+                            throw new ArgumentException(
+                                "Destination array was not long enough. Check destIndex and length, and the array's lower bounds.");
+                        }
+                        else
+                        {
+                            currentIndex = indexes[indexPointer];
+                            currentArray = arrays[indexPointer];
+                            var currentArrayLength = currentArray.LongLength;
+                            ++currentIndex;
+                            if (currentIndex < currentArrayLength)
+                            {
+                                indexes[indexPointer] = currentIndex;
+                                ++indexPointer;
+                                var innerArray = (Array)currentArray.GetValue(currentIndex);
+                                arrays[indexPointer] = innerArray;
+                                indexes[indexPointer] = 0L;
+                                currentArray = innerArray;
+                                ++indexPointer;
+                                for (; indexPointer < rank; ++indexPointer)
+                                {
+                                    innerArray = (Array)currentArray.GetValue(0);
+                                    arrays[indexPointer] = innerArray;
+                                    indexes[indexPointer] = 0L;
+                                    currentArray = innerArray;
+                                }
+
+                                --indexPointer;
+                                currentIndex = 0;
+                                state = false;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    Array.Copy(
+                        array,
+                        arrayIndex,
+                        currentArray,
+                        currentIndex,
+                        arrayLength);
+                    currentIndex += arrayLength;
+                    indexes[indexPointer] = currentIndex;
+
+                    arrayLength = 0;
+                }
+            }
+        }
+
+        /// <summary>
         /// Incrementa as variáveis de comprimento em uma unidade.
         /// </summary>
         private void IncrementLength()
         {
-            ++this.thirdDimLength;
-            if (this.thirdDimLength > mask + 1)
+            ++this.length;
+            if (this.thirdDimLength == mask)
             {
-                ++this.secondDimLength;
-                if (this.secondDimLength > generalMask + 1)
+
+                this.thirdDimLength = 0;
+                if (this.secondDimLength == generalMask)
                 {
+                    this.secondDimLength = 0;
                     ++firstDimLength;
                 }
+                else
+                {
+                    ++this.secondDimLength;
+                }
+            }
+            else
+            {
+                ++this.thirdDimLength;
+            }
+        }
+
+        /// <summary>
+        /// Decrementa as variáveis de comprimento em uma unidade.
+        /// </summary>
+        private void DecrementLength()
+        {
+            --this.length;
+            if (this.thirdDimLength == 0)
+            {
+                this.thirdDimLength = mask;
+                if (this.secondDimLength == 0)
+                {
+                    this.secondDimLength = generalMask;
+                    --this.firstDimLength;
+                }
+                else
+                {
+                    --this.secondDimLength;
+                }
+            }
+            else
+            {
+                --this.thirdDimLength;
             }
         }
 
@@ -3630,21 +4810,216 @@
         /// <param name="value">O número de unidades.</param>
         private void IncrementLength(ulong value)
         {
+            this.length += value;
             var thirdDim = value & mask;
             var firstDim = value >> maxBinaryPower;
+            var size = mask + 1;
+            var generalSize = generalMask + 1;
             if (firstDim == 0)
             {
+                if (thirdDim != 0)
+                {
+                    var lengthDiff = size - this.thirdDimLength;
+                    if (lengthDiff > thirdDim)
+                    {
+                        this.thirdDimLength += thirdDim;
+                    }
+                    else
+                    {
+                        this.thirdDimLength = thirdDim - lengthDiff;
+                        if (this.secondDimLength == generalSize)
+                        {
+                            this.secondDimLength = 0;
+                            ++this.firstDimLength;
+                        }
+                        else
+                        {
+                            ++this.secondDimLength;
+                        }
+                    }
+                }
+                else
+                {
+                    this.thirdDimLength = value;
+                }
             }
             else
             {
-                var generalSize = generalMask + 1;
                 var secondDim = firstDim & generalMask;
                 firstDim >>= objMaxBinaryPower;
+                var lengthdiff = size - this.thirdDimLength;
+                if (lengthdiff > thirdDim)
+                {
+                    this.thirdDimLength += thirdDim;
+                    lengthdiff = generalSize - this.secondDimLength;
+                    if (lengthdiff > secondDim)
+                    {
+                        this.secondDimLength += secondDim;
+                        this.firstDimLength += firstDim;
+                    }
+                    else
+                    {
+                        this.secondDimLength = secondDim - lengthdiff;
+                        this.firstDimLength += firstDim + 1;
+                    }
+                }
+                else
+                {
+                    this.thirdDimLength = thirdDim - lengthdiff;
+                    lengthdiff = generalSize - this.secondDimLength - 1;
+                    if (lengthdiff > secondDim)
+                    {
+                        this.secondDimLength += (secondDim + 1);
+                        this.firstDimLength += firstDim;
+                    }
+                    else
+                    {
+                        this.secondDimLength = secondDim - lengthdiff;
+                        this.firstDimLength += firstDim + 1;
+                    }
+                }
             }
+        }
 
-            throw new NotImplementedException();
+        /// <summary>
+        /// Diminui as variáveis de comprimento em um número especificado
+        /// de unidades.
+        /// </summary>
+        /// <param name="value">O número de unidades.</param>
+        private void DecrementLength(ulong value)
+        {
+            this.length -= value;
+            var thirdDim = value & mask;
+            var firstDim = value >> maxBinaryPower;
+            var size = mask + 1;
+            var generalSize = generalMask + 1;
+            if (firstDim == 0)
+            {
+                this.thirdDimLength -= value;
+            }
+            else
+            {
+                var secondDim = firstDim & generalMask;
+                firstDim >>= objMaxBinaryPower;
+                if (this.thirdDimLength < value)
+                {
+                    var innerValue = value - this.thirdDimLength;
+                    if (this.secondDimLength < innerValue)
+                    {
+                        innerValue -= this.secondDimLength;
+                        this.firstDimLength -= innerValue;
+                    }
+                    else
+                    {
+                        this.secondDimLength -= innerValue;
+                    }
+                }
+                else
+                {
+                    this.thirdDimLength -= value;
+                }
+            }
         }
 
         #endregion Funções privadas
+    }
+
+    public class GeneralHashtable<TKey, TValue> : IDictionary<TKey, TValue>
+    {
+        public TValue this[TKey key]
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+            set
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public int Count
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public bool IsReadOnly
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public ICollection<TKey> Keys
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public ICollection<TValue> Values
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public void Add(TKey key, TValue value)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool ContainsKey(TKey key)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Remove(TKey key)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool TryGetValue(TKey key, out TValue value)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Add(KeyValuePair<TKey, TValue> item)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Clear()
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Contains(KeyValuePair<TKey, TValue> item)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Remove(KeyValuePair<TKey, TValue> item)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
+        {
+            throw new NotImplementedException();
+        }
+
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+        {
+            throw new NotImplementedException();
+        }
+
+        private struct Bucket
+        {
+            public TKey Key;
+
+            public TValue Value;
+
+
+        }
     }
 }

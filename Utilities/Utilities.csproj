@@ -81,6 +81,7 @@
     <Compile Include="Collections\Interfaces\IMultidimensionalRange.cs" />
     <Compile Include="Collections\Interfaces\IVector.cs" />
     <Compile Include="Collections\LispStyleList.cs" />
+    <Compile Include="Collections\ULongEqualityComparers.cs" />
     <Compile Include="Collections\Matrices.cs" />
     <Compile Include="Collections\MultiDimensionalRange.cs" />
     <Compile Include="Collections\MutableTuple.cs" />

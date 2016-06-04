@@ -909,7 +909,7 @@
 
             for (int i = 0; i < 50; ++i)
             {
-                var target = new GeneralLongArray<int>(i);
+                var target = new GeneralLongArray<int>(i, false);
                 Assert.IsTrue(target.AssertSizes(), "The computed sizes don't match array configuration.");
                 this.FillArray(target);
                 this.AssertArray(target);
@@ -917,7 +917,88 @@
         }
 
         /// <summary>
-        /// Testa a função que estabelece a nova capacidade para uma lista.
+        /// Testa a função que permite copiar o conteúdo da ordenação geral para uma matriz.
+        /// </summary>
+        [Description("Tests the function that copies the contents of array to a matrix.")]
+        [TestMethod]
+        public void GeneralizedCollections_GeneralLongArrayCopyToMatrixTest()
+        {
+            GeneralLongArray<int>.MaxBinaryPower = 3;
+            GeneralLongArray<int>.ObjMaxBinaryPower = 2;
+
+            var firstLength = 5;
+            var secondLength = 5;
+            var thirdLength = 5;
+            var array = new int[2 * firstLength][][];
+            for (int i = 0; i < 2 * firstLength; ++i)
+            {
+                var innerArray = new int[secondLength][];
+                array[i] = innerArray;
+                for (var j = 0; j < secondLength; ++j)
+                {
+                    var current = new int[thirdLength];
+                    innerArray[j] = current;
+                }
+            }
+
+            var length = firstLength * secondLength * thirdLength;
+            for (int i = 0; i <= length; ++i)
+            {
+                var target = new GeneralLongArray<int>(i, false);
+                this.FillArray(target);
+
+                var firstStartIndex = 0L;
+                var secondStartIndex = 0L;
+                var thirdStartIndex = 0L;
+
+                while (firstStartIndex < firstLength)
+                {
+
+                    target.CopyTo(
+                        array,
+                        new long[] { firstStartIndex, secondStartIndex, thirdStartIndex });
+
+                    var currentValue = 0;
+                    var j = firstStartIndex;
+                    var k = secondStartIndex;
+                    var l = thirdStartIndex;
+                    while (currentValue < i)
+                    {
+                        Assert.AreEqual(
+                            currentValue,
+                            array[j][k][l]);
+                        ++currentValue;
+
+                        ++l;
+                        if (l == thirdLength)
+                        {
+                            l = 0;
+                            ++k;
+                            if (k == secondLength)
+                            {
+                                k = 0;
+                                ++j;
+                            }
+                        }
+                    }
+
+                    ++thirdStartIndex;
+                    if (thirdStartIndex == thirdLength)
+                    {
+                        thirdStartIndex = 0;
+                        ++secondStartIndex;
+                        if (secondStartIndex == secondLength)
+                        {
+                            secondStartIndex = 0;
+                            ++firstStartIndex;
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Testa a função que estabelece a nova capacidade para uma lista geral.
         /// </summary>
         [Description("Tests the new capacity function.")]
         [TestMethod]
@@ -926,7 +1007,7 @@
             GeneralLongList<int>.MaxBinaryPower = 2;
             GeneralLongList<int>.ObjMaxBinaryPower = 1;
 
-            var target = new GeneralLongList<int>();
+            var target = new GeneralLongList<int>(false);
             for (int i = 0; i < 10; ++i)
             {
                 for (int j = 0; j < 20; ++j)
@@ -936,6 +1017,162 @@
                     target.Capacity = j;
                     var assertion = target.AssertSizes();
                     Assert.IsTrue(assertion, "The computed sizes don't match array configuration.");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Testa as funções de adição e inserção de um novo item a uma lista geral.
+        /// </summary>
+        [Description("Tests the addition function for the generalized list.")]
+        [TestMethod]
+        public void GeneralizedCollections_GeneralLongListAddInsertTest()
+        {
+            GeneralLongList<int>.MaxBinaryPower = 6;
+            GeneralLongList<int>.ObjMaxBinaryPower = 9;
+
+            // Testa a função de adição
+            var target = new GeneralLongList<int>(false);
+            var count = 1050;
+            for (int i = 0; i < count; ++i)
+            {
+                target.Add(i);
+                target.AssertSizes();
+                Assert.AreEqual(i + 1, target.Count);
+                for (int j = 0; j <= i; ++j)
+                {
+                    Assert.AreEqual(j, target[j]);
+                }
+            }
+
+            var list = new List<int>(target);
+
+            var length = count;
+            for (int i = 0; i < count; ++i)
+            {
+                length += 2;
+                list.Insert(count - i - 1, i);
+                list.Insert(i, i);
+                target.Insert(count - i - 1, i);
+                --count;
+                target.Insert(i, i);
+                target.AssertSizes();
+                Assert.AreEqual(length, target.Count);
+                for (int j = 0; j < list.Count; ++j)
+                {
+                    Assert.AreEqual(list[j], target[j]);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Testa a função que permite remover um item da lista que se encontra
+        /// na posição especificada.
+        /// </summary>
+        [Description("Tests the remove at function")]
+        [TestMethod]
+        public void GeneralizedCollections_GeneralLongListRemoveAtTest()
+        {
+            GeneralLongList<int>.MaxBinaryPower = 10;
+            GeneralLongList<int>.ObjMaxBinaryPower = 11;
+
+            var count = 10324;
+            var target = new GeneralLongList<int>(count);
+            for (int i = 0; i < count; ++i)
+            {
+                target.Add(i);
+            }
+
+            var list = new List<int>(target);
+            var iterations = count >> 1;
+            var comparisionValue = -1;
+            for (var i = 0; i < iterations; ++i)
+            {
+                comparisionValue += 2;
+                target.RemoveAt(i);
+                --count;
+                Assert.AreEqual(count, target.LongCount);
+                Assert.AreEqual(comparisionValue, target[i]);
+            }
+        }
+
+        /// <summary>
+        /// Testa a função que permite copiar o conteúdo da ordenação geral para uma matriz.
+        /// </summary>
+        [Description("Tests the function that copies the contents of array to a matrix.")]
+        [TestMethod]
+        public void GeneralizedCollections_GeneralLongListCopyToMatrixTest()
+        {
+            GeneralLongArray<int>.MaxBinaryPower = 5;
+            GeneralLongArray<int>.ObjMaxBinaryPower = 5;
+
+            var firstLength = 6;
+            var secondLength = 5;
+            var thirdLength = 5;
+            var array = new int[2 * firstLength][][];
+            for (int i = 0; i < 2 * firstLength; ++i)
+            {
+                var innerArray = new int[secondLength][];
+                array[i] = innerArray;
+                for (var j = 0; j < secondLength; ++j)
+                {
+                    var current = new int[thirdLength];
+                    innerArray[j] = current;
+                }
+            }
+
+            var target = new GeneralLongList<int>();
+            var length = firstLength * secondLength * thirdLength;
+            for (int i = 0; i <= length; ++i)
+            {
+                target.Add(i);
+
+                var firstStartIndex = 0L;
+                var secondStartIndex = 0L;
+                var thirdStartIndex = 0L;
+
+                while (firstStartIndex < firstLength)
+                {
+
+                    target.CopyTo(
+                        array,
+                        new long[] { firstStartIndex, secondStartIndex, thirdStartIndex });
+
+                    var currentValue = 0;
+                    var j = firstStartIndex;
+                    var k = secondStartIndex;
+                    var l = thirdStartIndex;
+                    while (currentValue < i)
+                    {
+                        Assert.AreEqual(
+                            currentValue,
+                            array[j][k][l]);
+                        ++currentValue;
+
+                        ++l;
+                        if (l == thirdLength)
+                        {
+                            l = 0;
+                            ++k;
+                            if (k == secondLength)
+                            {
+                                k = 0;
+                                ++j;
+                            }
+                        }
+                    }
+
+                    ++thirdStartIndex;
+                    if (thirdStartIndex == thirdLength)
+                    {
+                        thirdStartIndex = 0;
+                        ++secondStartIndex;
+                        if (secondStartIndex == secondLength)
+                        {
+                            secondStartIndex = 0;
+                            ++firstStartIndex;
+                        }
+                    }
                 }
             }
         }

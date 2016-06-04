@@ -13,51 +13,51 @@
         /// <summary>
         /// Valor numérico.
         /// </summary>
-        NUMERIC,
+        NUMERIC = 0,
 
         /// <summary>
         /// Valor alfabético.
         /// </summary>
-        ALPHA,
+        ALPHA = 1,
 
         /// <summary>
         /// Espaço.
         /// </summary>
-        SPACE,
+        SPACE = 2,
 
         /// <summary>
         /// Parêntesis de abertura.
         /// </summary>
-        OPEN_PARENTHESIS,
+        OPEN_PARENTHESIS = 3,
 
         /// <summary>
         /// Parêntesis de fecho.
         /// </summary>
-        CLOSE_PARENTHESIS,
+        CLOSE_PARENTHESIS = 4,
 
         /// <summary>
         /// Delimitador de abertura.
         /// </summary>
-        OPEN_DELIMITER,
+        OPEN_DELIMITER = 5,
 
         /// <summary>
         /// Delimitador de fecho.
         /// </summary>
-        CLOSE_DELIMITER,
+        CLOSE_DELIMITER = 6,
 
         /// <summary>
         /// A vírgula.
         /// </summary>
-        COMMA,
+        COMMA = 7,
 
         /// <summary>
         /// Outro tipo de elementos.
         /// </summary>
-        OTHER,
+        OTHER = 8,
 
         /// <summary>
         /// O final de ficheiro.
         /// </summary>
-        EOF
+        EOF = 9
     }
 }

@@ -1,4 +1,10 @@
-﻿namespace Utilities
+﻿// -----------------------------------------------------------------------
+// <copyright file="Utils.cs" company="Sérgio O. Marques">
+// Ver licença do projecto.
+// </copyright>
+// -----------------------------------------------------------------------
+
+namespace Utilities
 {
     using System;
     using System.Collections.Generic;
@@ -326,6 +332,8 @@
 
             return result;
         }
+
+        #region Funções Privadas Auxiliares
 
         /// <summary>
         /// Configura o leitor para efectuar a leitura.
@@ -683,6 +691,8 @@
                 },
                     true);
         }
+
+        #endregion Funções Privadas Auxiliares
     }
 
     /// <summary>

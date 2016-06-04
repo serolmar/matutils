@@ -1,4 +1,10 @@
-﻿namespace Utilities
+﻿// -----------------------------------------------------------------------
+// <copyright file="IGeneralizedCollections.cs" company="Sérgio O. Marques">
+// Ver licença do projecto.
+// </copyright>
+// -----------------------------------------------------------------------
+
+namespace Utilities
 {
     using System;
     using System.Collections.Generic;

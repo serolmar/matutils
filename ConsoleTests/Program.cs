@@ -27,9 +27,10 @@
         {
             try
             {
-                var mi = Utils.GetMemoryInfo();
+                var r = new int[3];
+                Array str = new int[4];
+                str.CopyTo(r, 0);
 
-                Console.WriteLine(int.MaxValue);
                 var resSec = Utils.GetRuntimeConfiguration();
 
                 var configSection = new System.Configuration.ConfigurationPropertyAttribute("");

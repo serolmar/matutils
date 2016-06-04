@@ -1,4 +1,10 @@
-﻿namespace Utilities.Test
+﻿// -----------------------------------------------------------------------
+// <copyright file="FileTest.cs" company="Sérgio O. Marques">
+// Ver licença do projecto.
+// </copyright>
+// -----------------------------------------------------------------------
+
+namespace Utilities.Test
 {
     using System;
     using System.Collections.Generic;
