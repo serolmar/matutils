@@ -1,4 +1,4 @@
-﻿namespace Utilities.Lambda
+﻿namespace Utilities
 {
     using System;
     using System.Collections.Generic;
@@ -8,10 +8,62 @@
     using System.Text;
 
     /// <summary>
+    /// Identifica os tiops de palavras utilizadas pelo construtor de expressões.
+    /// </summary>
+    public enum ELambdaExpressionWordType
+    {
+        /// <summary>
+        /// Valor numérico.
+        /// </summary>
+        NUMERIC = 0,
+
+        /// <summary>
+        /// Valor alfabético.
+        /// </summary>
+        ALPHA = 1,
+
+        /// <summary>
+        /// Espaço.
+        /// </summary>
+        SPACE = 2,
+
+        /// <summary>
+        /// Parêntesis de abertura.
+        /// </summary>
+        OPEN_PARENTHESIS = 3,
+
+        /// <summary>
+        /// Parêntesis de fecho.
+        /// </summary>
+        CLOSE_PARENTHESIS = 4,
+
+        /// <summary>
+        /// Delimitador de abertura.
+        /// </summary>
+        DELIMITER = 5,
+
+        /// <summary>
+        /// A vírgula.
+        /// </summary>
+        COMMA = 6,
+
+        /// <summary>
+        /// Outro tipo de elementos.
+        /// </summary>
+        OTHER = 7,
+
+        /// <summary>
+        /// O final de ficheiro.
+        /// </summary>
+        EOF = 8
+    }
+
+    /// <summary>
     /// Permite construir uma expressão lambda com base num filtro escrito numa linguagem
     /// próxima do natural.
     /// </summary>
-    public class SmartFilterLambdaBuilder
+    /// <typeparam name="ObjectType">O tipo de objecto.</typeparam>
+    public class SmartFilterLambdaBuilder<ObjectType>
     {
         /// <summary>
         /// O conjunto de carácteres especiais que não podem fazer parte do nome
@@ -40,7 +92,17 @@
         private Dictionary<string, Func<Object, bool>> internalOperators;
 
         /// <summary>
-        /// Instancia uma nova instância de objectos do tipo <see cref="SmartFilterLambdaBuilder"/>.
+        /// Mantém a lista dos estados utilizados pela máquina de estados.
+        /// </summary>
+        private List<IState<string, ELambdaExpressionWordType>> stateList;
+
+        /// <summary>
+        /// Mantém a pilha das sub-expressões.
+        /// </summary>
+        private Stack<Expression<Func<ObjectType, bool>>> expressionStack;
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="SmartFilterLambdaBuilder{ObjectType}"/>.
         /// </summary>
         /// <param name="disjunctionOperatorName">O nome do operador de disjunção.</param>
         /// <param name="conjunctionOperatorName">O nome do operador de conjunção.</param>
@@ -72,33 +134,43 @@
                 this.negationOperatorName = negationOperatorName;
 
                 this.internalOperators = new Dictionary<string, Func<object, bool>>();
+                this.expressionStack = new Stack<Expression<Func<ObjectType, bool>>>();
             }
         }
 
         /// <summary>
         /// Costrói uma expressão que actua sobre o objecto.
         /// </summary>
-        /// <typeparam name="ObjectType">O tipo de objecto.</typeparam>
         /// <param name="pattern">O filtro de pesquisa.</param>
         /// <returns>A expressão resultante.</returns>
-        public Expression<Func<ObjectType, bool>> BuildExpressionTree<ObjectType>(string pattern)
+        public Expression<Func<ObjectType, bool>> BuildExpressionTree(string pattern)
         {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Constrói uma expressão que actua sobre uma propriedade pré-especificada do objecto.
-        /// </summary>
-        /// <typeparam name="ObjectType">O tipo de objecto.</typeparam>
-        /// <typeparam name="PropertyType">O tipo de propriedade.</typeparam>
-        /// <param name="selector">O selector da propriedade do objecto.</param>
-        /// <param name="pattern">O filtro de pesquisa.</param>
-        /// <returns>A expressão resultante.</returns>
-        public Expression<Func<ObjectType, bool>> BuildExpressionTree<ObjectType, PropertyType>(
-            Expression<Func<ObjectType, PropertyType>> selector,
-            string pattern)
-        {
-            throw new NotImplementedException();
+            var patternReader = this.GetPatternReader(pattern);
+            var stateMachine = new StateMachine<string, ELambdaExpressionWordType>(
+                this.stateList[0],
+                this.stateList[1]);
+            stateMachine.RunMachine(patternReader);
+            if (this.expressionStack.Count == 0)
+            {
+                // Retorna a expressão vazia
+                var parameterExpression = LambdaExpression.Parameter(
+                    typeof(ObjectType));
+                var body = LambdaExpression.Constant(true);
+                var result = LambdaExpression.Lambda<Func<ObjectType, bool>>(
+                    body,
+                    new[] { parameterExpression });
+                return result;
+            }
+            else
+            {
+                var top = this.expressionStack.Pop();
+                var parameterExpression = LambdaExpression.Parameter(
+                    typeof(ObjectType));
+                var result = LambdaExpression.Lambda<Func<ObjectType, bool>>(
+                    top,
+                    new[] { parameterExpression });
+                return result;
+            }
         }
 
         /// <summary>
@@ -144,6 +216,25 @@
         }
 
         /// <summary>
+        /// Inicializa os estados relativos à máquina de estados.
+        /// </summary>
+        private void InitStates()
+        {
+            this.stateList = new List<IState<string, ELambdaExpressionWordType>>();
+            this.stateList.Add(new DelegateDrivenState<string, ELambdaExpressionWordType>(
+                0, 
+                "StartTransition", 
+                this.StartTransition));
+            this.stateList.Add(new DelegateDrivenState<string, ELambdaExpressionWordType>(
+                1, 
+                "EndTransition", 
+                this.EndTransition));
+
+
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
         /// Obtém um leitor de símbolos a partir do texto que representa o padrão.
         /// </summary>
         /// <param name="pattern">O padrão.</param>
@@ -161,9 +252,8 @@
             charSymbolReader.RegisterCharRangeType('A', 'Z', ELambdaExpressionWordType.ALPHA);
             charSymbolReader.RegisterCharRangeType('0', '9', ELambdaExpressionWordType.NUMERIC);
             charSymbolReader.RegisterCharType('(', ELambdaExpressionWordType.OPEN_PARENTHESIS);
-            charSymbolReader.RegisterCharType('"', ELambdaExpressionWordType.OPEN_DELIMITER);
+            charSymbolReader.RegisterCharType('"', ELambdaExpressionWordType.DELIMITER);
             charSymbolReader.RegisterCharType(')', ELambdaExpressionWordType.CLOSE_PARENTHESIS);
-            charSymbolReader.RegisterCharType('"', ELambdaExpressionWordType.CLOSE_DELIMITER);
             charSymbolReader.RegisterCharType(',', ELambdaExpressionWordType.COMMA);
             charSymbolReader.RegisterCharType(' ', ELambdaExpressionWordType.SPACE);
             charSymbolReader.RegisterCharType('\r', ELambdaExpressionWordType.SPACE);
@@ -171,6 +261,11 @@
             var result = new SimpleTextSymbolReader<ELambdaExpressionWordType>(
                 charSymbolReader,
                 ELambdaExpressionWordType.EOF);
+
+            result.SetGroupCount(ELambdaExpressionWordType.DELIMITER, 1);
+            result.SetGroupCount(ELambdaExpressionWordType.OPEN_PARENTHESIS, 1);
+            result.SetGroupCount(ELambdaExpressionWordType.CLOSE_PARENTHESIS, 1);
+            result.SetGroupCount(ELambdaExpressionWordType.COMMA, 1);
 
             return result;
         }
@@ -204,7 +299,7 @@
 
                 allChars += " and " + specialChars[last];
                 throw new UtilitiesException(string.Format(
-                    "The {0} {1} {2} aren't valid for operator name.",
+                    "The {0} {1} {2} valid for operator name.",
                     name,
                     allChars,
                     verb));
@@ -231,15 +326,13 @@
                 {
                     case ELambdaExpressionWordType.ALPHA:
                         break;
-                    case ELambdaExpressionWordType.CLOSE_DELIMITER:
+                    case ELambdaExpressionWordType.DELIMITER:
                         break;
                     case ELambdaExpressionWordType.CLOSE_PARENTHESIS:
                         break;
                     case ELambdaExpressionWordType.COMMA:
                         break;
                     case ELambdaExpressionWordType.NUMERIC:
-                        break;
-                    case ELambdaExpressionWordType.OPEN_DELIMITER:
                         break;
                     case ELambdaExpressionWordType.OPEN_PARENTHESIS:
                         break;
@@ -282,15 +375,13 @@
                 {
                     case ELambdaExpressionWordType.ALPHA:
                         break;
-                    case ELambdaExpressionWordType.CLOSE_DELIMITER:
+                    case ELambdaExpressionWordType.DELIMITER:
                         break;
                     case ELambdaExpressionWordType.CLOSE_PARENTHESIS:
                         break;
                     case ELambdaExpressionWordType.COMMA:
                         break;
                     case ELambdaExpressionWordType.NUMERIC:
-                        break;
-                    case ELambdaExpressionWordType.OPEN_DELIMITER:
                         break;
                     case ELambdaExpressionWordType.OPEN_PARENTHESIS:
                         break;
@@ -322,15 +413,13 @@
                 {
                     case ELambdaExpressionWordType.ALPHA:
                         break;
-                    case ELambdaExpressionWordType.CLOSE_DELIMITER:
+                    case ELambdaExpressionWordType.DELIMITER:
                         break;
                     case ELambdaExpressionWordType.CLOSE_PARENTHESIS:
                         break;
                     case ELambdaExpressionWordType.COMMA:
                         break;
                     case ELambdaExpressionWordType.NUMERIC:
-                        break;
-                    case ELambdaExpressionWordType.OPEN_DELIMITER:
                         break;
                     case ELambdaExpressionWordType.OPEN_PARENTHESIS:
                         break;
@@ -362,15 +451,13 @@
                 {
                     case ELambdaExpressionWordType.ALPHA:
                         break;
-                    case ELambdaExpressionWordType.CLOSE_DELIMITER:
+                    case ELambdaExpressionWordType.DELIMITER:
                         break;
                     case ELambdaExpressionWordType.CLOSE_PARENTHESIS:
                         break;
                     case ELambdaExpressionWordType.COMMA:
                         break;
                     case ELambdaExpressionWordType.NUMERIC:
-                        break;
-                    case ELambdaExpressionWordType.OPEN_DELIMITER:
                         break;
                     case ELambdaExpressionWordType.OPEN_PARENTHESIS:
                         break;
@@ -402,15 +489,13 @@
                 {
                     case ELambdaExpressionWordType.ALPHA:
                         break;
-                    case ELambdaExpressionWordType.CLOSE_DELIMITER:
+                    case ELambdaExpressionWordType.DELIMITER:
                         break;
                     case ELambdaExpressionWordType.CLOSE_PARENTHESIS:
                         break;
                     case ELambdaExpressionWordType.COMMA:
                         break;
                     case ELambdaExpressionWordType.NUMERIC:
-                        break;
-                    case ELambdaExpressionWordType.OPEN_DELIMITER:
                         break;
                     case ELambdaExpressionWordType.OPEN_PARENTHESIS:
                         break;
@@ -442,15 +527,13 @@
                 {
                     case ELambdaExpressionWordType.ALPHA:
                         break;
-                    case ELambdaExpressionWordType.CLOSE_DELIMITER:
+                    case ELambdaExpressionWordType.DELIMITER:
                         break;
                     case ELambdaExpressionWordType.CLOSE_PARENTHESIS:
                         break;
                     case ELambdaExpressionWordType.COMMA:
                         break;
                     case ELambdaExpressionWordType.NUMERIC:
-                        break;
-                    case ELambdaExpressionWordType.OPEN_DELIMITER:
                         break;
                     case ELambdaExpressionWordType.OPEN_PARENTHESIS:
                         break;

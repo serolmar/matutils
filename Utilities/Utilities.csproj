@@ -128,7 +128,6 @@
     <Compile Include="GenBank\GenBankModel.cs" />
     <Compile Include="GenBank\GenBankReader.cs" />
     <Compile Include="GenericException.cs" />
-    <Compile Include="Lambda\ELambdaExpressionWordType.cs" />
     <Compile Include="Lambda\SmartFilterLambdaBuilder.cs" />
     <Compile Include="Parsers\Collections\MatrixReader.cs" />
     <Compile Include="Parsers\Collections\MultiDimensionalRangeReaders.cs" />

@@ -4924,8 +4924,19 @@ namespace Utilities
         #endregion Funções privadas
     }
 
+    /// <summary>
+    /// Implementa uma tabela baseada em códigos confusos cujo tamanho não se encontre
+    /// limitado aos 2GB.
+    /// </summary>
+    /// <typeparam name="TKey">O tipo dos objectos que constituem as chaves.</typeparam>
+    /// <typeparam name="TValue">O tipo dos objectos que constituem os valores.</typeparam>
     public class GeneralHashtable<TKey, TValue> : IDictionary<TKey, TValue>
     {
+        /// <summary>
+        /// Obtém ou atribui o valor associado à chave.
+        /// </summary>
+        /// <param name="key">A chave.</param>
+        /// <returns>O valor associado.</returns>
         public TValue this[TKey key]
         {
             get
@@ -4938,88 +4949,188 @@ namespace Utilities
             }
         }
 
+        /// <summary>
+        /// Obtém o número de elementos na colecção.
+        /// </summary>
         public int Count
         {
             get { throw new NotImplementedException(); }
         }
 
+        /// <summary>
+        /// Obtém um valor que indica se a colecção é só de leitura.
+        /// </summary>
         public bool IsReadOnly
         {
             get { throw new NotImplementedException(); }
         }
 
+        /// <summary>
+        /// Obtém a colecção das chaves.
+        /// </summary>
         public ICollection<TKey> Keys
         {
             get { throw new NotImplementedException(); }
         }
 
+        /// <summary>
+        /// Obtém a colecção dos valores.
+        /// </summary>
         public ICollection<TValue> Values
         {
             get { throw new NotImplementedException(); }
         }
 
+        /// <summary>
+        /// Adiciona uma associação à tabela.
+        /// </summary>
+        /// <param name="key">A chave da associação.</param>
+        /// <param name="value">O valor da associação.</param>
         public void Add(TKey key, TValue value)
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Verifica se a chave proporcionada se encontra associada.
+        /// </summary>
+        /// <param name="key">A chave.</param>
+        /// <returns>Verdadeiro caso a chave se encontre associada e falso caso contrário.</returns>
         public bool ContainsKey(TKey key)
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Remove a associação atribuída à chave especificada.
+        /// </summary>
+        /// <param name="key">A chave.</param>
+        /// <returns>Verdadeiro caso a associação seja removida e falso caso contrário.</returns>
         public bool Remove(TKey key)
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Tenta obter o valor associado à chave.
+        /// </summary>
+        /// <param name="key">A chave.</param>
+        /// <param name="value">Variável de saída que irá conter o valor associado.</param>
+        /// <returns>Verdadeiro caso a chave esteja associada e falso caso contrário.</returns>
         public bool TryGetValue(TKey key, out TValue value)
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Associa um par chave / valor à tabela.
+        /// </summary>
+        /// <param name="item">O para a ser associado.</param>
         public void Add(KeyValuePair<TKey, TValue> item)
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Elimina todas as associações da tabela.
+        /// </summary>
         public void Clear()
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Averigua se o par chave / valor se encontra associado.
+        /// </summary>
+        /// <param name="item">O para chave / valor.</param>
+        /// <returns></returns>
         public bool Contains(KeyValuePair<TKey, TValue> item)
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Copia as associações para um vector de pares chave / valor.
+        /// </summary>
+        /// <param name="array">O vector.</param>
+        /// <param name="arrayIndex">O índice do vector a partir do qual é realziada a cópia.</param>
         public void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex)
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Remove a associação especificada pelo par chave / valor.
+        /// </summary>
+        /// <param name="item">O par chave / valor a ser removido.</param>
+        /// <returns>Verdadeiro caso a eliminação ocorra e falso caso contrário.</returns>
         public bool Remove(KeyValuePair<TKey, TValue> item)
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Obtém um enumerador para o conjunto de pares chave / valor associados.
+        /// </summary>
+        /// <returns>O enumerador.</returns>
         public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Obtém um enumerador não genérico para o conjunto de pares chave / valor associados.
+        /// </summary>
+        /// <returns>O enumerador não genérico.</returns>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Define a estrutura que contém uma associação.
+        /// </summary>
         private struct Bucket
         {
-            public TKey Key;
+            /// <summary>
+            /// A chave.
+            /// </summary>
+            private TKey key;
 
-            public TValue Value;
+            /// <summary>
+            /// O valor.
+            /// </summary>
+            private TValue value;
 
+            /// <summary>
+            /// Obtém ou atribui a chave.
+            /// </summary>
+            public TKey Key
+            {
+                get
+                {
+                    return this.key;
+                }
+                set
+                {
+                    this.key = value;
+                }
+            }
 
+            /// <summary>
+            /// Obtém ou atribui o valor.
+            /// </summary>
+            public TValue Value
+            {
+                get
+                {
+                    return this.value;
+                }
+                set
+                {
+                    this.value = value;
+                }
+            }
         }
     }
 }
