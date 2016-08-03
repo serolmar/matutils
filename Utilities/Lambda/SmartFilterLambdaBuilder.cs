@@ -1,4 +1,10 @@
-﻿namespace Utilities
+﻿// -----------------------------------------------------------------------
+// <copyright file="FileTest.cs" company="Sérgio O. Marques">
+// Ver licença do projecto.
+// </copyright>
+// -----------------------------------------------------------------------
+
+namespace Utilities
 {
     using System;
     using System.Collections.Generic;
@@ -89,7 +95,7 @@
         /// <summary>
         /// O registo de todos os operadores internos.
         /// </summary>
-        private Dictionary<string, Func<Object, bool>> internalOperators;
+        private Dictionary<string, Expression<Func<object, object, bool>>> internalOperators;
 
         /// <summary>
         /// Mantém a lista dos estados utilizados pela máquina de estados.
@@ -100,6 +106,11 @@
         /// Mantém a pilha das sub-expressões.
         /// </summary>
         private Stack<Expression<Func<ObjectType, bool>>> expressionStack;
+
+        /// <summary>
+        /// Mantém a lista actual dos símbolos lidos.
+        /// </summary>
+        private List<ISymbol<string, ELambdaExpressionWordType>> current;
 
         /// <summary>
         /// Instancia uma nova instância de objectos do tipo <see cref="SmartFilterLambdaBuilder{ObjectType}"/>.
@@ -133,10 +144,14 @@
                 this.conjunctionOperatorName = conjunctionOperatorName;
                 this.negationOperatorName = negationOperatorName;
 
-                this.internalOperators = new Dictionary<string, Func<object, bool>>();
+                this.internalOperators = new Dictionary<string, Expression<Func<object, object, bool>>>();
                 this.expressionStack = new Stack<Expression<Func<ObjectType, bool>>>();
+                this.current = new List<ISymbol<string, ELambdaExpressionWordType>>();
+                this.InitStates();
             }
         }
+
+        #region Funções Públicas
 
         /// <summary>
         /// Costrói uma expressão que actua sobre o objecto.
@@ -178,7 +193,9 @@
         /// </summary>
         /// <param name="operatorName">O nome do operador.</param>
         /// <param name="optr">O operador.</param>
-        public void RegisterInternalOperator(string operatorName, Func<Object, bool> optr)
+        public void RegisterInternalOperator(
+            string operatorName, 
+            Expression<Func<object, object, bool>> optr)
         {
             if (optr == null)
             {
@@ -215,6 +232,8 @@
             this.internalOperators.Clear();
         }
 
+        #endregion Funções Públicas
+
         /// <summary>
         /// Inicializa os estados relativos à máquina de estados.
         /// </summary>
@@ -222,16 +241,33 @@
         {
             this.stateList = new List<IState<string, ELambdaExpressionWordType>>();
             this.stateList.Add(new DelegateDrivenState<string, ELambdaExpressionWordType>(
-                0, 
-                "StartTransition", 
+                0,
+                "StartTransition",
                 this.StartTransition));
             this.stateList.Add(new DelegateDrivenState<string, ELambdaExpressionWordType>(
-                1, 
-                "EndTransition", 
+                1,
+                "EndTransition",
                 this.EndTransition));
-
-
-            throw new NotImplementedException();
+            this.stateList.Add(new DelegateDrivenState<string, ELambdaExpressionWordType>(
+                2,
+                "FieldTransition",
+                this.FieldTransition));
+            this.stateList.Add(new DelegateDrivenState<string, ELambdaExpressionWordType>(
+                3,
+                "InternalOperatorTransition",
+                this.InternalOperatorTransition));
+            this.stateList.Add(new DelegateDrivenState<string, ELambdaExpressionWordType>(
+                4,
+                "ValueTransition",
+                this.ValueTransition));
+            this.stateList.Add(new DelegateDrivenState<string, ELambdaExpressionWordType>(
+                1,
+                "LogicOperatorTransition",
+                this.LogicOperatorTransition));
+            this.stateList.Add(new DelegateDrivenState<string, ELambdaExpressionWordType>(
+                1,
+                "CommaTransition",
+                this.CommaTransition));
         }
 
         /// <summary>
@@ -318,6 +354,8 @@
         {
             if (reader.IsAtEOF())
             {
+                // Termina de forma vazia.
+                return this.stateList[1];
             }
             else
             {
@@ -338,12 +376,10 @@
                         break;
                     case ELambdaExpressionWordType.OTHER:
                         break;
-                    case ELambdaExpressionWordType.SPACE:
-                        break;
                 }
-            }
 
-            throw new NotImplementedException();
+                return this.stateList[0];
+            }
         }
 
         /// <summary>
@@ -358,7 +394,7 @@
         }
 
         /// <summary>
-        /// A funçáo correspondente à transição de campo - estado 2.
+        /// A função correspondente à transição de campo - estado 2.
         /// </summary>
         /// <param name="reader">O leitor.</param>
         /// <returns>O próximo estado.</returns>
@@ -476,7 +512,7 @@
         /// </summary>
         /// <param name="reader">O leitor.</param>
         /// <returns>O próximo estado.</returns>
-        private IState<string, ELambdaExpressionWordType> LogicNumberTransition(
+        private IState<string, ELambdaExpressionWordType> LogicOperatorTransition(
             ISymbolReader<string, ELambdaExpressionWordType> reader)
         {
             if (reader.IsAtEOF())
@@ -510,7 +546,7 @@
         }
 
         /// <summary>
-        /// A funçáo correspondente à transição de vírgula - estado 6.
+        /// A função correspondente à transição de vírgula - estado 6.
         /// </summary>
         /// <param name="reader">O leitor.</param>
         /// <returns>O próximo estado.</returns>

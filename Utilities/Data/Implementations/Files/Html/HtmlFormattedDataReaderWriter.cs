@@ -1,7 +1,14 @@
-﻿namespace Utilities
+﻿// -----------------------------------------------------------------------
+// <copyright file="FileTest.cs" company="Sérgio O. Marques">
+// Ver licença do projecto.
+// </copyright>
+// -----------------------------------------------------------------------
+
+namespace Utilities
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.Data;
     using System.Dynamic;
     using System.Linq;
@@ -348,7 +355,9 @@
         /// <summary>
         /// Instancia uma nova instância de objectos do tipo <see cref="HtmlDataReaderWriter"/>.
         /// </summary>
-        public HtmlDataReaderWriter()
+        /// <param name="indent">Variável que indica se se pretende identar o html.</param>
+        public HtmlDataReaderWriter(bool indent = false)
+            : base(indent)
         {
             this.headerRowAttributes = s => { };
             this.headerCellElement = (i, s, e) => e.InnerText = s;
@@ -524,8 +533,9 @@
         /// <summary>
         /// Instancia uma nova instância de objectos do tipo <see cref="HtmlTableWriter"/>.
         /// </summary>
-        public HtmlTableWriter()
-            : base()
+        /// <param name="indent">Valor que indica se se pretende identar o html.</param>
+        public HtmlTableWriter(bool indent = false)
+            : base(indent)
         {
             this.headerMergingRegions = new NonIntersectingMergingRegionsSet<int, MergingRegion<int>>();
             this.bodyMergingRegions = new NonIntersectingMergingRegionsSet<int, MergingRegion<int>>();
@@ -737,8 +747,8 @@
             int linesNumber,
             int columnsNumber,
             ValidatedCellElementSetter elementSetter,
-            NonIntersectingMergingRegionsSet<int,MergingRegion<int>> mergingRegions,
-            Action<int,int,object,ElementSetter> elementsSetter)
+            NonIntersectingMergingRegionsSet<int, MergingRegion<int>> mergingRegions,
+            Action<int, int, object, ElementSetter> elementsSetter)
         {
             for (int i = 0; i < count; ++i)
             {
@@ -818,9 +828,9 @@
             XmlElement element,
             int columnsNumber,
             IGeneralTabularItem<R> tabularItem,
-            NonIntersectingMergingRegionsSet<int,MergingRegion<int>> mergingRegions,
+            NonIntersectingMergingRegionsSet<int, MergingRegion<int>> mergingRegions,
             Action<int, AttributeSetter> attributessSetter,
-            Action<int,int, object, ElementSetter> elementsSetter)
+            Action<int, int, object, ElementSetter> elementsSetter)
             where R : IGeneralTabularRow<L>
             where L : IGeneralTabularCell
         {
@@ -967,6 +977,386 @@
                         validatedCellElementSetter,
                         mergingRegions,
                         elementsSetter);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Criação de uma tabela de html a partir de um enumerável de objectos.
+    /// </summary>
+    /// <typeparam name="ObjType">
+    /// O tipo dos objectos que constituem o enumerável.
+    /// </typeparam>
+    public class HtmlObjectWriter<ObjType>
+    {
+        /// <summary>
+        /// Obtém os atributos para a tabela.
+        /// </summary>
+        protected Action<AttributeSetter> tableAttributes;
+
+        /// <summary>
+        /// Obtém os atributos para o elemento do cabeçalho.
+        /// </summary>
+        protected Action<AttributeSetter> tableHeaderAttributes;
+
+        /// <summary>
+        /// Obtém os atributos para o corpo.
+        /// </summary>
+        protected Action<AttributeSetter> tableBodyAttributes;
+
+        /// <summary>
+        /// Obtém os atributos para as linhas do corpo.
+        /// </summary>
+        protected Action<int, AttributeSetter> bodyRowAttributesSetter;
+
+        /// <summary>
+        /// Mantém o mapeamento para as colunas.
+        /// </summary>
+        /// <remarks>
+        /// Os números da linha e da coluna são passados na acção caso se pretenda controlar os valores
+        /// atribuídos.
+        /// </remarks>
+        protected List<Tuple<string, Action<int, int, ObjType, ElementSetter>>> columns;
+
+        /// <summary>
+        /// Establece os atributos da linha do cabeçalho.
+        /// </summary>
+        protected Action<AttributeSetter> headerRowAttributesSetter;
+
+        /// <summary>
+        /// Obtém o valor da célula convertido.
+        /// </summary>
+        protected Action<int, string, ElementSetter> headerCellElement;
+
+        /// <summary>
+        /// Valor que indica se o texto resultante será identado.
+        /// </summary>
+        protected bool indent;
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="HtmlObjectWriter{ObjType}"/>.
+        /// </summary>
+        public HtmlObjectWriter(bool indent = false)
+        {
+            this.tableAttributes = s => { };
+            this.tableHeaderAttributes = s => { };
+            this.tableBodyAttributes = s => { };
+            this.bodyRowAttributesSetter = (i, s) => { };
+            this.headerRowAttributesSetter = a => { };
+
+            this.indent = indent;
+            this.columns = new List<Tuple<string, Action<int, int, ObjType, ElementSetter>>>();
+        }
+
+        /// <summary>
+        /// Obtém ou atribui os atributos para a tabela.
+        /// </summary>
+        public Action<AttributeSetter> TableAttributes
+        {
+            get
+            {
+                return this.tableAttributes;
+            }
+            set
+            {
+                if (value == null)
+                {
+                    throw new ArgumentException("Table attributes setter action can't be null.");
+                }
+                else
+                {
+                    this.tableAttributes = value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Obtém ou atribui os atributos para o elemento do cabeçalho.
+        /// </summary>
+        public Action<AttributeSetter> TableHeaderAttributes
+        {
+            get
+            {
+                return this.tableHeaderAttributes;
+            }
+            set
+            {
+                if (value == null)
+                {
+                    throw new ArgumentException("Table header attributes setter action can't be null.");
+                }
+                else
+                {
+                    this.tableHeaderAttributes = value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Obtém ou atribui os atributos para o corpo.
+        /// </summary>
+        public Action<AttributeSetter> TableBodyAttributes
+        {
+            get
+            {
+                return this.tableBodyAttributes;
+            }
+            set
+            {
+                if (value == null)
+                {
+                    throw new ArgumentException("Table body attributes setter can't be null.");
+                }
+                else
+                {
+                    this.tableBodyAttributes = value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Obtém ou atribui os atributos para as linhas do corpo.
+        /// </summary>
+        public Action<int, AttributeSetter> BodyRowAttributes
+        {
+            get
+            {
+                return this.bodyRowAttributesSetter;
+            }
+            set
+            {
+                if (value == null)
+                {
+                    throw new ArgumentException("Body row attributes setter can't be null.");
+                }
+                else
+                {
+                    this.bodyRowAttributesSetter = value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Obtém ou atribui a acção responsável pelo estabelecimento dos valores dos atributos
+        /// nas linhas do cabeçalho.
+        /// </summary>
+        public Action< AttributeSetter> HeaderRowAttributesSetter
+        {
+            get
+            {
+                return this.headerRowAttributesSetter;
+            }
+            set
+            {
+                if (value == null)
+                {
+                    throw new ArgumentException("Header row attributes setter can't be null.");
+                }
+                else
+                {
+                    this.headerRowAttributesSetter = value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Obtém ou atribui o valor da célula convertido.
+        /// </summary>
+        public Action<int, string, ElementSetter> HeaderCellElement
+        {
+            get
+            {
+                return this.headerCellElement;
+            }
+            set
+            {
+                if (value == null)
+                {
+                    throw new ArgumentException("Header cell object converter can't be null.");
+                }
+                else
+                {
+                    this.headerCellElement = value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Adiciona uma coluna ao gerador da tabela.
+        /// </summary>
+        /// <param name="column">A coluna a ser adicionada.</param>
+        public void AddColumn(Tuple<string, Action<int, int, ObjType, ElementSetter>> column)
+        {
+            if (column == null)
+            {
+                throw new ArgumentNullException("column");
+            }
+            else
+            {
+                this.columns.Add(column);
+            }
+        }
+
+        /// <summary>
+        /// Adiciona um conjunto de colunas à colecção.
+        /// </summary>
+        /// <param name="columns">As colunas a serem adicionadas.</param>
+        public void AddColumns(
+            IEnumerable<Tuple<string, Action<int, int, ObjType, ElementSetter>>> columns)
+        {
+            if (columns == null)
+            {
+                throw new ArgumentNullException("columns");
+            }
+            else
+            {
+                this.columns.AddRange(columns);
+            }
+        }
+
+        /// <summary>
+        /// Obtém a lista de colunas como sendo uma colecção apenas de leitura.
+        /// </summary>
+        public ReadOnlyCollection<Tuple<string,Action<int,int,ObjType, ElementSetter>>> Columns
+        {
+            get
+            {
+                return this.columns.AsReadOnly();
+            }
+        }
+
+        /// <summary>
+        /// Remove a coluna contida no índice especificado.
+        /// </summary>
+        /// <param name="columnIndex">A coluna a ser removida.</param>
+        public void RemoveColumn(int columnIndex)
+        {
+            this.columns.RemoveAt(columnIndex);
+        }
+
+        /// <summary>
+        /// Remove as colunas especificadas pelos índices.
+        /// </summary>
+        /// <param name="columnsIndices">Os índices.</param>
+        public void RemoveColumns(IntegerSequence columnsIndices)
+        {
+            if (columnsIndices == null)
+            {
+                throw new ArgumentNullException("columnsIndices");
+            }
+            else
+            {
+                columnsIndices.ForeachBlock((start, end) =>
+                {
+                    this.columns.RemoveRange(start, end - start + 1);
+                });
+            }
+        }
+
+        /// <summary>
+        /// Elimina todas as colunas registadas.
+        /// </summary>
+        public void ClearColumns()
+        {
+            this.columns.Clear();
+        }
+
+        /// <summary>
+        /// Obtém a table corresponde ao enumerável de objectos.
+        /// </summary>
+        /// <param name="enumerable">O enumerável.</param>
+        /// <returns>A representação da tabela.</returns>
+        public string GetHtmlTableFromEnumerable(IEnumerable<ObjType> enumerable)
+        {
+            if (enumerable == null)
+            {
+                throw new ArgumentNullException("enumerable");
+            }
+            else
+            {
+                var tableDocument = new XmlDocument();
+                var attributeSetter = new AttributeSetter();
+                var elementSetter = new ElementSetter();
+
+                // Inicializa a tabela
+                var table = tableDocument.CreateElement("table");
+                attributeSetter.CurrentElement = table;
+                this.tableAttributes.Invoke(attributeSetter);
+                tableDocument.AppendChild(table);
+
+                // Cabeçalho
+                var tableHeader = tableDocument.CreateElement("thead");
+                attributeSetter.CurrentElement = tableHeader;
+                this.tableHeaderAttributes.Invoke(attributeSetter);
+                table.AppendChild(tableHeader);
+
+                // Linhas do cabeçalho
+                var tableRow = tableDocument.CreateElement("tr");
+                attributeSetter.CurrentElement = tableRow;
+                this.headerRowAttributesSetter.Invoke(attributeSetter);
+                tableHeader.AppendChild(tableRow);
+
+                // Colunas do cabeçalho
+                var fieldCount = this.columns.Count;
+                for (int i = 0; i < fieldCount; ++i)
+                {
+                    var columnName = this.columns[i].Item1;
+                    var tableCell = tableDocument.CreateElement("th");
+                    elementSetter.CurrentElement = tableCell;
+                    this.headerCellElement.Invoke(i, columnName, elementSetter);
+                    tableRow.AppendChild(tableCell);
+                }
+
+                // Corpo
+                var tableBody = tableDocument.CreateElement("tbody");
+                attributeSetter.CurrentElement = tableBody;
+                this.tableBodyAttributes.Invoke(attributeSetter);
+                table.AppendChild(tableBody);
+
+                // Linhas da tabela
+                var line = 0;
+                var enumerator = enumerable.GetEnumerator();
+                while (enumerator.MoveNext())
+                {
+                    var currentObj = enumerator.Current;
+
+                    tableRow = tableDocument.CreateElement("tr");
+                    attributeSetter.CurrentElement = tableRow;
+                    this.bodyRowAttributesSetter.Invoke(line, attributeSetter);
+                    tableBody.AppendChild(tableRow);
+
+                    var length = this.columns.Count;
+                    for (int i = 0; i < length; ++i)
+                    {
+                        var currentAction = this.columns[i].Item2;
+
+                        var tableCell = tableDocument.CreateElement("td");
+                        elementSetter.CurrentElement = tableCell;
+                        currentAction.Invoke(line, i, currentObj, elementSetter);
+
+                        tableRow.AppendChild(tableCell);
+                    }
+                       
+                    ++line;
+                }
+
+                // Escreve o xml
+                var resultBuilder = new StringBuilder();
+                XmlWriterSettings settings = new XmlWriterSettings
+                {
+                    Indent = this.indent,
+                    IndentChars = "  ",
+                    NewLineChars = "\r\n",
+                    NewLineHandling = NewLineHandling.Replace,
+                    OmitXmlDeclaration = true
+                };
+
+                using (var writer = XmlWriter.Create(resultBuilder, settings))
+                {
+                    tableDocument.Save(writer);
+                }
+
+                return resultBuilder.ToString();
             }
         }
     }

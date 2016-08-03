@@ -533,6 +533,27 @@
             }
         }
 
+        /// <summary>
+        /// Para cada bloco contíguo de inteiros, aplica a acção especificada.
+        /// </summary>
+        /// <param name="blockAction">O delegado da acção.</param>
+        public void ForeachBlock(Action<int, int> blockAction)
+        {
+            if (blockAction == null)
+            {
+                throw new ArgumentNullException("blockAction");
+            }
+            else
+            {
+                var length = this.sequenceElements.Count;
+                for (int i = 0; i < length; ++i)
+                {
+                    var current = this.sequenceElements[i];
+                    blockAction.Invoke(current.Item1, current.Item2);
+                }
+            }
+        }
+
         #region Funções de teste
 
         /// <summary>
@@ -1429,6 +1450,27 @@
             {
                 var element = this.sequenceElements[this.sequenceElements.Count - 1];
                 return element.Item2;
+            }
+        }
+
+        /// <summary>
+        /// Para cada bloco contíguo de inteiros, aplica a acção especificada.
+        /// </summary>
+        /// <param name="blockAction">O delegado da acção.</param>
+        public void ForeachBlock(Action<long, long> blockAction)
+        {
+            if (blockAction == null)
+            {
+                throw new ArgumentNullException("blockAction");
+            }
+            else
+            {
+                var length = this.sequenceElements.Count;
+                for (int i = 0; i < length; ++i)
+                {
+                    var current = this.sequenceElements[i];
+                    blockAction.Invoke(current.Item1, current.Item2);
+                }
             }
         }
 

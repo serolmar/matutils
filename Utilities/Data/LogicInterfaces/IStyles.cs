@@ -1,6 +1,6 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="IStyles.cs" company="">
-// TODO: Update copyright text.
+// <copyright file="FileTest.cs" company="Sérgio O. Marques">
+// Ver licença do projecto.
 // </copyright>
 // -----------------------------------------------------------------------
 

@@ -524,6 +524,335 @@ namespace Utilities.Test
                 }
             }
         }
+
+        /// <summary>
+        /// Testa a escrita para uma tablea de html de um enumerável de objectos.
+        /// </summary>
+        [Description("Tests the html writer for an object enumerable.")]
+        [TestMethod]
+        public void HtmlObjectWriter_GetHtmlTableFromEnumerableTest()
+        {
+            var persons = new List<TestPerson>();
+            var boss = new TestPerson()
+            {
+                FirstName = "Chefe",
+                LastName = "Machado",
+                Age = 50,
+                BirthDate = new DateTime(1966, 10, 5),
+                Gender = 0,
+                IsEmployee = true,
+                MarritalStatus = 1
+            };
+
+            persons.Add(boss);
+            persons.Add(new TestPerson()
+            {
+                FirstName = "Veterano",
+                LastName = "Felisberto",
+                Age = 30,
+                BirthDate = new DateTime(1986, 11, 14),
+                Gender = 0,
+                IsEmployee = true,
+                MarritalStatus = 0,
+                HierarquicalSuperior = boss
+            });
+
+            persons.Add(new TestPerson()
+            {
+                FirstName = "Empadão",
+                LastName = "Antunes",
+                Age = 46,
+                BirthDate = new DateTime(1970, 9, 4),
+                Gender = 0,
+                IsEmployee = true,
+                MarritalStatus = 1,
+                HierarquicalSuperior = boss
+            });
+
+            persons.Add(new TestPerson()
+            {
+                FirstName = "Camélia",
+                LastName = "Florista",
+                Age = 35,
+                BirthDate = new DateTime(1981, 12, 13),
+                Gender = 1,
+                IsEmployee = false,
+                MarritalStatus = 0
+            });
+
+            var target = new HtmlObjectWriter<TestPerson>(true);
+            target.TableAttributes = a => { a.SetAttribute("class", "table"); };
+            target.TableHeaderAttributes = a => { a.SetAttribute("class", "tableHeader"); };
+            target.HeaderRowAttributesSetter = a => { a.SetAttribute("class", "header_row"); };
+            target.HeaderCellElement = (i, s, e) =>
+            {
+                e.InnerText = s;
+                e.SetAttribute("class", string.Format("cell_{0}", i));
+            };
+
+            target.TableBodyAttributes = a => { a.SetAttribute("class", "tableBody"); };
+            target.BodyRowAttributes = (i, a) =>
+            {
+                if ((i & 1) == 0)
+                {
+                    a.SetAttribute("class", "even");
+                }
+                else
+                {
+                    a.SetAttribute("class", "odd");
+                }
+            };
+
+            // A primeira coluna irá conter
+            target.AddColumn(Tuple.Create(
+                string.Empty,
+                new Action<int, int, TestPerson, ElementSetter>((i, j, p, e) =>
+                {
+                    e.SetAttribute("class", string.Format(
+                        "row_{0} column_{1}",
+                        i,
+                        j));
+
+                    e.InnerXml = string.Format("<img src=\"save_delete_{0}.jpg\"/>", j);
+                })));
+
+            target.AddColumn(Tuple.Create(
+                "First Name",
+                new Action<int, int, TestPerson, ElementSetter>((i, j, p, e) =>
+                {
+                    e.SetAttribute("class", string.Format(
+                        "row_{0} column_{1}",
+                        i,
+                        j));
+
+                    e.InnerText = p.FirstName;
+                })));
+
+            target.AddColumn(Tuple.Create(
+                "Last Name",
+                new Action<int, int, TestPerson, ElementSetter>((i, j, p, e) =>
+                {
+                    e.SetAttribute("class", string.Format(
+                        "row_{0} column_{1}",
+                        i,
+                        j));
+
+                    e.InnerText = p.LastName;
+                })));
+
+            target.AddColumn(Tuple.Create(
+                "Age",
+                new Action<int, int, TestPerson, ElementSetter>((i, j, p, e) =>
+                {
+                    e.SetAttribute("class", string.Format(
+                        "row_{0} column_{1}",
+                        i,
+                        j));
+
+                    e.InnerText = p.Age.ToString();
+                })));
+
+            target.AddColumn(Tuple.Create(
+                "Birth Date",
+                new Action<int, int, TestPerson, ElementSetter>((i, j, p, e) =>
+                {
+                    e.SetAttribute("class", string.Format(
+                        "row_{0} column_{1}",
+                        i,
+                        j));
+
+                    e.InnerText = p.BirthDate.ToString("dd/mm/yyyy");
+                })));
+
+            target.AddColumn(Tuple.Create(
+                "Gender",
+                new Action<int, int, TestPerson, ElementSetter>((i, j, p, e) =>
+                {
+                    e.SetAttribute("class", string.Format(
+                        "row_{0} column_{1}",
+                        i,
+                        j));
+
+                    e.InnerText = p.Gender.ToString();
+                })));
+
+            target.AddColumn(Tuple.Create(
+                "Employee",
+                new Action<int, int, TestPerson, ElementSetter>((i, j, p, e) =>
+                {
+                    e.SetAttribute("class", string.Format(
+                        "row_{0} column_{1}",
+                        i,
+                        j));
+
+                    if (p.IsEmployee)
+                    {
+                        e.InnerXml = "<input type=\"checkbox\" value=\"Bike\" checked=\"checked\" />";
+                    }
+                    else
+                    {
+                        e.InnerXml = "<input type=\"checkbox\" value=\"Bike\"/>";
+                    }
+                })));
+
+            target.AddColumn(Tuple.Create(
+                "Marrital Status",
+                new Action<int, int, TestPerson, ElementSetter>((i, j, p, e) =>
+                {
+                    e.SetAttribute("class", string.Format(
+                        "row_{0} column_{1}",
+                        i,
+                        j));
+
+                    e.InnerText = p.MarritalStatus.ToString();
+                })));
+
+            target.AddColumn(Tuple.Create(
+                "Hierarquical Superior",
+                new Action<int, int, TestPerson, ElementSetter>((i, j, p, e) =>
+                {
+                    e.SetAttribute("class", string.Format(
+                        "row_{0} column_{1}",
+                        i,
+                        j));
+
+                    if (p.HierarquicalSuperior == null)
+                    {
+                        e.InnerText = "No superior";
+                    }
+                    else
+                    {
+                        e.InnerText = p.HierarquicalSuperior.ToString();
+                    }
+                })));
+
+            var actualHtml = target.GetHtmlTableFromEnumerable(persons);
+            var stringReader = new StringReader(actualHtml);
+            var xmlDocument = new XmlDocument();
+            xmlDocument.Load(stringReader);
+
+            var table = xmlDocument.DocumentElement;
+            Assert.AreEqual("table", table.Name.ToLower());
+            var classAtt = table.GetAttribute("class");
+            Assert.AreEqual("table", classAtt);
+            Assert.AreEqual(2, table.ChildNodes.Count);
+
+            // Teste ao cabeçalho
+            var tableHeader = (XmlElement)table.ChildNodes[0];
+            Assert.AreEqual("thead", tableHeader.Name.ToLower());
+            classAtt = tableHeader.GetAttribute("class");
+            Assert.AreEqual(classAtt, "tableHeader");
+
+            Assert.AreEqual(1, tableHeader.ChildNodes.Count);
+            var row = (XmlElement)tableHeader.ChildNodes[0];
+            Assert.AreEqual("tr", row.Name);
+            classAtt = row.GetAttribute("class");
+            Assert.AreEqual("header_row", classAtt);
+
+            Assert.AreEqual(target.Columns.Count, row.ChildNodes.Count);
+
+            for (int i = 0; i < row.ChildNodes.Count; ++i)
+            {
+                var cell = (XmlElement)row.ChildNodes[i];
+                Assert.AreEqual("th", cell.Name);
+                Assert.AreEqual(target.Columns[i].Item1, cell.InnerText);
+                classAtt = cell.GetAttribute("class");
+                Assert.AreEqual(string.Format("cell_{0}", i), classAtt);
+            }
+
+            var tableBody = (XmlElement)table.ChildNodes[1];
+            Assert.AreEqual("tbody", tableBody.Name.ToLower());
+            classAtt = tableBody.GetAttribute("class");
+            Assert.AreEqual("tableBody", classAtt);
+            Assert.AreEqual(persons.Count, tableBody.ChildNodes.Count);
+
+            for (int i = 0; i < persons.Count; ++i)
+            {
+                var person = persons[i];
+                row = (XmlElement)tableBody.ChildNodes[i];
+                Assert.AreEqual("tr", row.Name.ToLower());
+                classAtt = row.GetAttribute("class");
+                if ((i & 1) == 0)
+                {
+                    Assert.AreEqual("even", classAtt);
+                }
+                else
+                {
+                    Assert.AreEqual("odd", classAtt);
+                }
+
+                Assert.AreEqual(target.Columns.Count, row.ChildNodes.Count);
+                var j = 0;
+                var cell = (XmlElement)row.ChildNodes[j];
+                classAtt = cell.GetAttribute("class");
+                Assert.AreEqual(string.Format("row_{0} column_{1}", i, j), classAtt);
+                Assert.IsTrue(cell.InnerXml.Contains(string.Format("save_delete_{0}.jpg", j)));
+                ++j;
+
+                cell = (XmlElement)row.ChildNodes[j];
+                classAtt = cell.GetAttribute("class");
+                Assert.AreEqual(string.Format("row_{0} column_{1}", i, j), classAtt);
+                Assert.AreEqual(person.FirstName, cell.InnerText);
+                ++j;
+
+                cell = (XmlElement)row.ChildNodes[j];
+                classAtt = cell.GetAttribute("class");
+                Assert.AreEqual(string.Format("row_{0} column_{1}", i, j), classAtt);
+                Assert.AreEqual(person.LastName, cell.InnerText);
+                ++j;
+
+                cell = (XmlElement)row.ChildNodes[j];
+                classAtt = cell.GetAttribute("class");
+                Assert.AreEqual(string.Format("row_{0} column_{1}", i, j), classAtt);
+                Assert.AreEqual(person.Age.ToString(), cell.InnerText);
+                ++j;
+
+                cell = (XmlElement)row.ChildNodes[j];
+                classAtt = cell.GetAttribute("class");
+                Assert.AreEqual(string.Format("row_{0} column_{1}", i, j), classAtt);
+                Assert.AreEqual(person.BirthDate.ToString("dd/mm/yyyy"), cell.InnerText);
+                ++j;
+
+                cell = (XmlElement)row.ChildNodes[j];
+                classAtt = cell.GetAttribute("class");
+                Assert.AreEqual(string.Format("row_{0} column_{1}", i, j), classAtt);
+                Assert.AreEqual(person.Gender.ToString(), cell.InnerText);
+                ++j;
+
+                cell = (XmlElement)row.ChildNodes[j];
+                classAtt = cell.GetAttribute("class");
+                Assert.AreEqual(string.Format("row_{0} column_{1}", i, j), classAtt);
+                Assert.IsTrue(cell.InnerXml.Contains("input"));
+                if (person.IsEmployee)
+                {
+                    Assert.IsTrue(cell.InnerXml.Contains("checked"));
+                }
+                else
+                {
+                    Assert.IsFalse(cell.InnerText.Contains("checked"));
+                }
+
+                ++j;
+
+                cell = (XmlElement)row.ChildNodes[j];
+                classAtt = cell.GetAttribute("class");
+                Assert.AreEqual(string.Format("row_{0} column_{1}", i, j), classAtt);
+                Assert.AreEqual(person.MarritalStatus.ToString(), cell.InnerText);
+                ++j;
+
+                cell = (XmlElement)row.ChildNodes[j];
+                classAtt = cell.GetAttribute("class");
+                Assert.AreEqual(string.Format("row_{0} column_{1}", i, j), classAtt);
+                if (person.HierarquicalSuperior == null)
+                {
+                    Assert.AreEqual("No superior", cell.InnerText);
+                }
+                else
+                {
+                    Assert.AreEqual(person.HierarquicalSuperior.ToString(), cell.InnerText);
+                }
+            }
+        }
     }
 
     /// <summary>
@@ -1006,6 +1335,200 @@ namespace Utilities.Test
             }
 
             return result;
+        }
+    }
+
+    /// <summary>
+    /// Classe de testes para testar funcionalidades.
+    /// </summary>
+    internal class TestPerson
+    {
+        /// <summary>
+        /// O primeiro nome.
+        /// </summary>
+        private string firstName;
+
+        /// <summary>
+        /// O último nome.
+        /// </summary>
+        private string lastName;
+
+        /// <summary>
+        /// A idade.
+        /// </summary>
+        private ushort age;
+
+        /// <summary>
+        /// A data de nascimento.
+        /// </summary>
+        private DateTime birthDate;
+
+        /// <summary>
+        /// O sexo.
+        /// </summary>
+        private byte gender;
+
+        /// <summary>
+        /// O estado civil.
+        /// </summary>
+        private byte marritalStatus;
+
+        /// <summary>
+        /// Valor que indica se se trata de um empregado.
+        /// </summary>
+        private bool isEmployee;
+
+        /// <summary>
+        /// O superior hierárquico.
+        /// </summary>
+        private TestPerson hierarquicalSuperior;
+
+        /// <summary>
+        /// O primeiro nome.
+        /// </summary>
+        public string FirstName
+        {
+            get
+            {
+                return this.firstName;
+            }
+            set
+            {
+                if (string.IsNullOrWhiteSpace(value))
+                {
+                    throw new Exception("First name can't be null nor empty.");
+                }
+                else
+                {
+                    this.firstName = value.Trim();
+                }
+            }
+        }
+
+        /// <summary>
+        /// O último nome.
+        /// </summary>
+        public string LastName
+        {
+            get
+            {
+                return this.lastName;
+            }
+            set
+            {
+                if (string.IsNullOrWhiteSpace(value))
+                {
+                    throw new Exception("Last name can't be null nor empty.");
+                }
+                else
+                {
+                    this.lastName = value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// A idade.
+        /// </summary>
+        public ushort Age
+        {
+            get
+            {
+                return this.age;
+            }
+            set
+            {
+                this.age = value;
+            }
+        }
+
+        /// <summary>
+        /// A data de nascimento.
+        /// </summary>
+        public DateTime BirthDate
+        {
+            get
+            {
+                return this.birthDate;
+            }
+            set
+            {
+                this.birthDate = value;
+            }
+        }
+
+        /// <summary>
+        /// O sexo.
+        /// </summary>
+        public byte Gender
+        {
+            get
+            {
+                return this.gender;
+            }
+            set
+            {
+                if (value == 0 || value == 1)
+                {
+                    this.gender = value;
+                }
+                else
+                {
+                    throw new Exception("Wrong value for gender.");
+                }
+            }
+        }
+
+        /// <summary>
+        /// O estado civil.
+        /// </summary>
+        public byte MarritalStatus
+        {
+            get
+            {
+                return this.marritalStatus;
+            }
+            set
+            {
+                if (value == 0 || value == 1 || value == 2)
+                {
+                    this.marritalStatus = value;
+                }
+                else
+                {
+                    throw new Exception("Wrong value for marital status.");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Valor que indica se se trata de um empregado.
+        /// </summary>
+        public bool IsEmployee
+        {
+            get
+            {
+                return this.isEmployee;
+            }
+            set
+            {
+                this.isEmployee = value;
+            }
+        }
+
+        /// <summary>
+        /// Obtém ou atribui o superior hierárquico.
+        /// </summary>
+        public TestPerson HierarquicalSuperior
+        {
+            get
+            {
+                return this.hierarquicalSuperior;
+            }
+            set
+            {
+                this.hierarquicalSuperior = value;
+            }
         }
     }
 }

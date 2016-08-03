@@ -1,4 +1,10 @@
-﻿namespace Utilities.Test
+﻿// -----------------------------------------------------------------------
+// <copyright file="FileTest.cs" company="Sérgio O. Marques">
+// Ver licença do projecto.
+// </copyright>
+// -----------------------------------------------------------------------
+
+namespace Utilities.Test
 {
     using System;
     using System.Text;
@@ -62,6 +68,51 @@
             Assert.AreEqual(ExpressionType.Constant, body.NodeType);
             var constant = (bool)((ConstantExpression)body).Value;
             Assert.IsTrue(constant);
+
+            // Expressão vazia
+            lambda = target.BuildExpressionTree(" \n\r\n  ");
+            compiled = lambda.Compile();
+            obj = new LambdaTestClass();
+            Assert.IsTrue(compiled.Invoke(obj));
+            this.AssertParameter(lambda);
+
+            body = lambda.Body;
+            Assert.AreEqual(ExpressionType.Constant, body.NodeType);
+            constant = (bool)((ConstantExpression)body).Value;
+            Assert.IsTrue(constant);
+        }
+
+        /// <summary>
+        /// Testa o construtor de expressões cujo padrão não contém operadores.
+        /// </summary>
+        [Description("Tests the smart filter lambda builder with a one word pattern.")]
+        [TestMethod]
+        public void SmartFilterLambdaBuilder_OnlyWordsPattern()
+        {
+            var target = new SmartFilterLambdaBuilder<LambdaTestClass>(
+                "or",
+                "and",
+                "not");
+
+            var lambda = target.BuildExpressionTree("teste");
+            var compiled = lambda.Compile();
+            var obj = new LambdaTestClass() { StringVal = "teste" };
+            Assert.IsTrue(compiled.Invoke(obj));
+            obj.StringVal = "other";
+            Assert.IsFalse(compiled.Invoke(obj));
+            obj.StringArray = new[] { "temp", "Isto é um teste" };
+            Assert.IsTrue(compiled.Invoke(obj));
+            obj.StringArray[1] = "other";
+            Assert.IsFalse(compiled.Invoke(obj));
+
+            lambda = target.BuildExpressionTree("teste1   teste2\n\n\r\nteste3");
+            compiled = lambda.Compile();
+            obj = new LambdaTestClass() { StringVal = "teste1 teste2 teste3" };
+            Assert.IsTrue(compiled.Invoke(obj));
+            obj.StringVal = null;
+            Assert.IsFalse(compiled.Invoke(obj));
+            obj.StringArray = new[] { "teste", "teste1" };
+            Assert.IsTrue(compiled.Invoke(obj));
         }
 
         /// <summary>
