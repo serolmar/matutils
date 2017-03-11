@@ -25,6 +25,271 @@
 
         static void Main(string[] args)
         {
+            // Inicializa CUDA e avalia os dispositivos existentes
+            var cudaResult = CudaApi.CudaInit(0);
+            if (cudaResult != ECudaResult.CudaSuccess)
+            {
+                throw CudaException.GetExceptionFromCudaResult(cudaResult);
+            }
+
+            // Obtém o primeiro dispositivo
+            var device = default(int);
+            cudaResult = CudaApi.CudaDeviceGet(ref device, 0);
+            if (cudaResult != ECudaResult.CudaSuccess)
+            {
+                throw new Exception("A CUDA error has occurred.");
+            }
+
+            // O contexto é automaticamente colocado como corrente para a linha de fluxo actual
+            var context = default(SCudaContext);
+            cudaResult = CudaApi.CudaCtxCreate(ref context, ECudaContextFlags.SchedAuto, device);
+            if (cudaResult != ECudaResult.CudaSuccess)
+            {
+                throw new Exception("A CUDA error has occurred.");
+            }
+
+            // Carrega o módulo no contexto actual
+            var module = default(SCudaModule);
+            cudaResult = CudaApi.CudaModuleLoad(ref module, "Data\\AddVector.sm_30.cubin");
+            if (cudaResult != ECudaResult.CudaSuccess)
+            {
+                throw new Exception("A CUDA error has occurred.");
+            }
+
+            // Obtém a função a ser chamada
+            var cudaFunc = default(SCudaFunction);
+            cudaResult = CudaApi.CudaModuleGetFunction(
+                ref cudaFunc,
+                module,
+                "VecAdd");
+            if (cudaResult != ECudaResult.CudaSuccess)
+            {
+                throw new Exception("A CUDA error has occurred.");
+            }
+
+            var elemensNum = 10;
+
+            //var start = 0;
+            var firstVector = new int[elemensNum];
+            var secondVector = new int[elemensNum];
+            var result = new int[elemensNum];
+            for (int i = 0; i < elemensNum; ++i)
+            {
+                firstVector[i] = i + 1;
+                secondVector[i] = elemensNum - i;
+            }
+
+            // Reserva o primeiro vector
+            var firstCudaVector = default(SCudaDevicePtr);
+            cudaResult = CudaApi.CudaMemAlloc(
+                ref firstCudaVector,
+                Marshal.SizeOf(typeof(int)) * elemensNum);
+            if (cudaResult != ECudaResult.CudaSuccess)
+            {
+                throw new Exception("A CUDA error has occurred.");
+            }
+
+            // Reserva o segundo vector
+            var secondCudaVector = default(SCudaDevicePtr);
+            cudaResult = CudaApi.CudaMemAlloc(
+                ref secondCudaVector,
+                Marshal.SizeOf(typeof(int)) * elemensNum);
+            if (cudaResult != ECudaResult.CudaSuccess)
+            {
+                throw new Exception("A CUDA error has occurred.");
+            }
+
+            // Reserva o terceiro vector
+            var resultCudaVector = default(SCudaDevicePtr);
+            cudaResult = CudaApi.CudaMemAlloc(
+                ref resultCudaVector,
+                Marshal.SizeOf(typeof(int)) * elemensNum);
+            if (cudaResult != ECudaResult.CudaSuccess)
+            {
+                throw new Exception("A CUDA error has occurred.");
+            }
+
+            var cudaSize = default(SCudaDevicePtr);
+            cudaResult = CudaApi.CudaMemAlloc(
+                ref cudaSize,
+                Marshal.SizeOf(typeof(int)));
+            if (cudaResult != ECudaResult.CudaSuccess)
+            {
+                throw new Exception("A CUDA error has occurred.");
+            }
+
+            // Efectua a cópia do primeiro vector para o dispositivo
+            var handle = GCHandle.Alloc(firstVector, GCHandleType.Pinned);
+            var size = Marshal.SizeOf(typeof(int));
+            var hostPtr = handle.AddrOfPinnedObject();
+
+            cudaResult = CudaApi.CudaMemcpyHtoD(
+                firstCudaVector,
+                hostPtr,
+                elemensNum * size);
+            if (cudaResult != ECudaResult.CudaSuccess)
+            {
+                throw new Exception("A CUDA error has occurred.");
+            }
+
+            handle.Free();
+
+            // Efectua a cópia do segundo vector para o dispositivo
+            handle = GCHandle.Alloc(secondVector, GCHandleType.Pinned);
+            hostPtr = handle.AddrOfPinnedObject();
+
+            cudaResult = CudaApi.CudaMemcpyHtoD(
+                secondCudaVector,
+                hostPtr,
+                elemensNum * size);
+            if (cudaResult != ECudaResult.CudaSuccess)
+            {
+                throw new Exception("A CUDA error has occurred.");
+            }
+
+            handle.Free();
+
+            var vectorSizePtr = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(int)));
+            cudaResult = CudaApi.CudaMemcpyHtoD(
+                cudaSize,
+                hostPtr,
+                size);
+            if (cudaResult != ECudaResult.CudaSuccess)
+            {
+                throw new Exception("A CUDA error has occurred.");
+            }
+
+            Marshal.FreeHGlobal(vectorSizePtr);
+
+            // Reserva espaço para o vector de argumentos do kernel
+            var managedPtrArray = new IntPtr[4];
+            var ptrSize = Marshal.SizeOf(typeof(IntPtr));
+            var unmanagedArrayPtr = Marshal.AllocHGlobal(ptrSize * 3);
+
+            // Procede à criação dos objectos em código não gerido
+            var managedElementPtr = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(SCudaDevicePtr)));
+            managedPtrArray[0] = managedElementPtr;
+            Marshal.StructureToPtr(firstCudaVector, managedElementPtr, false);
+            Marshal.WriteIntPtr(unmanagedArrayPtr, 0, managedElementPtr);
+
+            managedElementPtr = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(SCudaDevicePtr)));
+            managedPtrArray[1] = managedElementPtr;
+            Marshal.StructureToPtr(secondCudaVector, managedElementPtr, false);
+            Marshal.WriteIntPtr(unmanagedArrayPtr, ptrSize, managedElementPtr);
+
+            managedElementPtr = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(SCudaDevicePtr)));
+            managedPtrArray[2] = managedElementPtr;
+            Marshal.StructureToPtr(resultCudaVector, managedElementPtr, false);
+            Marshal.WriteIntPtr(unmanagedArrayPtr, 2 * ptrSize, managedElementPtr);
+
+            managedElementPtr = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(SCudaDevicePtr)));
+            managedPtrArray[3] = managedElementPtr;
+            Marshal.StructureToPtr(cudaSize, managedElementPtr, false);
+            Marshal.WriteIntPtr(unmanagedArrayPtr, 3 * ptrSize, managedElementPtr);
+
+            // Realiza a chamada
+            cudaResult = CudaApi.CudaLaunchKernel(
+                cudaFunc,
+                (uint)elemensNum,
+                1,
+                1,
+                1,
+                1,
+                1,
+                0,
+                new SCudaStream(),
+                unmanagedArrayPtr,
+                IntPtr.Zero);
+
+            cudaResult = CudaApi.CudaCtxSynchronize();
+
+            // Liberta o conjunto de argumentos alocado
+            Marshal.FreeHGlobal(unmanagedArrayPtr);
+            for (int i = 0; i < 4; ++i)
+            {
+                var current = managedPtrArray[i];
+                Marshal.FreeHGlobal(current);
+            }
+
+            // Copia de volta o terceiro vector para o anfitrião
+            handle = GCHandle.Alloc(result, GCHandleType.Pinned);
+            hostPtr = handle.AddrOfPinnedObject();
+            cudaResult = CudaApi.CudaMemcpyDtoH(
+                hostPtr,
+                resultCudaVector,
+                size * elemensNum);
+            if (cudaResult != ECudaResult.CudaSuccess)
+            {
+                throw new Exception("A CUDA error has occurred.");
+            }
+
+            handle.Free();
+
+            // Imprime o conteúdo dos vectores
+            for (int i = 0; i < elemensNum; ++i)
+            {
+                Console.Write("{0} ", firstVector[i]);
+            }
+
+            Console.WriteLine();
+
+            for (int i = 0; i < elemensNum; ++i)
+            {
+                Console.Write("{0} ", secondVector[i]);
+            }
+
+            Console.WriteLine();
+
+            for (int i = 0; i < elemensNum; ++i)
+            {
+                Console.Write("{0} ", result[i]);
+            }
+
+            // Liberta o primeiro vector do GPU
+            cudaResult = CudaApi.CudaMemFree(firstCudaVector);
+            if (cudaResult != ECudaResult.CudaSuccess)
+            {
+                throw new Exception("A CUDA error has occurred.");
+            }
+
+            // Liberta o segundo vector do GPU
+            cudaResult = CudaApi.CudaMemFree(secondCudaVector);
+            if (cudaResult != ECudaResult.CudaSuccess)
+            {
+                throw new Exception("A CUDA error has occurred.");
+            }
+
+            // Liberta o vector do resultado do GPU
+            cudaResult = CudaApi.CudaMemFree(resultCudaVector);
+            if (cudaResult != ECudaResult.CudaSuccess)
+            {
+                throw new Exception("A CUDA error has occurred.");
+            }
+
+            // Liberta o espaço reservado para conter o número de elementos de cada vector
+            cudaResult = CudaApi.CudaMemFree(cudaSize);
+            if (cudaResult != ECudaResult.CudaSuccess)
+            {
+                throw new Exception("A CUDA error has occurred.");
+            }
+
+            // Remove o módulo do contexto actual
+            cudaResult = CudaApi.CudaModuleUnload(module);
+            if (cudaResult != ECudaResult.CudaSuccess)
+            {
+                throw new Exception("A CUDA error has occurred.");
+            }
+
+            // Descarta o contexto
+            cudaResult = CudaApi.CudaCtxDestroy(context);
+            if (cudaResult != ECudaResult.CudaSuccess)
+            {
+                throw new Exception("A CUDA error has occurred.");
+            }
+        }
+
+        static void TestesGerais()
+        {
             try
             {
                 var r = new int[3];
@@ -90,10 +355,6 @@
             {
                 Console.WriteLine("{0}: {1}", ex.GetType().Name, ex.Message);
             }
-
-            //Console.WriteLine();
-            //Console.WriteLine("Press any key to continue...");
-            //Console.ReadKey();
         }
 
         static void Lixo3()
