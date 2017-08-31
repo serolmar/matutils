@@ -88,7 +88,7 @@ namespace Utilities
         }
 
         /// <summary>
-        /// Obtém um valor cujos bits são os de <paramref name="b"/> cref="b"/> escritos
+        /// Obtém um valor cujos bits são os de <paramref name="b"/> escritos
         /// na ordem inversa.
         /// </summary>
         /// <param name="b">O valor proporcionado.</param>
@@ -99,7 +99,7 @@ namespace Utilities
         }
 
         /// <summary>
-        /// Obtém um valor cujos bits são os de <paramref name="b"/> cref="b"/> escritos
+        /// Obtém um valor cujos bits são os de <paramref name="b"/> escritos
         /// na ordem inversa.
         /// </summary>
         /// Esta função inverte a ordem dos bits, aplicando apenas três operações.
@@ -114,7 +114,7 @@ namespace Utilities
         }
 
         /// <summary>
-        /// Obtém um valor cujos bits são os de <paramref name="b"/> cref="b"/> escritos
+        /// Obtém um valor cujos bits são os de <paramref name="b"/> escritos
         /// na ordem inversa.
         /// </summary>
         /// Esta função inverte a ordem dos bits, aplicando apenas quatro operações.
@@ -129,7 +129,7 @@ namespace Utilities
         }
 
         /// <summary>
-        /// Obtém um valor cujos bits são os de <paramref name="b"/> cref="b"/> escritos
+        /// Obtém um valor cujos bits são os de <paramref name="b"/> escritos
         /// na ordem inversa.
         /// </summary>
         /// Esta função inverte a ordem dos bits, aplicando apenas quatro operações.
@@ -342,6 +342,94 @@ namespace Utilities
             v = (v >> 32) | (v << 32);
 
             return v;
+        }
+
+        /// <summary>
+        /// Aplica uma rotação cíclica dos bits para a esquerda.
+        /// </summary>
+        /// <param name="val">O valor que contém os bits.</param>
+        /// <param name="shift">O valor do deslocamento.</param>
+        /// <returns>O resultado da rotação.</returns>
+        public static int RotateLeft(int val, int shift)
+        {
+            return (val << shift) | (val >> (32 - shift));
+        }
+
+        /// <summary>
+        /// Aplica uma rotação cíclica dos bits para a direita.
+        /// </summary>
+        /// <param name="val">O valor que contém os bits.</param>
+        /// <param name="shift">O valor do deslocamento.</param>
+        /// <returns>O resultado da rotação.</returns>
+        public static int RotateRight(int val, int shift)
+        {
+            return (val >> shift) | (val << (32 - shift));
+        }
+
+        /// <summary>
+        /// Aplica uma rotação cíclica dos bits para a esquerda.
+        /// </summary>
+        /// <param name="val">O valor que contém os bits.</param>
+        /// <param name="shift">O valor do deslocamento.</param>
+        /// <returns>O resultado da rotação.</returns>
+        public static uint RotateLeft(uint val, int shift)
+        {
+            return (val << shift) | (val >> (32 - shift));
+        }
+
+        /// <summary>
+        /// Aplica uma rotação cíclica dos bits para a direita.
+        /// </summary>
+        /// <param name="val">O valor que contém os bits.</param>
+        /// <param name="shift">O valor do deslocamento.</param>
+        /// <returns>O resultado da rotação.</returns>
+        public static uint RotateRight(uint val, int shift)
+        {
+            return (val >> shift) | (val << (32 - shift));
+        }
+
+        /// <summary>
+        /// Aplica uma rotação cíclica dos bits para a esquerda.
+        /// </summary>
+        /// <param name="val">O valor que contém os bits.</param>
+        /// <param name="shift">O valor do deslocamento.</param>
+        /// <returns>O resultado da rotação.</returns>
+        public static long RotateLeft(long val, int shift)
+        {
+            return (val << shift) | (val >> (64 - shift));
+        }
+
+        /// <summary>
+        /// Aplica uma rotação cíclica dos bits para a direita.
+        /// </summary>
+        /// <param name="val">O valor que contém os bits.</param>
+        /// <param name="shift">O valor do deslocamento.</param>
+        /// <returns>O resultado da rotação.</returns>
+        public static long RotateRight(long val, int shift)
+        {
+            return (val >> shift) | (val << (64 - shift));
+        }
+
+        /// <summary>
+        /// Aplica uma rotação cíclica dos bits para a esquerda.
+        /// </summary>
+        /// <param name="val">O valor que contém os bits.</param>
+        /// <param name="shift">O valor do deslocamento.</param>
+        /// <returns>O resultado da rotação.</returns>
+        public static ulong RotateLeft(ulong val, int shift)
+        {
+            return (val << shift) | (val >> (64 - shift));
+        }
+
+        /// <summary>
+        /// Aplica uma rotação cíclica dos bits para a direita.
+        /// </summary>
+        /// <param name="val">O valor que contém os bits.</param>
+        /// <param name="shift">O valor do deslocamento.</param>
+        /// <returns>O resultado da rotação.</returns>
+        public static ulong RotateRight(ulong val, int shift)
+        {
+            return (val >> shift) | (val << (64 - shift));
         }
 
         /// <summary>

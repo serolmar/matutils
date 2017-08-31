@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="ULongEqualityComparers.cs" company="Sérgio O. Marques">
+// <copyright file="HashAlgorithms.cs" company="Sérgio O. Marques">
 // Ver licença do projecto.
 // </copyright>
 // -----------------------------------------------------------------------
@@ -14,7 +14,7 @@ namespace Utilities
     using System.Text;
 
     /// <summary>
-    /// Define uma função de confusão de um objecto com um número especificado de bits.
+    /// Define uma função de confusão de um objecto com um número especificado de bytes.
     /// </summary>
     /// <typeparam name="T">O tipo do objecto do qual se pretende obter o código confuso.</typeparam>
     public interface IHashN<T>
@@ -57,6 +57,84 @@ namespace Utilities
     }
 
     /// <summary>
+    /// Define uma função de confusão que permite rotação.
+    /// </summary>
+    /// <typeparam name="T">O tipo de objecto do qual se pretende obter o código confuso.</typeparam>
+    public interface IRollingHash32<in T>
+    {
+        /// <summary>
+        /// Obtém o valor corrente do código confuso.
+        /// </summary>
+        uint HashValue { get; }
+
+        /// <summary>
+        /// Adiciona ao objecto o código confuso.
+        /// </summary>
+        /// <param name="obj">O objecto a ser adicionado.</param>
+        void Eat(T obj);
+
+        /// <summary>
+        /// Actualiza o valor do código confuso, indicando o objecto de entrada
+        /// e o de saída.
+        /// </summary>
+        /// <param name="inObj">O objecto de entrada.</param>
+        /// <param name="outObj">O objecto de saída.</param>
+        void Update(T inObj, T outObj);
+    }
+
+    /// <summary>
+    /// Define uma função de confusão que permite rotação.
+    /// </summary>
+    /// <typeparam name="T">O tipo de objecto do qual se pretende obter o código confuso.</typeparam>
+    public interface IRollingHash64<in T>
+    {
+        /// <summary>
+        /// Obtém o valor corrente do código confuso.
+        /// </summary>
+        ulong HashValue { get; }
+
+        /// <summary>
+        /// Adiciona ao objecto o código confuso.
+        /// </summary>
+        /// <param name="obj">O objecto a ser adicionado.</param>
+        void Eat(T obj);
+
+        /// <summary>
+        /// Actualiza o valor do código confuso, indicando o objecto de entrada
+        /// e o de saída.
+        /// </summary>
+        /// <param name="inObj">O objecto de entrada.</param>
+        /// <param name="outObj">O objecto de saída.</param>
+        void Update(T inObj, T outObj);
+    }
+
+    /// <summary>
+    /// Define uma função de confusão que permite rotação.
+    /// </summary>
+    /// <typeparam name="T">O tipo de objecto do qual se pretende obter o código confuso.</typeparam>
+    public interface IRollingHashN<in T>
+    {
+        /// <summary>
+        /// Obtém o valor corrente do código confuso.
+        /// </summary>
+        BigInteger HashValue { get; }
+
+        /// <summary>
+        /// Adiciona ao objecto o código confuso.
+        /// </summary>
+        /// <param name="obj">O objecto a ser adicionado.</param>
+        void Eat(T obj);
+
+        /// <summary>
+        /// Actualiza o valor do código confuso, indicando o objecto de entrada
+        /// e o de saída.
+        /// </summary>
+        /// <param name="inObj">O objecto de entrada.</param>
+        /// <param name="outObj">O objecto de saída.</param>
+        void Update(T inObj, T outObj);
+    }
+
+    /// <summary>
     /// Implementa o código confuso CRC de 32 bits.
     /// </summary>
     /// <remarks>
@@ -67,12 +145,12 @@ namespace Utilities
         /// <summary>
         /// Mantém o polinómio por defeito.
         /// </summary>
-        private static uint defaultPolynomial = 0xedb88320u;
+        private static uint defaultPolynomial = 0xedb88320U;
 
         /// <summary>
         /// Mantém a semente por defeito.
         /// </summary>
-        public static uint defaultSeed = 0xffffffffu;
+        public static uint defaultSeed = 0xffffffffU;
 
         /// <summary>
         /// Mantém a tabela por defeito.
@@ -168,6 +246,25 @@ namespace Utilities
             var hashBuffer = this.UInt32ToBigEndianBytes(~this.hash);
             this.HashValue = hashBuffer;
             return hashBuffer;
+        }
+
+        /// <summary>
+        /// Calcula o código confuso.
+        /// </summary>
+        /// <param name="table">A tabela a ser utilizada no cálculo.</param>
+        /// <param name="seed">A semente.</param>
+        /// <param name="buffer">O amortecedor para o cálculo.</param>
+        /// <param name="start">A posição inicial.</param>
+        /// <param name="size">A posição final.</param>
+        /// <returns>O código confuso.</returns>
+        internal uint InternalCalculateHash(
+            uint[] table,
+            uint seed,
+            IList<byte> buffer,
+            int start,
+            int size)
+        {
+            return this.CalculateHash(table, seed, buffer, start, size);
         }
 
         #region Funções privadas
@@ -267,12 +364,14 @@ namespace Utilities
             int start,
             int size)
         {
-            var hash = seed;
-            for (var i = start; i < start + size; i++)
+            var hash = seed ^ 0xffffffffU;
+            var after = start + size;
+            for (var i = start; i < after; i++)
             {
-                hash = (hash >> 8) ^ table[buffer[i] ^ hash & 0xff];
+                hash = (hash >> 8) ^ table[(buffer[i] ^ hash) & 0xff];
             }
 
+            hash ^= 0xffffffffU;
             return hash;
         }
 
@@ -1365,7 +1464,7 @@ namespace Utilities
     }
 
     /// <summary>
-    /// Implementa o agloritmo Murmur.
+    /// Implementa o agloritmo Murmur2.
     /// </summary>
     /// <remarks>
     /// Ver: https://github.com/aappleby/smhasher/blob/master/src/MurmurHash2.cpp.
@@ -1387,7 +1486,15 @@ namespace Utilities
         /// <returns>O código confuso.</returns>
         public uint GetHash32(string obj)
         {
-            throw new NotImplementedException();
+            if (obj == null)
+            {
+                return 0;
+            }
+            else
+            {
+                var bytes = Encoding.GetEncoding("ISO-8859-1").GetBytes(obj);
+                return this.GetMurmurHash2(bytes, bytes.Length, 0);
+            }
         }
 
         /// <summary>
@@ -1397,7 +1504,14 @@ namespace Utilities
         /// <returns>O código confuso.</returns>
         public uint GetHash32(byte[] obj)
         {
-            throw new NotImplementedException();
+            if (obj == null)
+            {
+                return 0;
+            }
+            else
+            {
+                return this.GetMurmurHash2(obj, obj.Length, 0);
+            }
         }
 
         /// <summary>
@@ -1407,7 +1521,15 @@ namespace Utilities
         /// <returns>O código confuso.</returns>
         public ulong GetHash64(string obj)
         {
-            throw new NotImplementedException();
+            if (obj == null)
+            {
+                return 0;
+            }
+            else
+            {
+                var bytes = Encoding.GetEncoding("ISO-8859-1").GetBytes(obj);
+                return this.GetMurmurHash64A(bytes, bytes.Length, 0);
+            }
         }
 
         /// <summary>
@@ -1417,7 +1539,14 @@ namespace Utilities
         /// <returns>O código confuso.</returns>
         public ulong GetHash64(byte[] obj)
         {
-            throw new NotImplementedException();
+            if (obj == null)
+            {
+                return 0;
+            }
+            else
+            {
+                return this.GetMurmurHash64A(obj, obj.Length, 0);
+            }
         }
 
         /// <summary>
@@ -1428,7 +1557,26 @@ namespace Utilities
         /// <returns>O código confuso.</returns>
         public BigInteger GetHash(string obj, int bytes)
         {
-            throw new NotImplementedException();
+            if (obj == null)
+            {
+                return 0;
+            }
+            else
+            {
+                var objData = Encoding.GetEncoding("ISO-8859-1").GetBytes(obj);
+                if (bytes == 4)
+                {
+                    return this.GetMurmurHash2(objData, objData.Length, 0);
+                }
+                else if (bytes == 8)
+                {
+                    return this.GetMurmurHash64A(objData, objData.Length, 0);
+                }
+                else
+                {
+                    throw new NotSupportedException("The provided number of bytes is not supported for hash function.");
+                }
+            }
         }
 
         /// <summary>
@@ -1439,10 +1587,129 @@ namespace Utilities
         /// <returns>O código confuso.</returns>
         public BigInteger GetHash(byte[] obj, int bytes)
         {
-            throw new NotImplementedException();
+            if (obj == null)
+            {
+                return 0;
+            }
+            else
+            {
+                if (bytes == 4)
+                {
+                    return this.GetMurmurHash2(obj, obj.Length, 0);
+                }
+                else if (bytes == 8)
+                {
+                    return this.GetMurmurHash64A(obj, obj.Length, 0);
+                }
+                else
+                {
+                    throw new NotSupportedException("The provided number of bytes is not supported for hash function.");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Mistura os valores das variáveis.
+        /// </summary>
+        /// <param name="h">A primeira variável.</param>
+        /// <param name="k">A segunda variável.</param>
+        /// <param name="m">A semente a ser misturada.</param>
+        /// <param name="r">Uma constante.</param>
+        public static void Mix(ref uint h, ref uint k, uint m, int r)
+        {
+            k *= m;
+            k ^= k >> r;
+            k *= m;
+            h *= m;
+            h ^= k;
         }
 
         #endregion Funções públicas
+
+        #region Funções internas
+
+        /// <summary>
+        /// Executa o algoritmo do Murmur sobre o vector de bytes.
+        /// </summary>
+        /// <param name="key">O vector.</param>
+        /// <param name="len">O comprimento do vector sobre o qual se aplica o algoritmo.</param>
+        /// <param name="seed">Um valor inicial para mistura.</param>
+        /// <returns>O código confuso.</returns>
+        internal uint GetMurmurHash2Internal(byte[] key, int len, uint seed)
+        {
+            return this.GetMurmurHash2(key, len, seed);
+        }
+
+        /// <summary>
+        /// Executa o algoritmo do Murmur de 64-bit sobre o vector de bytes
+        /// para uma plataforma 64-bit.
+        /// </summary>
+        /// <param name="key">O vector.</param>
+        /// <param name="len">O comprimento do vector sobre o qual se aplica o algoritmo.</param>
+        /// <param name="seed">Um valor inicial para mistura.</param>
+        /// <returns>O código confuso.</returns>
+        internal ulong GetMurmurHash64AInternal(byte[] key, int len, ulong seed)
+        {
+            return this.GetMurmurHash64A(key, len, seed);
+        }
+
+        /// <summary>
+        /// Executa o algoritmo do Murmur de 64-bit sobre o vector de bytes
+        /// para uma plataforma 64-bit.
+        /// </summary>
+        /// <param name="key">O vector.</param>
+        /// <param name="len">O comprimento do vector sobre o qual se aplica o algoritmo.</param>
+        /// <param name="seedLow">Um valor inicial para mistura.</param>
+        /// <param name="seedHigh">Um valor inicial para a mistura.</param>
+        /// <returns>O código confuso.</returns>
+        internal ulong GetMurmurHash6BAInternal(byte[] key, int len, uint seedLow, uint seedHigh)
+        {
+            return this.GetMurmurHash64B(key, len, seedLow, seedHigh);
+        }
+
+        /// <summary>
+        /// Executa o algoritmo do Murmur de 32-bit sobre o vector de bytes,
+        /// corrigindo um pequeno problema relativo à colisão de chaves nulas.
+        /// </summary>
+        /// <param name="key">O vector.</param>
+        /// <param name="len">O comrpimento do vector sobre o qual se aplica o algoritmo.</param>
+        /// <param name="seed">Um valor inicial para mistura.</param>
+        /// <returns>O código confuso.</returns>
+        internal uint MurmurHash2AInternal(byte[] key, int len, uint seed)
+        {
+            return this.MurmurHash2A(key, len, seed);
+        }
+
+        /// <summary>
+        /// Executa o algoritmo do Murmur de 32-bit sobre o vector de bytes,
+        /// não considerando a ordem dos bits.
+        /// </summary>
+        /// <param name="key">O vector.</param>
+        /// <param name="len">O comprimento do vector sobre o qual se aplica o algoritmo.</param>
+        /// <param name="seed">Um valor incial para mistura.</param>
+        /// <returns>O código confuso.</returns>
+        internal uint MurmurHashNeutral2Internal(byte[] key, int len, uint seed)
+        {
+            return this.MurmurHashNeutral2(key, len, seed);
+        }
+
+        /// <summary>
+        /// Executa o algoritmo do Murmur de 32-bit sobre o vector de bytes,
+        /// efectuando leituras alinhadas.
+        /// </summary>
+        /// <remarks>
+        /// Trata-se de um algoritmo mais seguro em determinadas plataformas.
+        /// </remarks>
+        /// <param name="key">O vector.</param>
+        /// <param name="len">O comprimento do vector sobre o qual se aplica o algoritmo.</param>
+        /// <param name="seed">Um valor incial para mistura.</param>
+        /// <returns>O código confuso.</returns>
+        internal uint MurmurHashAligned2Internal(byte[] key, int len, uint seed)
+        {
+            return this.MurmurHashAligned2(key, len, seed);
+        }
+
+        #endregion Funções internas
 
         #region Funções privadas
 
@@ -1517,9 +1784,12 @@ namespace Utilities
             var h = seed ^ ((ulong)len * m);
 
             var p = 0;
-            while (p < len)
+            var i = 0;
+            var end = len / 8;
+            while (i < end)
             {
                 var k = BitConverter.ToUInt64(key, p);
+                ++i;
                 p += 8;
 
                 k *= m;
@@ -1689,7 +1959,7 @@ namespace Utilities
             {
                 var k = BitConverter.ToUInt32(key, p);
 
-                this.Mix(ref h, ref k, m, r);
+                Mix(ref h, ref k, m, r);
 
                 p += 4;
                 len -= 4;
@@ -1700,21 +1970,21 @@ namespace Utilities
             switch (len)
             {
                 case 3:
-                    t ^= ((uint)key[2]) << 16;
-                    t ^= ((uint)key[1]) << 8;
-                    t ^= key[0];
+                    t ^= ((uint)key[p + 2]) << 16;
+                    t ^= ((uint)key[p + 1]) << 8;
+                    t ^= key[p];
                     break;
                 case 2:
-                    t ^= ((uint)key[1]) << 8;
-                    t ^= key[0];
+                    t ^= ((uint)key[p + 1]) << 8;
+                    t ^= key[p];
                     break;
                 case 1:
-                    t ^= key[0];
+                    t ^= key[p];
                     break;
             };
 
-            this.Mix(ref h, ref t, m, r);
-            this.Mix(ref h, ref l, m, r);
+            Mix(ref h, ref t, m, r);
+            Mix(ref h, ref l, m, r);
 
             h ^= h >> 13;
             h *= m;
@@ -1785,6 +2055,17 @@ namespace Utilities
             return h;
         }
 
+        /// <summary>
+        /// Executa o algoritmo do Murmur de 32-bit sobre o vector de bytes,
+        /// efectuando leituras alinhadas.
+        /// </summary>
+        /// <remarks>
+        /// Trata-se de um algoritmo mais seguro em determinadas plataformas.
+        /// </remarks>
+        /// <param name="key">O vector.</param>
+        /// <param name="len">O comprimento do vector sobre o qual se aplica o algoritmo.</param>
+        /// <param name="seed">Um valor incial para mistura.</param>
+        /// <returns>O código confuso.</returns>
         private uint MurmurHashAligned2(byte[] key, int len, uint seed)
         {
             var m = 0x5bd1e995U;
@@ -1965,22 +2246,6 @@ namespace Utilities
         /// <param name="k">A segunda variável.</param>
         /// <param name="m">A semente a ser misturada.</param>
         /// <param name="r">Uma constante.</param>
-        private void Mix(ref uint h, ref uint k, uint m, int r)
-        {
-            k *= m;
-            k ^= k >> r;
-            k *= m;
-            h *= m;
-            h ^= k;
-        }
-
-        /// <summary>
-        /// Mistura os valores das variáveis.
-        /// </summary>
-        /// <param name="h">A primeira variável.</param>
-        /// <param name="k">A segunda variável.</param>
-        /// <param name="m">A semente a ser misturada.</param>
-        /// <param name="r">Uma constante.</param>
         private void Mix1(ref uint h, ref uint k, uint m, int r)
         {
             k *= m;
@@ -1991,5 +2256,6281 @@ namespace Utilities
         }
 
         #endregion Funções privadas
+    }
+
+    /// <summary>
+    /// Implementa o agloritmo Murmur3.
+    /// </summary>
+    /// <remarks>
+    /// Ver: https://github.com/aappleby/smhasher/blob/master/src/MurmurHash2.cpp.
+    /// </remarks>
+    public class MurmurHash3 :
+        IHash32<string>,
+        IHash32<byte[]>,
+        IHashN<string>,
+        IHashN<byte[]>
+    {
+        #region Funções públicas
+
+        /// <summary>
+        /// Define uma função de confusão de um objecto com 32 bits.
+        /// </summary>
+        public uint GetHash32(string obj)
+        {
+            if (obj == null)
+            {
+                return 0;
+            }
+            else
+            {
+                var bytes = Encoding.GetEncoding("ISO-8859-1").GetBytes(obj);
+                return this.MurmurHash3A32(bytes, 0, bytes.Length, 0);
+            }
+        }
+
+        /// <summary>
+        /// Define uma função de confusão de um objecto com 32 bits.
+        /// </summary>
+        public uint GetHash32(byte[] obj)
+        {
+            if (obj == null)
+            {
+                return 0;
+            }
+            else
+            {
+                return this.MurmurHash3A32(obj, 0, obj.Length, 0);
+            }
+        }
+
+        /// <summary>
+        /// Obtém o código confuso do objecto.
+        /// </summary>
+        /// <param name="obj">O objecto.</param>
+        /// <param name="bytes">O número de bytes no código confuso.</param>
+        /// <returns>O código confuso.</returns>
+        public BigInteger GetHash(string obj, int bytes)
+        {
+            if (obj == null)
+            {
+                return 0;
+            }
+            else
+            {
+                var objData = Encoding.GetEncoding("ISO-8859-1").GetBytes(obj);
+                if (bytes == 4)
+                {
+                    return this.MurmurHash3A32(objData, 0, objData.Length, 0);
+                }
+                else if (bytes == 16)
+                {
+                    return new BigInteger(this.MurmurHash3B128(objData, 0, objData.Length, 0));
+                }
+                else
+                {
+                    throw new NotSupportedException("The provided number of bytes is not supported for hash function.");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Obtém o código confuso do objecto.
+        /// </summary>
+        /// <param name="obj">O objecto.</param>
+        /// <param name="bytes">O número de bytes no código confuso.</param>
+        /// <returns>O código confuso.</returns>
+        public BigInteger GetHash(byte[] obj, int bytes)
+        {
+            if (obj == null)
+            {
+                return 0;
+            }
+            else if (bytes == 4)
+            {
+                return this.MurmurHash3A32(obj, 0, obj.Length, 0);
+            }
+            else if (bytes == 16)
+            {
+                return new BigInteger(this.MurmurHash3B128(obj, 0, obj.Length, 0));
+            }
+            else
+            {
+                throw new NotSupportedException("The provided number of bytes is not supported for hash function.");
+            }
+        }
+
+        #endregion Funções públicas
+
+        #region Funções internas
+
+        /// <summary>
+        /// Determina o código confuso 32 bit de um valor em arquitectura x86.
+        /// </summary>
+        /// <param name="key">O valor do qual se pretende obter o código confuso.</param>
+        /// <param name="start">O índice incial.</param>
+        /// <param name="len">O tamanho dos dados.</param>
+        /// <param name="seed">Um valor inicial.</param>
+        /// <returns>O código confuso.</returns>
+        internal uint InternalMurmurHash3A32(
+            byte[] key,
+            int start,
+            int len,
+            uint seed)
+        {
+            return this.MurmurHash3A32(key, start, len, seed);
+        }
+
+        /// <summary>
+        /// Determina o código confuso de 128 bit de um valor em arquitectura x64.
+        /// </summary>
+        /// <param name="key">O valor do qual se pretende obter o código confuso.</param>
+        /// <param name="start">O índice incial.</param>
+        /// <param name="len">O tamanho dos dados.</param>
+        /// <param name="seed">Um valor inicial.</param>
+        /// <returns>O código confuso.</returns>
+        internal byte[] InternalMurmurHash3A128(
+            byte[] key,
+            int start,
+            int len,
+            uint seed)
+        {
+            return this.MurmurHash3A128(key, start, len, seed);
+        }
+
+        /// <summary>
+        /// Determina o código confuso de 128 bit de um valor em arquitectura x64.
+        /// </summary>
+        /// <param name="key">O valor do qual se pretende obter o código confuso.</param>
+        /// <param name="start">O índice incial.</param>
+        /// <param name="len">O tamanho dos dados.</param>
+        /// <param name="seed">Um valor inicial.</param>
+        /// <returns>O código confuso.</returns>
+        internal byte[] InternalMurmurHash3B128(
+            byte[] key,
+            int start,
+            int len,
+            uint seed)
+        {
+            return this.MurmurHash3B128(key, start, len, seed);
+        }
+
+        #endregion Funções internas
+
+        #region Funções privadas
+
+        /// <summary>
+        /// Determina o código confuso 32 bit de um valor em arquitectura x86.
+        /// </summary>
+        /// <param name="key">O valor do qual se pretende obter o código confuso.</param>
+        /// <param name="start">O índice incial.</param>
+        /// <param name="len">O tamanho dos dados.</param>
+        /// <param name="seed">Um valor inicial.</param>
+        /// <returns>O código confuso.</returns>
+        private uint MurmurHash3A32(
+            byte[] key,
+            int start,
+            int len,
+            uint seed)
+        {
+            var nblocks = len / 4;
+            var h1 = seed;
+
+            var c1 = 0xcc9e2d51U;
+            var c2 = 0x1b873593U;
+
+            var p = start + nblocks * 4;
+            for (int i = start; i < p; i += 4)
+            {
+                var k1 = BitConverter.ToUInt32(key, i);
+
+                k1 *= c1;
+                k1 = Utils.RotateLeft(k1, 15);
+                k1 *= c2;
+
+                h1 ^= k1;
+                h1 = Utils.RotateLeft(h1, 13);
+                h1 = h1 * 5 + 0xe6546b64;
+            }
+
+            var ok1 = 0U;
+
+            switch (len & 3)
+            {
+                case 3:
+                    ok1 ^= ((uint)key[p + 2]) << 16;
+                    ok1 ^= ((uint)key[p + 1]) << 8;
+                    ok1 ^= (uint)key[p];
+                    ok1 *= c1;
+                    ok1 = Utils.RotateLeft(ok1, 15);
+                    ok1 *= c2;
+                    h1 ^= ok1;
+                    break;
+                case 2:
+                    ok1 ^= ((uint)key[p + 1]) << 8;
+                    ok1 ^= (uint)key[p];
+                    ok1 *= c1;
+                    ok1 = Utils.RotateLeft(ok1, 15);
+                    ok1 *= c2;
+                    h1 ^= ok1;
+                    break;
+                case 1:
+                    ok1 ^= (uint)key[p];
+                    ok1 *= c1;
+                    ok1 = Utils.RotateLeft(ok1, 15);
+                    ok1 *= c2;
+                    h1 ^= ok1;
+                    break;
+            };
+
+            h1 ^= (uint)len;
+            h1 = this.Fmix32(h1);
+
+            return h1;
+        }
+
+        /// <summary>
+        /// Determina o código confuso de 128 bit de um valor em arquitectura x86.
+        /// </summary>
+        /// <param name="key">O valor do qual se pretende obter o código confuso.</param>
+        /// <param name="start">O índice incial.</param>
+        /// <param name="len">O tamanho dos dados.</param>
+        /// <param name="seed">Um valor inicial.</param>
+        /// <returns>O código confuso.</returns>
+        byte[] MurmurHash3A128(
+            byte[] key,
+            int start,
+            int len,
+            uint seed)
+        {
+            var nblocks = len / 16;
+
+            var h1 = seed;
+            var h2 = seed;
+            var h3 = seed;
+            var h4 = seed;
+
+            var c1 = 0x239b961bU;
+            var c2 = 0xab0e9789U;
+            var c3 = 0x38b34ae5U;
+            var c4 = 0xa1e38b93U;
+
+            for (int i = start; i < nblocks; ++i)
+            {
+                var k1 = BitConverter.ToUInt32(key, i * 16 + 0);
+                var k2 = BitConverter.ToUInt32(key, i * 16 + 4);
+                var k3 = BitConverter.ToUInt32(key, i * 16 + 8);
+                var k4 = BitConverter.ToUInt32(key, i * 16 + 12);
+
+                k1 *= c1;
+                k1 = Utils.RotateLeft(k1, 15);
+                k1 *= c2;
+                h1 ^= k1;
+
+                h1 = Utils.RotateLeft(h1, 19);
+                h1 += h2;
+                h1 = h1 * 5 + 0x561ccd1b;
+
+                k2 *= c2;
+                k2 = Utils.RotateLeft(k2, 16);
+                k2 *= c3;
+                h2 ^= k2;
+
+                h2 = Utils.RotateLeft(h2, 17);
+                h2 += h3;
+                h2 = h2 * 5 + 0x0bcaa747;
+
+                k3 *= c3;
+                k3 = Utils.RotateLeft(k3, 17);
+                k3 *= c4;
+                h3 ^= k3;
+
+                h3 = Utils.RotateLeft(h3, 15);
+                h3 += h4;
+                h3 = h3 * 5 + 0x96cd1c35;
+
+                k4 *= c4;
+                k4 = Utils.RotateLeft(k4, 18);
+                k4 *= c1;
+                h4 ^= k4;
+
+                h4 = Utils.RotateLeft(h4, 13);
+                h4 += h1;
+                h4 = h4 * 5 + 0x32ac3b17;
+            }
+
+            var ok1 = 0U;
+            var ok2 = 0U;
+            var ok3 = 0U;
+            var ok4 = 0U;
+
+            var p = start + nblocks * 16;
+            switch (len & 15)
+            {
+                case 15:
+                    ok4 ^= ((uint)key[p + 14]) << 16;
+                    goto case 14;
+                case 14:
+                    ok4 ^= ((uint)key[p + 13]) << 8;
+                    goto case 13;
+                case 13: ok4 ^= ((uint)key[p + 12]) << 0;
+                    ok4 *= c4;
+                    ok4 = Utils.RotateLeft(ok4, 18);
+                    ok4 *= c1;
+                    h4 ^= ok4;
+                    goto case 12;
+                case 12:
+                    ok3 ^= ((uint)key[p + 11]) << 24;
+                    goto case 11;
+                case 11:
+                    ok3 ^= ((uint)key[p + 10]) << 16;
+                    goto case 10;
+                case 10:
+                    ok3 ^= ((uint)key[p + 9]) << 8;
+                    goto case 9;
+                case 9:
+                    ok3 ^= ((uint)key[p + 8]) << 0;
+                    ok3 *= c3;
+                    ok3 = Utils.RotateLeft(ok3, 17);
+                    ok3 *= c4;
+                    h3 ^= ok3;
+                    goto case 8;
+                case 8:
+                    ok2 ^= ((uint)key[p + 7]) << 24;
+                    goto case 7;
+                case 7:
+                    ok2 ^= ((uint)key[p + 6]) << 16;
+                    goto case 6;
+                case 6:
+                    ok2 ^= ((uint)key[p + 5]) << 8;
+                    goto case 5;
+                case 5:
+                    ok2 ^= ((uint)key[p + 4]) << 0;
+                    ok2 *= c2;
+                    ok2 = Utils.RotateLeft(ok2, 16);
+                    ok2 *= c3; h2 ^= ok2;
+                    goto case 4;
+                case 4:
+                    ok1 ^= ((uint)key[p + 3]) << 24;
+                    goto case 3;
+                case 3:
+                    ok1 ^= ((uint)key[p + 2]) << 16;
+                    goto case 2;
+                case 2:
+                    ok1 ^= ((uint)key[p + 1]) << 8;
+                    goto case 1;
+                case 1:
+                    ok1 ^= ((uint)key[p]) << 0;
+                    ok1 *= c1;
+                    ok1 = Utils.RotateLeft(ok1, 15);
+                    ok1 *= c2;
+                    h1 ^= ok1;
+                    break;
+            };
+
+            h1 ^= (uint)len;
+            h2 ^= (uint)len;
+            h3 ^= (uint)len;
+            h4 ^= (uint)len;
+
+            h1 += h2;
+            h1 += h3;
+            h1 += h4;
+            h2 += h1;
+            h3 += h1;
+            h4 += h1;
+
+            h1 = this.Fmix32(h1);
+            h2 = this.Fmix32(h2);
+            h3 = this.Fmix32(h3);
+            h4 = this.Fmix32(h4);
+
+            h1 += h2;
+            h1 += h3;
+            h1 += h4;
+            h2 += h1;
+            h3 += h1;
+            h4 += h1;
+
+            var temp = new byte[16];
+            Array.Copy(BitConverter.GetBytes(h1), temp, 4);
+            Array.Copy(BitConverter.GetBytes(h2), 0, temp, 4, 4);
+            Array.Copy(BitConverter.GetBytes(h3), 0, temp, 8, 4);
+            Array.Copy(BitConverter.GetBytes(h4), 0, temp, 12, 4);
+
+            return temp;
+        }
+
+        /// <summary>
+        /// Determina o código confuso de 128 bit de um valor em arquitectura x64.
+        /// </summary>
+        /// <param name="key">O valor do qual se pretende obter o código confuso.</param>
+        /// <param name="start">O índice incial.</param>
+        /// <param name="len">O tamanho dos dados.</param>
+        /// <param name="seed">Um valor inicial.</param>
+        /// <returns>O código confuso.</returns>
+        private byte[] MurmurHash3B128(
+            byte[] key,
+            int start,
+            int len,
+            uint seed)
+        {
+            var nblocks = len / 16;
+
+            var h1 = (ulong)seed;
+            var h2 = (ulong)seed;
+
+            var c1 = 0x87c37b91114253d5UL;
+            var c2 = 0x4cf5ad432745937fUL;
+
+            for (int i = start; i < nblocks; ++i)
+            {
+                var k1 = BitConverter.ToUInt64(key, i * 16);
+                var k2 = BitConverter.ToUInt64(key, i * 16 + 8);
+
+                k1 *= c1;
+                k1 = Utils.RotateLeft(k1, 31);
+                k1 *= c2;
+                h1 ^= k1;
+
+                h1 = Utils.RotateLeft(h1, 27);
+                h1 += h2;
+                h1 = h1 * 5 + 0x52dce729;
+
+                k2 *= c2;
+                k2 = Utils.RotateLeft(k2, 33);
+                k2 *= c1;
+                h2 ^= k2;
+
+                h2 = Utils.RotateLeft(h2, 31);
+                h2 += h1;
+                h2 = h2 * 5 + 0x38495ab5;
+            }
+
+            //----------
+            // tail
+
+            var p = start + nblocks * 16;
+            var ok1 = 0UL;
+            var ok2 = 0UL;
+
+            switch (len & 15)
+            {
+                case 15:
+                    ok2 ^= ((ulong)key[p + 14]) << 48;
+                    goto case 14;
+                case 14:
+                    ok2 ^= ((ulong)key[p + 13]) << 40;
+                    goto case 13;
+                case 13:
+                    ok2 ^= ((ulong)key[p + 12]) << 32;
+                    goto case 12;
+                case 12:
+                    ok2 ^= ((ulong)key[p + 11]) << 24;
+                    goto case 11;
+                case 11:
+                    ok2 ^= ((ulong)key[p + 10]) << 16;
+                    goto case 10;
+                case 10:
+                    ok2 ^= ((ulong)key[p + 9]) << 8;
+                    goto case 9;
+                case 9: ok2 ^= ((ulong)key[p + 8]) << 0;
+                    ok2 *= c2;
+                    ok2 = Utils.RotateLeft(ok2, 33);
+                    ok2 *= c1;
+                    h2 ^= ok2;
+                    goto case 8;
+                case 8:
+                    ok1 ^= ((ulong)key[p + 7]) << 56;
+                    goto case 7;
+                case 7:
+                    ok1 ^= ((ulong)key[p + 6]) << 48;
+                    goto case 6;
+                case 6:
+                    ok1 ^= ((ulong)key[p + 5]) << 40;
+                    goto case 5;
+                case 5:
+                    ok1 ^= ((ulong)key[p + 4]) << 32;
+                    goto case 4;
+                case 4:
+                    ok1 ^= ((ulong)key[p + 3]) << 24;
+                    goto case 3;
+                case 3:
+                    ok1 ^= ((ulong)key[p + 2]) << 16;
+                    goto case 2;
+                case 2:
+                    ok1 ^= ((ulong)key[p + 1]) << 8;
+                    goto case 1;
+                case 1:
+                    ok1 ^= ((ulong)key[p]) << 0;
+                    ok1 *= c1;
+                    ok1 = Utils.RotateLeft(ok1, 31);
+                    ok1 *= c2;
+                    h1 ^= ok1;
+                    break;
+            };
+
+            //----------
+            // finalization
+
+            h1 ^= (ulong)len;
+            h2 ^= (ulong)len;
+
+            h1 += h2;
+            h2 += h1;
+
+            h1 = this.Fmix64(h1);
+            h2 = this.Fmix64(h2);
+
+            h1 += h2;
+            h2 += h1;
+
+            var temp = new byte[16];
+            Array.Copy(BitConverter.GetBytes(h1), temp, 8);
+            Array.Copy(BitConverter.GetBytes(h2), 0, temp, 8, 8);
+            return temp;
+        }
+
+        /// <summary>
+        /// Mistura os bits de um valor.
+        /// </summary>
+        /// <param name="h">O valor.</param>
+        /// <returns>O resultado da mistura.</returns>
+        private uint Fmix32(uint h)
+        {
+            h ^= h >> 16;
+            h *= 0x85ebca6b;
+            h ^= h >> 13;
+            h *= 0xc2b2ae35;
+            h ^= h >> 16;
+
+            return h;
+        }
+
+        /// <summary>
+        /// Mistura os bits de um valor.
+        /// </summary>
+        /// <param name="k">O valor.</param>
+        /// <returns>O resultado da mistura.</returns>
+        private ulong Fmix64(ulong k)
+        {
+            k ^= k >> 33;
+            k *= 0xff51afd7ed558ccdUL;
+            k ^= k >> 33;
+            k *= 0xc4ceb9fe1a85ec53UL;
+            k ^= k >> 33;
+
+            return k;
+        }
+
+        #endregion Funções privadas
+    }
+
+    /// <summary>
+    /// Calcular o código confuso Murmur de forma incremental.
+    /// </summary>
+    public class IncrementalMurmurHash2A
+    {
+        #region Campos privados
+
+        /// <summary>
+        /// Constante para mistura.
+        /// </summary>
+        private const int m = 0x5bd1e995;
+
+        /// <summary>
+        /// Rotação a aplicar durante a mistura.
+        /// </summary>
+        private const int r = 24;
+
+        /// <summary>
+        /// O valor incremental do código confuso.
+        /// </summary>
+        private uint mHash;
+
+        /// <summary>
+        /// Um valor calculado para mistura.
+        /// </summary>
+        private uint mTail;
+
+        /// <summary>
+        /// Contagem de passos até que seja realizada a mistura
+        /// com o valor calculado.
+        /// </summary>
+        private uint mCount;
+
+        /// <summary>
+        /// O tamanho total do texto adicionado.
+        /// </summary>
+        private uint mSize;
+
+        #endregion Campos privados
+
+        #region Funções públicas
+
+        /// <summary>
+        /// Inicializa o cálculo do código confuso.
+        /// </summary>
+        /// <remarks>
+        /// A execução da função reinicializa o processo e o texto
+        /// anteriormente adicionado é desconsiderado.
+        /// </remarks>
+        /// <param name="seed">O valor de inicialização.</param>
+        public void Begin(uint seed = 0)
+        {
+            this.mHash = seed;
+            this.mTail = 0;
+            this.mCount = 0;
+            this.mSize = 0;
+        }
+
+        /// <summary>
+        /// Inclui um vector de bytes no código actual.
+        /// </summary>
+        /// <param name="data">O vector de bytes.</param>
+        /// <param name="len">O comprimento a ser considerado.</param>
+        public void Add(byte[] data, int len)
+        {
+            this.mSize += (uint)len;
+
+            this.MixTail(data, len);
+
+            var p = 0;
+            while (len >= 4)
+            {
+                var k = BitConverter.ToUInt32(data, p);
+                MurmurHash2.Mix(ref this.mHash, ref k, m, r);
+                p += 4;
+                len -= 4;
+            }
+
+            len = this.MixTail(data, len);
+        }
+
+        /// <summary>
+        /// Obtém o valor actual do código confuso.
+        /// </summary>
+        /// <returns>O valor do código confuso.</returns>
+        public uint GetCurrentHash()
+        {
+            var mHashTemp = this.mHash;
+            var mTailTemp = this.mTail;
+            var currentSize = this.mSize;
+            MurmurHash2.Mix(ref mHashTemp, ref mTailTemp, m, r);
+            MurmurHash2.Mix(ref mHashTemp, ref currentSize, m, r);
+
+            mHashTemp ^= mHashTemp >> 13;
+            mHashTemp *= m;
+            mHashTemp ^= mHashTemp >> 15;
+
+            return mHashTemp;
+        }
+
+        #endregion Funções públicas
+
+        /// <summary>
+        /// Efectua a mistura da cauda.
+        /// </summary>
+        /// <param name="data">Os dados sobre os quais se realiza a mistura.</param>
+        /// <param name="len">O comprimento total.</param>
+        /// <returns>O comprimento em falta.</returns>
+        private int MixTail(byte[] data, int len)
+        {
+            var innerLen = len;
+            var p = 0;
+            while (innerLen > 0 && ((innerLen < 4) || this.mCount > 0))
+            {
+                this.mTail |= BitConverter.ToUInt32(data, p++) << (int)(this.mCount * 8);
+
+                this.mCount++;
+                innerLen--;
+
+                if (this.mCount == 4)
+                {
+                    MurmurHash2.Mix(ref this.mHash, ref this.mTail, m, r);
+                    this.mTail = 0;
+                    this.mCount = 0;
+                }
+            }
+
+            return innerLen;
+        }
+    }
+
+    /// <summary>
+    /// Implementa o algoritmo FNV para códigos confusos.
+    /// </summary>
+    /// <remarks>
+    /// http://www.isthe.com/chongo/tech/comp/fnv/index.html#FNV-reference-source
+    /// </remarks>
+    public class FNVHash :
+        IHash32<string>,
+        IHash32<byte[]>,
+        IHash64<string>,
+        IHash64<byte[]>,
+        IHashN<string>,
+        IHashN<byte[]>
+    {
+        #region Campos privados
+
+        /// <summary>
+        /// O valor de inicialização para o FNV-0 de 32 bit.
+        /// </summary>
+        private const uint FNV032Init = 0;
+
+        /// <summary>
+        /// O valor de inicialização para o FNV-1 de 32 bit.
+        /// </summary>
+        private const uint FNV132Init = 0x811C9DC5U;
+
+        /// <summary>
+        /// O valor de inicialização para o FNV-0 de 64 bit.
+        /// </summary>
+        private const ulong FNV064Init = 0;
+
+        /// <summary>
+        /// O valor de inicialização para o FNV-1 de 64 bit.
+        /// </summary>
+        private const ulong FNV164Init = 0xCBF29CE484222325UL;
+
+        #endregion Campos privados
+
+        #region Propriedades
+
+        /// <summary>
+        /// Obtém a constante de inicialização do FNV 32 bit.
+        /// </summary>
+        public uint FNV032InitConst
+        {
+            get
+            {
+                return FNV032Init;
+            }
+        }
+
+        /// <summary>
+        /// Obtém a constante de inicialização do FNV-A 32 bit.
+        /// </summary>
+        public uint FNV132InitConst
+        {
+            get
+            {
+                return FNV132Init;
+            }
+        }
+
+        /// <summary>
+        /// Obtém a constante de inicialização do FNV 64 bit.
+        /// </summary>
+        public ulong FNV064InitConst
+        {
+            get
+            {
+                return FNV064Init;
+            }
+        }
+
+        /// <summary>
+        /// Obtém a constante de inicialização do FNV-A 64 bit.
+        /// </summary>
+        public ulong FNV164InitConst
+        {
+            get
+            {
+                return FNV164Init;
+            }
+        }
+
+        #endregion
+
+        #region Funções públicas
+
+        /// <summary>
+        /// Obtém o código confuso de 32 bits de um objecto.
+        /// </summary>
+        /// <param name="obj">O objecto.</param>
+        /// <returns>O código confuso.</returns>
+        public uint GetHash32(string obj)
+        {
+            if (obj == null)
+            {
+                return 0;
+            }
+            else
+            {
+                var bytes = Encoding.GetEncoding("ISO-8859-1").GetBytes(obj);
+                return this.FNVHash32A(bytes, bytes.Length, FNV132Init);
+            }
+        }
+
+        /// <summary>
+        /// Obtém o código confuso de 32 bits de um objecto.
+        /// </summary>
+        /// <param name="obj">O objecto.</param>
+        /// <returns>O código confuso.</returns>
+        public uint GetHash32(byte[] obj)
+        {
+            if (obj == null)
+            {
+                return 0;
+            }
+            else
+            {
+                return this.FNVHash32A(obj, obj.Length, FNV132Init);
+            }
+        }
+
+        /// <summary>
+        /// Obtém o código confuso de 64 bits de um objecto.
+        /// </summary>
+        /// <param name="obj">O objeto.</param>
+        /// <returns>O código confuso.</returns>
+        public ulong GetHash64(string obj)
+        {
+            if (obj == null)
+            {
+                return 0;
+            }
+            else
+            {
+                var bytes = Encoding.GetEncoding("ISO-8859-1").GetBytes(obj);
+                return this.FNVHash64A(bytes, bytes.Length, FNV164Init);
+            }
+        }
+
+        /// <summary>
+        /// Obtém o código confuso de 64 bits de um objecto.
+        /// </summary>
+        /// <param name="obj">O objeto.</param>
+        /// <returns>O código confuso.</returns>
+        public ulong GetHash64(byte[] obj)
+        {
+            if (obj == null)
+            {
+                return 0;
+            }
+            else
+            {
+                return this.FNVHash64A(obj, obj.Length, FNV164Init);
+            }
+        }
+
+        /// <summary>
+        /// Obtém o código confuso do objecto.
+        /// </summary>
+        /// <param name="obj">O objecto.</param>
+        /// <param name="bytes">O número de bytes no código confuso.</param>
+        /// <returns>O código confuso.</returns>
+        public BigInteger GetHash(string obj, int bytes)
+        {
+            if (obj == null)
+            {
+                return 0;
+            }
+            else
+            {
+                var objData = Encoding.GetEncoding("ISO-8859-1").GetBytes(obj);
+                if (bytes == 4)
+                {
+                    return this.GetHash32(obj);
+                }
+                else if (bytes == 8)
+                {
+                    return this.GetHash64(obj);
+                }
+                else
+                {
+                    throw new NotSupportedException("The provided number of bytes is not supported for hash function.");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Obtém o código confuso do objecto.
+        /// </summary>
+        /// <param name="obj">O objecto.</param>
+        /// <param name="bytes">O número de bytes no código confuso.</param>
+        /// <returns>O código confuso.</returns>
+        public BigInteger GetHash(byte[] obj, int bytes)
+        {
+            if (obj == null)
+            {
+                return 0;
+            }
+            else
+            {
+                if (bytes == 4)
+                {
+                    return this.GetHash32(obj);
+                }
+                else if (bytes == 8)
+                {
+                    return this.GetHash64(obj);
+                }
+                else
+                {
+                    throw new NotSupportedException("The provided number of bytes is not supported for hash function.");
+                }
+            }
+        }
+
+        #endregion Funções públicas
+
+        #region Funções internas
+
+        /// <summary>
+        /// Obtém o código confuso FNV de 32 bit.
+        /// </summary>
+        /// <param name="obj">O objecto do qual se pretende obter o código confuso.</param>
+        /// <param name="length">O comprimento a ser considerado.</param>
+        /// <param name="hval">O valor inicial.</param>
+        /// <returns>O valor do código confuso.</returns>
+        internal uint InternalGetFNVHash32(byte[] obj, int length, uint hval)
+        {
+            return this.FNVHash32(obj, length, hval);
+        }
+
+        /// <summary>
+        /// Obtém o código confuso FNV-A de 32 bit.
+        /// </summary>
+        /// <param name="obj">O objecto do qual se pretende obter o código confuso.</param>
+        /// <param name="length">O comprimento a ser considerado.</param>
+        /// <param name="hval">O valor inicial.</param>
+        /// <returns>O valor do código confuso.</returns>
+        internal uint InternalGetFNVHash32A(byte[] obj, int length, uint hval)
+        {
+            return this.FNVHash32A(obj, length, hval);
+        }
+
+        /// <summary>
+        /// Obtém o código confuso FNV de 64 bit.
+        /// </summary>
+        /// <param name="obj">O objecto do qual se pretende obter o código confuso.</param>
+        /// <param name="length">O comprimento a ser considerado.</param>
+        /// <param name="hval">O valor inicial.</param>
+        /// <returns>O valor do código confuso.</returns>
+        internal ulong InternalGetFNVHash64(byte[] obj, int length, ulong hval)
+        {
+            return this.FNVHash64(obj, length, hval);
+        }
+
+        /// <summary>
+        /// Obtém o código confuso FNV-A de 64 bit.
+        /// </summary>
+        /// <param name="obj">O objecto do qual se pretende obter o código confuso.</param>
+        /// <param name="length">O comprimento a ser considerado.</param>
+        /// <param name="hval">O valor inicial.</param>
+        /// <returns>O valor do código confuso.</returns>
+        internal ulong InternalGetFNVHash64A(byte[] obj, int length, ulong hval)
+        {
+            return this.FNVHash64A(obj, length, hval);
+        }
+
+        #endregion Funções internas
+
+        #region Funções privadas
+
+        /// <summary>
+        /// Obtém o código confuso FNV de 32 bit.
+        /// </summary>
+        /// <param name="obj">O objecto do qual se pretende obter o código confuso.</param>
+        /// <param name="length">O comprimento a ser considerado.</param>
+        /// <param name="hval">O valor inicial.</param>
+        /// <returns>O valor do código confuso.</returns>
+        private uint FNVHash32(byte[] obj, int length, uint hval)
+        {
+            var result = hval;
+            for (var i = 0; i < length; ++i)
+            {
+                result += (result << 1) + (result << 4) + (result << 7) + (result << 8) + (result << 24);
+                result ^= obj[i];
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Obtém o código confuso FNV-A de 32 bit.
+        /// </summary>
+        /// <param name="obj">O objecto do qual se pretende obter o código confuso.</param>
+        /// <param name="length">O comprimento a ser considerado.</param>
+        /// <param name="hval">O valor inicial.</param>
+        /// <returns>O valor do código confuso.</returns>
+        private uint FNVHash32A(byte[] obj, int length, uint hval)
+        {
+            var result = hval;
+            for (var i = 0; i < length; ++i)
+            {
+                result ^= obj[i];
+                result += (result << 1) + (result << 4) + (result << 7) + (result << 8) + (result << 24);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Obtém o código confuso FNV de 64 bit.
+        /// </summary>
+        /// <param name="obj">O objecto do qual se pretende obter o código confuso.</param>
+        /// <param name="length">O comprimento a ser considerado.</param>
+        /// <param name="hval">O valor inicial.</param>
+        /// <returns>O valor do código confuso.</returns>
+        private ulong FNVHash64(byte[] obj, int length, ulong hval)
+        {
+            var result = hval;
+            for (var i = 0; i < length; ++i)
+            {
+                result += (result << 1) + (result << 4) + (result << 5) + (result << 7) + (result << 8) + (result << 40);
+                result ^= obj[i];
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Obtém o código confuso FNV-A de 64 bit.
+        /// </summary>
+        /// <param name="obj">O objecto do qual se pretende obter o código confuso.</param>
+        /// <param name="length">O comprimento a ser considerado.</param>
+        /// <param name="hval">O valor inicial.</param>
+        /// <returns>O valor do código confuso.</returns>
+        private ulong FNVHash64A(byte[] obj, int length, ulong hval)
+        {
+            var result = hval;
+            for (var i = 0; i < length; ++i)
+            {
+                result ^= obj[i];
+                result += (result << 1) + (result << 4) + (result << 5) + (result << 7) + (result << 8) + (result << 40);
+            }
+
+            return result;
+        }
+
+        #endregion Funções privadas
+    }
+
+    /// <summary>
+    /// Implementa o algoritmo do código confuso do Spooky.
+    /// </summary>
+    /// <remarks>Suporta o método incremental.</remarks>
+    public class SpookyHashV1 :
+        IHash32<string>,
+        IHash32<byte[]>,
+        IHash64<string>,
+        IHash64<byte[]>,
+        IHashN<string>,
+        IHashN<byte[]>
+    {
+        #region Campos privados
+
+        /// <summary>
+        /// Número de inteiros longos no estado interno.
+        /// </summary>
+        private const int scNumVars = 12;
+
+        /// <summary>
+        /// Tamanho do estado interno.
+        /// </summary>
+        private const int scBlockSize = scNumVars * 8;
+
+        /// <summary>
+        /// Tamanho em bytes do amortecedor com dados ainda não processados.
+        /// </summary>
+        private const int scBufSize = scBlockSize * 2;
+
+        /// <summary>
+        /// Uma constante.
+        /// </summary>
+        /// <remarks>
+        /// As propriedades da constante são:
+        /// 1 - É não nula.
+        /// 2 - É ímpar.
+        /// 3 - Não constitui uma mistura regular de zeros e uns.
+        /// 4 - Não possui qualquer outra propriedade notável.
+        /// </remarks>
+        private const ulong scConst = 0xDEADBEEFDEADBEEFUL;
+
+        /// <summary>
+        /// Indica se é suportado o alinhamento das leituras.
+        /// </summary>
+        private bool allowUnalignedReads;
+
+        #endregion Campos privados
+
+        #region Construtores
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="SpookyHashV1"/>.
+        /// </summary>
+        public SpookyHashV1()
+        {
+            this.allowUnalignedReads = true;
+        }
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="SpookyHashV1"/>.
+        /// </summary>
+        /// <param name="allowUnalignedReads">Valor que indica se será suportado o alinhamento da leitura.</param>
+        public SpookyHashV1(bool allowUnalignedReads)
+        {
+            this.allowUnalignedReads = allowUnalignedReads;
+        }
+
+        #endregion Construtores
+
+        #region Funções públicas
+
+        /// <summary>
+        /// Obtém o código confuso de 32 bits de um objecto.
+        /// </summary>
+        /// <param name="obj">O objecto.</param>
+        /// <returns>O código confuso.</returns>
+        public uint GetHash32(string obj)
+        {
+            if (obj == null)
+            {
+                return 0;
+            }
+            else
+            {
+                var bytes = Encoding.GetEncoding("ISO-8859-1").GetBytes(obj);
+                var low = 0UL;
+                var high = 0UL;
+                this.Hash128(bytes, 0, bytes.Length, ref low, ref high);
+                return (uint)low;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o código confuso de 32 bits de um objecto.
+        /// </summary>
+        /// <param name="obj">O objecto.</param>
+        /// <returns>O código confuso.</returns>
+        public uint GetHash32(byte[] obj)
+        {
+            if (obj == null)
+            {
+                return 0;
+            }
+            else
+            {
+                var low = 0UL;
+                var high = 0UL;
+                this.Hash128(obj, 0, obj.Length, ref low, ref high);
+                return (uint)low;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o código confuso de 64 bits de um objecto.
+        /// </summary>
+        /// <param name="obj">O objeto.</param>
+        /// <returns>O código confuso.</returns>
+        public ulong GetHash64(string obj)
+        {
+            if (obj == null)
+            {
+                return 0;
+            }
+            else
+            {
+                var bytes = Encoding.GetEncoding("ISO-8859-1").GetBytes(obj);
+                var low = 0UL;
+                var high = 0UL;
+                this.Hash128(bytes, 0, bytes.Length, ref low, ref high);
+                return low;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o código confuso de 64 bits de um objecto.
+        /// </summary>
+        /// <param name="obj">O objeto.</param>
+        /// <returns>O código confuso.</returns>
+        public ulong GetHash64(byte[] obj)
+        {
+            if (obj == null)
+            {
+                return 0;
+            }
+            else
+            {
+                var low = 0UL;
+                var high = 0UL;
+                this.Hash128(obj, 0, obj.Length, ref low, ref high);
+                return low;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o código confuso do objecto.
+        /// </summary>
+        /// <param name="obj">O objecto.</param>
+        /// <param name="bytes">O número de bytes no código confuso.</param>
+        /// <returns>O código confuso.</returns>
+        public BigInteger GetHash(string obj, int bytes)
+        {
+            if (bytes == 4)
+            {
+                return this.GetHash32(obj);
+            }
+            else if (bytes == 8)
+            {
+                return this.GetHash64(obj);
+            }
+            else if (bytes == 16)
+            {
+                var message = Encoding.GetEncoding("ISO-8859-1").GetBytes(obj);
+                var low = 0UL;
+                var high = 0UL;
+                this.Hash128(message, 0, message.Length, ref low, ref high);
+                return this.GetValue(low, high);
+            }
+            else
+            {
+                throw new NotSupportedException("Hash bytes number is not supported.");
+            }
+        }
+
+        /// <summary>
+        /// Obtém o código confuso do objecto.
+        /// </summary>
+        /// <param name="obj">O objecto.</param>
+        /// <param name="bytes">O número de bytes no código confuso.</param>
+        /// <returns>O código confuso.</returns>
+        public BigInteger GetHash(byte[] obj, int bytes)
+        {
+            if (bytes == 4)
+            {
+                return this.GetHash32(obj);
+            }
+            else if (bytes == 8)
+            {
+                return this.GetHash64(obj);
+            }
+            else if (bytes == 16)
+            {
+                var low = 0UL;
+                var high = 0UL;
+                this.Hash128(obj, 0, obj.Length, ref low, ref high);
+                return this.GetValue(low, high);
+            }
+            else
+            {
+                throw new NotSupportedException("Hash bytes number is not supported.");
+            }
+        }
+
+        #endregion Funções públicas
+
+        #region Funções internas
+
+        /// <summary>
+        /// Para efeitos de teste da função principal.
+        /// </summary>
+        /// <param name="message">A mensagem a ser testada.</param>
+        /// <param name="start">O índice a partir do qual é aplicado o algoritmo.</param>
+        /// <param name="length">O tamanho da mensagem à qual se pretende aplicar o algoritmo.</param>
+        /// <param name="seed">O valor inicial.</param>
+        /// <returns>O par (baixo, alto) com os valores parciais do código confuso.</returns>
+        internal Tuple<ulong, ulong> InternalGetHash128(
+            byte[] message,
+            int start,
+            int length,
+            ulong seed)
+        {
+            var low = seed;
+            var high = seed;
+            this.Hash128(message, start, length, ref low, ref high);
+            return Tuple.Create(low, high);
+        }
+
+        #endregion Funções internas
+
+        #region Funções privadas
+
+        /// <summary>
+        /// Determina o código confuso de 128 bit.
+        /// </summary>
+        /// <param name="message">A mensagem da qual se pretende obter o código confuso.</param>
+        /// <param name="start">O índice do início da mensagem.</param>
+        /// <param name="length">O tamanho na mensagem a ser considerado.</param>
+        /// <param name="low">O valor baixo alterado do código confuso.</param>
+        /// <param name="high">O valor alto alterado do código confuso.</param>
+        private void Hash128(
+            byte[] message,
+            int start,
+            int length,
+            ref ulong low,
+            ref ulong high)
+        {
+            if (length < scBufSize)
+            {
+                // Aplica a fórmula curta.
+                this.Short(message, start, length, ref low, ref high);
+            }
+            else
+            {
+                var buf = new byte[scNumVars * 8];
+                var h0 = low;
+                var h3 = low;
+                var h6 = low;
+                var h9 = low;
+                var h1 = high;
+                var h4 = high;
+                var h7 = high;
+                var h10 = high;
+                var h2 = scConst;
+                var h5 = scConst;
+                var h8 = scConst;
+                var h11 = scConst;
+
+                var pointer = start;
+                var endLength = (length / scBlockSize) * scNumVars * 8;
+                var displacement = scNumVars * 8;
+                if (allowUnalignedReads)
+                {
+                    for (; pointer < endLength; pointer += displacement)
+                    {
+                        this.Mix(
+                            message,
+                            pointer,
+                            ref h0,
+                            ref h1,
+                            ref h2,
+                            ref h3,
+                            ref h4,
+                            ref h5,
+                            ref h6,
+                            ref h7,
+                            ref h8,
+                            ref h9,
+                            ref h10,
+                            ref h11);
+                    }
+                }
+                else
+                {
+                    for (; pointer < endLength; pointer += displacement)
+                    {
+                        Array.Copy(message, pointer, buf, 0, scBlockSize * 8);
+                        this.Mix(
+                            buf,
+                            pointer,
+                            ref h0,
+                            ref h1,
+                            ref h2,
+                            ref h3,
+                            ref h4,
+                            ref h5,
+                            ref h6,
+                            ref h7,
+                            ref h8,
+                            ref h9,
+                            ref h10,
+                            ref h11);
+                    }
+                }
+
+                var remainder = length - endLength;
+                Array.Clear(buf, 0, buf.Length);
+                Array.Copy(message, pointer, buf, 0, remainder);
+                buf[scBlockSize - 1] = (byte)remainder;
+                this.Mix(
+                            buf,
+                            0,
+                            ref h0,
+                            ref h1,
+                            ref h2,
+                            ref h3,
+                            ref h4,
+                            ref h5,
+                            ref h6,
+                            ref h7,
+                            ref h8,
+                            ref h9,
+                            ref h10,
+                            ref h11);
+                this.End(
+                    ref h0,
+                    ref h1,
+                    ref h2,
+                    ref h3,
+                    ref h4,
+                    ref h5,
+                    ref h6,
+                    ref h7,
+                    ref h8,
+                    ref h9,
+                    ref h10,
+                    ref h11);
+                low = h0;
+                high = h1;
+            }
+        }
+
+        /// <summary>
+        /// Determina o código confuso de 128 bit para mensagens curtas.
+        /// </summary>
+        /// <param name="message">A mensagem da qual se pretende obter o código confuso.</param>
+        /// <param name="start">O índice do início da mensagem.</param>
+        /// <param name="length">O tamanho na mensagem a ser considerado.</param>
+        /// <param name="low">Os bytes menos significativos de um valor de 128 bit.</param>
+        /// <param name="high">Os bytes mais significativos de um valor de 128 bit.</param>
+        /// <returns>O código confuso.</returns>
+        private void Short(
+            byte[] message,
+            int start,
+            int length,
+            ref ulong low,
+            ref ulong high)
+        {
+            var i = start;
+            var buf = new ulong[scBufSize];
+
+            var remainder = length % 32;
+            var a = low;
+            var b = high;
+            var c = scConst;
+            var d = scConst;
+
+            if (length > 15)
+            {
+                var end = i + (length / 32) * 32;
+                for (; i < end; i += 32)
+                {
+                    c += BitConverter.ToUInt64(message, i);
+                    d += BitConverter.ToUInt64(message, i + 8);
+                    this.ShortMix(ref a, ref b, ref c, ref d);
+                    a += BitConverter.ToUInt64(message, i + 16);
+                    b += BitConverter.ToUInt64(message, i + 24);
+                }
+
+                if (remainder >= 16)
+                {
+                    c += BitConverter.ToUInt64(message, i);
+                    d += BitConverter.ToUInt64(message, i + 8);
+                    this.ShortMix(ref a, ref b, ref c, ref d);
+                    i += 16;
+                    remainder -= 16;
+                }
+            }
+
+            d = ((ulong)length) << 56;
+            switch (remainder)
+            {
+                case 15:
+                    d += ((ulong)message[i + 14]) << 48;
+                    goto case 14;
+                case 14:
+                    d += ((ulong)message[i + 13]) << 40;
+                    goto case 13;
+                case 13:
+                    d += ((ulong)message[i + 12]) << 32;
+                    goto case 12;
+                case 12:
+                    d += BitConverter.ToUInt32(message, i + 8);
+                    c += BitConverter.ToUInt64(message, i);
+                    break;
+                case 11:
+                    d += ((ulong)message[i + 10]) << 16;
+                    goto case 10;
+                case 10:
+                    d += ((ulong)message[i + 9]) << 8;
+                    goto case 9;
+                case 9:
+                    d += ((ulong)message[i + 8]);
+                    goto case 8;
+                case 8:
+                    c += BitConverter.ToUInt64(message, i);
+                    break;
+                case 7:
+                    c += ((ulong)message[i + 6]) << 48;
+                    goto case 6;
+                case 6:
+                    c += ((ulong)message[i + 5]) << 40;
+                    goto case 5;
+                case 5:
+                    c += ((ulong)message[i + 4]) << 32;
+                    goto case 4;
+                case 4:
+                    c += BitConverter.ToUInt32(message, i);
+                    break;
+                case 3:
+                    c += ((ulong)message[i + 2]) << 16;
+                    goto case 2;
+                case 2:
+                    c += ((ulong)message[i + 1]) << 8;
+                    goto case 1;
+                case 1:
+                    c += ((ulong)message[i]);
+                    break;
+                case 0:
+                    d += scConst;
+                    c += scConst;
+                    break;
+            }
+
+            // Investigar a diferença entre leituras de memória alinhadas e não alinhadas.
+            this.ShortEnd(ref a, ref b, ref c, ref d);
+            low = a;
+            high = b;
+        }
+
+        /// <summary>
+        /// Efectua a mistura dos estados com os dados.
+        /// </summary>
+        /// <param name="data">Os dados.</param>
+        /// <param name="pointer">O índice inicial dos dados.</param>
+        /// <param name="s0">s0.</param>
+        /// <param name="s1">s1.</param>
+        /// <param name="s2">s2.</param>
+        /// <param name="s3">s3.</param>
+        /// <param name="s4">s4.</param>
+        /// <param name="s5">s5.</param>
+        /// <param name="s6">s6.</param>
+        /// <param name="s7">s7.</param>
+        /// <param name="s8">s8.</param>
+        /// <param name="s9">s9.</param>
+        /// <param name="s10">s10.</param>
+        /// <param name="s11">s11.</param>
+        private void Mix(
+            byte[] data,
+            int pointer,
+            ref ulong s0,
+            ref ulong s1,
+            ref ulong s2,
+            ref ulong s3,
+            ref ulong s4,
+            ref ulong s5,
+            ref ulong s6,
+            ref ulong s7,
+            ref ulong s8,
+            ref ulong s9,
+            ref ulong s10,
+            ref ulong s11)
+        {
+            var i = pointer;
+            s0 += BitConverter.ToUInt64(data, i);
+            i += 8;
+            s2 ^= s10;
+            s11 ^= s0;
+            s0 = Utils.RotateLeft(s0, 11);
+            s11 += s1;
+            s1 += BitConverter.ToUInt64(data, i);
+            i += 8;
+            s3 ^= s11;
+            s0 ^= s1;
+            s1 = Utils.RotateLeft(s1, 32);
+            s0 += s2;
+            s2 += BitConverter.ToUInt64(data, i);
+            i += 8;
+            s4 ^= s0;
+            s1 ^= s2;
+            s2 = Utils.RotateLeft(s2, 43);
+            s1 += s3;
+            s3 += BitConverter.ToUInt64(data, i);
+            i += 8;
+            s5 ^= s1;
+            s2 ^= s3;
+            s3 = Utils.RotateLeft(s3, 31);
+            s2 += s4;
+            s4 += BitConverter.ToUInt64(data, i);
+            i += 8;
+            s6 ^= s2;
+            s3 ^= s4;
+            s4 = Utils.RotateLeft(s4, 17);
+            s3 += s5;
+            s5 += BitConverter.ToUInt64(data, i);
+            i += 8;
+            s7 ^= s3;
+            s4 ^= s5;
+            s5 = Utils.RotateLeft(s5, 28);
+            s4 += s6;
+            s6 += BitConverter.ToUInt64(data, i);
+            i += 8;
+            s8 ^= s4;
+            s5 ^= s6;
+            s6 = Utils.RotateLeft(s6, 39);
+            s5 += s7;
+            s7 += BitConverter.ToUInt64(data, i);
+            i += 8;
+            s9 ^= s5;
+            s6 ^= s7;
+            s7 = Utils.RotateLeft(s7, 57);
+            s6 += s8;
+            s8 += BitConverter.ToUInt64(data, i);
+            i += 8;
+            s10 ^= s6;
+            s7 ^= s8;
+            s8 = Utils.RotateLeft(s8, 55);
+            s7 += s9;
+            s9 += BitConverter.ToUInt64(data, i);
+            i += 8;
+            s11 ^= s7;
+            s8 ^= s9;
+            s9 = Utils.RotateLeft(s9, 54);
+            s8 += s10;
+            s10 += BitConverter.ToUInt64(data, i);
+            i += 8;
+            s0 ^= s8;
+            s9 ^= s10;
+            s10 = Utils.RotateLeft(s10, 22);
+            s9 += s11;
+            s11 += BitConverter.ToUInt64(data, i);
+            i += 8;
+            s1 ^= s9;
+            s10 ^= s11;
+            s11 = Utils.RotateLeft(s11, 46);
+            s10 += s0;
+        }
+
+        /// <summary>
+        /// Efectua a mistura final parcial.
+        /// </summary>
+        /// <param name="h0">h0.</param>
+        /// <param name="h1">h1.</param>
+        /// <param name="h2">h2.</param>
+        /// <param name="h3">h3.</param>
+        /// <param name="h4">h4.</param>
+        /// <param name="h5">h5.</param>
+        /// <param name="h6">h6.</param>
+        /// <param name="h7">h7.</param>
+        /// <param name="h8">h8.</param>
+        /// <param name="h9">h9.</param>
+        /// <param name="h10">h10.</param>
+        /// <param name="h11">h11.</param>
+        private void EndPartial(
+            ref ulong h0,
+            ref ulong h1,
+            ref ulong h2,
+            ref ulong h3,
+            ref ulong h4,
+            ref ulong h5,
+            ref ulong h6,
+            ref ulong h7,
+            ref ulong h8,
+            ref ulong h9,
+            ref ulong h10,
+            ref ulong h11)
+        {
+            h11 += h1;
+            h2 ^= h11;
+            h1 = Utils.RotateLeft(h1, 44);
+            h0 += h2;
+            h3 ^= h0;
+            h2 = Utils.RotateLeft(h2, 15);
+            h1 += h3;
+            h4 ^= h1;
+            h3 = Utils.RotateLeft(h3, 34);
+            h2 += h4;
+            h5 ^= h2;
+            h4 = Utils.RotateLeft(h4, 21);
+            h3 += h5;
+            h6 ^= h3;
+            h5 = Utils.RotateLeft(h5, 38);
+            h4 += h6;
+            h7 ^= h4;
+            h6 = Utils.RotateLeft(h6, 33);
+            h5 += h7;
+            h8 ^= h5;
+            h7 = Utils.RotateLeft(h7, 10);
+            h6 += h8;
+            h9 ^= h6;
+            h8 = Utils.RotateLeft(h8, 13);
+            h7 += h9;
+            h10 ^= h7;
+            h9 = Utils.RotateLeft(h9, 38);
+            h8 += h10;
+            h11 ^= h8;
+            h10 = Utils.RotateLeft(h10, 53);
+            h9 += h11;
+            h0 ^= h9;
+            h11 = Utils.RotateLeft(h11, 42);
+            h10 += h0;
+            h1 ^= h10;
+            h0 = Utils.RotateLeft(h0, 54);
+        }
+
+        /// <summary>
+        /// Efectua a mistura final.
+        /// </summary>
+        /// <param name="h0">h0.</param>
+        /// <param name="h1">h1.</param>
+        /// <param name="h2">h2.</param>
+        /// <param name="h3">h3.</param>
+        /// <param name="h4">h4.</param>
+        /// <param name="h5">h5.</param>
+        /// <param name="h6">h6.</param>
+        /// <param name="h7">h7.</param>
+        /// <param name="h8">h8.</param>
+        /// <param name="h9">h9.</param>
+        /// <param name="h10">h10.</param>
+        /// <param name="h11">h11.</param>
+        private void End(
+            ref ulong h0,
+            ref ulong h1,
+            ref ulong h2,
+            ref ulong h3,
+            ref ulong h4,
+            ref ulong h5,
+            ref ulong h6,
+            ref ulong h7,
+            ref ulong h8,
+            ref ulong h9,
+            ref ulong h10,
+            ref ulong h11)
+        {
+            this.EndPartial(ref h0, ref h1, ref h2, ref h3, ref h4, ref h5, ref h6, ref h7, ref h8, ref h9, ref h10, ref h11);
+            this.EndPartial(ref h0, ref h1, ref h2, ref h3, ref h4, ref h5, ref h6, ref h7, ref h8, ref h9, ref h10, ref h11);
+            this.EndPartial(ref h0, ref h1, ref h2, ref h3, ref h4, ref h5, ref h6, ref h7, ref h8, ref h9, ref h10, ref h11);
+        }
+
+        /// <summary>
+        /// Efectua uma mistura de valores de pequenas dimensões.
+        /// </summary>
+        /// <param name="h0">h0.</param>
+        /// <param name="h1">h1.</param>
+        /// <param name="h2">h2.</param>
+        /// <param name="h3">h3.</param>
+        private void ShortMix(
+            ref ulong h0,
+            ref ulong h1,
+            ref ulong h2,
+            ref ulong h3)
+        {
+            h2 = Utils.RotateLeft(h2, 50);
+            h2 += h3;
+            h0 ^= h2;
+            h3 = Utils.RotateLeft(h3, 52);
+            h3 += h0;
+            h1 ^= h3;
+            h0 = Utils.RotateLeft(h0, 30);
+            h0 += h1;
+            h2 ^= h0;
+            h1 = Utils.RotateLeft(h1, 41);
+            h1 += h2;
+            h3 ^= h1;
+            h2 = Utils.RotateLeft(h2, 54);
+            h2 += h3;
+            h0 ^= h2;
+            h3 = Utils.RotateLeft(h3, 48);
+            h3 += h0;
+            h1 ^= h3;
+            h0 = Utils.RotateLeft(h0, 38);
+            h0 += h1;
+            h2 ^= h0;
+            h1 = Utils.RotateLeft(h1, 37);
+            h1 += h2;
+            h3 ^= h1;
+            h2 = Utils.RotateLeft(h2, 62);
+            h2 += h3;
+            h0 ^= h2;
+            h3 = Utils.RotateLeft(h3, 34);
+            h3 += h0;
+            h1 ^= h3;
+            h0 = Utils.RotateLeft(h0, 5);
+            h0 += h1;
+            h2 ^= h0;
+            h1 = Utils.RotateLeft(h1, 36);
+            h1 += h2;
+            h3 ^= h1;
+        }
+
+        /// <summary>
+        /// Efectua a mistura final de valores de pequenas dimensões.
+        /// </summary>
+        /// <param name="h0">h0.</param>
+        /// <param name="h1">h1.</param>
+        /// <param name="h2">h2.</param>
+        /// <param name="h3">h3.</param>
+        private void ShortEnd(
+            ref ulong h0,
+            ref ulong h1,
+            ref ulong h2,
+            ref ulong h3)
+        {
+            h3 ^= h2;
+            h2 = Utils.RotateLeft(h2, 15);
+            h3 += h2;
+            h0 ^= h3;
+            h3 = Utils.RotateLeft(h3, 52);
+            h0 += h3;
+            h1 ^= h0;
+            h0 = Utils.RotateLeft(h0, 26);
+            h1 += h0;
+            h2 ^= h1;
+            h1 = Utils.RotateLeft(h1, 51);
+            h2 += h1;
+            h3 ^= h2;
+            h2 = Utils.RotateLeft(h2, 28);
+            h3 += h2;
+            h0 ^= h3;
+            h3 = Utils.RotateLeft(h3, 9);
+            h0 += h3;
+            h1 ^= h0;
+            h0 = Utils.RotateLeft(h0, 47);
+            h1 += h0;
+            h2 ^= h1;
+            h1 = Utils.RotateLeft(h1, 54);
+            h2 += h1;
+            h3 ^= h2;
+            h2 = Utils.RotateLeft(h2, 32);
+            h3 += h2;
+            h0 ^= h3;
+            h3 = Utils.RotateLeft(h3, 25);
+            h0 += h3;
+            h1 ^= h0;
+            h0 = Utils.RotateLeft(h0, 63);
+            h1 += h0;
+        }
+
+        /// <summary>
+        /// Obtém o valor inteiro a partir das suas partes.
+        /// </summary>
+        /// <param name="low">O valor baixo.</param>
+        /// <param name="high">O valor alto.</param>
+        /// <returns>O inteiro.</returns>
+        private BigInteger GetValue(ulong low, ulong high)
+        {
+            var temp = new byte[16];
+            var lowBytes = BitConverter.GetBytes(low);
+            var highBytes = BitConverter.GetBytes(high);
+            Array.Copy(lowBytes, temp, 8);
+            Array.Copy(highBytes, 0, temp, 8, 8);
+            return new BigInteger(temp);
+        }
+
+        #endregion Funções privadas
+    }
+
+    /// <summary>
+    /// Implementa o algoritmo do código confuso do Spooky.
+    /// </summary>
+    /// <remarks>
+    /// Suporta o método incremental.
+    /// </remarks>
+    public class SpookyHashV2 :
+        IHash32<string>,
+        IHash32<byte[]>,
+        IHash64<string>,
+        IHash64<byte[]>,
+        IHashN<string>,
+        IHashN<byte[]>
+    {
+        #region Campos privados
+
+        /// <summary>
+        /// Número de inteiros longos no estado interno.
+        /// </summary>
+        private const int scNumVars = 12;
+
+        /// <summary>
+        /// Tamanho do estado interno.
+        /// </summary>
+        private const int scBlockSize = scNumVars * 8;
+
+        /// <summary>
+        /// Tamanho em bytes do amortecedor com dados ainda não processados.
+        /// </summary>
+        private const int scBufSize = scBlockSize * 2;
+
+        /// <summary>
+        /// Uma constante.
+        /// </summary>
+        /// <remarks>
+        /// As propriedades da constante são:
+        /// 1 - É não nula.
+        /// 2 - É ímpar.
+        /// 3 - Não constitui uma mistura regular de zeros e uns.
+        /// 4 - Não possui qualquer outra propriedade notável.
+        /// </remarks>
+        private const ulong scConst = 0xDEADBEEFDEADBEEFUL;
+
+        /// <summary>
+        /// Indica se é suportado o alinhamento das leituras.
+        /// </summary>
+        private bool allowUnalignedReads;
+
+        #endregion Campos privados
+
+        #region Construtores
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="SpookyHashV1"/>.
+        /// </summary>
+        public SpookyHashV2()
+        {
+            this.allowUnalignedReads = true;
+        }
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="SpookyHashV1"/>.
+        /// </summary>
+        /// <param name="allowUnalignedReads">Valor que indica se será suportado o alinhamento da leitura.</param>
+        public SpookyHashV2(bool allowUnalignedReads)
+        {
+            this.allowUnalignedReads = allowUnalignedReads;
+        }
+
+        #endregion Construtores
+
+        #region Funções públicas
+
+        /// <summary>
+        /// Obtém o código confuso de 32 bits de um objecto.
+        /// </summary>
+        /// <param name="obj">O objecto.</param>
+        /// <returns>O código confuso.</returns>
+        public uint GetHash32(string obj)
+        {
+            if (obj == null)
+            {
+                return 0;
+            }
+            else
+            {
+                var bytes = Encoding.GetEncoding("ISO-8859-1").GetBytes(obj);
+                var low = 0UL;
+                var high = 0UL;
+                this.Hash128(bytes, 0, bytes.Length, ref low, ref high);
+                return (uint)low;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o código confuso de 32 bits de um objecto.
+        /// </summary>
+        /// <param name="obj">O objecto.</param>
+        /// <returns>O código confuso.</returns>
+        public uint GetHash32(byte[] obj)
+        {
+            if (obj == null)
+            {
+                return 0;
+            }
+            else
+            {
+                var low = 0UL;
+                var high = 0UL;
+                this.Hash128(obj, 0, obj.Length, ref low, ref high);
+                return (uint)low;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o código confuso de 64 bits de um objecto.
+        /// </summary>
+        /// <param name="obj">O objeto.</param>
+        /// <returns>O código confuso.</returns>
+        public ulong GetHash64(string obj)
+        {
+            if (obj == null)
+            {
+                return 0;
+            }
+            else
+            {
+                var bytes = Encoding.GetEncoding("ISO-8859-1").GetBytes(obj);
+                var low = 0UL;
+                var high = 0UL;
+                this.Hash128(bytes, 0, bytes.Length, ref low, ref high);
+                return low;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o código confuso de 64 bits de um objecto.
+        /// </summary>
+        /// <param name="obj">O objeto.</param>
+        /// <returns>O código confuso.</returns>
+        public ulong GetHash64(byte[] obj)
+        {
+            if (obj == null)
+            {
+                return 0;
+            }
+            else
+            {
+                var low = 0UL;
+                var high = 0UL;
+                this.Hash128(obj, 0, obj.Length, ref low, ref high);
+                return low;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o código confuso do objecto.
+        /// </summary>
+        /// <param name="obj">O objecto.</param>
+        /// <param name="bytes">O número de bytes no código confuso.</param>
+        /// <returns>O código confuso.</returns>
+        public BigInteger GetHash(string obj, int bytes)
+        {
+            if (bytes == 4)
+            {
+                return this.GetHash32(obj);
+            }
+            else if (bytes == 8)
+            {
+                return this.GetHash64(obj);
+            }
+            else if (bytes == 16)
+            {
+                var message = Encoding.GetEncoding("ISO-8859-1").GetBytes(obj);
+                var low = 0UL;
+                var high = 0UL;
+                this.Hash128(message, 0, message.Length, ref low, ref high);
+                return this.GetValue(low, high);
+            }
+            else
+            {
+                throw new NotSupportedException("Hash bytes number is not supported.");
+            }
+        }
+
+        /// <summary>
+        /// Obtém o código confuso do objecto.
+        /// </summary>
+        /// <param name="obj">O objecto.</param>
+        /// <param name="bytes">O número de bytes no código confuso.</param>
+        /// <returns>O código confuso.</returns>
+        public BigInteger GetHash(byte[] obj, int bytes)
+        {
+            if (bytes == 4)
+            {
+                return this.GetHash32(obj);
+            }
+            else if (bytes == 8)
+            {
+                return this.GetHash64(obj);
+            }
+            else if (bytes == 16)
+            {
+                var low = 0UL;
+                var high = 0UL;
+                this.Hash128(obj, 0, obj.Length, ref low, ref high);
+                return this.GetValue(low, high);
+            }
+            else
+            {
+                throw new NotSupportedException("Hash bytes number is not supported.");
+            }
+        }
+
+        #endregion Funções públicas
+
+        #region Funções internas
+
+        /// <summary>
+        /// Para efeitos de teste da função principal.
+        /// </summary>
+        /// <param name="message">A mensagem a ser testada.</param>
+        /// <param name="start">O índice a partir do qual é aplicado o algoritmo.</param>
+        /// <param name="length">O tamanho da mensagem à qual se pretende aplicar o algoritmo.</param>
+        /// <param name="seed">O valor inicial.</param>
+        /// <returns>O par (baixo, alto) com os valores parciais do código confuso.</returns>
+        internal Tuple<ulong, ulong> InternalGetHash128(
+            byte[] message,
+            int start,
+            int length,
+            ulong seed)
+        {
+            var low = seed;
+            var high = seed;
+            this.Hash128(message, start, length, ref low, ref high);
+            return Tuple.Create(low, high);
+        }
+
+        #endregion Funções internas
+
+        #region Funções privadas
+
+        /// <summary>
+        /// Determina o código confuso de 128 bit.
+        /// </summary>
+        /// <param name="message">A mensagem da qual se pretende obter o código confuso.</param>
+        /// <param name="start">O índice do início da mensagem.</param>
+        /// <param name="length">O tamanho na mensagem a ser considerado.</param>
+        /// <param name="low">O valor baixo alterado do código confuso.</param>
+        /// <param name="high">O valor alto alterado do código confuso.</param>
+        private void Hash128(
+            byte[] message,
+            int start,
+            int length,
+            ref ulong low,
+            ref ulong high)
+        {
+            if (length < scBufSize)
+            {
+                // Aplica a fórmula curta.
+                this.Short(message, start, length, ref low, ref high);
+            }
+            else
+            {
+                var buf = new byte[scNumVars * 8];
+                var h0 = low;
+                var h3 = low;
+                var h6 = low;
+                var h9 = low;
+                var h1 = high;
+                var h4 = high;
+                var h7 = high;
+                var h10 = high;
+                var h2 = scConst;
+                var h5 = scConst;
+                var h8 = scConst;
+                var h11 = scConst;
+
+                var pointer = start;
+                var endLength = (length / scBlockSize) * scNumVars * 8;
+                var displacement = scNumVars * 8;
+                if (allowUnalignedReads)
+                {
+                    for (; pointer < endLength; pointer += displacement)
+                    {
+                        this.Mix(
+                            message,
+                            pointer,
+                            ref h0,
+                            ref h1,
+                            ref h2,
+                            ref h3,
+                            ref h4,
+                            ref h5,
+                            ref h6,
+                            ref h7,
+                            ref h8,
+                            ref h9,
+                            ref h10,
+                            ref h11);
+                    }
+                }
+                else
+                {
+                    for (; pointer < endLength; pointer += displacement)
+                    {
+                        Array.Copy(message, pointer, buf, 0, scBlockSize);
+                        this.Mix(
+                            buf,
+                            pointer,
+                            ref h0,
+                            ref h1,
+                            ref h2,
+                            ref h3,
+                            ref h4,
+                            ref h5,
+                            ref h6,
+                            ref h7,
+                            ref h8,
+                            ref h9,
+                            ref h10,
+                            ref h11);
+                    }
+                }
+
+                var remainder = length - endLength;
+                Array.Clear(buf, 0, buf.Length);
+                Array.Copy(message, pointer, buf, 0, remainder);
+                buf[scBlockSize - 1] = (byte)remainder;
+
+                this.End(
+                    buf,
+                    ref h0,
+                    ref h1,
+                    ref h2,
+                    ref h3,
+                    ref h4,
+                    ref h5,
+                    ref h6,
+                    ref h7,
+                    ref h8,
+                    ref h9,
+                    ref h10,
+                    ref h11);
+                low = h0;
+                high = h1;
+            }
+        }
+
+        /// <summary>
+        /// Determina o código confuso de 128 bit para mensagens curtas.
+        /// </summary>
+        /// <param name="message">A mensagem da qual se pretende obter o código confuso.</param>
+        /// <param name="start">O índice do início da mensagem.</param>
+        /// <param name="length">O tamanho na mensagem a ser considerado.</param>
+        /// <param name="low">Os bytes menos significativos de um valor de 128 bit.</param>
+        /// <param name="high">Os bytes mais significativos de um valor de 128 bit.</param>
+        /// <returns>O código confuso.</returns>
+        private void Short(
+            byte[] message,
+            int start,
+            int length,
+            ref ulong low,
+            ref ulong high)
+        {
+            var i = start;
+            var buf = new ulong[scBufSize];
+
+            var remainder = length % 32;
+            var a = low;
+            var b = high;
+            var c = scConst;
+            var d = scConst;
+
+            if (length > 15)
+            {
+                var end = i + (length / 32) * 32;
+                for (; i < end; i += 32)
+                {
+                    c += BitConverter.ToUInt64(message, i);
+                    d += BitConverter.ToUInt64(message, i + 8);
+                    this.ShortMix(ref a, ref b, ref c, ref d);
+                    a += BitConverter.ToUInt64(message, i + 16);
+                    b += BitConverter.ToUInt64(message, i + 24);
+                }
+
+                if (remainder >= 16)
+                {
+                    c += BitConverter.ToUInt64(message, i);
+                    d += BitConverter.ToUInt64(message, i + 8);
+                    this.ShortMix(ref a, ref b, ref c, ref d);
+                    i += 16;
+                    remainder -= 16;
+                }
+            }
+
+            d += ((ulong)length) << 56;
+            switch (remainder)
+            {
+                case 15:
+                    d += ((ulong)message[i + 14]) << 48;
+                    goto case 14;
+                case 14:
+                    d += ((ulong)message[i + 13]) << 40;
+                    goto case 13;
+                case 13:
+                    d += ((ulong)message[i + 12]) << 32;
+                    goto case 12;
+                case 12:
+                    d += BitConverter.ToUInt32(message, i + 8);
+                    c += BitConverter.ToUInt64(message, i);
+                    break;
+                case 11:
+                    d += ((ulong)message[i + 10]) << 16;
+                    goto case 10;
+                case 10:
+                    d += ((ulong)message[i + 9]) << 8;
+                    goto case 9;
+                case 9:
+                    d += ((ulong)message[i + 8]);
+                    goto case 8;
+                case 8:
+                    c += BitConverter.ToUInt64(message, i);
+                    break;
+                case 7:
+                    c += ((ulong)message[i + 6]) << 48;
+                    goto case 6;
+                case 6:
+                    c += ((ulong)message[i + 5]) << 40;
+                    goto case 5;
+                case 5:
+                    c += ((ulong)message[i + 4]) << 32;
+                    goto case 4;
+                case 4:
+                    c += BitConverter.ToUInt32(message, i);
+                    break;
+                case 3:
+                    c += ((ulong)message[i + 2]) << 16;
+                    goto case 2;
+                case 2:
+                    c += ((ulong)message[i + 1]) << 8;
+                    goto case 1;
+                case 1:
+                    c += ((ulong)message[i]);
+                    break;
+                case 0:
+                    d += scConst;
+                    c += scConst;
+                    break;
+            }
+
+            // Investigar a diferença entre leituras de memória alinhadas e não alinhadas.
+            this.ShortEnd(ref a, ref b, ref c, ref d);
+            low = a;
+            high = b;
+        }
+
+        /// <summary>
+        /// Efectua a mistura dos estados com os dados.
+        /// </summary>
+        /// <param name="data">Os dados.</param>
+        /// <param name="pointer">O índice inicial dos dados.</param>
+        /// <param name="s0">s0.</param>
+        /// <param name="s1">s1.</param>
+        /// <param name="s2">s2.</param>
+        /// <param name="s3">s3.</param>
+        /// <param name="s4">s4.</param>
+        /// <param name="s5">s5.</param>
+        /// <param name="s6">s6.</param>
+        /// <param name="s7">s7.</param>
+        /// <param name="s8">s8.</param>
+        /// <param name="s9">s9.</param>
+        /// <param name="s10">s10.</param>
+        /// <param name="s11">s11.</param>
+        private void Mix(
+            byte[] data,
+            int pointer,
+            ref ulong s0,
+            ref ulong s1,
+            ref ulong s2,
+            ref ulong s3,
+            ref ulong s4,
+            ref ulong s5,
+            ref ulong s6,
+            ref ulong s7,
+            ref ulong s8,
+            ref ulong s9,
+            ref ulong s10,
+            ref ulong s11)
+        {
+            var i = pointer;
+            s0 += BitConverter.ToUInt64(data, i);
+            i += 8;
+            s2 ^= s10;
+            s11 ^= s0;
+            s0 = Utils.RotateLeft(s0, 11);
+            s11 += s1;
+            s1 += BitConverter.ToUInt64(data, i);
+            i += 8;
+            s3 ^= s11;
+            s0 ^= s1;
+            s1 = Utils.RotateLeft(s1, 32);
+            s0 += s2;
+            s2 += BitConverter.ToUInt64(data, i);
+            i += 8;
+            s4 ^= s0;
+            s1 ^= s2;
+            s2 = Utils.RotateLeft(s2, 43);
+            s1 += s3;
+            s3 += BitConverter.ToUInt64(data, i);
+            i += 8;
+            s5 ^= s1;
+            s2 ^= s3;
+            s3 = Utils.RotateLeft(s3, 31);
+            s2 += s4;
+            s4 += BitConverter.ToUInt64(data, i);
+            i += 8;
+            s6 ^= s2;
+            s3 ^= s4;
+            s4 = Utils.RotateLeft(s4, 17);
+            s3 += s5;
+            s5 += BitConverter.ToUInt64(data, i);
+            i += 8;
+            s7 ^= s3;
+            s4 ^= s5;
+            s5 = Utils.RotateLeft(s5, 28);
+            s4 += s6;
+            s6 += BitConverter.ToUInt64(data, i);
+            i += 8;
+            s8 ^= s4;
+            s5 ^= s6;
+            s6 = Utils.RotateLeft(s6, 39);
+            s5 += s7;
+            s7 += BitConverter.ToUInt64(data, i);
+            i += 8;
+            s9 ^= s5;
+            s6 ^= s7;
+            s7 = Utils.RotateLeft(s7, 57);
+            s6 += s8;
+            s8 += BitConverter.ToUInt64(data, i);
+            i += 8;
+            s10 ^= s6;
+            s7 ^= s8;
+            s8 = Utils.RotateLeft(s8, 55);
+            s7 += s9;
+            s9 += BitConverter.ToUInt64(data, i);
+            i += 8;
+            s11 ^= s7;
+            s8 ^= s9;
+            s9 = Utils.RotateLeft(s9, 54);
+            s8 += s10;
+            s10 += BitConverter.ToUInt64(data, i);
+            i += 8;
+            s0 ^= s8;
+            s9 ^= s10;
+            s10 = Utils.RotateLeft(s10, 22);
+            s9 += s11;
+            s11 += BitConverter.ToUInt64(data, i);
+            i += 8;
+            s1 ^= s9;
+            s10 ^= s11;
+            s11 = Utils.RotateLeft(s11, 46);
+            s10 += s0;
+        }
+
+        /// <summary>
+        /// Efectua a mistura final parcial.
+        /// </summary>
+        /// <param name="h0">h0.</param>
+        /// <param name="h1">h1.</param>
+        /// <param name="h2">h2.</param>
+        /// <param name="h3">h3.</param>
+        /// <param name="h4">h4.</param>
+        /// <param name="h5">h5.</param>
+        /// <param name="h6">h6.</param>
+        /// <param name="h7">h7.</param>
+        /// <param name="h8">h8.</param>
+        /// <param name="h9">h9.</param>
+        /// <param name="h10">h10.</param>
+        /// <param name="h11">h11.</param>
+        private void EndPartial(
+            ref ulong h0,
+            ref ulong h1,
+            ref ulong h2,
+            ref ulong h3,
+            ref ulong h4,
+            ref ulong h5,
+            ref ulong h6,
+            ref ulong h7,
+            ref ulong h8,
+            ref ulong h9,
+            ref ulong h10,
+            ref ulong h11)
+        {
+            h11 += h1;
+            h2 ^= h11;
+            h1 = Utils.RotateLeft(h1, 44);
+            h0 += h2;
+            h3 ^= h0;
+            h2 = Utils.RotateLeft(h2, 15);
+            h1 += h3;
+            h4 ^= h1;
+            h3 = Utils.RotateLeft(h3, 34);
+            h2 += h4;
+            h5 ^= h2;
+            h4 = Utils.RotateLeft(h4, 21);
+            h3 += h5;
+            h6 ^= h3;
+            h5 = Utils.RotateLeft(h5, 38);
+            h4 += h6;
+            h7 ^= h4;
+            h6 = Utils.RotateLeft(h6, 33);
+            h5 += h7;
+            h8 ^= h5;
+            h7 = Utils.RotateLeft(h7, 10);
+            h6 += h8;
+            h9 ^= h6;
+            h8 = Utils.RotateLeft(h8, 13);
+            h7 += h9;
+            h10 ^= h7;
+            h9 = Utils.RotateLeft(h9, 38);
+            h8 += h10;
+            h11 ^= h8;
+            h10 = Utils.RotateLeft(h10, 53);
+            h9 += h11;
+            h0 ^= h9;
+            h11 = Utils.RotateLeft(h11, 42);
+            h10 += h0;
+            h1 ^= h10;
+            h0 = Utils.RotateLeft(h0, 54);
+        }
+
+        /// <summary>
+        /// Efectua a mistura final.
+        /// </summary>
+        /// <param name="data">Os dados a serem processados.</param>
+        /// <param name="h0">h0.</param>
+        /// <param name="h1">h1.</param>
+        /// <param name="h2">h2.</param>
+        /// <param name="h3">h3.</param>
+        /// <param name="h4">h4.</param>
+        /// <param name="h5">h5.</param>
+        /// <param name="h6">h6.</param>
+        /// <param name="h7">h7.</param>
+        /// <param name="h8">h8.</param>
+        /// <param name="h9">h9.</param>
+        /// <param name="h10">h10.</param>
+        /// <param name="h11">h11.</param>
+        private void End(
+            byte[] data,
+            ref ulong h0,
+            ref ulong h1,
+            ref ulong h2,
+            ref ulong h3,
+            ref ulong h4,
+            ref ulong h5,
+            ref ulong h6,
+            ref ulong h7,
+            ref ulong h8,
+            ref ulong h9,
+            ref ulong h10,
+            ref ulong h11)
+        {
+            h0 += BitConverter.ToUInt64(data, 0);
+            h1 += BitConverter.ToUInt64(data, 8);
+            h2 += BitConverter.ToUInt64(data, 16);
+            h3 += BitConverter.ToUInt64(data, 24);
+            h4 += BitConverter.ToUInt64(data, 32);
+            h5 += BitConverter.ToUInt64(data, 40);
+            h6 += BitConverter.ToUInt64(data, 48);
+            h7 += BitConverter.ToUInt64(data, 56);
+            h8 += BitConverter.ToUInt64(data, 64);
+            h9 += BitConverter.ToUInt64(data, 72);
+            h10 += BitConverter.ToUInt64(data, 80);
+            h11 += BitConverter.ToUInt64(data, 88);
+            this.EndPartial(ref h0, ref h1, ref h2, ref h3, ref h4, ref h5, ref h6, ref h7, ref h8, ref h9, ref h10, ref h11);
+            this.EndPartial(ref h0, ref h1, ref h2, ref h3, ref h4, ref h5, ref h6, ref h7, ref h8, ref h9, ref h10, ref h11);
+            this.EndPartial(ref h0, ref h1, ref h2, ref h3, ref h4, ref h5, ref h6, ref h7, ref h8, ref h9, ref h10, ref h11);
+        }
+
+        /// <summary>
+        /// Efectua uma mistura de valores de pequenas dimensões.
+        /// </summary>
+        /// <param name="h0">h0.</param>
+        /// <param name="h1">h1.</param>
+        /// <param name="h2">h2.</param>
+        /// <param name="h3">h3.</param>
+        private void ShortMix(
+            ref ulong h0,
+            ref ulong h1,
+            ref ulong h2,
+            ref ulong h3)
+        {
+            h2 = Utils.RotateLeft(h2, 50);
+            h2 += h3;
+            h0 ^= h2;
+            h3 = Utils.RotateLeft(h3, 52);
+            h3 += h0;
+            h1 ^= h3;
+            h0 = Utils.RotateLeft(h0, 30);
+            h0 += h1;
+            h2 ^= h0;
+            h1 = Utils.RotateLeft(h1, 41);
+            h1 += h2;
+            h3 ^= h1;
+            h2 = Utils.RotateLeft(h2, 54);
+            h2 += h3;
+            h0 ^= h2;
+            h3 = Utils.RotateLeft(h3, 48);
+            h3 += h0;
+            h1 ^= h3;
+            h0 = Utils.RotateLeft(h0, 38);
+            h0 += h1;
+            h2 ^= h0;
+            h1 = Utils.RotateLeft(h1, 37);
+            h1 += h2;
+            h3 ^= h1;
+            h2 = Utils.RotateLeft(h2, 62);
+            h2 += h3;
+            h0 ^= h2;
+            h3 = Utils.RotateLeft(h3, 34);
+            h3 += h0;
+            h1 ^= h3;
+            h0 = Utils.RotateLeft(h0, 5);
+            h0 += h1;
+            h2 ^= h0;
+            h1 = Utils.RotateLeft(h1, 36);
+            h1 += h2;
+            h3 ^= h1;
+        }
+
+        /// <summary>
+        /// Efectua a mistura final de valores de pequenas dimensões.
+        /// </summary>
+        /// <param name="h0">h0.</param>
+        /// <param name="h1">h1.</param>
+        /// <param name="h2">h2.</param>
+        /// <param name="h3">h3.</param>
+        private void ShortEnd(
+            ref ulong h0,
+            ref ulong h1,
+            ref ulong h2,
+            ref ulong h3)
+        {
+            h3 ^= h2;
+            h2 = Utils.RotateLeft(h2, 15);
+            h3 += h2;
+            h0 ^= h3;
+            h3 = Utils.RotateLeft(h3, 52);
+            h0 += h3;
+            h1 ^= h0;
+            h0 = Utils.RotateLeft(h0, 26);
+            h1 += h0;
+            h2 ^= h1;
+            h1 = Utils.RotateLeft(h1, 51);
+            h2 += h1;
+            h3 ^= h2;
+            h2 = Utils.RotateLeft(h2, 28);
+            h3 += h2;
+            h0 ^= h3;
+            h3 = Utils.RotateLeft(h3, 9);
+            h0 += h3;
+            h1 ^= h0;
+            h0 = Utils.RotateLeft(h0, 47);
+            h1 += h0;
+            h2 ^= h1;
+            h1 = Utils.RotateLeft(h1, 54);
+            h2 += h1;
+            h3 ^= h2;
+            h2 = Utils.RotateLeft(h2, 32);
+            h3 += h2;
+            h0 ^= h3;
+            h3 = Utils.RotateLeft(h3, 25);
+            h0 += h3;
+            h1 ^= h0;
+            h0 = Utils.RotateLeft(h0, 63);
+            h1 += h0;
+        }
+
+        /// <summary>
+        /// Obtém o valor inteiro a partir das suas partes.
+        /// </summary>
+        /// <param name="low">O valor baixo.</param>
+        /// <param name="high">O valor alto.</param>
+        /// <returns>O inteiro.</returns>
+        private BigInteger GetValue(ulong low, ulong high)
+        {
+            var temp = new byte[16];
+            var lowBytes = BitConverter.GetBytes(low);
+            var highBytes = BitConverter.GetBytes(high);
+            Array.Copy(lowBytes, temp, 8);
+            Array.Copy(highBytes, 0, temp, 8, 8);
+            return new BigInteger(temp);
+        }
+
+        #endregion Funções privadas
+    }
+
+    /// <summary>
+    /// Implementa um algoritmo simples para código confuso.
+    /// </summary>
+    public class PearHash :
+        IHash32<string>,
+        IHash32<byte[]>,
+        IHash64<string>,
+        IHash64<byte[]>,
+        IHashN<string>,
+        IHashN<byte[]>
+    {
+        #region Campos privados
+
+        /// <summary>
+        /// Tabela auxiliar que contém uma ordenação arbitrária dos primeiros 256 valores.
+        /// </summary>
+        private byte[] hashTable = new byte[]{
+            98,  6, 85,150, 36, 23,112,164,135,207,169,  5, 26, 64,165,219,
+            61, 20, 68, 89,130, 63, 52,102, 24,229,132,245, 80,216,195,115,
+            90,168,156,203,177,120,  2,190,188,  7,100,185,174,243,162, 10, 
+            237, 18,253,225,  8,208,172,244,255,126,101, 79,145,235,228,121, 
+            123,251, 67,250,161,  0,107, 97,241,111,181, 82,249, 33, 69, 55, 
+            59,153, 29,  9,213,167, 84, 93, 30, 46, 94, 75,151,114, 73,222, 
+            197, 96,210, 45, 16,227,248,202, 51,152,252,125, 81,206,215,186, 
+            39,158,178,187,131,136,  1, 49, 50, 17,141, 91, 47,129, 60, 99, 
+            154, 35, 86,171,105, 34, 38,200,147, 58, 77,118,173,246, 76,254, 
+            133,232,196,144,198,124, 53,  4,108, 74,223,234,134,230,157,139, 
+            189,205,199,128,176, 19,211,236,127,192,231, 70,233, 88,146, 44, 
+            183,201, 22, 83, 13,214,116,109,159, 32, 95,226,140,220, 57, 12, 
+            221, 31,209,182,143, 92,149,184,148, 62,113, 65, 37, 27,106,166, 
+            3, 14,204, 72, 21, 41, 56, 66, 28,193, 40,217, 25, 54,179,117, 
+            238, 87,240,155,180,170,242,212,191,163, 78,218,137,194,175,110, 
+            43,119,224, 71,122,142, 42,160,104, 48,247,103, 15, 11,138,239  
+        };
+
+        #endregion Campos privados
+
+        #region Construtores
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="PearHash"/>.
+        /// </summary>
+        public PearHash() { }
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="PearHash"/>.
+        /// </summary>
+        /// <param name="table">Uma tabela que contém os primeiros 256 valores 
+        /// numa ordem arbitrária.
+        /// </param>
+        public PearHash(byte[] table)
+        {
+            if (table == null)
+            {
+                throw new ArgumentNullException("hashTable");
+            }
+            else
+            {
+                // Verificação da tabela
+                var existing = new bool[256];
+                for (var i = 0; i < 125; ++i)
+                {
+                    existing[i] = false;
+                }
+
+                if (table.Length != 256)
+                {
+                    throw new ArgumentException(string.Format("Invalid hash table length {0}. Expected 256.", table.Length));
+                }
+                else
+                {
+                    for (var i = 0; i < 256; ++i)
+                    {
+                        var current = table[i];
+                        if (existing[current])
+                        {
+                            throw new ArgumentException("Table has repeated elements.");
+                        }
+                        else
+                        {
+                            existing[current] = true;
+                        }
+                    }
+                }
+            }
+        }
+
+        #endregion Construtores
+
+        #region Funções públicas
+
+        /// <summary>
+        /// Obtém o código confuso de 8 bits de um objecto.
+        /// </summary>
+        /// <param name="obj">O objecto.</param>
+        /// <returns>O código confuso.</returns>
+        public byte GetHash8(string obj)
+        {
+            var bytes = Encoding.GetEncoding("ISO-8859-1").GetBytes(obj);
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Obtém o código confuso de 8 bits de um objecto.
+        /// </summary>
+        /// <param name="obj">O objecto.</param>
+        /// <returns>O código confuso.</returns>
+        public byte GetHash8(byte[] obj)
+        {
+            return this.GetPearHash8(obj, 0, obj.Length);
+        }
+
+        /// <summary>
+        /// Obtém o código confuso de 16 bits de um objecto.
+        /// </summary>
+        /// <param name="obj">O objecto.</param>
+        /// <returns>O código confuso.</returns>
+        public ushort GetHash16(string obj)
+        {
+            var bytes = Encoding.GetEncoding("ISO-8859-1").GetBytes(obj);
+            return this.GetPearHash16(bytes, 0, bytes.Length);
+        }
+
+        /// <summary>
+        /// Obtém o código confuso de 16 bits de um objecto.
+        /// </summary>
+        /// <param name="obj">O objecto.</param>
+        /// <returns>O código confuso.</returns>
+        public ushort GetHash16(byte[] obj)
+        {
+            return this.GetPearHash16(obj, 0, obj.Length);
+        }
+
+        /// <summary>
+        /// Obtém o código confuso de 32 bits de um objecto.
+        /// </summary>
+        /// <param name="obj">O objecto.</param>
+        /// <returns>O código confuso.</returns>
+        public uint GetHash32(string obj)
+        {
+            var bytes = Encoding.GetEncoding("ISO-8859-1").GetBytes(obj);
+            return this.GetPearHash32(bytes, 0, bytes.Length);
+        }
+
+        /// <summary>
+        /// Obtém o código confuso de 32 bits de um objecto.
+        /// </summary>
+        /// <param name="obj">O objecto.</param>
+        /// <returns>O código confuso.</returns>
+        public uint GetHash32(byte[] obj)
+        {
+            return this.GetPearHash32(obj, 0, obj.Length);
+        }
+
+        /// <summary>
+        /// Obtém o código confuso de 64 bits de um objecto.
+        /// </summary>
+        /// <param name="obj">O objecto.</param>
+        /// <returns>O código confuso.</returns>
+        public ulong GetHash64(string obj)
+        {
+            var bytes = Encoding.GetEncoding("ISO-8859-1").GetBytes(obj);
+            return this.GetPearHash64(bytes, 0, bytes.Length);
+        }
+
+        /// <summary>
+        /// Obtém o código confuso de  bits de um objecto.
+        /// </summary>
+        /// <param name="obj">O objecto.</param>
+        /// <returns>O código confuso.</returns>
+        public ulong GetHash64(byte[] obj)
+        {
+            return this.GetPearHash64(obj, 0, obj.Length);
+        }
+
+        /// <summary>
+        /// Obtém o código confuso do objecto.
+        /// </summary>
+        /// <param name="obj">O objecto.</param>
+        /// <param name="bytes">O número de bytes no código confuso.</param>
+        /// <returns>O código confuso.</returns>
+        public BigInteger GetHash(string obj, int bytes)
+        {
+            var array = Encoding.GetEncoding("ISO-8859-1").GetBytes(obj);
+            return this.GetPearHashN(array, 0, array.Length, bytes);
+        }
+
+        #endregion Funções públicas
+
+        #region Funções privadas
+
+        /// <summary>
+        /// Obtém o código confuso do objecto.
+        /// </summary>
+        /// <param name="obj">O objecto.</param>
+        /// <param name="bytes">O número de bytes no código confuso.</param>
+        /// <returns>O código confuso.</returns>
+        public BigInteger GetHash(byte[] obj, int bytes)
+        {
+            return this.GetPearHashN(obj, 0, obj.Length, bytes);
+        }
+
+        /// <summary>
+        /// Implementa um algoritmo de código confuso de 8 bit.
+        /// </summary>
+        /// <param name="obj">A chave.</param>
+        /// <param name="start">A posição na chave onde o algoritmo deve ser inicializado.</param>
+        /// <param name="length">O tamanho da chave.</param>
+        /// <returns>O valor do código confuso.</returns>
+        private byte GetPearHash8(byte[] obj, int start, int length)
+        {
+            var pointer = start;
+            var hash = (byte)(length % 256);
+            for (var i = 0; i < length; ++i)
+            {
+                var current = obj[pointer];
+                hash = this.hashTable[(hash + i) % 256];
+                ++pointer;
+            }
+
+            return hash;
+        }
+
+        /// <summary>
+        /// Implementa um algoritmo de código confuso de 16 bit.
+        /// </summary>
+        /// <param name="obj">A chave.</param>
+        /// <param name="start">A posição na chave onde o algoritmo deve ser inicializado.</param>
+        /// <param name="length">O tamanho da chave.</param>
+        /// <returns>O valor do código confuso.</returns>
+        private ushort GetPearHash16(byte[] obj, int start, int length)
+        {
+            if (obj == null || obj.Length == 0)
+            {
+                return 0;
+            }
+            else
+            {
+                var hh = new byte[2];
+                for (var j = 0; j < 2; ++j)
+                {
+                    var pointer = start;
+                    var h = this.hashTable[(obj[pointer] + j) % 256];
+                    ++pointer;
+                    for (var i = 1; i < length; ++i)
+                    {
+                        h = this.hashTable[obj[pointer++] ^ h];
+                    }
+
+                    hh[j] = h;
+                }
+
+                return (ushort)((((ushort)hh[1]) << 8) | (ushort)hh[0]);
+            }
+        }
+
+        /// <summary>
+        /// Implementa um algoritmo de código confuso de 32 bit.
+        /// </summary>
+        /// <param name="obj">A chave.</param>
+        /// <param name="start">A posição na chave onde o algoritmo deve ser inicializado.</param>
+        /// <param name="length">O tamanho da chave.</param>
+        /// <returns>O valor do código confuso.</returns>
+        private uint GetPearHash32(byte[] obj, int start, int length)
+        {
+            if (obj == null || obj.Length == 0)
+            {
+                return 0;
+            }
+            else
+            {
+                var hh = new byte[4];
+                for (var j = 0; j < 4; ++j)
+                {
+                    var pointer = start;
+                    var h = this.hashTable[(obj[pointer] + j) % 256];
+                    ++pointer;
+                    for (var i = 1; i < length; ++i)
+                    {
+                        h = this.hashTable[obj[pointer++] ^ h];
+                    }
+
+                    hh[j] = h;
+                }
+
+                return
+                    (((uint)hh[3]) << 24) |
+                    (((uint)hh[2]) << 16) |
+                    (((uint)hh[1]) << 8) |
+                    hh[0];
+            }
+        }
+
+        /// <summary>
+        /// Implementa um algoritmo de código confuso de 64 bit.
+        /// </summary>
+        /// <param name="obj">A chave.</param>
+        /// <param name="start">A posição na chave onde o algoritmo deve ser inicializado.</param>
+        /// <param name="length">O tamanho da chave.</param>
+        /// <returns>O valor do código confuso.</returns>
+        private ulong GetPearHash64(byte[] obj, int start, int length)
+        {
+            if (obj == null || obj.Length == 0)
+            {
+                return 0;
+            }
+            else
+            {
+                var hh = new byte[8];
+                for (var j = 0; j < 8; ++j)
+                {
+                    var pointer = start;
+                    var h = this.hashTable[(obj[pointer] + j) % 256];
+                    ++pointer;
+                    for (var i = 1; i < length; ++i)
+                    {
+                        h = this.hashTable[obj[pointer++] ^ h];
+                    }
+
+                    hh[j] = h;
+                }
+
+                return
+                    (((ulong)hh[7]) << 56) |
+                    (((ulong)hh[6]) << 48) |
+                    (((ulong)hh[5]) << 40) |
+                    (((ulong)hh[4]) << 32) |
+                    (((ulong)hh[3]) << 24) |
+                    (((ulong)hh[2]) << 16) |
+                    (((ulong)hh[1]) << 8) |
+                    hh[0];
+            }
+        }
+
+        /// <summary>
+        /// Implementa um algoritmo de código confuso de N bytes.
+        /// </summary>
+        /// <param name="obj">A chave.</param>
+        /// <param name="start">A posição na chave onde o algoritmo deve ser inicializado.</param>
+        /// <param name="length">O tamanho da chave.</param>
+        /// <param name="bytes">O número de bytes.</param>
+        /// <returns>O valor do código confuso.</returns>
+        private BigInteger GetPearHashN(byte[] obj, int start, int length, int bytes)
+        {
+            if (obj == null || obj.Length == 0)
+            {
+                return 0;
+            }
+            else
+            {
+                var hh = new byte[bytes];
+                for (var j = 0; j < bytes; ++j)
+                {
+                    var pointer = start;
+                    var h = this.hashTable[(obj[pointer] + j) % 256];
+                    ++pointer;
+                    for (var i = 1; i < length; ++i)
+                    {
+                        h = this.hashTable[obj[pointer++] ^ h];
+                    }
+
+                    hh[j] = h;
+                }
+
+                return new BigInteger(hh);
+            }
+        }
+
+        #endregion Funções privadas
+    }
+
+    /// <summary>
+    /// Implementa o algoritmo xxHash.
+    /// </summary>
+    /// <remarks>
+    /// A implemetnação suporta o processo incremental.
+    /// </remarks>
+    public class XXHash :
+        IHash32<byte[]>,
+        IHash32<string>,
+        IHash64<byte[]>,
+        IHash64<string>,
+        IHashN<byte[]>,
+        IHashN<string>
+    {
+        #region Campos privados
+
+        /// <summary>
+        /// Um primo.
+        /// </summary>
+        private const uint prime32_1 = 2654435761U;
+
+        /// <summary>
+        /// Um primo.
+        /// </summary>
+        private const uint prime32_2 = 2246822519U;
+
+        /// <summary>
+        /// Um primo.
+        /// </summary>
+        private const uint prime32_3 = 3266489917U;
+
+        /// <summary>
+        /// Um primo.
+        /// </summary>
+        private const uint prime32_4 = 668265263U;
+
+        /// <summary>
+        /// Um primo.
+        /// </summary>
+        private const uint prime32_5 = 374761393U;
+
+        /// <summary>
+        /// Um primo.
+        /// </summary>
+        private const ulong prime64_1 = 11400714785074694791UL;
+
+        /// <summary>
+        /// Um primo.
+        /// </summary>
+        private const ulong prime64_2 = 14029467366897019727UL;
+
+        /// <summary>
+        /// Um primo.
+        /// </summary>
+        private const ulong prime64_3 = 1609587929392839161UL;
+
+        /// <summary>
+        /// Um primo.
+        /// </summary>
+        private const ulong prime64_4 = 9650029242287828579UL;
+
+        /// <summary>
+        /// Um primo.
+        /// </summary>
+        private const ulong prime64_5 = 2870177450012600261UL;
+
+        #endregion Campos privados
+
+        #region Funções públicas
+
+        /// <summary>
+        /// Obtém o código confuso de 32 bits de um objecto.
+        /// </summary>
+        /// <param name="obj">O objecto.</param>
+        /// <returns>O código confuso.</returns>
+        public uint GetHash32(string obj)
+        {
+            var bytes = Encoding.GetEncoding("ISO-8859-1").GetBytes(obj);
+            return this.GetXXHash32(bytes, 0, bytes.Length, 0U);
+        }
+
+        /// <summary>
+        /// Obtém o código confuso de 32 bits de um objecto.
+        /// </summary>
+        /// <param name="obj">O objecto.</param>
+        /// <returns>O código confuso.</returns>
+        public uint GetHash32(byte[] obj)
+        {
+            return this.GetXXHash32(obj, 0, obj.Length, 0U);
+        }
+
+        /// <summary>
+        /// Obtém o código confuso de 64 bits de um objecto.
+        /// </summary>
+        /// <param name="obj">O objecto.</param>
+        /// <returns>O código confuso.</returns>
+        public ulong GetHash64(string obj)
+        {
+            var bytes = Encoding.GetEncoding("ISO-8859-1").GetBytes(obj);
+            return this.GetXXHash64(bytes, 0, bytes.Length, 0UL);
+        }
+
+        /// <summary>
+        /// Obtém o código confuso de  bits de um objecto.
+        /// </summary>
+        /// <param name="obj">O objecto.</param>
+        /// <returns>O código confuso.</returns>
+        public ulong GetHash64(byte[] obj)
+        {
+            return this.GetXXHash64(obj, 0, obj.Length, 0UL);
+        }
+
+        /// <summary>
+        /// Obtém o código confuso do objecto.
+        /// </summary>
+        /// <param name="obj">O objecto.</param>
+        /// <param name="bytes">O número de bytes no código confuso.</param>
+        /// <returns>O código confuso.</returns>
+        public BigInteger GetHash(string obj, int bytes)
+        {
+            if (bytes == 4)
+            {
+                return this.GetHash32(obj);
+            }
+            else if (bytes == 8)
+            {
+                return this.GetHash64(obj);
+            }
+            else
+            {
+                throw new NotSupportedException("Number of bytes is not supported.");
+            }
+        }
+
+        /// <summary>
+        /// Obtém o código confuso do objecto.
+        /// </summary>
+        /// <param name="obj">O objecto.</param>
+        /// <param name="bytes">O número de bytes no código confuso.</param>
+        /// <returns>O código confuso.</returns>
+        public BigInteger GetHash(byte[] obj, int bytes)
+        {
+            if (bytes == 4)
+            {
+                return this.GetHash32(obj);
+            }
+            else if (bytes == 8)
+            {
+                return this.GetHash64(obj);
+            }
+            else
+            {
+                throw new NotSupportedException("Number of bytes is not supported.");
+            }
+        }
+
+        #endregion Funções públicas
+
+        #region Funções internas
+
+        /// <summary>
+        /// Obtém o código confuso de 32 bit para efeitos de teste.
+        /// </summary>
+        /// <param name="obj">O vector com a mensagem.</param>
+        /// <param name="start">O índice do vector onde se inicia a mensagem.</param>
+        /// <param name="length">O tamanho da mensagem.</param>
+        /// <param name="seed">O valor inicial.</param>
+        /// <returns>O código confuso.</returns>
+        internal uint InternalGetXXHash32(
+            byte[] obj,
+            int start,
+            int length,
+            uint seed)
+        {
+            return this.GetXXHash32(obj, start, length, seed);
+        }
+
+        /// <summary>
+        /// Obtém o código confuso de 64 bit para efeitos de teste.
+        /// </summary>
+        /// <param name="obj">O vector com a mensagem.</param>
+        /// <param name="start">O índice do vector onde se inicia a mensagem.</param>
+        /// <param name="length">O tamanho da mensagem.</param>
+        /// <param name="seed">O valor inicial.</param>
+        /// <returns>O código confuso.</returns>
+        internal ulong InternalGetXXHash64(
+            byte[] obj,
+            int start,
+            int length,
+            ulong seed)
+        {
+            return this.GetXXHash64(obj, start, length, seed);
+        }
+
+        #endregion Funções internas
+
+        #region Funções privadas
+
+        /// <summary>
+        /// Obtém o código confuso de 32 bit.
+        /// </summary>
+        /// <param name="obj">O vector com a mensagem.</param>
+        /// <param name="start">O índice do vector onde se inicia a mensagem.</param>
+        /// <param name="length">O tamanho da mensagem.</param>
+        /// <param name="seed">O valor inicial.</param>
+        /// <returns>O código confuso.</returns>
+        private uint GetXXHash32(byte[] obj, int start, int length, uint seed)
+        {
+            if (obj == null)
+            {
+                return 0U;
+            }
+            else
+            {
+                var final = start + length;
+                if (final > obj.Length)
+                {
+                    throw new IndexOutOfRangeException("Index is out of range.");
+                }
+                else
+                {
+                    var pointer = start;
+                    var h32 = 0U;
+                    if (length >= 16)
+                    {
+                        var limit = final - 16;
+                        var v1 = seed + prime32_1 + prime32_2;
+                        var v2 = seed + prime32_2;
+                        var v3 = seed + 0;
+                        var v4 = seed - prime32_1;
+
+                        do
+                        {
+                            v1 = this.XXH32Round(v1, BitConverter.ToUInt32(obj, pointer));
+                            pointer += 4;
+                            v2 = this.XXH32Round(v2, BitConverter.ToUInt32(obj, pointer));
+                            pointer += 4;
+                            v3 = this.XXH32Round(v3, BitConverter.ToUInt32(obj, pointer));
+                            pointer += 4;
+                            v4 = this.XXH32Round(v4, BitConverter.ToUInt32(obj, pointer));
+                            pointer += 4;
+                        } while (pointer <= limit);
+
+                        h32 = Utils.RotateLeft(v1, 1) +
+                            Utils.RotateLeft(v2, 7) +
+                            Utils.RotateLeft(v3, 12) +
+                            Utils.RotateLeft(v4, 18);
+                    }
+                    else
+                    {
+                        h32 = seed + prime32_5;
+                    }
+
+                    h32 += (uint)length;
+
+                    while (pointer + 4 <= final)
+                    {
+                        h32 += BitConverter.ToUInt32(obj, pointer) * prime32_3;
+                        h32 = Utils.RotateLeft(h32, 17) * prime32_4;
+                        pointer += 4;
+                    }
+
+                    while (pointer < final)
+                    {
+                        h32 += obj[pointer] * prime32_5;
+                        h32 = Utils.RotateLeft(h32, 11) * prime32_1;
+                        ++pointer;
+                    }
+
+                    h32 ^= h32 >> 15;
+                    h32 *= prime32_2;
+                    h32 ^= h32 >> 13;
+                    h32 *= prime32_3;
+                    h32 ^= h32 >> 16;
+
+                    return h32;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Obtém o código confuso de 64 bit.
+        /// </summary>
+        /// <param name="obj">O vector com a mensagem.</param>
+        /// <param name="start">O índice do vector onde se inicia a mensagem.</param>
+        /// <param name="length">O tamanho da mensagem.</param>
+        /// <param name="seed">O valor inicial.</param>
+        /// <returns>O código confuso.</returns>
+        private ulong GetXXHash64(byte[] obj, int start, int length, ulong seed)
+        {
+            if (obj == null)
+            {
+                return 0U;
+            }
+            else
+            {
+                var final = start + length;
+                if (final > obj.Length)
+                {
+                    throw new IndexOutOfRangeException("Index is out of range.");
+                }
+                else
+                {
+                    var pointer = start;
+                    var h64 = 0UL;
+                    if (length >= 32)
+                    {
+                        var limit = final - 32;
+                        var v1 = seed + prime64_1 + prime64_2;
+                        var v2 = seed + prime64_2;
+                        var v3 = seed + 0;
+                        var v4 = seed - prime64_1;
+
+                        do
+                        {
+                            v1 = this.XXH64Round(v1, BitConverter.ToUInt64(obj, pointer));
+                            pointer += 8;
+                            v2 = this.XXH64Round(v2, BitConverter.ToUInt64(obj, pointer));
+                            pointer += 8;
+                            v3 = this.XXH64Round(v3, BitConverter.ToUInt64(obj, pointer));
+                            pointer += 8;
+                            v4 = this.XXH64Round(v4, BitConverter.ToUInt64(obj, pointer));
+                            pointer += 8;
+                        } while (pointer <= limit);
+
+                        h64 = Utils.RotateLeft(v1, 1) +
+                            Utils.RotateLeft(v2, 7) +
+                            Utils.RotateLeft(v3, 12) +
+                            Utils.RotateLeft(v4, 18);
+                        h64 = this.MergeRound64(h64, v1);
+                        h64 = this.MergeRound64(h64, v2);
+                        h64 = this.MergeRound64(h64, v3);
+                        h64 = this.MergeRound64(h64, v4);
+
+                    }
+                    else
+                    {
+                        h64 = seed + prime64_5;
+                    }
+
+                    h64 += (ulong)length;
+
+                    while (pointer + 8 <= final)
+                    {
+                        var k1 = this.XXH64Round(0, BitConverter.ToUInt64(obj, pointer));
+                        h64 ^= k1;
+                        h64 = Utils.RotateLeft(h64, 27) * prime64_1 + prime64_4;
+                        pointer += 8;
+                    }
+
+                    if (pointer + 4 <= final)
+                    {
+                        h64 ^= (ulong)(BitConverter.ToUInt32(obj, pointer)) * prime64_1;
+                        h64 = Utils.RotateLeft(h64, 23) * prime64_2 + prime64_3;
+                        pointer += 4;
+                    }
+
+                    while (pointer < final)
+                    {
+                        h64 ^= obj[pointer] * prime64_5;
+                        h64 = Utils.RotateLeft(h64, 11) * prime64_1;
+                        ++pointer;
+                    }
+
+                    h64 ^= h64 >> 33;
+                    h64 *= prime64_2;
+                    h64 ^= h64 >> 29;
+                    h64 *= prime64_3;
+                    h64 ^= h64 >> 32;
+
+                    return h64;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Aplica uma mistura aos argumentos.
+        /// </summary>
+        /// <param name="seed">O primeiro argumento.</param>
+        /// <param name="input">O segundo argumento.</param>
+        /// <returns>O valor da mistura.</returns>
+        private uint XXH32Round(uint seed, uint input)
+        {
+            seed += input * prime32_2;
+            seed = Utils.RotateLeft(seed, 13);
+            seed *= prime32_1;
+            return seed;
+        }
+
+        /// <summary>
+        /// Aplica uma mistura aos argumentos.
+        /// </summary>
+        /// <param name="seed">O primeiro argumento.</param>
+        /// <param name="input">O segundo argumento.</param>
+        /// <returns>O valor da mistura.</returns>
+        public ulong XXH64Round(ulong seed, ulong input)
+        {
+            seed += input * prime64_2;
+            seed = Utils.RotateLeft(seed, 31);
+            seed *= prime64_1;
+            return seed;
+        }
+
+        /// <summary>
+        /// Funde os valores dos argumentos.
+        /// </summary>
+        /// <param name="acc">O primeiro argumento.</param>
+        /// <param name="val">O segundo argumento.</param>
+        /// <returns>O resultado.</returns>
+        public ulong MergeRound64(ulong acc, ulong val)
+        {
+            var innerVal = this.XXH64Round(0, val);
+            var innerAcc = acc ^ innerVal;
+            innerAcc = innerAcc * prime64_1 + prime64_4;
+            return innerAcc;
+        }
+
+        #endregion Funções privadas
+    }
+
+    /// <summary>
+    /// Implementa um código confuso de rotação.
+    /// </summary>
+    public class KarRabHashByte32 :
+        IRollingHash32<byte>,
+        IHash32<byte[]>
+    {
+        /// <summary>
+        /// O número máximo de bits suportado pelo código confuso.
+        /// </summary>
+        private const uint maxBits = 32;
+
+        /// <summary>
+        /// Número primo utilizado no processo.
+        /// </summary>
+        protected const uint prmNumb = 37;
+
+        /// <summary>
+        /// O número de elementos a suportar na sequência.
+        /// </summary>
+        protected uint seqNumber;
+
+        /// <summary>
+        /// O corrente de elementos.
+        /// </summary>
+        protected int count;
+
+        /// <summary>
+        /// O valor da máscara correspondente ao número de bits.
+        /// </summary>
+        protected uint hashMask;
+
+        /// <summary>
+        /// O valor actual do código confuso.
+        /// </summary>
+        protected uint hashValue;
+
+        /// <summary>
+        /// Variável de estado.
+        /// </summary>
+        protected uint bton;
+
+        /// <summary>
+        /// O conjunto de valores para os códigos confusos.
+        /// </summary>
+        private uint[] hashValues = new uint[256];
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipos <see cref="KarRabHashByte32"/>.
+        /// </summary>
+        /// <param name="seqNum">O número de elementos na sequência.</param>
+        /// <param name="bits">O número de bits a ser considerado.</param>
+        /// <exception cref="ArgumentException">
+        /// Se o número de bits for superior ao máximo permitido pelo tipo do código confuso.
+        /// </exception>
+        public KarRabHashByte32(uint seqNum, uint bits)
+        {
+            if (bits > maxBits)
+            {
+                throw new ArgumentException(string.Format(
+                    "The number of bits must no exceed {0}.",
+                    maxBits));
+            }
+            else
+            {
+                this.count = 0;
+                this.seqNumber = seqNum;
+                this.hashMask = this.MaskFunc((int)bits);
+                this.InitializeHashValues();
+                this.bton = 1U;
+                for (var i = 0; i < seqNum; ++i)
+                {
+                    this.bton *= prmNumb;
+                    this.bton &= this.hashMask;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Obtém o valor corrente do código confuso.
+        /// </summary>
+        public uint HashValue
+        {
+            get
+            {
+                return this.hashValue;
+            }
+        }
+
+        /// <summary>
+        /// Define uma função de confusão de um objecto com 32 bits.
+        /// </summary>
+        public uint GetHash32(byte[] obj)
+        {
+            if (obj == null)
+            {
+                throw new ArgumentNullException("obj");
+            }
+            else
+            {
+                var result = 0U;
+                var len = obj.Length;
+                for (var i = 0; i < len; ++i)
+                {
+                    var x = 1U;
+                    for (var j = 0U; j < len - i - 1; ++j)
+                    {
+                        x = (x * prmNumb) & this.hashMask;
+                    }
+
+                    x = (x * this.hashValues[obj[i]]) & this.hashMask;
+                    result = (result + x) & this.hashMask;
+                }
+
+                return result;
+            }
+        }
+
+        /// <summary>
+        /// Adiciona ao objecto o código confuso.
+        /// </summary>
+        /// <param name="obj">O objecto a ser adicionado.</param>
+        public void Eat(byte obj)
+        {
+            if (this.count == this.seqNumber)
+            {
+                throw new ArgumentException();
+            }
+            else
+            {
+                ++this.count;
+                this.hashValue = (prmNumb * this.hashValue + this.hashValues[obj]) &
+                    this.hashMask;
+            }
+        }
+
+        /// <summary>
+        /// Actualiza o valor do código confuso, indicando o objecto de entrada
+        /// e o de saída.
+        /// </summary>
+        /// <param name="inObj">O objecto de entrada.</param>
+        /// <param name="outObj">O objecto de saída.</param>
+        public void Update(byte inObj, byte outObj)
+        {
+            this.hashValue = (prmNumb * this.hashValue + this.hashValues[inObj]
+                - this.bton * this.hashValues[outObj]) & this.hashMask;
+        }
+
+        /// <summary>
+        /// Inicializa os valores do código confuso.
+        /// </summary>
+        private void InitializeHashValues()
+        {
+            var randomGen = new MTRand();
+            for (var i = 0; i < 256; ++i)
+            {
+                this.hashValues[i] = randomGen.RandInt(this.hashMask);
+            }
+        }
+
+        /// <summary>
+        /// Obtém uma máscara para o número de bits.
+        /// </summary>
+        /// <param name="bits">O número de bits.</param>
+        /// <returns>A máscara.</returns>
+        private uint MaskFunc(int bits)
+        {
+            var result = 1U << (bits - 1);
+            return result ^ (result - 1);
+        }
+    }
+
+    /// <summary>
+    /// Implementa um código confuso de rotação.
+    /// </summary>
+    public class KarRabHashString32 :
+        IRollingHash32<char>,
+        IHash32<string>
+    {
+        /// <summary>
+        /// O número máximo de bits suportado pelo código confuso.
+        /// </summary>
+        private const uint maxBits = 32;
+
+        /// <summary>
+        /// Número primo utilizado no processo.
+        /// </summary>
+        private const uint prmNumb = 37;
+
+        /// <summary>
+        /// O número de elementos a suportar na sequência.
+        /// </summary>
+        private uint seqNumber;
+
+        /// <summary>
+        /// O corrente de elementos.
+        /// </summary>
+        private int count;
+
+        /// <summary>
+        /// O valor da máscara correspondente ao número de bits.
+        /// </summary>
+        private uint hashMask;
+
+        /// <summary>
+        /// O valor actual do código confuso.
+        /// </summary>
+        private uint hashValue;
+
+        /// <summary>
+        /// Variável de estado.
+        /// </summary>
+        private uint bton;
+
+        /// <summary>
+        /// O conjunto de valores para os códigos confusos.
+        /// </summary>
+        private uint[] hashValues = new uint[256];
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipos <see cref="KarRabHashString32"/>.
+        /// </summary>
+        /// <param name="seqNum">O número de elementos na sequência.</param>
+        /// <param name="bits">O número de bits a ser considerado.</param>
+        /// <exception cref="ArgumentException">
+        /// Se o número de bits for superior ao máximo permitido pelo tipo do código confuso.
+        /// </exception>
+        public KarRabHashString32(uint seqNum, uint bits)
+        {
+            if (bits > maxBits)
+            {
+                throw new ArgumentException(string.Format(
+                    "The number of bits must no exceed {0}.",
+                    maxBits));
+            }
+            else
+            {
+                this.count = 0;
+                this.seqNumber = seqNum;
+                this.hashMask = this.MaskFunc((int)bits);
+                this.InitializeHashValues();
+                this.bton = 1U;
+                for (var i = 0; i < seqNum; ++i)
+                {
+                    this.bton *= prmNumb;
+                    this.bton &= this.hashMask;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Obtém o valor corrente do código confuso.
+        /// </summary>
+        public uint HashValue
+        {
+            get
+            {
+                return this.hashValue;
+            }
+        }
+
+        /// <summary>
+        /// Define uma função de confusão de um objecto com 32 bits.
+        /// </summary>
+        public uint GetHash32(string obj)
+        {
+            if (obj == null)
+            {
+                throw new ArgumentNullException("obj");
+            }
+            else
+            {
+                var result = 0U;
+                var len = obj.Length;
+                for (var i = 0; i < len; ++i)
+                {
+                    var x = 1U;
+                    for (var j = 0U; j < len - i - 1; ++j)
+                    {
+                        x = (x * prmNumb) & this.hashMask;
+                    }
+
+                    x = (x * this.hashValues[obj[i]]) & this.hashMask;
+                    result = (result + x) & this.hashMask;
+                }
+
+                return result;
+            }
+        }
+
+        /// <summary>
+        /// Adiciona ao objecto o código confuso.
+        /// </summary>
+        /// <param name="obj">O objecto a ser adicionado.</param>
+        public void Eat(char obj)
+        {
+            if (this.count == this.seqNumber)
+            {
+                throw new ArgumentException();
+            }
+            else
+            {
+                ++this.count;
+                this.hashValue = (prmNumb * this.hashValue + this.hashValues[obj]) &
+                    this.hashMask;
+            }
+        }
+
+        /// <summary>
+        /// Actualiza o valor do código confuso, indicando o objecto de entrada
+        /// e o de saída.
+        /// </summary>
+        /// <param name="inObj">O objecto de entrada.</param>
+        /// <param name="outObj">O objecto de saída.</param>
+        public void Update(char inObj, char outObj)
+        {
+            this.hashValue = (prmNumb * this.hashValue + this.hashValues[inObj]
+                - this.bton * this.hashValues[outObj]) & this.hashMask;
+        }
+
+        /// <summary>
+        /// Inicializa os valores do código confuso.
+        /// </summary>
+        private void InitializeHashValues()
+        {
+            var randomGen = new MTRand();
+            for (var i = 0; i < 256; ++i)
+            {
+                this.hashValues[i] = randomGen.RandInt(this.hashMask);
+            }
+        }
+
+        /// <summary>
+        /// Obtém uma máscara para o número de bits.
+        /// </summary>
+        /// <param name="bits">O número de bits.</param>
+        /// <returns>A máscara.</returns>
+        private uint MaskFunc(int bits)
+        {
+            var result = 1U << (bits - 1);
+            return result ^ (result - 1);
+        }
+    }
+
+    /// <summary>
+    /// Implementa um código confuso de rotação.
+    /// </summary>
+    public class KarRabHashByte64 :
+        IRollingHash64<byte>,
+        IHash64<byte[]>
+    {
+        /// <summary>
+        /// O número máximo de bits suportado pelo código confuso.
+        /// </summary>
+        private const ulong maxBits = 64;
+
+        /// <summary>
+        /// Número primo utilizado no processo.
+        /// </summary>
+        protected const ulong prmNumb = 37;
+
+        /// <summary>
+        /// O número de elementos a suportar na sequência.
+        /// </summary>
+        protected ulong seqNumber;
+
+        /// <summary>
+        /// O corrente de elementos.
+        /// </summary>
+        protected int count;
+
+        /// <summary>
+        /// O valor da máscara correspondente ao número de bits.
+        /// </summary>
+        protected ulong hashMask;
+
+        /// <summary>
+        /// O valor actual do código confuso.
+        /// </summary>
+        protected ulong hashValue;
+
+        /// <summary>
+        /// Variável de estado.
+        /// </summary>
+        protected ulong bton;
+
+        /// <summary>
+        /// O conjunto de valores para os códigos confusos.
+        /// </summary>
+        private ulong[] hashValues = new ulong[256];
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipos <see cref="KarRabHashByte64"/>.
+        /// </summary>
+        /// <param name="seqNum">O número de elementos na sequência.</param>
+        /// <param name="bits">O número de bits a ser considerado.</param>
+        /// <exception cref="ArgumentException">
+        /// Se o número de bits for superior ao máximo permitido pelo tipo do código confuso.
+        /// </exception>
+        public KarRabHashByte64(ulong seqNum, ulong bits)
+        {
+            if (bits > maxBits)
+            {
+                throw new ArgumentException(string.Format(
+                    "The number of bits must no exceed {0}.",
+                    maxBits));
+            }
+            else
+            {
+                this.count = 0;
+                this.seqNumber = seqNum;
+                this.hashMask = this.MaskFunc((int)bits);
+                this.InitializeHashValues();
+                this.bton = 1UL;
+                for (var i = 0UL; i < seqNum; ++i)
+                {
+                    this.bton *= prmNumb;
+                    this.bton &= this.hashMask;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Obtém o valor corrente do código confuso.
+        /// </summary>
+        public ulong HashValue
+        {
+            get
+            {
+                return this.hashValue;
+            }
+        }
+
+        /// <summary>
+        /// Define uma função de confusão de um objecto com 64 bits.
+        /// </summary>
+        public ulong GetHash64(byte[] obj)
+        {
+            if (obj == null)
+            {
+                throw new ArgumentNullException("obj");
+            }
+            else
+            {
+                var result = 0UL;
+                var len = obj.Length;
+                for (var i = 0; i < len; ++i)
+                {
+                    var x = 1UL;
+                    for (var j = 0; j < len - i - 1; ++j)
+                    {
+                        x = (x * prmNumb) & this.hashMask;
+                    }
+
+                    x = (x * this.hashValues[obj[i]]) & this.hashMask;
+                    result = (result + x) & this.hashMask;
+                }
+
+                return result;
+            }
+        }
+
+        /// <summary>
+        /// Adiciona ao objecto o código confuso.
+        /// </summary>
+        /// <param name="obj">O objecto a ser adicionado.</param>
+        public void Eat(byte obj)
+        {
+            if (this.count == (int)this.seqNumber)
+            {
+                throw new ArgumentException();
+            }
+            else
+            {
+                ++this.count;
+                this.hashValue = (prmNumb * this.hashValue + this.hashValues[obj]) &
+                    this.hashMask;
+            }
+        }
+
+        /// <summary>
+        /// Actualiza o valor do código confuso, indicando o objecto de entrada
+        /// e o de saída.
+        /// </summary>
+        /// <param name="inObj">O objecto de entrada.</param>
+        /// <param name="outObj">O objecto de saída.</param>
+        public void Update(byte inObj, byte outObj)
+        {
+            this.hashValue = (prmNumb * this.hashValue + this.hashValues[inObj]
+                - this.bton * this.hashValues[outObj]) & this.hashMask;
+        }
+
+        /// <summary>
+        /// Inicializa os valores do código confuso.
+        /// </summary>
+        private void InitializeHashValues()
+        {
+            var randomGen1 = new MTRand();
+            var randValue1 = (uint)(this.hashMask >> 32);
+            if (randValue1 == 0U)
+            {
+                for (var i = 0UL; i < 256; ++i)
+                {
+                    this.hashValues[i] = randomGen1.RandInt((uint)this.hashMask);
+                }
+            }
+            else
+            {
+                var randomGen2 = new MTRand();
+                for (var i = 0UL; i < 256; ++i)
+                {
+                    var temp = ((ulong)randomGen1.RandInt(randValue1) << 32) |
+                        ((ulong)randomGen2.RandInt(0xFFFFFFFFU));
+
+                    this.hashValues[i] = temp;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Obtém uma máscara para o número de bits.
+        /// </summary>
+        /// <param name="bits">O número de bits.</param>
+        /// <returns>A máscara.</returns>
+        private ulong MaskFunc(int bits)
+        {
+            var result = 1UL << (bits - 1);
+            return result ^ (result - 1);
+        }
+    }
+
+    /// <summary>
+    /// Implementa um código confuso de rotação.
+    /// </summary>
+    public class KarRabHashString64 :
+        IRollingHash64<char>,
+        IHash64<string>
+    {
+        /// <summary>
+        /// O número máximo de bits suportado pelo código confuso.
+        /// </summary>
+        private const ulong maxBits = 64;
+
+        /// <summary>
+        /// Número primo utilizado no processo.
+        /// </summary>
+        private const ulong prmNumb = 37;
+
+        /// <summary>
+        /// O número de elementos a suportar na sequência.
+        /// </summary>
+        private ulong seqNumber;
+
+        /// <summary>
+        /// O corrente de elementos.
+        /// </summary>
+        private int count;
+
+        /// <summary>
+        /// O valor da máscara correspondente ao número de bits.
+        /// </summary>
+        private ulong hashMask;
+
+        /// <summary>
+        /// O valor actual do código confuso.
+        /// </summary>
+        private ulong hashValue;
+
+        /// <summary>
+        /// Variável de estado.
+        /// </summary>
+        private ulong bton;
+
+        /// <summary>
+        /// O conjunto de valores para os códigos confusos.
+        /// </summary>
+        private ulong[] hashValues = new ulong[256];
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipos <see cref="KarRabHashString64"/>.
+        /// </summary>
+        /// <param name="seqNum">O número de elementos na sequência.</param>
+        /// <param name="bits">O número de bits a ser considerado.</param>
+        /// <exception cref="ArgumentException">
+        /// Se o número de bits for superior ao máximo permitido pelo tipo do código confuso.
+        /// </exception>
+        public KarRabHashString64(ulong seqNum, ulong bits)
+        {
+            if (bits > maxBits)
+            {
+                throw new ArgumentException(string.Format(
+                    "The number of bits must no exceed {0}.",
+                    maxBits));
+            }
+            else
+            {
+                this.count = 0;
+                this.seqNumber = seqNum;
+                this.hashMask = this.MaskFunc((int)bits);
+                this.InitializeHashValues();
+                this.bton = 1UL;
+                for (var i = 0UL; i < seqNum; ++i)
+                {
+                    this.bton *= prmNumb;
+                    this.bton &= this.hashMask;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Obtém o valor corrente do código confuso.
+        /// </summary>
+        public ulong HashValue
+        {
+            get
+            {
+                return this.hashValue;
+            }
+        }
+
+        /// <summary>
+        /// Define uma função de confusão de um objecto com 64 bits.
+        /// </summary>
+        public ulong GetHash64(string obj)
+        {
+            if (obj == null)
+            {
+                throw new ArgumentNullException("obj");
+            }
+            else
+            {
+                var result = 0UL;
+                var len = obj.Length;
+                for (var i = 0; i < len; ++i)
+                {
+                    var x = 1UL;
+                    for (var j = 0; j < len - i - 1; ++j)
+                    {
+                        x = (x * prmNumb) & this.hashMask;
+                    }
+
+                    x = (x * this.hashValues[obj[i]]) & this.hashMask;
+                    result = (result + x) & this.hashMask;
+                }
+
+                return result;
+            }
+        }
+
+        /// <summary>
+        /// Adiciona ao objecto o código confuso.
+        /// </summary>
+        /// <param name="obj">O objecto a ser adicionado.</param>
+        public void Eat(char obj)
+        {
+            if (this.count == (int)this.seqNumber)
+            {
+                throw new ArgumentException();
+            }
+            else
+            {
+                ++this.count;
+                this.hashValue = (prmNumb * this.hashValue + this.hashValues[obj]) &
+                    this.hashMask;
+            }
+        }
+
+        /// <summary>
+        /// Actualiza o valor do código confuso, indicando o objecto de entrada
+        /// e o de saída.
+        /// </summary>
+        /// <param name="inObj">O objecto de entrada.</param>
+        /// <param name="outObj">O objecto de saída.</param>
+        public void Update(char inObj, char outObj)
+        {
+            this.hashValue = (prmNumb * this.hashValue + this.hashValues[inObj]
+                - this.bton * this.hashValues[outObj]) & this.hashMask;
+        }
+
+        /// <summary>
+        /// Inicializa os valores do código confuso.
+        /// </summary>
+        private void InitializeHashValues()
+        {
+            var randomGen1 = new MTRand();
+            var randValue1 = (uint)(this.hashMask >> 32);
+            if (randValue1 == 0U)
+            {
+                for (var i = 0UL; i < 256; ++i)
+                {
+                    this.hashValues[i] = randomGen1.RandInt((uint)this.hashMask);
+                }
+            }
+            else
+            {
+                var randomGen2 = new MTRand();
+                for (var i = 0UL; i < 256; ++i)
+                {
+                    var temp = ((ulong)randomGen1.RandInt(randValue1) << 32) |
+                        ((ulong)randomGen2.RandInt(0xFFFFFFFFU));
+
+                    this.hashValues[i] = temp;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Obtém uma máscara para o número de bits.
+        /// </summary>
+        /// <param name="bits">O número de bits.</param>
+        /// <returns>A máscara.</returns>
+        private ulong MaskFunc(int bits)
+        {
+            var result = 1UL << (bits - 1);
+            return result ^ (result - 1);
+        }
+    }
+
+    /// <summary>
+    /// Implementa um código confuso de rotação.
+    /// </summary>
+    public class GenRollHashByte32 :
+        IRollingHash32<byte>,
+        IHash32<byte[]>
+    {
+        /// <summary>
+        /// Valor associado ao polinómio irredutível.
+        /// </summary>
+        private uint irreduciblePoly;
+
+        /// <summary>
+        /// O número de carácteres na sequência.
+        /// </summary>
+        private int seqNum;
+
+        /// <summary>
+        /// O número de bits no resultado.
+        /// </summary>
+        private int bits;
+
+        /// <summary>
+        /// Valor com o último bit atribuído.
+        /// </summary>
+        private uint lastBit;
+
+        /// <summary>
+        /// Mantém o valor actual do código confuso.
+        /// </summary>
+        private uint hashValue;
+
+        /// <summary>
+        /// Mantém o valor da máscara de bits.
+        /// </summary>
+        private uint hashMask;
+
+        /// <summary>
+        /// Mantém valores pré-computados.
+        /// </summary>
+        private uint[] precomputedShift;
+
+        /// <summary>
+        /// Mantém um vector com os valores dos códigos confusos.
+        /// </summary>
+        private uint[] hashValues = new uint[256];
+
+        /// <summary>
+        /// O tipo de pré-computação.
+        /// </summary>
+        PrecomputationType precomputationType;
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="GenRollHashByte32"/>.
+        /// </summary>
+        /// <param name="seqNum">O número de carácteres na sequência.</param>
+        /// <param name="bits">O número de bits do resultado.</param>
+        /// <param name="compType">O tipo de pré-computação.</param>
+        public GenRollHashByte32(
+            int seqNum,
+            int bits = 19,
+            PrecomputationType compType = PrecomputationType.NOPRECOMP)
+        {
+            if (bits == 19)
+            {
+                if (seqNum < 0 || seqNum > bits)
+                {
+                    throw new ArgumentException(string.Format(
+                        "The sequence number {0} exceeded the bits number, {1},",
+                        seqNum,
+                        bits));
+                }
+                else
+                {
+                    this.irreduciblePoly = 1U + (1U << 1) + (1U << 2) + (1U << 5)
+                                   + (1U << 19);
+                    this.InitializeParameters(
+                        seqNum,
+                        bits,
+                        compType);
+
+                }
+            }
+            else if (bits == 9)
+            {
+                if (seqNum < 0 || seqNum > bits)
+                {
+                    throw new ArgumentException(string.Format(
+                           "The sequence number {0} exceeded the bits number, {1},",
+                           seqNum,
+                           bits));
+                }
+                else
+                {
+                    this.irreduciblePoly = 1U + (1U << 2) + (1U << 3) + (1U << 5) + (1U << 9);
+                    this.InitializeParameters(
+                        seqNum,
+                        bits,
+                        compType);
+                }
+            }
+            else
+            {
+                throw new ArgumentException("The hasher only supports 19 or 9 bits length.");
+            }
+
+        }
+
+        /// <summary>
+        /// Obtém o valor corrente do código confuso.
+        /// </summary>
+        public uint HashValue
+        {
+            get
+            {
+                return this.hashValue;
+            }
+        }
+
+        /// <summary>
+        /// Adiciona ao objecto o código confuso.
+        /// </summary>
+        /// <param name="obj">O objecto a ser adicionado.</param>
+        public void Eat(byte obj)
+        {
+            this.hashValue = this.FastLeftShift(this.hashValue, 1);
+            this.hashValue ^= this.hashValues[obj];
+        }
+
+        /// <summary>
+        /// Actualiza o valor do código confuso, indicando o objecto de entrada
+        /// e o de saída.
+        /// </summary>
+        /// <param name="inObj">O objecto de entrada.</param>
+        /// <param name="outObj">O objecto de saída.</param>
+        public void Update(byte inObj, byte outObj)
+        {
+            this.hashValue <<= 1;
+            if ((this.hashValue & this.lastBit) == this.lastBit)
+            {
+                this.hashValue ^= this.irreduciblePoly;
+            }
+
+            var z = this.hashValues[outObj];
+            if (this.precomputationType == PrecomputationType.FULLPRECOMP)
+            {
+                z = this.FastLeftShiftN(z);
+            }
+            else
+            {
+                z = this.FastLeftShift(z, (int)this.seqNum);
+            }
+
+            this.hashValue ^= z ^ this.hashValues[inObj];
+        }
+
+        /// <summary>
+        /// Define uma função de confusão de um objecto com 32 bits.
+        /// </summary>
+        public uint GetHash32(byte[] obj)
+        {
+            if (obj == null)
+            {
+                return 0U;
+            }
+            else
+            {
+                var result = 0U;
+                var len = obj.Length;
+                for (var k = 0U; k < len; ++k)
+                {
+                    result = this.FastLeftShift(result, 1);
+                    result ^= this.hashValues[obj[k]];
+                }
+
+                return result;
+            }
+        }
+
+        /// <summary>
+        /// Inicializa os parâmetros do objecto.
+        /// </summary>
+        /// <param name="seqNum">O número de carácteres na sequência.</param>
+        /// <param name="bits">O número de bits do resultado.</param>
+        /// <param name="type">O tipo de pré-computação.</param>
+        private void InitializeParameters(
+            int seqNum,
+            int bits,
+            PrecomputationType type)
+        {
+            this.seqNum = seqNum;
+            this.bits = bits;
+            this.lastBit = 1U << bits;
+            this.hashMask = this.MaskFunc(bits);
+            this.InitializeHashValues();
+            this.precomputationType = type;
+            if (type == PrecomputationType.FULLPRECOMP)
+            {
+                var len = 1 << (int)seqNum;
+                this.precomputedShift = new uint[len];
+
+                var leftExp = bits - seqNum;
+                if (leftExp == 0)
+                {
+                    for (var i = 0U; i < len; ++i)
+                    {
+                        var leftOver = this.FastLeftShift(
+                            i,
+                            (int)seqNum);
+                        this.precomputedShift[i] = leftOver;
+                    }
+                }
+                else
+                {
+                    for (var i = 0U; i < len; ++i)
+                    {
+                        var leftOver = i << leftExp;
+                        leftOver = this.FastLeftShift(
+                            leftOver,
+                            (int)seqNum);
+                        this.precomputedShift[i] = leftOver;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Inicializa os valores do código confuso.
+        /// </summary>
+        private void InitializeHashValues()
+        {
+            var randomGen = new MTRand();
+            for (var i = 0; i < 256; ++i)
+            {
+                this.hashValues[i] = randomGen.RandInt(this.hashMask);
+            }
+        }
+
+        /// <summary>
+        /// Obtém uma máscara para o número de bits.
+        /// </summary>
+        /// <param name="bits">O número de bits.</param>
+        /// <returns>A máscara.</returns>
+        private uint MaskFunc(int bits)
+        {
+            var result = 1U << (bits - 1);
+            return result ^ (result - 1);
+        }
+
+        /// <summary>
+        /// Efectua o deslocamento à esquerda, misturando os valores
+        /// com o valor do polinómio irredutível.
+        /// </summary>
+        /// <param name="x">O valor a ser deslocado.</param>
+        /// <param name="r">O número de deslocamentos.</param>
+        /// <returns>O resultado do deslocamento.</returns>
+        private uint FastLeftShift(
+            uint x,
+            int r)
+        {
+            var result = x;
+            for (var i = 0; i < r; ++i)
+            {
+                result <<= 1;
+                if ((result & lastBit) == lastBit)
+                {
+                    result ^= this.irreduciblePoly;
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Efectua um deslocamento à esquerda.
+        /// </summary>
+        /// <param name="x">O valor a ser deslocado.</param>
+        /// <returns>O resultado do deslocamento.</returns>
+        private uint FastLeftShiftN(uint x)
+        {
+            var leftExp = this.bits - this.seqNum;
+            var result = this.precomputedShift[(x >> leftExp)] ^
+                ((x << (int)this.seqNum) & (this.lastBit - 1));
+            return result;
+        }
+
+        /// <summary>
+        /// Estabelece o tipo de pré-computação.
+        /// </summary>
+        public enum PrecomputationType
+        {
+            /// <summary>
+            /// Pré-computação completa.
+            /// </summary>
+            FULLPRECOMP,
+
+            /// <summary>
+            /// Nenhhuma pré-computação.
+            /// </summary>
+            NOPRECOMP
+        }
+    }
+
+    /// <summary>
+    /// Implementa um código confuso de rotação.
+    /// </summary>
+    public class GenRollHashString32 :
+        IRollingHash32<char>,
+        IHash32<string>
+    {
+        /// <summary>
+        /// Valor associado ao polinómio irredutível.
+        /// </summary>
+        private uint irreduciblePoly;
+
+        /// <summary>
+        /// O número de carácteres na sequência.
+        /// </summary>
+        private int seqNum;
+
+        /// <summary>
+        /// O número de bits no resultado.
+        /// </summary>
+        private int bits;
+
+        /// <summary>
+        /// Valor com o último bit atribuído.
+        /// </summary>
+        private uint lastBit;
+
+        /// <summary>
+        /// Mantém o valor actual do código confuso.
+        /// </summary>
+        private uint hashValue;
+
+        /// <summary>
+        /// Mantém o valor da máscara de bits.
+        /// </summary>
+        private uint hashMask;
+
+        /// <summary>
+        /// Mantém valores pré-computados.
+        /// </summary>
+        private uint[] precomputedShift;
+
+        /// <summary>
+        /// Mantém um vector com os valores dos códigos confusos.
+        /// </summary>
+        private uint[] hashValues = new uint[256];
+
+        /// <summary>
+        /// O tipo de pré-computação.
+        /// </summary>
+        PrecomputationType precomputationType;
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="GenRollHashString32"/>.
+        /// </summary>
+        /// <param name="seqNum">O número de carácteres na sequência.</param>
+        /// <param name="bits">O número de bits do resultado.</param>
+        /// <param name="compType">O tipo de pré-computação.</param>
+        public GenRollHashString32(
+            int seqNum,
+            int bits = 19,
+            PrecomputationType compType = PrecomputationType.NOPRECOMP)
+        {
+            if (bits == 19)
+            {
+                if (seqNum < 0 || seqNum > bits)
+                {
+                    throw new ArgumentException(string.Format(
+                        "The sequence number {0} exceeded the bits number, {1},",
+                        seqNum,
+                        bits));
+                }
+                else
+                {
+                    this.irreduciblePoly = 1U + (1U << 1) + (1U << 2) + (1U << 5)
+                                   + (1U << 19);
+                    this.InitializeParameters(
+                        seqNum,
+                        bits,
+                        compType);
+
+                }
+            }
+            else if (bits == 9)
+            {
+                if (seqNum < 0 || seqNum > bits)
+                {
+                    throw new ArgumentException(string.Format(
+                           "The sequence number {0} exceeded the bits number, {1},",
+                           seqNum,
+                           bits));
+                }
+                else
+                {
+                    this.irreduciblePoly = 1U + (1U << 2) + (1U << 3) + (1U << 5) + (1U << 9);
+                    this.InitializeParameters(
+                        seqNum,
+                        bits,
+                        compType);
+                }
+            }
+            else
+            {
+                throw new ArgumentException("The hasher only supports 19 or 9 bits length.");
+            }
+
+        }
+
+        /// <summary>
+        /// Obtém o valor corrente do código confuso.
+        /// </summary>
+        public uint HashValue
+        {
+            get
+            {
+                return this.hashValue;
+            }
+        }
+
+        /// <summary>
+        /// Adiciona ao objecto o código confuso.
+        /// </summary>
+        /// <param name="obj">O objecto a ser adicionado.</param>
+        public void Eat(char obj)
+        {
+            this.hashValue = this.FastLeftShift(this.hashValue, 1);
+            this.hashValue ^= this.hashValues[obj];
+        }
+
+        /// <summary>
+        /// Actualiza o valor do código confuso, indicando o objecto de entrada
+        /// e o de saída.
+        /// </summary>
+        /// <param name="inObj">O objecto de entrada.</param>
+        /// <param name="outObj">O objecto de saída.</param>
+        public void Update(char inObj, char outObj)
+        {
+            this.hashValue <<= 1;
+            if ((this.hashValue & this.lastBit) == this.lastBit)
+            {
+                this.hashValue ^= this.irreduciblePoly;
+            }
+
+            var z = this.hashValues[outObj];
+            if (this.precomputationType == PrecomputationType.FULLPRECOMP)
+            {
+                z = this.FastLeftShiftN(z);
+            }
+            else
+            {
+                z = this.FastLeftShift(z, (int)this.seqNum);
+            }
+
+            this.hashValue ^= z ^ this.hashValues[inObj];
+        }
+
+        /// <summary>
+        /// Define uma função de confusão de um objecto com 32 bits.
+        /// </summary>
+        public uint GetHash32(string obj)
+        {
+            if (obj == null)
+            {
+                return 0U;
+            }
+            else
+            {
+                var result = 0U;
+                var len = obj.Length;
+                for (var k = 0; k < len; ++k)
+                {
+                    result = this.FastLeftShift(result, 1);
+                    result ^= this.hashValues[obj[k]];
+                }
+
+                return result;
+            }
+        }
+
+        /// <summary>
+        /// Inicializa os parâmetros do objecto.
+        /// </summary>
+        /// <param name="seqNum">O número de carácteres na sequência.</param>
+        /// <param name="bits">O número de bits do resultado.</param>
+        /// <param name="type">O tipo de pré-computação.</param>
+        private void InitializeParameters(
+            int seqNum,
+            int bits,
+            PrecomputationType type)
+        {
+            this.seqNum = seqNum;
+            this.bits = bits;
+            this.lastBit = 1U << bits;
+            this.hashMask = this.MaskFunc(bits);
+            this.InitializeHashValues();
+            this.precomputationType = type;
+            if (type == PrecomputationType.FULLPRECOMP)
+            {
+                var len = 1 << (int)seqNum;
+                this.precomputedShift = new uint[len];
+
+                var leftExp = bits - seqNum;
+                if (leftExp == 0)
+                {
+                    for (var i = 0U; i < len; ++i)
+                    {
+                        var leftOver = this.FastLeftShift(
+                            i,
+                            (int)seqNum);
+                        this.precomputedShift[i] = leftOver;
+                    }
+                }
+                else
+                {
+                    for (var i = 0U; i < len; ++i)
+                    {
+                        var leftOver = i << leftExp;
+                        leftOver = this.FastLeftShift(
+                            leftOver,
+                            (int)seqNum);
+                        this.precomputedShift[i] = leftOver;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Inicializa os valores do código confuso.
+        /// </summary>
+        private void InitializeHashValues()
+        {
+            var randomGen = new MTRand();
+            for (var i = 0; i < 256; ++i)
+            {
+                this.hashValues[i] = randomGen.RandInt(this.hashMask);
+            }
+        }
+
+        /// <summary>
+        /// Obtém uma máscara para o número de bits.
+        /// </summary>
+        /// <param name="bits">O número de bits.</param>
+        /// <returns>A máscara.</returns>
+        private uint MaskFunc(int bits)
+        {
+            var result = 1U << (bits - 1);
+            return result ^ (result - 1);
+        }
+
+        /// <summary>
+        /// Efectua o deslocamento à esquerda, misturando os valores
+        /// com o valor do polinómio irredutível.
+        /// </summary>
+        /// <param name="x">O valor a ser deslocado.</param>
+        /// <param name="r">O número de deslocamentos.</param>
+        /// <returns>O resultado do deslocamento.</returns>
+        private uint FastLeftShift(
+            uint x,
+            int r)
+        {
+            var result = x;
+            for (var i = 0; i < r; ++i)
+            {
+                result <<= 1;
+                if ((result & lastBit) == lastBit)
+                {
+                    result ^= this.irreduciblePoly;
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Efectua um deslocamento à esquerda.
+        /// </summary>
+        /// <param name="x">O valor a ser deslocado.</param>
+        /// <returns>O resultado do deslocamento.</returns>
+        private uint FastLeftShiftN(uint x)
+        {
+            var leftExp = this.bits - this.seqNum;
+            var result = this.precomputedShift[(x >> leftExp)] ^
+                ((x << (int)this.seqNum) & (this.lastBit - 1));
+            return result;
+        }
+
+        /// <summary>
+        /// Estabelece o tipo de pré-computação.
+        /// </summary>
+        public enum PrecomputationType
+        {
+            /// <summary>
+            /// Pré-computação completa.
+            /// </summary>
+            FULLPRECOMP,
+
+            /// <summary>
+            /// Nenhhuma pré-computação.
+            /// </summary>
+            NOPRECOMP
+        }
+    }
+
+    /// <summary>
+    /// Implementa um código confuso de rotação.
+    /// </summary>
+    public class GenRollHashByte64 :
+        IRollingHash64<byte>,
+        IHash64<byte[]>
+    {
+        /// <summary>
+        /// Valor associado ao polinómio irredutível.
+        /// </summary>
+        private uint irreduciblePoly;
+
+        /// <summary>
+        /// O número de carácteres na sequência.
+        /// </summary>
+        private int seqNum;
+
+        /// <summary>
+        /// O número de bits no resultado.
+        /// </summary>
+        private int bits;
+
+        /// <summary>
+        /// Valor com o último bit atribuído.
+        /// </summary>
+        private ulong lastBit;
+
+        /// <summary>
+        /// Mantém o valor actual do código confuso.
+        /// </summary>
+        private ulong hashValue;
+
+        /// <summary>
+        /// Mantém o valor da máscara de bits.
+        /// </summary>
+        private ulong hashMask;
+
+        /// <summary>
+        /// Mantém valores pré-computados.
+        /// </summary>
+        private ulong[] precomputedShift;
+
+        /// <summary>
+        /// Mantém um vector com os valores dos códigos confusos.
+        /// </summary>
+        private ulong[] hashValues = new ulong[256];
+
+        /// <summary>
+        /// O tipo de pré-computação.
+        /// </summary>
+        PrecomputationType precomputationType;
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="GenRollHashByte64"/>.
+        /// </summary>
+        /// <param name="seqNum">O número de carácteres na sequência.</param>
+        /// <param name="bits">O número de bits do resultado.</param>
+        /// <param name="compType">O tipo de pré-computação.</param>
+        public GenRollHashByte64(
+            int seqNum,
+            int bits = 19,
+            PrecomputationType compType = PrecomputationType.NOPRECOMP)
+        {
+            if (bits == 19)
+            {
+                if (seqNum < 0 || seqNum > bits)
+                {
+                    throw new ArgumentException(string.Format(
+                        "The sequence number {0} exceeded the bits number, {1},",
+                        seqNum,
+                        bits));
+                }
+                else
+                {
+                    this.irreduciblePoly = 1U + (1U << 1) + (1U << 2) + (1U << 5)
+                                   + (1U << 19);
+                    this.InitializeParameters(
+                        seqNum,
+                        bits,
+                        compType);
+
+                }
+            }
+            else if (bits == 9)
+            {
+                if (seqNum < 0 || seqNum > bits)
+                {
+                    throw new ArgumentException(string.Format(
+                           "The sequence number {0} exceeded the bits number, {1},",
+                           seqNum,
+                           bits));
+                }
+                else
+                {
+                    this.irreduciblePoly = 1U + (1U << 2) + (1U << 3) + (1U << 5) + (1U << 9);
+                    this.InitializeParameters(
+                        seqNum,
+                        bits,
+                        compType);
+                }
+            }
+            else
+            {
+                throw new ArgumentException("The hasher only supports 19 or 9 bits length.");
+            }
+
+        }
+
+        /// <summary>
+        /// Obtém o valor corrente do código confuso.
+        /// </summary>
+        public ulong HashValue
+        {
+            get
+            {
+                return this.hashValue;
+            }
+        }
+
+        /// <summary>
+        /// Adiciona ao objecto o código confuso.
+        /// </summary>
+        /// <param name="obj">O objecto a ser adicionado.</param>
+        public void Eat(byte obj)
+        {
+            this.hashValue = this.FastLeftShift(this.hashValue, 1);
+            this.hashValue ^= this.hashValues[obj];
+        }
+
+        /// <summary>
+        /// Actualiza o valor do código confuso, indicando o objecto de entrada
+        /// e o de saída.
+        /// </summary>
+        /// <param name="inObj">O objecto de entrada.</param>
+        /// <param name="outObj">O objecto de saída.</param>
+        public void Update(byte inObj, byte outObj)
+        {
+            this.hashValue <<= 1;
+            if ((this.hashValue & this.lastBit) == this.lastBit)
+            {
+                this.hashValue ^= this.irreduciblePoly;
+            }
+
+            var z = this.hashValues[outObj];
+            if (this.precomputationType == PrecomputationType.FULLPRECOMP)
+            {
+                z = this.FastLeftShiftN(z);
+            }
+            else
+            {
+                z = this.FastLeftShift(z, (int)this.seqNum);
+            }
+
+            this.hashValue ^= z ^ this.hashValues[inObj];
+        }
+
+        /// <summary>
+        /// Define uma função de confusão de um objecto com 32 bits.
+        /// </summary>
+        public ulong GetHash64(byte[] obj)
+        {
+            if (obj == null)
+            {
+                return 0U;
+            }
+            else
+            {
+                var result = 0UL;
+                var len = (ulong)obj.Length;
+                for (var k = 0UL; k < len; ++k)
+                {
+                    result = this.FastLeftShift(result, 1);
+                    result ^= this.hashValues[obj[k]];
+                }
+
+                return result;
+            }
+        }
+
+        /// <summary>
+        /// Inicializa os parâmetros do objecto.
+        /// </summary>
+        /// <param name="seqNum">O número de carácteres na sequência.</param>
+        /// <param name="bits">O número de bits do resultado.</param>
+        /// <param name="type">O tipo de pré-computação.</param>
+        private void InitializeParameters(
+            int seqNum,
+            int bits,
+            PrecomputationType type)
+        {
+            this.seqNum = seqNum;
+            this.bits = bits;
+            this.lastBit = 1U << bits;
+            this.hashMask = this.MaskFunc(bits);
+            this.InitializeHashValues();
+            this.precomputationType = type;
+            if (type == PrecomputationType.FULLPRECOMP)
+            {
+                var len = (ulong)(1 << (int)seqNum);
+                this.precomputedShift = new ulong[len];
+
+                var leftExp = bits - seqNum;
+                if (leftExp == 0)
+                {
+                    for (var i = 0UL; i < len; ++i)
+                    {
+                        var leftOver = this.FastLeftShift(
+                            i,
+                            (int)seqNum);
+                        this.precomputedShift[i] = leftOver;
+                    }
+                }
+                else
+                {
+                    for (var i = 0UL; i < len; ++i)
+                    {
+                        var leftOver = i << leftExp;
+                        leftOver = this.FastLeftShift(
+                            leftOver,
+                            (int)seqNum);
+                        this.precomputedShift[i] = leftOver;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Inicializa os valores do código confuso.
+        /// </summary>
+        private void InitializeHashValues()
+        {
+            var randomGen = new MTRand();
+            for (var i = 0; i < 256; ++i)
+            {
+                this.hashValues[i] = randomGen.RandInt((uint)this.hashMask);
+            }
+        }
+
+        /// <summary>
+        /// Obtém uma máscara para o número de bits.
+        /// </summary>
+        /// <param name="bits">O número de bits.</param>
+        /// <returns>A máscara.</returns>
+        private ulong MaskFunc(int bits)
+        {
+            var result = 1UL << (bits - 1);
+            return result ^ (result - 1);
+        }
+
+        /// <summary>
+        /// Efectua o deslocamento à esquerda, misturando os valores
+        /// com o valor do polinómio irredutível.
+        /// </summary>
+        /// <param name="x">O valor a ser deslocado.</param>
+        /// <param name="r">O número de deslocamentos.</param>
+        /// <returns>O resultado do deslocamento.</returns>
+        private ulong FastLeftShift(
+            ulong x,
+            int r)
+        {
+            var result = x;
+            for (var i = 0; i < r; ++i)
+            {
+                result <<= 1;
+                if ((result & lastBit) == lastBit)
+                {
+                    result ^= this.irreduciblePoly;
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Efectua um deslocamento à esquerda.
+        /// </summary>
+        /// <param name="x">O valor a ser deslocado.</param>
+        /// <returns>O resultado do deslocamento.</returns>
+        private ulong FastLeftShiftN(ulong x)
+        {
+            var leftExp = this.bits - this.seqNum;
+            var result = this.precomputedShift[(x >> leftExp)] ^
+                ((x << (int)this.seqNum) & (this.lastBit - 1));
+            return result;
+        }
+
+        /// <summary>
+        /// Estabelece o tipo de pré-computação.
+        /// </summary>
+        public enum PrecomputationType
+        {
+            /// <summary>
+            /// Pré-computação completa.
+            /// </summary>
+            FULLPRECOMP,
+
+            /// <summary>
+            /// Nenhhuma pré-computação.
+            /// </summary>
+            NOPRECOMP
+        }
+    }
+
+    /// <summary>
+    /// Implementa um código confuso de rotação.
+    /// </summary>
+    public class GenRollHashString64 :
+        IRollingHash64<char>,
+        IHash64<string>
+    {
+        /// <summary>
+        /// Valor associado ao polinómio irredutível.
+        /// </summary>
+        private uint irreduciblePoly;
+
+        /// <summary>
+        /// O número de carácteres na sequência.
+        /// </summary>
+        private int seqNum;
+
+        /// <summary>
+        /// O número de bits no resultado.
+        /// </summary>
+        private int bits;
+
+        /// <summary>
+        /// Valor com o último bit atribuído.
+        /// </summary>
+        private ulong lastBit;
+
+        /// <summary>
+        /// Mantém o valor actual do código confuso.
+        /// </summary>
+        private ulong hashValue;
+
+        /// <summary>
+        /// Mantém o valor da máscara de bits.
+        /// </summary>
+        private ulong hashMask;
+
+        /// <summary>
+        /// Mantém valores pré-computados.
+        /// </summary>
+        private ulong[] precomputedShift;
+
+        /// <summary>
+        /// Mantém um vector com os valores dos códigos confusos.
+        /// </summary>
+        private ulong[] hashValues = new ulong[256];
+
+        /// <summary>
+        /// O tipo de pré-computação.
+        /// </summary>
+        PrecomputationType precomputationType;
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="GenRollHashString64"/>.
+        /// </summary>
+        /// <param name="seqNum">O número de carácteres na sequência.</param>
+        /// <param name="bits">O número de bits do resultado.</param>
+        /// <param name="compType">O tipo de pré-computação.</param>
+        public GenRollHashString64(
+            int seqNum,
+            int bits = 19,
+            PrecomputationType compType = PrecomputationType.NOPRECOMP)
+        {
+            if (bits == 19)
+            {
+                if (seqNum < 0 || seqNum > bits)
+                {
+                    throw new ArgumentException(string.Format(
+                        "The sequence number {0} exceeded the bits number, {1},",
+                        seqNum,
+                        bits));
+                }
+                else
+                {
+                    this.irreduciblePoly = 1U + (1U << 1) + (1U << 2) + (1U << 5)
+                                   + (1U << 19);
+                    this.InitializeParameters(
+                        seqNum,
+                        bits,
+                        compType);
+
+                }
+            }
+            else if (bits == 9)
+            {
+                if (seqNum < 0 || seqNum > bits)
+                {
+                    throw new ArgumentException(string.Format(
+                           "The sequence number {0} exceeded the bits number, {1},",
+                           seqNum,
+                           bits));
+                }
+                else
+                {
+                    this.irreduciblePoly = 1U + (1U << 2) + (1U << 3) + (1U << 5) + (1U << 9);
+                    this.InitializeParameters(
+                        seqNum,
+                        bits,
+                        compType);
+                }
+            }
+            else
+            {
+                throw new ArgumentException("The hasher only supports 19 or 9 bits length.");
+            }
+
+        }
+
+        /// <summary>
+        /// Obtém o valor corrente do código confuso.
+        /// </summary>
+        public ulong HashValue
+        {
+            get
+            {
+                return this.hashValue;
+            }
+        }
+
+        /// <summary>
+        /// Adiciona ao objecto o código confuso.
+        /// </summary>
+        /// <param name="obj">O objecto a ser adicionado.</param>
+        public void Eat(char obj)
+        {
+            this.hashValue = this.FastLeftShift(this.hashValue, 1);
+            this.hashValue ^= this.hashValues[obj];
+        }
+
+        /// <summary>
+        /// Actualiza o valor do código confuso, indicando o objecto de entrada
+        /// e o de saída.
+        /// </summary>
+        /// <param name="inObj">O objecto de entrada.</param>
+        /// <param name="outObj">O objecto de saída.</param>
+        public void Update(char inObj, char outObj)
+        {
+            this.hashValue <<= 1;
+            if ((this.hashValue & this.lastBit) == this.lastBit)
+            {
+                this.hashValue ^= this.irreduciblePoly;
+            }
+
+            var z = this.hashValues[outObj];
+            if (this.precomputationType == PrecomputationType.FULLPRECOMP)
+            {
+                z = this.FastLeftShiftN(z);
+            }
+            else
+            {
+                z = this.FastLeftShift(z, (int)this.seqNum);
+            }
+
+            this.hashValue ^= z ^ this.hashValues[inObj];
+        }
+
+        /// <summary>
+        /// Define uma função de confusão de um objecto com 64 bits.
+        /// </summary>
+        public ulong GetHash64(string obj)
+        {
+            if (obj == null)
+            {
+                return 0U;
+            }
+            else
+            {
+                var result = 0UL;
+                var len = obj.Length;
+                for (var k = 0; k < len; ++k)
+                {
+                    result = this.FastLeftShift(result, 1);
+                    result ^= this.hashValues[obj[k]];
+                }
+
+                return result;
+            }
+        }
+
+        /// <summary>
+        /// Inicializa os parâmetros do objecto.
+        /// </summary>
+        /// <param name="seqNum">O número de carácteres na sequência.</param>
+        /// <param name="bits">O número de bits do resultado.</param>
+        /// <param name="type">O tipo de pré-computação.</param>
+        private void InitializeParameters(
+            int seqNum,
+            int bits,
+            PrecomputationType type)
+        {
+            this.seqNum = seqNum;
+            this.bits = bits;
+            this.lastBit = 1U << bits;
+            this.hashMask = this.MaskFunc(bits);
+            this.InitializeHashValues();
+            this.precomputationType = type;
+            if (type == PrecomputationType.FULLPRECOMP)
+            {
+                var len = (ulong)(1 << (int)seqNum);
+                this.precomputedShift = new ulong[len];
+
+                var leftExp = bits - seqNum;
+                if (leftExp == 0)
+                {
+                    for (var i = 0UL; i < len; ++i)
+                    {
+                        var leftOver = this.FastLeftShift(
+                            i,
+                            (int)seqNum);
+                        this.precomputedShift[i] = leftOver;
+                    }
+                }
+                else
+                {
+                    for (var i = 0UL; i < len; ++i)
+                    {
+                        var leftOver = i << leftExp;
+                        leftOver = this.FastLeftShift(
+                            leftOver,
+                            (int)seqNum);
+                        this.precomputedShift[i] = leftOver;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Inicializa os valores do código confuso.
+        /// </summary>
+        private void InitializeHashValues()
+        {
+            var randomGen = new MTRand();
+            for (var i = 0; i < 256; ++i)
+            {
+                this.hashValues[i] = randomGen.RandInt((uint)this.hashMask);
+            }
+        }
+
+        /// <summary>
+        /// Obtém uma máscara para o número de bits.
+        /// </summary>
+        /// <param name="bits">O número de bits.</param>
+        /// <returns>A máscara.</returns>
+        private ulong MaskFunc(int bits)
+        {
+            var result = 1UL << (bits - 1);
+            return result ^ (result - 1);
+        }
+
+        /// <summary>
+        /// Efectua o deslocamento à esquerda, misturando os valores
+        /// com o valor do polinómio irredutível.
+        /// </summary>
+        /// <param name="x">O valor a ser deslocado.</param>
+        /// <param name="r">O número de deslocamentos.</param>
+        /// <returns>O resultado do deslocamento.</returns>
+        private ulong FastLeftShift(
+            ulong x,
+            int r)
+        {
+            var result = x;
+            for (var i = 0; i < r; ++i)
+            {
+                result <<= 1;
+                if ((result & lastBit) == lastBit)
+                {
+                    result ^= this.irreduciblePoly;
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Efectua um deslocamento à esquerda.
+        /// </summary>
+        /// <param name="x">O valor a ser deslocado.</param>
+        /// <returns>O resultado do deslocamento.</returns>
+        private ulong FastLeftShiftN(ulong x)
+        {
+            var leftExp = this.bits - this.seqNum;
+            var result = this.precomputedShift[(x >> leftExp)] ^
+                ((x << (int)this.seqNum) & (this.lastBit - 1));
+            return result;
+        }
+
+        /// <summary>
+        /// Estabelece o tipo de pré-computação.
+        /// </summary>
+        public enum PrecomputationType
+        {
+            /// <summary>
+            /// Pré-computação completa.
+            /// </summary>
+            FULLPRECOMP,
+
+            /// <summary>
+            /// Nenhhuma pré-computação.
+            /// </summary>
+            NOPRECOMP
+        }
+    }
+
+    /// <summary>
+    /// Implementa um código confuso de rotação.
+    /// </summary>
+    public class CyclicHashByte32 :
+        IRollingHash32<byte>,
+        IHash32<byte[]>
+    {
+        /// <summary>
+        /// Mantém o valor actual do código confuso.
+        /// </summary>
+        private uint hashValue = 0U;
+
+        /// <summary>
+        /// Máscara relativa ao número de bits decrescido 
+        /// em uma unidade.
+        /// </summary>
+        private uint mask1;
+
+        /// <summary>
+        /// Máscara relativa ao número de bits.
+        /// </summary>
+        private uint maskn;
+
+        /// <summary>
+        /// Mantém o número de bits.
+        /// </summary>
+        private int bits;
+
+        /// <summary>
+        /// Mantém o resto da divisão do número de carácteres
+        /// pelo número de bits.
+        /// </summary>
+        private int rem;
+
+        /// <summary>
+        /// Mantém códigos confusos para cada carácter.
+        /// </summary>
+        private uint[] hashValues = new uint[256];
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="CyclicHashByte32"/>.
+        /// </summary>
+        /// <param name="seqNum">O número de carácteres na sequeência.</param>
+        /// <param name="bits">O número de bits a ser considerado.</param>
+        public CyclicHashByte32(int seqNum, int bits = 19)
+        {
+            if (seqNum > 0)
+            {
+                if (bits <= 0 || bits > 32)
+                {
+                    throw new ArgumentException("The number of bits must be a value between 1 and 32.");
+                }
+                else
+                {
+                    this.bits = bits;
+                    this.rem = seqNum % bits;
+                    this.mask1 = this.MaskFunc(bits - 1);
+                    this.maskn = this.MaskFunc(bits - (int)this.rem);
+                    this.InitializeHashValues();
+                }
+            }
+            else
+            {
+                throw new ArgumentException("The number of characters in sequence must be a positive value.");
+            }
+        }
+
+        /// <summary>
+        /// Obtém o valor corrente do código confuso.
+        /// </summary>
+        public uint HashValue
+        {
+            get
+            {
+                return this.hashValue;
+            }
+        }
+
+        /// <summary>
+        /// Adiciona ao objecto o código confuso.
+        /// </summary>
+        /// <param name="obj">O objecto a ser adicionado.</param>
+        public void Eat(byte obj)
+        {
+            this.hashValue = this.FastLeftShif1(this.hashValue);
+            this.hashValue ^= this.hashValues[obj];
+        }
+
+        /// <summary>
+        /// Actualiza o valor do código confuso, indicando o objecto de entrada
+        /// e o de saída.
+        /// </summary>
+        /// <param name="inObj">O objecto de entrada.</param>
+        /// <param name="outObj">O objecto de saída.</param>
+        public void Update(byte inObj, byte outObj)
+        {
+            var z = this.hashValues[outObj];
+            z = this.FastLeftShiftN(z);
+            this.hashValue = this.FastLeftShif1(this.hashValue) ^
+                z ^
+                this.hashValues[inObj];
+        }
+
+        /// <summary>
+        /// Actualiza o valor do código confuso assumindo que o carácter
+        /// de entrada é o primeiro e o de saída é o último.
+        /// </summary>
+        /// <param name="inObj">O objecto de entrada.</param>
+        /// <param name="outObj">O objecto de saída.</param>
+        public void ReverseUpdate(byte inObj, byte outObj)
+        {
+            var z = this.hashValues[inObj];
+            z = this.FastLeftShiftN(z);
+            this.hashValue ^= z ^ this.hashValues[outObj];
+            this.hashValue = this.FastRightShift1(this.hashValue);
+        }
+
+        /// <summary>
+        /// Define uma função de confusão de um objecto com 32 bits.
+        /// </summary>
+        public uint GetHash32(byte[] obj)
+        {
+            if (obj == null)
+            {
+                throw new ArgumentNullException("obj");
+            }
+            else
+            {
+                var result = 0U;
+                var len = obj.Length;
+                for (var k = 0; k < len; ++k)
+                {
+                    result = this.FastLeftShif1(result);
+                    result ^= this.hashValues[obj[k]];
+                }
+
+                return result;
+            }
+        }
+
+        /// <summary>
+        /// Obtém um código confuso que resulta do deslocamento do código
+        /// confuso associado ao carácter proporcionado.
+        /// </summary>
+        /// <param name="outObj">O carácter.</param>
+        /// <param name="n">O valor do deslocamento.</param>
+        /// <returns>O código confuso calculado.</returns>
+        public uint GetHashZ(char outObj, uint n)
+        {
+            var result = this.hashValues[outObj];
+            for (var k = 0; k < n; ++k)
+            {
+                result = this.FastLeftShif1(result);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Inicializa os valores do código confuso.
+        /// </summary>
+        private void InitializeHashValues()
+        {
+            var randomGen = new MTRand();
+            for (var i = 0; i < 256; ++i)
+            {
+                this.hashValues[i] = randomGen.RandInt(this.maskn);
+            }
+        }
+
+        /// <summary>
+        /// Obtém uma máscara para o número de bits.
+        /// </summary>
+        /// <param name="bits">O número de bits.</param>
+        /// <returns>A máscara.</returns>
+        private uint MaskFunc(int bits)
+        {
+            var result = 1U << (bits - 1);
+            return result ^ (result - 1);
+        }
+
+        /// <summary>
+        /// Roda os bits para a esquerda dentro da máscara um número de vezes
+        /// igual ao resto da divisão.
+        /// </summary>
+        /// <param name="x">O valor a ser rodado.</param>
+        /// <returns>O resultado da rotação.</returns>
+        private uint FastLeftShiftN(uint x)
+        {
+            return ((x & this.maskn) << this.rem) | (x >> (this.bits - this.rem));
+        }
+
+        /// <summary>
+        /// Roda os bits para a esquerda dentro da máscara em uma unidade.
+        /// </summary>
+        /// <param name="x">O valor a ser rodado.</param>
+        /// <returns>O resultado da rotação.</returns>
+        private uint FastLeftShif1(uint x)
+        {
+            return x = ((x & this.mask1) << 1) | (x >> (this.bits - 1));
+        }
+
+        /// <summary>
+        /// Roda os bits para a direita dentro da máscara em uma unidade.
+        /// </summary>
+        /// <param name="x">O valor a ser rodado.</param>
+        /// <returns>O resultado da rotação.</returns>
+        private uint FastRightShift1(uint x)
+        {
+            return (x >> 1) | ((x & 1) << (this.bits - 1));
+        }
+    }
+
+    /// <summary>
+    /// Implementa um código confuso de rotação.
+    /// </summary>
+    public class CyclicHashByte64 :
+        IRollingHash64<byte>,
+        IHash64<byte[]>
+    {
+        /// <summary>
+        /// Mantém o valor actual do código confuso.
+        /// </summary>
+        private ulong hashValue = 0UL;
+
+        /// <summary>
+        /// Máscara relativa ao número de bits decrescido 
+        /// em uma unidade.
+        /// </summary>
+        private ulong mask1;
+
+        /// <summary>
+        /// Máscara relativa ao número de bits.
+        /// </summary>
+        private ulong maskn;
+
+        /// <summary>
+        /// Mantém o número de bits.
+        /// </summary>
+        private int bits;
+
+        /// <summary>
+        /// Mantém o resto da divisão do número de carácteres
+        /// pelo número de bits.
+        /// </summary>
+        private int rem;
+
+        /// <summary>
+        /// Mantém códigos confusos para cada carácter.
+        /// </summary>
+        private ulong[] hashValues = new ulong[256];
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="CyclicHashByte64"/>.
+        /// </summary>
+        /// <param name="seqNum">O número de carácteres na sequeência.</param>
+        /// <param name="bits">O número de bits a ser considerado.</param>
+        public CyclicHashByte64(int seqNum, int bits = 19)
+        {
+            if (seqNum > 0)
+            {
+                if (bits <= 0 || bits > 64)
+                {
+                    throw new ArgumentException("The number of bits must be a value between 1 and 64.");
+                }
+                else
+                {
+                    this.bits = bits;
+                    this.rem = seqNum % bits;
+                    this.mask1 = this.MaskFunc(bits - 1);
+                    this.maskn = this.MaskFunc(bits - (int)this.rem);
+                    this.InitializeHashValues();
+                }
+            }
+            else
+            {
+                throw new ArgumentException("The number of characters in sequence must be a positive value.");
+            }
+        }
+
+        /// <summary>
+        /// Obtém o valor corrente do código confuso.
+        /// </summary>
+        public ulong HashValue
+        {
+            get
+            {
+                return this.hashValue;
+            }
+        }
+
+        /// <summary>
+        /// Adiciona ao objecto o código confuso.
+        /// </summary>
+        /// <param name="obj">O objecto a ser adicionado.</param>
+        public void Eat(byte obj)
+        {
+            this.hashValue = this.FastLeftShif1(this.hashValue);
+            this.hashValue ^= this.hashValues[obj];
+        }
+
+        /// <summary>
+        /// Actualiza o valor do código confuso, indicando o objecto de entrada
+        /// e o de saída.
+        /// </summary>
+        /// <param name="inObj">O objecto de entrada.</param>
+        /// <param name="outObj">O objecto de saída.</param>
+        public void Update(byte inObj, byte outObj)
+        {
+            var z = this.hashValues[outObj];
+            z = this.FastLeftShiftN(z);
+            this.hashValue = this.FastLeftShif1(this.hashValue) ^
+                z ^
+                this.hashValues[inObj];
+        }
+
+        /// <summary>
+        /// Actualiza o valor do código confuso assumindo que o carácter
+        /// de entrada é o primeiro e o de saída é o último.
+        /// </summary>
+        /// <param name="inObj">O objecto de entrada.</param>
+        /// <param name="outObj">O objecto de saída.</param>
+        public void ReverseUpdate(byte inObj, byte outObj)
+        {
+            var z = this.hashValues[inObj];
+            z = this.FastLeftShiftN(z);
+            this.hashValue ^= z ^ this.hashValues[outObj];
+            this.hashValue = this.FastRightShift1(this.hashValue);
+        }
+
+        /// <summary>
+        /// Define uma função de confusão de um objecto com 64 bits.
+        /// </summary>
+        public ulong GetHash64(byte[] obj)
+        {
+            if (obj == null)
+            {
+                throw new ArgumentNullException("obj");
+            }
+            else
+            {
+                var result = 0UL;
+                var len = obj.Length;
+                for (var k = 0; k < len; ++k)
+                {
+                    result = this.FastLeftShif1(result);
+                    result ^= this.hashValues[obj[k]];
+                }
+
+                return result;
+            }
+        }
+
+        /// <summary>
+        /// Obtém um código confuso que resulta do deslocamento do código
+        /// confuso associado ao carácter proporcionado.
+        /// </summary>
+        /// <param name="outObj">O carácter.</param>
+        /// <param name="n">O valor do deslocamento.</param>
+        /// <returns>O código confuso calculado.</returns>
+        public ulong GetHashZ(char outObj, uint n)
+        {
+            var result = this.hashValues[outObj];
+            for (var k = 0; k < n; ++k)
+            {
+                result = this.FastLeftShif1(result);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Inicializa os valores do código confuso.
+        /// </summary>
+        private void InitializeHashValues()
+        {
+            var randomGen1 = new MTRand();
+            var randValue1 = (uint)(this.maskn >> 32);
+            if (randValue1 == 0U)
+            {
+                for (var i = 0UL; i < 256; ++i)
+                {
+                    this.hashValues[i] = randomGen1.RandInt((uint)this.maskn);
+                }
+            }
+            else
+            {
+                var randomGen2 = new MTRand();
+                for (var i = 0UL; i < 256; ++i)
+                {
+                    var temp = ((ulong)randomGen1.RandInt(randValue1) << 32) |
+                        ((ulong)randomGen2.RandInt(0xFFFFFFFFU));
+
+                    this.hashValues[i] = temp;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Obtém uma máscara para o número de bits.
+        /// </summary>
+        /// <param name="bits">O número de bits.</param>
+        /// <returns>A máscara.</returns>
+        private ulong MaskFunc(int bits)
+        {
+            var result = 1UL << (bits - 1);
+            return result ^ (result - 1);
+        }
+
+        /// <summary>
+        /// Roda os bits para a esquerda dentro da máscara um número de vezes
+        /// igual ao resto da divisão.
+        /// </summary>
+        /// <param name="x">O valor a ser rodado.</param>
+        /// <returns>O resultado da rotação.</returns>
+        private ulong FastLeftShiftN(ulong x)
+        {
+            return ((x & this.maskn) << this.rem) | (x >> (this.bits - this.rem));
+        }
+
+        /// <summary>
+        /// Roda os bits para a esquerda dentro da máscara em uma unidade.
+        /// </summary>
+        /// <param name="x">O valor a ser rodado.</param>
+        /// <returns>O resultado da rotação.</returns>
+        private ulong FastLeftShif1(ulong x)
+        {
+            return x = ((x & this.mask1) << 1) | (x >> (this.bits - 1));
+        }
+
+        /// <summary>
+        /// Roda os bits para a direita dentro da máscara em uma unidade.
+        /// </summary>
+        /// <param name="x">O valor a ser rodado.</param>
+        /// <returns>O resultado da rotação.</returns>
+        private ulong FastRightShift1(ulong x)
+        {
+            return (x >> 1) | ((x & 1) << (this.bits - 1));
+        }
+    }
+
+    /// <summary>
+    /// Implementa um código confuso de rotação.
+    /// </summary>
+    public class ThreeWiseHash32 :
+        IRollingHash32<byte>,
+        IHash32<byte[]>
+    {
+        /// <summary>
+        /// Mantém o valor actual do código confuso.
+        /// </summary>
+        private uint hashValue;
+
+        /// <summary>
+        /// Mantém uma matriz de códigos confusos.
+        /// </summary>
+        private uint[,] hashers;
+
+        /// <summary>
+        /// Mantém um vector de códigos confusos para cada carácter.
+        /// </summary>
+        private uint[] hasher = new uint[256];
+
+        public ThreeWiseHash32(int seqNum, int bits = 19)
+        {
+            if (seqNum <= 0)
+            {
+                throw new ArgumentException("The number of characters in sequence must be a positive number.");
+            }
+            else if (bits <= 0 || bits > 32)
+            {
+                throw new ArgumentException("The number of bits must be a value between 1 and 32.");
+            }
+            else
+            {
+
+            }
+        }
+
+        /// <summary>
+        /// Obtém o valor corrente do código confuso.
+        /// </summary>
+        public uint HashValue
+        {
+            get
+            {
+                return this.hashValue;
+            }
+        }
+
+        /// <summary>
+        /// Adiciona ao objecto o código confuso.
+        /// </summary>
+        /// <param name="obj">O objecto a ser adicionado.</param>
+        public void Eat(byte obj)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Actualiza o valor do código confuso, indicando o objecto de entrada
+        /// e o de saída.
+        /// </summary>
+        /// <param name="inObj">O objecto de entrada.</param>
+        /// <param name="outObj">O objecto de saída.</param>
+        public void Update(byte inObj, byte outObj)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Define uma função de confusão de um objecto com 32 bits.
+        /// </summary>
+        public uint GetHash32(byte[] obj)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    /// <summary>
+    /// Define funções que permitem calcular códigos confusos simples.
+    /// </summary>
+    public static class SimpleHashFunctions
+    {
+        /// <summary>
+        /// Mantém o número de bits num inteiro se sinal.
+        /// </summary>
+        private static int numberOfBitsInUint = (sizeof(uint) * 8);
+
+        /// <summary>
+        /// Três quartos do número de bits.
+        /// </summary>
+        private static int threeQuarters = (numberOfBitsInUint * 3) / 4;
+
+        /// <summary>
+        /// Um oitavo do número de bits.
+        /// </summary>
+        private static int oneEight = sizeof(uint);
+
+        /// <summary>
+        /// O valor dos bits mais elevados.
+        /// </summary>
+        private static uint highBits = 0xFFFFFFFFU << (numberOfBitsInUint - oneEight);
+
+        /// <summary>
+        /// Tabela com números primos.
+        /// </summary>
+        private static int[] primes = new[]{
+            3, 5, 7, 11, 13, 17, 19, 23, 29,
+            31, 37, 41, 43, 47, 53, 59, 61,
+            67, 71, 73, 79, 83, 89, 97, 101,
+            103, 107, 109, 113};
+
+        /// <summary>
+        /// Implementa um algoritmo rápido para gerar códigos confusos.
+        /// </summary>
+        /// <param name="obj">A chave.</param>
+        /// <param name="start">A posição na chave onde o algoritmo deve ser iniciado.</param>
+        /// <param name="length">O comprimento válido.</param>
+        /// <returns>O valor do código confuso.</returns>
+        public static uint SuperFastHash(byte[] obj, int start, int length)
+        {
+            if (length <= 0 || obj == null)
+            {
+                return 0;
+            }
+            else if (start + length > obj.Length)
+            {
+                throw new ArgumentException("Length value is greater than object's length.");
+            }
+            else
+            {
+                var hash = (uint)length;
+                var rem = length & 3;
+                length >>= 2;
+
+                var pointer = start;
+                for (; length > 0; length--)
+                {
+                    hash += (uint)BitConverter.ToUInt16(obj, pointer);
+                    var tmp = (uint)(BitConverter.ToUInt16(obj, pointer + 2) << 11) ^ hash;
+                    hash = (hash << 16) ^ tmp;
+                    pointer += 4;
+                    hash += hash >> 11;
+                }
+
+                switch (rem)
+                {
+                    case 3:
+                        hash += (uint)BitConverter.ToUInt16(obj, pointer);
+                        hash ^= hash << 16;
+                        var t = (sbyte)obj[pointer + 2];
+                        hash ^= (uint)(t << 18);
+                        hash += hash >> 11;
+                        break;
+                    case 2: hash += (uint)BitConverter.ToUInt16(obj, pointer);
+                        hash ^= hash << 11;
+                        hash += hash >> 17;
+                        break;
+                    case 1:
+                        t = (sbyte)obj[pointer];
+                        if (t < 0)
+                        {
+                            hash -= (uint)(~t + 1);
+                        }
+                        else
+                        {
+                            hash += (uint)t;
+                        }
+                        hash ^= hash << 10;
+                        hash += hash >> 1;
+                        break;
+                }
+
+                /* Force "avalanching" of final 127 bits */
+                hash ^= hash << 3;
+                hash += hash >> 5;
+                hash ^= hash << 4;
+                hash += hash >> 17;
+                hash ^= hash << 25;
+                hash += hash >> 6;
+
+                return hash;
+            }
+        }
+
+        /// <summary>
+        /// Implementa um algoritmo simples para código confuso baseado na representação
+        /// inteira dos dados na base b.
+        /// </summary>
+        /// <remarks>
+        /// A linguagem java implementa este algoritmo com b = 31.
+        /// </remarks>
+        /// <param name="obj">A mensagem sobre a qual se aplica o algoritmo.</param>
+        /// <param name="start">O início da mensagem onde se pretende aplicar o algoritmo.</param>
+        /// <param name="length">O tamanho da mensagem a aplicar o algoritmo.</param>
+        /// <param name="seed">O valor inicial.</param>
+        /// <param name="b">A base.</param>
+        /// <returns>O valor do código confuso.</returns>
+        public static uint PowerHash32(
+            byte[] obj,
+            int start,
+            int length,
+            uint seed,
+            uint b = 31)
+        {
+            if (obj == null)
+            {
+                return 0;
+            }
+            else
+            {
+                var final = start + length;
+                if (final > obj.Length)
+                {
+                    throw new IndexOutOfRangeException("Index is out of range.");
+                }
+                else
+                {
+                    var h = seed;
+                    if (obj != null && obj.Length > 0)
+                    {
+                        for (int i = 0; i < obj.Length; i++)
+                        {
+                            h = 31 * h + obj[i];
+                        }
+                    }
+
+                    return h;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Implementa um algoritmo simples para código confuso baseado na representação
+        /// inteira dos dados na base b.
+        /// </summary>
+        /// <remarks>
+        /// A linguagem java implementa este algoritmo com b = 31.
+        /// </remarks>
+        /// <param name="obj">A mensagem sobre a qual se aplica o algoritmo.</param>
+        /// <param name="start">O início da mensagem onde se pretende aplicar o algoritmo.</param>
+        /// <param name="length">O tamanho da mensagem a aplicar o algoritmo.</param>
+        /// <param name="seed">O valor inicial.</param>
+        /// <param name="b">A base.</param>
+        /// <returns>O valor do código confuso.</returns>
+        public static ulong PowerHash64(
+            byte[] obj,
+            int start,
+            int length,
+            ulong seed,
+            ulong b = 31)
+        {
+            if (obj == null)
+            {
+                return 0U;
+            }
+            else
+            {
+                var final = start + length;
+                if (final > obj.Length)
+                {
+                    throw new IndexOutOfRangeException("Index is out of range.");
+                }
+                else
+                {
+                    var h = seed;
+                    if (obj != null && obj.Length > 0)
+                    {
+                        for (int i = start; i < final; i++)
+                        {
+                            h = 31 * h + obj[i];
+                        }
+                    }
+
+                    return h;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Implementa o algoritmo de código confuso PJW.
+        /// </summary>
+        /// <param name="obj">A mensgem sobre a qual aplicar o algoritmo.</param>
+        /// <param name="start">O início da mensagem onde se pretende aplicar o algoritmo.</param>
+        /// <param name="length">O tamanho da mensagem a aplicar o algoritmo.</param>
+        /// <returns>O valor do código confuso.</returns>
+        public static uint PJWHash(
+            byte[] obj,
+            int start,
+            int length)
+        {
+            if (obj == null)
+            {
+                return 0U;
+            }
+            else
+            {
+                var final = start + length;
+                if (final > obj.Length)
+                {
+                    throw new IndexOutOfRangeException("Index is out of range.");
+                }
+                else
+                {
+                    var hash = 0U;
+                    for (var i = start; i < final; ++i)
+                    {
+                        hash = (hash << oneEight) + obj[i];
+                        var test = hash & highBits;
+                        if (test != 0)
+                        {
+                            hash = ((hash ^ (test >> threeQuarters)) & (~highBits));
+                        }
+                    }
+
+                    return hash;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Implementa o algoritmo de código confuso ELF.
+        /// </summary>
+        /// <param name="obj">A mensgem sobre a qual aplicar o algoritmo.</param>
+        /// <param name="start">O início da mensagem onde se pretende aplicar o algoritmo.</param>
+        /// <param name="length">O tamanho da mensagem a aplicar o algoritmo.</param>
+        /// <returns>O valor do código confuso.</returns>
+        public static uint ELFHash(byte[] obj, int start, int length)
+        {
+            var final = start + length;
+            if (final > obj.Length)
+            {
+                throw new IndexOutOfRangeException("Index is out of range.");
+            }
+            else
+            {
+                var hash = 0U;
+
+                for (var i = 0; i < length; i++)
+                {
+                    hash = (hash << 4) + obj[i];
+                    var x = hash & 0xF0000000U;
+                    if (x != 0)
+                    {
+                        hash ^= (x >> 24);
+                    }
+
+                    hash &= ~x;
+                }
+
+                return hash;
+            }
+        }
+
+        /// <summary>
+        /// Implementa o algoritmo de código confuso NHash de 32 bits.
+        /// </summary>
+        /// <param name="obj">A mensgem sobre a qual aplicar o algoritmo.</param>
+        /// <param name="start">O início da mensagem onde se pretende aplicar o algoritmo.</param>
+        /// <param name="length">O tamanho da mensagem a aplicar o algoritmo.</param>
+        /// <returns>O valor do código confuso.</returns>
+        public static uint NumericHash32(byte[] obj, int start, int length)
+        {
+            if (obj == null)
+            {
+                return 0;
+            }
+            else
+            {
+                var final = start + length;
+                if (final > obj.Length)
+                {
+                    throw new IndexOutOfRangeException("Index is out of range.");
+                }
+                else
+                {
+                    var hash = 0U;
+                    var primesPointer = 0;
+                    for (var i = start; i < final; ++i)
+                    {
+                        primesPointer += 28;
+                        primesPointer %= 29;
+                        hash += (uint)primes[primesPointer] * obj[i];
+                    }
+
+                    return hash;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Implementa o algoritmo de código confuso NHash de 64 bits.
+        /// </summary>
+        /// <param name="obj">A mensgem sobre a qual aplicar o algoritmo.</param>
+        /// <param name="start">O início da mensagem onde se pretende aplicar o algoritmo.</param>
+        /// <param name="length">O tamanho da mensagem a aplicar o algoritmo.</param>
+        /// <returns>O valor do código confuso.</returns>
+        public static ulong NumericHash64(byte[] obj, int start, int length)
+        {
+            if (obj == null)
+            {
+                return 0;
+            }
+            else
+            {
+                var final = start + length;
+                if (final > obj.Length)
+                {
+                    throw new IndexOutOfRangeException("Index is out of range.");
+                }
+                else
+                {
+                    var hash = 0UL;
+                    var primesPointer = 0;
+                    for (var i = start; i < final; ++i)
+                    {
+                        primesPointer += 28;
+                        primesPointer %= 29;
+                        hash += (ulong)primes[primesPointer] * obj[i];
+                    }
+
+                    return hash;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Implementa o algoritmo de código confuso NHash de 32 bits.
+        /// </summary>
+        /// <remarks>
+        /// O desempenho deste algoritmo pode ser melhorado evitando o cálculo da função
+        /// de potência em cada chamada da função. Tal melhoria pode ser conseguida, implementando
+        /// o algoritmo numa classe independente. Neste ponto parece não compensar.
+        /// </remarks>
+        /// <param name="obj">A mensgem sobre a qual aplicar o algoritmo.</param>
+        /// <param name="start">O início da mensagem onde se pretende aplicar o algoritmo.</param>
+        /// <param name="length">O tamanho da mensagem a aplicar o algoritmo.</param>
+        /// <param name="bits">O número de bits.</param>
+        /// <returns>O valor do código confuso.</returns>
+        public static BigInteger NumericHashN(byte[] obj, int start, int length, int bits)
+        {
+            if (obj == null)
+            {
+                return 0;
+            }
+            else
+            {
+                var final = start + length;
+                if (final > obj.Length)
+                {
+                    throw new IndexOutOfRangeException("Index is out of range.");
+                }
+                else
+                {
+                    var bitsPow = BigInteger.Pow(2, bits);
+                    var hash = BigInteger.Zero;
+                    var primesPointer = 0;
+                    for (var i = start; i < final; ++i)
+                    {
+                        primesPointer += 28;
+                        primesPointer %= 29;
+                        hash += primes[primesPointer] * obj[i];
+                        BigInteger.DivRem(hash, bitsPow, out hash);
+                    }
+
+                    return hash;
+                }
+            }
+        }
     }
 }
