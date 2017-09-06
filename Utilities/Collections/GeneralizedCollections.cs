@@ -12,6 +12,740 @@ namespace Utilities
     using System.Text;
 
     /// <summary>
+    /// Implementação de uma fila dupla.
+    /// </summary>
+    /// <typeparam name="T">O tipo de objectos que constituem as entradas da fila.</typeparam>
+    public class Deque<T> :
+        IList<T>
+    {
+
+        /// <summary>
+        /// O vector vazio.
+        /// </summary>
+        private static readonly T[] emptyArray = new T[0];
+
+        /// <summary>
+        /// Mantém a capacidade por defeito.
+        /// </summary>
+        private const int defaultCapacity = 4;
+
+        /// <summary>
+        /// O vector que contém as entradas da fila.
+        /// </summary>
+        private T[] array;
+
+        /// <summary>
+        /// Mantém o número de elementos da fila dupla.
+        /// </summary>
+        private int count;
+
+        /// <summary>
+        /// O índice da primeira posição do vector.
+        /// </summary>
+        private int offset;
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="Deque{T}"/>.
+        /// </summary>
+        public Deque()
+        {
+            this.count = 0;
+            this.offset = 0;
+            this.array = new T[defaultCapacity];
+        }
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="Deque{T}"/>.
+        /// </summary>
+        /// <param name="capacity">A capacidade inicial da colecção.</param>
+        public Deque(int capacity)
+        {
+            if (capacity < 0)
+            {
+                throw new ArgumentOutOfRangeException("capacity");
+            }
+            else if (capacity == 0)
+            {
+                this.count = 0;
+                this.offset = 0;
+                this.array = emptyArray;
+            }
+            else
+            {
+                this.count = 0;
+                this.offset = 0;
+                this.array = new T[capacity];
+            }
+        }
+
+        /// <summary>
+        /// Obtém ou atribui o valor especificado pelo índice.
+        /// </summary>
+        /// <param name="index">O índice.</param>
+        /// <returns>O valor.</returns>
+        public T this[int index]
+        {
+            get
+            {
+                if (index < 0 || index > this.count)
+                {
+                    throw new IndexOutOfRangeException("Index was outside the bounds of the array.");
+                }
+                else
+                {
+                    if (this.offset == 0)
+                    {
+                        return this.array[index];
+                    }
+                    else
+                    {
+                        var len = this.array.Length;
+                        var pos = index - (len - this.offset);
+                        if (pos < 0)
+                        {
+                            return this.array[len + pos];
+                        }
+                        else
+                        {
+                            return this.array[pos];
+                        }
+                    }
+                }
+            }
+            set
+            {
+                if (index < 0 || index > this.count)
+                {
+                    throw new IndexOutOfRangeException("Index was outside the bounds of the array.");
+                }
+                else
+                {
+                    if (this.offset == 0)
+                    {
+                        this.array[index] = value;
+                    }
+                    else
+                    {
+                        var len = this.array.Length;
+                        var pos = index - (len - this.offset);
+                        if (pos < 0)
+                        {
+                            this.array[len + pos] = value;
+                        }
+                        else
+                        {
+                            this.array[pos] = value;
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Obtém o tamanho do vector.
+        /// </summary>
+        public int Count
+        {
+            get
+            {
+                return this.count;
+            }
+        }
+
+        /// <summary>
+        /// Obtém ou atribui o valor da capacidade.
+        /// </summary>
+        /// <remarks>
+        /// Se o valor da capacidade for superior ao tamanho do objecto
+        /// então esse tamanho será actualizado.
+        /// </remarks>
+        public int Capacity
+        {
+            get
+            {
+                return this.array.Length;
+            }
+            set
+            {
+                if (value < this.count)
+                {
+                    throw new ArgumentOutOfRangeException(
+                        "capacity",
+                        "The capacity must be greater or equal to the number of elements in dequeue.");
+                }
+                else if (value > this.count)
+                {
+                    this.SetNewCapacity(value);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Obtém um valor que indica se a colecção é apenas de leitura.
+        /// </summary>
+        public bool IsReadOnly
+        {
+            get
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Insere o item no final da pilha dupla.
+        /// </summary>
+        /// <param name="item">O item a ser inserido.</param>
+        public void EnqueueFront(T item)
+        {
+            var len = this.array.Length;
+            var newCount = this.count + 1;
+            if (newCount > len)
+            {
+                var innerLen = len > (int.MaxValue >> 1) ? int.MaxValue : len << 1;
+                this.SetNewCapacity(innerLen);
+            }
+
+            if (this.offset == 0)
+            {
+                this.array[this.count] = item;
+            }
+            else
+            {
+                var pos = this.count - (len - this.offset);
+                if (pos < 0)
+                {
+                    this.array[len + pos] = item;
+                }
+                else
+                {
+                    this.array[pos] = item;
+                }
+            }
+
+            this.count = newCount;
+        }
+
+        /// <summary>
+        /// Insere o item no início da pilha dupla.
+        /// </summary>
+        /// <param name="item">O item a ser inserido.</param>
+        public void EnqueueBack(T item)
+        {
+            var len = this.array.Length;
+            var newCount = this.count + 1;
+            if (newCount > len)
+            {
+                var innerLen = len > (int.MaxValue >> 1) ? int.MaxValue : len << 1;
+                this.SetNewCapacity(innerLen);
+            }
+
+            if (this.offset == 0)
+            {
+                this.offset = len - 1;
+                this.array[this.offset] = item;
+            }
+            else
+            {
+                this.array[--this.offset] = item;
+            }
+
+            this.count = newCount;
+        }
+
+        /// <summary>
+        /// Remove o item do final da pilha dupla.
+        /// </summary>
+        public void DequeueFront()
+        {
+            if (this.count == 0)
+            {
+                throw new InvalidOperationException("The dequeue is empty.");
+            }
+            else
+            {
+                --this.count;
+                var len = this.array.Length;
+                var pos = this.count - (len - this.offset);
+                if (pos < 0)
+                {
+                    this.array[len + pos] = default(T);
+                }
+                else
+                {
+                    this.array[pos] = default(T);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Remove o item do início da pilha dupla.
+        /// </summary>
+        public void DequeueBack()
+        {
+            if (this.count == 0)
+            {
+                throw new InvalidOperationException("The dequeue is empty.");
+            }
+            else
+            {
+                this.array[this.offset] = default(T);
+                ++this.offset;
+                --this.count;
+                if (this.offset == this.array.Length)
+                {
+                    this.offset = 0;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Obtém o item no final da pilha dupla sem o remover.
+        /// </summary>
+        /// <returns>O item.</returns>
+        public T PeekFront()
+        {
+            if (this.count == 0)
+            {
+                throw new InvalidOperationException("The dequeue is empty.");
+            }
+            else
+            {
+                if (this.offset == 0)
+                {
+                    return this.array[this.count - 1];
+                }
+                else
+                {
+                    var len = this.array.Length;
+                    var pos = this.count - 1 - (len - this.offset);
+                    if (pos < 0)
+                    {
+                        return this.array[len + pos];
+                    }
+                    else
+                    {
+                        return this.array[pos];
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Obtém o item no início da pilha dupla sem o remover.
+        /// </summary>
+        /// <returns>O item.</returns>
+        public T PeekBack()
+        {
+            if (this.count == 0)
+            {
+                throw new InvalidOperationException("The dequeue is empty.");
+            }
+            else
+            {
+                return this.array[this.offset];
+            }
+        }
+
+        /// <summary>
+        /// Obtém o índice da primeira posição do item.
+        /// </summary>
+        /// <param name="item">O item.</param>
+        /// <returns>O índice se o item existir e -1 caso contrário.</returns>
+        public int IndexOf(T item)
+        {
+            if (this.offset == 0)
+            {
+                return Array.IndexOf<T>(this.array, item);
+            }
+            else
+            {
+                var firstIndex = Array.IndexOf<T>(this.array, item, this.offset);
+                if (firstIndex == -1)
+                {
+                    var len = this.count + this.offset - this.array.Length;
+                    firstIndex = Array.IndexOf<T>(this.array, item, 0, len);
+                    return firstIndex + this.offset;
+                }
+                else
+                {
+                    return firstIndex - this.offset;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Insere o objecto na posição explicitada pelo índice.
+        /// </summary>
+        /// <remarks>
+        /// É possível inserir o valor antes do início da colecção.
+        /// </remarks>
+        /// <param name="index">O índice.</param>
+        /// <param name="item">O objecto a ser inserido.</param>
+        public void Insert(int index, T item)
+        {
+            if (index > count || index < -1)
+            {
+                throw new IndexOutOfRangeException("Index must be greater than -1 and smaller than count.");
+            }
+            else
+            {
+                var len = this.array.Length;
+                var newCount = this.count + 1;
+                if (newCount > len)
+                {
+                    var innerLen = len > (int.MaxValue >> 1) ? int.MaxValue : len << 1;
+                    this.SetNewCapacity(innerLen);
+                }
+
+                if (this.offset == 0)
+                {
+                    if (index == -1)
+                    {
+                        this.offset = this.array.Length - 1;
+                        this.array[this.offset] = item;
+                        this.offset = len - 1;
+                    }
+                    else if (index < this.count)
+                    {
+                        Array.Copy(
+                            this.array,
+                            index,
+                            this.array,
+                            index + 1,
+                            this.count - index - 1);
+                        this.array[index] = item;
+                    }
+                    else
+                    {
+                        this.array[index] = item;
+                    }
+                }
+                else
+                {
+                    if (index == -1)
+                    {
+                        --this.offset;
+                        this.array[this.offset] = item;
+                    }
+                    else
+                    {
+                        var side = len - this.offset;
+                        if (index < side)
+                        {
+                            if (this.count < side)
+                            {
+                                var pos = this.offset + index;
+                                Array.Copy(
+                                    this.array,
+                                    pos,
+                                    this.array,
+                                    pos + 1,
+                                    this.count - pos - 1);
+                                this.array[pos] = item;
+                            }
+                            else
+                            {
+                                var lastItem = this.array[len - 1];
+                                Array.Copy(
+                                    this.array,
+                                    0,
+                                    this.array,
+                                    1,
+                                    this.count - 1 - index);
+                                this.array[0] = lastItem;
+                                var pos = this.offset + index;
+                                Array.Copy(
+                                    this.array,
+                                    pos,
+                                    this.array,
+                                    pos + 1,
+                                    len - pos - 1);
+                                this.array[pos] = item;
+                            }
+                        }
+                        else
+                        {
+                            var pos = index - side;
+                            Array.Copy(
+                                this.array,
+                                pos,
+                                this.array,
+                                pos + 1,
+                                this.count - side - 1);
+                            this.array[pos] = item;
+                        }
+                    }
+                }
+
+                this.count = newCount;
+            }
+        }
+
+        /// <summary>
+        /// Remove o objecto que se encontra na posição especificada pelo índice.
+        /// </summary>
+        /// <param name="index">O índice.</param>
+        public void RemoveAt(int index)
+        {
+            if (index < 0 || index > this.count)
+            {
+                throw new ArgumentOutOfRangeException("index");
+            }
+            else
+            {
+                --this.count;
+                if (this.offset == 0)
+                {
+                    if (index == 0)
+                    {
+                        this.array[index] = default(T);
+                        ++this.offset;
+                    }
+                    else if (index < this.count)
+                    {
+                        Array.Copy(
+                            this.array,
+                            index + 1,
+                            this.array,
+                            index,
+                            this.count - index);
+                    }
+
+                    this.array[this.count] = default(T);
+                }
+                else
+                {
+                    var len = this.array.Length;
+                    var side = len - this.offset;
+                    if (index < side)
+                    {
+                        if (this.count < side)
+                        {
+                            var pos = this.offset + index;
+                            Array.Copy(
+                                this.array,
+                                pos + 1,
+                                this.array,
+                                pos,
+                                this.count);
+                            this.array[this.offset + this.count] = default(T);
+                        }
+                        else
+                        {
+                            var firstItem = this.array[0];
+                            Array.Copy(
+                                this.array,
+                                1,
+                                this.array,
+                                0,
+                                this.count - side);
+                            this.array[this.count - side] = default(T);
+                            var pos = this.offset + index;
+                            Array.Copy(
+                                this.array,
+                                pos + 1,
+                                this.array,
+                                pos,
+                                len - pos - 1);
+                            this.array[len - 1] = firstItem;
+                        }
+                    }
+                    else
+                    {
+                        var pos = index - side;
+                        Array.Copy(
+                            this.array,
+                            pos + 1,
+                            this.array,
+                            pos,
+                            this.count - side);
+                        this.array[this.count - side] = default(T);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Adiciona um item à colecção.
+        /// </summary>
+        /// <param name="item">O item a ser adicionado.</param>
+        public void Add(T item)
+        {
+            this.EnqueueFront(item);
+        }
+
+        /// <summary>
+        /// Elimina todos os itens da colecção.
+        /// </summary>
+        public void Clear()
+        {
+            this.count = 0;
+            this.offset = 0;
+        }
+
+        /// <summary>
+        /// Retorna um valor que indica se o item especificado se encontra na colecção.
+        /// </summary>
+        /// <param name="item">O item a procurar.</param>
+        /// <returns>Verdadeiro caso o item exista no vector e falso caso contrário.</returns>
+        public bool Contains(T item)
+        {
+            var index = this.IndexOf(item);
+            if (index < 0)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+
+        /// <summary>
+        /// Copia o conteúdo da colecção para um vector de sistema.
+        /// </summary>
+        /// <param name="array">O vector de sistema de destino.</param>
+        /// <param name="arrayIndex">O índice a partir do qual é efectuada a cópia.</param>
+        public void CopyTo(T[] array, int arrayIndex)
+        {
+            if (array == null)
+            {
+                throw new ArgumentNullException("array");
+            }
+            else
+            {
+                var arrayLength = array.Length;
+                if (arrayIndex < 0 || arrayIndex > arrayLength)
+                {
+                    throw new ArgumentOutOfRangeException("arrayIndex", "Index is out bounds of array.");
+                }
+                else if (arrayIndex + this.count > arrayLength)
+                {
+                    throw new ArgumentException(
+                        "The number of elements in the source array is greater than the available number of elements from index to the end of the destination array.");
+                }
+                else if (this.offset == 0)
+                {
+                    Array.Copy(
+                        this.array,
+                        0,
+                        array,
+                        arrayIndex,
+                        this.count);
+                }
+                else
+                {
+                    var len = this.array.Length;
+                    var side = len - this.offset;
+                    if (this.count < side)
+                    {
+                        Array.Copy(
+                            this.array,
+                            this.offset,
+                            array,
+                            arrayIndex,
+                            this.count);
+                    }
+                    else
+                    {
+                        Array.Copy(
+                            this.array,
+                            this.offset,
+                            array,
+                            arrayIndex,
+                            side);
+                        Array.Copy(
+                            this.array,
+                            0,
+                            array,
+                            arrayIndex + side,
+                            this.count - side);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Remove um item da colecção.
+        /// </summary>
+        /// <param name="item">O item a ser removido.</param>
+        /// <returns>Verdadeiro se o item for removido com sucesso e falso caso contrário.</returns>
+        public bool Remove(T item)
+        {
+            var index = this.IndexOf(item);
+            if (index < 0)
+            {
+                this.RemoveAt(index);
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+
+        /// <summary>
+        /// Obtém um enumerador genérico para a colecção.
+        /// </summary>
+        /// <returns>O enumerador.</returns>
+        public IEnumerator<T> GetEnumerator()
+        {
+            var length = this.array.Length;
+            for (var i = this.offset; i < length; ++i)
+            {
+                yield return this.array[i];
+            }
+
+            var len = this.count - (length - this.offset);
+            for (var i = 0; i < len; ++i)
+            {
+                yield return this.array[i];
+            }
+        }
+
+        /// <summary>
+        /// Obtém um enumerador não genérico para a colecção.
+        /// </summary>
+        /// <returns>O enumerador não genérico.</returns>
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+        {
+            return this.GetEnumerator();
+        }
+
+        /// <summary>
+        /// Estabelece o valor da nova capacidade.
+        /// </summary>
+        /// <remarks>
+        /// Nenhuma validação será efectuada a este nível.
+        /// </remarks>
+        /// <param name="capacity">O valor da capacidade.</param>
+        private void SetNewCapacity(int capacity)
+        {
+            var newArray = new T[capacity];
+            if (this.offset == 0)
+            {
+                Array.Copy(this.array, newArray, this.count);
+            }
+            else
+            {
+                var len = this.array.Length - this.offset;
+                if (this.count > len)
+                {
+                    Array.Copy(this.array, this.offset, newArray, 0, len);
+                    Array.Copy(this.array, 0, newArray, len, this.count - len);
+                }
+                else
+                {
+                    Array.Copy(this.array, this.offset, newArray, 0, this.count);
+                }
+            }
+
+            this.offset = 0;
+            this.array = newArray;
+        }
+    }
+
+    /// <summary>
     /// Define uma lista indexada por inteiros longos sobre
     /// a ordenação habitual.
     /// </summary>

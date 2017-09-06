@@ -1247,6 +1247,7 @@
         /// a partir de um valor textual.
         /// </summary>
         [TestMethod]
+        [Description("Testa o algoritmo CityHash de 64 bit.")]
         public void CityHash_GetHash64Test()
         {
             var target = new CityHash();
@@ -1271,6 +1272,7 @@
         /// a partir de um valor textual.
         /// </summary>
         [TestMethod]
+        [Description("Testa o algoritmo CityHash de 32 bit.")]
         public void CityHash_GetHash32Test()
         {
             var target = new CityHash();
@@ -1392,6 +1394,7 @@
         /// Testa a função CRC32.
         /// </summary>
         [TestMethod]
+        [Description("Testa o algoritmo CRC.")]
         public void Crc32_GetHashTest()
         {
             var target = new Crc32();
@@ -1428,6 +1431,7 @@
         /// Teste sobre o algoritmo Murmur2.
         /// </summary>
         [TestMethod]
+        [Description("Testa o algoritmo Murmur de 32 bit.")]
         public void MurmurHash2_MurmurHash2Test()
         {
             var target = new MurmurHash2();
@@ -1452,6 +1456,7 @@
         /// Teste sobre o algoritmo Murmur2.
         /// </summary>
         [TestMethod]
+        [Description("Testa o algoritmo Murmur alternativo de 32 bit.")]
         public void MurmurHash2_MurmurHash2ATest()
         {
             var target = new MurmurHash2();
@@ -1476,6 +1481,7 @@
         /// Teste sobre o algoritmo Murmur2.
         /// </summary>
         [TestMethod]
+        [Description("Testa o algoritmo Murmur de 64 bit.")]
         public void MurmurHash2_MurmurHash64ATest()
         {
             var target = new MurmurHash2();
@@ -1500,6 +1506,7 @@
         /// Teste sobre o algoritmo Murmur2.
         /// </summary>
         [TestMethod]
+        [Description("Testa o algoritmo Murmur alternativo de 64 bit.")]
         public void MurmurHash2_MurmurHash64BTest()
         {
             var target = new MurmurHash2();
@@ -1531,6 +1538,7 @@
         /// Testa o algoritmo do Murmur3 de 32 bit para a arquitectura x86.
         /// </summary>
         [TestMethod]
+        [Description("Testa o algoritmo Murmur3 de 32 bit.")]
         public void MurmurHash3_MurmurHash3A32Test()
         {
             var target = new MurmurHash3();
@@ -1555,6 +1563,7 @@
         /// Testa o algoritmo do Murmur3 128 bit para a arquitectura x86.
         /// </summary>
         [TestMethod]
+        [Description("Testa o algoritmo Murmur3 de 128 bit.")]
         public void MurmurHash3_MurmuHash3A128Test()
         {
             var target = new MurmurHash3();
@@ -1580,6 +1589,7 @@
         /// Testa o algoritmo do Murmur3 128 bit para a arquitectura x64.
         /// </summary>
         [TestMethod]
+        [Description("Testa o algoritmo Murmur3 alternativo de 128 bit.")]
         public void MurmurHash3_MurmurHash3B128Test()
         {
             var target = new MurmurHash3();
@@ -1631,6 +1641,7 @@
         /// Testa o algoritmo FNV 32 bit.
         /// </summary>
         [TestMethod]
+        [Description("Testa o algoritmo FNVHash de 32 bit.")]
         public void FNVHash_FNV32HashTest()
         {
             // Teste ao FNV0
@@ -1671,6 +1682,7 @@
         /// Testa o algoritmo FNV-A 32 bit.
         /// </summary>
         [TestMethod]
+        [Description("Testa o algoritmo FNVHash alternativo de 32 bit.")]
         public void FNVHash_FNV32AHashTest()
         {
             // Teste ao FNV0
@@ -1711,6 +1723,7 @@
         /// Testa o algoritmo FNV 64 bit.
         /// </summary>
         [TestMethod]
+        [Description("Testa o algoritmo FNVHash de 64 bit.")]
         public void FNVHash_FNV64HashTest()
         {
             // Teste ao FNV0
@@ -1751,6 +1764,7 @@
         /// Testa o algoritmo FNV-A 64 bit.
         /// </summary>
         [TestMethod]
+        [Description("Testa o algoritmo FNVHash alternativo de 64 bit.")]
         public void FNVHash_FNV64AHashTest()
         {
             // Teste ao FNV0
@@ -1798,6 +1812,7 @@
         /// Testa a função principal do SpookyHash.
         /// </summary>
         [TestMethod]
+        [Description("Testa o algoritmo SpookyHashV1 de 128 bit.")]
         public void SpookyHashV1_Hash128Test()
         {
             var target = new SpookyHashV1(true);
@@ -1823,6 +1838,7 @@
         /// Testa a função principal do SpookyHash.
         /// </summary>
         [TestMethod]
+        [Description("Testa o algoritmo SpookyHashV2 de 128 bit.")]
         public void SpookyHashV2_Hash128Test()
         {
             var target = new SpookyHashV2(true);
@@ -1855,6 +1871,7 @@
         /// Testa o algoritmo xxHash de 32 bit.
         /// </summary>
         [TestMethod]
+        [Description("Testa o algoritmo xxHash de 32 bit.")]
         public void XXHash_GetXXHash32Test()
         {
             var target = new XXHash();
@@ -1877,6 +1894,7 @@
         /// Testa o algoritmo xxHash de 64 bit.
         /// </summary>
         [TestMethod]
+        [Description("Testa o algoritmo xxHash de 64 bit.")]
         public void XXHash_GetXXHash64Test()
         {
             var target = new XXHash();
@@ -1905,6 +1923,7 @@
         /// <summary>
         /// Testa o algoritmo KarRab de 32 bit.
         /// </summary>
+        [Description("Testa o algoritmo KarRab de 32 bit.")]
         [TestMethod]
         public void RollingHashTest_KarRabHash32Test()
         {
@@ -1940,6 +1959,7 @@
         /// <summary>
         /// Testa o algoritmo KarRab de 64 bit.
         /// </summary>
+        [Description("Testa o algoritmo KarRab de 64 bit.")]
         [TestMethod]
         public void RollingHashTest_KarRabHash64Test()
         {
@@ -1975,6 +1995,7 @@
         /// <summary>
         /// Testa o algoritmo geral de 32 bit.
         /// </summary>
+        [Description("Testa o algoritmo para código confuso de rotação geral de 32 bit.")]
         [TestMethod]
         public void RollingHashTest_GeneralHash32Test()
         {
@@ -2098,6 +2119,7 @@
         /// <summary>
         /// Testa o algoritmo geral de 64 bit.
         /// </summary>
+        [Description("Testa o algoritmo para código confuso de rotação geral de 64 bit.")]
         [TestMethod]
         public void RollingHashTest_GeneralHash64Test()
         {
@@ -2221,6 +2243,7 @@
         /// <summary>
         /// Testa o algoritmo cíclico para códigos confusos de 32 bit.
         /// </summary>
+        [Description("Testa o algoritmo cíclico de 32 bit.")]
         [TestMethod]
         public void RollingHashTest_CyclicHash32Test()
         {
@@ -2256,6 +2279,7 @@
         /// <summary>
         /// Testa o algoritmo cíclico para códigos confusos de 64 bit.
         /// </summary>
+        [Description("Testa o algoritmo cíclico de 64 bit.")]
         [TestMethod]
         public void RollingHashTest_CyclicHash64Test()
         {
@@ -2291,6 +2315,7 @@
         /// <summary>
         /// Testa o algoritmo cíclico para códigos confusos de 32 bit.
         /// </summary>
+        [Description("Testa o algoritmo cíclico inverso de 32 bit.")]
         [TestMethod]
         public void RollingHashTest_CyclicReverseHash32Test()
         {
@@ -2326,6 +2351,7 @@
         /// <summary>
         /// Testa o algoritmo cíclico para códigos confusos de 64 bit.
         /// </summary>
+        [Description("Testa o algoritmo cíclio de 64 bit.")]
         [TestMethod]
         public void RollingHashTest_CyclicReverseHash64Test()
         {
@@ -2357,6 +2383,160 @@
                 Assert.AreEqual(expected[i], target.HashValue);
             }
         }
+
+        /// <summary>
+        /// Testa o algoritmo cíclico para códigos confusos de 32 bit.
+        /// </summary>
+        [Description("Testa o algoritmo cíclico inverso de 32 bit.")]
+        [TestMethod]
+        public void RollingHashTest_ThreeWiseHash32Test()
+        {
+            var target = new ThreeWiseHash32(2, 10);
+            var testString = "abcdcbaabcd";
+            var encoding = Encoding.GetEncoding("ISO-8859-1");
+
+            var expected = new ulong[]{
+                target.GetHash32(encoding.GetBytes("ab")),
+                target.GetHash32(encoding.GetBytes("bc")),
+                target.GetHash32(encoding.GetBytes("cd")),
+                target.GetHash32(encoding.GetBytes("dc")),
+                target.GetHash32(encoding.GetBytes("cb")),
+                target.GetHash32(encoding.GetBytes("ba")),
+                target.GetHash32(encoding.GetBytes("aa")),
+                target.GetHash32(encoding.GetBytes("ab")),
+                target.GetHash32(encoding.GetBytes("bc")),
+                target.GetHash32(encoding.GetBytes("cd"))
+            };
+
+            var bytes = encoding.GetBytes(testString);
+            var len = bytes.Length;
+            target.Eat(bytes[0]);
+            target.Eat(bytes[1]);
+            Assert.AreEqual(expected[0], target.HashValue);
+            for (var i = 2; i < len; ++i)
+            {
+                target.Update(bytes[i], bytes[i - 2]);
+                Assert.AreEqual(expected[i - 1], target.HashValue);
+            }
+        }
+
+        /// <summary>
+        /// Testa o algoritmo cíclico para códigos confusos de 64 bit.
+        /// </summary>
+        [Description("Testa o algoritmo cíclio de 64 bit.")]
+        [TestMethod]
+        public void RollingHashTest_ThreeWiseHash64Test()
+        {
+            var target = new ThreeWiseHash64(2, 50);
+            var testString = "abcdcbaabcd";
+            var encoding = Encoding.GetEncoding("ISO-8859-1");
+
+            var expected = new ulong[]{
+                target.GetHash64(encoding.GetBytes("ab")),
+                target.GetHash64(encoding.GetBytes("bc")),
+                target.GetHash64(encoding.GetBytes("cd")),
+                target.GetHash64(encoding.GetBytes("dc")),
+                target.GetHash64(encoding.GetBytes("cb")),
+                target.GetHash64(encoding.GetBytes("ba")),
+                target.GetHash64(encoding.GetBytes("aa")),
+                target.GetHash64(encoding.GetBytes("ab")),
+                target.GetHash64(encoding.GetBytes("bc")),
+                target.GetHash64(encoding.GetBytes("cd"))
+            };
+
+            var bytes = encoding.GetBytes(testString);
+            var len = bytes.Length;
+            target.Eat(bytes[0]);
+            target.Eat(bytes[1]);
+            Assert.AreEqual(expected[0], target.HashValue);
+            for (var i = 2; i < len; ++i)
+            {
+                target.Update(bytes[i], bytes[i - 2]);
+                Assert.AreEqual(expected[i - 1], target.HashValue);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Testa o algoritmo FarmHash.
+    /// </summary>
+    [TestClass]
+    public class FarmHashTest
+    {
+        /// <summary>
+        /// Testa o algoritmo FarmHash de 32 bit.
+        /// </summary>
+        [TestMethod]
+        [Description("Testa o algoritmo FarmHash de 32 bit.")]
+        public void FarmHash_GetFarmHash32Test()
+        {
+            var target = new FarmHash();
+
+            var key = new byte[256];
+            var hashes = new byte[1024];
+
+            for (var i = 0; i < 256; ++i)
+            {
+                key[i] = (byte)i;
+                var hashRes = BitConverter.GetBytes(target.InternalHash32(
+                    key,
+                    0,
+                    (uint)i));
+                Array.Copy(hashRes, 0, hashes, 4 * i, 4);
+            }
+
+            var final = target.InternalHash32(hashes, 0, 1024U);
+
+            // Verifica o valor da variável
+            Assert.AreEqual(0x75AEB942U, final);
+        }
+
+        /// <summary>
+        /// Testa o algoritmo FarmHash de 64 bit.
+        /// </summary>
+        [TestMethod]
+        [Description("Testa o algoritmo FarmHash de 64 bit.")]
+        public void FarmHash_GetFarmHash64Test()
+        {
+            var target = new FarmHash();
+
+            var key = new byte[256];
+            var hashes = new byte[2048];
+
+            for (var i = 0; i < 256; ++i)
+            {
+                key[i] = (byte)i;
+                var hashRes = BitConverter.GetBytes(target.InternalHash64(
+                    key,
+                    0,
+                    (ulong)i));
+                Array.Copy(hashRes, 0, hashes, 8 * i, 8);
+            }
+
+            var final = target.InternalHash64(hashes, 0, 2048U);
+
+            // Verifica o valor da variável
+            Assert.AreEqual(0xD34CDBF950ADA994UL, final);
+        }
+
+        /// <summary>
+        /// Envia os valores dos códigos confusos para um ficheiro.
+        /// </summary>
+        /// <param name="hashes">Os códigos confusos.</param>
+        private void TemporarySendToFile(byte[] hashes)
+        {
+            var file = new System.IO.FileInfo("C:\\temp\\matutils_out.txt");
+            using (var fileStream = file.OpenWrite())
+            {
+                using (var textWriter = new System.IO.StreamWriter(fileStream))
+                {
+                    for (var i = 0; i < hashes.Length; ++i)
+                    {
+                        textWriter.WriteLine(hashes[i]);
+                    }
+                }
+            }
+        }
     }
 
     /// <summary>
@@ -2368,6 +2548,7 @@
         /// <summary>
         /// Testa o algoritmo SuperFastHash.
         /// </summary>
+        [Description("Testa o algoritmo SuperFast")]
         [TestMethod]
         public void SimpleHashFunctions_SuperFastHashTest()
         {
