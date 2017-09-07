@@ -1,4 +1,4 @@
-﻿namespace Utilities.Test
+namespace Utilities.Test
 {
     using System;
     using System.Text;
@@ -846,6 +846,113 @@
     [TestClass]
     public class GeneralizedCollectionsTest
     {
+        /// <summary>
+        /// Efectua um teste sobre as funções da pilha de dupla entrada.
+        /// </summary>
+        [Description("Tests the dequeue collection.")]
+        [TestMethod]
+        public void GeneralizedCollections_DequeueTest()
+        {
+            var target = new Deque<int>(4);
+            var expected = new List<int>();
+
+            CollectionAssert.AreEqual(
+                expected, 
+                target);
+
+            // Inserção no final.
+            var n = 10000;
+            for (var i = 0; i < n; ++i)
+            {
+                target.EnqueueBack(i);
+                expected.Add(i);
+            }
+
+            CollectionAssert.AreEqual(expected, target);
+
+            target.Clear();
+            expected.Clear();
+            CollectionAssert.AreEqual(expected, target);
+
+            // Inserção ao início
+            for (var i = 0; i < n; ++i)
+            {
+                target.EnqueueFront(i);
+                expected.Insert(0, i);
+            }
+
+            CollectionAssert.AreEqual(expected, target);
+
+            target.Clear();
+            expected.Clear();
+
+            // Inserção alternada
+            var front = true;
+            for (var i = 0; i < n; ++i)
+            {
+                if (front)
+                {
+                    front = false;
+                    target.EnqueueBack(i);
+                    expected.Add(i);
+                }
+                else
+                {
+                    front = true;
+                    target.EnqueueFront(i);
+                    expected.Insert(0, i);
+                }
+            }
+
+            CollectionAssert.AreEqual(expected, target);
+
+            // Testa a função de inserção
+            for (var i = 0; i < n; ++i)
+            {
+                target.Insert(i, i);
+                expected.Insert(i, i);
+            }
+
+            CollectionAssert.AreEqual(expected, target);
+
+            // Testa a função de remoção
+            for (var i = 0; i < n; ++i)
+            {
+                target.RemoveAt(i);
+                expected.RemoveAt(i);
+            }
+
+            CollectionAssert.AreEqual(expected, target);
+
+            for (var i = 0; i < n; ++i)
+            {
+                var curr = target.IndexOf(i);
+                var exp = expected.IndexOf(i);
+                Assert.AreEqual(exp, curr);
+            }
+
+            var array = new int[target.Count];
+            target.CopyTo(array, 0);
+            CollectionAssert.AreEqual(expected, array);
+
+            // Teste das funções de obtenção dos valores
+            target.Clear();
+            target.Add(0);
+            var temp = target.PeekBack();
+            Assert.AreEqual(0, temp);
+            temp = target.PeekFront();
+            Assert.AreEqual(0, temp);
+            for (int i = 1; i < n; ++i)
+            {
+                target.Add(i);
+                temp = target.PeekBack();
+                Assert.AreEqual(i, temp);
+                target.Insert(-1, i);
+                temp = target.PeekFront();
+                Assert.AreEqual(i, temp);
+            }
+        }
+
         /// <summary>
         /// Testa a atribuição da ordenação generalizada em ambos os sentidos.
         /// </summary>
