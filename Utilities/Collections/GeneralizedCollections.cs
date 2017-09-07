@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
 // <copyright file="GeneralizedCollections.cs" company="Sérgio O. Marques">
 // Ver licença do projecto.
 // </copyright>
@@ -7,6 +7,7 @@
 namespace Utilities
 {
     using System;
+    using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
@@ -16,9 +17,9 @@ namespace Utilities
     /// </summary>
     /// <typeparam name="T">O tipo de objectos que constituem as entradas da fila.</typeparam>
     public class Deque<T> :
-        IList<T>
+        IList<T>,
+        ICollection
     {
-
         /// <summary>
         /// O vector vazio.
         /// </summary>
@@ -43,6 +44,11 @@ namespace Utilities
         /// O índice da primeira posição do vector.
         /// </summary>
         private int offset;
+
+        /// <summary>
+        /// Mantém o objecto para sincronização de linhas de fluxo.
+        /// </summary>
+        private object synchRoot;
 
         /// <summary>
         /// Instancia uma nova instância de objectos do tipo <see cref="Deque{T}"/>.
@@ -192,19 +198,47 @@ namespace Utilities
         }
 
         /// <summary>
+        /// Obtém um valor que indica se a colecção é sincronizada.
+        /// </summary>
+        public bool IsSynchronized
+        {
+            get
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o objecto de sincronização.
+        /// </summary>
+        public object SyncRoot
+        {
+            get
+            {
+                if (this.synchRoot == null)
+                {
+                    System.Threading.Interlocked.CompareExchange<Object>(ref this.synchRoot, new object(), null);
+                }
+
+                return this.synchRoot;
+            }
+        }
+
+        /// <summary>
         /// Insere o item no final da pilha dupla.
         /// </summary>
         /// <param name="item">O item a ser inserido.</param>
-        public void EnqueueFront(T item)
+        public void EnqueueBack(T item)
         {
             var len = this.array.Length;
             var newCount = this.count + 1;
             if (newCount > len)
             {
-                var innerLen = len > (int.MaxValue >> 1) ? int.MaxValue : len << 1;
-                this.SetNewCapacity(innerLen);
+                len = len > (int.MaxValue >> 1) ? int.MaxValue : len << 1;
+                this.SetNewCapacity(len);
             }
 
+            len = this.array.Length;
             if (this.offset == 0)
             {
                 this.array[this.count] = item;
@@ -229,16 +263,17 @@ namespace Utilities
         /// Insere o item no início da pilha dupla.
         /// </summary>
         /// <param name="item">O item a ser inserido.</param>
-        public void EnqueueBack(T item)
+        public void EnqueueFront(T item)
         {
             var len = this.array.Length;
             var newCount = this.count + 1;
             if (newCount > len)
             {
-                var innerLen = len > (int.MaxValue >> 1) ? int.MaxValue : len << 1;
-                this.SetNewCapacity(innerLen);
+                len = len > (int.MaxValue >> 1) ? int.MaxValue : len << 1;
+                this.SetNewCapacity(len);
             }
 
+            len = this.array.Length;
             if (this.offset == 0)
             {
                 this.offset = len - 1;
@@ -255,7 +290,7 @@ namespace Utilities
         /// <summary>
         /// Remove o item do final da pilha dupla.
         /// </summary>
-        public void DequeueFront()
+        public void DequeueBack()
         {
             if (this.count == 0)
             {
@@ -280,7 +315,7 @@ namespace Utilities
         /// <summary>
         /// Remove o item do início da pilha dupla.
         /// </summary>
-        public void DequeueBack()
+        public void DequeueFront()
         {
             if (this.count == 0)
             {
@@ -302,7 +337,7 @@ namespace Utilities
         /// Obtém o item no final da pilha dupla sem o remover.
         /// </summary>
         /// <returns>O item.</returns>
-        public T PeekFront()
+        public T PeekBack()
         {
             if (this.count == 0)
             {
@@ -334,7 +369,7 @@ namespace Utilities
         /// Obtém o item no início da pilha dupla sem o remover.
         /// </summary>
         /// <returns>O item.</returns>
-        public T PeekBack()
+        public T PeekFront()
         {
             if (this.count == 0)
             {
@@ -359,16 +394,47 @@ namespace Utilities
             }
             else
             {
-                var firstIndex = Array.IndexOf<T>(this.array, item, this.offset);
-                if (firstIndex == -1)
+                var side = this.array.Length - this.offset;
+                if (this.count <= side)
                 {
-                    var len = this.count + this.offset - this.array.Length;
-                    firstIndex = Array.IndexOf<T>(this.array, item, 0, len);
-                    return firstIndex + this.offset;
+                    var firstIndex = Array.IndexOf<T>(this.array, item, this.offset, this.count);
+                    if (firstIndex == -1)
+                    {
+                        return firstIndex;
+                    }
+                    else
+                    {
+                        return firstIndex - this.offset;
+                    }
                 }
                 else
                 {
-                    return firstIndex - this.offset;
+                    var firstIndex = Array.IndexOf<T>(this.array, item, this.offset, side);
+                    if (firstIndex == -1)
+                    {
+                        var len = this.count - side;
+                        firstIndex = Array.IndexOf<T>(this.array, item, 0, len);
+
+                        if (firstIndex == -1)
+                        {
+                            return firstIndex;
+                        }
+                        else
+                        {
+                            return firstIndex + this.offset;
+                        }
+                    }
+                    else
+                    {
+                        if (firstIndex == -1)
+                        {
+                            return firstIndex;
+                        }
+                        else
+                        {
+                            return firstIndex - this.offset;
+                        }
+                    }
                 }
             }
         }
@@ -393,10 +459,11 @@ namespace Utilities
                 var newCount = this.count + 1;
                 if (newCount > len)
                 {
-                    var innerLen = len > (int.MaxValue >> 1) ? int.MaxValue : len << 1;
-                    this.SetNewCapacity(innerLen);
+                    len = len > (int.MaxValue >> 1) ? int.MaxValue : len << 1;
+                    this.SetNewCapacity(len);
                 }
 
+                len = this.array.Length;
                 if (this.offset == 0)
                 {
                     if (index == -1)
@@ -412,7 +479,7 @@ namespace Utilities
                             index,
                             this.array,
                             index + 1,
-                            this.count - index - 1);
+                            this.count - index);
                         this.array[index] = item;
                     }
                     else
@@ -440,7 +507,7 @@ namespace Utilities
                                     pos,
                                     this.array,
                                     pos + 1,
-                                    this.count - pos - 1);
+                                    this.count - pos);
                                 this.array[pos] = item;
                             }
                             else
@@ -451,7 +518,7 @@ namespace Utilities
                                     0,
                                     this.array,
                                     1,
-                                    this.count - 1 - index);
+                                    this.count - index);
                                 this.array[0] = lastItem;
                                 var pos = this.offset + index;
                                 Array.Copy(
@@ -471,7 +538,7 @@ namespace Utilities
                                 pos,
                                 this.array,
                                 pos + 1,
-                                this.count - side - 1);
+                                this.count - index);
                             this.array[pos] = item;
                         }
                     }
@@ -487,7 +554,7 @@ namespace Utilities
         /// <param name="index">O índice.</param>
         public void RemoveAt(int index)
         {
-            if (index < 0 || index > this.count)
+            if (index < 0 || index >= this.count)
             {
                 throw new ArgumentOutOfRangeException("index");
             }
@@ -509,9 +576,9 @@ namespace Utilities
                             this.array,
                             index,
                             this.count - index);
-                    }
 
-                    this.array[this.count] = default(T);
+                        this.array[this.count] = default(T);
+                    }
                 }
                 else
                 {
@@ -571,7 +638,7 @@ namespace Utilities
         /// <param name="item">O item a ser adicionado.</param>
         public void Add(T item)
         {
-            this.EnqueueFront(item);
+            this.EnqueueBack(item);
         }
 
         /// <summary>
@@ -614,53 +681,30 @@ namespace Utilities
             }
             else
             {
-                var arrayLength = array.Length;
-                if (arrayIndex < 0 || arrayIndex > arrayLength)
+                this.InnerCopyTo(array, arrayIndex);
+            }
+        }
+
+        /// <summary>
+        /// Copia o conteúdo da colecção para um vector de sistema.
+        /// </summary>
+        /// <param name="array">O vector de sistema de destino.</param>
+        /// <param name="index">O índice a partir do qual é efectuada a cópia.</param>
+        public void CopyTo(Array array, int index)
+        {
+            if (array == null)
+            {
+                throw new ArgumentNullException("array");
+            }
+            else
+            {
+                if (array.Rank == 1)
                 {
-                    throw new ArgumentOutOfRangeException("arrayIndex", "Index is out bounds of array.");
-                }
-                else if (arrayIndex + this.count > arrayLength)
-                {
-                    throw new ArgumentException(
-                        "The number of elements in the source array is greater than the available number of elements from index to the end of the destination array.");
-                }
-                else if (this.offset == 0)
-                {
-                    Array.Copy(
-                        this.array,
-                        0,
-                        array,
-                        arrayIndex,
-                        this.count);
+                    this.InnerCopyTo(array, index);
                 }
                 else
                 {
-                    var len = this.array.Length;
-                    var side = len - this.offset;
-                    if (this.count < side)
-                    {
-                        Array.Copy(
-                            this.array,
-                            this.offset,
-                            array,
-                            arrayIndex,
-                            this.count);
-                    }
-                    else
-                    {
-                        Array.Copy(
-                            this.array,
-                            this.offset,
-                            array,
-                            arrayIndex,
-                            side);
-                        Array.Copy(
-                            this.array,
-                            0,
-                            array,
-                            arrayIndex + side,
-                            this.count - side);
-                    }
+                    throw new ArgumentException("Array rank not supported.");
                 }
             }
         }
@@ -710,6 +754,64 @@ namespace Utilities
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
             return this.GetEnumerator();
+        }
+
+        /// <summary>
+        /// Copia o conteúdo da colecção para um vector do sistema.
+        /// </summary>
+        /// <param name="array">O vector de sistema de destino.</param>
+        /// <param name="index">O índice a partir do qual é efectuada a cópia.</param>
+        private void InnerCopyTo(Array array, int index)
+        {
+
+            var arrayLength = array.Length;
+            if (index < 0 || index > arrayLength)
+            {
+                throw new ArgumentOutOfRangeException("arrayIndex", "Index is out bounds of array.");
+            }
+            else if (index + this.count > arrayLength)
+            {
+                throw new ArgumentException(
+                    "The number of elements in the source array is greater than the available number of elements from index to the end of the destination array.");
+            }
+            else if (this.offset == 0)
+            {
+                Array.Copy(
+                    this.array,
+                    0,
+                    array,
+                    index,
+                    this.count);
+            }
+            else
+            {
+                var len = this.array.Length;
+                var side = len - this.offset;
+                if (this.count < side)
+                {
+                    Array.Copy(
+                        this.array,
+                        this.offset,
+                        array,
+                        index,
+                        this.count);
+                }
+                else
+                {
+                    Array.Copy(
+                        this.array,
+                        this.offset,
+                        array,
+                        index,
+                        side);
+                    Array.Copy(
+                        this.array,
+                        0,
+                        array,
+                        index + side,
+                        this.count - side);
+                }
+            }
         }
 
         /// <summary>
