@@ -9272,6 +9272,735 @@ namespace Utilities
 
         #endregion Funções privadas
     }
+    
+    /// <summary>
+    /// Implementação do algoritmo de código confuso Highwayhash.
+    /// </summary>
+    /// <remarks>
+    /// Trata-se de uma implementação incremental em blocos.
+    /// </remarks>
+    public class HighwayHash :
+        IHash64<byte[]>,
+        IHashN<byte[]>
+    {
+        /// <summary>
+        /// O número de pistas para cada variável de estado.
+        /// </summary>
+        private const int numLanes = 4;
+
+        /// <summary>
+        /// Valores iniciais.
+        /// </summary>
+        private static ulong[] init0 = new ulong[numLanes] {
+            0xdbe6d5d5fe4cce2fUL,
+            0xa4093822299f31d0UL,
+            0x13198a2e03707344UL, 
+            0x243f6a8885a308d3UL};
+
+        /// <summary>
+        /// Valores iniciais.
+        /// </summary>
+        private static ulong[] init1 = {
+            0x3bd39e10cb0ef593UL,
+            0xc0acf169b5f18a8cUL,
+            0xbe5466cf34e90c6cUL, 
+            0x452821e638d01377UL};
+
+        /// <summary>
+        /// Obtém o código confuso de 64 bits de um objecto.
+        /// </summary>
+        /// <param name="obj">O objeto.</param>
+        /// <returns>O código confuso.</returns>
+        public ulong GetHash64(byte[] obj)
+        {
+            var keys = new[] {
+                        0x0706050403020100UL, 
+                        0x0F0E0D0C0B0A0908UL,
+                        0x1716151413121110UL,
+                        0x1F1E1D1C1B1A1918UL};
+
+            var v0 = new ulong[numLanes];
+            var v1 = new ulong[numLanes];
+            var mul0 = new ulong[numLanes];
+            var mul1 = new ulong[numLanes];
+            this.Reset(
+                        keys,
+                        v0,
+                        v1,
+                        mul0,
+                        mul1);
+            this.GetHashState(obj, 0, obj.Length, v0, v1, mul0, mul1);
+            return this.Finalize64(v0, v1, mul0, mul1);
+        }
+
+        /// <summary>
+        /// Obtém o código confuso do objecto.
+        /// </summary>
+        /// <param name="obj">O objecto.</param>
+        /// <param name="bytes">O número de bytes no código confuso.</param>
+        /// <returns>O código confuso.</returns>
+        public BigInteger GetHash(byte[] obj, int bytes)
+        {
+            if (bytes == 8)
+            {
+                if (obj == null)
+                {
+                    return 0;
+                }
+                else
+                {
+                    var keys = new[] {
+                        0x0706050403020100UL, 
+                        0x0F0E0D0C0B0A0908UL,
+                        0x1716151413121110UL,
+                        0x1F1E1D1C1B1A1918UL};
+
+                    var v0 = new ulong[numLanes];
+                    var v1 = new ulong[numLanes];
+                    var mul0 = new ulong[numLanes];
+                    var mul1 = new ulong[numLanes];
+                    this.Reset(
+                        keys,
+                        v0,
+                        v1,
+                        mul0,
+                        mul1);
+                    this.GetHashState(
+                        obj,
+                        0,
+                        obj.Length,
+                        v0,
+                        v1,
+                        mul0,
+                        mul1);
+                    return this.Finalize64(v0, v1, mul0, mul1);
+                }
+
+            }
+            else if (bytes == 16)
+            {
+                if (obj == null)
+                {
+                    return 0;
+                }
+                else
+                {
+                    var keys = new[] {
+                        0x0706050403020100UL, 
+                        0x0F0E0D0C0B0A0908UL,
+                        0x1716151413121110UL,
+                        0x1F1E1D1C1B1A1918UL};
+
+                    var v0 = new ulong[numLanes];
+                    var v1 = new ulong[numLanes];
+                    var mul0 = new ulong[numLanes];
+                    var mul1 = new ulong[numLanes];
+                    this.GetHashState(
+                        obj,
+                        0,
+                        obj.Length,
+                        v0,
+                        v1,
+                        mul0,
+                        mul1);
+                    return new BigInteger(
+                        this.Finalize128(v0, v1, mul0, mul1));
+                }
+            }
+            else if (bytes == 32)
+            {
+                if (obj == null)
+                {
+                    return 0;
+                }
+                else
+                {
+                    var keys = new[] {
+                        0x0706050403020100UL, 
+                        0x0F0E0D0C0B0A0908UL,
+                        0x1716151413121110UL,
+                        0x1F1E1D1C1B1A1918UL};
+
+                    var v0 = new ulong[numLanes];
+                    var v1 = new ulong[numLanes];
+                    var mul0 = new ulong[numLanes];
+                    var mul1 = new ulong[numLanes];
+                    this.Reset(
+                        keys,
+                        v0,
+                        v1,
+                        mul0,
+                        mul1);
+                    this.GetHashState(
+                        obj,
+                        0,
+                        obj.Length,
+                        v0,
+                        v1,
+                        mul0,
+                        mul1);
+                    return new BigInteger(
+                        this.Finalize256(v0, v1, mul0, mul1));
+                }
+            }
+            else
+            {
+                throw new NotSupportedException("Hash bytes number is not supported.");
+            }
+        }
+
+        /// <summary>
+        /// Obté o código confuso de 64 bit.
+        /// </summary>
+        /// <param name="obj">O obejcto.</param>
+        /// <param name="len">O tamanho do objecto a ser considerado.</param>
+        /// <returns>O valor do código confuso.</returns>
+        internal byte[] InternalGetHash64(byte[] obj, int len)
+        {
+            var keys = new[] {
+                        0x0706050403020100UL, 
+                        0x0F0E0D0C0B0A0908UL,
+                        0x1716151413121110UL,
+                        0x1F1E1D1C1B1A1918UL};
+
+            var v0 = new ulong[numLanes];
+            var v1 = new ulong[numLanes];
+            var mul0 = new ulong[numLanes];
+            var mul1 = new ulong[numLanes];
+            this.Reset(
+                keys,
+                v0,
+                v1,
+                mul0,
+                mul1);
+            this.GetHashState(obj, 0, len, v0, v1, mul0, mul1);
+            return BitConverter.GetBytes(this.Finalize64(v0, v1, mul0, mul1));
+        }
+
+        /// <summary>
+        /// Obté o código confuso de 128 bit.
+        /// </summary>
+        /// <param name="obj">O obejcto.</param>
+        /// <param name="len">O tamanho do objecto a ser considerado.</param>
+        /// <returns>O valor do código confuso.</returns>
+        internal byte[] InternalGetHash128(byte[] obj, int len)
+        {
+            var keys = new[] {
+                        0x0706050403020100UL, 
+                        0x0F0E0D0C0B0A0908UL,
+                        0x1716151413121110UL,
+                        0x1F1E1D1C1B1A1918UL};
+
+            var v0 = new ulong[numLanes];
+            var v1 = new ulong[numLanes];
+            var mul0 = new ulong[numLanes];
+            var mul1 = new ulong[numLanes];
+            this.Reset(
+                keys,
+                v0,
+                v1,
+                mul0,
+                mul1);
+            this.GetHashState(obj, 0, len, v0, v1, mul0, mul1);
+            return this.Finalize128(v0, v1, mul0, mul1);
+        }
+
+        /// <summary>
+        /// Obté o código confuso de 256 bit.
+        /// </summary>
+        /// <param name="obj">O obejcto.</param>
+        /// <param name="len">O tamanho do objecto a ser considerado.</param>
+        /// <returns>O valor do código confuso.</returns>
+        internal byte[] InternalGetHash256(byte[] obj, int len)
+        {
+            var keys = new[] {
+                        0x0706050403020100UL, 
+                        0x0F0E0D0C0B0A0908UL,
+                        0x1716151413121110UL,
+                        0x1F1E1D1C1B1A1918UL};
+
+            var v0 = new ulong[numLanes];
+            var v1 = new ulong[numLanes];
+            var mul0 = new ulong[numLanes];
+            var mul1 = new ulong[numLanes];
+            this.Reset(
+                keys,
+                v0,
+                v1,
+                mul0,
+                mul1);
+            this.GetHashState(obj, 0, len, v0, v1, mul0, mul1);
+            return this.Finalize256(v0, v1, mul0, mul1);
+        }
+
+        /// <summary>
+        /// Actualiza o estado da função de código confuso.
+        /// </summary>
+        /// <param name="obj">O objecto.</param>
+        /// <param name="index">
+        /// O índice a partir do qual os valores do objecto são considerados.
+        /// </param>
+        /// <param name="len">
+        /// O número de valores do objecto a serem considerados.
+        /// </param>
+        /// <param name="v0">Variável de estado.</param>
+        /// <param name="v1">Variável de estado.</param>
+        /// <param name="mul0">Variável de estado.</param>
+        /// <param name="mul1">Variável de estado.</param>
+        private void GetHashState(
+            byte[] obj,
+            int index,
+            int len,
+            ulong[] v0,
+            ulong[] v1,
+            ulong[] mul0,
+            ulong[] mul1)
+        {
+            var size = len >> 5;
+
+            // Actualização do estado com base no pacote.
+            var packetLanes = new ulong[numLanes];
+            var p = index;
+            for (var i = 0; i < size; ++i)
+            {
+                for (var j = 0; j < numLanes; ++j)
+                {
+                    packetLanes[j] = BitConverter.ToUInt64(
+                        obj,
+                        p);
+                    p += 8;
+                }
+
+                this.Update(
+                    packetLanes,
+                    v0,
+                    v1,
+                    mul0,
+                    mul1);
+            }
+
+            // Actualização dos restantes itens.
+            var sizeMod32 = len & 31;
+            if (sizeMod32 != 0)
+            {
+                var mod32Pair = (ulong)((sizeMod32 << 32) + sizeMod32);
+                for (var lane = 0; lane < numLanes; ++lane)
+                {
+                    v0[lane] += mod32Pair;
+                }
+
+                this.Rotate32By(v1, sizeMod32);
+                var sizeMod4 = sizeMod32 & 3;
+                var packet = new byte[32];
+
+                Array.Copy(obj, p, packet, 0, sizeMod32 & ~3);
+                var ind = p + (sizeMod32 & ~3);
+                if ((sizeMod32 & 16) != 0)
+                {
+                    Array.Copy(obj, ind + sizeMod4 - 4, packet, 28, 4);
+                }
+                else
+                {
+                    var last3 = 0UL;
+                    if (sizeMod4 > 0)
+                    {
+                        var idx0 = 0;
+                        var idx1 = sizeMod4 >> 1;
+                        var idx2 = sizeMod4 - 1;
+
+                        last3 += (ulong)(sbyte)obj[ind + idx0];
+                        last3 += (ulong)(sbyte)obj[ind + idx1] << 8;
+                        last3 += (ulong)(sbyte)obj[ind + idx2] << 16;
+                    }
+
+                    Array.Copy(
+                        BitConverter.GetBytes(last3),
+                        0,
+                        packet,
+                        16,
+                        sizeof(ulong));
+                }
+
+                var innerLanes = new ulong[numLanes];
+                var q = 0;
+                for (var i = 0; i < numLanes; ++i)
+                {
+                    innerLanes[i] = BitConverter.ToUInt64(
+                        packet,
+                        q);
+                    q += 8;
+                }
+
+                this.Update(innerLanes, v0, v1, mul0, mul1);
+            }
+        }
+
+        /// <summary>
+        /// Inicializa os vectores de estado.
+        /// </summary>
+        /// <param name="keys">O vector com valores iniciais.</param>
+        /// <param name="v0">Variável de estado.</param>
+        /// <param name="v1">Variável de estado.</param>
+        /// <param name="mul0">Variável de estado.</param>
+        /// <param name="mul1">Variável de estado.</param>
+        private void Reset(
+            ulong[] keys,
+            ulong[] v0,
+            ulong[] v1,
+            ulong[] mul0,
+            ulong[] mul1)
+        {
+            var rotatedKeys = Rotate64By32(keys);
+            Array.Copy(init0, mul0, numLanes);
+            Array.Copy(init1, mul1, numLanes);
+            this.Xor(init0, keys, v0);
+            this.Xor(init1, rotatedKeys, v1);
+        }
+
+        /// <summary>
+        /// Obtém o valor definitivo para o código confuso de 64 bit.
+        /// </summary>
+        /// <param name="v0">Variável de estado.</param>
+        /// <param name="v1">Variável de estado.</param>
+        /// <param name="mul0">Variável de estado.</param>
+        /// <param name="mul1">Variável de estado.</param>
+        /// <returns>O código confuso.</returns>
+        private ulong Finalize64(
+            ulong[] v0,
+            ulong[] v1,
+            ulong[] mul0,
+            ulong[] mul1)
+        {
+            this.PermuteAndUpdate(v0, v0, v1, mul0, mul1);
+            this.PermuteAndUpdate(v0, v0, v1, mul0, mul1);
+            this.PermuteAndUpdate(v0, v0, v1, mul0, mul1);
+            this.PermuteAndUpdate(v0, v0, v1, mul0, mul1);
+
+            return v0[0] + v1[0] + mul0[0] + mul1[0];
+        }
+
+        /// <summary>
+        /// Obtém o valor definitivo para o código confuso de 128 bit.
+        /// </summary>
+        /// <param name="v0">Variável de estado.</param>
+        /// <param name="v1">Variável de estado.</param>
+        /// <param name="mul0">Variável de estado.</param>
+        /// <param name="mul1">Variável de estado.</param>
+        /// <returns>O código confuso.</returns>
+        private byte[] Finalize128(
+            ulong[] v0,
+            ulong[] v1,
+            ulong[] mul0,
+            ulong[] mul1)
+        {
+            this.PermuteAndUpdate(v0, v0, v1, mul0, mul1);
+            this.PermuteAndUpdate(v0, v0, v1, mul0, mul1);
+            this.PermuteAndUpdate(v0, v0, v1, mul0, mul1);
+            this.PermuteAndUpdate(v0, v0, v1, mul0, mul1);
+
+            var result = new byte[16];
+            Array.Copy(
+                BitConverter.GetBytes(v0[0] + mul0[0] + v1[2] + mul1[2]),
+                result,
+                8);
+            Array.Copy(
+                BitConverter.GetBytes(v0[1] + mul0[1] + v1[3] + mul1[3]),
+                0,
+                result,
+                8,
+                8);
+            return result;
+        }
+
+        /// <summary>
+        /// Obtém o valor definitivo para o código confuso de 256 bit.
+        /// </summary>
+        /// <param name="v0">Variável de estado.</param>
+        /// <param name="v1">Variável de estado.</param>
+        /// <param name="mul0">Variável de estado.</param>
+        /// <param name="mul1">Variável de estado.</param>
+        /// <returns>O código confuso.</returns>
+        private byte[] Finalize256(
+            ulong[] v0,
+            ulong[] v1,
+            ulong[] mul0,
+            ulong[] mul1)
+        {
+            this.PermuteAndUpdate(v0, v0, v1, mul0, mul1);
+            this.PermuteAndUpdate(v0, v0, v1, mul0, mul1);
+            this.PermuteAndUpdate(v0, v0, v1, mul0, mul1);
+            this.PermuteAndUpdate(v0, v0, v1, mul0, mul1);
+
+            var temp0 = 0UL;
+            var temp1 = 0UL;
+            var temp2 = 0UL;
+            var temp3 = 0UL;
+
+            this.ModularReduction(
+                v1[1] + mul1[1],
+                v1[0] + mul1[0],
+                v0[1] + mul0[1],
+                v0[0] + mul0[0],
+                out temp1,
+                out temp0);
+            this.ModularReduction(
+                v1[3] + mul1[3],
+                v1[2] + mul1[2],
+                v0[3] + mul0[3],
+                v0[2] + mul0[2],
+                out temp3,
+                out temp2);
+
+            var result = new byte[32];
+            Array.Copy(
+                BitConverter.GetBytes(temp0),
+                result,
+                8);
+            Array.Copy(
+                BitConverter.GetBytes(temp1),
+                0,
+                result,
+                8,
+                8);
+            Array.Copy(
+                BitConverter.GetBytes(temp2),
+                0,
+                result,
+                16,
+                8);
+            Array.Copy(
+                BitConverter.GetBytes(temp3),
+                0,
+                result,
+                24,
+                8);
+
+            return result;
+        }
+
+        /// <summary>
+        /// Permuta os elementos e actualizao estado.
+        /// </summary>
+        /// <param name="v">Os elementos a serem permutados.</param>
+        /// <param name="v0">Variável de estado.</param>
+        /// <param name="v1">Variável de estado.</param>
+        /// <param name="mul0">Variável de estado.</param>
+        /// <param name="mul1">Variável de estado.</param>
+        private void PermuteAndUpdate(
+            ulong[] v,
+            ulong[] v0,
+            ulong[] v1,
+            ulong[] mul0,
+            ulong[] mul1)
+        {
+            var permuted = this.Permute(v);
+            this.Update(permuted, v0, v1, mul0, mul1);
+        }
+
+        /// <summary>
+        /// Obtém o resultado permutado do vector.
+        /// </summary>
+        /// <param name="v">O vector.</param>
+        /// <returns></returns>
+        private ulong[] Permute(ulong[] v)
+        {
+            var result = new ulong[numLanes];
+            result[0] = this.Rotate64By32(v[2]);
+            result[1] = this.Rotate64By32(v[3]);
+            result[2] = this.Rotate64By32(v[0]);
+            result[3] = this.Rotate64By32(v[1]);
+            return result;
+        }
+
+        /// <summary>
+        /// Actualiza o estado com base nos valores lidos.
+        /// </summary>
+        /// <param name="packetLanes">Os valores lidos.</param>
+        /// <param name="v0">Variável de estado.</param>
+        /// <param name="v1">Variável de estado.</param>
+        /// <param name="mul0">Variável de estado.</param>
+        /// <param name="mul1">Variável de estado.</param>
+        private void Update(
+            ulong[] packetLanes,
+            ulong[] v0,
+            ulong[] v1,
+            ulong[] mul0,
+            ulong[] mul1)
+        {
+            this.Add(packetLanes, v1);
+            this.Add(mul0, v1);
+
+            for (var i = 0; i < numLanes; ++i)
+            {
+                var v132 = (uint)v1[i];
+                mul0[i] ^= v132 * (v0[i] >> 32);
+                v0[i] += mul1[i];
+                var v032 = (uint)v0[i];
+                mul1[i] ^= v032 * (v1[i] >> 32);
+            }
+
+            this.ZipperMergeAndAdd(v1[1], v1[0], ref v0[1], ref v0[0]);
+            this.ZipperMergeAndAdd(v1[3], v1[2], ref v0[3], ref v0[2]);
+            this.ZipperMergeAndAdd(v0[1], v0[0], ref v1[1], ref v1[0]);
+            this.ZipperMergeAndAdd(v0[3], v0[2], ref v1[3], ref v1[2]);
+        }
+
+        /// <summary>
+        /// Acumula os valores da fonte com os do destino.
+        /// </summary>
+        /// <param name="source">Os valores da fonte.</param>
+        /// <param name="destination">O destino.</param>
+        private void Add(
+            ulong[] source,
+            ulong[] destination)
+        {
+            for (var i = 0; i < numLanes; ++i)
+            {
+                destination[i] += source[i];
+            }
+        }
+
+        /// <summary>
+        /// Aplica o operador de ou exclusivo a dois vectores,
+        /// colocando o resultado no terceiro.
+        /// </summary>
+        /// <param name="a">O primeiro vector argumento.</param>
+        /// <param name="b">O segundo vector argumento.</param>
+        /// <param name="result">O vector que irá conter o resultado.</param>
+        private void Xor(
+            ulong[] a,
+            ulong[] b,
+            ulong[] result)
+        {
+            for (var i = 0; i < numLanes; ++i)
+            {
+                result[i] = a[i] ^ b[i];
+            }
+        }
+
+        /// <summary>
+        /// Roda a variável de 64 bit de 32 bit.
+        /// </summary>
+        /// <param name="x">A variável a rodar.</param>
+        /// <returns>O resultado da rotaçõa.</returns>
+        private ulong Rotate64By32(ulong x)
+        {
+            return (x >> 32) | (x << 32);
+        }
+
+        /// <summary>
+        /// Roda todos os elementos de um vector em 32 bit.
+        /// </summary>
+        /// <param name="vec">O vector.</param>
+        /// <returns>O resultado da rotação.</returns>
+        private ulong[] Rotate64By32(ulong[] vec)
+        {
+            var result = new ulong[numLanes];
+            for (var i = 0; i < numLanes; ++i)
+            {
+                var x = vec[i];
+                result[i] = (x >> 32) | (x << 32);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Roda o vector de inteiros em um determinado valor.
+        /// </summary>
+        /// <param name="vals">O vector de inteiros.</param>
+        /// <param name="count">O valor.</param>
+        private void Rotate32By(ulong[] vals, int count)
+        {
+            for (var i = 0; i < numLanes; ++i)
+            {
+                var xLow = (uint)(vals[i] & 0xFFFFFFFF);
+                xLow = (xLow << count) | (xLow >> (32 - count));
+                var xHigh = vals[i] >> 32;
+                xHigh = (xHigh << count) | (xHigh >> (32 - count));
+                vals[i] = (xHigh << 32) | xLow;
+            }
+        }
+
+        /// <summary>
+        /// Desloca variáveis para a esquerda.
+        /// </summary>
+        /// <param name="a1">Variável a ser deslocada.</param>
+        /// <param name="a0">Variável a ser deslocada.</param>
+        /// <param name="kBits">O número de bits a deslocar.</param>
+        private void Shift128Left(
+            ref ulong a1,
+            ref ulong a0,
+            int kBits)
+        {
+            var shifted1 = a1 << kBits;
+            var top_bits = a0 >> (64 - kBits);
+            a0 <<= kBits;
+            a1 = shifted1 | top_bits;
+        }
+
+        /// <summary>
+        /// Efectua a redução módulo o polinómio irredutível x^128+x^2+x, recebendo
+        /// um número a3210 de 256 bit.
+        /// </summary>
+        /// <param name="a3Unmasked">Parte do número de 256 bit.</param>
+        /// <param name="a2">Parte do número de 256 bit.</param>
+        /// <param name="a1">Parte do número de 256 bit.</param>
+        /// <param name="a0">Parte do número de 256 bit.</param>
+        /// <param name="m1">Parâmetro.</param>
+        /// <param name="m0">Parâmetro.</param>
+        private void ModularReduction(
+            ulong a3Unmasked,
+            ulong a2,
+            ulong a1,
+            ulong a0,
+            out ulong m1,
+            out ulong m0)
+        {
+            var a3 = a3Unmasked & 0x3FFFFFFFFFFFFFFFUL;
+            var a3Shl1 = a3;
+            var a2Shl1 = a2;
+            var a3Shl2 = a3;
+            var a2Shl2 = a2;
+            this.Shift128Left(ref a3Shl1, ref a2Shl1, 1);
+            this.Shift128Left(ref a3Shl2, ref a2Shl2, 2);
+            m1 = a1 ^ a3Shl1 ^ a3Shl2;
+            m0 = a0 ^ a2Shl1 ^ a2Shl2;
+        }
+
+        /// <summary>
+        /// Função de mistura de valores.
+        /// </summary>
+        /// <param name="v1">Valor a ser misturado.</param>
+        /// <param name="v0">Valor a ser misturado.</param>
+        /// <param name="add1">Primeiro resultado da mistura.</param>
+        /// <param name="add0">Segundo resultado da mistura.</param>
+        private void ZipperMergeAndAdd(
+            ulong v1,
+            ulong v0,
+            ref ulong add1,
+            ref ulong add0)
+        {
+            add0 += ((this.Mask(v0, 3) + this.Mask(v1, 4)) >> 24) +
+                     ((this.Mask(v0, 5) + this.Mask(v1, 6)) >> 16) + this.Mask(v0, 2) +
+                     (this.Mask(v0, 1) << 32) + (this.Mask(v1, 7) >> 8) + (v0 << 56);
+
+            add1 += ((this.Mask(v1, 3) + this.Mask(v0, 4)) >> 24) + this.Mask(v1, 2) +
+                     (this.Mask(v1, 5) >> 16) + (this.Mask(v1, 1) << 24) + (this.Mask(v0, 6) >> 8) +
+                     (this.Mask(v1, 0) << 48) + this.Mask(v0, 7);
+        }
+
+        /// <summary>
+        /// Aplica uma máscara ao valor.
+        /// </summary>
+        /// <param name="v">O valor.</param>
+        /// <param name="bytes">O número de bytes.</param>
+        /// <returns>O resultado da máscara.</returns>
+        private ulong Mask(ulong v, int bytes)
+        {
+            return (v) & (0xFFUL << ((bytes) * 8));
+        }
+    }
 
     /// <summary>
     /// Define funções que permitem calcular códigos confusos simples.
