@@ -2538,6 +2538,123 @@
             }
         }
     }
+     
+     /// <summary>
+    /// Testa o algoritmo HighwayHash.
+    /// </summary>
+    [TestClass]
+    public class HighwayHashTest
+    {
+        /// <summary>
+        /// Testa o algoritmo FarmHash de 64 bit.
+        /// </summary>
+        [TestMethod]
+        [Description("Testa o algoritmo FarmHash de 64 bit.")]
+        public void HighwayHash_GetHighwayHash64Test()
+        {
+            var target = new HighwayHash();
+
+            var key = new byte[256];
+            var hashes = new byte[2048];
+
+            for (var i = 0; i < 256; ++i)
+            {
+                key[i] = (byte)i;
+                var hashRes = target.InternalGetHash64(
+                    key,
+                    i);
+                Array.Copy(hashRes, 0, hashes, 8 * i, 8);
+            }
+
+            var final = target.InternalGetHash64(hashes, 2048);
+
+            // Verifica o valor da variável
+            Assert.AreEqual(
+                0xF15084474ED4D211UL,
+                BitConverter.ToUInt64(final, 0));
+        }
+
+        /// <summary>
+        /// Testa o algoritmo FarmHash de 128 bit.
+        /// </summary>
+        [TestMethod]
+        [Description("Testa o algoritmo FarmHash de 128 bit.")]
+        public void HighwayHash_GetHighwayHash128Test()
+        {
+            var target = new HighwayHash();
+
+            var key = new byte[256];
+            var hashes = new byte[4096];
+
+            for (var i = 0; i < 256; ++i)
+            {
+                key[i] = (byte)i;
+                var hashRes = target.InternalGetHash128(
+                    key,
+                    i);
+                Array.Copy(hashRes, 0, hashes, 16 * i, 16);
+            }
+
+            var final = target.InternalGetHash128(hashes, 4096);
+            var actual = BitConverter.ToUInt64(final, 0);
+            Assert.AreEqual(0x6BFCA13546EBFDF0UL, actual);
+            actual = BitConverter.ToUInt64(final, 8);
+            Assert.AreEqual(0xC653F190CA82144AUL, actual);
+        }
+
+        /// <summary>
+        /// Testa o algoritmo FarmHash de 256 bit.
+        /// </summary>
+        [TestMethod]
+        [Description("Testa o algoritmo FarmHash de 256 bit.")]
+        public void HighwayHash_GetHighwayHash256Test()
+        {
+            var target = new HighwayHash();
+
+            var key = new byte[256];
+            var hashes = new byte[8192];
+
+            for (var i = 0; i < 256; ++i)
+            {
+                key[i] = (byte)i;
+                var hashRes = target.InternalGetHash256(
+                    key,
+                    i);
+                Array.Copy(hashRes, 0, hashes, 32 * i, 32);
+            }
+
+            var final = target.InternalGetHash256(hashes, 8192);
+
+            // Verifica o valor da variável
+            var actual = BitConverter.ToUInt64(final, 0);
+            Assert.AreEqual(0x72C1416C142FB9E9UL, actual);
+            actual = BitConverter.ToUInt64(final, 8);
+            Assert.AreEqual(0xB262E6DBDCFFEA78UL, actual);
+            actual = BitConverter.ToUInt64(final, 16);
+            Assert.AreEqual(0x96C28316AB602A30UL, actual);
+            actual = BitConverter.ToUInt64(final, 24);
+            Assert.AreEqual(0x7F9703B873F83F86UL, actual);
+        }
+
+        /// <summary>
+        /// Envia os valores dos códigos confusos para um ficheiro.
+        /// </summary>
+        /// <param name="hashes">Os códigos confusos.</param>
+        private void TemporarySendToFile(byte[] hashes)
+        {
+            var file = new System.IO.FileInfo("C:\\temp\\matutils_out.txt");
+            using (var fileStream = file.OpenWrite())
+            {
+                using (var textWriter = new System.IO.StreamWriter(fileStream))
+                {
+                    for (var i = 0; i < hashes.Length; ++i)
+                    {
+                        textWriter.WriteLine(hashes[i]);
+                    }
+                }
+            }
+        }
+    }
 
     /// <summary>
     /// Testa as funções simples que permitem determinar códigos confusos.
