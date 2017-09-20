@@ -1019,6 +1019,139 @@ namespace Utilities.Test
             Assert.AreEqual(secondExpected.Count, index);
         }
     }
+    
+    /// <summary>
+    /// Testa o leitor de bits.
+    /// </summary>
+    [Description("Testa o leitor de vários bits")]
+    [TestMethod]
+    public void BitReader_ReadBitsTest()
+    {
+        // Teste geral
+        var buffer = new byte[]{
+            0xFD, // 253
+            0xA1, // 161
+            0xC6, // 198
+            0xEB, // 235
+            0xA7, // 167
+            0xB9, // 185
+            0xC1, // 193
+            0x05  // 5
+        };
+
+        //var expectedBits = new int[]{
+        //    1, 0, 1, 1, 1, 1, 1, 1,
+        //    1, 0, 0, 0, 0, 1, 0, 1,
+        //    0, 1, 1, 0, 0, 0, 1, 1,
+        //    1, 1, 0, 1, 0, 1, 1, 1,
+        //    1, 1, 1, 0, 0, 1, 0, 1,
+        //    1, 0, 0, 1, 1, 1, 0, 1,
+        //    1, 0, 0, 0, 0, 0, 1, 1,
+        //    1, 0, 1, 0, 0, 0, 0, 0
+        //};
+
+        var expected = new[]{
+            new byte[]{0x1}, new byte[]{0x2}, new byte[]{0x7},
+            new byte[]{0x7}, new byte[]{0x8},
+            new byte[]{ 0xD}, new byte[]{0x5E},
+            new byte[]{0x7E}, new byte[]{0x9A, 0x1},
+            new byte[]{0x0D, 0x2}, new byte[]{0x0B, 0x0} 
+        };
+
+        var stream = new MemoryStream(buffer);
+        var target = new BitReader(stream, 2);
+        var length = expected.Length - 1;
+        var acc = 0;
+        for (var i = 0; i < length; ++i)
+        {
+            acc += i + 1;
+            var curr = expected[i];
+            var len = curr.Length;
+            var readBuffer = new byte[len];
+            var readed = target.ReadBits(readBuffer, 0, i + 1);
+            Assert.AreEqual(i + 1, readed);
+            for (var j = 0; j < len; ++j)
+            {
+                Assert.AreEqual(curr[j], readBuffer[j]);
+            }
+        }
+
+        var last = expected[length];
+        var lastBuffer = new byte[last.Length];
+        var lastReaded = target.ReadBits(lastBuffer, 0, length + 1);
+        Assert.AreEqual(buffer.Length * 8 - acc, lastReaded);
+        for (var j = 0; j < last.Length; ++j)
+        {
+            Assert.AreEqual(last[j], lastBuffer[j]);
+        }
+
+        // Teste com desvio
+        stream.Seek(0, SeekOrigin.Begin);
+        target = new BitReader(stream, 2);
+        var expOff = new byte[buffer.Length];
+        target.ReadBits(expOff, 0, 2);
+
+        lastReaded = target.ReadBits(
+            expOff,
+            11,
+            33);
+
+        Assert.AreEqual(33, lastReaded);
+        var exp = new byte[]{
+            0x1,
+            0xF8,
+            0x43,
+            0x8D,
+            0xD7,
+            0x0F,
+            0x0,
+            0x0,
+        };
+
+        for (var i = 0; i < exp.Length; ++i)
+        {
+            Assert.AreEqual(exp[i], expOff[i]);
+        }
+
+        // Teste sem desvio
+        stream.Seek(0, SeekOrigin.Begin);
+        target = new BitReader(stream, 2);
+        expOff = new byte[buffer.Length];
+        lastReaded = target.ReadBits(
+            expOff,
+            0,
+            buffer.Length * 8);
+        Assert.AreEqual(buffer.Length * 8, lastReaded);
+        for (var i = 0; i < buffer.Length; ++i)
+        {
+            Assert.AreEqual(buffer[i], expOff[i]);
+        }
+
+        // Teste sem desvio na leitura mas com desvio na escrita
+        stream.Seek(0, SeekOrigin.Begin);
+        target = new BitReader(stream, 2);
+        exp = new byte[]{
+            0xD0, 
+            0x1F, 
+            0x6A, 
+            0xBC, 
+            0x7E, 
+            0x9A, 
+            0x1B, 
+            0x5C,
+            0x0
+        };
+
+        expOff = new byte[exp.Length];
+        lastReaded = target.ReadBits(
+            expOff,
+            4,
+            buffer.Length * 8);
+        for (var i = 0; i < exp.Length; ++i)
+        {
+            Assert.AreEqual(exp[i], expOff[i]);
+        }
+    }
 
     /// <summary>
     /// Representa um valor qualquer.
