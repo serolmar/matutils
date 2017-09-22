@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
 // <copyright file="ReaderWriter.cs" company="Sérgio O. Marques">
 // Ver licença do projecto.
 // </copyright>
@@ -111,6 +111,102 @@ namespace Utilities
         }
 
         /// <summary>
+        /// Obtém o comprimento do fluxo em bits.
+        /// </summary>
+        public long Length
+        {
+            get
+            {
+                return this.stream.Length * 8;
+            }
+        }
+
+        /// <summary>
+        /// Obtém ou atribui a posição do fluxo em bits.
+        /// </summary>
+        public long Position
+        {
+            get
+            {
+                if (this.stream.CanSeek)
+                {
+                    if (this.currentVarIndex == -1)
+                    {
+                        return this.stream.Position * 8;
+                    }
+                    else
+                    {
+                        var streamPos = this.stream.Position;
+                        streamPos -= (this.readedBytes - this.currentVarIndex);
+                        return streamPos * 8 + this.bitPos;
+                    }
+                }
+                else
+                {
+                    throw new NotSupportedException(
+                        "Seek operations aren't supported by the underlying stream.");
+                }
+            }
+            set
+            {
+                if (this.stream.CanSeek)
+                {
+                    if (value < 0)
+                    {
+                        throw new UtilitiesException("Position must be non negative.");
+                    }
+                    else
+                    {
+                        this.endOfStream = false;
+                        var mainVal = value >> 3;
+                        var rem = (int)(value & 7);
+                        this.stream.Position = mainVal;
+                        this.readedBytes = 0;
+                        if (rem == 0)
+                        {
+                            this.currentVarIndex = -1;
+                            this.bitPos = 8;
+                        }
+                        else
+                        {
+                            this.readedBytes = this.stream.Read(
+                                this.buffer,
+                                0,
+                                this.buffer.Length);
+                            if (this.readedBytes == 0)
+                            {
+                                this.endOfStream = true;
+                            }
+                            else
+                            {
+                                this.currentVarIndex = 0;
+                            }
+
+                            this.bitPos = rem;
+                        }
+                    }
+                }
+                else
+                {
+                    throw new NotSupportedException(
+                        "Seek operations aren't supported by the underlying stream.");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Obtém um valor que indica se é possível mover o cursor no interior do
+        /// fluxo.
+        /// </summary>
+        public bool CanSeek
+        {
+            get
+            {
+                return this.stream.CanSeek;
+            }
+        }
+
+        /// <summary>
         /// Efectua a leitura de um bit.
         /// </summary>
         /// <returns>O bit lido ou -1 se se encontra no final.</returns>
@@ -125,12 +221,14 @@ namespace Utilities
                 ++this.currentVarIndex;
                 if (this.currentVarIndex == this.readedBytes)
                 {
+
                     this.readedBytes = this.stream.Read(
                         this.buffer,
                         0,
                         this.buffer.Length);
                     if (this.readedBytes == 0)
                     {
+                        this.currentVarIndex = -1;
                         this.endOfStream = true;
                         return -1;
                     }
@@ -187,7 +285,7 @@ namespace Utilities
                 {
                     if (this.endOfStream)
                     {
-                        return -1;
+                        return 0;
                     }
                     else
                     {
@@ -219,8 +317,7 @@ namespace Utilities
                                 if (count <= 8 - currPos)
                                 {
                                     var current = this.buffer[this.currentVarIndex];
-                                    var write = bitsBuffer[mainWrite];
-                                    write |= (byte)(((current >> this.bitPos) & ((1 << count) - 1)) >> currPos);
+                                    var write = (byte)(((current >> this.bitPos) & ((1 << count) - 1)) >> currPos);
                                     bitsBuffer[mainWrite] = write;
                                 }
                                 else
@@ -242,8 +339,7 @@ namespace Utilities
                                 if (lastBits < 8 - currPos)
                                 {
                                     var current = this.buffer[this.currentVarIndex];
-                                    var write = bitsBuffer[mainWrite];
-                                    write |= (byte)(((current >> this.bitPos) & ((1 << lastBits) - 1)) >> currPos);
+                                    var write = (byte)(((current >> this.bitPos) & ((1 << lastBits) - 1)) >> currPos);
                                     bitsBuffer[mainWrite] = write;
                                     currPos += lastBits;
                                 }
@@ -286,6 +382,115 @@ namespace Utilities
         }
 
         /// <summary>
+        /// Estabelece a posição do cursor no fluxo.
+        /// </summary>
+        /// <param name="offset">O desvio em bits.</param>
+        /// <param name="origin">A origem sobre a qual é aplicado o desvio.</param>
+        /// <returns>A nova posição em bits no fluxo.</returns>
+        public long Seek(long offset, SeekOrigin origin)
+        {
+            // TODO: Analisar o caso em que o movimento pode ser efectuado sem recarregar a variável buffer.
+            // Isto implica verificar se o offset se encontra em alguma posição dos valores já carregados.
+            // Efectuar o melhoramento após a execução dos testes.
+            if (offset < 0)
+            {
+                throw new ArgumentOutOfRangeException(
+                    "offset",
+                    "Offset value must be non negative.");
+            }
+            else if (this.stream.CanSeek)
+            {
+                this.endOfStream = false;
+                if (origin == SeekOrigin.Begin)
+                {
+                    if (offset < 0)
+                    {
+                        throw new IOException("Can't set cursor position before start.");
+                    }
+                    else
+                    {
+                        var mainVal = offset >> 3;
+                        var rem = (int)(mainVal & 7);
+                        this.stream.Position = mainVal;
+                        this.readedBytes = 0;
+                        if (rem == 0)
+                        {
+                            this.currentVarIndex = -1;
+                            this.bitPos = 8;
+                        }
+                        else
+                        {
+                            this.readedBytes = this.stream.Read(
+                                this.buffer,
+                                0,
+                                this.buffer.Length);
+                            if (this.readedBytes == 0)
+                            {
+                                this.endOfStream = true;
+                            }
+                            else
+                            {
+                                this.currentVarIndex = 0;
+                            }
+
+                            this.bitPos = rem;
+                        }
+
+                        return offset;
+                    }
+                }
+                else if (origin == SeekOrigin.Current)
+                {
+                    var streamPosition = this.stream.Position;
+                    if (offset > 0)
+                    {
+                        return this.SetAddPosition(streamPosition, offset);
+                    }
+                    else if (offset < 0)
+                    {
+                        return this.SetSubtractPosition(streamPosition, offset);
+                    }
+                    else
+                    {
+                        return this.Position;
+                    }
+                }
+                else if (origin == SeekOrigin.End)
+                {
+                    var streamPosition = this.stream.Length - 1;
+                    this.bitPos = 8;
+                    if (offset > 0)
+                    {
+                        return this.SetAddPosition(streamPosition, offset);
+                    }
+                    else if (offset < 0)
+                    {
+                        return this.SetSubtractPosition(streamPosition, offset);
+                    }
+                    else
+                    {
+                        // Colocado no final do ficheiro.
+                        this.stream.Seek(0, SeekOrigin.End);
+                        this.bitPos = 8;
+                        this.currentVarIndex = -1;
+                        this.endOfStream = true;
+                        return this.Position;
+                    }
+                }
+                else
+                {
+                    throw new NotSupportedException(
+                        "The provided seek origine type is not supported.");
+                }
+            }
+            else
+            {
+                throw new NotSupportedException(
+                        "Seek operations aren't supported by the underlying stream.");
+            }
+        }
+
+        /// <summary>
         /// Efectua a leitura dos bits quando tanto os bytes de leitura como de escrita
         /// se encontram alinhados.
         /// </summary>
@@ -307,6 +512,7 @@ namespace Utilities
                     this.buffer.Length);
                 if (this.readedBytes == 0)
                 {
+                    this.currentVarIndex = -1;
                     this.endOfStream = true;
                     return readed;
                 }
@@ -350,7 +556,7 @@ namespace Utilities
             {
                 var temp = this.buffer[this.currentVarIndex];
                 this.bitPos = remRead;
-                bitsBuffer[mainWrite] = (byte)(temp & ((1 << remRead)-1));
+                bitsBuffer[mainWrite] = (byte)(temp & ((1 << remRead) - 1));
                 readed += remRead;
             }
 
@@ -367,9 +573,9 @@ namespace Utilities
         /// <param name="count">O número total de bits a serem lidos.</param>
         /// <returns>O número de bits lidos.</returns>
         private int ReadAlignedWriteUnaligned(
-            byte[] bitsBuffer, 
-            int mainWrite, 
-            int writePos, 
+            byte[] bitsBuffer,
+            int mainWrite,
+            int writePos,
             int count)
         {
             var readed = 0;
@@ -445,6 +651,257 @@ namespace Utilities
             }
 
             return readed;
+        }
+
+        /// <summary>
+        /// Estabelece a posição do cursor relativamente 
+        /// à origem especificada após adição com a posição actual.
+        /// </summary>
+        /// <param name="currBytes">A origem especificada.</param>
+        /// <param name="offset">A posição em bits a ser estabelecida.</param>
+        /// <returns>O valor da posição.</returns>
+        private long SetAddPosition(long currBytes, long offset)
+        {
+            var mainVal = offset >> 3;
+            var rem = (int)(mainVal & 7);
+            mainVal += currBytes + (rem >> 3);
+            rem &= 7;
+            this.stream.Seek(mainVal, SeekOrigin.Current);
+
+            if (rem == 0)
+            {
+                this.readedBytes = 0;
+                this.currentVarIndex = -1;
+                this.bitPos = 8;
+            }
+            else
+            {
+                this.readedBytes = this.stream.Read(
+                    this.buffer,
+                    0,
+                    this.buffer.Length);
+                if (this.readedBytes == 0)
+                {
+                    this.endOfStream = true;
+                }
+                else
+                {
+                    this.currentVarIndex = 0;
+                }
+
+                this.currentVarIndex = 0;
+                this.bitPos = rem;
+            }
+
+            return (currBytes >> 3) + offset;
+        }
+
+        /// <summary>
+        /// Estabelece a posição do cursor relativamente 
+        /// à origem especificada após diferença com a posição actual.
+        /// </summary>
+        /// <param name="currBytes">A origem especificada.</param>
+        /// <param name="offset">A posição em bits a ser estabelecida.</param>
+        /// <returns>O valor da posição</returns>
+        private long SetSubtractPosition(long currBytes, long offset)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    /// <summary>
+    /// Implementa um escritor de bits.
+    /// </summary>
+    public class BitWriter : IDisposable
+    {
+        /// <summary>
+        /// Mantém o fluxo de onde serão lidos os bits.
+        /// </summary>
+        private Stream stream;
+
+        /// <summary>
+        /// O amortecedor interno.
+        /// </summary>
+        private byte[] buffer;
+
+        /// <summary>
+        /// O índice do vector onde se encontra o cursor.
+        /// </summary>
+        private int currentVarIndex;
+
+        /// <summary>
+        /// O índice do bit na entrada do vector onde se encontra o cursor.
+        /// </summary>
+        private int bitPos;
+
+        /// <summary>
+        /// Valor que indica se o escritor foi eliminado.
+        /// </summary>
+        private bool disposed;
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipos <see cref="BitWriter"/>.
+        /// </summary>
+        /// <param name="stream">O fluxo subjacente.</param>
+        public BitWriter(Stream stream)
+        {
+            if (stream == null)
+            {
+                throw new ArgumentNullException("stream");
+            }
+            else
+            {
+                if (stream.CanWrite)
+                {
+                    this.buffer = new byte[8];
+                    this.currentVarIndex = 0;
+                    this.bitPos = 0;
+                    this.stream = stream;
+                    this.disposed = false;
+                }
+                else
+                {
+                    throw new NotSupportedException(
+                           "The underlying stream doesn't support writes.");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipos <see cref="BitWriter"/>.
+        /// </summary>
+        /// <param name="stream">O fluxo subjacente.</param>
+        /// <param name="capacity">A capacidade do contentor interno.</param>
+        public BitWriter(Stream stream, int capacity)
+        {
+            if (stream == null)
+            {
+                throw new ArgumentNullException("stream");
+            }
+            else if (capacity <= 0)
+            {
+                throw new ArgumentOutOfRangeException(
+                    "capacity",
+                    "Capacity must be a positive value.");
+            }
+            else
+            {
+                if (stream.CanWrite)
+                {
+                    this.buffer = new byte[capacity];
+                    this.currentVarIndex = 0;
+                    this.bitPos = 0;
+                    this.stream = stream;
+                    this.disposed = false;
+                }
+                else
+                {
+                    throw new NotSupportedException(
+                        "The underlying stream doesn't support writes.");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Escreve um bit.
+        /// </summary>
+        /// <remarks>
+        /// Qualquer valor diferente de zero corresponde ao bit 1.
+        /// </remarks>
+        /// <param name="bit">O bit a ser escrito.</param>
+        public void WriteBit(byte bit)
+        {
+            if (this.disposed)
+            {
+                throw new ObjectDisposedException("BitWriter");
+            }
+            else if (this.bitPos == 0)
+            {
+                if (bit == 0)
+                {
+                    this.buffer[this.currentVarIndex] = 0;
+                }
+                else
+                {
+                    this.buffer[this.currentVarIndex] = 1;
+                }
+
+                this.bitPos = 1;
+            }
+            else
+            {
+                var current = this.buffer[this.currentVarIndex];
+                if (bit == 0)
+                {
+                    this.buffer[this.currentVarIndex] = (byte)(current & ((1 << this.bitPos) - 1));
+                }
+                else
+                {
+                    this.buffer[this.currentVarIndex] = (byte)(current | (1 << this.bitPos));
+                }
+
+                ++this.bitPos;
+                if (this.bitPos == 8)
+                {
+                    ++this.currentVarIndex;
+                    if (this.currentVarIndex == this.buffer.Length)
+                    {
+                        this.stream.Write(
+                            this.buffer,
+                            0,
+                            this.buffer.Length);
+                        this.stream.Flush();
+                        this.currentVarIndex = 0;
+                    }
+
+                    this.bitPos = 0;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Envia a parte escrita do contentor para o fluxo, exeptuando
+        /// os últimos bits.
+        /// </summary>
+        public void Flush()
+        {
+            if (this.disposed)
+            {
+                throw new ObjectDisposedException("BitWriter");
+            }
+            else if (this.bitPos == 0)
+            {
+                this.stream.Write(
+                    this.buffer,
+                    0,
+                    this.currentVarIndex + 1);
+                this.currentVarIndex = 0;
+            }
+            else
+            {
+                this.stream.Write(
+                    this.buffer,
+                    0,
+                    this.currentVarIndex);
+                this.buffer[0] = this.buffer[this.currentVarIndex];
+                this.currentVarIndex = 0;
+            }
+
+            this.stream.Flush();
+        }
+
+        /// <summary>
+        /// Liberta os recursos associados ao escritor.
+        /// </summary>
+        public void Dispose()
+        {
+            this.stream.Write(
+                    this.buffer,
+                    0,
+                    this.currentVarIndex + 1);
+            this.stream.Flush();
+            this.stream = null;
+            this.disposed = true;
         }
     }
 }
