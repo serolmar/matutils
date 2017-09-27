@@ -270,9 +270,13 @@ namespace Utilities
             {
                 throw new ArgumentNullException("bitsBuffer");
             }
-            else if (offset < 0 || count < 0)
+            else if (offset < 0)
             {
-                throw new ArgumentOutOfRangeException("Offset and count must be non negative.");
+                throw new ArgumentOutOfRangeException("offset", "Offset must be non negative.");
+            }
+            else if (count < 0)
+            {
+                throw new ArgumentOutOfRangeException("count", "Count must be non negative.");
             }
             else
             {
@@ -754,8 +758,8 @@ namespace Utilities
                 if (stream.CanWrite)
                 {
                     this.buffer = new byte[8];
-                    this.currentVarIndex = 0;
-                    this.bitPos = 0;
+                    this.currentVarIndex = -1;
+                    this.bitPos = 8;
                     this.stream = stream;
                     this.disposed = false;
                 }
@@ -789,8 +793,8 @@ namespace Utilities
                 if (stream.CanWrite)
                 {
                     this.buffer = new byte[capacity];
-                    this.currentVarIndex = 0;
-                    this.bitPos = 0;
+                    this.currentVarIndex = -1;
+                    this.bitPos = 8;
                     this.stream = stream;
                     this.disposed = false;
                 }
@@ -815,8 +819,19 @@ namespace Utilities
             {
                 throw new ObjectDisposedException("BitWriter");
             }
-            else if (this.bitPos == 0)
+            else if (this.bitPos == 8)
             {
+                ++this.currentVarIndex;
+                if (this.currentVarIndex == this.buffer.Length)
+                {
+                    this.stream.Write(
+                        this.buffer,
+                        0,
+                        this.buffer.Length);
+                    this.stream.Flush();
+                    this.currentVarIndex = 0;
+                }
+
                 if (bit == 0)
                 {
                     this.buffer[this.currentVarIndex] = 0;
@@ -841,20 +856,191 @@ namespace Utilities
                 }
 
                 ++this.bitPos;
-                if (this.bitPos == 8)
-                {
-                    ++this.currentVarIndex;
-                    if (this.currentVarIndex == this.buffer.Length)
-                    {
-                        this.stream.Write(
-                            this.buffer,
-                            0,
-                            this.buffer.Length);
-                        this.stream.Flush();
-                        this.currentVarIndex = 0;
-                    }
+            }
+        }
 
-                    this.bitPos = 0;
+        /// <summary>
+        /// Escreve os bits especificados.
+        /// </summary>
+        /// <param name="buffer">O contentor de bits.</param>
+        /// <param name="offset">O desvio em bits sobre o início do vector.</param>
+        /// <param name="bits">O número de bits a ser escrito.</param>
+        public void WriteBits(byte[] buffer, int offset, int bits)
+        {
+            if (buffer == null)
+            {
+                throw new ArgumentNullException("buffer");
+            }
+            else if (offset < 0)
+            {
+                throw new ArgumentOutOfRangeException("offset", "Offset must be non negative.");
+            }
+            else if (bits < 0)
+            {
+                throw new ArgumentOutOfRangeException("bits", "Bits must be non negative.");
+            }
+            else if (bits > 0)
+            {
+                var length = buffer.Length;
+                if (bits + offset > (length << 3))
+                {
+                    throw new ArgumentOutOfRangeException(
+                        "bits",
+                        "The number of bits is bigger than the number supported by buffer within the provided offset.");
+                }
+                else
+                {
+                    var mainOffset = offset >> 3;
+                    var remOffset = offset & 7;
+                    var buffLen = this.buffer.Length;
+
+                    if (this.bitPos == 8)
+                    {
+                        ++this.currentVarIndex;
+                        if (this.currentVarIndex == this.buffer.Length)
+                        {
+                            this.stream.Write(
+                                this.buffer,
+                                0,
+                                this.buffer.Length);
+                            this.stream.Flush();
+                            this.currentVarIndex = 0;
+                        }
+
+                        var mainLen = bits >> 3;
+                        var mainRem = bits & 7;
+
+                        if (remOffset == 0)
+                        {
+                            this.WriteAllAligned(
+                                buffer,
+                                mainOffset,
+                                mainLen);
+
+                            if (mainRem > 0)
+                            {
+                                ++this.currentVarIndex;
+                                var read = buffer[mainLen] & ((1 << mainRem) - 1);
+                                this.buffer[this.currentVarIndex] = (byte)read;
+                                this.bitPos = mainRem;
+                            }
+                        }
+                        else
+                        {
+                            this.WriteAlignedReadUnaligned(
+                                buffer,
+                                mainOffset,
+                                remOffset,
+                                mainLen);
+
+                            if (mainRem > 0)
+                            {
+                                ++this.currentVarIndex;
+                                this.buffer[0] = (byte)((buffer[mainLen] & ((1 << mainRem) - 1)));
+                                var lastRem = mainRem + remOffset;
+                                if (lastRem > 8)
+                                {
+                                    lastRem -= 8;
+                                    ++mainLen;
+                                    var write = this.buffer[0];
+                                    var read = buffer[mainLen];
+                                    write |= (byte)((read & ((1 << lastRem) - 1)) << (mainRem - lastRem));
+                                    this.buffer[0] = write;
+                                }
+
+                                this.bitPos = mainRem;
+                            }
+                            else
+                            {
+                                this.bitPos = 8;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // Alinha a escrita
+                        var lastBits = 8 - this.bitPos;
+                        if (bits <= lastBits)
+                        {
+                            var lastRem = 8 - remOffset;
+                            if (bits > lastRem)
+                            {
+                                var currWrite = this.buffer[this.currentVarIndex];
+                                var currRead = buffer[mainOffset];
+                                currWrite = (byte)(currWrite | ((currRead >> remOffset) << this.bitPos));
+                                currRead = buffer[mainOffset + 1];
+                                currRead &= (byte)((1 << (bits - lastRem) - 1));
+                                currWrite |= (byte)(currRead << (this.bitPos + lastRem));
+
+                                this.bitPos += bits;
+                            }
+                            else
+                            {
+                                var currWrite = this.buffer[this.currentVarIndex];
+                                var currRead = buffer[mainOffset];
+                                currRead = (byte)((currRead >> remOffset) & ((1 << bits) - 1));
+                                this.buffer[this.currentVarIndex] = (byte)(currWrite | (currRead << this.bitPos));
+                            }
+
+                            this.bitPos += bits;
+                        }
+                        else
+                        {
+                            var lastRem = 8 - remOffset;
+                            if (lastRem < lastBits)
+                            {
+                                var currWrite = this.buffer[this.currentVarIndex];
+                                var currRead = buffer[mainOffset];
+                                currWrite |= (byte)((currRead >> remOffset) << this.bitPos);
+                                ++mainOffset;
+                                currRead = buffer[mainOffset];
+                                currWrite |= (byte)((currRead & ((1 << (lastBits - lastRem)) - 1)) << (this.bitPos + lastRem));
+                                this.buffer[this.currentVarIndex] = currWrite;
+                                remOffset = lastBits - lastRem;
+                            }
+                            else
+                            {
+                                var currWrite = this.buffer[this.currentVarIndex];
+                                var currRead = buffer[mainOffset];
+                                currRead = (byte)((currRead >> remOffset) & ((1 << lastBits) - 1));
+                                currWrite |= (byte)(currRead << this.bitPos);
+                                this.buffer[this.currentVarIndex] = currWrite;
+                                remOffset += lastBits;
+                            }
+
+                            var newbits = bits - lastBits;
+                            var mainLen = newbits >> 3;
+                            var mainRem = newbits & 7;
+                            ++this.currentVarIndex;
+                            this.WriteAlignedReadUnaligned(
+                                buffer,
+                                mainOffset,
+                                remOffset,
+                                mainLen);
+
+                            if (mainRem > 0)
+                            {
+                                ++this.currentVarIndex;
+                                this.buffer[0] = (byte)(((buffer[mainLen] >> lastBits) & ((1 << mainRem) - 1)));
+                                lastRem = mainRem + remOffset;
+                                if (lastRem > 8)
+                                {
+                                    lastRem -= 8;
+                                    ++mainLen;
+                                    var write = this.buffer[0];
+                                    var read = buffer[mainLen];
+                                    write |= (byte)((read & ((1 << lastRem) - 1)) << (mainRem - lastRem));
+                                    this.buffer[0] = write;
+                                }
+
+                                this.bitPos = mainRem;
+                            }
+                            else
+                            {
+                                this.bitPos = 8;
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -869,13 +1055,126 @@ namespace Utilities
             {
                 throw new ObjectDisposedException("BitWriter");
             }
-            else if (this.bitPos == 0)
+            else
+            {
+                this.InnerFlush();
+            }
+        }
+
+        /// <summary>
+        /// Envia a parte escrita do contentor para o fluxo, incluindo os últimos
+        /// bits e anexando zeros para completar um byte.
+        /// </summary>
+        public void ForceFlush()
+        {
+            if (this.disposed)
+            {
+                throw new ObjectDisposedException("BitWriter");
+            }
+            else
             {
                 this.stream.Write(
                     this.buffer,
                     0,
                     this.currentVarIndex + 1);
-                this.currentVarIndex = 0;
+                this.bitPos = 8;
+                this.currentVarIndex = -1;
+            }
+        }
+
+        /// <summary>
+        /// Liberta os recursos associados ao escritor.
+        /// </summary>
+        public void Dispose()
+        {
+            this.InnerFlush();
+            this.stream = null;
+            this.disposed = true;
+        }
+
+        /// <summary>
+        /// Escreve os bits quando estes se encontram alinhados.
+        /// </summary>
+        /// <param name="buffer">O contentor dos bits a serem escritos.</param>
+        /// <param name="offset">O índice a partir do qual os bits serão escritos.</param>
+        /// <param name="length">O comprimento em bytes a ser escrito.</param>
+        private void WriteAllAligned(
+            byte[] buffer,
+            int offset,
+            int length)
+        {
+            if (this.currentVarIndex > 0)
+            {
+                this.stream.Write(
+                    this.buffer,
+                    0,
+                    this.currentVarIndex);
+            }
+
+            if (length > 0)
+            {
+                this.stream.Write(
+                    buffer,
+                    offset,
+                    length);
+            }
+
+            this.currentVarIndex = -1;
+        }
+
+        /// <summary>
+        /// Escreve os bits quando a escrita se encontra alinhada.
+        /// </summary>
+        /// <param name="buffer">O contentor dos bits a serem escritos.</param>
+        /// <param name="mainOffset">O desvio em bytes principal.</param>
+        /// <param name="remOffset">O resto do desvio em bits.</param>
+        /// <param name="mainLen">O comprimento em bytes a ser escrito.</param>
+        private void WriteAlignedReadUnaligned(
+            byte[] buffer,
+            int mainOffset,
+            int remOffset,
+            int mainLen)
+        {
+            if (this.currentVarIndex > 0)
+            {
+                this.stream.Write(
+                    this.buffer,
+                    0,
+                    this.currentVarIndex);
+            }
+
+            this.currentVarIndex = -1;
+
+            if (mainLen > 0)
+            {
+                var prev = buffer[mainOffset];
+                var i = mainOffset + 1;
+                while (i < mainLen)
+                {
+                    var curr = buffer[i];
+                    var write = (byte)((prev >> remOffset) | (curr << (8 - remOffset)));
+                    this.stream.WriteByte(write);
+                    prev = curr;
+                    ++i;
+                }
+
+                var writeOut = (byte)((prev >> remOffset) | (buffer[i] << (8 - remOffset)));
+                this.stream.WriteByte(writeOut);
+            }
+        }
+
+        /// <summary>
+        /// Função interna para escrita do contentor para o fluxo.
+        /// </summary>
+        private void InnerFlush()
+        {
+            if (this.bitPos == 8)
+            {
+                this.stream.Write(
+                    this.buffer,
+                    0,
+                    this.currentVarIndex + 1);
+                this.currentVarIndex = -1;
             }
             else
             {
@@ -888,20 +1187,6 @@ namespace Utilities
             }
 
             this.stream.Flush();
-        }
-
-        /// <summary>
-        /// Liberta os recursos associados ao escritor.
-        /// </summary>
-        public void Dispose()
-        {
-            this.stream.Write(
-                    this.buffer,
-                    0,
-                    this.currentVarIndex + 1);
-            this.stream.Flush();
-            this.stream = null;
-            this.disposed = true;
         }
     }
 }
