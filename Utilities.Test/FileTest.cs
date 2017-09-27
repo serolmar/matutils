@@ -1269,6 +1269,185 @@ namespace Utilities.Test
             }
         }
     }
+    
+        /// <summary>
+    /// Testa a escrita de bits.
+    /// </summary>
+    [TestClass]
+    public class BitWriterTest
+    {
+        /// <summary>
+        /// Testa a leitura de bits individuais.
+        /// </summary>
+        [Description("Testa a escrita de bits.")]
+        [TestMethod]
+        public void BitWriter_WriteBitTest()
+        {
+            var initialBuffer = new byte[]{
+                0x1A, 0x2B, 0x3C, 0x4D, 0x5E,
+                0x6F, 0x71, 0x82, 0x93, 0xAB,
+                0xCD, 0xEF, 0x12, 0x43, 0x54
+            };
+
+            var memoryBuffer = new byte[initialBuffer.Length];
+            var twister = new MTRand();
+            for (var i = 0; i < memoryBuffer.Length; ++i)
+            {
+                memoryBuffer[i] = (byte)twister.RandInt(255);
+            }
+
+            var len = initialBuffer.Length * 8;
+            var memoryStream = new MemoryStream(memoryBuffer);
+            var readStream = new MemoryStream(initialBuffer);
+            var target = new BitWriter(memoryStream);
+            var reader = new BitReader(readStream);
+            for (var i = 0; i < len; ++i)
+            {
+                var readed = reader.ReadBit();
+                Assert.AreNotEqual(-1, readed);
+
+                target.WriteBit((byte)readed);
+            }
+
+            target.Flush();
+            CollectionAssert.AreEqual(
+                (ICollection)initialBuffer,
+                (ICollection)memoryBuffer);
+        }
+
+        [Description("Testa a escrita de vários bits.")]
+        [TestMethod]
+        public void BitWriter_WriteBitsTest()
+        {
+            // Testa a escrita sequencial
+            var initialBuffer = new byte[]{
+                0x1A, 0x2B, 0x3C, 0x4D, 0x5E,
+                0x6F, 0x71, 0x82, 0x93, 0xAB,
+                0xCD, 0xEF, 0x12, 0x43, 0x54
+            };
+
+            var memoryBuffer = new byte[initialBuffer.Length];
+            var twister = new MTRand();
+            for (var i = 0; i < memoryBuffer.Length; ++i)
+            {
+                memoryBuffer[i] = (byte)twister.RandInt(255);
+            }
+
+            var memoryStream = new MemoryStream(memoryBuffer);
+            var readStream = new MemoryStream(initialBuffer);
+            var target = new BitWriter(memoryStream);
+            var reader = new BitReader(readStream);
+
+            var readBuffer = new byte[2];
+            for (var i = 0; i < 15; ++i)
+            {
+                reader.ReadBits(
+                    readBuffer,
+                    0,
+                    i + 1);
+                target.WriteBits(readBuffer, 0, i + 1);
+            }
+
+            target.Flush();
+            CollectionAssert.AreEqual(
+                (ICollection)initialBuffer,
+                (ICollection)memoryBuffer);
+
+            // Testa a escrita alinhada total
+            for (var i = 0; i < memoryBuffer.Length; ++i)
+            {
+                memoryBuffer[i] = (byte)twister.RandInt(255);
+            }
+
+            memoryStream.Seek(0, SeekOrigin.Begin);
+            target = new BitWriter(memoryStream);
+            target.WriteBits(
+                initialBuffer, 
+                0, 
+                initialBuffer.Length * 8);
+
+            target.Flush();
+            CollectionAssert.AreEqual(
+                (ICollection)initialBuffer,
+                (ICollection)memoryBuffer);
+
+            // Testa a escrita alinhada com resto
+            for (var i = 0; i < memoryBuffer.Length; ++i)
+            {
+                memoryBuffer[i] = (byte)twister.RandInt(255);
+            }
+
+            memoryStream.Seek(0, SeekOrigin.Begin);
+            target = new BitWriter(memoryStream);
+            target.WriteBits(
+                initialBuffer,
+                0,
+                initialBuffer.Length * 8 - 4);
+
+            target.ForceFlush();
+            var len = initialBuffer.Length;
+            for (var i = 0; i < len - 1; ++i)
+            {
+                Assert.AreEqual(initialBuffer[i], memoryBuffer[i]);
+            }
+
+            Assert.AreEqual(0x04, memoryBuffer[len - 1]);
+
+            // Testa a escrita alinhada com desvio e com resto.
+            for (var i = 0; i < memoryBuffer.Length; ++i)
+            {
+                memoryBuffer[i] = (byte)twister.RandInt(255);
+            }
+
+            memoryStream.Seek(0, SeekOrigin.Begin);
+            target = new BitWriter(memoryStream);
+            target.WriteBits(
+                initialBuffer,
+                4,
+                initialBuffer.Length * 8 - 4);
+            target.ForceFlush();
+
+            var expectedBuffer = new byte[]{
+                0xB1, 0xC2, 0xD3, 0xE4, 0xF5,
+                0x16, 0x27, 0x38, 0xB9, 0xDA,
+                0xFC, 0x2E, 0x31, 0x44, 0x05
+            };
+
+            for (var i = 0; i < len - 1; ++i)
+            {
+                Assert.AreEqual(expectedBuffer[i], memoryBuffer[i]);
+            }
+
+            // Testa a escrita alinhada com desvio e sem resto.
+            memoryStream.Seek(0, SeekOrigin.Begin);
+            target = new BitWriter(memoryStream);
+            target.WriteBits(
+                initialBuffer,
+                4,
+                (len - 1) * 8);
+            target.ForceFlush();
+
+            expectedBuffer[expectedBuffer.Length - 1] = 0x04;
+            for (var i = 0; i < len - 1; ++i)
+            {
+                Assert.AreEqual(expectedBuffer[i], memoryBuffer[i]);
+            }
+
+            // Testa a escrita não alinhada
+            memoryStream.Seek(0, SeekOrigin.Begin);
+            target = new BitWriter(memoryStream);
+            target.WriteBits(new byte[] { 0xA }, 0, 4);
+            target.WriteBits(
+                initialBuffer,
+                4,
+                initialBuffer.Length * 8 - 4);
+            target.Flush();
+
+            CollectionAssert.AreEqual(
+                (ICollection)initialBuffer,
+                (ICollection)memoryBuffer);
+        }
+    }
 
     /// <summary>
     /// Representa um valor qualquer.
