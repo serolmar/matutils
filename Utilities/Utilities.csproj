@@ -142,6 +142,7 @@
     <Compile Include="LogStatus.cs" />
     <Compile Include="Parsers\SimpleParsers.cs" />
     <Compile Include="Parsers\SymbolReaders.cs" />
+    <Compile Include="PrimesGenerators.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RandomGenerators.cs" />
     <Compile Include="Data\Implementations\Files\ReaderWriter.cs" />
