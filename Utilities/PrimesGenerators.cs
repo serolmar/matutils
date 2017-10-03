@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
 // <copyright file="PrimesGenerators.cs" company="Sérgio O. Marques">
 // Ver licença do projecto.
 // </copyright>
@@ -23,7 +23,7 @@ namespace Utilities
         private bool[] items;
 
         /// <summary>
-        /// Apontador para o primeiro primo não filtrado.
+        /// Apontador para o primeiro número não filtrado.
         /// </summary>
         private int notSievedPointer;
 
@@ -36,6 +36,11 @@ namespace Utilities
         /// Apontador para o último número primo retornado.
         /// </summary>
         private int lastPrimePointer;
+
+        /// <summary>
+        /// O valor do incremento.
+        /// </summary>
+        private int increment;
 
         /// <summary>
         /// Instancia uma nova instância de objectos do tipo <see cref="PrimeSieveGenerator"/>.
@@ -61,71 +66,69 @@ namespace Utilities
         public int GetNextPrime()
         {
             var len = this.items.Length;
-            ++this.lastPrimePointer;
-            while (this.lastPrimePointer < this.items.Length &&
-                !this.items[this.lastPrimePointer])
+            while (this.lastPrimePointer < len &&
+                this.items[this.lastPrimePointer])
             {
-                ++this.lastPrimePointer;
+                this.lastPrimePointer += increment;
             }
 
-            if (this.lastPrimePointer == len)
+            if (this.lastPrimePointer >= len)
             {
                 return 0;
             }
             else
             {
-                var increment = 1;
-                if (this.notSievedPointer > 0)
-                {
-                    increment = 2;
-                }
-
                 var lastPseudoPrime = this.lastPrimePointer + 2;
                 if (lastPseudoPrime == this.notSievedPrimeSquared)
                 {
-                    // O encontrou o próximo número composto
+                    // Encontrou o próximo número composto
                     var prime = this.notSievedPointer + 2;
-                    if (increment == 1)
+                    if (this.increment == 1)
                     {
                         for (var i = this.lastPrimePointer; i < len; i += prime)
                         {
-                            this.items[i] = false;
+                            this.items[i] = true;
                         }
                     }
                     else
                     {
-                        for (var i = this.lastPrimePointer; i < len; i += (prime << 1))
+                        prime <<= 1;
+                        for (var i = this.lastPrimePointer; i < len; i += prime)
                         {
-                            this.items[i] = false;
+                            this.items[i] = true;
                         }
                     }
 
-                    this.notSievedPointer += increment;
-                    while (!this.items[this.notSievedPointer])
+                    this.notSievedPointer += this.increment;
+                    while (this.items[this.notSievedPointer])
                     {
-                        this.notSievedPointer += increment;
+                        this.notSievedPointer += this.increment;
                     }
 
                     this.notSievedPrimeSquared = (this.notSievedPointer + 2) * (this.notSievedPointer + 2);
 
-                    this.lastPrimePointer += increment;
-                    while (this.lastPrimePointer < this.items.Length &&
-                        !this.items[this.lastPrimePointer])
+                    this.lastPrimePointer += this.increment;
+                    while (this.lastPrimePointer < len &&
+                        this.items[this.lastPrimePointer])
                     {
-                        this.lastPrimePointer += increment;
+                        this.lastPrimePointer += this.increment;
                     }
 
+                    this.increment = 2;
                     if (this.lastPrimePointer == len)
                     {
-                        return -1;
+                        return 0;
                     }
                     else
                     {
-                        return this.lastPrimePointer + 2;
+                        var result = this.lastPrimePointer + 2;
+                        this.lastPrimePointer += this.increment;
+                        return result;
                     }
                 }
                 else
                 {
+                    this.lastPrimePointer += this.increment;
                     return lastPseudoPrime;
                 }
             }
@@ -145,13 +148,182 @@ namespace Utilities
             {
                 var innerMax = max - 2;
                 this.items = new bool[innerMax];
-                for (var i = 0; i < innerMax; ++i)
+                this.increment = 1;
+                this.notSievedPointer = 0;
+                this.notSievedPrimeSquared = 4;
+                this.lastPrimePointer = 0;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Utiliza o crivo para gerar números primos.
+    /// </summary>
+    /// <remarks>Implementação elementar com contentor binário.</remarks>
+    public class PrimeSieveGenBinContainer
+    {
+        /// <summary>
+        /// Mantém os itens a serem analisados.
+        /// </summary>
+        private ulong[] items;
+
+        /// <summary>
+        /// O número máximo a ser considerado.
+        /// </summary>
+        private ulong max;
+
+        /// <summary>
+        /// Apontador para o primeiro número não filtrado.
+        /// </summary>
+        private ulong notSievedPointer;
+
+        /// <summary>
+        /// O quadrado do número não filtrado.
+        /// </summary>
+        private ulong notSievedPrimeSquared;
+
+        /// <summary>
+        /// O último número primo retornado.
+        /// </summary>
+        private ulong lastPrimePointer;
+
+        /// <summary>
+        /// Mantém o valor do incremento.
+        /// </summary>
+        private int increment;
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="PrimeSieveGenerator"/>.
+        /// </summary>
+        public PrimeSieveGenBinContainer()
+        {
+            this.Initialize(100UL);
+        }
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="PrimeSieveGenerator"/>.
+        /// </summary>
+        /// <param name="max">O número primo máximo.</param>
+        public PrimeSieveGenBinContainer(ulong max)
+        {
+            this.Initialize(max);
+        }
+
+        /// <summary>
+        /// Obtém o próximo número primo.
+        /// </summary>
+        /// <returns>O número primo.</returns>
+        public ulong GetNextPrime()
+        {
+            var mainPointer = this.lastPrimePointer >> 6;
+            var remPointer = (int)(this.lastPrimePointer & 0x3F);
+            while (this.lastPrimePointer < this.max &&
+                (this.items[mainPointer] & (1UL << remPointer)) != 0)
+            {
+                this.lastPrimePointer += (ulong)this.increment;
+                mainPointer = this.lastPrimePointer >> 6;
+                remPointer = (int)(this.lastPrimePointer & 0x3F);
+            }
+
+            if (this.lastPrimePointer >= this.max)
+            {
+                return 0;
+            }
+            else
+            {
+                var lastPseudoPrime = this.lastPrimePointer + 2;
+                if (lastPseudoPrime == this.notSievedPrimeSquared)
                 {
-                    this.items[i] = true;
+                    // Encontrou o próximo número composto
+                    var prime = this.notSievedPointer + 2;
+                    if (this.increment == 1)
+                    {
+                        for (var i = this.lastPrimePointer; i < this.max; i += prime)
+                        {
+                            mainPointer = i >> 6;
+                            remPointer = (int)(i & 0x3F);
+                            this.items[mainPointer] |= (1UL << remPointer);
+                        }
+                    }
+                    else
+                    {
+                        prime <<= 1;
+                        for (var i = this.lastPrimePointer; i < this.max; i += prime)
+                        {
+                            mainPointer = i >> 6;
+                            remPointer = (int)(i & 0x3F);
+                            this.items[mainPointer] |= (1UL << remPointer);
+                        }
+                    }
+
+                    this.notSievedPointer += (ulong)this.increment;
+                    mainPointer = this.notSievedPointer >> 6;
+                    remPointer = (int)(this.notSievedPointer & 0x3F);
+                    while ((this.items[mainPointer] & (1UL << remPointer)) != 0)
+                    {
+                        this.notSievedPointer += (ulong)this.increment;
+                        mainPointer = this.notSievedPointer >> 6;
+                        remPointer = (int)(this.notSievedPointer & 0x3F);
+                    }
+
+                    this.notSievedPrimeSquared = (this.notSievedPointer + 2) * (this.notSievedPointer + 2);
+
+                    this.lastPrimePointer += (ulong)this.increment;
+                    mainPointer = this.lastPrimePointer >> 6;
+                    remPointer = (int)(this.lastPrimePointer & 0x3F);
+                    while (this.lastPrimePointer < this.max &&
+                        (this.items[mainPointer] & (1UL << remPointer)) != 0)
+                    {
+                        this.lastPrimePointer += (ulong)this.increment;
+                        mainPointer = this.lastPrimePointer >> 6;
+                        remPointer = (int)(this.lastPrimePointer & 0x3F);
+                    }
+
+                    this.increment = 2;
+                    if (this.lastPrimePointer == this.max)
+                    {
+                        return 0;
+                    }
+                    else
+                    {
+                        var result = this.lastPrimePointer + 2;
+                        this.lastPrimePointer += (ulong)this.increment;
+                        return result;
+                    }
+                }
+                else
+                {
+                    this.lastPrimePointer += (ulong)this.increment;
+                    return lastPseudoPrime;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Inicializa o crivo.
+        /// </summary>
+        /// <param name="max">O número primo máximo.</param>
+        private void Initialize(ulong max)
+        {
+            if (max < 2)
+            {
+                throw new ArgumentException("There is no prime number less than two.");
+            }
+            else
+            {
+                var innerMax = (ulong)((max - 2) >> 6);
+                var rem = (int)((max - 2) & 0x3F);
+                if (rem != 0)
+                {
+                    ++innerMax;
                 }
 
-                this.notSievedPrimeSquared = 4;
-                this.lastPrimePointer = -1;
+                this.max = max - 2;
+                this.items = new ulong[innerMax];
+                this.notSievedPointer = 0UL;
+                this.notSievedPrimeSquared = 4UL;
+                this.lastPrimePointer = 0UL;
+                this.increment = 1;
             }
         }
     }
@@ -160,6 +332,338 @@ namespace Utilities
     /// Crivo para gerar números primos que elimina compostos ímpares.
     /// </summary>
     public class CompositePrimeSieveGenerator
+    {
+        /// <summary>
+        /// Mantém os itens a serem analisados.
+        /// </summary>
+        private bool[] items;
+
+        /// <summary>
+        /// Indica que o pedido é relativo ao primeiro primo.
+        /// </summary>
+        private bool firstPrime;
+
+        /// <summary>
+        /// A variação horizontal.
+        /// </summary>
+        private int horizontalDelta;
+
+        /// <summary>
+        /// Apontador para o primeiro número não filtrado.
+        /// </summary>
+        private int notSievedPointer;
+
+        /// <summary>
+        /// O valor da sequência relativa ao número não filtrado.
+        /// </summary>
+        private int notSievedPrimeSeq;
+
+        /// <summary>
+        /// Apontador para o último número primo retornado.
+        /// </summary>
+        private int lastPrimePointer;
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="PrimeSieveGenerator"/>.
+        /// </summary>
+        public CompositePrimeSieveGenerator()
+        {
+            this.Initialize(100);
+        }
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="PrimeSieveGenerator"/>.
+        /// </summary>
+        /// <param name="max">O número primo máximo.</param>
+        public CompositePrimeSieveGenerator(int max)
+        {
+            this.Initialize(max);
+        }
+
+        /// <summary>
+        /// Obtém o próximo número primo.
+        /// </summary>
+        /// <returns>O número primo.</returns>
+        public int GetNextPrime()
+        {
+            if (this.firstPrime)
+            {
+                this.firstPrime = false;
+                return 2;
+            }
+            else
+            {
+                var len = this.items.Length;
+                while (this.lastPrimePointer < len &&
+                    this.items[this.lastPrimePointer])
+                {
+                    ++this.lastPrimePointer;
+                }
+
+                if (this.lastPrimePointer >= len)
+                {
+                    return 0;
+                }
+                else
+                {
+                    if (this.lastPrimePointer == this.notSievedPrimeSeq)
+                    {
+                        // Encontrou o próximo número composto
+                        for (var i = this.lastPrimePointer; i < len; i += this.horizontalDelta)
+                        {
+                            this.items[i] = true;
+                        }
+
+                        ++this.notSievedPointer;
+                        this.horizontalDelta += 2;
+                        while (this.items[this.notSievedPointer])
+                        {
+                            ++this.notSievedPointer;
+                            this.horizontalDelta += 2;
+                        }
+
+                        this.notSievedPrimeSeq = 6 * this.notSievedPointer +
+                            ((this.notSievedPointer * this.notSievedPointer) << 1) + 3;
+
+                        ++this.lastPrimePointer;
+                        while (this.lastPrimePointer < len &&
+                            this.items[this.lastPrimePointer])
+                        {
+                            ++this.lastPrimePointer;
+                        }
+
+                        if (this.lastPrimePointer == len)
+                        {
+                            return 0;
+                        }
+                        else
+                        {
+                            var result = (this.lastPrimePointer << 1) + 3;
+                            ++this.lastPrimePointer;
+                            return result;
+                        }
+                    }
+                    else
+                    {
+                        var result = (this.lastPrimePointer << 1) + 3;
+                        ++this.lastPrimePointer;
+                        return result;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Inicializa o crivo.
+        /// </summary>
+        /// <param name="max">O número primo máximo.</param>
+        private void Initialize(int max)
+        {
+            if (max < 2)
+            {
+                throw new ArgumentException("There is no prime number less than two.");
+            }
+            else
+            {
+                var innerMax = (max - 1) >> 1;
+                this.items = new bool[innerMax];
+
+                this.firstPrime = true;
+                this.notSievedPointer = 0;
+                this.notSievedPrimeSeq = 3;
+                this.lastPrimePointer = 0;
+                this.horizontalDelta = 3;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Crivo para gerar números primos que elimina compostos ímpares.
+    /// </summary>
+    public class CompPrimeSieveGenBinaryContainer
+    {
+        /// <summary>
+        /// Mantém os itens a serem analisados.
+        /// </summary>
+        private ulong[] items;
+
+        /// <summary>
+        /// Indica que o pedido é relativo ao primeiro primo.
+        /// </summary>
+        private bool firstPrime;
+
+        /// <summary>
+        /// A variação horizontal.
+        /// </summary>
+        private ulong horizontalDelta;
+
+        /// <summary>
+        /// Apontador para o primeiro número não filtrado.
+        /// </summary>
+        private ulong notSievedPointer;
+
+        /// <summary>
+        /// O valor da sequência relativa ao número não filtrado.
+        /// </summary>
+        private ulong notSievedPrimeSeq;
+
+        /// <summary>
+        /// Apontador para o último número primo retornado.
+        /// </summary>
+        private ulong lastPrimePointer;
+
+        /// <summary>
+        /// O valor máximo.
+        /// </summary>
+        private ulong max;
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="PrimeSieveGenerator"/>.
+        /// </summary>
+        public CompPrimeSieveGenBinaryContainer()
+        {
+            this.Initialize(100);
+        }
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="PrimeSieveGenerator"/>.
+        /// </summary>
+        /// <param name="max">O número primo máximo.</param>
+        public CompPrimeSieveGenBinaryContainer(ulong max)
+        {
+            this.Initialize(max);
+        }
+
+        /// <summary>
+        /// Obtém o próximo número primo.
+        /// </summary>
+        /// <returns>O número primo.</returns>
+        public ulong GetNextPrime()
+        {
+            if (this.firstPrime)
+            {
+                this.firstPrime = false;
+                return 2;
+            }
+            else
+            {
+                var mainPointer = this.lastPrimePointer >> 6;
+                var remPointer = (int)(this.lastPrimePointer & 0x3F);
+                while (this.lastPrimePointer < this.max &&
+                (this.items[mainPointer] & (1UL << remPointer)) != 0)
+                {
+                    ++this.lastPrimePointer;
+                    mainPointer = this.lastPrimePointer >> 6;
+                    remPointer = (int)(this.lastPrimePointer & 0x3F);
+                }
+
+                if (this.lastPrimePointer >= this.max)
+                {
+                    return 0;
+                }
+                else
+                {
+                    if (this.lastPrimePointer == this.notSievedPrimeSeq)
+                    {
+                        // Encontrou o próximo número composto
+                        for (var i = this.lastPrimePointer; i < this.max; i += this.horizontalDelta)
+                        {
+                            mainPointer = i >> 6;
+                            remPointer = (int)(i & 0x3F);
+                            this.items[mainPointer] |= (1UL << remPointer);
+                        }
+
+                        ++this.notSievedPointer;
+                        mainPointer = this.notSievedPointer >> 6;
+                        remPointer = (int)(this.notSievedPointer & 0x3F);
+
+                        this.horizontalDelta += 2;
+                        while ((this.items[mainPointer] & (1UL << remPointer)) != 0)
+                        {
+                            ++this.notSievedPointer;
+                            ++remPointer;
+                            if (remPointer == 64)
+                            {
+                                ++mainPointer;
+                                remPointer = 0;
+                            }
+
+                            this.horizontalDelta += 2;
+                        }
+
+                        this.notSievedPrimeSeq = 6 * this.notSievedPointer +
+                            ((this.notSievedPointer * this.notSievedPointer) << 1) + 3;
+
+                        ++this.lastPrimePointer;
+                        mainPointer = this.lastPrimePointer >> 6;
+                        remPointer = (int)(this.lastPrimePointer & 0x3F);
+                        while (this.lastPrimePointer < this.max &&
+                        (this.items[mainPointer] & (1UL << remPointer)) != 0)
+                        {
+                            ++this.lastPrimePointer;
+                            mainPointer = this.lastPrimePointer >> 6;
+                            remPointer = (int)(this.lastPrimePointer & 0x3F);
+                        }
+
+                        if (this.lastPrimePointer == this.max)
+                        {
+                            return 0;
+                        }
+                        else
+                        {
+                            var result = (this.lastPrimePointer << 1) + 3;
+                            ++this.lastPrimePointer;
+                            return result;
+                        }
+                    }
+                    else
+                    {
+                        var result = (this.lastPrimePointer << 1) + 3;
+                        ++this.lastPrimePointer;
+                        return result;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Inicializa o crivo.
+        /// </summary>
+        /// <param name="max">O número primo máximo.</param>
+        private void Initialize(ulong max)
+        {
+            if (max < 2)
+            {
+                throw new ArgumentException("There is no prime number less than two.");
+            }
+            else
+            {
+                var innerMax = (max - 1) >> 1;
+                var main = innerMax >> 6;
+                var rem = innerMax & 0x3F;
+                if (rem != 0)
+                {
+                    ++main;
+                }
+
+                this.items = new ulong[main];
+
+                this.max = innerMax;
+                this.firstPrime = true;
+                this.notSievedPointer = 0;
+                this.notSievedPrimeSeq = 3;
+                this.lastPrimePointer = 0;
+                this.horizontalDelta = 3;
+            }
+        }
+    }
+
+    #region Código sem desempenho
+
+    /// <summary>
+    /// Crivo para gerar números primos que elimina compostos ímpares.
+    /// </summary>
+    public class CompositePrimeSieveGeneratorV1
     {
         /// <summary>
         /// Mantém os itens a serem analisados.
@@ -197,18 +701,18 @@ namespace Utilities
         private int verticalDelta;
 
         /// <summary>
-        /// Instancia uma nova instância de objectos do tipo <see cref="CompositePrimeSieveGenerator"/>.
+        /// Instancia uma nova instância de objectos do tipo <see cref="CompositePrimeSieveGeneratorV1"/>.
         /// </summary>
-        public CompositePrimeSieveGenerator()
+        public CompositePrimeSieveGeneratorV1()
         {
             this.Initialize(100);
         }
 
         /// <summary>
-        /// Instancia uma nova instância de objectos do tipo <see cref="CompositePrimeSieveGenerator"/>.
+        /// Instancia uma nova instância de objectos do tipo <see cref="CompositePrimeSieveGeneratorV1"/>.
         /// </summary>
         /// <param name="max">O limite máximo.</param>
-        public CompositePrimeSieveGenerator(int max)
+        public CompositePrimeSieveGeneratorV1(int max)
         {
             this.Initialize(max);
         }
@@ -232,7 +736,7 @@ namespace Utilities
                     ++this.primeIndex;
                     if (!this.items[result])
                     {
-                        return (result << 1) +3;
+                        return (result << 1) + 3;
                     }
                 }
 
@@ -391,4 +895,6 @@ namespace Utilities
             }
         }
     }
+
+    #endregion Código sem desempenho
 }
