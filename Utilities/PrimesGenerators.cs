@@ -25,22 +25,22 @@ namespace Utilities
         /// <summary>
         /// Apontador para o primeiro número não filtrado.
         /// </summary>
-        private int notSievedPointer;
+        private uint notSievedPointer;
 
         /// <summary>
         /// O quadrado do número não filtrado.
         /// </summary>
-        private int notSievedPrimeSquared;
+        private uint notSievedPrimeSquared;
 
         /// <summary>
         /// Apontador para o último número primo retornado.
         /// </summary>
-        private int lastPrimePointer;
+        private uint lastPrimePointer;
 
         /// <summary>
         /// O valor do incremento.
         /// </summary>
-        private int increment;
+        private uint increment;
 
         /// <summary>
         /// Instancia uma nova instância de objectos do tipo <see cref="PrimeSieveGenerator"/>.
@@ -54,7 +54,7 @@ namespace Utilities
         /// Instancia uma nova instância de objectos do tipo <see cref="PrimeSieveGenerator"/>.
         /// </summary>
         /// <param name="max">O número primo máximo.</param>
-        public PrimeSieveGenerator(int max)
+        public PrimeSieveGenerator(uint max)
         {
             this.Initialize(max);
         }
@@ -63,7 +63,7 @@ namespace Utilities
         /// Obtém o próximo número primo.
         /// </summary>
         /// <returns>O número primo.</returns>
-        public int GetNextPrime()
+        public uint GetNextPrime()
         {
             var len = this.items.Length;
             while (this.lastPrimePointer < len &&
@@ -138,7 +138,7 @@ namespace Utilities
         /// Inicializa o crivo.
         /// </summary>
         /// <param name="max">O número primo máximo.</param>
-        private void Initialize(int max)
+        private void Initialize(uint max)
         {
             if (max < 2)
             {
@@ -346,22 +346,22 @@ namespace Utilities
         /// <summary>
         /// A variação horizontal.
         /// </summary>
-        private int horizontalDelta;
+        private uint horizontalDelta;
 
         /// <summary>
         /// Apontador para o primeiro número não filtrado.
         /// </summary>
-        private int notSievedPointer;
+        private uint notSievedPointer;
 
         /// <summary>
         /// O valor da sequência relativa ao número não filtrado.
         /// </summary>
-        private int notSievedPrimeSeq;
+        private uint notSievedPrimeSeq;
 
         /// <summary>
         /// Apontador para o último número primo retornado.
         /// </summary>
-        private int lastPrimePointer;
+        private uint lastPrimePointer;
 
         /// <summary>
         /// Instancia uma nova instância de objectos do tipo <see cref="PrimeSieveGenerator"/>.
@@ -375,7 +375,7 @@ namespace Utilities
         /// Instancia uma nova instância de objectos do tipo <see cref="PrimeSieveGenerator"/>.
         /// </summary>
         /// <param name="max">O número primo máximo.</param>
-        public CompositePrimeSieveGenerator(int max)
+        public CompositePrimeSieveGenerator(uint max)
         {
             this.Initialize(max);
         }
@@ -384,7 +384,7 @@ namespace Utilities
         /// Obtém o próximo número primo.
         /// </summary>
         /// <returns>O número primo.</returns>
-        public int GetNextPrime()
+        public uint GetNextPrime()
         {
             if (this.firstPrime)
             {
@@ -457,7 +457,7 @@ namespace Utilities
         /// Inicializa o crivo.
         /// </summary>
         /// <param name="max">O número primo máximo.</param>
-        private void Initialize(int max)
+        private void Initialize(uint max)
         {
             if (max < 2)
             {
@@ -654,6 +654,270 @@ namespace Utilities
                 this.notSievedPrimeSeq = 3;
                 this.lastPrimePointer = 0;
                 this.horizontalDelta = 3;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Implementa um gerador de primos incremental.
+    /// </summary>
+    /// <remarks>
+    /// O algoritmo não estabelece um limite para os números primos gerados.
+    /// </remarks>
+    public class IncPrimeSieveGenerator
+    {
+        /// <summary>
+        /// O número actual.
+        /// </summary>
+        private int primePointer;
+
+        /// <summary>
+        /// O número actual a ser processado.
+        /// </summary>
+        private ulong currentNumb;
+
+        /// <summary>
+        /// O mapeamento de factores.
+        /// </summary>
+        private IDictionary<ulong, ulong> factorMap;
+
+        /// <summary>
+        /// Os números primos encontrados.
+        /// </summary>
+        private InsertionSortedCollection<ulong> foundPrimes;
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="IncPrimeSieveGenerator"/>.
+        /// </summary>
+        public IncPrimeSieveGenerator()
+        {
+            this.Initialize(() => new Dictionary<ulong, ulong>());
+        }
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="IncPrimeSieveGenerator"/>.
+        /// </summary>
+        /// <param name="lambda">
+        /// A expressão responsável pela criação do mapeamento de factores.
+        /// </param>
+        public IncPrimeSieveGenerator(
+            Func<IDictionary<ulong, ulong>> lambda)
+        {
+            if (lambda == null)
+            {
+                throw new ArgumentNullException("lamdba");
+            }
+            else
+            {
+                this.Initialize(lambda);
+            }
+        }
+
+        /// <summary>
+        /// Obtém o próximo número primo.
+        /// </summary>
+        /// <returns>O número primo.</returns>
+        public ulong GetNextPrime()
+        {
+            var state = true;
+            while (state)
+            {
+                ++this.currentNumb;
+                if (this.currentNumb == 2)
+                {
+                    this.factorMap.Add(this.currentNumb, 2UL);
+                    this.foundPrimes.Add(2UL);
+                    state = false;
+                }
+                else if ((this.currentNumb & 1) == 0)
+                {
+                    this.factorMap.Add(this.currentNumb, 2UL);
+                    var f = this.currentNumb >> 1;
+                    if (f > 2)
+                    {
+                        // O próximo número primo é 3
+                        if (this.factorMap[f] > 2)
+                        {
+                            this.factorMap.Add(3 * f, 3);
+                        }
+                    }
+                }
+                else
+                {
+                    var factor = 0UL;
+                    if (this.factorMap.TryGetValue(this.currentNumb, out factor))
+                    {
+                        var index = this.foundPrimes.IndexOf(factor);
+                        var f = this.currentNumb / factor;
+                        ++index;
+                        var r = this.foundPrimes[index];
+                        if (factor < this.factorMap[f])
+                        {
+                            this.factorMap.Add(r * f, r);
+                        }
+                    }
+                    else
+                    {
+                        this.factorMap.Add(this.currentNumb, this.currentNumb);
+                        this.foundPrimes.Add(this.currentNumb);
+                        state = false;
+                    }
+                }
+            }
+
+            var prime = this.foundPrimes[this.primePointer];
+            ++this.primePointer;
+            return prime;
+        }
+
+        /// <summary>
+        /// Inicializa o estado actual.
+        /// </summary>
+        /// <param name="lambda">
+        /// A expressão responsável pela criação do mapeamento de factores.
+        /// </param>
+        private void Initialize(
+            Func<IDictionary<ulong, ulong>> lambda)
+        {
+            this.primePointer = 0;
+            this.currentNumb = 1UL;
+            this.factorMap = lambda.Invoke();
+            this.foundPrimes = new InsertionSortedCollection<ulong>(
+                Comparer<ulong>.Default);
+        }
+    }
+
+    /// <summary>
+    /// Implementa um crivo de primos linear.
+    /// </summary>
+    /// <remarks>
+    /// O crivo linear permite filtrar os números compostos
+    /// apenas uma vez.
+    /// </remarks>
+    public class LinearPrimveSieveGenerator
+    {
+        /// <summary>
+        /// Mantém os itens a serem analisados.
+        /// </summary>
+        private bool[] items;
+
+        /// <summary>
+        /// Mantém o número corrente em análise.
+        /// </summary>
+        private uint current;
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="LinearPrimveSieveGenerator"/>
+        /// </summary>
+        public LinearPrimveSieveGenerator()
+        {
+            this.Initialize(100);
+        }
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="LinearPrimveSieveGenerator"/>
+        /// </summary>
+        /// <param name="max">O número máximo.</param>
+        public LinearPrimveSieveGenerator(uint max)
+        {
+            this.Initialize(max);
+        }
+
+        /// <summary>
+        /// Obtém o próximo número primo.
+        /// </summary>
+        /// <returns>O número primo.</returns>
+        /// <remarks>TODO: completar a implementação.</remarks>
+        private uint GetNextPrime()
+        {
+            var len = this.items.Length;
+            var result = 0U;
+            var state = true;
+            while (state)
+            {
+                if (this.current == len)
+                {
+                    state = false;
+                }
+                else if (!this.items[this.current])
+                {
+                    // O número é primo
+                    if (this.current == 0)
+                    {
+                        this.items[2] = true;
+                    }
+                    else if (this.current == 1)
+                    {
+                        this.items[4] = true;
+                        this.items[7] = true;
+                    }
+                    else
+                    {
+                        var p = this.current + 2;
+                        var incP = p;
+                        p += incP;
+                        if (p < len)
+                        {
+                            this.items[p] = true;
+                            p += incP;
+                            if (p < len)
+                            {
+                                this.items[p] = true;
+                                incP <<= 1;
+                                var pointer = 3U;
+                                p += incP;
+                                while (pointer < this.current)
+                                {
+                                    if (incP < len)
+                                    {
+                                        if (!this.items[pointer])
+                                        {
+                                            this.items[incP] = true;
+                                        }
+
+                                        pointer += 2;
+                                    }
+                                    else
+                                    {
+                                        // Termina o ciclo
+                                        pointer = this.current;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    result = this.current + 2;
+                    ++this.current;
+                    state = false;
+                }
+                else
+                {
+                    // O número é composto
+
+
+                    ++this.current;
+                }
+            }
+
+            throw new NotImplementedException();
+            //return result;
+        }
+
+        /// <summary>
+        /// Inicializa o estado do gerador.
+        /// </summary>
+        /// <param name="max">O limite para os números primos.</param>
+        private void Initialize(uint max)
+        {
+            if (max < 2)
+            {
+                throw new ArgumentException("There is no prime number less than two.");
+            }
+            else
+            {
+                this.items = new bool[max - 1];
+                this.current = 0;
             }
         }
     }
