@@ -794,7 +794,7 @@ namespace Utilities
     /// O crivo linear permite filtrar os números compostos
     /// apenas uma vez.
     /// </remarks>
-    public class LinearPrimveSieveGenerator
+    public class LinearPrimeSieveGenerator
     {
         /// <summary>
         /// Mantém os itens a serem analisados.
@@ -807,18 +807,18 @@ namespace Utilities
         private uint current;
 
         /// <summary>
-        /// Instancia uma nova instância de objectos do tipo <see cref="LinearPrimveSieveGenerator"/>
+        /// Instancia uma nova instância de objectos do tipo <see cref="LinearPrimeSieveGenerator"/>
         /// </summary>
-        public LinearPrimveSieveGenerator()
+        public LinearPrimeSieveGenerator()
         {
             this.Initialize(100);
         }
 
         /// <summary>
-        /// Instancia uma nova instância de objectos do tipo <see cref="LinearPrimveSieveGenerator"/>
+        /// Instancia uma nova instância de objectos do tipo <see cref="LinearPrimeSieveGenerator"/>
         /// </summary>
         /// <param name="max">O número máximo.</param>
-        public LinearPrimveSieveGenerator(uint max)
+        public LinearPrimeSieveGenerator(uint max)
         {
             this.Initialize(max);
         }
@@ -828,7 +828,7 @@ namespace Utilities
         /// </summary>
         /// <returns>O número primo.</returns>
         /// <remarks>TODO: completar a implementação.</remarks>
-        private uint GetNextPrime()
+        public uint GetNextPrime()
         {
             var len = this.items.Length;
             var result = 0U;
@@ -853,8 +853,8 @@ namespace Utilities
                     }
                     else
                     {
-                        var p = this.current + 2;
-                        var incP = p;
+                        var p = this.current;
+                        var incP = p + 2;
                         p += incP;
                         if (p < len)
                         {
@@ -866,21 +866,22 @@ namespace Utilities
                                 incP <<= 1;
                                 var pointer = 3U;
                                 p += incP;
-                                while (pointer < this.current)
+                                while (pointer <= this.current)
                                 {
-                                    if (incP < len)
+                                    if (p < len)
                                     {
                                         if (!this.items[pointer])
                                         {
-                                            this.items[incP] = true;
+                                            this.items[p] = true;
                                         }
 
                                         pointer += 2;
+                                        p += incP;
                                     }
                                     else
                                     {
                                         // Termina o ciclo
-                                        pointer = this.current;
+                                        pointer = this.current + 1;
                                     }
                                 }
                             }
@@ -894,14 +895,53 @@ namespace Utilities
                 else
                 {
                     // O número é composto
+                    var p = this.current;
+                    var n = this.current + 2;
+                    var incP = n;
+                    p += incP;
+                    if (p < len)
+                    {
+                        this.items[p] = true;
+                        if ((n & 1) == 1)
+                        {
+                            p += incP;
+                            if (p < len)
+                            {
+                                incP <<= 1;
+                                this.items[p] = true;
 
+                                var status = n % 3;
+                                var pointer = 3U;
+                                while (status != 0)
+                                {
+                                    p += incP;
+                                    if (!this.items[pointer])
+                                    {
+                                        pointer += 2;
+                                        if (p < len)
+                                        {
+                                            this.items[p] = true;
+                                            status = n % pointer;
+                                        }
+                                        else
+                                        {
+                                            status = 0;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        pointer += 2;
+                                    }
+                                }
+                            }
+                        }
+                    }
 
                     ++this.current;
                 }
             }
 
-            throw new NotImplementedException();
-            //return result;
+            return result;
         }
 
         /// <summary>
