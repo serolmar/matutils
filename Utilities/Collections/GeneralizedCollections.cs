@@ -1093,8 +1093,8 @@ namespace Utilities
                 if (this.synchRoot == null)
                 {
                     System.Threading.Interlocked.CompareExchange<Object>(
-                        ref this.synchRoot, 
-                        new object(), 
+                        ref this.synchRoot,
+                        new object(),
                         null);
                 }
 
@@ -1201,11 +1201,11 @@ namespace Utilities
                 {
                     len <<= 1;
                 }
-
-                this.items[this.count] = item;
-                this.Heapify(0UL, this.count);
-                ++this.count;
             }
+
+            this.items[this.count] = item;
+            this.HeapifyAdd(0UL, this.count);
+            ++this.count;
         }
 
         /// <summary>
@@ -1227,8 +1227,15 @@ namespace Utilities
         /// <returns>Verdadeiro se o item se encontrar na lista e falso caso contrário.</returns>
         public bool Contains(T item)
         {
-            var index = Array.IndexOf(this.items, item, 0, (int)this.count);
-            return index != -1;
+            var index = 0UL;
+            if (this.TryFindValue(item, out index))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         /// <summary>
@@ -1251,15 +1258,15 @@ namespace Utilities
         /// <returns>Verdadeiro se a remoção for bem-sucedida e falso caso contrário.</returns>
         public bool Remove(T item)
         {
-            var index = Array.IndexOf(this.items, item, 0, (int)this.count);
-            if (index == -1)
+            var index = 0UL;
+            if (this.TryFindValue(item, out index))
             {
-                return false;
+                this.RemoveAt(index);
+                return true;
             }
             else
             {
-                this.RemoveAt((ulong)index);
-                return true;
+                return false;
             }
         }
 
@@ -1297,6 +1304,97 @@ namespace Utilities
         public void CopyTo(Array array, int index)
         {
             this.items.CopyTo(array, index);
+        }
+
+        /// <summary>
+        /// Coloca todos os itens na ordem pretendida, assumindo tratar-se
+        /// da adição de um novo item à lista.
+        /// </summary>
+        /// <param name="firstItem">
+        /// O primeiro item.
+        /// </param>
+        /// <param name="lastItem">
+        /// O último item.
+        /// </param>
+        private void HeapifyAdd(ulong firstItem, ulong lastItem)
+        {
+            if (this.count > 1UL)
+            {
+                var child = lastItem;
+                var childVal = this.items[child];
+                while (child > firstItem)
+                {
+                    var parent = this.Parent(child);
+                    var parentVal = this.items[parent];
+                    if (this.comparer.Compare(
+                        childVal,
+                        parentVal) < 0)
+                    {
+                        this.items[child] = parentVal;
+                        this.items[parent] = childVal;
+                        child = parent;
+                    }
+                    else
+                    {
+                        child = firstItem;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Coloca todos os itens na ordem pretendida, assumindo tratar-se
+        /// da remolçção de um item da lista.
+        /// </summary>
+        /// <param name="firstItem">
+        /// O primeiro item.
+        /// </param>
+        /// <param name="lastItem">
+        /// O último item.
+        /// </param>
+        private void SiftDown(ulong firstItem, ulong lastItem)
+        {
+            var root = firstItem;
+            var leftRootIndex = this.Left(root);
+            while (leftRootIndex <= lastItem)
+            {
+                var swap = root;
+                var swapValue = this.items[root];
+                var childValue = this.items[leftRootIndex];
+                if (comparer.Compare(
+                    childValue,
+                    swapValue
+                    ) < 0)
+                {
+                    swap = leftRootIndex;
+                }
+
+                ++leftRootIndex;
+                if (leftRootIndex <= lastItem)
+                {
+                    var temp = this.items[leftRootIndex];
+                    if (comparer.Compare(
+                        temp,
+                        childValue
+                        ) < 0)
+                    {
+                        swap = leftRootIndex;
+                        childValue = temp;
+                    }
+                }
+
+                if (swap == root)
+                {
+                    return;
+                }
+                else
+                {
+                    this.items[swap] = swapValue;
+                    this.items[root] = childValue;
+                    root = swap;
+                    leftRootIndex = this.Left(root);
+                }
+            }
         }
 
         /// <summary>
@@ -1382,6 +1480,8 @@ namespace Utilities
                             this.items[0] = firstItem;
                             this.count = 1UL;
                         }
+
+                        this.Heapify(0, this.count - 1);
                     }
                 }
             }
@@ -1397,6 +1497,7 @@ namespace Utilities
                     this.items = new T[newCount];
                     col.CopyTo(this.items, 0);
                     this.count = (ulong)newCount;
+                    this.Heapify(0, this.count - 1);
                 }
             }
         }
@@ -1439,18 +1540,76 @@ namespace Utilities
         private void RemoveAt(ulong index)
         {
             --this.count;
-            if (index < this.count)
+            this.items[index] = this.items[this.count];
+            if (index < this.count - 2 && this.count > 0)
             {
-                Array.Copy(
-                    this.items,
-                    (int)index + 1,
-                    this.items,
-                    (int)index,
-                    (int)(this.count - index));
+                this.SiftDown(index, this.count - 1);
             }
 
             this.items[this.count] = default(T);
-            this.Heapify(0, this.count - 1);
+        }
+
+        /// <summary>
+        /// Determina o índice de um item se este existir.
+        /// </summary>
+        /// <param name="value">O item.</param>
+        /// <param name="index">O índice.</param>
+        /// <returns>Verdadeiro caso o índice exista e falso caso contrário.</returns>
+        private bool TryFindValue(
+            T value,
+            out ulong index)
+        {
+            index = 0;
+            if (this.count < 8)
+            {
+                var cnt = this.count;
+                for (var i = 0UL; i < cnt; ++i)
+                {
+                    var current = this.items[i];
+                    if (this.comparer.Compare(
+                        value,
+                        current) == 0)
+                    {
+                        index = i;
+                        return true;
+                    }
+                }
+            }
+            else
+            {
+                var cnt = this.count;
+                var searchStack = new Stack<ulong>();
+                searchStack.Push(0);
+                while (searchStack.Count > 0)
+                {
+                    var top = searchStack.Pop();
+                    var current = this.items[top];
+                    var compareVal = this.comparer.Compare(
+                        current,
+                        value
+                        );
+                    if (compareVal == 0)
+                    {
+                        index = top;
+                        return true;
+                    }
+                    else if (compareVal < 0)
+                    {
+                        var child = this.Left(top);
+                        if (child < cnt)
+                        {
+                            searchStack.Push(child);
+                            ++child;
+                            if (child < cnt)
+                            {
+                                searchStack.Push(child);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return false;
         }
     }
 
