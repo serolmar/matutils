@@ -952,6 +952,56 @@ namespace Utilities.Test
                 Assert.AreEqual(i, temp);
             }
         }
+        
+        /// <summary>
+        /// Testa a colecção tipo meda.
+        /// </summary>
+        [Description("Tests the heap collection.")]
+        [TestMethod]
+        public void GeneralizedCollections_HeapTest()
+        {
+            var array = new[] { 
+                1, 5, 2, 6, 3, 4, 
+                3, 2, 6, 4, 7, 6, 
+                3, 4, 7, 3 };
+            var target = new Heap<int>(array);
+            Assert.AreEqual(array.Length, target.Count);
+
+            // Testa à função de obtenção do mínimo
+            Array.Sort(array);
+            var i = 0;
+            while (target.Count > 0)
+            {
+                var min = target.PopRoot();
+                Assert.AreEqual(array[i], min);
+                ++i;
+            }
+
+            target = new Heap<int>(array);
+            var actual = target.Contains(3);
+            Assert.IsTrue(actual);
+            actual = target.Contains(10);
+            Assert.IsFalse(actual);
+
+            actual = target.Remove(7);
+            Assert.IsTrue(actual);
+            actual = target.Contains(7);
+            Assert.IsTrue(actual);
+            actual = target.Remove(7);
+            Assert.IsTrue(actual);
+            actual = target.Contains(7);
+            Assert.IsFalse(actual);
+            var root = target.Root;
+            Assert.AreEqual(root, array[0]);
+            actual = target.Remove(array[0]);
+            Assert.IsTrue(actual);
+            Assert.AreEqual(array[1], target.Root);
+
+            var oldCount = target.Count;
+            target.Add(0);
+            Assert.AreEqual(oldCount + 1, target.Count);
+            Assert.AreEqual(0, target.Root);
+        }
 
         /// <summary>
         /// Testa a atribuição da ordenação generalizada em ambos os sentidos.
