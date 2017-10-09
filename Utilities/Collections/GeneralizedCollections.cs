@@ -848,6 +848,613 @@ namespace Utilities
     }
 
     /// <summary>
+    /// Implementa uma colecção do tipo meda.
+    /// </summary>
+    /// <typeparam name="T">
+    /// O tipo de objectos associados aos itens da colecção.
+    /// </typeparam>
+    public class Heap<T> :
+        ICollection<T>,
+        ICollection
+    {
+        /// <summary>
+        /// A capacidade por defeito.
+        /// </summary>
+        private const ulong defaultCapacity = 4;
+
+        /// <summary>
+        /// Mantém a instância de um objecto vazio.
+        /// </summary>
+        private static readonly T[] emptyArray = new T[0];
+
+        /// <summary>
+        /// O comparador de itens na colecção.
+        /// </summary>
+        private IComparer<T> comparer;
+
+        /// <summary>
+        /// Mantém os elementos da colecção.
+        /// </summary>
+        private T[] items;
+
+        /// <summary>
+        /// Mantém o tamanho do vector.
+        /// </summary>
+        private ulong count;
+
+        /// <summary>
+        /// Mantém o objecto para sincronização de linhas de fluxo.
+        /// </summary>
+        private object synchRoot;
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="Heap{T}"/>.
+        /// </summary>
+        public Heap()
+        {
+            this.comparer = Comparer<T>.Default;
+            this.items = emptyArray;
+        }
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="Heap{T}"/>.
+        /// </summary>
+        /// <param name="capacity">A capacidade da colecção.</param>
+        public Heap(int capacity)
+        {
+            if (capacity < 0)
+            {
+                throw new ArgumentOutOfRangeException(
+                    "capacity",
+                    "Capacity must be a positive number.");
+            }
+            else
+            {
+                this.comparer = Comparer<T>.Default;
+                if (capacity == 0)
+                {
+                    this.items = emptyArray;
+                }
+                else
+                {
+                    this.items = new T[capacity];
+                }
+            }
+        }
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="Heap{T}"/>.
+        /// </summary>
+        /// <param name="capacity">A capacidade da colecção.</param>
+        public Heap(ulong capacity)
+        {
+            this.comparer = Comparer<T>.Default;
+            if (capacity == 0)
+            {
+                this.items = emptyArray;
+            }
+            else
+            {
+                this.items = new T[capacity];
+            }
+        }
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="Heap{T}"/>.
+        /// </summary>
+        /// <param name="comparer">O comparador de itens.</param>
+        public Heap(IComparer<T> comparer)
+        {
+            if (comparer == null)
+            {
+                throw new ArgumentNullException("comparer");
+            }
+            else
+            {
+                this.comparer = comparer;
+            }
+        }
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="Heap{T}"/>.
+        /// </summary>
+        /// <param name="capacity">A capacidade da colecção.</param>
+        /// <param name="comparer">O comparador de itens.</param>
+        public Heap(int capacity, IComparer<T> comparer)
+        {
+            if (capacity < 0)
+            {
+                throw new ArgumentOutOfRangeException(
+                    "capacity",
+                    "Capacity must be a positive number.");
+            }
+            else if (comparer == null)
+            {
+                throw new ArgumentNullException("comparer");
+            }
+            else
+            {
+                this.comparer = comparer;
+                if (capacity == 0)
+                {
+                    this.items = emptyArray;
+                }
+                else
+                {
+                    this.items = new T[capacity];
+                }
+            }
+        }
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="Heap{T}"/>.
+        /// </summary>
+        /// <param name="capacity">A capacidade da colecção.</param>
+        /// <param name="comparer">O comparador de itens.</param>
+        public Heap(ulong capacity, IComparer<T> comparer)
+        {
+            if (comparer == null)
+            {
+                throw new ArgumentNullException("comparer");
+            }
+            else
+            {
+                this.comparer = comparer;
+                if (capacity == 0)
+                {
+                    this.items = emptyArray;
+                }
+                else
+                {
+                    this.items = new T[capacity];
+                }
+            }
+        }
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="Heap{T}"/>.
+        /// </summary>
+        /// <param name="collection">A colecção para cópia.</param>
+        public Heap(IEnumerable<T> collection)
+        {
+            if (collection == null)
+            {
+                throw new ArgumentNullException("collection");
+            }
+            else
+            {
+                this.comparer = Comparer<T>.Default;
+                this.ProcessCollection(collection);
+            }
+        }
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="Heap{T}"/>.
+        /// </summary>
+        /// <param name="collection">A colecção para cópia.</param>
+        /// <param name="comparer">O comparador.</param>
+        public Heap(IEnumerable<T> collection, IComparer<T> comparer)
+        {
+            if (collection == null)
+            {
+                throw new ArgumentNullException("collection");
+            }
+            else if (comparer == null)
+            {
+                throw new ArgumentNullException("comaprer");
+            }
+            else
+            {
+                this.comparer = comparer;
+                this.ProcessCollection(collection);
+            }
+        }
+
+
+        /// <summary>
+        /// Obtém o tamanho do vector.
+        /// </summary>
+        public int Count
+        {
+            get
+            {
+                return (int)this.count;
+            }
+        }
+
+        /// <summary>
+        /// Obtém um valor que indica se a colecção é apenas de leitura.
+        /// </summary>
+        public bool IsReadOnly
+        {
+            get
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Obtém um valor que indica se a colecção é sincronizada.
+        /// </summary>
+        public bool IsSynchronized
+        {
+            get
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o objecto de sincronização.
+        /// </summary>
+        public object SyncRoot
+        {
+            get
+            {
+                if (this.synchRoot == null)
+                {
+                    System.Threading.Interlocked.CompareExchange<Object>(
+                        ref this.synchRoot, 
+                        new object(), 
+                        null);
+                }
+
+                return (this.synchRoot);
+            }
+        }
+
+        /// <summary>
+        /// Obtém ou atribui o valor da capacidade.
+        /// </summary>
+        public int Capacity
+        {
+            get
+            {
+                return this.items.Length;
+            }
+            set
+            {
+                if ((ulong)value < this.count)
+                {
+                    throw new CollectionsException(
+                        "Capacity can't be less than the size of the collection.");
+                }
+                else if (value > this.items.Length)
+                {
+                    this.Reserve((ulong)value);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Obtém ou atribui o valor da capacidade.
+        /// </summary>
+        public ulong UlongCapacity
+        {
+            get
+            {
+                return (ulong)this.items.LongLength;
+            }
+            set
+            {
+                if (value < this.count)
+                {
+                    throw new CollectionsException(
+                        "Capacity can't be less than the size of the collection.");
+                }
+                else if (value > (ulong)this.items.LongLength)
+                {
+                    this.Reserve(value);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Obtém o valor do item que se encontra na raiz.
+        /// </summary>
+        public T Root
+        {
+            get
+            {
+                if (this.count == 0UL)
+                {
+                    throw new IndexOutOfRangeException("Heap is empty.");
+                }
+                else
+                {
+                    return this.items[0];
+                }
+            }
+        }
+
+        /// <summary>
+        /// Obtém a raiz da meda e remove-a.
+        /// </summary>
+        /// <returns>O valor da raiz.</returns>
+        public T PopRoot()
+        {
+            if (this.count == 0UL)
+            {
+                throw new IndexOutOfRangeException("Heap is empty.");
+            }
+            else
+            {
+                var root = this.items[0];
+                this.RemoveAt(0);
+                return root;
+            }
+        }
+
+        /// <summary>
+        /// Adiciona um item à colecção.
+        /// </summary>
+        /// <param name="item">O item a ser adicionado.</param>
+        public void Add(T item)
+        {
+            var len = (ulong)this.items.LongLength;
+            if (this.count == len)
+            {
+                if (len == 0UL)
+                {
+                    len = defaultCapacity;
+                }
+                else
+                {
+                    len <<= 1;
+                }
+
+                this.items[this.count] = item;
+                this.Heapify(0UL, this.count);
+                ++this.count;
+            }
+        }
+
+        /// <summary>
+        /// Elimina todos os itens da colecção.
+        /// </summary>
+        public void Clear()
+        {
+            if (this.count > 0)
+            {
+                Array.Clear(this.items, 0, (int)this.count);
+                this.count = 0UL;
+            }
+        }
+
+        /// <summary>
+        /// Retorna um valor que indica se o item se encontra na lista.
+        /// </summary>
+        /// <param name="item">O item.</param>
+        /// <returns>Verdadeiro se o item se encontrar na lista e falso caso contrário.</returns>
+        public bool Contains(T item)
+        {
+            var index = Array.IndexOf(this.items, item, 0, (int)this.count);
+            return index != -1;
+        }
+
+        /// <summary>
+        /// Copia os valores da lista para uma ordenação.
+        /// </summary>
+        /// <remarks>
+        /// A cópia é realizada na ordem em que os itens se encontram armazenados.
+        /// </remarks>
+        /// <param name="array">A ordenação de destino.</param>
+        /// <param name="arrayIndex">O índice de destino onde será iniciada a cópia.</param>
+        public void CopyTo(T[] array, int arrayIndex)
+        {
+            this.items.CopyTo(array, arrayIndex);
+        }
+
+        /// <summary>
+        /// Remove o item da lista.
+        /// </summary>
+        /// <param name="item">O item.</param>
+        /// <returns>Verdadeiro se a remoção for bem-sucedida e falso caso contrário.</returns>
+        public bool Remove(T item)
+        {
+            var index = Array.IndexOf(this.items, item, 0, (int)this.count);
+            if (index == -1)
+            {
+                return false;
+            }
+            else
+            {
+                this.RemoveAt((ulong)index);
+                return true;
+            }
+        }
+
+        /// <summary>
+        /// Obtém um enumerador para a lista.
+        /// </summary>
+        /// <returns>O enumerador.</returns>
+        public IEnumerator<T> GetEnumerator()
+        {
+            for (var i = 0UL; i < this.count; ++i)
+            {
+                yield return this.items[i];
+            }
+        }
+
+        /// <summary>
+        /// Obtém um enumerador não genérico para a lista.
+        /// </summary>
+        /// <returns>O enumerador não genérico.</returns>
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+        {
+            return this.GetEnumerator();
+        }
+
+        /// <summary>
+        /// Copia o conteúdo da colecção para uma ordenação geral em forma de matriz.
+        /// </summary>
+        /// <remarks>
+        /// A cópia é realizada na ordem em que os itens se encontram armazenados.
+        /// </remarks>
+        /// <param name="array">A ordenação geral.</param>
+        /// <param name="index">
+        /// Os valores que identificam a entrada da matriz onde a cópia será iniciada.
+        /// </param>
+        public void CopyTo(Array array, int index)
+        {
+            this.items.CopyTo(array, index);
+        }
+
+        /// <summary>
+        /// Coloca todos os itens na ordem pretendida.
+        /// </summary>
+        /// <param name="firstIndex">O índice a partir do qual é para construir a meda.</param>
+        /// <param name="lastIndex">
+        /// O último índice até ao qual é para construir a meda.
+        /// </param>
+        private void Heapify(ulong firstIndex, ulong lastIndex)
+        {
+            for (var i = lastIndex; i > firstIndex; --i)
+            {
+                var parentPosition = this.Parent(i);
+
+                if (this.comparer.Compare(this.items[i], this.items[parentPosition]) < 0)
+                {
+                    var swap = this.items[parentPosition];
+                    this.items[parentPosition] = this.items[i];
+                    this.items[i] = swap;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Reserva o espaço para os itens.
+        /// </summary>
+        /// <param name="capacity">A nova capacidade.</param>
+        private void Reserve(ulong capacity)
+        {
+            var newVector = new T[capacity];
+            if (this.count > 0)
+            {
+                Array.Copy(
+                    this.items,
+                    newVector,
+                    (long)this.count);
+            }
+
+            this.items = newVector;
+        }
+
+        /// <summary>
+        /// Processa a colecção.
+        /// </summary>
+        /// <param name="collection">A colecção.</param>
+        private void ProcessCollection(IEnumerable<T> collection)
+        {
+            var col = (ICollection<T>)collection;
+            if (col == null)
+            {
+                using (var en = collection.GetEnumerator())
+                {
+                    if (en.MoveNext())
+                    {
+                        var firstItem = en.Current;
+                        if (en.MoveNext())
+                        {
+                            this.items = new T[2];
+                            this.items[0] = firstItem;
+                            this.items[1] = en.Current;
+                            this.count = 2UL;
+
+                            var len = 2UL;
+                            var i = 2UL;
+                            while (en.MoveNext())
+                            {
+                                if (this.count == len)
+                                {
+                                    len <<= 1;
+                                    this.Reserve(len);
+                                }
+
+                                this.items[i] = en.Current;
+                                ++i;
+                            }
+
+                            this.count = i;
+                        }
+                        else
+                        {
+                            this.items = new T[1];
+                            this.items[0] = firstItem;
+                            this.count = 1UL;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                var newCount = col.Count;
+                if (newCount == 0)
+                {
+                    this.items = emptyArray;
+                }
+                else
+                {
+                    this.items = new T[newCount];
+                    col.CopyTo(this.items, 0);
+                    this.count = (ulong)newCount;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Obtém o índice onde se encontra o nó ascendente dado
+        /// o nó descendente.
+        /// </summary>
+        /// <param name="i">O índice do nó descendente.</param>
+        /// <returns>O índice do nó ascendente.</returns>
+        private ulong Parent(ulong i)
+        {
+            return (i - 1) >> 1;
+        }
+
+        /// <summary>
+        /// Obtém o índice descendente que se encontra à esquerda.
+        /// </summary>
+        /// <param name="i">O índice do nó ascendente.</param>
+        /// <returns>O índice o nó ascendente que se encontra à esquerda.</returns>
+        private ulong Left(ulong i)
+        {
+            return (i << 1) + 1;
+        }
+
+        /// <summary>
+        /// Obtém o índice do nó descendente que se encontra à direita.
+        /// </summary>
+        /// <param name="i">O índice do nó ascendente.</param>
+        /// <returns>O índice do nó ascendente que se encontra à direita.</returns>
+        private ulong Right(ulong i)
+        {
+            return (i + 1) << 1;
+        }
+
+        /// <summary>
+        /// Remove o elemento especificado pelo índice.
+        /// </summary>
+        /// <param name="index">O índice.</param>
+        private void RemoveAt(ulong index)
+        {
+            --this.count;
+            if (index < this.count)
+            {
+                Array.Copy(
+                    this.items,
+                    (int)index + 1,
+                    this.items,
+                    (int)index,
+                    (int)(this.count - index));
+            }
+
+            this.items[this.count] = default(T);
+            this.Heapify(0, this.count - 1);
+        }
+    }
+
+    /// <summary>
     /// Define uma lista indexada por inteiros longos sobre
     /// a ordenação habitual.
     /// </summary>
@@ -1446,7 +2053,7 @@ namespace Utilities
         /// <returns>O enumerador não genérico.</returns>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
-            throw new NotImplementedException();
+            return this.GetEnumerator();
         }
     }
 
@@ -5759,214 +6366,3 @@ namespace Utilities
 
         #endregion Funções privadas
     }
-
-    /// <summary>
-    /// Implementa uma tabela baseada em códigos confusos cujo tamanho não se encontre
-    /// limitado aos 2GB.
-    /// </summary>
-    /// <typeparam name="TKey">O tipo dos objectos que constituem as chaves.</typeparam>
-    /// <typeparam name="TValue">O tipo dos objectos que constituem os valores.</typeparam>
-    public class GeneralHashtable<TKey, TValue> : IDictionary<TKey, TValue>
-    {
-        /// <summary>
-        /// Obtém ou atribui o valor associado à chave.
-        /// </summary>
-        /// <param name="key">A chave.</param>
-        /// <returns>O valor associado.</returns>
-        public TValue this[TKey key]
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        /// <summary>
-        /// Obtém o número de elementos na colecção.
-        /// </summary>
-        public int Count
-        {
-            get { throw new NotImplementedException(); }
-        }
-
-        /// <summary>
-        /// Obtém um valor que indica se a colecção é só de leitura.
-        /// </summary>
-        public bool IsReadOnly
-        {
-            get { throw new NotImplementedException(); }
-        }
-
-        /// <summary>
-        /// Obtém a colecção das chaves.
-        /// </summary>
-        public ICollection<TKey> Keys
-        {
-            get { throw new NotImplementedException(); }
-        }
-
-        /// <summary>
-        /// Obtém a colecção dos valores.
-        /// </summary>
-        public ICollection<TValue> Values
-        {
-            get { throw new NotImplementedException(); }
-        }
-
-        /// <summary>
-        /// Adiciona uma associação à tabela.
-        /// </summary>
-        /// <param name="key">A chave da associação.</param>
-        /// <param name="value">O valor da associação.</param>
-        public void Add(TKey key, TValue value)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Verifica se a chave proporcionada se encontra associada.
-        /// </summary>
-        /// <param name="key">A chave.</param>
-        /// <returns>Verdadeiro caso a chave se encontre associada e falso caso contrário.</returns>
-        public bool ContainsKey(TKey key)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Remove a associação atribuída à chave especificada.
-        /// </summary>
-        /// <param name="key">A chave.</param>
-        /// <returns>Verdadeiro caso a associação seja removida e falso caso contrário.</returns>
-        public bool Remove(TKey key)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Tenta obter o valor associado à chave.
-        /// </summary>
-        /// <param name="key">A chave.</param>
-        /// <param name="value">Variável de saída que irá conter o valor associado.</param>
-        /// <returns>Verdadeiro caso a chave esteja associada e falso caso contrário.</returns>
-        public bool TryGetValue(TKey key, out TValue value)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Associa um par chave / valor à tabela.
-        /// </summary>
-        /// <param name="item">O para a ser associado.</param>
-        public void Add(KeyValuePair<TKey, TValue> item)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Elimina todas as associações da tabela.
-        /// </summary>
-        public void Clear()
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Averigua se o par chave / valor se encontra associado.
-        /// </summary>
-        /// <param name="item">O para chave / valor.</param>
-        /// <returns></returns>
-        public bool Contains(KeyValuePair<TKey, TValue> item)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Copia as associações para um vector de pares chave / valor.
-        /// </summary>
-        /// <param name="array">O vector.</param>
-        /// <param name="arrayIndex">O índice do vector a partir do qual é realziada a cópia.</param>
-        public void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Remove a associação especificada pelo par chave / valor.
-        /// </summary>
-        /// <param name="item">O par chave / valor a ser removido.</param>
-        /// <returns>Verdadeiro caso a eliminação ocorra e falso caso contrário.</returns>
-        public bool Remove(KeyValuePair<TKey, TValue> item)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Obtém um enumerador para o conjunto de pares chave / valor associados.
-        /// </summary>
-        /// <returns>O enumerador.</returns>
-        public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Obtém um enumerador não genérico para o conjunto de pares chave / valor associados.
-        /// </summary>
-        /// <returns>O enumerador não genérico.</returns>
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Define a estrutura que contém uma associação.
-        /// </summary>
-        private struct Bucket
-        {
-            /// <summary>
-            /// A chave.
-            /// </summary>
-            private TKey key;
-
-            /// <summary>
-            /// O valor.
-            /// </summary>
-            private TValue value;
-
-            /// <summary>
-            /// Obtém ou atribui a chave.
-            /// </summary>
-            public TKey Key
-            {
-                get
-                {
-                    return this.key;
-                }
-                set
-                {
-                    this.key = value;
-                }
-            }
-
-            /// <summary>
-            /// Obtém ou atribui o valor.
-            /// </summary>
-            public TValue Value
-            {
-                get
-                {
-                    return this.value;
-                }
-                set
-                {
-                    this.value = value;
-                }
-            }
-        }
-    }
-}
