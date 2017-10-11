@@ -1049,7 +1049,6 @@ namespace Utilities
             }
         }
 
-
         /// <summary>
         /// Obtém o tamanho do vector.
         /// </summary>
@@ -1367,19 +1366,33 @@ namespace Utilities
                     ) < 0)
                 {
                     swap = leftRootIndex;
-                }
-
-                ++leftRootIndex;
-                if (leftRootIndex <= lastItem)
-                {
-                    var temp = this.items[leftRootIndex];
-                    if (comparer.Compare(
-                        temp,
-                        childValue
-                        ) < 0)
+                    ++leftRootIndex;
+                    if (leftRootIndex <= lastItem)
                     {
-                        swap = leftRootIndex;
-                        childValue = temp;
+                        var temp = this.items[leftRootIndex];
+                        if (comparer.Compare(
+                            temp,
+                            childValue
+                            ) < 0)
+                        {
+                            swap = leftRootIndex;
+                            childValue = temp;
+                        }
+                    }
+                }
+                else
+                {
+                    ++leftRootIndex;
+                    if (leftRootIndex <= lastItem)
+                    {
+                        childValue = this.items[leftRootIndex];
+                        if (comparer.Compare(
+                            childValue,
+                            swapValue
+                            ) < 0)
+                        {
+                            swap = leftRootIndex;
+                        }
                     }
                 }
 
@@ -6525,3 +6538,470 @@ namespace Utilities
 
         #endregion Funções privadas
     }
+
+    /// <summary>
+    /// Implementa uma tabela baseada em códigos confusos cujo tamanho não se encontre
+    /// limitado aos 2GB.
+    /// </summary>
+    /// <typeparam name="TKey">O tipo dos objectos que constituem as chaves.</typeparam>
+    /// <typeparam name="TValue">O tipo dos objectos que constituem os valores.</typeparam>
+    public class GeneralDictionary<TKey, TValue> : IDictionary<TKey, TValue>
+    {
+        /// <summary>
+        /// Mantém uma instância do vector vazio.
+        /// </summary>
+        private static readonly TKey[][][] emptyArray = new TKey[0][][];
+
+        /// <summary>
+        /// A máscara para efectuar o resto da divisão nos vectores de objectos.
+        /// </summary>
+        private static uint mask;
+
+        /// <summary>
+        /// A potência na base 2 para o número máximo de itens que podem ser
+        /// contidos num vector de sistema.
+        /// </summary>
+        private static int maxBinaryPower;
+
+        /// <summary>
+        /// A potência máxima para um objecto.
+        /// </summary>
+        private static int objMaxBinaryPower;
+
+        /// <summary>
+        /// A máscara para efectuar o resto da divisão nos vectores de vectores.
+        /// </summary>
+        private static uint generalMask;
+
+        /// <summary>
+        /// Estabelece a capacidade estabelecida por defeito aquando da adição do primeiro elemento
+        /// a uma lista cuja capacidade inicial é nula.
+        /// </summary>
+        private static ulong defaultCapacity = 1024;
+
+        /// <summary>
+        /// Variável que indica se se irá avaliar a memória disponível
+        /// em caso de instância.
+        /// </summary>
+        private bool assertMemory = true;
+
+        /// <summary>
+        /// Mantém as entradas.
+        /// </summary>
+        private Entry[][][] entries;
+
+        /// <summary>
+        /// Mantém os apontadores para as entradas.
+        /// </summary>
+        private ulong[][][] buckets;
+
+        /// <summary>
+        /// Mantém o tamanho total do vector.
+        /// </summary>
+        private ulong length;
+
+        /// <summary>
+        /// O número de entradas removidas que ainda não foram ocupadas.
+        /// </summary>
+        private ulong freeListCount = 0;
+
+        /// <summary>
+        /// Apontador para a primeira entrada removida que ainda
+        /// não foi ocupada.
+        /// </summary>
+        private ulong freeList = 0UL;
+
+        /// <summary>
+        /// A primeira dimensão do comprimento dos contentores.
+        /// </summary>
+        private ulong firstDimLength;
+
+        /// <summary>
+        /// A segunda dimensão do comprimento dos contenores.
+        /// </summary>
+        private ulong secondDimLength;
+
+        /// <summary>
+        /// A terceira dimensão do comprimento dos contentores.
+        /// </summary>
+        private ulong thirdDimLength;
+
+        /// <summary>
+        /// Mantém o valor da capacidade do vector. 
+        /// </summary>
+        private ulong capacity;
+
+        /// <summary>
+        /// Inicializa o tipo <see cref="GeneralDictionary{TKey, TValue}"/>.
+        /// </summary>
+        static GeneralDictionary()
+        {
+            var configSection = Utils.GetRuntimeConfiguration();
+            if (configSection.GcAllowVeryLargeObjects.Enabled)
+            {
+                mask = 2147483647;
+                maxBinaryPower = 31;
+                objMaxBinaryPower = 31;
+                generalMask = 2147483647;
+            }
+            else
+            {
+                // O vector das entradas consiste num objecto.
+                maxBinaryPower = 26;
+                mask = generalMask;
+            }
+        }
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="GeneralDictionary{TKey, TValue}"/>.
+        /// </summary>
+        /// <param name="assertMemory">Parâmetro que indica se a memória disponível será analisada.</param>
+        public GeneralDictionary(bool assertMemory = true)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="GeneralDictionary{TKey, TValue}"/>.
+        /// </summary>
+        /// <param name="capacity">A capacidade do dicionário.</param>
+        /// <param name="assertMemory">Parâmetro que indica se a memória disponível será analisada.</param>
+        public GeneralDictionary(int capacity, bool assertMemory = true)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="GeneralDictionary{TKey, TValue}"/>.
+        /// </summary>
+        /// <param name="capacity">A capacidade do dicionário.</param>
+        /// <param name="assertMemory">Parâmetro que indica se a memória disponível será analisada.</param>
+        public GeneralDictionary(uint capacity, bool assertMemory = true)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="GeneralDictionary{TKey, TValue}"/>.
+        /// </summary>
+        /// <param name="capacity">A capacidade do dicionário.</param>
+        /// <param name="assertMemory">Parâmetro que indica se a memória disponível será analisada.</param>
+        public GeneralDictionary(long capacity, bool assertMemory = true)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="GeneralDictionary{TKey, TValue}"/>.
+        /// </summary>
+        /// <param name="capacity">A capacidade do dicionário.</param>
+        /// <param name="assertMemory">Parâmetro que indica se a memória disponível será analisada.</param>
+        public GeneralDictionary(ulong capacity, bool assertMemory = true)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Obtém ou atribui o valor associado à chave.
+        /// </summary>
+        /// <param name="key">A chave.</param>
+        /// <returns>O valor associado.</returns>
+        public TValue this[TKey key]
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+            set
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        /// <summary>
+        /// Obtém o número de elementos na colecção.
+        /// </summary>
+        public int Count
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        /// <summary>
+        /// Obtém um valor que indica se a colecção é só de leitura.
+        /// </summary>
+        public bool IsReadOnly
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        #region Propriedades internas
+
+        /// <summary>
+        /// Obtém ou atribui a potência binária máxima para uma ordenação dos
+        /// objectos do tipo das entradas da colecção.
+        /// </summary>
+        internal static int MaxBinaryPower
+        {
+            get
+            {
+                return maxBinaryPower;
+            }
+            set
+            {
+                maxBinaryPower = value;
+                mask = (1U << value) - 1;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o valor da máscara para os objectos do tipo dos das entradas
+        /// da colecção.
+        /// </summary>
+        internal static uint Mask
+        {
+            get
+            {
+                return mask;
+            }
+        }
+
+        /// <summary>
+        /// Obtém ou atribui a potência binária máxima para uma ordenação dos
+        /// objectos do tipo geral.
+        /// </summary>
+        internal static int ObjMaxBinaryPower
+        {
+            get
+            {
+                return objMaxBinaryPower;
+            }
+            set
+            {
+                objMaxBinaryPower = value;
+                generalMask = (1U << value) - 1;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o valor da máscara para os objectos do tipo geral.
+        /// </summary>
+        internal static uint GeneralMask
+        {
+            get
+            {
+                return generalMask;
+
+            }
+        }
+
+        #endregion Propriedades internas
+
+        /// <summary>
+        /// Obtém a colecção das chaves.
+        /// </summary>
+        public ICollection<TKey> Keys
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        /// <summary>
+        /// Obtém a colecção dos valores.
+        /// </summary>
+        public ICollection<TValue> Values
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        /// <summary>
+        /// Adiciona uma associação à tabela.
+        /// </summary>
+        /// <param name="key">A chave da associação.</param>
+        /// <param name="value">O valor da associação.</param>
+        public void Add(TKey key, TValue value)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Verifica se a chave proporcionada se encontra associada.
+        /// </summary>
+        /// <param name="key">A chave.</param>
+        /// <returns>Verdadeiro caso a chave se encontre associada e falso caso contrário.</returns>
+        public bool ContainsKey(TKey key)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Remove a associação atribuída à chave especificada.
+        /// </summary>
+        /// <param name="key">A chave.</param>
+        /// <returns>Verdadeiro caso a associação seja removida e falso caso contrário.</returns>
+        public bool Remove(TKey key)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Tenta obter o valor associado à chave.
+        /// </summary>
+        /// <param name="key">A chave.</param>
+        /// <param name="value">Variável de saída que irá conter o valor associado.</param>
+        /// <returns>Verdadeiro caso a chave esteja associada e falso caso contrário.</returns>
+        public bool TryGetValue(TKey key, out TValue value)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Associa um par chave / valor à tabela.
+        /// </summary>
+        /// <param name="item">O para a ser associado.</param>
+        public void Add(KeyValuePair<TKey, TValue> item)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Elimina todas as associações da tabela.
+        /// </summary>
+        public void Clear()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Averigua se o par chave / valor se encontra associado.
+        /// </summary>
+        /// <param name="item">O para chave / valor.</param>
+        /// <returns></returns>
+        public bool Contains(KeyValuePair<TKey, TValue> item)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Copia as associações para um vector de pares chave / valor.
+        /// </summary>
+        /// <param name="array">O vector.</param>
+        /// <param name="arrayIndex">O índice do vector a partir do qual é realziada a cópia.</param>
+        public void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Remove a associação especificada pelo par chave / valor.
+        /// </summary>
+        /// <param name="item">O par chave / valor a ser removido.</param>
+        /// <returns>Verdadeiro caso a eliminação ocorra e falso caso contrário.</returns>
+        public bool Remove(KeyValuePair<TKey, TValue> item)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Obtém um enumerador para o conjunto de pares chave / valor associados.
+        /// </summary>
+        /// <returns>O enumerador.</returns>
+        public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Obtém um enumerador não genérico para o conjunto de pares chave / valor associados.
+        /// </summary>
+        /// <returns>O enumerador não genérico.</returns>
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Mantém os dados associados.
+        /// </summary>
+        private struct Entry
+        {
+            /// <summary>
+            /// Mantém o código confuso da chave.
+            /// </summary>
+            private ulong hashCode;
+
+            /// <summary>
+            /// Mantém o índice da próxima entrada.
+            /// </summary>
+            private ulong next;
+
+            /// <summary>
+            /// Mantém a cahve.
+            /// </summary>
+            private TKey key;
+
+            /// <summary>
+            /// Mantém o valor.
+            /// </summary>
+            private TValue value;
+
+            /// <summary>
+            /// Obtém ou atribui o código confuso da chave.
+            /// </summary>
+            public ulong HashCode
+            {
+                get
+                {
+                    return this.hashCode;
+                }
+                set
+                {
+                    this.hashCode = value;
+                }
+            }
+
+            /// <summary>
+            /// Obtém ou atriui o índice da próxima entrada.
+            /// </summary>
+            public ulong Next
+            {
+                get
+                {
+                    return this.next;
+                }
+                set
+                {
+                    this.next = value;
+                }
+            }
+
+            /// <summary>
+            /// Obtém ou atribui a cahve.
+            /// </summary>
+            public TKey Key
+            {
+                get
+                {
+                    return this.key;
+                }
+                set
+                {
+                    this.key = value;
+                }
+            }
+
+            /// <summary>
+            /// Obtém ou atribui o valor.
+            /// </summary>
+            public TValue Value
+            {
+                get
+                {
+                    return this.value;
+                }
+                set
+                {
+                    this.value = value;
+                }
+            }
+        }
+    }
+}
