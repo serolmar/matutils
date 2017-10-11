@@ -7,6 +7,7 @@
 namespace Utilities
 {
     using System;
+    using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
@@ -83,14 +84,7 @@ namespace Utilities
                 {
                     // Encontrou o próximo número composto
                     var prime = this.notSievedPointer + 2;
-                    if (this.increment == 1)
-                    {
-                        for (var i = this.lastPrimePointer; i < len; i += prime)
-                        {
-                            this.items[i] = true;
-                        }
-                    }
-                    else
+                    if (this.increment > 1)
                     {
                         prime <<= 1;
                         for (var i = this.lastPrimePointer; i < len; i += prime)
@@ -148,6 +142,144 @@ namespace Utilities
             {
                 var innerMax = max - 2;
                 this.items = new bool[innerMax];
+                this.increment = 1;
+                this.notSievedPointer = 0;
+                this.notSievedPrimeSquared = 4;
+                this.lastPrimePointer = 0;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Utiliza o crivo para gerar números primos.
+    /// </summary>
+    /// <remarks>Implementação elementar.</remarks>
+    public class PrimeSieveGenBinContainerV1
+    {
+        /// <summary>
+        /// Mantém os itens a serem analisados.
+        /// </summary>
+        private BitArray items;
+
+        /// <summary>
+        /// Apontador para o primeiro número não filtrado.
+        /// </summary>
+        private uint notSievedPointer;
+
+        /// <summary>
+        /// O quadrado do número não filtrado.
+        /// </summary>
+        private uint notSievedPrimeSquared;
+
+        /// <summary>
+        /// Apontador para o último número primo retornado.
+        /// </summary>
+        private uint lastPrimePointer;
+
+        /// <summary>
+        /// O valor do incremento.
+        /// </summary>
+        private uint increment;
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="PrimeSieveGenerator"/>.
+        /// </summary>
+        public PrimeSieveGenBinContainerV1()
+        {
+            this.Initialize(100);
+        }
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="PrimeSieveGenerator"/>.
+        /// </summary>
+        /// <param name="max">O número primo máximo.</param>
+        public PrimeSieveGenBinContainerV1(uint max)
+        {
+            this.Initialize(max);
+        }
+
+        /// <summary>
+        /// Obtém o próximo número primo.
+        /// </summary>
+        /// <returns>O número primo.</returns>
+        public uint GetNextPrime()
+        {
+            var len = this.items.Length;
+            while (this.lastPrimePointer < len &&
+                this.items[(int)this.lastPrimePointer])
+            {
+                this.lastPrimePointer += increment;
+            }
+
+            if (this.lastPrimePointer >= len)
+            {
+                return 0;
+            }
+            else
+            {
+                var lastPseudoPrime = this.lastPrimePointer + 2;
+                if (lastPseudoPrime == this.notSievedPrimeSquared)
+                {
+                    // Encontrou o próximo número composto
+                    var prime = (int)this.notSievedPointer + 2;
+                    if (this.increment > 1)
+                    {
+                        prime <<= 1;
+                        for (var i = (int)this.lastPrimePointer; i < len; i += prime)
+                        {
+                            this.items[i] = true;
+                        }
+                    }
+
+                    this.notSievedPointer += this.increment;
+                    while (this.items[(int)this.notSievedPointer])
+                    {
+                        this.notSievedPointer += this.increment;
+                    }
+
+                    this.notSievedPrimeSquared = (this.notSievedPointer + 2) * (this.notSievedPointer + 2);
+
+                    this.lastPrimePointer += this.increment;
+                    while (this.lastPrimePointer < len &&
+                        this.items[(int)this.lastPrimePointer])
+                    {
+                        this.lastPrimePointer += this.increment;
+                    }
+
+                    this.increment = 2;
+                    if (this.lastPrimePointer == len)
+                    {
+                        return 0;
+                    }
+                    else
+                    {
+                        var result = this.lastPrimePointer + 2;
+                        this.lastPrimePointer += this.increment;
+                        return result;
+                    }
+                }
+                else
+                {
+                    this.lastPrimePointer += this.increment;
+                    return lastPseudoPrime;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Inicializa o crivo.
+        /// </summary>
+        /// <param name="max">O número primo máximo.</param>
+        private void Initialize(uint max)
+        {
+            if (max < 2)
+            {
+                throw new ArgumentException("There is no prime number less than two.");
+            }
+            else
+            {
+                var innerMax = max - 2;
+                this.items = new BitArray((int)innerMax);
                 this.increment = 1;
                 this.notSievedPointer = 0;
                 this.notSievedPrimeSquared = 4;
@@ -963,6 +1095,772 @@ namespace Utilities
     }
 
     #region Código sem desempenho
+
+    /// <summary>
+    /// Implmenetação de um gerador de primos incremental.
+    /// </summary>
+    /// <remarks>
+    /// O algoritmo permite adiar a alocação de memória e não irá considerar os números pares.
+    /// </remarks>
+    public class NaiveIncPrimeSieveGenerator
+    {
+        /// <summary>
+        /// Número máximo de tuplos vazios que são armazenados.
+        /// </summary>
+        private const int maximumEmpty = 500;
+
+        /// <summary>
+        /// Mantém a lista dos compostos encontrados.
+        /// </summary>
+        private MutableTuple<uint, int>[] composites;
+
+        /// <summary>
+        /// Define o número de compostos no conjunto.
+        /// </summary>
+        private int compositesCount = 0;
+
+        /// <summary>
+        /// Mantém uma lista de tuplos vazios para evitar instanciação.
+        /// </summary>
+        private List<MutableTuple<uint, int>> emptyTuples;
+
+        /// <summary>
+        /// Mantém os factores e respectivas potências tratadas.
+        /// </summary>
+        private Node storedIndices;
+
+        /// <summary>
+        /// Mantém uma lista de nós vazios para evitar novas instâncias.
+        /// </summary>
+        private Node emptyNodes;
+
+        /// <summary>
+        /// Mantém uma lista de números primos ímpares.
+        /// </summary>
+        private List<uint> oddPrimes;
+
+        /// <summary>
+        /// Mantém o número actual.
+        /// </summary>
+        private uint current;
+
+        /// <summary>
+        /// Mantém o índice número primo limite.
+        /// </summary>
+        private int limitPrime;
+
+        /// <summary>
+        /// Mantém o quadrado do número primo limite.
+        /// </summary>
+        private uint squaredLimitPrime;
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="NaiveIncPrimeSieveGenerator"/>.
+        /// </summary>
+        public NaiveIncPrimeSieveGenerator()
+        {
+            this.composites = new MutableTuple<uint, int>[4];
+            this.emptyTuples = new List<MutableTuple<uint, int>>(maximumEmpty);
+            this.oddPrimes = new List<uint>();
+            this.storedIndices = null;
+            this.emptyNodes = null;
+            this.current = 2;
+            this.limitPrime = 0;
+            this.squaredLimitPrime = 9;
+        }
+
+        /// <summary>
+        /// Obtém o próximo número primo.
+        /// </summary>
+        /// <returns>O número primo.</returns>
+        public uint GetNextPrime()
+        {
+            if (this.current == 2)
+            {
+                ++this.current;
+                return 2;
+            }
+            else if (this.current == 3)
+            {
+                this.oddPrimes.Add(3);
+                this.AddComposite(MutableTuple.Create(9U, 0));
+                this.current += 2;
+                return 3;
+            }
+            else
+            {
+                var state = true;
+                while (state)
+                {
+                    if (this.current == this.squaredLimitPrime)
+                    {
+                        ++this.limitPrime;
+                        var limitPrimeValue = this.oddPrimes[this.limitPrime];
+                        this.squaredLimitPrime = limitPrimeValue * limitPrimeValue;
+
+                        // Processa os índices
+                        var node = this.storedIndices;
+                        if (node != null)
+                        {
+                            node = this.ProcessNode(node);
+                            this.storedIndices = node;
+                            if (node != null)
+                            {
+                                var previousNode = node;
+                                node = node.Next;
+                                while (node != null)
+                                {
+                                    node = this.ProcessNode(node);
+                                    previousNode.Next = node;
+
+                                    if (node != null)
+                                    {
+                                        previousNode = node;
+                                        node = node.Next;
+                                    }
+                                }
+                            }
+                        }
+
+                        // Trata-se de um composto que deverá existir na meda
+                        var index = this.Find(this.current);
+                        this.ProcessComposite(index);
+
+                        this.current += 2;
+                    }
+                    else
+                    {
+                        var index = this.Find(this.current);
+                        if (index == -1)
+                        {
+                            this.ProcessPrime();
+                            state = false;
+                        }
+                        else
+                        {
+                            this.ProcessComposite(index);
+                            this.current += 2;
+                        }
+                    }
+                }
+
+                var result = this.current;
+                this.current += 2;
+                return result;
+            }
+        }
+
+        /// <summary>
+        /// Processa o número primo.
+        /// </summary>
+        private void ProcessPrime()
+        {
+            var newPrimeIndex = this.oddPrimes.Count;
+            var currentPrimeIndex = 0;
+            this.oddPrimes.Add(this.current);
+            var state = true;
+            while (state)
+            {
+                var mul = this.current;
+                mul *= this.oddPrimes[currentPrimeIndex];
+
+                var tup = this.GetTuple(mul, currentPrimeIndex);
+                this.AddComposite(tup);
+
+                if (currentPrimeIndex == newPrimeIndex)
+                {
+                    state = false;
+                }
+                else
+                {
+                    ++currentPrimeIndex;
+                    if (mul > this.squaredLimitPrime)
+                    {
+                        var addNode = this.GetNode(
+                            this.current,
+                            newPrimeIndex,
+                            currentPrimeIndex);
+                        this.AddNode(addNode);
+                        state = false;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Processa o número composto especificado pelo índice.
+        /// </summary>
+        /// <param name="index">O índice.</param>
+        private void ProcessComposite(int index)
+        {
+            var state = true;
+
+            var composite = this.composites[index];
+            this.RemoveAt(index);
+
+            var lastIndex = composite.Item2;
+            var currentIndex = 0;
+            while (state)
+            {
+                var mul = composite.Item1;
+                mul *= this.oddPrimes[currentIndex];
+                var tup = this.GetTuple(mul, currentIndex);
+                this.AddComposite(tup);
+
+                if (currentIndex == lastIndex)
+                {
+                    state = false;
+                }
+                else
+                {
+                    ++currentIndex;
+                    if (mul > this.squaredLimitPrime)
+                    {
+                        var addNode = this.GetNode(
+                            this.current,
+                            lastIndex,
+                            currentIndex);
+                        this.AddNode(addNode);
+                        state = false;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Processa um nó na lista ligada.
+        /// </summary>
+        /// <param name="node">O nó a ser processado.</param>
+        /// <returns>O próximo nó ou nulo se este não existir.</returns>
+        private Node ProcessNode(Node node)
+        {
+            var result = node;
+            var state = true;
+            while (state)
+            {
+                var numb = result.Numb;
+                var primeIndex = result.ProcessedPrime;
+
+                var prime = this.oddPrimes[primeIndex];
+                var mul = numb * prime;
+
+                var tup = this.GetTuple(mul, node.ProcessedPrime);
+                this.AddComposite(tup);
+
+                if (primeIndex == node.LeastPrimeDiv)
+                {
+                    result = node.Next;
+                    state = false;
+                }
+                else
+                {
+                    ++node.ProcessedPrime;
+                    if (mul > this.squaredLimitPrime)
+                    {
+                        state = false;
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Adiciona o nó à lista ligada.
+        /// </summary>
+        /// <param name="node">O nó a ser adicionado.</param>
+        private void AddNode(Node node)
+        {
+            var next = this.storedIndices;
+            this.storedIndices = node;
+            node.Next = next;
+        }
+
+        /// <summary>
+        /// Adiciona um composto ao conjunto.
+        /// </summary>
+        /// <param name="composite">O conjunto dos compostos.</param>
+        private void AddComposite(
+            MutableTuple<uint, int> composite)
+        {
+            var len = this.composites.LongLength;
+            if (this.compositesCount == len)
+            {
+                this.ReserveCapacity(len << 1);
+            }
+
+            this.composites[this.compositesCount] = composite;
+            this.HeapifyComposites(0, this.compositesCount);
+            ++this.compositesCount;
+        }
+
+        /// <summary>
+        /// Remove o item no índice especificado.
+        /// </summary>
+        /// <param name="index">O índice.</param>
+        private void RemoveAt(int index)
+        {
+            --this.compositesCount;
+            var removed = this.composites[index];
+            this.composites[index] = this.composites[this.compositesCount];
+            if (index < this.compositesCount - 2 && this.compositesCount > 0)
+            {
+                this.SiftDown(index, this.compositesCount - 1);
+            }
+
+            if (removed != null)
+            {
+                if (this.emptyTuples.Count < maximumEmpty)
+                {
+                    this.emptyTuples.Add(removed);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Repõe a propriedade de meda no conjunto dos compostos.
+        /// </summary>
+        /// <param name="start">O valor inicial.</param>
+        /// <param name="end">O valor final.</param>
+        private void HeapifyComposites(int start, int end)
+        {
+            var child = end;
+            var childVal = this.composites[child];
+            while (child > start)
+            {
+                var parent = this.Parent(child);
+                var parentVal = this.composites[parent];
+                if (childVal.Item1 < parentVal.Item1)
+                {
+                    this.composites[child] = parentVal;
+                    this.composites[parent] = childVal;
+                    child = parent;
+                }
+                else
+                {
+                    child = start;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Coloca todos os itens na ordem pretendida, assumindo tratar-se
+        /// da remolçção de um item da lista.
+        /// </summary>
+        /// <param name="start">
+        /// O primeiro item.
+        /// </param>
+        /// <param name="end">
+        /// O último item.
+        /// </param>
+        private void SiftDown(int start, int end)
+        {
+            var root = start;
+            var leftRootIndex = this.Left(root);
+            while (leftRootIndex <= end)
+            {
+                var swap = root;
+                var swapValue = this.composites[root];
+                var childValue = this.composites[leftRootIndex];
+                if (childValue.Item1 < swapValue.Item1)
+                {
+                    swap = leftRootIndex;
+                    ++leftRootIndex;
+                    if (leftRootIndex <= end)
+                    {
+                        var temp = this.composites[leftRootIndex];
+                        if (temp.Item1 < childValue.Item1)
+                        {
+                            swap = leftRootIndex;
+                            childValue = temp;
+                        }
+                    }
+                }
+                else
+                {
+                    ++leftRootIndex;
+                    if (leftRootIndex <= end)
+                    {
+                        childValue = this.composites[leftRootIndex];
+                        if (childValue.Item1 < swapValue.Item1)
+                        {
+                            swap = leftRootIndex;
+                        }
+                    }
+                }
+
+                if (swap == root)
+                {
+                    return;
+                }
+                else
+                {
+                    this.composites[swap] = swapValue;
+                    this.composites[root] = childValue;
+                    root = swap;
+                    leftRootIndex = this.Left(root);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Encontra o índice do tuplo cujo primeiro valor é passado em argumento.
+        /// </summary>
+        /// <param name="value">O valor a ser pesquisado.</param>
+        /// <returns>O índice do tuplo caso existe e nulo caso contrário.</returns>
+        private int Find(uint value)
+        {
+            var cnt = this.compositesCount;
+            var searchStack = new Stack<int>();
+            searchStack.Push(0);
+            while (searchStack.Count > 0)
+            {
+                var top = searchStack.Pop();
+                var current = this.composites[top];
+                if (current.Item1 == value)
+                {
+                    return top;
+                }
+                else if (current.Item1 < value)
+                {
+                    var child = this.Left(top);
+                    if (child < cnt)
+                    {
+                        searchStack.Push(child);
+                        ++child;
+                        if (child < cnt)
+                        {
+                            searchStack.Push(child);
+                        }
+                    }
+                }
+            }
+
+            return -1;
+        }
+
+        /// <summary>
+        /// Obtém o índice onde se encontra o nó ascendente dado
+        /// o nó descendente.
+        /// </summary>
+        /// <param name="i">O índice do nó descendente.</param>
+        /// <returns>O índice do nó ascendente.</returns>
+        private int Parent(int i)
+        {
+            return (i - 1) >> 1;
+        }
+
+        /// <summary>
+        /// Obtém o índice descendente que se encontra à esquerda.
+        /// </summary>
+        /// <param name="i">O índice do nó ascendente.</param>
+        /// <returns>O índice o nó ascendente que se encontra à esquerda.</returns>
+        private int Left(int i)
+        {
+            return (i << 1) + 1;
+        }
+
+        /// <summary>
+        /// Obtém o índice do nó descendente que se encontra à direita.
+        /// </summary>
+        /// <param name="i">O índice do nó ascendente.</param>
+        /// <returns>O índice do nó ascendente que se encontra à direita.</returns>
+        private int Right(int i)
+        {
+            return (i + 1) << 1;
+        }
+
+        /// <summary>
+        /// Obtém um novo tuplo, evitando instâncias desnecessárias.
+        /// </summary>
+        /// <param name="numb">O número.</param>
+        /// <param name="primeIndex">O índice do factor primo.</param>
+        /// <returns>O tuplo.</returns>
+        private MutableTuple<uint, int> GetTuple(
+            uint numb,
+            int primeIndex)
+        {
+            var tuple = default(MutableTuple<uint, int>);
+            var count = this.emptyTuples.Count;
+            if (count > 0)
+            {
+                tuple = this.emptyTuples[count - 1];
+                tuple.Item1 = numb;
+                tuple.Item2 = primeIndex;
+                this.emptyTuples.RemoveAt(count - 1);
+            }
+            else
+            {
+                tuple = MutableTuple.Create(numb, primeIndex);
+            }
+
+            return tuple;
+        }
+
+        /// <summary>
+        /// Obtém um novo nó, evitando instâncias desnecessárias.
+        /// </summary>
+        /// <param name="numb">O número composto.</param>
+        /// <param name="leastPrimeDiv">O índice do menor divisor primo.</param>
+        /// <param name="processedPrime">O índice do próximo primo a ser processado.</param>
+        /// <returns>O nó.</returns>
+        private Node GetNode(
+            uint numb,
+            int leastPrimeDiv,
+            int processedPrime)
+        {
+            var node = this.emptyNodes;
+            if (node == null)
+            {
+                node = new Node();
+            }
+            else
+            {
+                this.emptyNodes = node.Next;
+
+            }
+
+            node.Numb = numb;
+            node.LeastPrimeDiv = leastPrimeDiv;
+            node.ProcessedPrime = processedPrime;
+            return node;
+        }
+
+        /// <summary>
+        /// Reserva a capacidade para novos elementos do conjunto
+        /// dos números compostos.
+        /// </summary>
+        /// <param name="capacity">Nova capacidade.</param>
+        private void ReserveCapacity(long capacity)
+        {
+            var array = new MutableTuple<uint, int>[capacity];
+            Array.Copy(this.composites, array, this.compositesCount);
+            this.composites = array;
+        }
+
+        /// <summary>
+        /// Função de diagnóstico que premite imprimir o valor dos nós.
+        /// </summary>
+        /// <remarks>
+        /// Serve apenas para diagnóstico.
+        /// </remarks>
+        /// <returns>O valor textual dos nós.</returns>
+        private string GetPrintedNodes()
+        {
+            if (this.storedIndices == null)
+            {
+                return "null";
+            }
+            else
+            {
+                var builder = new StringBuilder();
+                builder.Append(this.storedIndices.Numb);
+                var node = this.storedIndices.Next;
+                while (node != null)
+                {
+                    builder.Append("; ");
+                    builder.Append(node.Numb);
+                    node = node.Next;
+                }
+
+                return builder.ToString();
+            }
+        }
+
+        /// <summary>
+        /// Função que permite averiguar a estrutura de meda.
+        /// </summary>
+        /// <remarks>
+        /// Serve apenas para diagnóstico.
+        /// </remarks>
+        private void AsserHeapStructure()
+        {
+            if (this.compositesCount > 1)
+            {
+                var stack = new Stack<int>();
+                stack.Push(0);
+                while (stack.Count > 0)
+                {
+                    var top = stack.Pop();
+                    var topValue = this.composites[top].Item1;
+
+                    var child = this.Left(top);
+                    if (child < this.compositesCount)
+                    {
+                        var childValue = this.composites[child].Item1;
+                        if (childValue < topValue)
+                        {
+                            throw new Exception("A estrutura de meda foi violada.");
+                        }
+                        else
+                        {
+                            stack.Push(child);
+                            ++child;
+                            if (child < this.compositesCount)
+                            {
+                                childValue = this.composites[child].Item1;
+                                if (childValue < topValue)
+                                {
+                                    throw new Exception("A estrutura de meda foi violada.");
+                                }
+                                else
+                                {
+                                    stack.Push(child);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Verifica elementos repetidos
+                var dic = new Dictionary<uint, int>();
+                for (var i = 0; i < this.compositesCount; ++i)
+                {
+                    if (dic.ContainsKey(this.composites[i].Item1))
+                    {
+                        throw new Exception("Chave existente.");
+                    }
+                    else
+                    {
+                        dic.Add(this.composites[i].Item1, 0);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Permite fazer uma pesquisa aos tuplos existentes.
+        /// </summary>
+        /// <param name="tup">O valor do primeiro item.</param>
+        /// <returns>O tuplo.</returns>
+        private MutableTuple<uint, int> FindTuple(uint tup)
+        {
+            for (var i = 0; i < this.compositesCount; ++i)
+            {
+                var item = this.composites[i];
+                if (item.Item1 == tup)
+                {
+                    return item;
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Define um nó para a lista ligada que irá conter os índices.
+        /// </summary>
+        private class Node
+        {
+            /// <summary>
+            /// O número.
+            /// </summary>
+            private uint numb;
+
+            /// <summary>
+            /// O menor divisor primo do número.
+            /// </summary>
+            private int leastPrimeDiv;
+
+            /// <summary>
+            /// O índice do número primo processado.
+            /// </summary>
+            private int processedPrime;
+
+            /// <summary>
+            /// Um apontador para o próximo nó.
+            /// </summary>
+            private Node next = null;
+
+            /// <summary>
+            /// Obtém ou atribui o número.
+            /// </summary>
+            public uint Numb
+            {
+                get
+                {
+                    return this.numb;
+                }
+                set
+                {
+                    this.numb = value;
+                }
+            }
+
+            /// <summary>
+            /// Obtém ou atribui o menor divisor primo do número.
+            /// </summary>
+            public int LeastPrimeDiv
+            {
+                get
+                {
+                    return this.leastPrimeDiv;
+                }
+                set
+                {
+                    this.leastPrimeDiv = value;
+                }
+            }
+
+            /// <summary>
+            /// Obtém ou atribui o índice do número primo processado.
+            /// </summary>
+            public int ProcessedPrime
+            {
+                get
+                {
+                    return this.processedPrime;
+                }
+                set
+                {
+                    this.processedPrime = value;
+                }
+            }
+
+            /// <summary>
+            /// Obtém ou atribui o apontador para o próximo nó.
+            /// </summary>
+            public Node Next
+            {
+                get
+                {
+                    return this.next;
+                }
+                set
+                {
+                    this.next = value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Implementa um comparador de pares.
+        /// </summary>
+        /// <remarks>
+        /// A comparação é realizada sobre o primeiro elemento.
+        /// </remarks>
+        private class MutTupComparer :
+            IComparer<MutableTuple<uint, int>>
+        {
+            /// <summary>
+            /// Compara dois itens.
+            /// </summary>
+            /// <param name="x">O primeiro item a ser comparado.</param>
+            /// <param name="y">O segundo item a ser comparado.</param>
+            /// <returns>
+            /// O valor 1 caso o primeiro item seja superior ao segundo, 0 se
+            /// ambos forem iguais e -1 caso o primeiro item seja inferior ao segundo.
+            /// </returns>
+            public int Compare(
+                MutableTuple<uint, int> x,
+                MutableTuple<uint, int> y)
+            {
+                return Comparer<uint>.Default.Compare(
+                    x.Item1,
+                    y.Item1);
+            }
+        }
+    }
 
     /// <summary>
     /// Crivo para gerar números primos que elimina compostos ímpares.
