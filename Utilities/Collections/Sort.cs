@@ -1,4 +1,4 @@
-﻿namespace Utilities
+namespace Utilities
 {
     using System;
     using System.Collections.Generic;
@@ -687,7 +687,7 @@
         /// <returns>O índice o nó ascendente que se encontra à esquerda.</returns>
         private int Left(int i)
         {
-            return 2 * i + 1;
+            return (i << 1) + 1;
         }
 
         /// <summary>
@@ -697,7 +697,7 @@
         /// <returns>O índice do nó ascendente que se encontra à direita.</returns>
         private int Right(int i)
         {
-            return 2 * i + 2;
+            return (i + 1) << 1;
         }
 
         /// <summary>
@@ -725,18 +725,31 @@
                     childValue) < 0)
                 {
                     swap = leftRootIndex;
-                }
-
-                ++leftRootIndex;
-                if (leftRootIndex <= end)
-                {
-                    var temp = collection[leftRootIndex];
-                    if (comparer.Compare(
-                        childValue,
-                        temp) < 0)
+                    ++leftRootIndex;
+                    if (leftRootIndex <= end)
                     {
-                        swap = leftRootIndex;
-                        childValue = temp;
+                        var temp = collection[leftRootIndex];
+                        if (comparer.Compare(
+                            childValue,
+                            temp) < 0)
+                        {
+                            swap = leftRootIndex;
+                            childValue = temp;
+                        }
+                    }
+                }
+                else
+                {
+                    ++leftRootIndex;
+                    if (leftRootIndex <= end)
+                    {
+                        childValue = collection[leftRootIndex];
+                        if (comparer.Compare(
+                            swapValue,
+                            childValue) < 0)
+                        {
+                            swap = leftRootIndex;
+                        }
                     }
                 }
 
@@ -2003,7 +2016,7 @@
             /// <param name="comparer">O comparador de elementos.</param>
             /// <param name="indexer">O indexador.</param>
             public AuxTrieCounter(
-                IList<CollectionType> collection, 
+                IList<CollectionType> collection,
                 IComparer<ItemType> comparer,
                 Func<CollectionType, IEnumerable<ItemType>> indexer)
             {
@@ -2119,7 +2132,7 @@
             /// <param name="collection">A colecção.</param>
             /// <param name="comparer">O comparador.</param>
             protected void BuilTrie(
-                IList<CollectionType> collection, 
+                IList<CollectionType> collection,
                 IComparer<ItemType> comparer)
             {
                 this.root = new TrieNode(comparer);
