@@ -1093,6 +1093,164 @@ namespace Utilities
             }
         }
     }
+    
+    #region Classes Internas
+
+    /// <summary>
+    /// Implementa alguns utilitários relacionados com o crivo de primos.
+    /// </summary>
+    internal static class PrimesGeneratorUtils
+    {
+        /// <summary>
+        /// Obtém a roda de diferenças especificada no nível.
+        /// </summary>
+        /// <remarks>
+        /// Apenas metade da roda é retornada uma vez que esta é simétrica.
+        /// Por exemplo, a roda de nível 3 é constituída pelos oito elementos:
+        /// 6, 4, 2, 4, 2, 4, 6, 2
+        /// No entanto, apenas 5 são necessários:
+        /// 2, 6, 4, 2, 4
+        /// O apontador é iniciado no 6 e desloca-se para a direita até ao final.
+        /// A partir do final, desloca-se para a esquerda, construindo a totalidade
+        /// da roda.
+        /// </remarks>
+        /// <param name="level">O nível.</param>
+        /// <param name="primes">Os números primos filtrados.</param>
+        /// <returns>A roda.</returns>
+        internal static List<uint> GetDiffWheel(
+            int level,
+            List<uint> primes)
+        {
+            if (level == 0)
+            {
+                return new List<uint> { 1 };
+            }
+            else if (level == 1)
+            {
+                primes.Add(2);
+                return new List<uint> { 2 };
+            }
+            else if (level > 1)
+            {
+                var currentWheel = new List<uint>() { 2, 4 };
+                primes.Add(2);
+                primes.Add(3);
+
+                var primeProd = 1U;
+                var newList = new List<uint>();
+                for (var i = 2; i <= level; ++i)
+                {
+                    var wheelPointer = 1;
+                    var wheelInc = 1;
+
+                    var acc = currentWheel[wheelPointer];
+                    var pseudoPrime = 1U + acc;
+                    var firstPrime = pseudoPrime;
+
+                    var lastPrime = pseudoPrime;
+                    var lastPointer = wheelPointer;
+                    var lastInc = wheelInc;
+
+                    primes.Add(pseudoPrime);
+
+                    primeProd *= acc;
+                    newList.Add(2);
+
+                    var limit = firstPrime * lastPrime;
+                    var len = currentWheel.Count;
+                    IncrementWheel(len, ref wheelPointer, ref wheelInc);
+
+                    var current = currentWheel[wheelPointer];
+                    pseudoPrime += current;
+                    acc += current;
+                    newList.Add(acc);
+
+                    var j = 1;
+                    IncrementWheel(len, ref wheelPointer, ref wheelInc);
+                    acc = currentWheel[wheelPointer];
+                    pseudoPrime += acc;
+                    while (pseudoPrime < limit
+                        && j < primeProd)
+                    {
+                        newList.Add(acc);
+                        IncrementWheel(len, ref wheelPointer, ref wheelInc);
+                        acc = currentWheel[wheelPointer];
+                        pseudoPrime += acc;
+                        ++j;
+                    }
+
+                    if (j < primeProd)
+                    {
+                        IncrementWheel(len, ref lastPointer, ref lastInc);
+                        lastPrime += currentWheel[lastPointer];
+                        limit = lastPrime * firstPrime;
+
+                        IncrementWheel(len, ref wheelPointer, ref wheelInc);
+                        current = currentWheel[wheelPointer];
+                        acc += current;
+
+                        while (j < primeProd)
+                        {
+                            pseudoPrime += current;
+                            IncrementWheel(len, ref wheelPointer, ref wheelInc);
+                            current = currentWheel[wheelPointer];
+
+                            if (pseudoPrime == limit)
+                            {
+                                acc += current;
+                                IncrementWheel(len, ref lastPointer, ref lastInc);
+                                lastPrime += currentWheel[lastPointer];
+                                limit = lastPrime * firstPrime;
+                            }
+                            else
+                            {
+                                newList.Add(acc);
+                                acc = current;
+                                ++j;
+                            }
+                        }
+                    }
+
+                    currentWheel.Clear();
+                    var temp = currentWheel;
+                    currentWheel = newList;
+                    newList = temp;
+                }
+
+                return currentWheel;
+            }
+            else
+            {
+                throw new ArgumentException("Invalid level in wheel creation.");
+            }
+        }
+
+        /// <summary>
+        /// Incrementa os parâmetros relativos à roda.
+        /// </summary>
+        /// <param name="len">O comprimento da roda.</param>
+        /// <param name="wheelPointer">O apontador.</param>
+        /// <param name="wheelInc">A direcção do incremento.</param>
+        private static void IncrementWheel(
+            int len,
+            ref int wheelPointer,
+            ref int wheelInc)
+        {
+            wheelPointer += wheelInc;
+            if (wheelPointer < 0)
+            {
+                wheelPointer = 1;
+                wheelInc = 1;
+            }
+            else if (wheelPointer == len)
+            {
+                wheelPointer = len - 2;
+                wheelInc = -1;
+            }
+        }
+    }
+
+    #endregion Classes Internas
 
     #region Código sem desempenho
 
