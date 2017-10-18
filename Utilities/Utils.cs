@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
 // <copyright file="Utils.cs" company="Sérgio O. Marques">
 // Ver licença do projecto.
 // </copyright>
@@ -430,6 +430,43 @@ namespace Utilities
         public static ulong RotateRight(ulong val, int shift)
         {
             return (val >> shift) | (val << (64 - shift));
+        }
+
+        /// <summary>
+        /// Método para preencher um vector com o valor especificado.
+        /// </summary>
+        /// <typeparam name="T">
+        /// O tipo de objectos que constituem as entradas do vector.
+        /// </typeparam>
+        /// <param name="array">O vector.</param>
+        /// <param name="value">O valor.</param>
+        public static void FillArray<T>(T[] array, T value)
+        {
+            if (array == null)
+            {
+                throw new ArgumentNullException("array");
+            }
+            else
+            {
+                var len = array.LongLength;
+                if (len > 0)
+                {
+                    array[0] = value;
+                    --len;
+                    var size = 1;
+                    while (size < len)
+                    {
+                        Array.Copy(array, 0, array, size, size);
+                        len -= size;
+                        size <<= 1;
+                    }
+
+                    if (len > 0)
+                    {
+                        Array.Copy(array, 0, array, size, len);
+                    }
+                }
+            }
         }
 
         /// <summary>
