@@ -1117,28 +1117,28 @@ namespace Utilities
         /// <param name="level">O nível.</param>
         /// <param name="primes">Os números primos filtrados.</param>
         /// <returns>A roda.</returns>
-        internal static List<uint> GetDiffWheel(
+        internal static List<ulong> GetDiffWheel(
             int level,
-            List<uint> primes)
+            List<ulong> primes)
         {
             if (level == 0)
             {
-                return new List<uint> { 1 };
+                return new List<ulong> { 1 };
             }
             else if (level == 1)
             {
                 primes.Add(2);
-                return new List<uint> { 2 };
+                return new List<ulong> { 2 };
             }
             else if (level > 1)
             {
-                var currentWheel = new List<uint>() { 2, 4 };
+                var currentWheel = new List<ulong>() { 2, 4 };
                 primes.Add(2);
                 primes.Add(3);
 
-                var primeProd = 1U;
-                var newList = new List<uint>();
-                for (var i = 2; i <= level; ++i)
+                var primeProd = 1UL;
+                var newList = new List<ulong>();
+                for (var i = 2; i < level; ++i)
                 {
                     var wheelPointer = 1;
                     var wheelInc = 1;
@@ -1165,7 +1165,7 @@ namespace Utilities
                     acc += current;
                     newList.Add(acc);
 
-                    var j = 1;
+                    var j = 1UL;
                     IncrementWheel(len, ref wheelPointer, ref wheelInc);
                     acc = currentWheel[wheelPointer];
                     pseudoPrime += acc;
@@ -1226,6 +1226,87 @@ namespace Utilities
         }
 
         /// <summary>
+        /// Obtém as diferenças para uma determinada roda.
+        /// </summary>
+        /// <remarks>Função usada na investigação de um método.</remarks>
+        /// <param name="level">O nível.</param>
+        /// <returns>A lista das diferenças.</returns>
+        internal static List<List<ulong>> GetWheelDifferences(
+            int level)
+        {
+            var primes = new List<ulong>();
+            var wheel = PrimesGeneratorUtils.GetDiffWheel(level, primes);
+
+            var count = ((wheel.Count - 1) << 1);
+
+            var wheelArray = wheel.ToArray();
+            var wheelEnum = new WheelEnum(wheelArray, wheelArray.LongLength);
+            var current = 1UL + wheelEnum.Current;
+
+            var coord = 0UL;
+            var stored = current;
+
+            var w1 = new WheelEnum(wheelArray, wheelArray.LongLength);
+            var curr1 = 1UL + w1.Current;
+            var w2 = new WheelEnum(wheelArray, wheelArray.LongLength);
+
+            var sequences = new List<List<ulong>>();
+            var i = 0UL;
+            while (i < (ulong)count)
+            {
+                var seq = new List<ulong>();
+                seq.Add(i);
+                wheelEnum.Reset();
+                current = stored;
+                coord = 0;
+                var j = 0;
+
+                w2.Reset();
+
+                var curr2 = 1UL + w2.Current;
+
+                while (j < count)
+                {
+                    var prod = curr1 * curr2;
+                    while (current < prod)
+                    {
+                        wheelEnum.MoveNext();
+                        current += wheelEnum.Current;
+                        ++coord;
+                    }
+
+                    seq.Add(coord);
+                    w2.MoveNext();
+                    curr2 += w2.Current;
+                    ++j;
+                }
+
+                w1.MoveNext();
+                curr1 += w1.Current;
+                ++i;
+                sequences.Add(seq);
+            }
+
+            var result = new List<List<ulong>>();
+            for (var k = 0; k < sequences.Count; ++k)
+            {
+                var seq = sequences[k];
+                var newSeq = new List<ulong>();
+                var prev = seq[0];
+
+                for (var j = 1; j < seq.Count; ++j)
+                {
+                    newSeq.Add(seq[j] - prev);
+                    prev = seq[j];
+                }
+
+                result.Add(newSeq);
+            }
+
+            return result;
+        }
+
+        /// <summary>
         /// Incrementa os parâmetros relativos à roda.
         /// </summary>
         /// <param name="len">O comprimento da roda.</param>
@@ -1247,6 +1328,155 @@ namespace Utilities
                 wheelPointer = len - 2;
                 wheelInc = -1;
             }
+        }
+    }
+
+    /// <summary>
+    /// Define um enumerador para a roda.
+    /// </summary>
+    internal class WheelEnum :
+        IEnumerator<ulong>
+    {
+        /// <summary>
+        /// A roda.
+        /// </summary>
+        private ulong[] wheel;
+
+        /// <summary>
+        /// O comprimento considerado no vector.
+        /// </summary>
+        private long length;
+
+        /// <summary>
+        /// O índice actual.
+        /// </summary>
+        private long currIndex;
+
+        /// <summary>
+        /// A direcção de movimentação do índice.
+        /// </summary>
+        private bool rightDirection;
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="WheelEnum"/>.
+        /// </summary>
+        private WheelEnum()
+        {
+        }
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="WheelEnum"/>.
+        /// </summary>
+        /// <param name="wheel">A roda.</param>
+        /// <param name="length">O comprimento a ser considerado no vector.</param>
+        public WheelEnum(ulong[] wheel, long length)
+        {
+            this.Reset(wheel, length);
+        }
+
+        /// <summary>
+        /// Obtém o valor actual.
+        /// </summary>
+        public ulong Current
+        {
+            get
+            {
+                return this.wheel[this.currIndex];
+            }
+        }
+
+        /// <summary>
+        /// Obtém o valor actual.
+        /// </summary>y
+        object IEnumerator.Current
+        {
+            get
+            {
+                return this.wheel[this.currIndex];
+            }
+        }
+
+        /// <summary>
+        /// Coloca o iterador no início.
+        /// </summary>
+        public void Reset()
+        {
+            this.currIndex = 1;
+            this.rightDirection = true;
+        }
+
+        /// <summary>
+        /// Estabelece um novo vector para o iterador.
+        /// </summary>
+        /// <param name="wheel">O vector que contém a roda.</param>
+        /// <param name="length">O comprimento da roda no vector.</param>
+        public void Reset(ulong[] wheel, long length)
+        {
+            this.wheel = wheel;
+            this.length = length;
+            this.Reset();
+        }
+
+        /// <summary>
+        /// Estabelece o iterador a partir de outro.
+        /// </summary>
+        /// <param name="wheelEnum">O itnerador.</param>
+        public void Reset(WheelEnum wheelEnum)
+        {
+            this.wheel = wheelEnum.wheel;
+            this.length = wheelEnum.length;
+            this.rightDirection = wheelEnum.rightDirection;
+            this.currIndex = wheelEnum.currIndex;
+        }
+
+        /// <summary>
+        /// Move para o próximo elemento da roda.
+        /// </summary>
+        /// <returns>Verdadeiro.</returns>
+        public bool MoveNext()
+        {
+            if (this.rightDirection)
+            {
+                ++this.currIndex;
+                if (this.currIndex == this.length)
+                {
+                    this.currIndex = this.length - 2;
+                    this.rightDirection = false;
+                }
+            }
+            else
+            {
+                --this.currIndex;
+                if (this.currIndex == -1)
+                {
+                    this.currIndex = 1;
+                    this.rightDirection = true;
+                }
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Cria um clone do enumerador.
+        /// </summary>
+        /// <returns>O clone do enumerador.</returns>
+        public WheelEnum Clone()
+        {
+            return new WheelEnum()
+            {
+                wheel = this.wheel,
+                currIndex = this.currIndex,
+                rightDirection = this.rightDirection,
+                length = this.length
+            };
+        }
+
+        /// <summary>
+        /// A função de disposição não tem efeito.
+        /// </summary>
+        public void Dispose()
+        {
         }
     }
 
