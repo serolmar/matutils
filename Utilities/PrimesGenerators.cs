@@ -1332,6 +1332,817 @@ namespace Utilities
     }
 
     /// <summary>
+    /// Define um roda genérica.
+    /// </summary>
+    internal interface IWheel
+    {
+        /// <summary>
+        /// Obtém o valor actual da roda.
+        /// </summary>
+        long Current { get; }
+
+        /// <summary>
+        /// Obtém a amplitude da roda.
+        /// </summary>
+        ulong Size { get; }
+
+        /// <summary>
+        /// Move a roda para a direita.
+        /// </summary>
+        void MoveRight();
+
+        /// <summary>
+        /// Move a roda para a esquerda.
+        /// </summary>
+        void MoveLeft();
+    }
+
+    /// <summary>
+    /// Define uma roda relativa a números primos.
+    /// </summary>
+    internal interface ILevelWheel : IWheel
+    {
+        /// <summary>
+        /// Obtém o valor da diferença actual.
+        /// </summary>
+        long CurrentDiff { get; }
+
+        /// <summary>
+        /// Obtém o nível.
+        /// </summary>
+        ulong Level { get; }
+
+        /// <summary>
+        /// Obtém o ponto de partida da roda.
+        /// </summary>
+        long StartPoint { get; }
+
+        /// <summary>
+        /// Obtém o perímetro da roda.
+        /// </summary>
+        ulong Span { get; }
+
+        /// <summary>
+        /// Retorna a roda ao ponto incial.
+        /// </summary>
+        void Reset();
+
+        /// <summary>
+        /// Obtém a roda associada ao próximo nível.
+        /// </summary>
+        /// <returns>A roda associada ao próximo nível.</returns>
+        ILevelWheel GetNextLevelWheel();
+
+        /// <summary>
+        /// Obtém uma cópia da roda actual.
+        /// </summary>
+        /// <returns>A cópia.</returns>
+        ILevelWheel CloneWheel();
+    }
+
+    /// <summary>
+    /// Define uma roda de nível zero.
+    /// </summary>
+    internal class LevelZeroWheel : ILevelWheel
+    {
+        /// <summary>
+        /// Mantém o valor actual.
+        /// </summary>
+        protected long current;
+
+        /// <summary>
+        /// Mantém o valor do nível.
+        /// </summary>
+        protected ulong level;
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="LevelZeroWheel"/>.
+        /// </summary>
+        public LevelZeroWheel()
+        {
+            this.current = 2L;
+            this.level = 0UL;
+        }
+
+        /// <summary>
+        /// Obtém o valor actual da roda.
+        /// </summary>
+        public long Current
+        {
+            get
+            {
+                return this.current;
+            }
+        }
+
+        /// <summary>
+        /// Obtém a amplitude da roda.
+        /// </summary>
+        public ulong Size
+        {
+            get
+            {
+                return 1UL;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o perímetro da roda.
+        /// </summary>
+        public ulong Span
+        {
+            get
+            {
+                return 1UL;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o valor da diferença actual.
+        /// </summary>
+        public long CurrentDiff
+        {
+            get
+            {
+                return 1L;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o nível.
+        /// </summary>
+        public ulong Level
+        {
+            get
+            {
+                return 0UL;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o ponto de partida da roda.
+        /// </summary>
+        public long StartPoint
+        {
+            get
+            {
+                return 2L;
+            }
+        }
+
+        /// <summary>
+        /// Move a roda para a direita.
+        /// </summary>
+        public void MoveRight()
+        {
+            ++this.current;
+        }
+
+        /// <summary>
+        /// Move a roda para a esquerda.
+        /// </summary>
+        public void MoveLeft()
+        {
+            --this.current;
+        }
+
+        /// <summary>
+        /// Obtém a roda associada ao próximo nível.
+        /// </summary>
+        /// <returns>A roda associada ao próximo nível.</returns>
+        public ILevelWheel GetNextLevelWheel()
+        {
+            return new LevelOneWheel();
+        }
+
+        /// <summary>
+        /// Obtém uma cópia da roda actual.
+        /// </summary>
+        /// <returns>A cópia.</returns>
+        public ILevelWheel CloneWheel()
+        {
+            return new LevelZeroWheel()
+            {
+                 current = this.current,
+                level = this.level,
+            };
+        }
+
+        /// <summary>
+        /// Move a roda para o valor especificado.
+        /// </summary>
+        /// <remarks>
+        /// Se o valor não pertencer ao espaço gerado pela roda,
+        /// esta é colocada no valor seguinte.
+        /// </remarks>
+        /// <param name="value">O valor.</param>
+        public void GotoValue(long value)
+        {
+            this.current = value;
+        }
+
+        /// <summary>
+        /// Retorna a roda ao ponto incial.
+        /// </summary>
+        public void Reset()
+        {
+            this.current = 2L;
+        }
+    }
+
+    /// <summary>
+    /// Define uma roda de nível zero.
+    /// </summary>
+    internal class LevelOneWheel : ILevelWheel
+    {
+        /// <summary>
+        /// Mantém o valor actual.
+        /// </summary>
+        protected long current;
+
+        /// <summary>
+        /// Mantém o valor do nível.
+        /// </summary>
+        protected ulong level;
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="LevelOneWheel"/>.
+        /// </summary>
+        public LevelOneWheel()
+        {
+            this.current = 3L;
+            this.level = 1UL;
+        }
+
+        /// <summary>
+        /// Obtém o valor actual da roda.
+        /// </summary>
+        public long Current
+        {
+            get
+            {
+                return this.current;
+            }
+        }
+
+        /// <summary>
+        /// Obtém a amplitude da roda.
+        /// </summary>
+        public ulong Size
+        {
+            get
+            {
+                return 1UL;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o perímetro da roda.
+        /// </summary>
+        public ulong Span
+        {
+            get
+            {
+                return 2UL;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o valor da diferença actual.
+        /// </summary>
+        public long CurrentDiff
+        {
+            get
+            {
+                return 2L;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o nível.
+        /// </summary>
+        public ulong Level
+        {
+            get
+            {
+                return 0UL;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o ponto de partida da roda.
+        /// </summary>
+        public long StartPoint
+        {
+            get
+            {
+                return 3L;
+            }
+        }
+
+        /// <summary>
+        /// Move a roda para a direita.
+        /// </summary>
+        public void MoveRight()
+        {
+            this.current += 2L;
+        }
+
+        /// <summary>
+        /// Move a roda para a esquerda.
+        /// </summary>
+        public void MoveLeft()
+        {
+            this.current -= 2L;
+        }
+
+        /// <summary>
+        /// Obtém a roda associada ao próximo nível.
+        /// </summary>
+        /// <returns>A roda associada ao próximo nível.</returns>
+        public ILevelWheel GetNextLevelWheel()
+        {
+            return new GreatestLevelWheel();
+        }
+
+        /// <summary>
+        /// Obtém uma cópia da roda actual.
+        /// </summary>
+        /// <returns>A cópia.</returns>
+        public ILevelWheel CloneWheel()
+        {
+            return new LevelOneWheel()
+            {
+                current = this.current,
+                level = this.level,
+            };
+        }
+
+        /// <summary>
+        /// Move a roda para o valor especificado.
+        /// </summary>
+        /// <remarks>
+        /// Se o valor não pertencer ao espaço gerado pela roda,
+        /// esta é colocada no valor seguinte.
+        /// </remarks>
+        /// <param name="value">O valor.</param>
+        public void GotoValue(long value)
+        {
+            if ((value & 1) == 0)
+            {
+                this.current = value + 1;
+            }
+            else
+            {
+                this.current = value;
+            }
+        }
+
+        /// <summary>
+        /// Retorna a roda ao ponto incial.
+        /// </summary>
+        public void Reset()
+        {
+            this.current = 3L;
+        }
+    }
+
+    /// <summary>
+    /// Define uma roda simétrica genérica.
+    /// </summary>
+    internal class GeneralSymmWheel : IWheel
+    {
+        /// <summary>
+        /// Mantém o vector com as diferenças.
+        /// </summary>
+        protected long[] diffs;
+
+        /// <summary>
+        /// Mantém o apontador actual.
+        /// </summary>
+        protected long currPointer;
+
+        /// <summary>
+        /// Mantém o estado do movimento do apontador.
+        /// </summary>
+        protected bool moveRightState;
+
+        /// <summary>
+        /// Mantém o valor actual.
+        /// </summary>
+        protected long current;
+
+        /// <summary>
+        /// Mantém o tamanho da roda.
+        /// </summary>
+        protected ulong size;
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="GeneralSymmWheel"/>.
+        /// </summary>
+        /// <remarks>
+        /// A inicialização é delegada para os objectos descendentes.
+        /// </remarks>
+        protected GeneralSymmWheel() { }
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="GeneralSymmWheel"/>.
+        /// </summary>
+        /// <param name="diffs">Vector com as diferenças associadas à roda.</param>
+        /// <param name="currPointer">O apontador actual.</param>
+        /// <param name="moveRight">O estado do movimento do apontador.</param>
+        /// <param name="current">O valor actual.</param>
+        public GeneralSymmWheel(
+            long[] diffs,
+            long currPointer,
+            bool moveRight,
+            long current
+            )
+        {
+            this.diffs = diffs;
+            this.currPointer = currPointer;
+            this.moveRightState = moveRight;
+            this.current = current;
+            this.size = (ulong)(this.diffs.LongLength - 1) << 1;
+        }
+
+        /// <summary>
+        /// Obtém o valor actual da roda.
+        /// </summary>
+        public long Current
+        {
+            get
+            {
+                return this.current;
+            }
+        }
+
+        /// <summary>
+        /// Obtém a amplitude da roda.
+        /// </summary>
+        public ulong Size
+        {
+            get
+            {
+                return this.size;
+            }
+        }
+
+        /// <summary>
+        /// Move a roda para a direita.
+        /// </summary>
+        public void MoveRight()
+        {
+            if (this.moveRightState)
+            {
+                var len = this.diffs.LongLength;
+                ++this.currPointer;
+                if (this.currPointer == len)
+                {
+                    this.moveRightState = false;
+                    this.currPointer = len - 2;
+                }
+
+                this.current += this.diffs[this.currPointer];
+            }
+            else
+            {
+                if (this.currPointer == 0)
+                {
+                    this.moveRightState = true;
+                    this.currPointer = 1L;
+                }
+                else
+                {
+                    --this.currPointer;
+                }
+
+                this.current += this.diffs[this.currPointer];
+            }
+        }
+
+        /// <summary>
+        /// Move a roda para a esquerda.
+        /// </summary>
+        public void MoveLeft()
+        {
+            if (this.moveRightState)
+            {
+                this.current -= this.diffs[currPointer];
+                if (this.currPointer == 0)
+                {
+                    this.moveRightState = false;
+                    this.currPointer = 1L;
+                }
+                else
+                {
+                    --this.currPointer;
+                }
+            }
+            else
+            {
+                this.current -= this.diffs[this.currPointer];
+                var len = this.diffs.LongLength;
+                ++this.currPointer;
+                if (this.currPointer == len)
+                {
+                    this.moveRightState = true;
+                    this.currPointer = len - 2;
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Define uma roda de nível superior.
+    /// </summary>
+    internal class GreatestLevelWheel :
+        GeneralSymmWheel,
+        ILevelWheel
+    {
+        /// <summary>
+        /// Mantém o valor do nível.
+        /// </summary>
+        protected ulong level;
+
+        /// <summary>
+        /// Mantém o perímetro da roda.
+        /// </summary>
+        protected ulong span;
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="GreatestLevelWheel"/>.
+        /// </summary>
+        public GreatestLevelWheel()
+        {
+            this.SetupProps(
+                new long[] { 2L, 4L },
+                1L,
+                true,
+                5L,
+                2UL,
+                2UL,
+                6UL);
+        }
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="GreatestLevelWheel"/>.
+        /// </summary>
+        /// <param name="level">O nível da roda.</param>
+        public GreatestLevelWheel(ulong level)
+        {
+            if (level < 2UL)
+            {
+                throw new ArgumentOutOfRangeException(
+                    "level",
+                    "Level must be greater or equal than 2.");
+            }
+            else
+            {
+                this.SetupProps(
+                new long[] { 2L, 4L },
+                1L,
+                true,
+                5L,
+                level,
+                2UL,
+                6UL);
+                var currentLevel = 2UL;
+                while (currentLevel < level)
+                {
+                    this.IncreaseLevel();
+                    ++currentLevel;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Obtém o valor da diferença actual.
+        /// </summary>
+        public long CurrentDiff
+        {
+            get
+            {
+                return this.diffs[this.currPointer];
+            }
+        }
+
+        /// <summary>
+        /// Obtém o nível.
+        /// </summary>
+        public ulong Level
+        {
+            get
+            {
+                return this.level;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o ponto de partida da roda.
+        /// </summary>
+        public long StartPoint
+        {
+            get
+            {
+                return 1L + this.diffs[1];
+            }
+        }
+
+        /// <summary>
+        /// Obtém o perímetro da roda.
+        /// </summary>
+        public ulong Span
+        {
+            get
+            {
+                return this.span;
+            }
+        }
+
+        /// <summary>
+        /// Obtém a roda associada ao próximo nível.
+        /// </summary>
+        /// <returns>A roda associada ao próximo nível.</returns>
+        public ILevelWheel GetNextLevelWheel()
+        {
+            var result = new GreatestLevelWheel();
+            result.SetupProps(
+                this.diffs,
+                this.currPointer,
+                this.moveRightState,
+                this.current,
+                this.level,
+                this.size,
+                this.span);
+            result.IncreaseLevel();
+            return result;
+        }
+
+        /// <summary>
+        /// Retorna a roda ao ponto incial.
+        /// </summary>
+        public void Reset()
+        {
+            this.currPointer = 1L;
+            this.current = 1L + this.diffs[1];
+            this.moveRightState = true;
+        }
+
+        /// <summary>
+        /// Aumenta o nível da roda.
+        /// </summary>
+        public void IncreaseLevel()
+        {
+            var prime = 1L + this.diffs[1];
+            var wheel = new GreatestLevelWheel()
+            {
+                diffs = this.diffs,
+                current = prime,
+                currPointer = 1L,
+                moveRightState = true,
+                level = this.level
+            };
+
+            var prod = (this.diffs.LongLength - 1L) * this.diffs[1] + 1L;
+            var newDiffs = new long[prod];
+            newDiffs[0] = 2L;
+            var temp = wheel.CurrentDiff;
+            wheel.MoveRight();
+            temp += wheel.CurrentDiff;
+            newDiffs[1] = temp;
+
+            var pointerWheel = wheel.CloneWheel();
+            var limit = prime * prime;
+            var j = 2;
+            wheel.MoveRight();
+            var acc = wheel.CurrentDiff;
+            while (j < prod)
+            {
+                if (wheel.current == limit)
+                {
+                    wheel.MoveRight();
+                    acc += wheel.CurrentDiff;
+                    limit = prime * pointerWheel.Current;
+                    pointerWheel.MoveRight();
+
+                    if (this.current == limit)
+                    {
+                        this.currPointer = j;
+                        this.current = wheel.current;
+                    }
+                }
+                else
+                {
+                    newDiffs[j++] = acc;
+                    wheel.MoveRight();
+                    acc = wheel.CurrentDiff;
+                }
+            }
+
+            this.size = ((ulong)prod - 1) << 1;
+            this.span *= ((ulong)this.diffs[1] + 1UL);
+            this.diffs = newDiffs;
+            ++this.level;
+
+            this.Reset();
+        }
+
+        /// <summary>
+        /// Move a roda para o valor especificado.
+        /// </summary>
+        /// <remarks>
+        /// Se o valor não pertencer ao espaço gerado pela roda,
+        /// esta é colocada no valor seguinte.
+        /// </remarks>
+        /// <param name="value">O valor.</param>
+        public void GotoValue(long value)
+        {
+            if (value > this.current)
+            {
+                var div = (value - this.current) / (long)this.span;
+                if (div != 0)
+                {
+                    this.current += (long)this.span * div;
+                }
+
+                while (this.current < value)
+                {
+                    this.MoveRight();
+                }
+            }
+            else if (value < this.current)
+            {
+                var div = (this.current - value) / (long)this.span;
+                if (div != 0)
+                {
+                    this.current -= (long)this.span * div;
+                }
+
+                while (this.current > value)
+                {
+                    this.MoveLeft();
+                }
+
+                if (this.current != value)
+                {
+                    this.MoveRight();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Obtém uma cópia da roda actual.
+        /// </summary>
+        /// <remarks>
+        /// O vector que define as diferenças é partilhado entre cópias.
+        /// </remarks>
+        /// <returns>A cópia.</returns>
+        public ILevelWheel CloneWheel()
+        {
+            var result = new GreatestLevelWheel();
+            var size = (ulong)(this.diffs.LongLength - 1) << 1;
+            result.SetupProps(
+                this.diffs,
+                this.currPointer,
+                this.moveRightState,
+                this.current,
+                this.level,
+                size,
+                size * (ulong)diffs[1]);
+            return result;
+        }
+
+        /// <summary>
+        /// Inicializa o estado da roda.
+        /// </summary>
+        /// <param name="diffs">O vector das diferenças.</param>
+        /// <param name="currPointer">O apontador para o vector.</param>
+        /// <param name="moveRight">O sentido do movimento do apontador.</param>
+        /// <param name="current">O valor actual.</param>
+        /// <param name="level">O nível actual.</param>
+        /// <param name="size">O tamanho da roda.</param>
+        /// <param name="span">O perímetro da roda.</param>
+        protected void SetupProps(
+            long[] diffs,
+            long currPointer,
+            bool moveRight,
+            long current,
+            ulong level,
+            ulong size,
+            ulong span)
+        {
+            this.diffs = diffs;
+            this.currPointer = currPointer;
+            this.moveRightState = moveRight;
+            this.current = current;
+            this.level = level;
+            this.size = size;
+            this.span = span;
+        }
+    }
+
+    /// <summary>
     /// Define um enumerador para a roda.
     /// </summary>
     internal class WheelEnum :
