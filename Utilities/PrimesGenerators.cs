@@ -608,6 +608,333 @@ namespace Utilities
             }
         }
     }
+    
+     /// <summary>
+    /// Crivo para gerar números primos que elimina compostos ímpares.
+    /// </summary>
+    public class LevelTwoPrimeSieveGenerator
+    {
+        /// <summary>
+        /// Mantém os itens módulo 5 a serem analisados.
+        /// </summary>
+        private bool[] items1;
+
+        /// <summary>
+        /// Mantém os itens módulo 1 a serem analisados.
+        /// </summary>
+        private bool[] items2;
+
+        /// <summary>
+        /// O estado de retorno do gerador.
+        /// </summary>
+        private byte state;
+
+        /// <summary>
+        /// A primeira variação horizontal.
+        /// </summary>
+        private uint delta1;
+
+        /// <summary>
+        /// A segunda variação horizontal.
+        /// </summary>
+        private uint delta2;
+
+        /// <summary>
+        /// Apontador para o primeiro número não filtrado.
+        /// </summary>
+        private uint notSievedPointer;
+
+        /// <summary>
+        /// O valor da sequência relativa ao número não filtrado.
+        /// </summary>
+        private uint notSievedPrimeSeq;
+
+        /// <summary>
+        /// Apontador para o último número primo retornado.
+        /// </summary>
+        private uint lastPrimePointer;
+
+        /// <summary>
+        /// Mantém o valor actual.
+        /// </summary>
+        private uint current;
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="PrimeSieveGenerator"/>.
+        /// </summary>
+        public LevelTwoPrimeSieveGenerator()
+        {
+            this.Initialize(100);
+        }
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="PrimeSieveGenerator"/>.
+        /// </summary>
+        /// <param name="max">O número primo máximo.</param>
+        public LevelTwoPrimeSieveGenerator(uint max)
+        {
+            this.Initialize(max);
+        }
+
+        /// <summary>
+        /// Obtém o próximo número primo.
+        /// </summary>
+        /// <returns>O número primo.</returns>
+        public uint GetNextPrime()
+        {
+            if (this.state == 0)
+            {
+                ++this.state;
+                return 2;
+            }
+            else if (this.state == 1)
+            {
+                ++this.state;
+                return 3;
+            }
+            else if (this.state == 2)
+            {
+                var len2 = this.items2.Length;
+                while (this.lastPrimePointer < len2 &&
+                    this.items1[this.lastPrimePointer] &&
+                    this.items2[this.lastPrimePointer])
+                {
+                    ++this.lastPrimePointer;
+                }
+
+                if (this.lastPrimePointer >= len2)
+                {
+                    this.state = 255;
+                    len2 = this.items1.Length;
+                    if (this.lastPrimePointer < len2 &&
+                        !this.items1[this.lastPrimePointer])
+                    {
+                        return 6 * this.lastPrimePointer + 5;
+                    }
+                    else
+                    {
+                        this.state = 255;
+                        return 0;
+                    }
+                }
+                else
+                {
+                    if (this.lastPrimePointer == this.notSievedPrimeSeq)
+                    {
+                        // Encontrou o próximo número composto
+                        var len1 = this.items1.LongLength;
+                        var temp = (this.notSievedPointer + 1) << 1;
+
+                        if (!this.items1[this.notSievedPointer])
+                        {
+                            var init = this.lastPrimePointer;
+                            for (var i = init; i < len2; i += this.delta1)
+                            {
+                                this.items2[i] = true;
+                            }
+
+                            init += temp;
+                            for (var i = init; i < len1; i += this.delta1)
+                            {
+                                this.items1[i] = true;
+                            }
+                        }
+
+                        if (!this.items2[this.notSievedPointer])
+                        {
+                            var init = this.lastPrimePointer  + (temp << 1);
+                            for (var i = init; i < len2; i += this.delta2)
+                            {
+                                this.items2[i] = true;
+                            }
+
+                            init += 5 + (this.notSievedPointer << 2);
+                            for (var i = init; i < len1; i += this.delta2)
+                            {
+                                this.items1[i] = true;
+                            }
+                        }
+
+                        ++this.notSievedPointer;
+                        this.delta1 += 6;
+                        this.delta2 += 6;
+                        var control = true;
+                        while (control)
+                        {
+                            if (this.items1[this.notSievedPointer])
+                            {
+                                if (!this.items2[this.notSievedPointer])
+                                {
+                                    var init = 7 + this.notSievedPointer *
+                                        (14 + 6 * this.notSievedPointer);
+                                    for (var i = init; i < len2; i += this.delta2)
+                                    {
+                                        this.items2[i] = true;
+                                    }
+
+                                    init += 5 + (this.notSievedPointer << 2);
+                                    for (var i = init; i < len1; i += this.delta2)
+                                    {
+                                        this.items1[i] = true;
+                                    }
+                                }
+
+                                ++this.notSievedPointer;
+                                this.delta1 += 6;
+                                this.delta2 += 6;
+                            }
+                            else
+                            {
+                                control = false;
+                            }
+                        }
+
+                        this.notSievedPrimeSeq = 3 + this.notSievedPointer *
+                            (10 + 6 * this.notSievedPointer);
+
+                        if (this.items1[this.lastPrimePointer])
+                        {
+                            ++this.lastPrimePointer;
+                            while (this.lastPrimePointer < len2 &&
+                                this.items1[this.lastPrimePointer] &&
+                                this.items2[this.lastPrimePointer])
+                            {
+                                ++this.lastPrimePointer;
+                            }
+
+                            if (this.lastPrimePointer == len2)
+                            {
+                                this.state = 255;
+                                len2 = this.items1.Length;
+                                if (this.lastPrimePointer < len2 &&
+                                    !this.items1[this.lastPrimePointer])
+                                {
+                                    return 6 * this.lastPrimePointer + 5;
+                                }
+                                else
+                                {
+                                    this.state = 255;
+                                    return 0;
+                                }
+                            }
+                            else
+                            {
+                                if (this.items1[this.lastPrimePointer])
+                                {
+                                    var result = 6 * this.lastPrimePointer + 7;
+                                    ++this.lastPrimePointer;
+                                    return result;
+                                }
+                                else
+                                {
+                                    var result = 6 * this.lastPrimePointer + 5;
+                                    if (!this.items2[this.lastPrimePointer])
+                                    {
+                                        this.current = result + 2;
+                                        this.state = 3;
+                                    }
+
+                                    ++this.lastPrimePointer;
+                                    return result;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if (this.items1[this.lastPrimePointer])
+                            {
+                                var result = 6 * this.lastPrimePointer + 7;
+                                ++this.lastPrimePointer;
+                                return result;
+                            }
+                            else
+                            {
+                                var result = 6 * this.lastPrimePointer + 5;
+                                if (!this.items2[this.lastPrimePointer])
+                                {
+                                    this.current = result + 2;
+                                    this.state = 3;
+                                }
+
+                                ++this.lastPrimePointer;
+                                return result;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (this.items1[this.lastPrimePointer])
+                        {
+                            var result = 6 * this.lastPrimePointer + 7;
+                            ++this.lastPrimePointer;
+                            return result;
+                        }
+                        else
+                        {
+                            var result = 6 * this.lastPrimePointer + 5;
+                            if (!this.items2[this.lastPrimePointer])
+                            {
+                                this.current = result + 2;
+                                this.state = 3;
+                            }
+
+                            ++this.lastPrimePointer;
+                            return result;
+                        }
+                    }
+                }
+            }
+            else if (this.state == 3)
+            {
+                this.state = 2;
+                return this.current;
+            }
+            else
+            {
+                return 0;
+            }
+        }
+
+        /// <summary>
+        /// Inicializa o crivo.
+        /// </summary>
+        /// <param name="max">O número primo máximo.</param>
+        private void Initialize(uint max)
+        {
+            if (max < 2)
+            {
+                throw new ArgumentException("There is no prime number less than two.");
+            }
+            else
+            {
+                var len = max / 6;
+                var rem = max % 6;
+                if (rem > 1)
+                {
+                    this.items2 = new bool[len];
+                    if (rem > 4)
+                    {
+                        ++len;
+                    }
+
+                    this.items1 = new bool[len];
+                }
+                else
+                {
+                    this.items1 = new bool[len];
+                    --len;
+                    this.items2 = new bool[len];
+                }
+
+                this.state = 0;
+                this.notSievedPointer = 0;
+                this.notSievedPrimeSeq = 3;
+                this.lastPrimePointer = 0;
+                this.delta1 = 5;
+                this.delta2 = 7;
+            }
+        }
+    }
 
     /// <summary>
     /// Crivo para gerar números primos que elimina compostos ímpares.
