@@ -463,7 +463,7 @@ namespace Utilities
     /// <summary>
     /// Crivo para gerar números primos que elimina compostos ímpares.
     /// </summary>
-    public class CompositePrimeSieveGenerator
+    public class LevelOnePrimeSieveGenerator
     {
         /// <summary>
         /// Mantém os itens a serem analisados.
@@ -498,7 +498,7 @@ namespace Utilities
         /// <summary>
         /// Instancia uma nova instância de objectos do tipo <see cref="PrimeSieveGenerator"/>.
         /// </summary>
-        public CompositePrimeSieveGenerator()
+        public LevelOnePrimeSieveGenerator()
         {
             this.Initialize(100);
         }
@@ -507,7 +507,7 @@ namespace Utilities
         /// Instancia uma nova instância de objectos do tipo <see cref="PrimeSieveGenerator"/>.
         /// </summary>
         /// <param name="max">O número primo máximo.</param>
-        public CompositePrimeSieveGenerator(uint max)
+        public LevelOnePrimeSieveGenerator(uint max)
         {
             this.Initialize(max);
         }
@@ -608,8 +608,8 @@ namespace Utilities
             }
         }
     }
-    
-     /// <summary>
+
+    /// <summary>
     /// Crivo para gerar números primos que elimina compostos ímpares.
     /// </summary>
     public class LevelTwoPrimeSieveGenerator
@@ -1181,25 +1181,33 @@ namespace Utilities
             var state = true;
             while (state)
             {
-                ++this.currentNumb;
                 if (this.currentNumb == 2)
                 {
-                    this.factorMap.Add(this.currentNumb, 2UL);
                     this.foundPrimes.Add(2UL);
+                    ++this.currentNumb;
                     state = false;
                 }
-                else if ((this.currentNumb & 1) == 0)
+                else if (this.currentNumb == 3)
                 {
-                    this.factorMap.Add(this.currentNumb, 2UL);
-                    var f = this.currentNumb >> 1;
-                    if (f > 2)
+                    this.factorMap.Add(this.currentNumb, 3UL);
+                    this.foundPrimes.Add(3UL);
+                    this.currentNumb += 2;
+                    state = false;
+                }
+                else if ((this.currentNumb % 3) == 0)
+                {
+                    this.factorMap.Add(this.currentNumb, 3UL);
+                    var f = this.currentNumb / 3;
+                    if (f > 3)
                     {
-                        // O próximo número primo é 3
-                        if (this.factorMap[f] > 2)
+                        // O próximo número primo é 5
+                        if (this.factorMap[f] > 3)
                         {
-                            this.factorMap.Add(3 * f, 3);
+                            this.factorMap.Add(5 * f, 5);
                         }
                     }
+
+                    this.currentNumb += 2;
                 }
                 else
                 {
@@ -1221,6 +1229,8 @@ namespace Utilities
                         this.foundPrimes.Add(this.currentNumb);
                         state = false;
                     }
+
+                    this.currentNumb += 2;
                 }
             }
 
@@ -1239,7 +1249,7 @@ namespace Utilities
             Func<IDictionary<ulong, ulong>> lambda)
         {
             this.primePointer = 0;
-            this.currentNumb = 1UL;
+            this.currentNumb = 2UL;
             this.factorMap = lambda.Invoke();
             this.foundPrimes = new InsertionSortedCollection<ulong>(
                 Comparer<ulong>.Default);
@@ -1420,7 +1430,509 @@ namespace Utilities
             }
         }
     }
-    
+
+    /// <summary>
+    /// Implementa um crivo para gerar números primos baseado numa roda.
+    /// </summary>
+    /// <remarks>Aplica uma roda.</remarks>
+    public class WheelPrimeSieveGenerator
+    {
+        /// <summary>
+        /// Mantém os itens a serem analisados.
+        /// </summary>
+        private bool[] items;
+
+        /// <summary>
+        /// O apontador actual para o vector de elementos.
+        /// </summary>
+        private long itemsPointer;
+
+        /// <summary>
+        /// Mantém a roda.
+        /// </summary>
+        private ILevelWheel levelWheel;
+
+        /// <summary>
+        /// Roda que determina o número primo limite.
+        /// </summary>
+        private ILevelWheel limitWheel;
+
+        /// <summary>
+        /// O nível máximo da roda.
+        /// </summary>
+        private ulong level;
+
+        /// <summary>
+        /// Mantém o índice do número primo actual.
+        /// </summary>
+        private long current;
+
+        /// <summary>
+        /// O limite para a extracção de números primos.
+        /// </summary>
+        private long limit;
+
+        /// <summary>
+        /// Variável de estado que indica tratarem-se dos primeiros
+        /// números primos gerados pela roda.
+        /// </summary>
+        /// <remarks>
+        /// 0 - A roda actual fornece sempre números primos.
+        /// </remarks>
+        private byte state;
+
+        /// <summary>
+        /// Mantém o valor do máximo.
+        /// </summary>
+        private long max;
+
+        /// <summary>
+        /// A matriz das diferenças.
+        /// </summary>
+        private IDiffsWheelsMatrix diffsMatrix;
+
+        /// <summary>
+        /// A matriz actual das coordenadas.
+        /// </summary>
+        private IWheel currentCoordMatrix;
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="WheelPrimeSieveGenerator"/>.
+        /// </summary>
+        public WheelPrimeSieveGenerator()
+        {
+            this.Initialize(100L, 3);
+        }
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="WheelPrimeSieveGenerator"/>.
+        /// </summary>
+        /// <param name="max">O valor máximo.</param>
+        public WheelPrimeSieveGenerator(long max)
+        {
+            this.Initialize(max, 3);
+        }
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="WheelPrimeSieveGenerator"/>.
+        /// </summary>
+        /// <param name="max">O valor máximo.</param>
+        /// <param name="level">O nível da roda a ser utilizada, iniciando em zero.</param>
+        public WheelPrimeSieveGenerator(long max, ulong level)
+        {
+            if (level < 0)
+            {
+                throw new ArgumentOutOfRangeException("level", "Level must be non-negative.");
+            }
+            else
+            {
+                this.Initialize(max, level);
+            }
+        }
+
+        /// <summary>
+        /// Obtém o próximo número primo.
+        /// </summary>
+        /// <returns>
+        /// O número primo ou zero caso o limite tenha sido atingido.
+        /// </returns>
+        public long GetNextPrime()
+        {
+            if (this.state == 0)
+            {
+                var wheelLevel = this.levelWheel.Level;
+                if (wheelLevel < this.level)
+                {
+                    var current = this.levelWheel.Current;
+                    if (current > max)
+                    {
+                        this.state = 255;
+                        return 0L;
+                    }
+                    else
+                    {
+                        this.levelWheel = this.levelWheel.GetNextLevelWheel();
+                        return current;
+                    }
+                }
+                else
+                {
+                    var current = this.levelWheel.Current;
+                    if (current > this.max)
+                    {
+                        this.state = 255;
+                        return 0L;
+                    }
+                    else
+                    {
+                        this.limitWheel = this.levelWheel.CloneWheel();
+                        var limitPrime = limitWheel.Current;
+                        this.limit = limitPrime * limitPrime;
+
+                        var length = this.ComputeArraySize(
+                            this.max,
+                            this.levelWheel);
+                        this.items = new bool[length];
+
+                        // Processa o número primo
+                        this.itemsPointer = 0;
+                        if (this.level < 2)
+                        {
+                            this.diffsMatrix = new SmallestLevelDiffsWheelsMatrix(
+                                (long)this.level);
+                            this.levelWheel.MoveRight();
+                            this.state = 1;
+                        }
+                        else
+                        {
+                            this.BuildWheelsMatrix();
+                            this.levelWheel.MoveRight();
+                            this.state = 1;
+                        }
+
+                        return current;
+                    }
+                }
+            }
+            else if (this.state == 1)
+            {
+                var len = this.items.LongLength;
+                while (
+                    this.levelWheel.RotateNumb < len &&
+                    this.items[this.levelWheel.RotateNumb])
+                {
+                    this.levelWheel.MoveRight();
+                }
+
+                if (this.levelWheel.RotateNumb < len)
+                {
+                    if (this.levelWheel.Current == this.limit)
+                    {
+                        this.currentCoordMatrix = this.diffsMatrix.GetNextWheel(
+                            this.levelWheel.RotateNumb);
+                        this.MarkMultiples();
+
+                        this.limitWheel.MoveRight();
+                        while (
+                            this.limitWheel.RotateNumb < len &&
+                            this.items[this.limitWheel.RotateNumb])
+                        {
+                            this.currentCoordMatrix = this.diffsMatrix.GetNextWheel(
+                            this.levelWheel.RotateNumb);
+                            this.limitWheel.MoveRight();
+                        }
+
+                        this.limit = this.limitWheel.Current * this.limitWheel.Current;
+
+                        return this.NextPrime();
+                    }
+                    else
+                    {
+                        var result = this.levelWheel.Current;
+                        this.levelWheel.MoveRight();
+                        return result;
+                    }
+                }
+                else
+                {
+                    this.state = 255;
+                    return 0;
+                }
+            }
+
+            return 0;
+        }
+
+        /// <summary>
+        /// Constrói a matriz das rodas.
+        /// </summary>
+        private void BuildWheelsMatrix()
+        {
+            var size = ((long)this.levelWheel.Size + 2L) >> 1;
+            var seqs = new long[size][];
+            for (var k = 0; k < size; ++k)
+            {
+                seqs[k] = new long[size];
+            }
+
+            --size;
+            var wheel = this.levelWheel.CloneWheel();
+            wheel.Reset();
+
+            var current = wheel.Current;
+            var coord = 0L;
+            var stored = current;
+
+            var w1 = this.levelWheel.CloneWheel();
+            w1.Reset();
+            var curr1 = w1.Current;
+            var w2 = this.levelWheel.CloneWheel();
+            w2.Reset();
+
+            var i = 0L;
+            while (i < size)
+            {
+                var array = seqs[i];
+                array[0] = i;
+                wheel.Reset();
+
+                current = stored;
+                coord = 0L;
+                var j = 0L;
+
+                w2.Reset();
+
+                var curr2 = w2.Current;
+
+                while (j < size)
+                {
+                    var prod = curr1 * curr2;
+                    while (current < prod)
+                    {
+                        wheel.MoveRight();
+                        current = wheel.Current;
+                        ++coord;
+                    }
+
+                    array[j] = coord;
+                    w2.MoveRight();
+                    curr2 = w2.Current;
+                    ++j;
+                }
+
+                w1.MoveRight();
+                curr1 = w1.Current;
+
+                ++i;
+            }
+
+            this.diffsMatrix = new GreatestLevelDiffWheelsMatrix(seqs);
+        }
+
+        /// <summary>
+        /// Obtém o próximo número primo.
+        /// </summary>
+        /// <returns>O número primo.</returns>
+        private long NextPrime()
+        {
+            var len = this.items.LongLength;
+            this.levelWheel.MoveRight();
+            while (
+                this.levelWheel.RotateNumb < len &&
+                this.items[this.levelWheel.RotateNumb])
+            {
+                this.levelWheel.MoveRight();
+            }
+
+            if (this.levelWheel.RotateNumb < len)
+            {
+                var result = this.levelWheel.Current;
+                this.levelWheel.MoveRight();
+                return result;
+            }
+            else
+            {
+                this.state = 255;
+                return 0;
+            }
+        }
+
+        /// <summary>
+        /// Marca os múltiplos do número marcado na roda actual.
+        /// </summary>
+        private void MarkMultiples()
+        {
+            var coordWheel = this.currentCoordMatrix;
+            var len = this.items.LongLength;
+            while (coordWheel.Current < len)
+            {
+                this.items[coordWheel.Current] = true;
+                coordWheel.MoveRight();
+            }
+        }
+
+        /// <summary>
+        /// Função interna que permite calcular o número de valores
+        /// a serem reservados para o algoritmo.
+        /// </summary>
+        /// <param name="value">O valor máximo.</param>
+        /// <param name="wheel">O roda a ser considerada.</param>
+        /// <returns></returns>
+        internal ulong InternalComputeSize(
+            long value,
+            ILevelWheel wheel)
+        {
+            return this.ComputeArraySize(
+                value,
+                wheel);
+        }
+
+        /// <summary>
+        /// Inicializa o crivo.
+        /// </summary>
+        /// <param name="max">O limite para os números primos gerados.</param>
+        /// <param name="k">O patamar da roda.</param>
+        private void Initialize(long max, ulong k)
+        {
+            if (max < 2)
+            {
+                throw new ArgumentException("There is no prime number less than two.");
+            }
+            else if (k < 0)
+            {
+                throw new ArgumentOutOfRangeException("k", "The wheel level must be non-negative.");
+            }
+            else
+            {
+                this.levelWheel = new LevelZeroWheel();
+                this.level = 0UL;
+                this.current = 0L;
+                this.limit = 0L;
+                this.max = max;
+                this.level = k;
+                this.state = 0;
+            }
+        }
+
+        /// <summary>
+        /// Calcula o tamanho do vector.
+        /// </summary>
+        /// <param name="quant">O valor máximo.</param>
+        /// <param name="wheel">A roda.</param>
+        /// <returns>O tamanho do vector.</returns>
+        private ulong ComputeArraySize(
+            long quant,
+            ILevelWheel wheel)
+        {
+            var span = wheel.Span;
+            var size = wheel.Size;
+            var quo = (ulong)quant / span;
+            var value = 0UL;
+
+            var clonedWheel = wheel.CloneWheel();
+            if (quo != 0UL)
+            {
+                value = quo * size - 1;
+                clonedWheel.GotoValue((long)(span * quo));
+            }
+            else
+            {
+                clonedWheel.Reset();
+            }
+
+            while (clonedWheel.Current < quant)
+            {
+                ++value;
+                clonedWheel.MoveRight();
+            }
+
+            return value;
+        }
+    }
+
+    #region Interfaces Internas
+
+    /// <summary>
+    /// Define um roda genérica.
+    /// </summary>
+    internal interface IWheel
+    {
+        /// <summary>
+        /// Obtém o valor actual da roda.
+        /// </summary>
+        long Current { get; }
+
+        /// <summary>
+        /// Obtém a amplitude da roda.
+        /// </summary>
+        ulong Size { get; }
+
+        /// <summary>
+        /// Move a roda para a direita.
+        /// </summary>
+        void MoveRight();
+
+        /// <summary>
+        /// Move a roda para a esquerda.
+        /// </summary>
+        void MoveLeft();
+    }
+
+    /// <summary>
+    /// Define uma roda relativa a números primos.
+    /// </summary>
+    internal interface ILevelWheel : IWheel
+    {
+        /// <summary>
+        /// Obtém o valor da diferença actual.
+        /// </summary>
+        long CurrentDiff { get; }
+
+        /// <summary>
+        /// Obtém o número de rotações aplicadas à roda.
+        /// </summary>
+        long RotateNumb { get; }
+
+        /// <summary>
+        /// Obtém o nível.
+        /// </summary>
+        ulong Level { get; }
+
+        /// <summary>
+        /// Obtém o ponto de partida da roda.
+        /// </summary>
+        long StartPoint { get; }
+
+        /// <summary>
+        /// Obtém o perímetro da roda.
+        /// </summary>
+        ulong Span { get; }
+
+        /// <summary>
+        /// Retorna a roda ao ponto incial.
+        /// </summary>
+        void Reset();
+
+        /// <summary>
+        /// Obtém a roda associada ao próximo nível.
+        /// </summary>
+        /// <returns>A roda associada ao próximo nível.</returns>
+        ILevelWheel GetNextLevelWheel();
+
+        /// <summary>
+        /// Obtém uma cópia da roda actual.
+        /// </summary>
+        /// <returns>A cópia.</returns>
+        ILevelWheel CloneWheel();
+
+        /// <summary>
+        /// Move a roda para o valor especificado.
+        /// </summary>
+        /// <remarks>
+        /// Se o valor não pertencer ao espaço gerado pela roda,
+        /// esta é colocada no valor seguinte.
+        /// </remarks>
+        /// <param name="value">O valor.</param>
+        void GotoValue(long value);
+    }
+
+    /// <summary>
+    /// Define uma matriz de diferenças.
+    /// </summary>
+    internal interface IDiffsWheelsMatrix
+    {
+        /// <summary>
+        /// Obtém a próxima roda.
+        /// </summary>
+        /// <param name="squreCoord">
+        /// A coordenada do número em questão.
+        /// </param>
+        /// <returns>A roda.</returns>
+        IWheel GetNextWheel(long coord);
+    }
+
+    #endregion Interfaces Internas
+
     #region Classes Internas
 
     /// <summary>
@@ -1562,54 +2074,62 @@ namespace Utilities
             int level)
         {
             var primes = new List<ulong>();
-            var wheel = PrimesGeneratorUtils.GetDiffWheel(level, primes);
+            var wheel = default(ILevelWheel);
+            if (level == 0)
+            {
+                wheel = new LevelZeroWheel();
+            }
+            else if (level == 1)
+            {
+                wheel = new LevelOneWheel();
+            }
+            else
+            {
+                wheel = new GreatestLevelWheel((ulong)level);
+            }
 
-            var count = ((wheel.Count - 1) << 1);
-
-            var wheelArray = wheel.ToArray();
-            var wheelEnum = new WheelEnum(wheelArray, wheelArray.LongLength);
-            var current = 1UL + wheelEnum.Current;
+            var current = wheel.Current;
 
             var coord = 0UL;
             var stored = current;
 
-            var w1 = new WheelEnum(wheelArray, wheelArray.LongLength);
-            var curr1 = 1UL + w1.Current;
-            var w2 = new WheelEnum(wheelArray, wheelArray.LongLength);
+            var w1 = wheel.CloneWheel();
+            var curr1 = w1.Current;
+            var w2 = wheel.CloneWheel();
 
             var sequences = new List<List<ulong>>();
             var i = 0UL;
-            while (i < (ulong)count)
+            while (i < wheel.Size)
             {
                 var seq = new List<ulong>();
                 seq.Add(i);
-                wheelEnum.Reset();
+                wheel.Reset();
                 current = stored;
                 coord = 0;
-                var j = 0;
+                var j = 0UL;
 
                 w2.Reset();
 
-                var curr2 = 1UL + w2.Current;
+                var curr2 = w2.Current;
 
-                while (j < count)
+                while (j < wheel.Size)
                 {
                     var prod = curr1 * curr2;
                     while (current < prod)
                     {
-                        wheelEnum.MoveNext();
-                        current += wheelEnum.Current;
+                        wheel.MoveRight();
+                        current = wheel.Current;
                         ++coord;
                     }
 
                     seq.Add(coord);
-                    w2.MoveNext();
-                    curr2 += w2.Current;
+                    w2.MoveRight();
+                    curr2 = w2.Current;
                     ++j;
                 }
 
-                w1.MoveNext();
-                curr1 += w1.Current;
+                w1.MoveRight();
+                curr1 = w1.Current;
                 ++i;
                 sequences.Add(seq);
             }
@@ -1631,6 +2151,82 @@ namespace Utilities
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Obtém os valores associados à roda.
+        /// </summary>
+        /// <param name="wheel">A roda.</param>
+        /// <returns>Os valores associados à roda.</returns>
+        internal static long[] GetWheelValues(ILevelWheel wheel)
+        {
+            var size = wheel.Size;
+            var result = new long[size];
+            result[0] = 1L;
+            for (var i = 1UL; i < size; ++i)
+            {
+                result[i] = wheel.Current;
+                wheel.MoveRight();
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Obtém a tabela de multiplicação dos números proporcionados
+        /// relativamente a um módulo.
+        /// </summary>
+        /// <param name="values">Os valores.</param>
+        /// <param name="module">O módulo.</param>
+        /// <returns>O resultado da multiplicação.</returns>
+        internal static long[][] GetMultiplicationTable(
+            long[] values,
+            ulong module)
+        {
+            if (module == 0)
+            {
+                throw new ArgumentException("Module can't be zero.");
+            }
+            else if (module > 1)
+            {
+                var len = values.LongLength;
+                var result = new long[len][];
+                for (var i = 0; i < len; ++i)
+                {
+                    result[i] = new long[i + 1];
+                }
+
+                for (var i = 0; i < len; ++i)
+                {
+                    var innerRes = result[i];
+                    var innerLen = innerRes.LongLength;
+                    for (var j = 0; j < innerLen; ++j)
+                    {
+                        var rem = (ulong)(values[i] * values[j]) % module;
+                        for (var k = 0L; k < len; ++k)
+                        {
+                            if ((ulong)values[k] == rem)
+                            {
+                                innerRes[j] = k;
+                                k = len;
+                            }
+                        }
+                    }
+                }
+
+                return result;
+            }
+            else
+            {
+                var len = values.LongLength;
+                var result = new long[len][];
+                for (var i = 0; i < len; ++i)
+                {
+                    result[i] = new long[i + 1];
+                }
+
+                return result;
+            }
         }
 
         /// <summary>
@@ -1659,72 +2255,104 @@ namespace Utilities
     }
 
     /// <summary>
-    /// Define um roda genérica.
+    /// Implementa uma roda geral.
     /// </summary>
-    internal interface IWheel
+    internal class GeneralWheel : IWheel
     {
+        /// <summary>
+        /// Vector das diferenças.
+        /// </summary>
+        protected long[] diffs;
+
+        /// <summary>
+        /// O apontador para a diferença actual.
+        /// </summary>
+        protected long currentPointer;
+
+        /// <summary>
+        /// O valor actual.
+        /// </summary>
+        protected long current;
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="GeneralWheel"/>.
+        /// </summary>
+        /// <param name="diffs">O vector das diferenças.</param>
+        /// <param name="currentPointer">O apontador para a diferença actual.</param>
+        /// <param name="current">O valor actual.</param>
+        public GeneralWheel(
+            long[] diffs,
+            long currentPointer,
+            long current)
+        {
+            this.diffs = diffs;
+            this.Update(currentPointer, current);
+        }
+
         /// <summary>
         /// Obtém o valor actual da roda.
         /// </summary>
-        long Current { get; }
+        public long Current
+        {
+            get
+            {
+                return this.current;
+            }
+        }
 
         /// <summary>
         /// Obtém a amplitude da roda.
         /// </summary>
-        ulong Size { get; }
+        public ulong Size
+        {
+            get
+            {
+                return (ulong)this.diffs.LongLength;
+            }
+        }
+
+        /// <summary>
+        /// Actualiza a roda.
+        /// </summary>
+        /// <param name="currentPointer">O apontador actual.</param>
+        /// <param name="current">O valor actual.</param>
+        public void Update(
+            long currentPointer,
+            long current)
+        {
+            this.currentPointer = currentPointer;
+            this.current = current;
+        }
 
         /// <summary>
         /// Move a roda para a direita.
         /// </summary>
-        void MoveRight();
+        public void MoveRight()
+        {
+            var len = this.diffs.Length;
+            ++this.currentPointer;
+            if (this.currentPointer == len)
+            {
+                this.currentPointer = 0;
+            }
+
+            this.current += this.diffs[this.currentPointer];
+        }
 
         /// <summary>
         /// Move a roda para a esquerda.
         /// </summary>
-        void MoveLeft();
-    }
+        public void MoveLeft()
+        {
+            var len = this.diffs.Length;
+            --this.currentPointer;
+            if (this.currentPointer == 0)
+            {
+                this.currentPointer = len - 1;
+            }
 
-    /// <summary>
-    /// Define uma roda relativa a números primos.
-    /// </summary>
-    internal interface ILevelWheel : IWheel
-    {
-        /// <summary>
-        /// Obtém o valor da diferença actual.
-        /// </summary>
-        long CurrentDiff { get; }
-
-        /// <summary>
-        /// Obtém o nível.
-        /// </summary>
-        ulong Level { get; }
-
-        /// <summary>
-        /// Obtém o ponto de partida da roda.
-        /// </summary>
-        long StartPoint { get; }
-
-        /// <summary>
-        /// Obtém o perímetro da roda.
-        /// </summary>
-        ulong Span { get; }
-
-        /// <summary>
-        /// Retorna a roda ao ponto incial.
-        /// </summary>
-        void Reset();
-
-        /// <summary>
-        /// Obtém a roda associada ao próximo nível.
-        /// </summary>
-        /// <returns>A roda associada ao próximo nível.</returns>
-        ILevelWheel GetNextLevelWheel();
-
-        /// <summary>
-        /// Obtém uma cópia da roda actual.
-        /// </summary>
-        /// <returns>A cópia.</returns>
-        ILevelWheel CloneWheel();
+            this.current -= this.diffs[this.currentPointer];
+        }
     }
 
     /// <summary>
@@ -1738,6 +2366,11 @@ namespace Utilities
         protected long current;
 
         /// <summary>
+        /// Mantém o número de rotações.
+        /// </summary>
+        private long rotationNumb;
+
+        /// <summary>
         /// Mantém o valor do nível.
         /// </summary>
         protected ulong level;
@@ -1749,6 +2382,7 @@ namespace Utilities
         {
             this.current = 2L;
             this.level = 0UL;
+            this.rotationNumb = 0L;
         }
 
         /// <summary>
@@ -1759,6 +2393,17 @@ namespace Utilities
             get
             {
                 return this.current;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o número de rotações aplicadas à roda.
+        /// </summary>
+        public long RotateNumb
+        {
+            get
+            {
+                return this.rotationNumb;
             }
         }
 
@@ -1823,6 +2468,7 @@ namespace Utilities
         public void MoveRight()
         {
             ++this.current;
+            ++this.rotationNumb;
         }
 
         /// <summary>
@@ -1831,6 +2477,7 @@ namespace Utilities
         public void MoveLeft()
         {
             --this.current;
+            --this.rotationNumb;
         }
 
         /// <summary>
@@ -1850,7 +2497,7 @@ namespace Utilities
         {
             return new LevelZeroWheel()
             {
-                 current = this.current,
+                current = this.current,
                 level = this.level,
             };
         }
@@ -1874,6 +2521,7 @@ namespace Utilities
         public void Reset()
         {
             this.current = 2L;
+            this.rotationNumb = 0L;
         }
     }
 
@@ -1888,6 +2536,11 @@ namespace Utilities
         protected long current;
 
         /// <summary>
+        /// Mantém o número de rotações.
+        /// </summary>
+        private long rotateNumb;
+
+        /// <summary>
         /// Mantém o valor do nível.
         /// </summary>
         protected ulong level;
@@ -1899,6 +2552,7 @@ namespace Utilities
         {
             this.current = 3L;
             this.level = 1UL;
+            this.rotateNumb = 0L;
         }
 
         /// <summary>
@@ -1909,6 +2563,17 @@ namespace Utilities
             get
             {
                 return this.current;
+            }
+        }
+
+        /// <summary>
+        /// Obém o número de rotações aplicadas à roda.
+        /// </summary>
+        public long RotateNumb
+        {
+            get
+            {
+                return this.rotateNumb;
             }
         }
 
@@ -1952,7 +2617,7 @@ namespace Utilities
         {
             get
             {
-                return 0UL;
+                return 1UL;
             }
         }
 
@@ -1973,6 +2638,7 @@ namespace Utilities
         public void MoveRight()
         {
             this.current += 2L;
+            ++this.rotateNumb;
         }
 
         /// <summary>
@@ -1981,6 +2647,7 @@ namespace Utilities
         public void MoveLeft()
         {
             this.current -= 2L;
+            --this.rotateNumb;
         }
 
         /// <summary>
@@ -2031,6 +2698,7 @@ namespace Utilities
         public void Reset()
         {
             this.current = 3L;
+            this.rotateNumb = 0L;
         }
     }
 
@@ -2087,10 +2755,11 @@ namespace Utilities
             )
         {
             this.diffs = diffs;
-            this.currPointer = currPointer;
-            this.moveRightState = moveRight;
-            this.current = current;
             this.size = (ulong)(this.diffs.LongLength - 1) << 1;
+            this.Update(
+                currPointer,
+                moveRight,
+                current);
         }
 
         /// <summary>
@@ -2116,9 +2785,25 @@ namespace Utilities
         }
 
         /// <summary>
+        /// Coloca a roda num novo estado.
+        /// </summary>
+        /// <param name="currPointer">O apontador.</param>
+        /// <param name="moveRight">O esatdo do movimento do apontador.</param>
+        /// <param name="current">O valor actual.</param>
+        public void Update(
+            long currPointer,
+            bool moveRight,
+            long current)
+        {
+            this.currPointer = currPointer;
+            this.moveRightState = moveRight;
+            this.current = current;
+        }
+
+        /// <summary>
         /// Move a roda para a direita.
         /// </summary>
-        public void MoveRight()
+        public virtual void MoveRight()
         {
             if (this.moveRightState)
             {
@@ -2151,7 +2836,7 @@ namespace Utilities
         /// <summary>
         /// Move a roda para a esquerda.
         /// </summary>
-        public void MoveLeft()
+        public virtual void MoveLeft()
         {
             if (this.moveRightState)
             {
@@ -2196,6 +2881,11 @@ namespace Utilities
         /// Mantém o perímetro da roda.
         /// </summary>
         protected ulong span;
+
+        /// <summary>
+        /// Mantém o número de rotações da roda.
+        /// </summary>
+        protected long rotateNumb;
 
         /// <summary>
         /// Instancia uma nova instância de objectos do tipo <see cref="GreatestLevelWheel"/>.
@@ -2255,6 +2945,17 @@ namespace Utilities
         }
 
         /// <summary>
+        /// Obtém o número de rotações aplicadas à roda.
+        /// </summary>
+        public long RotateNumb
+        {
+            get
+            {
+                return this.rotateNumb;
+            }
+        }
+
+        /// <summary>
         /// Obtém o nível.
         /// </summary>
         public ulong Level
@@ -2307,6 +3008,24 @@ namespace Utilities
         }
 
         /// <summary>
+        /// Move a roda para a direita.
+        /// </summary>
+        public override void MoveRight()
+        {
+            base.MoveRight();
+            ++this.rotateNumb;
+        }
+
+        /// <summary>
+        /// Move a roda para a esquerda.
+        /// </summary>
+        public override void MoveLeft()
+        {
+            base.MoveLeft();
+            --this.rotateNumb;
+        }
+
+        /// <summary>
         /// Retorna a roda ao ponto incial.
         /// </summary>
         public void Reset()
@@ -2314,6 +3033,7 @@ namespace Utilities
             this.currPointer = 1L;
             this.current = 1L + this.diffs[1];
             this.moveRightState = true;
+            this.rotateNumb = 0L;
         }
 
         /// <summary>
@@ -2321,6 +3041,11 @@ namespace Utilities
         /// </summary>
         public void IncreaseLevel()
         {
+            var prod = (this.diffs.LongLength - 1L) * this.diffs[1] + 1L;
+            this.size = ((ulong)prod - 1) << 1;
+            this.span *= ((ulong)this.diffs[1] + 1UL);
+            var len = (long)this.span;
+
             var prime = 1L + this.diffs[1];
             var wheel = new GreatestLevelWheel()
             {
@@ -2331,7 +3056,6 @@ namespace Utilities
                 level = this.level
             };
 
-            var prod = (this.diffs.LongLength - 1L) * this.diffs[1] + 1L;
             var newDiffs = new long[prod];
             newDiffs[0] = 2L;
             var temp = wheel.CurrentDiff;
@@ -2352,10 +3076,8 @@ namespace Utilities
                     acc += wheel.CurrentDiff;
                     limit = prime * pointerWheel.Current;
                     pointerWheel.MoveRight();
-
-                    if (this.current == limit)
+                    if ((this.current - prime) % len == 0)
                     {
-                        this.currPointer = j;
                         this.current = wheel.current;
                     }
                 }
@@ -2367,11 +3089,10 @@ namespace Utilities
                 }
             }
 
-            this.size = ((ulong)prod - 1) << 1;
-            this.span *= ((ulong)this.diffs[1] + 1UL);
             this.diffs = newDiffs;
             ++this.level;
 
+            // Restabelece o valor da posição
             this.Reset();
         }
 
@@ -2391,6 +3112,7 @@ namespace Utilities
                 if (div != 0)
                 {
                     this.current += (long)this.span * div;
+                    this.rotateNumb += (long)this.size * div;
                 }
 
                 while (this.current < value)
@@ -2404,6 +3126,7 @@ namespace Utilities
                 if (div != 0)
                 {
                     this.current -= (long)this.span * div;
+                    this.rotateNumb -= (long)this.size * div;
                 }
 
                 while (this.current > value)
@@ -2428,15 +3151,14 @@ namespace Utilities
         public ILevelWheel CloneWheel()
         {
             var result = new GreatestLevelWheel();
-            var size = (ulong)(this.diffs.LongLength - 1) << 1;
             result.SetupProps(
                 this.diffs,
                 this.currPointer,
                 this.moveRightState,
                 this.current,
                 this.level,
-                size,
-                size * (ulong)diffs[1]);
+                this.size,
+                this.span);
             return result;
         }
 
@@ -2466,6 +3188,245 @@ namespace Utilities
             this.level = level;
             this.size = size;
             this.span = span;
+        }
+    }
+
+    /// <summary>
+    /// Implementa uma matriz de rodas que definem as próximas diferenças
+    /// relativas aos níveis inferiores.
+    /// </summary>
+    internal class SmallestLevelDiffsWheelsMatrix
+        : IDiffsWheelsMatrix
+    {
+        /// <summary>
+        /// Mantém a diferença actual.
+        /// </summary>
+        protected long[] current;
+
+        /// <summary>
+        /// O incremento da roda.
+        /// </summary>
+        protected long increment;
+
+        /// <summary>
+        /// A roda a ser retornada.
+        /// </summary>
+        protected GeneralWheel wheel;
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="SmallestLevelDiffsWheelsMatrix"/>.
+        /// </summary>
+        public SmallestLevelDiffsWheelsMatrix(long level)
+        {
+            this.increment = level + 1;
+            this.current = new long[] { 1L };
+            wheel = new GeneralWheel(this.current, 0L, 0L);
+        }
+
+        /// <summary>
+        /// Obtém a próxima roda.
+        /// </summary>
+        /// <param name="coord">
+        /// A coordenada do número em questão.
+        /// </param>
+        /// <returns>A roda.</returns>
+        public IWheel GetNextWheel(long coord)
+        {
+            this.current[0] += this.increment;
+            this.wheel.Update(0L, coord);
+            return this.wheel;
+        }
+    }
+
+    /// <summary>
+    /// Implemneta uma matriz para níveis superiores.
+    /// </summary>
+    internal class GreatestLevelDiffWheelsMatrix
+        : IDiffsWheelsMatrix
+    {
+        /// <summary>
+        /// Mantém a matriz das diferenças.
+        /// </summary>
+        private long[][] coordsMatrix;
+
+        /// <summary>
+        /// Mantém o vector das diferenças actuais.
+        /// </summary>
+        private long[] currentDiffsArray;
+
+        /// <summary>
+        /// Mantém o apontador vertical.
+        /// </summary>
+        private long verticalPointer;
+
+        /// <summary>
+        /// Mantém o estado do deslocamento do apontador.
+        /// </summary>
+        private bool moveDownState;
+
+        /// <summary>
+        /// Mantém a roda actual.
+        /// </summary>
+        private GeneralSymmWheel wheel;
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="GreatestLevelDiffWheelsMatrix"/>.
+        /// </summary>
+        /// <param name="coordsMatrix">A matriz das coordenadas.</param>
+        public GreatestLevelDiffWheelsMatrix(long[][] coordsMatrix)
+        {
+            this.ProcessCoordinatesMatrix(coordsMatrix);
+            this.verticalPointer = 0L;
+            this.moveDownState = false;
+        }
+
+        /// <summary>
+        /// Obtém a próxima roda.
+        /// </summary>
+        /// <param name="squreCoord">
+        /// A coordenada do número em questão.
+        /// </param>
+        /// <returns>A roda.</returns>
+        public IWheel GetNextWheel(long coord)
+        {
+            this.MoveVerticalPointer();
+            var size = this.coordsMatrix.GetLongLength(0);
+            var currArray = this.coordsMatrix[this.verticalPointer];
+            for (var i = 0; i < size; ++i)
+            {
+                this.currentDiffsArray[i] += currArray[i];
+            }
+
+            this.wheel.Update(
+                this.verticalPointer,
+                this.moveDownState,
+                coord);
+
+            return this.wheel;
+        }
+
+        /// <summary>
+        /// Processa a matriz das coordenadas.
+        /// </summary>
+        /// <param name="coordsMatrix">A matriz das coordenadas.</param>
+        private void ProcessCoordinatesMatrix(
+            long[][] coordsMatrix)
+        {
+            this.SetCurrent(coordsMatrix);
+            this.SetHorizontalDifferences(coordsMatrix);
+            this.SetVerticalDifferences(coordsMatrix);
+            this.SetupWheel();
+            this.coordsMatrix = coordsMatrix;
+        }
+
+        /// <summary>
+        /// Estabelece o vector actual a partir da matriz das diferenças.
+        /// </summary>
+        /// <param name="coordsMatrix">A matriz das diferenças.</param>
+        private void SetCurrent(long[][] coordsMatrix)
+        {
+            var size = coordsMatrix.GetLongLength(0);
+            this.currentDiffsArray = new long[size];
+            for (var i = 0; i < size; ++i)
+            {
+                this.currentDiffsArray[i] = 1L;
+            }
+        }
+
+        /// <summary>
+        /// Estabelece as diferenças horizontais.
+        /// </summary>
+        /// <param name="coordsMatrix">A matriz das coordenadas.</param>
+        private void SetHorizontalDifferences(long[][] coordsMatrix)
+        {
+            var size = coordsMatrix.GetLongLength(0) - 1;
+            for (var i = size; i > 0; --i)
+            {
+                var array = coordsMatrix[i];
+                var prevArray = coordsMatrix[i - 1];
+                for (var j = size - 1; j > 0; --j)
+                {
+                    array[j + 1] = prevArray[j] - prevArray[j - 1];
+                }
+
+                array[1] = prevArray[0] - (i - 1);
+                array[0] = 2L;
+            }
+
+            var outArray = coordsMatrix[0];
+            for (var i = size; i > 0; --i)
+            {
+                outArray[i] = 2L;
+            }
+
+            outArray[0] = 2L;
+        }
+
+        /// <summary>
+        /// Estabelece a matriz das diferenças verticais.
+        /// </summary>
+        /// <param name="coordsMatrix">A matriz das coordenadas.</param>
+        private void SetVerticalDifferences(long[][] coordsMatrix)
+        {
+            var size = coordsMatrix.GetLongLength(0) - 1;
+            for (var i = size; i > 1; --i)
+            {
+                var currArray = coordsMatrix[i];
+                var prevArray = coordsMatrix[i - 1];
+                for (var j = size; j > 0; --j)
+                {
+                    currArray[j] = currArray[j] - prevArray[j];
+                }
+
+                currArray[0] = 2L;
+            }
+
+            var array = coordsMatrix[1];
+            for (var j = size; j > 0; --j)
+            {
+                array[j] -= 1L;
+            }
+        }
+
+        /// <summary>
+        /// Estabelece a roda inicial.
+        /// </summary>
+        private void SetupWheel()
+        {
+            this.wheel = new GeneralSymmWheel(
+                this.currentDiffsArray,
+                1L,
+                true,
+                this.currentDiffsArray[0]);
+        }
+
+        /// <summary>
+        /// Move o apontador vertical.
+        /// </summary>
+        private void MoveVerticalPointer()
+        {
+            if (this.moveDownState)
+            {
+                var size = this.coordsMatrix.GetLongLength(0);
+                ++this.verticalPointer;
+                if (this.verticalPointer == size)
+                {
+                    this.verticalPointer = size - 2;
+                    this.moveDownState = false;
+                }
+            }
+            else
+            {
+                if (this.verticalPointer == 0L)
+                {
+                    this.moveDownState = true;
+                    this.verticalPointer = 1L;
+                }
+                else
+                {
+                    --this.verticalPointer;
+                }
+            }
         }
     }
 
