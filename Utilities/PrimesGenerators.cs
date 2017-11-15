@@ -937,6 +937,355 @@ namespace Utilities
     }
 
     /// <summary>
+    /// Algoritmo com roda de nível 3.
+    /// </summary>
+    public class LevelThreeWheelPrimeGen
+    {
+        /// <summary>
+        /// O perímetro da roda da matriz.
+        /// </summary>
+        const long matrixWheelSpan = 240L;
+
+        /// <summary>
+        /// O perímetro da roda dos valores.
+        /// </summary>
+        const long valuesWheelSpan = 30L;
+
+        /// <summary>
+        /// O tamanho da roda.
+        /// </summary>
+        const long valuesWheelSize = 8L;
+
+        /// <summary>
+        /// Matriz das posições.
+        /// </summary>
+        private static long[,] posMatrix = new long[,]{
+            {0,  1,  2,   3,   4,   5,   6,   7},
+            {1, 13, 20,  24,  31,  35,  42,  54},
+            {2, 20, 32,  38,  49,  55,  67,  85},
+            {3, 24, 38,  45,  58,  65,  79, 100},
+            {4, 31, 49,  58,  77,  86, 104, 131},
+            {5, 35, 55,  65,  86,  96, 116, 146},
+            {6, 42, 67,  79, 104, 116, 141, 177},
+            {7, 54, 85, 100, 131, 146, 177, 224}
+        };
+
+        /// <summary>
+        /// O tamanho das rodas associadas às linhas.
+        /// </summary>
+        private static long[] wheelSizes = new long[]{
+            8, 56, 88, 104, 136, 152, 184, 232
+        };
+
+        /// <summary>
+        /// Os valores da roda.
+        /// </summary>
+        private static long[] wheelValues = new long[]{
+            1, 7, 11, 13, 17, 19, 23, 29
+        };
+
+        /// <summary>
+        /// Mantém a lista dos primeiros números primos.
+        /// </summary>
+        private static long[] firstPrimes = new long[]{
+            2, 3, 5
+        };
+
+        /// <summary>
+        /// O vector com os itens.
+        /// </summary>
+        private bool[] items;
+
+        /// <summary>
+        /// O valor máximo.
+        /// </summary>
+        private long max;
+
+        /// <summary>
+        /// O apontador actual.
+        /// </summary>
+        private long currentPointer;
+
+        /// <summary>
+        /// O apontador limite para os primos.
+        /// </summary>
+        private long limitPointer;
+
+        /// <summary>
+        /// O valor limite para comparação.
+        /// </summary>
+        private long limitValue;
+
+        /// <summary>
+        /// O estado.
+        /// </summary>
+        private ushort state;
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="LevelThreeWheelPrimeGen"/>.
+        /// </summary>
+        public LevelThreeWheelPrimeGen()
+        {
+            this.Initialize(100);
+        }
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="LevelThreeWheelPrimeGen"/>.
+        /// </summary>
+        /// <param name="max">O limite do gerador.</param>
+        public LevelThreeWheelPrimeGen(long max)
+        {
+            this.Initialize(max);
+        }
+
+        /// <summary>
+        /// Obtém o próximo número primo.
+        /// </summary>
+        /// <returns>
+        /// O número primo ou zero caso o limite tenha sido atingido.
+        /// </returns>
+        public long GetNextPrime()
+        {
+            if (this.state == 0)
+            {
+                if (this.currentPointer == firstPrimes.LongLength)
+                {
+                    var len = firstPrimes.LongLength;
+                    if (len > 0)
+                    {
+                        this.SetupWheelPhase();
+                        ++this.currentPointer;
+                        var result = wheelValues[this.currentPointer];
+                        this.state = 1;
+                        return result;
+                    }
+                    else
+                    {
+                        this.state = 255;
+                        return 0L;
+                    }
+                }
+                else
+                {
+                    var result = firstPrimes[this.currentPointer];
+                    ++this.currentPointer;
+                    return result;
+                }
+            }
+            else if (state == 1)
+            {
+                var len = this.items.LongLength;
+                while (this.currentPointer < len &&
+                    this.items[this.currentPointer])
+                {
+                    ++this.currentPointer;
+                }
+
+                if (this.currentPointer < len)
+                {
+                    if (this.currentPointer == this.limitValue)
+                    {
+                        this.MarkMultiples();
+                        ++this.limitPointer;
+                        while (this.items[this.limitPointer - 1])
+                        {
+                            ++this.limitPointer;
+                        }
+
+                        var currentOffset = this.limitPointer / valuesWheelSize;
+                        var rem = this.limitPointer % valuesWheelSize;
+                        var prod = currentOffset * matrixWheelSpan;
+                        this.limitValue = posMatrix[rem, rem]
+                            + ((wheelSizes[rem] << 1) + prod) * currentOffset - 1;
+
+                        while (this.currentPointer < len &&
+                            this.items[this.currentPointer])
+                        {
+                            ++this.currentPointer;
+                        }
+
+                        if (this.currentPointer < len)
+                        {
+                            ++this.currentPointer;
+                            var current = wheelValues[this.currentPointer % valuesWheelSize]
+                                + (this.currentPointer / valuesWheelSize) * valuesWheelSpan;
+                            return current;
+                        }
+                        else
+                        {
+                            this.state = 255;
+                            return 0L;
+                        }
+                    }
+                    else
+                    {
+                        ++this.currentPointer;
+                        var current = wheelValues[this.currentPointer % valuesWheelSize]
+                            + (this.currentPointer / valuesWheelSize) * valuesWheelSpan;
+                        return current;
+                    }
+                }
+                else
+                {
+                    this.state = 255;
+                    return 0L;
+                }
+            }
+            else
+            {
+                return 0L;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o valor associado ao apontador.
+        /// </summary>
+        /// <param name="pointer">O apontador.</param>
+        /// <returns>O valor.</returns>
+        private long GetValue(long pointer)
+        {
+            var result = wheelValues[pointer % valuesWheelSize]
+                            + (pointer / valuesWheelSize) * valuesWheelSpan;
+            return result;
+        }
+
+        /// <summary>
+        /// Marca os múltiplos actuais.
+        /// </summary>
+        private void MarkMultiples()
+        {
+            var len = this.items.LongLength;
+            var currentOffset = this.limitPointer / valuesWheelSize;
+            var i = this.limitPointer % valuesWheelSize;
+            var prod = currentOffset * matrixWheelSpan;
+            var columnOffset = wheelSizes[i] + prod;
+            for (var j = i; j < valuesWheelSize; ++j)
+            {
+                var size = wheelSizes[j];
+                var value = posMatrix[i, j] + (size + columnOffset) * currentOffset - 1;
+                if (value < len)
+                {
+                    this.items[value] = true;
+                    value += columnOffset;
+                    while (value < len)
+                    {
+                        this.items[value] = true;
+                        value += columnOffset;
+                    }
+                }
+                else
+                {
+                    i = 0;
+                    j = valuesWheelSize;
+                }
+            }
+
+            for (var j = 0L; j < i; ++j)
+            {
+                var size = wheelSizes[j];
+                var value = posMatrix[i, j] + size * currentOffset + columnOffset - 1;
+                if (value < len)
+                {
+                    this.items[value] = true;
+                    value += columnOffset;
+                    while (value < len)
+                    {
+                        this.items[value] = true;
+                        value += columnOffset;
+                    }
+                }
+                else
+                {
+                    j = i;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Inicializa o gerador.
+        /// </summary>
+        /// <param name="max">O valor máximo.</param>
+        private void Initialize(long max)
+        {
+            if (max < 2)
+            {
+                throw new ArgumentException("There are no primes less than 2.");
+            }
+            else
+            {
+                this.max = max;
+                this.state = 0;
+                this.currentPointer = 0L;
+            }
+        }
+
+        /// <summary>
+        /// Inicializa a fase em que se utiliza a roda.
+        /// </summary>
+        private void SetupWheelPhase()
+        {
+            var quo = max / 30;
+            var rem = (long)(max % 30);
+            var len = (long)(quo * 8);
+            len += (long)this.GetIndex(rem);
+            this.items = new bool[len];
+
+            this.currentPointer = 0L;
+            this.limitPointer = 1L;
+            this.limitValue = posMatrix[1, 1] - 1;
+        }
+
+        /// <summary>
+        /// Obtém o índice do maior valor menor ou igual ao
+        /// proporcionado.
+        /// </summary>
+        /// <param name="value">O valor a ser comparado.</param>
+        /// <returns>O índice.</returns>
+        private int GetIndex(long value)
+        {
+            var low = 0;
+            var high = 7;
+            var lowValue = wheelValues[low];
+            var highValue = wheelValues[high];
+            if (value <= lowValue)
+            {
+                return low;
+            }
+            else if (value >= highValue)
+            {
+                return high;
+            }
+            else
+            {
+                while (low != high)
+                {
+                    if (low + 1 == high)
+                    {
+                        high = low;
+                    }
+                    else
+                    {
+                        var mid = (low + high) / 2;
+                        var midValue = wheelValues[mid];
+                        if (midValue <= value)
+                        {
+                            low = mid;
+                            lowValue = midValue;
+                        }
+                        else
+                        {
+                            high = mid;
+                            highValue = midValue;
+                        }
+                    }
+                }
+
+                return low;
+            }
+        }
+    }
+
+    /// <summary>
     /// Crivo para gerar números primos que elimina compostos ímpares.
     /// </summary>
     public class CompPrimeSieveGenBinaryContainer
