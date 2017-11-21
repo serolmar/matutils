@@ -937,6 +937,563 @@ namespace Utilities
     }
 
     /// <summary>
+    /// Implementa um gerador de primos de terceiro nível.
+    /// </summary>
+    public class LevelThreePrimeSieveGenerator
+    {
+        /// <summary>
+        /// Mantém a lista dos primeiros números primos.
+        /// </summary>
+        private static long[] firstPrimes = new long[]{
+            2, 3, 5
+        };
+
+        /// <summary>
+        /// Mantém os valores da roda de terceiro nível.
+        /// </summary>
+        private static long[] wheel = new long[]{
+            7, 11, 13, 17, 19, 23, 29, 31
+        };
+
+        /// <summary>
+        /// Tabela de multiplicação modular.
+        /// </summary>
+        //private static long[,] multTable = new long[,]{
+        //    {4, 3, 7, 6, 2, 1, 5, 0},
+        //    {3, 7, 5, 0, 6, 2, 4, 1},
+        //    {7, 5, 4, 1, 0, 6, 3, 2},
+        //    {6, 0, 1, 4, 5, 7, 2, 3},
+        //    {2, 6, 0, 5, 7, 3, 1, 4},
+        //    {1, 2, 6, 7, 3, 4, 0, 5},
+        //    {5, 4, 3, 2, 1, 0, 7, 6},
+        //    {0, 1, 2, 3, 4, 5, 6, 7}
+        //};
+
+        /// <summary>
+        /// O número máximo a ser considerado.
+        /// </summary>
+        private long max;
+
+        /// <summary>
+        /// O conjunto dos crivos.
+        /// </summary>
+        private bool[][] items;
+
+        /// <summary>
+        /// O vector das diferenças.
+        /// </summary>
+        private long[] deltas;
+
+        /// <summary>
+        /// O apontador para o bloco actual.
+        /// </summary>
+        private long currentPointer;
+
+        /// <summary>
+        /// Um apontador para a roda.
+        /// </summary>
+        private long wheelPointer;
+
+        /// <summary>
+        /// O limite de números finais a serem considerados na roda.
+        /// </summary>
+        private long wheelPointerLimit;
+
+        /// <summary>
+        /// O apontador para o número sem crivar.
+        /// </summary>
+        private long notSievedNumbPointer;
+
+        /// <summary>
+        /// A posição do primeiro múltiplo sem crivar.
+        /// </summary>
+        private long notSievedMultPos;
+
+        /// <summary>
+        /// Mantém o valor do estado do algoritmo.
+        /// </summary>
+        private short state;
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="LevelThreePrimeSieveGenerator"/>.
+        /// </summary>
+        public LevelThreePrimeSieveGenerator()
+        {
+            this.Initialize(100L);
+        }
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="LevelThreePrimeSieveGenerator"/>.
+        /// </summary>
+        /// <param name="max">O número máximo para os primos.</param>
+        public LevelThreePrimeSieveGenerator(long max)
+        {
+            if (max < 2)
+            {
+                throw new ArgumentException("There is no prime less than two.");
+            }
+            else
+            {
+                this.Initialize(max);
+            }
+        }
+
+        /// <summary>
+        /// Obtém o próximo número primo.
+        /// </summary>
+        /// <returns>O número primo.</returns>
+        public long GetNextPrime()
+        {
+            if (this.state == 0)
+            {
+                var current = firstPrimes[this.currentPointer];
+                if (current > this.max)
+                {
+                    this.state = 255;
+                    return 0L;
+                }
+                else
+                {
+                    ++this.currentPointer;
+                    if (this.currentPointer == firstPrimes.LongLength)
+                    {
+                        this.InitializeSeq();
+                        this.state = 1;
+                    }
+
+                    return current;
+                }
+            }
+            else if (this.state == 1)
+            {
+                var len31 = this.items[7].LongLength;
+                while (this.currentPointer < len31 &&
+                    this.AssertMarks())
+                {
+                    ++this.currentPointer;
+                }
+
+                if (this.currentPointer >= len31)
+                {
+                    this.wheelPointerLimit = 0;
+                    for (var i = 6; i >= 0; --i)
+                    {
+                        var item = this.items[i];
+                        var innerLen = item.LongLength;
+                        if (innerLen > len31)
+                        {
+                            this.wheelPointerLimit = i + 1;
+                            i = -1;
+                        }
+                    }
+
+                    this.wheelPointer = 0L;
+                    if (this.wheelPointerLimit == 1)
+                    {
+                        // Último número
+                        this.state = 255;
+                        if (!this.items[this.wheelPointer][this.currentPointer])
+                        {
+                            return 30 * this.currentPointer + wheel[this.wheelPointer];
+                        }
+                        else
+                        {
+                            return 0L;
+                        };
+                    }
+                    else if (this.wheelPointerLimit > 1)
+                    {
+                        for (; this.wheelPointer < this.wheelPointerLimit; ++this.wheelPointer)
+                        {
+                            if (!this.items[this.wheelPointer][this.currentPointer])
+                            {
+                                this.state = 3;
+                                return 30 * this.currentPointer + wheel[this.wheelPointer];
+                            }
+                        }
+
+                        this.state = 255;
+                        return 0L;
+                    }
+                    else
+                    {
+                        this.state = 255;
+                        return 0L;
+                    }
+                }
+                else
+                {
+                    if (this.currentPointer == this.notSievedMultPos)
+                    {
+                        return this.SieveNext();
+                    }
+                    else
+                    {
+                        var current = 30 * this.currentPointer + wheel[this.wheelPointer];
+                        ++this.wheelPointer;
+                        for (; this.wheelPointer < 8; ++this.wheelPointer)
+                        {
+                            if (!this.items[this.wheelPointer][this.currentPointer])
+                            {
+                                this.state = 2;
+                                return current;
+                            }
+                        }
+
+                        ++this.currentPointer;
+                        return current;
+                    }
+                }
+            }
+            else if (this.state == 2)
+            {
+                var current = 30 * this.currentPointer + wheel[this.wheelPointer];
+                ++this.wheelPointer;
+                for (; this.wheelPointer < 8; ++this.wheelPointer)
+                {
+                    if (!this.items[this.wheelPointer][this.currentPointer])
+                    {
+                        return current;
+                    }
+                }
+
+                ++this.currentPointer;
+                this.state = 1;
+                return current;
+            }
+            else if (this.state == 3)
+            {
+                ++this.wheelPointer;
+                for (; this.wheelPointer < this.wheelPointerLimit; ++this.wheelPointer)
+                {
+                    if (!this.items[this.wheelPointer][this.currentPointer])
+                    {
+                        return 30 * this.currentPointer + wheel[this.wheelPointer];
+                    }
+                }
+
+                this.state = 255;
+                return 0L;
+            }
+            else
+            {
+                return 0L;
+            }
+        }
+
+        /// <summary>
+        /// Aplica o próximo filtro e determina o próximo valor.
+        /// </summary>
+        /// <returns>O valor.</returns>
+        private long SieveNext()
+        {
+            var item = this.items[0];
+            if (!item[this.notSievedNumbPointer])
+            {
+                this.MarkFirstWitouhtVerification();
+            }
+
+            this.MarkAllExceptFirst();
+
+            ++this.notSievedNumbPointer;
+            this.IncreaseAllDeltas();
+            var control = true;
+            while (control)
+            {
+                if (item[this.notSievedNumbPointer])
+                {
+                    this.MarkAllExceptFirst();
+                    ++this.notSievedNumbPointer;
+                    this.IncreaseAllDeltas();
+                }
+                else
+                {
+                    control = false;
+                }
+            }
+
+            this.notSievedMultPos = 1 + this.notSievedNumbPointer *
+                (14 + 30 * this.notSievedNumbPointer);
+
+            // Determina o próximo número
+            this.wheelPointer = 8;
+            for (var i = 0; i < 8; ++i)
+            {
+                if (!this.items[i][this.currentPointer])
+                {
+                    this.wheelPointer = i;
+                    i = 8;
+                }
+            }
+
+            if (this.wheelPointer == 8)
+            {
+                var len31 = this.items[7].LongLength;
+                while (this.currentPointer < len31 &&
+                    this.AssertMarks())
+                {
+                    ++this.currentPointer;
+                }
+
+                var current = 30 * this.currentPointer + wheel[this.wheelPointer];
+                ++this.wheelPointer;
+                for (; this.wheelPointer < 8; ++this.wheelPointer)
+                {
+                    if (!this.items[this.wheelPointer][this.currentPointer])
+                    {
+                        this.state = 2;
+                        return current;
+                    }
+                }
+
+                ++this.currentPointer;
+                this.state = 1;
+                return current;
+            }
+            else
+            {
+                var current = 30 * this.currentPointer + wheel[this.wheelPointer];
+                ++this.wheelPointer;
+                for (; this.wheelPointer < 8; ++this.wheelPointer)
+                {
+                    if (!this.items[this.wheelPointer][this.currentPointer])
+                    {
+                        this.state = 2;
+                        return current;
+                    }
+                }
+
+                ++this.currentPointer;
+                return current;
+            }
+        }
+
+        /// <summary>
+        /// Verifica se todos os itens se encontram marcados.
+        /// </summary>
+        /// <returns>
+        /// Verdadeiro caso os itens se encontrem marcados e falso caso contrário.
+        /// </returns>
+        private bool AssertMarks()
+        {
+            var result = true;
+            for (var i = 0; i < 8; ++i)
+            {
+                var vec = this.items[i];
+                if (!vec[this.currentPointer])
+                {
+                    this.wheelPointer = i;
+                    result = false;
+                    i = 8;
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Marca todos os vectores com excepção do primeiro.
+        /// </summary>
+        /// <remarks>
+        /// O primeiro vector servirá de controlo.
+        /// </remarks>
+        private void MarkAllExceptFirst()
+        {
+            if (!this.items[1][this.notSievedNumbPointer])
+            {
+                var delta = this.deltas[1];
+                this.MarkVector(this.items[0], 6, 28, delta);
+                this.MarkVector(this.items[1], 11, 42, delta);
+                this.MarkVector(this.items[2], 8, 34, delta);
+                this.MarkVector(this.items[3], 2, 18, delta);
+                this.MarkVector(this.items[4], 10, 40, delta);
+                this.MarkVector(this.items[5], 4, 24, delta);
+                this.MarkVector(this.items[6], 6, 30, delta);
+                this.MarkVector(this.items[7], 3, 22, delta);
+            }
+
+            if (!this.items[2][this.notSievedNumbPointer])
+            {
+                var delta = this.deltas[2];
+                this.MarkVector(this.items[0], 8, 32, delta);
+                this.MarkVector(this.items[1], 7, 30, delta);
+                this.MarkVector(this.items[2], 13, 44, delta);
+                this.MarkVector(this.items[3], 12, 42, delta);
+                this.MarkVector(this.items[4], 5, 26, delta);
+                this.MarkVector(this.items[5], 4, 24, delta);
+                this.MarkVector(this.items[6], 9, 36, delta);
+                this.MarkVector(this.items[7], 2, 20, delta);
+            }
+
+            if (!this.items[3][this.notSievedNumbPointer])
+            {
+                var delta = this.deltas[3];
+                this.MarkVector(this.items[0], 6, 28, delta);
+                this.MarkVector(this.items[1], 7, 30, delta);
+                this.MarkVector(this.items[2], 16, 46, delta);
+                this.MarkVector(this.items[3], 17, 48, delta);
+                this.MarkVector(this.items[4], 9, 34, delta);
+                this.MarkVector(this.items[5], 10, 36, delta);
+                this.MarkVector(this.items[6], 3, 24, delta);
+                this.MarkVector(this.items[7], 12, 40, delta);
+            }
+
+            if (!this.items[4][this.notSievedNumbPointer])
+            {
+                var delta = this.deltas[4];
+                this.MarkVector(this.items[0], 8, 32, delta);
+                this.MarkVector(this.items[1], 18, 48, delta);
+                this.MarkVector(this.items[2], 4, 26, delta);
+                this.MarkVector(this.items[3], 14, 42, delta);
+                this.MarkVector(this.items[4], 19, 50, delta);
+                this.MarkVector(this.items[5], 10, 36, delta);
+                this.MarkVector(this.items[6], 6, 30, delta);
+                this.MarkVector(this.items[7], 11, 38, delta);
+            }
+
+            if (!this.items[5][this.notSievedNumbPointer])
+            {
+                var delta = this.deltas[5];
+                this.MarkVector(this.items[0], 22, 52, delta);
+                this.MarkVector(this.items[1], 5, 30, delta);
+                this.MarkVector(this.items[2], 8, 34, delta);
+                this.MarkVector(this.items[3], 14, 42, delta);
+                this.MarkVector(this.items[4], 17, 46, delta);
+                this.MarkVector(this.items[5], 23, 54, delta);
+                this.MarkVector(this.items[6], 9, 36, delta);
+                this.MarkVector(this.items[7], 12, 40, delta);
+            }
+
+            if (!this.items[6][this.notSievedNumbPointer])
+            {
+                var delta = this.deltas[6];
+                this.MarkVector(this.items[0], 22, 52, delta);
+                this.MarkVector(this.items[1], 18, 48, delta);
+                this.MarkVector(this.items[2], 16, 46, delta);
+                this.MarkVector(this.items[3], 12, 42, delta);
+                this.MarkVector(this.items[4], 10, 40, delta);
+                this.MarkVector(this.items[5], 6, 36, delta);
+                this.MarkVector(this.items[6], 29, 60, delta);
+                this.MarkVector(this.items[7], 27, 58, delta);
+            }
+
+            if (!this.items[7][this.notSievedNumbPointer])
+            {
+                var delta = this.deltas[7];
+                this.MarkVector(this.items[0], 7, 38, delta);
+                this.MarkVector(this.items[1], 11, 42, delta);
+                this.MarkVector(this.items[2], 13, 44, delta);
+                this.MarkVector(this.items[3], 17, 48, delta);
+                this.MarkVector(this.items[4], 19, 50, delta);
+                this.MarkVector(this.items[5], 23, 54, delta);
+                this.MarkVector(this.items[6], 29, 60, delta);
+                this.MarkVector(this.items[7], 31, 62, delta);
+            }
+        }
+
+        /// <summary>
+        /// Marca o primeiro vector sem efectuar verificação de primalidade.
+        /// </summary>
+        private void MarkFirstWitouhtVerification()
+        {
+            var delta = this.deltas[0];
+            this.MarkVector(this.items[0], 7, 38, delta);
+            this.MarkVector(this.items[1], 5, 30, delta);
+            this.MarkVector(this.items[2], 4, 26, delta);
+            this.MarkVector(this.items[3], 2, 18, delta);
+            this.MarkVector(this.items[4], 1, 14, delta);
+            this.MarkVector(this.items[5], 6, 36, delta);
+            this.MarkVector(this.items[6], 3, 24, delta);
+            this.MarkVector(this.items[7], 2, 20, delta);
+        }
+
+        /// <summary>
+        /// Marca os múltiplos no vector.
+        /// </summary>
+        /// <param name="vector">O vector.</param>
+        /// <param name="indTerm">O termo independente do polinómio inicializador.</param>
+        /// <param name="linTerm">O termo linear do polinómio inicializador.</param>
+        /// <param name="delta">A diferença considerada.</param>
+        private void MarkVector(
+            bool[] vector,
+            long indTerm,
+            long linTerm,
+            long delta)
+        {
+            var init = indTerm;
+            init += (linTerm + 30 * this.notSievedNumbPointer) * this.notSievedNumbPointer;
+            this.MarkVector(vector, init, delta);
+        }
+
+        /// <summary>
+        /// Marca o vector especificado.
+        /// </summary>
+        /// <param name="vector">O vector.</param>
+        /// <param name="init">O parâmetro inicial.</param>
+        /// <param name="delta">A diferença.</param>
+        private void MarkVector(
+            bool[] vector,
+            long init,
+            long delta)
+        {
+            var len = vector.LongLength;
+            for (var i = init; i < len; i += delta)
+            {
+                vector[i] = true;
+            }
+        }
+
+        /// <summary>
+        /// Aumenta os valores de todas as diferenças.
+        /// </summary>
+        private void IncreaseAllDeltas()
+        {
+            for (var i = 0; i < 8; ++i)
+            {
+                this.deltas[i] += 30;
+            }
+        }
+
+        /// <summary>
+        /// Inicializa o algoritmo.
+        /// </summary>
+        /// <param name="max">O número limite para a geração dos números primos.</param>
+        private void Initialize(long max)
+        {
+            this.max = max;
+            this.state = 0;
+            this.currentPointer = 0L;
+        }
+
+        /// <summary>
+        /// Inicializa a sequência para o início da filtragem.
+        /// </summary>
+        private void InitializeSeq()
+        {
+            this.currentPointer = 0L;
+            this.notSievedNumbPointer = 0L;
+            this.notSievedMultPos = 1 + this.notSievedNumbPointer *
+                (14 + 30 * this.notSievedNumbPointer);
+
+            this.items = new bool[8][];
+            for (var i = 0; i < 8; ++i)
+            {
+                var diff = this.max - wheel[i];
+                var len = diff / 30;
+                if (diff % 30 != 0)
+                {
+                    ++len;
+                }
+
+                this.items[i] = new bool[len];
+            }
+
+            this.deltas = new long[8];
+            Array.Copy(wheel, this.deltas, 8);
+        }
+    }
+
+    /// <summary>
     /// Algoritmo com roda de nível 3.
     /// </summary>
     public class LevelThreeWheelPrimeGen
