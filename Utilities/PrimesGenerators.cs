@@ -990,6 +990,11 @@ namespace Utilities
         private long currentPointer;
 
         /// <summary>
+        /// O produto actual.
+        /// </summary>
+        private long product;
+
+        /// <summary>
         /// Um apontador para a roda.
         /// </summary>
         private long wheelPointer;
@@ -1003,6 +1008,11 @@ namespace Utilities
         /// O apontador para o número sem crivar.
         /// </summary>
         private long notSievedNumbPointer;
+
+        /// <summary>
+        /// Um produto auxiliar.
+        /// </summary>
+        private long notSievedNumbProd;
 
         /// <summary>
         /// A posição do primeiro múltiplo sem crivar.
@@ -1108,7 +1118,8 @@ namespace Utilities
                             if (!this.items[this.wheelPointer][this.currentPointer])
                             {
                                 this.state = 3;
-                                return 30 * this.currentPointer + wheel[this.wheelPointer];
+                                this.product = 30 * this.currentPointer;
+                                return this.product + wheel[this.wheelPointer];
                             }
                         }
 
@@ -1129,7 +1140,8 @@ namespace Utilities
                     }
                     else
                     {
-                        var current = 30 * this.currentPointer + wheel[this.wheelPointer];
+                        this.product = 30 * this.currentPointer;
+                        var current = this.product + wheel[this.wheelPointer];
                         ++this.wheelPointer;
                         for (; this.wheelPointer < 8; ++this.wheelPointer)
                         {
@@ -1147,7 +1159,7 @@ namespace Utilities
             }
             else if (this.state == 2)
             {
-                var current = 30 * this.currentPointer + wheel[this.wheelPointer];
+                var current = this.product + wheel[this.wheelPointer];
                 ++this.wheelPointer;
                 for (; this.wheelPointer < 8; ++this.wheelPointer)
                 {
@@ -1168,7 +1180,7 @@ namespace Utilities
                 {
                     if (!this.items[this.wheelPointer][this.currentPointer])
                     {
-                        return 30 * this.currentPointer + wheel[this.wheelPointer];
+                        return this.product + wheel[this.wheelPointer];
                     }
                 }
 
@@ -1196,6 +1208,7 @@ namespace Utilities
             this.MarkAllExceptFirst();
 
             ++this.notSievedNumbPointer;
+            this.notSievedNumbProd += 30;
             this.IncreaseAllDeltas();
             var control = true;
             while (control)
@@ -1204,6 +1217,7 @@ namespace Utilities
                 {
                     this.MarkAllExceptFirst();
                     ++this.notSievedNumbPointer;
+                    this.notSievedNumbProd += 30;
                     this.IncreaseAllDeltas();
                 }
                 else
@@ -1235,7 +1249,8 @@ namespace Utilities
                     ++this.currentPointer;
                 }
 
-                var current = 30 * this.currentPointer + wheel[this.wheelPointer];
+                this.product = 30 * this.currentPointer;
+                var current = this.product + wheel[this.wheelPointer];
                 ++this.wheelPointer;
                 for (; this.wheelPointer < 8; ++this.wheelPointer)
                 {
@@ -1252,7 +1267,8 @@ namespace Utilities
             }
             else
             {
-                var current = 30 * this.currentPointer + wheel[this.wheelPointer];
+                this.product = 30 * this.currentPointer;
+                var current = this.product + wheel[this.wheelPointer];
                 ++this.wheelPointer;
                 for (; this.wheelPointer < 8; ++this.wheelPointer)
                 {
@@ -1299,95 +1315,162 @@ namespace Utilities
         /// </remarks>
         private void MarkAllExceptFirst()
         {
-            if (!this.items[1][this.notSievedNumbPointer])
+            var i = this.notSievedNumbPointer;
+            var diff2 = i << 1;
+            var diff4 = diff2 << 1;
+            var diff6 = diff2 + diff4;
+            var value = 2 + i * (18 + 30 * i);
+            var init = value;
+
+            if (!this.items[1][i])
             {
                 var delta = this.deltas[1];
-                this.MarkVector(this.items[0], 6, 28, delta);
-                this.MarkVector(this.items[1], 11, 42, delta);
-                this.MarkVector(this.items[2], 8, 34, delta);
-                this.MarkVector(this.items[3], 2, 18, delta);
-                this.MarkVector(this.items[4], 10, 40, delta);
-                this.MarkVector(this.items[5], 4, 24, delta);
-                this.MarkVector(this.items[6], 6, 30, delta);
-                this.MarkVector(this.items[7], 3, 22, delta);
+                this.MarkVector(this.items[3], init, delta);
+                init += 1 + diff4;
+                this.MarkVector(this.items[7], init, delta);
+                init += 1 + diff2;
+                this.MarkVector(this.items[5], init, delta);
+                init += 2 + diff4;
+                this.MarkVector(this.items[0], init, delta);
+                init += diff2;
+                this.MarkVector(this.items[6], init, delta);
+                init += 2 + diff4;
+                this.MarkVector(this.items[2], init, delta);
+                init += 2 + diff6;
+                this.MarkVector(this.items[4], init, delta);
+                init += 1 + diff2;
+                this.MarkVector(this.items[1], init, delta);
             }
 
-            if (!this.items[2][this.notSievedNumbPointer])
+            if (!this.items[2][i])
             {
                 var delta = this.deltas[2];
-                this.MarkVector(this.items[0], 8, 32, delta);
-                this.MarkVector(this.items[1], 7, 30, delta);
-                this.MarkVector(this.items[2], 13, 44, delta);
-                this.MarkVector(this.items[3], 12, 42, delta);
-                this.MarkVector(this.items[4], 5, 26, delta);
-                this.MarkVector(this.items[5], 4, 24, delta);
-                this.MarkVector(this.items[6], 9, 36, delta);
-                this.MarkVector(this.items[7], 2, 20, delta);
+                init = value + diff2;
+                this.MarkVector(this.items[7], init, delta);
+                init += 2 + diff4;
+                this.MarkVector(this.items[5], init, delta);
+                init += 1 + diff2;
+                this.MarkVector(this.items[4], init, delta);
+                init += 2 + diff4;
+                this.MarkVector(this.items[1], init, delta);
+                init += 1 + diff2;
+                this.MarkVector(this.items[0], init, delta);
+                init += 1 + diff4;
+                this.MarkVector(this.items[6], init, delta);
+                init += 3 + diff6;
+                this.MarkVector(this.items[3], init, delta);
+                init += 1 + diff2;
+                this.MarkVector(this.items[2], init, delta);
             }
 
-            if (!this.items[3][this.notSievedNumbPointer])
+            if (!this.items[3][i])
             {
                 var delta = this.deltas[3];
-                this.MarkVector(this.items[0], 6, 28, delta);
-                this.MarkVector(this.items[1], 7, 30, delta);
-                this.MarkVector(this.items[2], 16, 46, delta);
-                this.MarkVector(this.items[3], 17, 48, delta);
-                this.MarkVector(this.items[4], 9, 34, delta);
-                this.MarkVector(this.items[5], 10, 36, delta);
-                this.MarkVector(this.items[6], 3, 24, delta);
-                this.MarkVector(this.items[7], 12, 40, delta);
+                init = value + 1 + diff6;
+
+                this.MarkVector(this.items[6], init, delta);
+                init += 3 + diff4;
+                this.MarkVector(this.items[0], init, delta);
+                init += 1 + diff2;
+                this.MarkVector(this.items[1], init, delta);
+                init += 2 + diff4;
+                this.MarkVector(this.items[4], init, delta);
+                init += 1 + diff2;
+                this.MarkVector(this.items[5], init, delta);
+                init += 2 + diff4;
+                this.MarkVector(this.items[7], init, delta);
+                init += 4 + diff6;
+                this.MarkVector(this.items[2], init, delta);
+                init += 1 + diff2;
+                this.MarkVector(this.items[3], init, delta);
             }
 
-            if (!this.items[4][this.notSievedNumbPointer])
+            if (!this.items[4][i])
             {
                 var delta = this.deltas[4];
-                this.MarkVector(this.items[0], 8, 32, delta);
-                this.MarkVector(this.items[1], 18, 48, delta);
-                this.MarkVector(this.items[2], 4, 26, delta);
-                this.MarkVector(this.items[3], 14, 42, delta);
-                this.MarkVector(this.items[4], 19, 50, delta);
-                this.MarkVector(this.items[5], 10, 36, delta);
-                this.MarkVector(this.items[6], 6, 30, delta);
-                this.MarkVector(this.items[7], 11, 38, delta);
+                init = value + 2 + (diff4 << 1);
+
+                this.MarkVector(this.items[2], init, delta);
+                init += 2 + diff4;
+                this.MarkVector(this.items[6], init, delta);
+                init += 2 + diff2;
+                this.MarkVector(this.items[0], init, delta);
+                init += 2 + diff4;
+                this.MarkVector(this.items[5], init, delta);
+                init += 1 + diff2;
+                this.MarkVector(this.items[7], init, delta);
+                init += 3 + diff4;
+                this.MarkVector(this.items[3], init, delta);
+                init += 4 + diff6;
+                this.MarkVector(this.items[1], init, delta);
+                init += 1 + diff2;
+                this.MarkVector(this.items[4], init, delta);
             }
 
-            if (!this.items[5][this.notSievedNumbPointer])
+            if (!this.items[5][i])
             {
                 var delta = this.deltas[5];
-                this.MarkVector(this.items[0], 22, 52, delta);
-                this.MarkVector(this.items[1], 5, 30, delta);
-                this.MarkVector(this.items[2], 8, 34, delta);
-                this.MarkVector(this.items[3], 14, 42, delta);
-                this.MarkVector(this.items[4], 17, 46, delta);
-                this.MarkVector(this.items[5], 23, 54, delta);
-                this.MarkVector(this.items[6], 9, 36, delta);
-                this.MarkVector(this.items[7], 12, 40, delta);
+                init = value + 3 + (diff6 << 1);
+
+                this.MarkVector(this.items[1], init, delta);
+                init += 3 + diff4;
+                this.MarkVector(this.items[2], init, delta);
+                init += 1 + diff2;
+                this.MarkVector(this.items[6], init, delta);
+                init += 3 + diff4;
+                this.MarkVector(this.items[7], init, delta);
+                init += 2 + diff2;
+                this.MarkVector(this.items[3], init, delta);
+                init += 3 + diff4;
+                this.MarkVector(this.items[4], init, delta);
+                init += 5 + diff6;
+                this.MarkVector(this.items[0], init, delta);
+                init += 1 + diff2;
+                this.MarkVector(this.items[5], init, delta);
             }
 
-            if (!this.items[6][this.notSievedNumbPointer])
+            if (!this.items[6][i])
             {
                 var delta = this.deltas[6];
-                this.MarkVector(this.items[0], 22, 52, delta);
-                this.MarkVector(this.items[1], 18, 48, delta);
-                this.MarkVector(this.items[2], 16, 46, delta);
-                this.MarkVector(this.items[3], 12, 42, delta);
-                this.MarkVector(this.items[4], 10, 40, delta);
-                this.MarkVector(this.items[5], 6, 36, delta);
-                this.MarkVector(this.items[6], 29, 60, delta);
-                this.MarkVector(this.items[7], 27, 58, delta);
+                init = value + 4 + (diff6 << 1) + diff6;
+
+                this.MarkVector(this.items[5], init, delta);
+                init += 4 + diff4;
+                this.MarkVector(this.items[4], init, delta);
+                init += 2 + diff2;
+                this.MarkVector(this.items[3], init, delta);
+                init += 4 + diff4;
+                this.MarkVector(this.items[2], init, delta);
+                init += 2 + diff2;
+                this.MarkVector(this.items[1], init, delta);
+                init += 4 + diff4;
+                this.MarkVector(this.items[0], init, delta);
+                init += 5 + diff6;
+                this.MarkVector(this.items[7], init, delta);
+                init += 2 + diff2;
+                this.MarkVector(this.items[6], init, delta);
             }
 
-            if (!this.items[7][this.notSievedNumbPointer])
+            if (!this.items[7][i])
             {
                 var delta = this.deltas[7];
-                this.MarkVector(this.items[0], 7, 38, delta);
-                this.MarkVector(this.items[1], 11, 42, delta);
-                this.MarkVector(this.items[2], 13, 44, delta);
-                this.MarkVector(this.items[3], 17, 48, delta);
-                this.MarkVector(this.items[4], 19, 50, delta);
-                this.MarkVector(this.items[5], 23, 54, delta);
-                this.MarkVector(this.items[6], 29, 60, delta);
-                this.MarkVector(this.items[7], 31, 62, delta);
+                init = value + 5 + (diff4 << 2) + diff4;
+
+                this.MarkVector(this.items[0], init, delta);
+                init += 4 + diff4;
+                this.MarkVector(this.items[1], init, delta);
+                init += 2 + diff2;
+                this.MarkVector(this.items[2], init, delta);
+                init += 4 + diff4;
+                this.MarkVector(this.items[3], init, delta);
+                init += 2 + diff2;
+                this.MarkVector(this.items[4], init, delta);
+                init += 4 + diff4;
+                this.MarkVector(this.items[5], init, delta);
+                init += 6 + diff6;
+                this.MarkVector(this.items[6], init, delta);
+                init += 2 + diff2;
+                this.MarkVector(this.items[7], init, delta);
             }
         }
 
@@ -1396,15 +1479,27 @@ namespace Utilities
         /// </summary>
         private void MarkFirstWitouhtVerification()
         {
+            var diff2 = (this.notSievedNumbPointer << 1); // 2i
+            var diff4 = (diff2 << 1); // 4i
+            var diff6 = diff2 + diff4; // 6i
+            var init = this.currentPointer;
             var delta = this.deltas[0];
-            this.MarkVector(this.items[0], 7, 38, delta);
-            this.MarkVector(this.items[1], 5, 30, delta);
-            this.MarkVector(this.items[2], 4, 26, delta);
-            this.MarkVector(this.items[3], 2, 18, delta);
-            this.MarkVector(this.items[4], 1, 14, delta);
-            this.MarkVector(this.items[5], 6, 36, delta);
-            this.MarkVector(this.items[6], 3, 24, delta);
-            this.MarkVector(this.items[7], 2, 20, delta);
+
+            this.MarkVector(this.items[4], init, delta);
+            init += 1 + diff4;
+            this.MarkVector(this.items[3], init, delta);
+            init += diff2;
+            this.MarkVector(this.items[7], init, delta);
+            init += 1 + diff4;
+            this.MarkVector(this.items[6], init, delta);
+            init += 1 + diff2;
+            this.MarkVector(this.items[2], init, delta);
+            init += 1 + diff4;
+            this.MarkVector(this.items[1], init, delta);
+            init += 1 + diff6;
+            this.MarkVector(this.items[5], init, delta);
+            init += 1 + diff2;
+            this.MarkVector(this.items[0], init, delta);
         }
 
         /// <summary>
@@ -1421,7 +1516,7 @@ namespace Utilities
             long delta)
         {
             var init = indTerm;
-            init += (linTerm + 30 * this.notSievedNumbPointer) * this.notSievedNumbPointer;
+            init += (linTerm + this.notSievedNumbProd) * this.notSievedNumbPointer;
             this.MarkVector(vector, init, delta);
         }
 
@@ -1463,6 +1558,7 @@ namespace Utilities
             this.max = max;
             this.state = 0;
             this.currentPointer = 0L;
+            this.product = 0L;
         }
 
         /// <summary>
@@ -1472,8 +1568,8 @@ namespace Utilities
         {
             this.currentPointer = 0L;
             this.notSievedNumbPointer = 0L;
-            this.notSievedMultPos = 1 + this.notSievedNumbPointer *
-                (14 + 30 * this.notSievedNumbPointer);
+            this.notSievedNumbProd = 0L;
+            this.notSievedMultPos = 1;
 
             this.items = new bool[8][];
             for (var i = 0; i < 8; ++i)
