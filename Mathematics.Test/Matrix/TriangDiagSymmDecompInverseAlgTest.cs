@@ -1,4 +1,10 @@
-﻿namespace Mathematics.Test
+﻿// -----------------------------------------------------------------------
+// <copyright file="TriangDiagSymmDecompInverseAlgTest.cs" company="Sérgio O. Marques">
+// Ver licença do projecto.
+// </copyright>
+// -----------------------------------------------------------------------
+
+namespace Mathematics.Test
 {
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using System;
@@ -7,23 +13,9 @@
     using System.Text;
     using Mathematics;
 
-    [TestClass()]
+    [TestClass]
     public class TriangDiagSymmDecompInverseAlgTest
     {
-        private TestContext testContextInstance;
-
-        public TestContext TestContext
-        {
-            get
-            {
-                return testContextInstance;
-            }
-            set
-            {
-                testContextInstance = value;
-            }
-        }
-
         /// <summary>
         /// Teste à matriz inverssa recorrendo ao algoritmo da decomposição.
         /// </summary>
@@ -31,15 +23,14 @@
         [Description("Teste à determinação da matriz inversa recorrendo à decomposição.")]
         public void Run_TriangDiagSymmDecompInverseAlg()
         {
-            // Definição dos algoritmos.
-            var target = new TriangDiagSymmDecompInverseAlg<Fraction<int>>();
-            var triangDecomp = new TriangDiagSymmMatrixDecomposition<Fraction<int>>();
-
             // Definição dos domínios e fábricas.
             var integerDomain = new IntegerDomain();
             var fractionField = new FractionField<int>(integerDomain);
-            var arrayUpperTriangMatrixFactory = new ArrayTriangUpperMatrixFactory<Fraction<int>>();
-            var arrayDiagonalMatrixFactory = new ArrayDiagonalMatrixFactory<Fraction<int>>();
+
+            // Definição dos algoritmos.
+            var target = new TriangDiagSymmDecompInverseAlg<Fraction<int>>();
+            var triangDecomp = new ParallelTriangDiagSymmMatrixDecomp<Fraction<int>>(fractionField);
+
             var arraySquareMatrixFactory = new ArraySquareMatrixFactory<Fraction<int>>();
             var arrayMatrixFactory = new ArrayMatrixFactory<Fraction<int>>();
 
@@ -48,15 +39,12 @@
 
             // Cálculos
             var triangDiagDecomp = triangDecomp.Run(
-                matrix,
-                fractionField,
-                arrayUpperTriangMatrixFactory,
-                arrayDiagonalMatrixFactory);
+                matrix);
             var inverseMatrix = target.Run(
-                triangDiagDecomp, 
-                arraySquareMatrixFactory, 
+                triangDiagDecomp,
+                arraySquareMatrixFactory,
                 fractionField);
-           
+
             // Verificação dos valores.
             var expected = ArrayMathMatrix<Fraction<int>>.GetIdentity(3, fractionField);
             var matrixMultiplication = new MatrixMultiplicationOperation<Fraction<int>>(
@@ -81,15 +69,15 @@
         [ExpectedException(typeof(MathematicsException))]
         public void Run_TriangDiagSymmDecompNoInverse()
         {
-            // Definição dos algoritmos.
-            var target = new TriangDiagSymmDecompInverseAlg<Fraction<int>>();
-            var triangDecomp = new TriangDiagSymmMatrixDecomposition<Fraction<int>>();
 
             // Definição dos domínios e fábricas.
             var integerDomain = new IntegerDomain();
             var fractionField = new FractionField<int>(integerDomain);
-            var arrayUpperTriangMatrixFactory = new ArrayTriangUpperMatrixFactory<Fraction<int>>();
-            var arrayDiagonalMatrixFactory = new ArrayDiagonalMatrixFactory<Fraction<int>>();
+
+            // Definição dos algoritmos.
+            var target = new TriangDiagSymmDecompInverseAlg<Fraction<int>>();
+            var triangDecomp = new ParallelTriangDiagSymmMatrixDecomp<Fraction<int>>(fractionField);
+
             var arraySquareMatrixFactory = new ArraySquareMatrixFactory<Fraction<int>>();
             var arrayMatrixFactory = new ArrayMatrixFactory<Fraction<int>>();
 
@@ -98,10 +86,7 @@
 
             // Cálculos
             var triangDiagDecomp = triangDecomp.Run(
-                matrix,
-                fractionField,
-                arrayUpperTriangMatrixFactory,
-                arrayDiagonalMatrixFactory);
+                matrix);
             var inverseMatrix = target.Run(
                 triangDiagDecomp,
                 arraySquareMatrixFactory,

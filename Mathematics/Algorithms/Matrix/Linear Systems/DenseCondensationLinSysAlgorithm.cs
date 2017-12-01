@@ -44,6 +44,9 @@
         /// <summary>
         /// Determina a solução de um sistema linear de equações.
         /// </summary>
+        /// <remarks>
+        /// A matriz e o vector independente são alterados durante o processo.
+        /// </remarks>
         /// <param name="coefficientsMatrix">A matriz dos coeficientes.</param>
         /// <param name="independentVector">O vector independente.</param>
         /// <returns>A solução do sistema.</returns>
