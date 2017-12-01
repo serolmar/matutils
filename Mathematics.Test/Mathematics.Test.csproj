@@ -56,7 +56,7 @@
     <Compile Include="BitListTest.cs" />
     <Compile Include="BooleanMinimalFormAlgorithmTest.cs" />
     <Compile Include="DecompositionFactorizationAlgorithmTest.cs" />
-    <Compile Include="DenseCondensationLinSysAlgorithmTest.cs" />
+    <Compile Include="LinearSystemsAlgorithmsTest.cs" />
     <Compile Include="EdgeListGraphTest.cs" />
     <Compile Include="EulerTotFuncAlgTest.cs" />
     <Compile Include="FastDivisionFreeCharPolynomCalculatorTest.cs" />

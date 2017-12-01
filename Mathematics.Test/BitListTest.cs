@@ -1,4 +1,10 @@
-﻿namespace Mathematics.Test
+﻿// -----------------------------------------------------------------------
+// <copyright file="BitListTest.cs" company="Sérgio O. Marques">
+// Ver licença do projecto.
+// </copyright>
+// -----------------------------------------------------------------------
+
+namespace Mathematics.Test
 {
     using Utilities;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -10,27 +16,17 @@
     [TestClass()]
     public class BitListTest
     {
-        private TestContext testContextInstance;
-
-        public TestContext TestContext
-        {
-            get
-            {
-                return testContextInstance;
-            }
-            set
-            {
-                testContextInstance = value;
-            }
-        }
-
+        /// <summary>
+        /// Testa a função de adição de vários valores em simultâneo na lista de bits.
+        /// </summary>
+        [Description("Tests the add range for bit list.")]
         [TestMethod()]
         public void AddRangeTest_BitList()
         {
             var initialCount = 5;
             var rangeCount = 10;
             BitList target = new BitList(initialCount, true);
-            BitList range = new BitList(rangeCount,false);
+            BitList range = new BitList(rangeCount, false);
             var totalCount = initialCount + rangeCount;
             target.AddRange(range);
             Assert.AreEqual(totalCount, target.Count);
@@ -48,6 +44,10 @@
             }
         }
 
+        /// <summary>
+        /// Testa a adição de vários valores em simultâneo no vector de bits.
+        /// </summary>
+        [Description("Tests the add range for bit array.")]
         [TestMethod()]
         public void AddRangeTest_BitsArray()
         {
@@ -72,6 +72,10 @@
             }
         }
 
+        /// <summary>
+        /// Testa  função de leitura de valores numéricos sobre texto vazio.
+        /// </summary>
+        [Description("Tests the empty numeric read function.")]
         [TestMethod()]
         public void ReadNumericTest_EmptyValue()
         {
@@ -81,6 +85,10 @@
             Assert.AreEqual(expected, actual);
         }
 
+        /// <summary>
+        /// Testa a função de leitura numérica para pequenos valores.
+        /// </summary>
+        [Description("Tests small values numeric read function.")]
         [TestMethod()]
         public void ReadNumericTest_SmallValue()
         {
@@ -90,6 +98,10 @@
             Assert.AreEqual(expected, actual);
         }
 
+        /// <summary>
+        /// Testa a função de leitura numérica para pequenos valores com zeros à esquerda.
+        /// </summary>
+        [Description("Tests small values numeric read function with leading zeroes.")]
         [TestMethod()]
         public void ReadNumericTest_LeadingZeroesSmallValue()
         {
@@ -99,6 +111,10 @@
             Assert.AreEqual(expected, actual);
         }
 
+        /// <summary>
+        /// Testa a função de leitura numérica para grandes valores.
+        /// </summary>
+        [Description("Tests big values numeric read function.")]
         [TestMethod()]
         public void ReadNumericTest_BigValue()
         {
@@ -115,6 +131,10 @@
             Assert.AreEqual(expected, actual);
         }
 
+        /// <summary>
+        /// Testa a leitura de valores binários.
+        /// </summary>
+        [Description("Tests the binary read function.")]
         [TestMethod()]
         public void ReadBinaryTest_SimpleBinary()
         {
@@ -123,8 +143,13 @@
             var actual = BitList.ReadBinary(binaryText);
             Assert.AreEqual(expected, actual);
         }
+
         #region Testes às operações lógicas
 
+        /// <summary>
+        /// Testa a função ou lógico.
+        /// </summary>
+        [Description("Tests the bit list logic or funtion.")]
         [TestMethod()]
         public void BitListOrTest()
         {
@@ -135,6 +160,10 @@
             Assert.AreEqual(expected, actual);
         }
 
+        /// <summary>
+        /// Testa a função ou lógico exclusivo.
+        /// </summary>
+        [Description("Tests the bit list logic xor function.")]
         [TestMethod()]
         public void BitListXorTest()
         {
@@ -145,6 +174,10 @@
             Assert.AreEqual(expected, actual);
         }
 
+        /// <summary>
+        /// Testa a função de negação lógica.
+        /// </summary>
+        [Description("Tests the bit list logic negation function.")]
         [TestMethod()]
         public void BitListNotTest()
         {
@@ -154,6 +187,10 @@
             Assert.AreEqual(expected, actual);
         }
 
+        /// <summary>
+        /// Testa a função de e lógico.
+        /// </summary>
+        [Description("Tests the bit list logic and function.")]
         [TestMethod()]
         public void BitListAndTest()
         {

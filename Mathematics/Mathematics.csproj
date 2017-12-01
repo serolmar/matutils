@@ -236,6 +236,7 @@
     <Compile Include="Algorithms\Matrix\Inverse\TriangDiagSymmDecompInverseAlg.cs" />
     <Compile Include="Algorithms\Matrix\Linear Systems\DenseCondensationMethodAlgorithm.cs" />
     <Compile Include="Algorithms\Matrix\Linear Systems\DenseCondensationLinSysAlgorithm.cs" />
+    <Compile Include="Algorithms\Matrix\Linear Systems\LdlDecompLinearSystemAlgorithm.cs" />
     <Compile Include="Algorithms\Matrix\Linear Systems\LinearSystemSolution.cs" />
     <Compile Include="Algorithms\Matrix\Linear Systems\SequentialLanczosAlgorithm.cs" />
     <Compile Include="Algorithms\Matrix\Linear Systems\TriangDiagSymmMatrixDecomposition.cs" />

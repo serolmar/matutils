@@ -1,57 +1,25 @@
-﻿using Mathematics;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Numerics;
+﻿// -----------------------------------------------------------------------
+// <copyright file="EulerTotFuncAlgTest.cs" company="Sérgio O. Marques">
+// Ver licença do projecto.
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace Mathematics.Test
 {
+    using Mathematics;
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using System;
+    using System.Numerics;
+
+    /// <summary>
+    /// Testa o cálculo da função totiente.
+    /// </summary>
     [TestClass()]
     public class EulerTotFuncAlgTest
     {
-        private TestContext testContextInstance;
-
-        public TestContext TestContext
-        {
-            get
-            {
-                return testContextInstance;
-            }
-            set
-            {
-                testContextInstance = value;
-            }
-        }
-
-        #region Additional test attributes
-        // 
-        //You can use the following additional attributes as you write your tests:
-        //
-        //Use ClassInitialize to run code before running the first test in the class
-        //[ClassInitialize()]
-        //public static void MyClassInitialize(TestContext testContext)
-        //{
-        //}
-        //
-        //Use ClassCleanup to run code after all tests in a class have run
-        //[ClassCleanup()]
-        //public static void MyClassCleanup()
-        //{
-        //}
-        //
-        //Use TestInitialize to run code before running each test
-        //[TestInitialize()]
-        //public void MyTestInitialize()
-        //{
-        //}
-        //
-        //Use TestCleanup to run code after each test has run
-        //[TestCleanup()]
-        //public void MyTestCleanup()
-        //{
-        //}
-        //
-        #endregion
-
+        /// <summary>
+        /// Testa a função totiente para inteiros.
+        /// </summary>
         [TestMethod()]
         public void RunTest_Integer()
         {
@@ -71,6 +39,9 @@ namespace Mathematics.Test
             }
         }
 
+        /// <summary>
+        /// Testa a função totiente para inteiros de precisão arbitrária.
+        /// </summary>
         [TestMethod()]
         public void RunTest_BigInteger()
         {
