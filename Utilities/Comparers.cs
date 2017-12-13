@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------
-// <copyright file="Comparers.cs" company="">
-// TODO: Update copyright text.
+// <copyright file="Comparers.cs" company="Sérgio O. Marques">
+//  Ver licença do projecto.
 // </copyright>
 // -----------------------------------------------------------------------
 
