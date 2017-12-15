@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
 // <copyright file="IGeneralizedCollections.cs" company="Sérgio O. Marques">
 // Ver licença do projecto.
 // </copyright>
@@ -119,5 +119,30 @@ namespace Utilities
         /// </summary>
         /// <param name="index">O índice da posição a remover.</param>
         void RemoveAt(ulong index);
+    }
+
+    /// <summary>
+    /// Respresenta um dicionário cujo contentor suporta um número
+    /// elevado de itens.
+    /// </summary>
+    /// <typeparam name="TKey">O tipo dos objectos que constituem as chaves.</typeparam>
+    /// <typeparam name="TValue">O tipo dos objectos que constituem os valores.</typeparam>
+    public interface ILongDicationary<TKey, TValue> 
+        : IDictionary<TKey, TValue>
+    {
+        /// <summary>
+        /// Obtém o número de elementos no dicionário.
+        /// </summary>
+        uint UintCount { get; }
+
+        /// <summary>
+        /// Obtém o número de elementos no dicionário.
+        /// </summary>
+        long LongCount { get; }
+
+        /// <summary>
+        /// Obtém o número de elementos no dicionário.
+        /// </summary>
+        ulong UlongCount { get; }
     }
 }
