@@ -6684,6 +6684,7 @@ namespace Utilities
             {
                 // O vector das entradas consiste num objecto.
                 maxBinaryPower = 26;
+                generalMask = 67108863;
                 mask = generalMask;
             }
         }
@@ -7004,8 +7005,6 @@ namespace Utilities
             }
         }
 
-        #endregion Propriedades públicas
-
         /// <summary>
         /// Obtém um valor que indica se a colecção é só de leitura.
         /// </summary>
@@ -7016,6 +7015,8 @@ namespace Utilities
                 return false;
             }
         }
+
+        #endregion Propriedades públicas
 
         #region Propriedades internas
 
@@ -7157,7 +7158,7 @@ namespace Utilities
                                 entry.Next);
                         }
 
-                        entry.HashCode = 0UL;
+                        entry.HashCode = null;
                         entry.Next = this.freeList;
                         entry.Key = default(TKey);
                         entry.Value = default(TValue);
@@ -7201,7 +7202,7 @@ namespace Utilities
         /// <param name="item">O para a ser associado.</param>
         public void Add(KeyValuePair<TKey, TValue> item)
         {
-            throw new NotImplementedException();
+            this.SetEntry(item.Key, item.Value, true);
         }
 
         /// <summary>
@@ -7269,7 +7270,62 @@ namespace Utilities
         /// <param name="arrayIndex">O índice do vector a partir do qual é realziada a cópia.</param>
         public void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex)
         {
-            throw new NotImplementedException();
+            if (array == null)
+            {
+                throw new ArgumentNullException("array");
+            }
+            else if (arrayIndex < 0 || arrayIndex > array.LongLength)
+            {
+                throw new ArgumentOutOfRangeException("arrayIndex", "Index is outside the bounds of the array.");
+            }
+            else if ((ulong)(array.LongLength - arrayIndex) < this.count)
+            {
+                throw new ArgumentException("Array has no sufficient positions to hold collection entries.");
+            }
+            else
+            {
+                var firstLength = this.firstDimLength;
+                var secondLength = this.secondDimLength;
+                var thirdLength = this.thirdDimLength;
+                var currentIndex = arrayIndex;
+                for (var i = 0UL; i < firstLength; ++i)
+                {
+                    var curr = this.entries[i];
+                    for (var j = 0UL; j < secondLength; ++j)
+                    {
+                        var elem = curr[j];
+                        for (var k = 0UL; k < thirdLength; ++k)
+                        {
+                            var item = elem[k];
+                            array[currentIndex++] = new KeyValuePair<TKey, TValue>(
+                                item.Key,
+                                item.Value);
+                        }
+                    }
+                }
+
+                var outerSecondlength = this.secondDimLength;
+                var outerCurr = this.entries[firstLength];
+                for (var i = 0UL; i < outerSecondlength; ++i)
+                {
+                    var thirdCurr = outerCurr[i];
+                    for (var j = 0UL; j < thirdLength; ++j)
+                    {
+                        var item = thirdCurr[j];
+                        array[currentIndex++] = new KeyValuePair<TKey, TValue>(
+                            item.Key,
+                            item.Value);
+                    }
+
+                }
+
+                //if ((long)outerSecondlength < outerCurr.LongLength)
+                //{
+                //    var outerThirdCurr = outerCurr[outerSecondlength];
+                //}
+
+                throw new NotImplementedException();
+            }
         }
 
         /// <summary>
@@ -7556,6 +7612,7 @@ namespace Utilities
                     var bucks = new Nullable<ulong>[1][][];
                     var innerBucks = new Nullable<ulong>[1][];
                     innerBucks[0] = new Nullable<ulong>[thirdDim];
+                    bucks[0] = innerBucks;
                     this.buckets = bucks;
                 }
                 else
@@ -7734,6 +7791,8 @@ namespace Utilities
                     entry = innerEntry;
                     return true;
                 }
+
+                i = this.GetItem(this.entries, i.Value).Next;
             }
 
             entry = default(Entry);
@@ -7764,6 +7823,7 @@ namespace Utilities
                     else
                     {
                         entry.Value = value;
+                        return;
                     }
                 }
 
@@ -7799,7 +7859,7 @@ namespace Utilities
             }
 
             outEntry.HashCode = hashCode;
-            outEntry.Next = rem;
+            outEntry.Next = this.GetItem(this.buckets, rem);
             outEntry.Key = key;
             outEntry.Value = value;
 
@@ -7839,6 +7899,48 @@ namespace Utilities
         {
             var newCapacity = GetNextPrime(capacity + 1);
             this.IncreaseCapacityTo(newCapacity);
+
+            var firstLength = this.buckets.LongLength;
+            for (var i = 0; i < firstLength; ++i)
+            {
+                var firstEntry = this.buckets[i];
+                var secondLength = firstEntry.LongLength;
+                for (var j = 0; j < secondLength; ++j)
+                {
+                    var secondEntry = firstEntry[j];
+                    var thirdLength = secondEntry.LongLength;
+                    for (var k = 0; k < thirdLength; ++k)
+                    {
+                        secondEntry[k] = null;
+                    }
+                }
+            }
+
+            var ind = 0UL;
+            firstLength = this.buckets.LongLength;
+            for (var i = 0; i < firstLength; ++i)
+            {
+                var firstEntry = this.entries[i];
+                var secondLength = firstEntry.LongLength;
+                for (var j = 0; j < secondLength; ++j)
+                {
+                    var secondEntry = firstEntry[j];
+                    var thirdLength = secondEntry.LongLength;
+                    for (var k = 0; k < thirdLength; ++k)
+                    {
+                        var entry = secondEntry[k];
+                        if (entry != null && entry.HashCode.HasValue)
+                        {
+                            var bucket = entry.HashCode.Value % this.capacity;
+                            entry.Next = this.GetItem(this.buckets, bucket);
+                            this.SetItem(this.buckets, bucket, ind);
+                        }
+
+                        ++ind;
+                    }
+                }
+            }
+
             this.capacity = newCapacity;
         }
 
@@ -8404,7 +8506,7 @@ namespace Utilities
             /// <summary>
             /// Mantém o código confuso da chave.
             /// </summary>
-            private ulong hashCode;
+            private Nullable<ulong> hashCode;
 
             /// <summary>
             /// Mantém o índice da próxima entrada.
@@ -8424,7 +8526,7 @@ namespace Utilities
             /// <summary>
             /// Obtém ou atribui o código confuso da chave.
             /// </summary>
-            public ulong HashCode
+            public Nullable<ulong> HashCode
             {
                 get
                 {
