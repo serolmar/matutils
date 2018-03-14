@@ -3498,6 +3498,8 @@ namespace Utilities
     /// <typeparam name="T">O tipo dos objectos que constituem as entradas da lista.</typeparam>
     public class GeneralLongList<T> : ILongList<T>, IList<T>
     {
+        #region Campos estáticos privados
+
         /// <summary>
         /// Mantém uma instância do vector vazio.
         /// </summary>
@@ -3529,6 +3531,10 @@ namespace Utilities
         /// a uma lista cuja capacidade inicial é nula.
         /// </summary>
         private static ulong defaultCapacity = 1024;
+
+        #endregion Campos estáticos privados
+
+        #region Campos privados
 
         /// <summary>
         /// Variável que indica se se irá avaliar a memória disponível
@@ -3565,6 +3571,8 @@ namespace Utilities
         /// Mantém o valor da capacidade do vector. 
         /// </summary>
         private ulong capacity;
+
+        #endregion Campos privados
 
         /// <summary>
         /// Inicializa o tipo <see cref="GeneralLongList{T}"/>.
@@ -3619,6 +3627,8 @@ namespace Utilities
                 }
             }
         }
+
+        #region Construtores públicos
 
         /// <summary>
         /// Instancia uma nova instância de objectos do tipo <see cref="GeneralLongList{T}"/>.
@@ -3836,6 +3846,8 @@ namespace Utilities
                 }
             }
         }
+
+        #endregion Construtores públicos
 
         /// <summary>
         /// Obtém ou atribui o valor especificado pelo índice.
@@ -6548,6 +6560,8 @@ namespace Utilities
     /// <typeparam name="TValue">O tipo dos objectos que constituem os valores.</typeparam>
     public class GeneralDictionary<TKey, TValue> : IDictionary<TKey, TValue>
     {
+        #region Campos estáticos privados
+
         /// <summary>
         /// Define alguns números primos para serem utilizados na 
         /// reserva de espaço.
@@ -6604,11 +6618,9 @@ namespace Utilities
         /// </summary>
         private static uint generalMask;
 
-        /// <summary>
-        /// Estabelece a capacidade estabelecida por defeito aquando da adição do primeiro elemento
-        /// a uma lista cuja capacidade inicial é nula.
-        /// </summary>
-        private static ulong defaultCapacity = 1024;
+        #endregion Campos estáticos privados
+
+        #region Campos privados
 
         /// <summary>
         /// Variável que indica se se irá avaliar a memória disponível
@@ -6668,6 +6680,18 @@ namespace Utilities
         private IEqualityComparer64<TKey> comparer;
 
         /// <summary>
+        /// Mantém a classe que representa a colecção das chaves.
+        /// </summary>
+        private KeyCollection keys;
+
+        /// <summary>
+        /// Mantém a classe que representa a colecção de valores.
+        /// </summary>
+        private ValueCollection values;
+
+        #endregion Campos privados
+
+        /// <summary>
         /// Inicializa o tipo <see cref="GeneralDictionary{TKey, TValue}"/>.
         /// </summary>
         static GeneralDictionary()
@@ -6688,6 +6712,8 @@ namespace Utilities
                 mask = generalMask;
             }
         }
+
+        #region Construtores públicos
 
         /// <summary>
         /// Instancia uma nova instância de objectos do tipo <see cref="GeneralDictionary{TKey, TValue}"/>.
@@ -6898,6 +6924,8 @@ namespace Utilities
             }
         }
 
+        #endregion Construtores públicos
+
         #region Propriedades públicas
 
         /// <summary>
@@ -7016,6 +7044,38 @@ namespace Utilities
             }
         }
 
+
+        /// <summary>
+        /// Obtém a colecção das chaves.
+        /// </summary>
+        public ICollection<TKey> Keys
+        {
+            get
+            {
+                if (this.keys == null)
+                {
+                    this.keys = new KeyCollection(this);
+                }
+
+                return this.keys;
+            }
+        }
+
+        /// <summary>
+        /// Obtém a colecção dos valores.
+        /// </summary>
+        public ICollection<TValue> Values
+        {
+            get {
+                if (this.values == null)
+                {
+                    this.values = new ValueCollection(this);
+                }
+
+                return this.values;
+            }
+        }
+
         #endregion Propriedades públicas
 
         #region Propriedades internas
@@ -7081,22 +7141,6 @@ namespace Utilities
         #endregion Propriedades internas
 
         #region Funções públicas
-
-        /// <summary>
-        /// Obtém a colecção das chaves.
-        /// </summary>
-        public ICollection<TKey> Keys
-        {
-            get { throw new NotImplementedException(); }
-        }
-
-        /// <summary>
-        /// Obtém a colecção dos valores.
-        /// </summary>
-        public ICollection<TValue> Values
-        {
-            get { throw new NotImplementedException(); }
-        }
 
         /// <summary>
         /// Adiciona uma associação à tabela.
@@ -8437,64 +8481,968 @@ namespace Utilities
         /// </summary>
         public sealed class KeyCollection : ICollection<TKey>, ICollection
         {
+            /// <summary>
+            /// Mantém o dicionário sobre o qual incide a colecção.
+            /// </summary>
+            private GeneralDictionary<TKey, TValue> dictionary;
+
+            /// <summary>
+            /// Instancia uma nova instância de objectos do tipo <see cref="KeyCollection"/>.
+            /// </summary>
+            /// <param name="dictionary">O dicionário.</param>
+            public KeyCollection(GeneralDictionary<TKey, TValue> dictionary)
+            {
+                this.dictionary = dictionary;
+            }
+
+            /// <summary>
+            /// Obtém o número de elementos da colecção.
+            /// </summary>
             public int Count
             {
-                get { throw new NotImplementedException(); }
+                get
+                {
+                    return this.dictionary.Count;
+                }
             }
 
+            /// <summary>
+            /// Obém um valor que indica se a colecção é apenas de leitura.
+            /// </summary>
             public bool IsReadOnly
             {
-                get { throw new NotImplementedException(); }
+                get
+                {
+                    return true;
+                }
             }
 
+            /// <summary>
+            /// Obtém um valor que indica se a colecção é sincronizada.
+            /// </summary>
             public bool IsSynchronized
             {
-                get { throw new NotImplementedException(); }
+                get
+                {
+                    return false;
+                }
             }
 
+            /// <summary>
+            /// Obtém o objecto de sincronização da colecção.
+            /// </summary>
             public object SyncRoot
             {
-                get { throw new NotImplementedException(); }
+                get
+                {
+                    return ((ICollection)this.dictionary).SyncRoot;
+                }
             }
 
+            /// <summary>
+            /// Adiciona um item à colecção.
+            /// </summary>
+            /// <param name="item">O item.</param>
             public void Add(TKey item)
             {
-                throw new NotImplementedException();
+                throw new NotSupportedException("Can't add to key collection.");
             }
 
+            /// <summary>
+            /// Remove todos os itens da colecção.
+            /// </summary>
             public void Clear()
             {
-                throw new NotImplementedException();
+                throw new NotSupportedException("Can't clear key collection.");
             }
 
+            /// <summary>
+            /// Obtém um valor que indica se a colecção contém o item especificado.
+            /// </summary>
+            /// <param name="item">O item.</param>
+            /// <returns>Verdadeiro se a colecção contiver o item e falso caso contrário.</returns>
             public bool Contains(TKey item)
             {
-                throw new NotImplementedException();
+                return this.dictionary.ContainsKey(item);
             }
 
-            public void CopyTo(TKey[] array, int arrayIndex)
-            {
-                throw new NotImplementedException();
-            }
-
+            /// <summary>
+            /// Remove o item especificado da colecção.
+            /// </summary>
+            /// <param name="item">O item a ser removido.</param>
+            /// <returns>Verdadeiro se o item for removido e falso caso contrário.</returns>
             public bool Remove(TKey item)
             {
-                throw new NotImplementedException();
+                throw new NotSupportedException("Can't remove from key collection.");
             }
 
-            public IEnumerator<TKey> GetEnumerator()
+            /// <summary>
+            /// Copia os valores da colecção para um vector.
+            /// </summary>
+            /// <param name="array">O vector.</param>
+            /// <param name="arrayIndex">O índice do vector a partir do qual é iniciada a cópia.</param>
+            public void CopyTo(TKey[] array, int arrayIndex)
             {
-                throw new NotImplementedException();
+                if (array == null)
+                {
+                    throw new ArgumentNullException("array");
+                }
+                else if (arrayIndex < 0 || arrayIndex >= array.Length)
+                {
+                    throw new ArgumentOutOfRangeException(
+                        "arrayIndex", "Array index must be greater than zero and less than the size of array.");
+                }
+                else if (array.Length - arrayIndex < this.dictionary.Count)
+                {
+                    throw new ArgumentException("The size of array plus offset is to small to contain the copy.");
+                }
+                else
+                {
+                    var index = arrayIndex;
+                    var entries = this.dictionary.entries;
+                    var firstLength = entries.LongLength;
+                    for (var i = 0; i < firstLength; ++i)
+                    {
+                        var secondEntry = entries[i];
+                        var secondLength = secondEntry.LongLength;
+                        for (var j = 0; j < secondLength; ++j)
+                        {
+                            var thirdEntry = secondEntry[j];
+                            var thirdLength = thirdEntry.LongLength;
+                            for (var k = 0; k < thirdLength; ++k)
+                            {
+                                var entry = thirdEntry[k];
+                                if (entry != null && !entry.HashCode.HasValue)
+                                {
+                                    array[index++] = entry.Key;
+                                }
+                            }
+                        }
+                    }
+                }
             }
 
-            IEnumerator IEnumerable.GetEnumerator()
-            {
-                throw new NotImplementedException();
-            }
-
+            /// <summary>
+            /// Copia os valores da colecção para o vector.
+            /// </summary>
+            /// <param name="array">O vector.</param>
+            /// <param name="index">O índice a partir do qual é iniciada a cópia.</param>
             public void CopyTo(Array array, int index)
             {
+                if (array == null)
+                {
+                    throw new ArgumentNullException("array");
+                }
+                else if (array.Rank != 1)
+                {
+                    throw new ArgumentException("Multidimensional arrays are not supported.");
+                }
+                else if (array.GetLowerBound(0) != 0)
+                {
+                    throw new ArgumentException("Lower bound must be zero.");
+                }
+                else if (index < 0 || index >= array.Length)
+                {
+                    throw new ArgumentOutOfRangeException(
+                        "index", "Array index must be greater than zero and less than the size of array.");
+                }
+                else if (array.Length - index < this.dictionary.Count)
+                {
+                    throw new ArgumentException("The size of array plus offset is to small to contain the copy.");
+                }
+                else
+                {
+                    var arrayIndex = index;
+                    var entries = this.dictionary.entries;
+                    var firstLength = entries.LongLength;
+                    for (var i = 0; i < firstLength; ++i)
+                    {
+                        var secondEntry = entries[i];
+                        var secondLength = secondEntry.LongLength;
+                        for (var j = 0; j < secondLength; ++j)
+                        {
+                            var thirdEntry = secondEntry[j];
+                            var thirdLength = thirdEntry.LongLength;
+                            for (var k = 0; k < thirdLength; ++k)
+                            {
+                                var entry = thirdEntry[k];
+                                if (entry != null && !entry.HashCode.HasValue)
+                                {
+                                    array.SetValue(entry.Key, arrayIndex++);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            /// <summary>
+            /// Obém o enumerador para a colecção.
+            /// </summary>
+            /// <returns>O enumerador.</returns>
+            public IEnumerator<TKey> GetEnumerator()
+            {
+                return new Enumerator(this.dictionary);
+            }
+
+            /// <summary>
+            /// Obtém o enumerador para a colecção.
+            /// </summary>
+            /// <returns>O enumerador.</returns>
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return new Enumerator(this.dictionary);
+            }
+
+            /// <summary>
+            /// Implementa um enumerador para o conjunto das chaves.
+            /// </summary>
+            public class Enumerator : IEnumerator<TKey>, IEnumerator
+            {
+                /// <summary>
+                /// Mantém o dicionário.
+                /// </summary>
+                private GeneralDictionary<TKey, TValue> dictionary;
+
+                /// <summary>
+                /// Mantém o primeiro índice apontador.
+                /// </summary>
+                private long firstIndex;
+
+                /// <summary>
+                /// Mantém o segundo índice apontador.
+                /// </summary>
+                private long secondIndex;
+
+                /// <summary>
+                /// Mantém o terceiro índice apontador.
+                /// </summary>
+                private long thirdIndex;
+
+                /// <summary>
+                /// Valor que indica que está antes do início.
+                /// </summary>
+                private bool isBeforeStart;
+
+                /// <summary>
+                /// Valor que indica que está após o final.
+                /// </summary>
+                private bool isAfterEnd;
+
+                /// <summary>
+                /// Instancia uma nova instância de objectos do tipo <see cref="Enumerator"/>.
+                /// </summary>
+                /// <param name="dictionary">O dicionário.</param>
+                internal Enumerator(GeneralDictionary<TKey, TValue> dictionary)
+                {
+                    this.dictionary = dictionary;
+                    this.firstIndex = 0;
+                    this.secondIndex = 0;
+                    this.thirdIndex = -1;
+                    this.isAfterEnd = false;
+                    this.isBeforeStart = true;
+                }
+
+                /// <summary>
+                /// Instancia uma nova instância de objectos do tipo <see cref="Enumerator"/>.
+                /// </summary>
+                /// <param name="dictionary">O dicionário.</param>
+                /// <param name="firstIndex">O primeiro índice apontador.</param>
+                /// <param name="secondIndex">O segundo índice apontador.</param>
+                /// <param name="thirdIndex">O terceiro índice apontador.</param>
+                internal Enumerator(
+                    GeneralDictionary<TKey, TValue> dictionary,
+                    long firstIndex,
+                    long secondIndex,
+                    long thirdIndex)
+                {
+                    this.dictionary = dictionary;
+                    this.firstIndex = firstIndex;
+                    this.secondIndex = secondIndex;
+                    this.thirdIndex = thirdIndex - 1;
+                    this.isAfterEnd = false;
+                    this.isBeforeStart = true;
+                }
+
+                /// <summary>
+                /// Obtém o valor actual apontado pelo enumerador.
+                /// </summary>
+                public TKey Current
+                {
+                    get
+                    {
+                        if (this.isBeforeStart)
+                        {
+                            throw new CollectionsException("Enumerator wasn't started.");
+                        }
+                        else if (this.isAfterEnd)
+                        {
+                            throw new CollectionsException("Enumerator has terminated.");
+                        }
+                        else
+                        {
+                            var secondEntry = this.dictionary.entries[this.firstIndex];
+                            var thirdEntry = secondEntry[this.secondIndex];
+                            var entry = thirdEntry[this.thirdIndex];
+                            return entry.Key;
+                        }
+                    }
+                }
+
+                /// <summary>
+                /// Obtém o valor actual apontado pelo enumerador.
+                /// </summary>
+                object IEnumerator.Current
+                {
+                    get
+                    {
+                        if (this.isBeforeStart)
+                        {
+                            throw new CollectionsException("Enumerator wasn't started.");
+                        }
+                        else if (this.isAfterEnd)
+                        {
+                            throw new CollectionsException("Enumerator has terminated.");
+                        }
+                        else
+                        {
+                            var secondEntry = this.dictionary.entries[this.firstIndex];
+                            var thirdEntry = secondEntry[this.secondIndex];
+                            var entry = thirdEntry[this.thirdIndex];
+                            return entry.Key;
+                        }
+                    }
+                }
+
+                /// <summary>
+                /// Descarta o enumerador.
+                /// </summary>
+                public void Dispose()
+                {
+                }
+
+                /// <summary>
+                /// Move o enumerador para o próximo elemento.
+                /// </summary>
+                /// <returns>Verdadeiro caso o enumerador seja movido e falso caso se encontre no final.</returns>
+                public bool MoveNext()
+                {
+                    this.isBeforeStart = false;
+                    var firstLength = this.dictionary.entries.LongLength;
+                    var firstEntry = this.dictionary.entries[this.firstIndex];
+                    var secondLength = firstEntry.LongLength;
+                    var secondEntry = firstEntry[this.secondIndex];
+                    var thirdLength = secondEntry.LongLength;
+                    var state = !this.isAfterEnd;
+                    while (state)
+                    {
+                        ++thirdIndex;
+                        if (thirdIndex < thirdLength)
+                        {
+                            var entry = secondEntry[this.thirdIndex];
+                            if (entry != null && entry.HashCode.HasValue)
+                            {
+                                return true;
+                            }
+                        }
+                        else
+                        {
+                            ++this.secondIndex;
+                            if (this.secondIndex < secondLength)
+                            {
+                                secondEntry = firstEntry[this.secondIndex];
+                                thirdLength = secondEntry.LongLength;
+                                this.thirdIndex = -1;
+                            }
+                            else
+                            {
+                                ++this.firstIndex;
+                                this.secondIndex = 0;
+                                if (this.firstIndex < firstLength)
+                                {
+                                    firstEntry = this.dictionary.entries[this.firstIndex];
+                                    secondLength = firstEntry.LongLength;
+                                    secondEntry = firstEntry[0];
+                                    thirdLength = secondEntry.LongLength;
+                                    this.thirdIndex = -1;
+                                }
+                                else
+                                {
+                                    this.isAfterEnd = true;
+                                    state = false;
+                                }
+                            }
+                        }
+                    }
+
+                    return false;
+                }
+
+                /// <summary>
+                /// Reestabelece o enumerador.
+                /// </summary>
+                public void Reset()
+                {
+                    this.firstIndex = 0;
+                    this.secondIndex = 0;
+                    this.thirdIndex = -1;
+                    this.isBeforeStart = true;
+                    this.isAfterEnd = false;
+                }
+
+                /// <summary>
+                /// Move o enumerador para o próximo elemento.
+                /// </summary>
+                /// <returns>Verdadeiro caso o enumerador seja movido e falso caso se encontre no final.</returns>
+                bool IEnumerator.MoveNext()
+                {
+                    this.isBeforeStart = false;
+                    var firstLength = this.dictionary.entries.LongLength;
+                    var firstEntry = this.dictionary.entries[this.firstIndex];
+                    var secondLength = firstEntry.LongLength;
+                    var secondEntry = firstEntry[this.secondIndex];
+                    var thirdLength = secondEntry.LongLength;
+                    var state = !this.isAfterEnd;
+                    while (state)
+                    {
+                        ++thirdIndex;
+                        if (thirdIndex < thirdLength)
+                        {
+                            var entry = secondEntry[this.thirdIndex];
+                            if (entry != null && entry.HashCode.HasValue)
+                            {
+                                return true;
+                            }
+                        }
+                        else
+                        {
+                            ++this.secondIndex;
+                            if (this.secondIndex < secondLength)
+                            {
+                                secondEntry = firstEntry[this.secondIndex];
+                                thirdLength = secondEntry.LongLength;
+                                this.thirdIndex = -1;
+                            }
+                            else
+                            {
+                                ++this.firstIndex;
+                                this.secondIndex = 0;
+                                if (this.firstIndex < firstLength)
+                                {
+                                    firstEntry = this.dictionary.entries[this.firstIndex];
+                                    secondLength = firstEntry.LongLength;
+                                    secondEntry = firstEntry[0];
+                                    thirdLength = secondEntry.LongLength;
+                                    this.thirdIndex = -1;
+                                }
+                                else
+                                {
+                                    this.isAfterEnd = true;
+                                    state = false;
+                                }
+                            }
+                        }
+                    }
+
+                    return false;
+                }
+
+                /// <summary>
+                /// Reestabelece o enumerador.
+                /// </summary>
+                void IEnumerator.Reset()
+                {
+                    this.firstIndex = 0;
+                    this.secondIndex = 0;
+                    this.thirdIndex = -1;
+                    this.isBeforeStart = true;
+                    this.isAfterEnd = false;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Representa uma colecção de valores.
+        /// </summary>
+        public sealed class ValueCollection : ICollection<TValue>, ICollection
+        {
+            /// <summary>
+            /// Mantém o dicionário sobre o qual incide a colecção.
+            /// </summary>
+            private GeneralDictionary<TKey, TValue> dictionary;
+
+            /// <summary>
+            /// Instancia uma nova instância de objectos do tipo <see cref="ValueCollection"/>.
+            /// </summary>
+            /// <param name="dictionary">O dicionário.</param>
+            public ValueCollection(GeneralDictionary<TKey, TValue> dictionary)
+            {
+                this.dictionary = dictionary;
+            }
+
+            /// <summary>
+            /// Obtém o número de elementos da colecção.
+            /// </summary>
+            public int Count
+            {
+                get
+                {
+                    return this.dictionary.Count;
+                }
+            }
+
+            /// <summary>
+            /// Obém um valor que indica se a colecção é apenas de leitura.
+            /// </summary>
+            public bool IsReadOnly
+            {
+                get
+                {
+                    return true;
+                }
+            }
+
+            /// <summary>
+            /// Obtém um valor que indica se a colecção é sincronizada.
+            /// </summary>
+            public bool IsSynchronized
+            {
+                get
+                {
+                    return false;
+                }
+            }
+
+            /// <summary>
+            /// Obtém o objecto de sincronização da colecção.
+            /// </summary>
+            public object SyncRoot
+            {
+                get
+                {
+                    return ((ICollection)this.dictionary).SyncRoot;
+                }
+            }
+
+            /// <summary>
+            /// Adiciona um item à colecção.
+            /// </summary>
+            /// <param name="item">O item.</param>
+            public void Add(TValue item)
+            {
+                throw new NotSupportedException("Can't add to key collection.");
+            }
+
+            /// <summary>
+            /// Remove todos os itens da colecção.
+            /// </summary>
+            public void Clear()
+            {
+                throw new NotSupportedException("Can't clear key collection.");
+            }
+
+            /// <summary>
+            /// Obtém um valor que indica se a colecção contém o item especificado.
+            /// </summary>
+            /// <param name="item">O item.</param>
+            /// <returns>Verdadeiro se a colecção contiver o item e falso caso contrário.</returns>
+            public bool Contains(TValue item)
+            {
                 throw new NotImplementedException();
+            }
+
+            /// <summary>
+            /// Remove o item especificado da colecção.
+            /// </summary>
+            /// <param name="item">O item a ser removido.</param>
+            /// <returns>Verdadeiro se o item for removido e falso caso contrário.</returns>
+            public bool Remove(TValue item)
+            {
+                throw new NotSupportedException("Can't remove from key collection.");
+            }
+
+            /// <summary>
+            /// Copia os valores da colecção para um vector.
+            /// </summary>
+            /// <param name="array">O vector.</param>
+            /// <param name="arrayIndex">O índice do vector a partir do qual é iniciada a cópia.</param>
+            public void CopyTo(TValue[] array, int arrayIndex)
+            {
+                if (array == null)
+                {
+                    throw new ArgumentNullException("array");
+                }
+                else if (arrayIndex < 0 || arrayIndex >= array.Length)
+                {
+                    throw new ArgumentOutOfRangeException(
+                        "arrayIndex", "Array index must be greater than zero and less than the size of array.");
+                }
+                else if (array.Length - arrayIndex < this.dictionary.Count)
+                {
+                    throw new ArgumentException("The size of array plus offset is to small to contain the copy.");
+                }
+                else
+                {
+                    var index = arrayIndex;
+                    var entries = this.dictionary.entries;
+                    var firstLength = entries.LongLength;
+                    for (var i = 0; i < firstLength; ++i)
+                    {
+                        var secondEntry = entries[i];
+                        var secondLength = secondEntry.LongLength;
+                        for (var j = 0; j < secondLength; ++j)
+                        {
+                            var thirdEntry = secondEntry[j];
+                            var thirdLength = thirdEntry.LongLength;
+                            for (var k = 0; k < thirdLength; ++k)
+                            {
+                                var entry = thirdEntry[k];
+                                if (entry != null && !entry.HashCode.HasValue)
+                                {
+                                    array[index++] = entry.Value;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            /// <summary>
+            /// Copia os valores da colecção para o vector.
+            /// </summary>
+            /// <param name="array">O vector.</param>
+            /// <param name="index">O índice a partir do qual é iniciada a cópia.</param>
+            public void CopyTo(Array array, int index)
+            {
+                if (array == null)
+                {
+                    throw new ArgumentNullException("array");
+                }
+                else if (array.Rank != 1)
+                {
+                    throw new ArgumentException("Multidimensional arrays are not supported.");
+                }
+                else if (array.GetLowerBound(0) != 0)
+                {
+                    throw new ArgumentException("Lower bound must be zero.");
+                }
+                else if (index < 0 || index >= array.Length)
+                {
+                    throw new ArgumentOutOfRangeException(
+                        "index", "Array index must be greater than zero and less than the size of array.");
+                }
+                else if (array.Length - index < this.dictionary.Count)
+                {
+                    throw new ArgumentException("The size of array plus offset is to small to contain the copy.");
+                }
+                else
+                {
+                    var arrayIndex = index;
+                    var entries = this.dictionary.entries;
+                    var firstLength = entries.LongLength;
+                    for (var i = 0; i < firstLength; ++i)
+                    {
+                        var secondEntry = entries[i];
+                        var secondLength = secondEntry.LongLength;
+                        for (var j = 0; j < secondLength; ++j)
+                        {
+                            var thirdEntry = secondEntry[j];
+                            var thirdLength = thirdEntry.LongLength;
+                            for (var k = 0; k < thirdLength; ++k)
+                            {
+                                var entry = thirdEntry[k];
+                                if (entry != null && !entry.HashCode.HasValue)
+                                {
+                                    array.SetValue(entry.Value, arrayIndex++);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            /// <summary>
+            /// Obém o enumerador para a colecção.
+            /// </summary>
+            /// <returns>O enumerador.</returns>
+            public IEnumerator<TValue> GetEnumerator()
+            {
+                return new Enumerator(this.dictionary);
+            }
+
+            /// <summary>
+            /// Obtém o enumerador para a colecção.
+            /// </summary>
+            /// <returns>O enumerador.</returns>
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return new Enumerator(this.dictionary);
+            }
+
+            /// <summary>
+            /// Implementa um enumerador para o conjunto das chaves.
+            /// </summary>
+            public class Enumerator : IEnumerator<TValue>, IEnumerator
+            {
+                /// <summary>
+                /// Mantém o dicionário.
+                /// </summary>
+                private GeneralDictionary<TKey, TValue> dictionary;
+
+                /// <summary>
+                /// Mantém o primeiro índice apontador.
+                /// </summary>
+                private long firstIndex;
+
+                /// <summary>
+                /// Mantém o segundo índice apontador.
+                /// </summary>
+                private long secondIndex;
+
+                /// <summary>
+                /// Mantém o terceiro índice apontador.
+                /// </summary>
+                private long thirdIndex;
+
+                /// <summary>
+                /// Valor que indica que está antes do início.
+                /// </summary>
+                private bool isBeforeStart;
+
+                /// <summary>
+                /// Valor que indica que está após o final.
+                /// </summary>
+                private bool isAfterEnd;
+
+                /// <summary>
+                /// Instancia uma nova instância de objectos do tipo <see cref="Enumerator"/>.
+                /// </summary>
+                /// <param name="dictionary">O dicionário.</param>
+                internal Enumerator(GeneralDictionary<TKey, TValue> dictionary)
+                {
+                    this.dictionary = dictionary;
+                    this.firstIndex = 0;
+                    this.secondIndex = 0;
+                    this.thirdIndex = -1;
+                    this.isAfterEnd = false;
+                    this.isBeforeStart = true;
+                }
+
+                /// <summary>
+                /// Instancia uma nova instância de objectos do tipo <see cref="Enumerator"/>.
+                /// </summary>
+                /// <param name="dictionary">O dicionário.</param>
+                /// <param name="firstIndex">O primeiro índice apontador.</param>
+                /// <param name="secondIndex">O segundo índice apontador.</param>
+                /// <param name="thirdIndex">O terceiro índice apontador.</param>
+                internal Enumerator(
+                    GeneralDictionary<TKey, TValue> dictionary,
+                    long firstIndex,
+                    long secondIndex,
+                    long thirdIndex)
+                {
+                    this.dictionary = dictionary;
+                    this.firstIndex = firstIndex;
+                    this.secondIndex = secondIndex;
+                    this.thirdIndex = thirdIndex - 1;
+                    this.isAfterEnd = false;
+                    this.isBeforeStart = true;
+                }
+
+                /// <summary>
+                /// Obtém o valor actual apontado pelo enumerador.
+                /// </summary>
+                public TValue Current
+                {
+                    get
+                    {
+                        if (this.isBeforeStart)
+                        {
+                            throw new CollectionsException("Enumerator wasn't started.");
+                        }
+                        else if (this.isAfterEnd)
+                        {
+                            throw new CollectionsException("Enumerator has terminated.");
+                        }
+                        else
+                        {
+                            var secondEntry = this.dictionary.entries[this.firstIndex];
+                            var thirdEntry = secondEntry[this.secondIndex];
+                            var entry = thirdEntry[this.thirdIndex];
+                            return entry.Value;
+                        }
+                    }
+                }
+
+                /// <summary>
+                /// Obtém o valor actual apontado pelo enumerador.
+                /// </summary>
+                object IEnumerator.Current
+                {
+                    get
+                    {
+                        if (this.isBeforeStart)
+                        {
+                            throw new CollectionsException("Enumerator wasn't started.");
+                        }
+                        else if (this.isAfterEnd)
+                        {
+                            throw new CollectionsException("Enumerator has terminated.");
+                        }
+                        else
+                        {
+                            var secondEntry = this.dictionary.entries[this.firstIndex];
+                            var thirdEntry = secondEntry[this.secondIndex];
+                            var entry = thirdEntry[this.thirdIndex];
+                            return entry.Value;
+                        }
+                    }
+                }
+
+                /// <summary>
+                /// Descarta o enumerador.
+                /// </summary>
+                public void Dispose()
+                {
+                }
+
+                /// <summary>
+                /// Move o enumerador para o próximo elemento.
+                /// </summary>
+                /// <returns>Verdadeiro caso o enumerador seja movido e falso caso se encontre no final.</returns>
+                public bool MoveNext()
+                {
+                    this.isBeforeStart = false;
+                    var firstLength = this.dictionary.entries.LongLength;
+                    var firstEntry = this.dictionary.entries[this.firstIndex];
+                    var secondLength = firstEntry.LongLength;
+                    var secondEntry = firstEntry[this.secondIndex];
+                    var thirdLength = secondEntry.LongLength;
+                    var state = !this.isAfterEnd;
+                    while (state)
+                    {
+                        ++thirdIndex;
+                        if (thirdIndex < thirdLength)
+                        {
+                            var entry = secondEntry[this.thirdIndex];
+                            if (entry != null && entry.HashCode.HasValue)
+                            {
+                                return true;
+                            }
+                        }
+                        else
+                        {
+                            ++this.secondIndex;
+                            if (this.secondIndex < secondLength)
+                            {
+                                secondEntry = firstEntry[this.secondIndex];
+                                thirdLength = secondEntry.LongLength;
+                                this.thirdIndex = -1;
+                            }
+                            else
+                            {
+                                ++this.firstIndex;
+                                this.secondIndex = 0;
+                                if (this.firstIndex < firstLength)
+                                {
+                                    firstEntry = this.dictionary.entries[this.firstIndex];
+                                    secondLength = firstEntry.LongLength;
+                                    secondEntry = firstEntry[0];
+                                    thirdLength = secondEntry.LongLength;
+                                    this.thirdIndex = -1;
+                                }
+                                else
+                                {
+                                    this.isAfterEnd = true;
+                                    state = false;
+                                }
+                            }
+                        }
+                    }
+
+                    return false;
+                }
+
+                /// <summary>
+                /// Reestabelece o enumerador.
+                /// </summary>
+                public void Reset()
+                {
+                    this.firstIndex = 0;
+                    this.secondIndex = 0;
+                    this.thirdIndex = -1;
+                    this.isBeforeStart = true;
+                    this.isAfterEnd = false;
+                }
+
+                /// <summary>
+                /// Move o enumerador para o próximo elemento.
+                /// </summary>
+                /// <returns>Verdadeiro caso o enumerador seja movido e falso caso se encontre no final.</returns>
+                bool IEnumerator.MoveNext()
+                {
+                    this.isBeforeStart = false;
+                    var firstLength = this.dictionary.entries.LongLength;
+                    var firstEntry = this.dictionary.entries[this.firstIndex];
+                    var secondLength = firstEntry.LongLength;
+                    var secondEntry = firstEntry[this.secondIndex];
+                    var thirdLength = secondEntry.LongLength;
+                    var state = !this.isAfterEnd;
+                    while (state)
+                    {
+                        ++thirdIndex;
+                        if (thirdIndex < thirdLength)
+                        {
+                            var entry = secondEntry[this.thirdIndex];
+                            if (entry != null && entry.HashCode.HasValue)
+                            {
+                                return true;
+                            }
+                        }
+                        else
+                        {
+                            ++this.secondIndex;
+                            if (this.secondIndex < secondLength)
+                            {
+                                secondEntry = firstEntry[this.secondIndex];
+                                thirdLength = secondEntry.LongLength;
+                                this.thirdIndex = -1;
+                            }
+                            else
+                            {
+                                ++this.firstIndex;
+                                this.secondIndex = 0;
+                                if (this.firstIndex < firstLength)
+                                {
+                                    firstEntry = this.dictionary.entries[this.firstIndex];
+                                    secondLength = firstEntry.LongLength;
+                                    secondEntry = firstEntry[0];
+                                    thirdLength = secondEntry.LongLength;
+                                    this.thirdIndex = -1;
+                                }
+                                else
+                                {
+                                    this.isAfterEnd = true;
+                                    state = false;
+                                }
+                            }
+                        }
+                    }
+
+                    return false;
+                }
+
+                /// <summary>
+                /// Reestabelece o enumerador.
+                /// </summary>
+                void IEnumerator.Reset()
+                {
+                    this.firstIndex = 0;
+                    this.secondIndex = 0;
+                    this.thirdIndex = -1;
+                    this.isBeforeStart = true;
+                    this.isAfterEnd = false;
+                }
             }
         }
 
