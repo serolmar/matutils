@@ -2,6 +2,7 @@ namespace Utilities.Test
 {
     using System;
     using System.Text;
+    using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -857,7 +858,7 @@ namespace Utilities.Test
             var expected = new List<int>();
 
             CollectionAssert.AreEqual(
-                expected, 
+                expected,
                 target);
 
             // Inserção no final.
@@ -952,7 +953,7 @@ namespace Utilities.Test
                 Assert.AreEqual(i, temp);
             }
         }
-        
+
         /// <summary>
         /// Testa a colecção tipo meda.
         /// </summary>
@@ -1332,6 +1333,45 @@ namespace Utilities.Test
                     }
                 }
             }
+        }
+        
+        /// <summary>
+        /// Efectua testes gerais no dicionário.
+        /// </summary>
+        [Description("Do general tests on dictionary.")]
+        [TestMethod]
+        public void GeneralDictionary_GeneralTest()
+        {
+            GeneralDictionary<int, int>.MaxBinaryPower = 2;
+            GeneralDictionary<int, int>.ObjMaxBinaryPower = 1;
+
+            var keyList = new List<int>() { 
+                1, 10, 2, 9, 3, 8, 4, 7, 5, 6,
+                21, 34, 15, 13, 11, 20, 33, 12, 16, 14 };
+            var valueList = new List<int>() { 
+                1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+                11, 12, 13, 14, 15, 16, 17, 18, 19, 20 };
+            var length = keyList.Count;
+
+            var target = new GeneralDictionary<int, int>(
+                EqualityComparer64<int>.Default);
+
+            for (var i = 0; i < length; ++i)
+            {
+                target.Add(keyList[i], valueList[i]);
+            }
+
+            Assert.AreEqual(length, target.Count);
+            for (var i = 0; i < length; ++i)
+            {
+                Assert.IsTrue(target.ContainsKey(keyList[i]));
+                var value = target[keyList[i]];
+                Assert.AreEqual(valueList[i], value);
+            }
+
+            var keys = target.Keys;
+            CollectionAssert.AreEquivalent(keyList, (ICollection)target.Keys);
+            CollectionAssert.AreEquivalent(valueList, (ICollection)target.Values);
         }
 
         /// <summary>
