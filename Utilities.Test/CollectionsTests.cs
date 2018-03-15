@@ -1334,7 +1334,7 @@ namespace Utilities.Test
                 }
             }
         }
-        
+
         /// <summary>
         /// Efectua testes gerais no dicionário.
         /// </summary>
@@ -1369,9 +1369,139 @@ namespace Utilities.Test
                 Assert.AreEqual(valueList[i], value);
             }
 
-            var keys = target.Keys;
             CollectionAssert.AreEquivalent(keyList, (ICollection)target.Keys);
             CollectionAssert.AreEquivalent(valueList, (ICollection)target.Values);
+
+            target.Clear();
+            Assert.AreEqual(0, target.Count);
+            for (var i = 0; i < length; ++i)
+            {
+                Assert.IsFalse(target.ContainsKey(keyList[i]));
+            }
+
+            for (var i = 0; i < length; ++i)
+            {
+                target.Add(keyList[i], valueList[i]);
+            }
+
+            Assert.AreEqual(length, target.Count);
+            for (var i = 0; i < length; ++i)
+            {
+                Assert.IsTrue(target.ContainsKey(keyList[i]));
+                var value = target[keyList[i]];
+                Assert.AreEqual(valueList[i], value);
+            }
+
+            CollectionAssert.AreEquivalent(keyList, (ICollection)target.Keys);
+            CollectionAssert.AreEquivalent(valueList, (ICollection)target.Values);
+
+            var dic1 = new Dictionary<int, int>();
+            target.Clear();
+            for (var i = 0; i < 50; ++i)
+            {
+                target.Add(i, 50 + i);
+                target.Add(50 + i, i);
+                dic1.Add(i, 50 + i);
+                dic1.Add(50 + i, i);
+            }
+
+            var vec = new KeyValuePair<int, int>[100];
+            target.CopyTo(vec, 0);
+            CollectionAssert.AreEquivalent(dic1, vec);
+        }
+
+        /// <summary>
+        /// Testa o método de remoção do dicionário.
+        /// </summary>
+        [Description("Tests the remove method from the dictionary.")]
+        [TestMethod]
+        public void GeneralDictionary_RemoveTest()
+        {
+            GeneralDictionary<int, int>.MaxBinaryPower = 2;
+            GeneralDictionary<int, int>.ObjMaxBinaryPower = 1;
+
+            var target = new GeneralDictionary<int, int>(
+                EqualityComparer64<int>.Default);
+
+            var dic1 = new Dictionary<int, int>();
+            var dic2 = new Dictionary<int, int>();
+
+            for (var i = 0; i < 1000; ++i)
+            {
+                target.Add(i, 1000 + i);
+                target.Add(1000 + i, i);
+
+                dic1.Add(i, 1000 + i);
+                dic1.Add(1000 + i, i);
+            }
+
+            foreach (var kvp in target)
+            {
+                Assert.IsTrue(dic1.ContainsKey(kvp.Key));
+                var value = dic1[kvp.Key];
+                Assert.AreEqual(value, kvp.Value);
+            }
+
+            foreach (var kvp in dic1)
+            {
+                Assert.IsTrue(target.ContainsKey(kvp.Key));
+                var value = target[kvp.Key];
+                Assert.AreEqual(kvp.Value, value);
+            }
+
+            var n = 1;
+            for (var i = 500; i < 1500; ++i)
+            {
+                for (var j = 0; j < n; ++j)
+                {
+                    Assert.IsTrue(target.Remove(j));
+                    var val = dic1[j];
+                    dic1.Remove(j);
+                    dic2.Add(j, val);
+                }
+
+                foreach (var kvp in target)
+                {
+                    Assert.IsTrue(dic1.ContainsKey(kvp.Key));
+                    var value = dic1[kvp.Key];
+                    Assert.AreEqual(value, kvp.Value);
+                }
+
+                foreach (var kvp in dic1)
+                {
+                    Assert.IsTrue(target.ContainsKey(kvp.Key));
+                    var value = target[kvp.Key];
+                    Assert.AreEqual(kvp.Value, value);
+                }
+
+                foreach (var kvp in dic2)
+                {
+                    target.Add(kvp.Key, kvp.Value);
+                    dic1.Add(kvp.Key, kvp.Value);
+                }
+
+                dic2.Clear();
+                ++n;
+            }
+
+            foreach (var kvp in target)
+            {
+                Assert.IsTrue(dic1.ContainsKey(kvp.Key));
+                var value = dic1[kvp.Key];
+                Assert.AreEqual(value, kvp.Value);
+            }
+
+            foreach (var kvp in dic1)
+            {
+                Assert.IsTrue(target.ContainsKey(kvp.Key));
+                var value = target[kvp.Key];
+                Assert.AreEqual(kvp.Value, value);
+            }
+
+            for (var i = 2000; i < 3000; ++i)
+            {
+                Assert.IsFalse(target.ContainsKey(i));
+            }
         }
 
         /// <summary>
