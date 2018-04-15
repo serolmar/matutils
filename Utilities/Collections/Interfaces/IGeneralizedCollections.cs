@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
 // <copyright file="IGeneralizedCollections.cs" company="Sérgio O. Marques">
 // Ver licença do projecto.
 // </copyright>
@@ -145,6 +145,7 @@ namespace Utilities
         /// </summary>
         ulong UlongCount { get; }
     }
+<<<<<<< HEAD
 
     /// <summary>
     /// Define a interface para um dicionário ordenado.
@@ -159,4 +160,6 @@ namespace Utilities
         /// </summary>
         IComparer<TKey> Comparer { get; }
     }
+=======
+>>>>>>> 6c405f0b273be9ba1894ac97d9d861c844a787ec
 }
