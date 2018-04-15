@@ -1,4 +1,10 @@
-﻿namespace Mathematics
+﻿// -----------------------------------------------------------------------
+// <copyright file="ArrayDiagonalMatrixFactory.cs" company="Sérgio O. Marques">
+// Ver licença do projecto.
+// </copyright>
+// -----------------------------------------------------------------------
+
+namespace Mathematics
 {
     using System;
     using System.Collections.Generic;

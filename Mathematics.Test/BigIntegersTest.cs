@@ -399,7 +399,6 @@
         [TestMethod]
         public void UlongArrayBigInt_Divide()
         {
-            Assert.Inconclusive("The function is under development.");
             var highValues = new[] { 
                 235624ul, 
                 18446744073709551614ul,

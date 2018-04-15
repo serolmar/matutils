@@ -84,14 +84,123 @@ namespace Mathematics.Test
             var target = new SymmetricLdlDecompLinearSystemAlgorithm<Fraction<int>>(
                 decompositionAlg);
             var matrix = this.GetSingularMatrix(domain);
+            var vector = this.GetZeroFilledVector(domain);
+            var actual = target.Run(matrix, vector);
 
-            Assert.Inconclusive();
+            // Teste à característica da matriz
+            Assert.AreEqual(2, actual.VectorSpaceBasis.Count);
+
+            // Teste ao vector independente
+            var size = matrix.GetLength(0);
+            var nullVector = new ZeroVector<Fraction<int>>(size, fractionField);
+            this.AssertVector(nullVector, matrix, actual.Vector, fractionField);
+
+            // Teste aos vectores da base
+            for (var i = 0; i < actual.VectorSpaceBasis.Count; ++i)
+            {
+                var vec = actual.VectorSpaceBasis[i];
+                this.AssertVector(nullVector, matrix, vec, fractionField);
+            }
+
+            // Teste à matriz com vector independente
+            vector = this.GetIndtVectorForSingularMatrix(domain);
+            var expectedVector = new ArrayMathVector<Fraction<int>>(size);
+            for (var i = 0; i < size; ++i)
+            {
+                expectedVector[i] = vector[i, 0];
+            }
+
+            actual = target.Run(matrix, vector);
+            this.AssertVector(expectedVector, matrix, actual.Vector, fractionField);
+
+            for (var i = 0; i < actual.VectorSpaceBasis.Count; ++i)
+            {
+                var vec = actual.VectorSpaceBasis[i];
+                this.AssertVector(nullVector, matrix, vec, fractionField);
+            }
+        }
+
+        /// <summary>
+        /// Testa a solução de um sistema linear com base no algoritmo da
+        /// decomposição de uma matriz simétrica.
+        /// </summary>
+        [TestMethod]
+        [Description("Tests the decomposition general system solver.")]
+        public void LdlDecompLinearSystemAlgorithm_RunTest()
+        {
+            var domain = new IntegerDomain();
+            var fractionField = new FractionField<int>(domain);
+            var decompositionAlg = new TriangDiagSymmMatrixDecomposition<Fraction<int>>(
+                fractionField);
+            var symmDecompSolver = new SymmetricLdlDecompLinearSystemAlgorithm<Fraction<int>>(
+                decompositionAlg);
+            var target = new LdlDecompLinearSystemAlgorithm<Fraction<int>>(
+                symmDecompSolver,
+                fractionField);
+            var matrix = this.GetGeneralMatrix(domain);
+            var vector = this.GetIndVectorForGenMatrix(domain);
+            var actual = target.Run(matrix, vector);
+
+            var lines = matrix.GetLength(0);
+            var columns = matrix.GetLength(1);
+            var nullVector = new ZeroVector<Fraction<int>>(lines, fractionField);
+            var expectedVector = new ArrayMathVector<Fraction<int>>(lines);
+            for (var i = 0; i < lines; ++i)
+            {
+                expectedVector[i] = vector[i, 0];
+            }
+
+            actual = target.Run(matrix, vector);
+            this.AssertVector(expectedVector, matrix, actual.Vector, fractionField);
+
+            for (var i = 0; i < actual.VectorSpaceBasis.Count; ++i)
+            {
+                var vec = actual.VectorSpaceBasis[i];
+                this.AssertVector(nullVector, matrix, vec, fractionField);
+            }
+        }
+
+        /// <summary>
+        /// Vefica se o produto da matriz pelo vector actual resulta no esperado.
+        /// </summary>
+        /// <typeparam name="CoeffType">
+        /// O tipo de objectos que constituem as entradas das estruturas.
+        /// </typeparam>
+        /// <param name="expected">O vector esperado.</param>
+        /// <param name="matrix">a matriz.</param>
+        /// <param name="field">
+        /// O objecto responsável pelas operações sobre os coeficientes.
+        /// </param>
+        /// <param name="actual">O vector actual.</param>
+        private void AssertVector<CoeffType>(
+            IMathVector<CoeffType> expected,
+            IMathMatrix<CoeffType> matrix,
+            IMathVector<CoeffType> actual,
+            IField<CoeffType> field)
+        {
+            var lines = matrix.GetLength(0);
+            var columns = matrix.GetLength(1);
+            for (var i = 0; i < lines; ++i)
+            {
+                var sum = field.AdditiveUnity;
+                for (var j = 0; j < columns; ++j)
+                {
+                    var value = field.Multiply(
+                        matrix[i, j],
+                        actual[j]);
+                    sum = field.Add(sum, value);
+                }
+
+                Assert.AreEqual(expected[i], sum);
+            }
         }
 
         /// <summary>
         /// Obtém uma matriz singular a ser utilizada nos testes.
         /// </summary>
-        /// <param name="integerDomain">O objecto responsável pelas operações sobre os números inteiros.</param>
+        /// <param name="integerDomain">
+        /// O objecto responsável pelas operações sobre os números inteiros.
+        /// </param>
         /// <returns>A matriz.</returns>
         private ArraySquareMathMatrix<Fraction<int>> GetSingularMatrix(
             IntegerDomain integerDomain)
@@ -140,6 +249,78 @@ namespace Mathematics.Test
             result[5, 4] = new Fraction<int>(-5, 1, integerDomain);
             result[5, 5] = new Fraction<int>(5, 1, integerDomain);
 
+            return result;
+        }
+
+        /// <summary>
+        /// Obtém uma matriz para testar o sistema de equações geral.
+        /// </summary>
+        /// <param name="integerDomain">
+        /// O objecto responsável pelas operações sobre inteiros.
+        /// </param>
+        /// <returns>A matriz de teste.</returns>
+        private ArrayMathMatrix<Fraction<int>> GetGeneralMatrix(
+            IntegerDomain integerDomain)
+        {
+            var result = new ArrayMathMatrix<Fraction<int>>(2, 3);
+            result[0, 0] = new Fraction<int>(1, 1, integerDomain);
+            result[0, 1] = new Fraction<int>(0, 1, integerDomain);
+            result[0, 2] = new Fraction<int>(1, 1, integerDomain);
+
+            result[1, 0] = new Fraction<int>(2, 1, integerDomain);
+            result[1, 1] = new Fraction<int>(1, 1, integerDomain);
+            result[1, 2] = new Fraction<int>(1, 1, integerDomain);
+
+            return result;
+        }
+
+        /// <summary>
+        /// Obtém o vector independente para utilizar com a matriz singular.
+        /// </summary>
+        /// <param name="domain">O objecto responsável pelas operações sobre os números inteiros.</param>
+        /// <returns>O vector.</returns>
+        private ArrayMathMatrix<Fraction<int>> GetIndtVectorForSingularMatrix(
+            IntegerDomain domain)
+        {
+            var result = new ArrayMathMatrix<Fraction<int>>(6, 1);
+            result[0, 0] = new Fraction<int>(3, 1, domain);
+            result[1, 0] = new Fraction<int>(-3, 1, domain);
+            result[2, 0] = new Fraction<int>(-8, 1, domain);
+            result[3, 0] = new Fraction<int>(-5, 1, domain);
+            result[4, 0] = new Fraction<int>(-5, 1, domain);
+            result[5, 0] = new Fraction<int>(8, 1, domain);
+
+            return result;
+        }
+
+        /// <summary>
+        /// Obtém o vector independente para tetar a matriz geral.
+        /// </summary>
+        /// <param name="domain">O objecto responsável pelas operações sobre inteiros.</param>
+        private ArrayMathMatrix<Fraction<int>> GetIndVectorForGenMatrix(
+            IntegerDomain domain)
+        {
+            var result = new ArrayMathMatrix<Fraction<int>>(2, 1);
+            result[0, 0] = new Fraction<int>(2, 1, domain);
+            result[1, 0] = new Fraction<int>(5, 1, domain);
+
+            return result;
+        }
+
+        /// <summary>
+        /// Obtém um vector cujas entradas são nulas.
+        /// </summary>
+        /// <param name="integerDomain">
+        /// O objecto responsável pelas operações sobre os números inteiros.
+        /// </param>
+        /// <returns>O vector.</returns>
+        private ArrayMathMatrix<Fraction<int>> GetZeroFilledVector(
+            IntegerDomain integerDomain)
+        {
+            var result = new ArrayMathMatrix<Fraction<int>>(
+                6,
+                1,
+                new Fraction<int>(0, 1, integerDomain));
             return result;
         }
     }

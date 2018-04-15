@@ -75,6 +75,7 @@
     <Compile Include="Simplex\RevisedSimplexAlgorithmTest.cs" />
     <Compile Include="Simplex\SimplexAlgorithmTest.cs" />
     <Compile Include="SquareFreeFractionFactorizationAlgTest.cs" />
+    <Compile Include="StatisticsTest.cs" />
     <Compile Include="SubsetSumLLLReductionAlgorithmTest.cs" />
     <Compile Include="Polynomial\SymmetricPolynomialTest.cs" />
     <Compile Include="Polynomial\UnivariatePolynomialNormalFormTest.cs" />

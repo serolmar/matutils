@@ -45,6 +45,15 @@
             else
             {
                 var dimension = decompositionResult.UpperTriangularMatrix.GetLength(0);
+                for (var i = 0; i < dimension; ++i)
+                {
+                    var d = decompositionResult.DiagonalMatrix[i, i];
+                    if (field.IsAdditiveUnity(d))
+                    {
+                        throw new MathematicsException("The provided decomposition has no inverse.");
+                    }
+                }
+
                 var result = matrixFactory.CreateMatrix(dimension);
 
                 for (int j = dimension - 1; j >= 0; --j)

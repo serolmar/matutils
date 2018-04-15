@@ -1,4 +1,4 @@
-// -----------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------
 // <copyright file="PrimesGenerators.cs" company="Sérgio O. Marques">
 // Ver licença do projecto.
 // </copyright>
@@ -2445,11 +2445,6 @@ namespace Utilities
         private bool[] items;
 
         /// <summary>
-        /// O apontador actual para o vector de elementos.
-        /// </summary>
-        private long itemsPointer;
-
-        /// <summary>
         /// Mantém a roda.
         /// </summary>
         private ILevelWheel levelWheel;
@@ -2463,11 +2458,6 @@ namespace Utilities
         /// O nível máximo da roda.
         /// </summary>
         private ulong level;
-
-        /// <summary>
-        /// Mantém o índice do número primo actual.
-        /// </summary>
-        private long current;
 
         /// <summary>
         /// O limite para a extracção de números primos.
@@ -2577,7 +2567,6 @@ namespace Utilities
                         this.items = new bool[length];
 
                         // Processa o número primo
-                        this.itemsPointer = 0;
                         if (this.level < 2)
                         {
                             this.diffsMatrix = new SmallestLevelDiffsWheelsMatrix(
@@ -2788,7 +2777,6 @@ namespace Utilities
             {
                 this.levelWheel = new LevelZeroWheel();
                 this.level = 0UL;
-                this.current = 0L;
                 this.limit = 0L;
                 this.max = max;
                 this.level = k;

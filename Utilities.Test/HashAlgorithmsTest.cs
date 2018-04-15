@@ -2538,8 +2538,8 @@
             }
         }
     }
-     
-     /// <summary>
+
+    /// <summary>
     /// Testa o algoritmo HighwayHash.
     /// </summary>
     [TestClass]

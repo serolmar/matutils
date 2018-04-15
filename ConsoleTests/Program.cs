@@ -1,4 +1,10 @@
-﻿namespace ConsoleTests
+﻿// -----------------------------------------------------------------------
+// <copyright file="Program.cs" company="Sérgio O. Marques">
+// Ver licença do projecto.
+// </copyright>
+// -----------------------------------------------------------------------
+
+namespace ConsoleTests
 {
     using System;
     using System.Collections;
@@ -8,6 +14,8 @@
     using System.IO;
     using System.Linq;
     using System.Linq.Expressions;
+    using System.Net;
+    using System.Net.Sockets;
     using System.Numerics;
     using System.Runtime.InteropServices;
     using System.Text;
@@ -25,273 +33,852 @@
 
         static void Main(string[] args)
         {
-            // Inicializa CUDA e avalia os dispositivos existentes
-            var cudaResult = CudaApi.CudaInit(0);
-            if (cudaResult != ECudaResult.CudaSuccess)
+            var dic = new Dictionary<int,int>();
+            dic[1] = 0;
+            //var nnn = 1000000000L;
+            //var array = new byte[nnn];
+            //var ww = new Stopwatch();
+            //ww.Start();
+            
+
+
+            //ww.Stop();
+            //Console.WriteLine(ww.ElapsedMilliseconds);
+            //Console.WriteLine();
+            //ww.Reset();
+            //ww.Start();
+            
+
+
+            //ww.Stop();
+            //Console.WriteLine(ww.ElapsedMilliseconds);
+            //Console.WriteLine();
+
+            TestPrimeGenerators(1000000000);
+            var wheel = new GreatestLevelWheel(3);
+            var values = PrimesGeneratorUtils.GetWheelValues(wheel);
+
+            var table = PrimesGeneratorUtils.GetMultiplicationTable(
+                values,
+                wheel.Span);
+
+            values[0] += (long)wheel.Span;
+
+            // Impressão da informação da tabela
+            var tabLen = table.LongLength;
+            Console.WriteLine("(pos, init, deltaInit, delta)");
+            for (var i = 0; i < tabLen; ++i)
             {
-                throw CudaException.GetExceptionFromCudaResult(cudaResult);
-            }
+                var line = table[i];
+                var lineLen = line.LongLength;
+                for (var j = 0; j < lineLen; ++j)
+                {
+                    var mod = values[line[j]];
 
-            // Obtém o primeiro dispositivo
-            var device = default(int);
-            cudaResult = CudaApi.CudaDeviceGet(ref device, 0);
-            if (cudaResult != ECudaResult.CudaSuccess)
-            {
-                throw new Exception("A CUDA error has occurred.");
-            }
+                    Console.Write(
+                        " ({0}, {1}, {2}, {3})",
+                        line[j],
+                        (values[i] * values[j] - mod) / (long)wheel.Span,
+                        values[i],
+                        values[j]);
+                }
 
-            // O contexto é automaticamente colocado como corrente para a linha de fluxo actual
-            var context = default(SCudaContext);
-            cudaResult = CudaApi.CudaCtxCreate(ref context, ECudaContextFlags.SchedAuto, device);
-            if (cudaResult != ECudaResult.CudaSuccess)
-            {
-                throw new Exception("A CUDA error has occurred.");
-            }
+                for (var j = i + 1; j < tabLen; ++j)
+                {
+                    var mod = values[table[j][i]];
 
-            // Carrega o módulo no contexto actual
-            var module = default(SCudaModule);
-            cudaResult = CudaApi.CudaModuleLoad(ref module, "Data\\AddVector.sm_30.cubin");
-            if (cudaResult != ECudaResult.CudaSuccess)
-            {
-                throw new Exception("A CUDA error has occurred.");
-            }
+                    Console.Write(
+                        " ({0}, {1}, {2}, {3})",
+                        table[j][i],
+                        (values[i] * values[j] - mod) / (long)wheel.Span,
+                        values[i],
+                        values[j]);
+                }
 
-            // Obtém a função a ser chamada
-            var cudaFunc = default(SCudaFunction);
-            cudaResult = CudaApi.CudaModuleGetFunction(
-                ref cudaFunc,
-                module,
-                "VecAdd");
-            if (cudaResult != ECudaResult.CudaSuccess)
-            {
-                throw new Exception("A CUDA error has occurred.");
-            }
-
-            var elemensNum = 10;
-
-            //var start = 0;
-            var firstVector = new int[elemensNum];
-            var secondVector = new int[elemensNum];
-            var result = new int[elemensNum];
-            for (int i = 0; i < elemensNum; ++i)
-            {
-                firstVector[i] = i + 1;
-                secondVector[i] = elemensNum - i;
-            }
-
-            // Reserva o primeiro vector
-            var firstCudaVector = default(SCudaDevicePtr);
-            cudaResult = CudaApi.CudaMemAlloc(
-                ref firstCudaVector,
-                Marshal.SizeOf(typeof(int)) * elemensNum);
-            if (cudaResult != ECudaResult.CudaSuccess)
-            {
-                throw new Exception("A CUDA error has occurred.");
-            }
-
-            // Reserva o segundo vector
-            var secondCudaVector = default(SCudaDevicePtr);
-            cudaResult = CudaApi.CudaMemAlloc(
-                ref secondCudaVector,
-                Marshal.SizeOf(typeof(int)) * elemensNum);
-            if (cudaResult != ECudaResult.CudaSuccess)
-            {
-                throw new Exception("A CUDA error has occurred.");
-            }
-
-            // Reserva o terceiro vector
-            var resultCudaVector = default(SCudaDevicePtr);
-            cudaResult = CudaApi.CudaMemAlloc(
-                ref resultCudaVector,
-                Marshal.SizeOf(typeof(int)) * elemensNum);
-            if (cudaResult != ECudaResult.CudaSuccess)
-            {
-                throw new Exception("A CUDA error has occurred.");
-            }
-
-            var cudaSize = default(SCudaDevicePtr);
-            cudaResult = CudaApi.CudaMemAlloc(
-                ref cudaSize,
-                Marshal.SizeOf(typeof(int)));
-            if (cudaResult != ECudaResult.CudaSuccess)
-            {
-                throw new Exception("A CUDA error has occurred.");
-            }
-
-            // Efectua a cópia do primeiro vector para o dispositivo
-            var handle = GCHandle.Alloc(firstVector, GCHandleType.Pinned);
-            var size = Marshal.SizeOf(typeof(int));
-            var hostPtr = handle.AddrOfPinnedObject();
-
-            cudaResult = CudaApi.CudaMemcpyHtoD(
-                firstCudaVector,
-                hostPtr,
-                elemensNum * size);
-            if (cudaResult != ECudaResult.CudaSuccess)
-            {
-                throw new Exception("A CUDA error has occurred.");
-            }
-
-            handle.Free();
-
-            // Efectua a cópia do segundo vector para o dispositivo
-            handle = GCHandle.Alloc(secondVector, GCHandleType.Pinned);
-            hostPtr = handle.AddrOfPinnedObject();
-
-            cudaResult = CudaApi.CudaMemcpyHtoD(
-                secondCudaVector,
-                hostPtr,
-                elemensNum * size);
-            if (cudaResult != ECudaResult.CudaSuccess)
-            {
-                throw new Exception("A CUDA error has occurred.");
-            }
-
-            handle.Free();
-
-            var vectorSizePtr = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(int)));
-            cudaResult = CudaApi.CudaMemcpyHtoD(
-                cudaSize,
-                hostPtr,
-                size);
-            if (cudaResult != ECudaResult.CudaSuccess)
-            {
-                throw new Exception("A CUDA error has occurred.");
-            }
-
-            Marshal.FreeHGlobal(vectorSizePtr);
-
-            // Reserva espaço para o vector de argumentos do kernel
-            var managedPtrArray = new IntPtr[4];
-            var ptrSize = Marshal.SizeOf(typeof(IntPtr));
-            var unmanagedArrayPtr = Marshal.AllocHGlobal(ptrSize * 3);
-
-            // Procede à criação dos objectos em código não gerido
-            var managedElementPtr = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(SCudaDevicePtr)));
-            managedPtrArray[0] = managedElementPtr;
-            Marshal.StructureToPtr(firstCudaVector, managedElementPtr, false);
-            Marshal.WriteIntPtr(unmanagedArrayPtr, 0, managedElementPtr);
-
-            managedElementPtr = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(SCudaDevicePtr)));
-            managedPtrArray[1] = managedElementPtr;
-            Marshal.StructureToPtr(secondCudaVector, managedElementPtr, false);
-            Marshal.WriteIntPtr(unmanagedArrayPtr, ptrSize, managedElementPtr);
-
-            managedElementPtr = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(SCudaDevicePtr)));
-            managedPtrArray[2] = managedElementPtr;
-            Marshal.StructureToPtr(resultCudaVector, managedElementPtr, false);
-            Marshal.WriteIntPtr(unmanagedArrayPtr, 2 * ptrSize, managedElementPtr);
-
-            managedElementPtr = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(SCudaDevicePtr)));
-            managedPtrArray[3] = managedElementPtr;
-            Marshal.StructureToPtr(cudaSize, managedElementPtr, false);
-            Marshal.WriteIntPtr(unmanagedArrayPtr, 3 * ptrSize, managedElementPtr);
-
-            // Realiza a chamada
-            cudaResult = CudaApi.CudaLaunchKernel(
-                cudaFunc,
-                (uint)elemensNum,
-                1,
-                1,
-                1,
-                1,
-                1,
-                0,
-                new SCudaStream(),
-                unmanagedArrayPtr,
-                IntPtr.Zero);
-
-            cudaResult = CudaApi.CudaCtxSynchronize();
-
-            // Liberta o conjunto de argumentos alocado
-            Marshal.FreeHGlobal(unmanagedArrayPtr);
-            for (int i = 0; i < 4; ++i)
-            {
-                var current = managedPtrArray[i];
-                Marshal.FreeHGlobal(current);
-            }
-
-            // Copia de volta o terceiro vector para o anfitrião
-            handle = GCHandle.Alloc(result, GCHandleType.Pinned);
-            hostPtr = handle.AddrOfPinnedObject();
-            cudaResult = CudaApi.CudaMemcpyDtoH(
-                hostPtr,
-                resultCudaVector,
-                size * elemensNum);
-            if (cudaResult != ECudaResult.CudaSuccess)
-            {
-                throw new Exception("A CUDA error has occurred.");
-            }
-
-            handle.Free();
-
-            // Imprime o conteúdo dos vectores
-            for (int i = 0; i < elemensNum; ++i)
-            {
-                Console.Write("{0} ", firstVector[i]);
+                Console.WriteLine();
             }
 
             Console.WriteLine();
+            Console.WriteLine("Press any key to continue...");
+            Console.ReadKey();
+        }
 
-            for (int i = 0; i < elemensNum; ++i)
+        static void GeneratePrimesForHashCollection()
+        {
+            var file = new FileStream("Teste\\primes.txt", FileMode.Create);
+            var writer = new StreamWriter(file);
+            var pl = new LevelThreePrimeSieveGenerator(uint.MaxValue);
+            var factor = 1.2D;
+            var prime = pl.GetNextPrime();
+            prime = pl.GetNextPrime();
+            writer.Write(prime);
+            prime = pl.GetNextPrime();
+            prime = pl.GetNextPrime();
+            writer.Write(", {0}", prime);
+            var mult = (uint)Math.Ceiling(factor * prime);
+            var count = 2;
+            while (prime != 0 && count < 100)
             {
-                Console.Write("{0} ", secondVector[i]);
+                var nextPrime = pl.GetNextPrime();
+                if (nextPrime >= mult)
+                {
+                    writer.Write(", {0}", nextPrime);
+                    prime = nextPrime;
+                    mult = (uint)Math.Ceiling(factor * prime);
+                    ++count;
+                }
             }
+
+            writer.Flush();
+            writer.Close();
+            file.Close();
+        }
+
+        static void TestPrimeGenerators(long n)
+        {
+            var watch = new Stopwatch();
+            var count = 0;
+
+            //Console.WriteLine();
+            //watch.Reset();
+            //count = 0;
+            //watch.Start();
+            //var levelThreeWheelPrimeGen = new LevelThreeWheelPrimeGen((long)n);
+            //var lprime = levelThreeWheelPrimeGen.GetNextPrime();
+            //while (lprime > 0)
+            //{
+            //    ++count;
+            //    lprime = levelThreeWheelPrimeGen.GetNextPrime();
+            //}
+
+            //watch.Stop();
+
+            //Console.WriteLine(count);
+            //Console.WriteLine(watch.ElapsedMilliseconds);
+
+            //Console.WriteLine();
+            //watch.Reset();
+            //count = 0;
+            //watch.Start();
+            //var target = new PrimeSieveGenerator((uint)n);
+            //var uprime = target.GetNextPrime();
+            //while (uprime > 0)
+            //{
+            //    ++count;
+            //    uprime = target.GetNextPrime();
+            //}
+
+            //watch.Stop();
+
+            //Console.WriteLine(count);
+            //Console.WriteLine(watch.ElapsedMilliseconds);
+
+            //Console.WriteLine();
+            //watch.Reset();
+            //watch.Start();
+            //var target1 = new LevelOnePrimeSieveGenerator((uint)n);
+            //var prime = target1.GetNextPrime();
+            //count = 0;
+            //while (prime > 0)
+            //{
+            //    ++count;
+            //    prime = target1.GetNextPrime();
+            //}
+
+            //watch.Stop();
+
+            //Console.WriteLine(count);
+            //Console.WriteLine(watch.ElapsedMilliseconds);
 
             Console.WriteLine();
-
-            for (int i = 0; i < elemensNum; ++i)
+            watch.Reset();
+            watch.Start();
+            var levelTwoTarget = new LevelTwoPrimeSieveGenerator((uint)n);
+            var ltPrime = levelTwoTarget.GetNextPrime();
+            count = 0;
+            while (ltPrime > 0)
             {
-                Console.Write("{0} ", result[i]);
+                ++count;
+                ltPrime = levelTwoTarget.GetNextPrime();
             }
 
-            // Liberta o primeiro vector do GPU
-            cudaResult = CudaApi.CudaMemFree(firstCudaVector);
-            if (cudaResult != ECudaResult.CudaSuccess)
+            watch.Stop();
+
+            Console.WriteLine(count);
+            Console.WriteLine(watch.ElapsedMilliseconds);
+
+            Console.WriteLine();
+            Console.WriteLine();
+            watch.Reset();
+            watch.Start();
+            var levelThreeTarget = new LevelThreePrimeSieveGenerator((uint)n);
+            var levelThreePrime = levelThreeTarget.GetNextPrime();
+            count = 0;
+            while (levelThreePrime > 0)
             {
-                throw new Exception("A CUDA error has occurred.");
+                ++count;
+                levelThreePrime = levelThreeTarget.GetNextPrime();
             }
 
-            // Liberta o segundo vector do GPU
-            cudaResult = CudaApi.CudaMemFree(secondCudaVector);
-            if (cudaResult != ECudaResult.CudaSuccess)
-            {
-                throw new Exception("A CUDA error has occurred.");
-            }
+            watch.Stop();
 
-            // Liberta o vector do resultado do GPU
-            cudaResult = CudaApi.CudaMemFree(resultCudaVector);
-            if (cudaResult != ECudaResult.CudaSuccess)
-            {
-                throw new Exception("A CUDA error has occurred.");
-            }
+            Console.WriteLine(count);
+            Console.WriteLine(watch.ElapsedMilliseconds);
 
-            // Liberta o espaço reservado para conter o número de elementos de cada vector
-            cudaResult = CudaApi.CudaMemFree(cudaSize);
-            if (cudaResult != ECudaResult.CudaSuccess)
-            {
-                throw new Exception("A CUDA error has occurred.");
-            }
+            Console.WriteLine();
+            //watch.Reset();
+            //watch.Start();
+            //var targetV1 = new PrimeSieveGenBinContainerV1(n);
+            //var primeV1 = targetV1.GetNextPrime();
+            //count = 0;
+            //while (primeV1 > 0)
+            //{
+            //    ++count;
+            //    primeV1 = targetV1.GetNextPrime();
+            //}
 
-            // Remove o módulo do contexto actual
-            cudaResult = CudaApi.CudaModuleUnload(module);
-            if (cudaResult != ECudaResult.CudaSuccess)
-            {
-                throw new Exception("A CUDA error has occurred.");
-            }
+            //watch.Stop();
 
-            // Descarta o contexto
-            cudaResult = CudaApi.CudaCtxDestroy(context);
-            if (cudaResult != ECudaResult.CudaSuccess)
+            //Console.WriteLine(count);
+            //Console.WriteLine(watch.ElapsedMilliseconds);
+
+            //Console.WriteLine();
+            //watch.Reset();
+            //watch.Start();
+            //var linearTarget = new LinearPrimeSieveGenerator(n);
+            //prime = linearTarget.GetNextPrime();
+            //count = 0;
+            //while (prime > 0)
+            //{
+            //    ++count;
+            //    prime = linearTarget.GetNextPrime();
+            //}
+
+            //watch.Stop();
+
+            //Console.WriteLine(count);
+            //Console.WriteLine(watch.ElapsedMilliseconds);
+
+            //Console.WriteLine();
+            //watch.Reset();
+            //watch.Start();
+            //var target3 = new PrimeSieveGenBinContainer((ulong)n);
+            //var ulprime = target3.GetNextPrime();
+            //count = 0;
+            //while (ulprime > 0)
+            //{
+            //    ++count;
+            //    ulprime = target3.GetNextPrime();
+            //}
+
+            //watch.Stop();
+
+            //Console.WriteLine(count);
+            //Console.WriteLine(watch.ElapsedMilliseconds);
+
+            //Console.WriteLine();
+            //watch.Reset();
+            //watch.Start();
+            //var target4 = new CompPrimeSieveGenBinaryContainer((ulong)n);
+            //ulprime = target4.GetNextPrime();
+            //count = 0;
+            //while (ulprime > 0)
+            //{
+            //    ++count;
+            //    ulprime = target4.GetNextPrime();
+            //}
+
+            //watch.Stop();
+
+            //Console.WriteLine(count);
+            //Console.WriteLine(watch.ElapsedMilliseconds);
+
+            //Console.WriteLine();
+            //watch.Reset();
+            //watch.Start();
+            //count = 0;
+            //var incTarget = new IncPrimeSieveGenerator();
+            //var incPrime = incTarget.GetNextPrime();
+            //while (incPrime < (ulong)n)
+            //{
+            //    ++count;
+            //    incPrime = incTarget.GetNextPrime();
+            //}
+
+            //watch.Stop();
+
+            //Console.WriteLine(count);
+            //Console.WriteLine(watch.ElapsedMilliseconds);
+
+        }
+
+        static void PrintDifferences(List<List<ulong>> sequences)
+        {
+            for (var i = 0; i < sequences.Count; ++i)
             {
-                throw new Exception("A CUDA error has occurred.");
+                var seq = sequences[i];
+                var prev = seq[0];
+                //Console.Write(prev);
+                for (var j = 1; j < seq.Count; ++j)
+                {
+                    Console.Write(" {0}", seq[j] - prev);
+                    prev = seq[j];
+                }
+
+                Console.WriteLine();
             }
         }
 
-        static void TestesGerais()
+        static void GetWheelInfo(int k)
         {
+            if (k == 0)
+            {
+                Console.WriteLine("Prime: {0}", 2);
+                Console.WriteLine("1");
+            }
+            else if (k == 1)
+            {
+                Console.WriteLine("Prime: {0}", 2);
+                Console.WriteLine("1");
+                Console.WriteLine("Prime: {0}", 3);
+                Console.WriteLine("2");
+            }
+            else if (k > 1)
+            {
+                Console.WriteLine("Prime: {0}", 2);
+                Console.WriteLine("1");
+                Console.WriteLine("Prime: {0}", 3);
+                Console.WriteLine("2");
+
+                var primes = new List<uint> { 2, 3 };
+
+                var currentWheel = new List<uint>() { 2, 4 };
+
+                var primeProd = 1U;
+                var newList = new List<uint>();
+                for (var i = 2; i <= k; ++i)
+                {
+                    var wheelPointer = 1;
+                    var wheelInc = 1;
+
+                    var acc = currentWheel[wheelPointer];
+                    var pseudoPrime = 1U + acc;
+                    var firstPrime = pseudoPrime;
+
+                    var lastPrime = pseudoPrime;
+                    var lastPointer = wheelPointer;
+                    var lastInc = wheelInc;
+
+                    primes.Add(pseudoPrime);
+
+                    primeProd *= acc;
+                    newList.Add(2);
+
+                    var limit = firstPrime * lastPrime;
+                    var len = currentWheel.Count;
+                    IncrementWheel(len, ref wheelPointer, ref wheelInc);
+
+                    var current = currentWheel[wheelPointer];
+                    pseudoPrime += current;
+                    acc += current;
+                    newList.Add(acc);
+
+                    var j = 1;
+                    IncrementWheel(len, ref wheelPointer, ref wheelInc);
+                    acc = currentWheel[wheelPointer];
+                    pseudoPrime += acc;
+                    while (pseudoPrime < limit
+                        && j < primeProd)
+                    {
+                        newList.Add(acc);
+                        IncrementWheel(len, ref wheelPointer, ref wheelInc);
+                        acc = currentWheel[wheelPointer];
+                        pseudoPrime += acc;
+                        ++j;
+                    }
+
+                    if (j < primeProd)
+                    {
+                        IncrementWheel(len, ref lastPointer, ref lastInc);
+                        lastPrime += currentWheel[lastPointer];
+                        limit = lastPrime * firstPrime;
+
+                        IncrementWheel(len, ref wheelPointer, ref wheelInc);
+                        current = currentWheel[wheelPointer];
+                        acc += current;
+
+                        while (j < primeProd)
+                        {
+                            pseudoPrime += current;
+                            IncrementWheel(len, ref wheelPointer, ref wheelInc);
+                            current = currentWheel[wheelPointer];
+
+                            if (pseudoPrime == limit)
+                            {
+                                acc += current;
+                                IncrementWheel(len, ref lastPointer, ref lastInc);
+                                lastPrime += currentWheel[lastPointer];
+                                limit = lastPrime * firstPrime;
+                            }
+                            else
+                            {
+                                newList.Add(acc);
+                                acc = current;
+                                ++j;
+                            }
+                        }
+                    }
+
+                    ValidateWheel(newList, primes);
+                    currentWheel.Clear();
+                    var temp = currentWheel;
+                    currentWheel = newList;
+                    newList = temp;
+                }
+            }
+        }
+
+        static void GetWheelInfoV1(int k)
+        {
+            var sep = " ";
+            if (k == 0)
+            {
+                Console.WriteLine("Prime: {0}", 2);
+                Console.WriteLine("1");
+            }
+            else if (k == 1)
+            {
+                Console.WriteLine("Prime: {0}", 2);
+                Console.WriteLine("1");
+                Console.WriteLine("Prime: {0}", 3);
+                Console.WriteLine("2");
+            }
+            else if (k > 1)
+            {
+                Console.WriteLine("Prime: {0}", 2);
+                Console.WriteLine("1");
+                Console.WriteLine("Prime: {0}", 3);
+                Console.WriteLine("2");
+
+                var primes = new List<uint> { 2, 3 };
+
+                var currentWheel = new List<uint>() { 2, 4 };
+                Console.WriteLine(PrintCollection(currentWheel, sep));
+                var primeProd = 1U;
+                var newList = new List<uint>();
+                for (var i = 2; i <= k; ++i)
+                {
+                    var wheelPointer = 1;
+                    var wheelInc = 1;
+
+                    var acc = currentWheel[wheelPointer];
+                    var pseudoPrime = 1U + acc;
+                    var firstPrime = pseudoPrime;
+
+                    var limitPrime = pseudoPrime;
+                    var limitPointer = wheelPointer;
+                    var limitInc = wheelInc;
+                    primes.Add(pseudoPrime);
+                    Console.WriteLine("Prime: {0}", pseudoPrime);
+
+                    primeProd *= acc;
+                    newList.Add(2);
+
+                    var limit = pseudoPrime * pseudoPrime;
+                    var len = currentWheel.Count;
+                    IncrementWheel(len, ref wheelPointer, ref wheelInc);
+
+                    var current = currentWheel[wheelPointer];
+                    pseudoPrime += current;
+                    acc += current;
+                    newList.Add(acc);
+
+                    var j = 1;
+                    IncrementWheel(len, ref wheelPointer, ref wheelInc);
+                    acc = currentWheel[wheelPointer];
+                    pseudoPrime += acc;
+                    while (pseudoPrime < limit
+                        && j < primeProd)
+                    {
+                        newList.Add(acc);
+                        IncrementWheel(len, ref wheelPointer, ref wheelInc);
+                        acc = currentWheel[wheelPointer];
+                        pseudoPrime += acc;
+                        ++j;
+                    }
+
+                    if (j < primeProd)
+                    {
+                        IncrementWheel(len, ref limitPointer, ref limitInc);
+                        limitPrime += currentWheel[limitPointer];
+                        limit = limitPrime * limitPrime;
+
+                        IncrementWheel(len, ref wheelPointer, ref wheelInc);
+                        current = currentWheel[wheelPointer];
+                        acc += current;
+
+                        while (j < primeProd)
+                        {
+                            pseudoPrime += current;
+
+                            var quo = firstPrime;
+                            var quoPointer = 1;
+                            var quoInc = 1;
+                            var isPrime = true;
+                            while (quo <= limitPrime)
+                            {
+                                if (pseudoPrime % quo == 0)
+                                {
+                                    isPrime = false;
+                                    quo = limitPrime + 1;
+                                }
+                                else
+                                {
+                                    IncrementWheel(len, ref quoPointer, ref quoInc);
+                                    quo += currentWheel[quoPointer];
+                                }
+                            }
+
+                            IncrementWheel(len, ref wheelPointer, ref wheelInc);
+                            current = currentWheel[wheelPointer];
+
+                            if (isPrime)
+                            {
+                                newList.Add(acc);
+                                acc = current;
+                                ++j;
+                            }
+                            else
+                            {
+                                acc += current;
+                                if (pseudoPrime == limit)
+                                {
+                                    IncrementWheel(len, ref limitPointer, ref limitInc);
+                                    limitPrime += currentWheel[limitPointer];
+                                    limit = limitPrime * limitPrime;
+                                }
+                            }
+                        }
+                    }
+
+                    ValidateWheel(newList, primes);
+                    Console.WriteLine(PrintCollection(newList, " "));
+                    currentWheel.Clear();
+                    var temp = currentWheel;
+                    currentWheel = newList;
+                    newList = temp;
+                }
+            }
+        }
+
+        static void GetWheelInfoFull(int k)
+        {
+            var sep = " ";
+            if (k == 0)
+            {
+                Console.WriteLine("Prime: {0}", 2);
+                Console.WriteLine("1");
+            }
+            else if (k == 1)
+            {
+                Console.WriteLine("Prime: {0}", 2);
+                Console.WriteLine("1");
+                Console.WriteLine("Prime: {0}", 3);
+                Console.WriteLine("2");
+            }
+            else if (k > 1)
+            {
+                Console.WriteLine("Prime: {0}", 2);
+                Console.WriteLine("1");
+                Console.WriteLine("Prime: {0}", 3);
+                Console.WriteLine("2");
+
+                var primes = new List<uint>() { 2, 3 };
+                var currentWheel = new List<uint>() { 4, 2 };
+                Console.WriteLine(PrintCollection(currentWheel, sep));
+                var primeProd = 6U;
+                var newList = new List<uint>();
+                for (var i = 2; i <= k; ++i)
+                {
+                    var len = currentWheel.Count;
+                    var wheelPointer = 0;
+                    var acc = currentWheel[wheelPointer];
+                    var pseudoPrime = 1U + acc;
+                    var firstPrime = pseudoPrime;
+                    primes.Add(pseudoPrime);
+
+                    primeProd *= pseudoPrime;
+
+                    var limitPrime = pseudoPrime;
+                    var limit = limitPrime * limitPrime;
+                    var limitPointer = wheelPointer;
+
+                    ++wheelPointer;
+                    if (wheelPointer == len)
+                    {
+                        wheelPointer = 0;
+                    }
+
+                    var current = currentWheel[wheelPointer];
+                    pseudoPrime += current;
+                    acc += current;
+                    newList.Add(acc);
+
+                    ++wheelPointer;
+                    if (wheelPointer == len)
+                    {
+                        wheelPointer = 0;
+                    }
+
+                    acc = currentWheel[wheelPointer];
+                    pseudoPrime += acc;
+
+                    while (pseudoPrime < limit)
+                    {
+                        newList.Add(acc);
+                        ++wheelPointer;
+                        if (wheelPointer == len)
+                        {
+                            wheelPointer = 0;
+                        }
+
+                        acc = currentWheel[wheelPointer];
+                        pseudoPrime += acc;
+                    }
+
+                    ++limitPointer;
+                    if (limitPointer == len)
+                    {
+                        limitPointer = 0;
+                    }
+
+                    limitPrime += currentWheel[limitPointer];
+                    limit = limitPrime * limitPrime;
+
+                    ++wheelPointer;
+                    if (wheelPointer == len)
+                    {
+                        wheelPointer = 0;
+                    }
+
+                    current = currentWheel[wheelPointer];
+                    acc += current;
+                    pseudoPrime += current;
+                    while (pseudoPrime < primeProd)
+                    {
+
+                        var quo = firstPrime;
+                        var quoPointer = 0;
+                        var isPrime = true;
+                        while (quo <= limitPrime)
+                        {
+                            if (pseudoPrime % quo == 0)
+                            {
+                                isPrime = false;
+                                quo = limitPrime + 1;
+                            }
+                            else
+                            {
+                                ++quoPointer;
+                                if (quoPointer == len)
+                                {
+                                    quoPointer = 0;
+                                }
+
+                                quo += currentWheel[quoPointer];
+                            }
+                        }
+
+                        ++wheelPointer;
+                        if (wheelPointer == len)
+                        {
+                            wheelPointer = 0;
+                        }
+
+                        current = currentWheel[wheelPointer];
+
+                        if (isPrime)
+                        {
+                            newList.Add(acc);
+                            acc = current;
+                        }
+                        else
+                        {
+                            acc += current;
+                            if (pseudoPrime == limit)
+                            {
+                                ++limitPointer;
+                                if (limitPointer == len)
+                                {
+                                    limitPointer = 0;
+                                }
+
+                                limitPrime += currentWheel[limitPointer];
+                                limit = limitPrime * limitPrime;
+                            }
+                        }
+
+                        pseudoPrime += current;
+                    }
+
+                    newList.Add(2);
+                    Console.WriteLine(PrintCollection(newList, " "));
+                    currentWheel.Clear();
+                    var temp = currentWheel;
+                    currentWheel = newList;
+                    newList = temp;
+                }
+            }
+        }
+
+        static void ValidateWheel(List<uint> wheel, List<uint> primes)
+        {
+            var count = wheel.Count * 20;
+            var len = count << 1;
+            var curr = 1U;
+            var pointer = 1;
+            var inc = 1;
+            var primesCount = primes.Count;
+            for (var i = 0; i < len; ++i)
+            {
+                curr += wheel[pointer];
+                for (var j = 0; j < primesCount; ++j)
+                {
+                    if (curr % primes[j] == 0)
+                    {
+                        throw new Exception("Fail");
+                    }
+                }
+
+                IncrementWheel(wheel.Count, ref pointer, ref inc);
+            }
+        }
+
+        static uint Sum(List<uint> wheel, int start)
+        {
+            var result = 0U;
+            for (var i = start; i < wheel.Count; ++i)
+            {
+                result += wheel[i];
+            }
+
+            return result;
+        }
+
+        static uint SumWheel(List<uint> wheel)
+        {
+            var result = 0U;
+            for (var i = 1; i < wheel.Count; ++i)
+            {
+                result += wheel[i];
+            }
+
+            for (var i = wheel.Count - 2; i >= 0; --i)
+            {
+                result += wheel[i];
+            }
+
+            return result;
+        }
+
+        static void IncrementWheel(
+            int len,
+            ref int wheelPointer,
+            ref int wheelInc)
+        {
+            wheelPointer += wheelInc;
+            if (wheelPointer < 0)
+            {
+                wheelPointer = 1;
+                wheelInc = 1;
+            }
+            else if (wheelPointer == len)
+            {
+                wheelPointer = len - 2;
+                wheelInc = -1;
+            }
+        }
+
+        static string PrintCollection<T>(IEnumerable<T> collection, string sep)
+        {
+            if (collection == null)
+            {
+                return "null";
+            }
+            else
+            {
+                var resultBuilder = new StringBuilder();
+                var enumerator = collection.GetEnumerator();
+                if (enumerator.MoveNext())
+                {
+                    resultBuilder.Append(enumerator.Current);
+                    while (enumerator.MoveNext())
+                    {
+                        resultBuilder.Append(sep);
+                        resultBuilder.Append(enumerator.Current);
+                    }
+                }
+
+                return resultBuilder.ToString();
+            }
+        }
+
+        static void TesteListasLigadas()
+        {
+            var linkedList = new LinkedList<int>();
+            var linkedList1 = new LinkedList<int>();
+
+            var node = linkedList.AddFirst(0);
+            linkedList1.AddAfter(node, 0);
+        }
+
+        static void OldCode()
+        {
+            var stream = new MemoryStream(new byte[] { 1, 2, 3 });
+            stream.ReadByte();
+            var pos = stream.Position;
+            stream.Position = 9;
+            pos = stream.Seek(9, SeekOrigin.End);
+
+            var b = stream.ReadByte();
             try
             {
+                var linqObj1 = new int?[] { 1, 2, 3 };
+                var list = new int?[] { 1, 2, 3 };
+                var query = from t in linqObj1
+                            join l in list on t equals l into grp
+                            from g in grp.DefaultIfEmpty(null)
+                            where g != null
+                            select Tuple.Create(t, g);
+
+
+                var tempNumb = (BigInteger.One << 64) - 1;
+                var val = BigInteger.Parse("1232345019248571029383049725934");
+                Console.WriteLine("Low: {0}", val & tempNumb);
+                Console.WriteLine("High: {0}", val >> 64);
+
+                // http://emboss.github.io/blog/2012/12/14/breaking-murmur-hash-flooding-dos-reloaded/ - SipHash
+
+                var bs = Encoding.ASCII.GetBytes("A lâmpada de incandescência está da cozinha está na chaminé.");
+
+                Console.WriteLine("{0}", sizeof(char));
+                Console.WriteLine("{0}", sizeof(int));
+                Console.WriteLine("{0}", sizeof(short));
+
+                Console.WriteLine("{0}", Diagnostics.GetBits('s', 8));
+
+                var c = (char)ushort.MaxValue;
+                Console.WriteLine(c);
+
+                Console.WriteLine(sizeof(ulong));
+
+                Console.WriteLine(sizeof(sbyte));
+                Console.WriteLine(sizeof(short));
+                Console.WriteLine(sizeof(int));
+                Console.WriteLine(((sbyte)13).GetHashCode());
+                Console.WriteLine(13 ^ (13 << 8));
+                Console.WriteLine(((short)13).GetHashCode());
+                Console.WriteLine((int)(short)13 ^ ((int)(short)13 << 16));
                 var r = new int[3];
                 Array str = new int[4];
                 str.CopyTo(r, 0);
@@ -355,6 +942,27 @@
             {
                 Console.WriteLine("{0}: {1}", ex.GetType().Name, ex.Message);
             }
+        }
+
+        static Stream GetSocketStream(string url)
+        {
+            var hostEntry = Dns.GetHostEntry(url);
+            var hostAddress = hostEntry.AddressList[0];
+            var endPoint = new IPEndPoint(hostAddress, 1158);
+
+            var socket = new Socket(
+                AddressFamily.InterNetwork,
+                SocketType.Stream,
+                ProtocolType.Tcp);
+
+            socket.Connect(endPoint);
+
+            return new NetworkStream(socket);
+        }
+
+        static void PrintValue(object o)
+        {
+            Console.WriteLine(o);
         }
 
         static void Lixo3()
@@ -599,6 +1207,7 @@
                         Marshal.SizeOf(typeof(int)) * elemensNum);
                     if (cudaResult != ECudaResult.CudaSuccess)
                     {
+                        CudaApi.CudaMemFree(firstCudaVector);
                         throw CudaException.GetExceptionFromCudaResult(cudaResult);
                     }
 
@@ -609,6 +1218,7 @@
                         Marshal.SizeOf(typeof(int)) * elemensNum);
                     if (cudaResult != ECudaResult.CudaSuccess)
                     {
+                        CudaApi.CudaMemFree(secondCudaVector);
                         throw CudaException.GetExceptionFromCudaResult(cudaResult);
                     }
 
@@ -619,6 +1229,7 @@
                         Marshal.SizeOf(typeof(int)) * elemensNum);
                     if (cudaResult != ECudaResult.CudaSuccess)
                     {
+                        CudaApi.CudaMemFree(resultCudaVector);
                         throw CudaException.GetExceptionFromCudaResult(cudaResult);
                     }
 
@@ -633,6 +1244,7 @@
                         elemensNum * size);
                     if (cudaResult != ECudaResult.CudaSuccess)
                     {
+                        handle.Free();
                         throw CudaException.GetExceptionFromCudaResult(cudaResult);
                     }
 
@@ -648,6 +1260,7 @@
                         elemensNum * size);
                     if (cudaResult != ECudaResult.CudaSuccess)
                     {
+                        handle.Free();
                         throw CudaException.GetExceptionFromCudaResult(cudaResult);
                     }
 

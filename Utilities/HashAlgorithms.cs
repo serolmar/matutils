@@ -9272,7 +9272,7 @@ namespace Utilities
 
         #endregion Funções privadas
     }
-    
+
     /// <summary>
     /// Implementação do algoritmo de código confuso Highwayhash.
     /// </summary>

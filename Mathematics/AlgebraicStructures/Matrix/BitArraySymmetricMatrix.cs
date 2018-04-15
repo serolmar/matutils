@@ -10,7 +10,9 @@
     /// <summary>
     /// Matrix simétrica representada por um vector de bits.
     /// </summary>
-    public class BitArraySymmetricMatrix : ISquareMathMatrix<bool>
+    public class BitArraySymmetricMatrix : 
+        ISquareMathMatrix<bool>, 
+        ILongMatrix<bool>
     {
         /// <summary>
         /// O valor por defeito.
@@ -21,6 +23,11 @@
         /// Os elementos.
         /// </summary>
         private BitArray[] elements;
+
+        /// <summary>
+        /// Mantém o número de colunas.
+        /// </summary>
+        private long columns;
 
         /// <summary>
         /// Instancia um novo objecto do tipo <see cref="BitArraySymmetricMatrix"/>.
@@ -51,6 +58,7 @@
             else
             {
                 this.defaultValue = defaultValue;
+                this.columns = columns;
                 var lastLine = lines;
                 this.elements = new BitArray[lines];
                 for (int i = 0; i < lines; ++i)
@@ -150,11 +158,67 @@
         {
             get
             {
-                throw new NotImplementedException();
+                if (line < 0 || column < 0)
+                {
+                    throw new IndexOutOfRangeException(
+                        "Parameters line and column must be non-negative and less than the size of matrix.");
+                }
+                else if (this.elements.Length == 0)
+                {
+                    throw new IndexOutOfRangeException(
+                        "Parameters line and column must be non-negative and less than the size of matrix.");
+                }
+                else
+                {
+                    var innerLine = line;
+                    var innerColumn = column;
+                    if (column < line)
+                    {
+                        innerLine = column;
+                        innerColumn = line;
+                    }
+
+                    if (innerColumn >= this.elements.Length)
+                    {
+                        throw new IndexOutOfRangeException(
+                        "Parameters line and column must be non-negative and less than the size of matrix.");
+                    }
+
+                    var columnIndex = innerColumn - innerLine;
+                    return this.elements[innerLine][(int)columnIndex];
+                }
             }
             set
             {
-                throw new NotImplementedException();
+                if (line < 0 || column < 0)
+                {
+                    throw new IndexOutOfRangeException(
+                        "Parameters line and column must be non-negative and less than the size of matrix.");
+                }
+                else if (this.elements.Length == 0)
+                {
+                    throw new IndexOutOfRangeException(
+                        "Parameters line and column must be non-negative and less than the size of matrix.");
+                }
+                else
+                {
+                    var innerLine = line;
+                    var innerColumn = column;
+                    if (column < line)
+                    {
+                        innerLine = column;
+                        innerColumn = line;
+                    }
+
+                    if (innerColumn >= this.elements.Length)
+                    {
+                        throw new IndexOutOfRangeException(
+                        "Parameters line and column must be non-negative and less than the size of matrix.");
+                    }
+
+                    var columnIndex = innerColumn - innerLine;
+                    this.elements[innerLine][(int)columnIndex] = value;
+                }
             }
         }
 
@@ -178,14 +242,26 @@
         /// <returns>O número de linhas ou colunas.</returns>
         public int GetLength(int dimension)
         {
-            if (dimension < 0 || dimension > 1)
+            if (dimension == 0)
             {
-                throw new IndexOutOfRangeException(
-                    "Parameter dimension must be non-negative and less than the size of matrix.");
+                return this.elements.Length;
+            }
+            else if (dimension == 1)
+            {
+                var result = (int)this.columns;
+                if (result < 0)
+                {
+                    throw new MathematicsException("The number of columns is too high. Please use GetLongLength function.");
+                }
+                else
+                {
+                    return (int)this.columns;
+                }
             }
             else
             {
-                return this.elements.Length;
+                throw new IndexOutOfRangeException(
+                    "Parameter dimension must be non-negative and less than the size of matrix.");
             }
         }
 
@@ -196,7 +272,19 @@
         /// <returns>O número de linhas ou colunas.</returns>
         public long GetLongLength(int dimension)
         {
-            throw new NotImplementedException();
+            if (dimension == 0)
+            {
+                return this.elements.Length;
+            }
+            else if (dimension == 1)
+            {
+                return this.columns;
+            }
+            else
+            {
+                throw new IndexOutOfRangeException(
+                    "Parameter dimension must be non-negative and less than the size of matrix.");
+            }
         }
 
         /// <summary>
@@ -218,7 +306,7 @@
         /// <returns>A submatriz procurada.</returns>
         public IMatrix<bool> GetSubMatrix(long[] lines, long[] columns)
         {
-            throw new NotImplementedException();
+            return new SubMatrixLong<bool>(this, lines, columns);
         }
 
         /// <summary>
@@ -230,6 +318,17 @@
         public IMatrix<bool> GetSubMatrix(IntegerSequence lines, IntegerSequence columns)
         {
             return new IntegerSequenceSubMatrix<bool>(this, lines, columns);
+        }
+
+        /// <summary>
+        /// Obtém a submatriz indicada no argumento considerado como sequência de inteiros.
+        /// </summary>
+        /// <param name="lines">As correnadas das linhas que constituem a submatriz.</param>
+        /// <param name="columns">As correnadas das colunas que constituem a submatriz.</param>
+        /// <returns>A submatriz procurada.</returns>
+        public IMatrix<bool> GetSubMatrix(LongIntegerSequence lines, LongIntegerSequence columns)
+        {
+            return new LongIntegerSequenceSubMatrix<bool>(this, lines, columns);
         }
 
         /// <summary>
@@ -261,7 +360,7 @@
         /// </exception>
         public void SwapLines(long i, long j)
         {
-            throw new NotImplementedException();
+            throw new MathematicsException("Can't swap the lines of a symmetric matrix.");
         }
 
         /// <summary>
@@ -293,7 +392,7 @@
         /// </exception>
         public void SwapColumns(long i, long j)
         {
-            throw new NotImplementedException();
+            throw new MathematicsException("Can't swap the columns of a symmetric matrix.");
         }
 
         /// <summary>

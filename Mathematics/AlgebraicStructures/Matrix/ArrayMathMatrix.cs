@@ -1,4 +1,10 @@
-﻿namespace Mathematics
+﻿// -----------------------------------------------------------------------
+// <copyright file="ArrayMathMatrix.cs" company="Sérgio O. Marques">
+// Ver licença do projecto.
+// </copyright>
+// -----------------------------------------------------------------------
+
+namespace Mathematics
 {
     using System;
     using System.Collections.Generic;
@@ -171,7 +177,7 @@
             else
             {
                 var columnNumber = this.numberOfColumns;
-                var lineNumber = right.numberOfColumns;
+                var lineNumber = right.numberOfLines;
                 if (columnNumber != lineNumber)
                 {
                     throw new MathematicsException("To multiply two matrices, the number of columns of the first must match the number of lines of second.");

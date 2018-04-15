@@ -56,6 +56,18 @@ namespace Utilities.Test
 
             target.GotoValue(25);
             Assert.AreEqual(29L, target.Current);
+
+            target.GotoValue(183);
+            Assert.AreEqual(187L, target.Current);
+
+            target.GotoValue(-183L);
+            Assert.AreEqual(-181L, target.Current);
+
+            target.GotoValue(1L);
+            Assert.AreEqual(1L, target.Current);
+
+            target.GotoValue(45030L);
+            Assert.AreEqual(45031L, target.Current);
         }
 
         /// <summary>

@@ -20,6 +20,27 @@
         /// <param name="groupSeparator">O separador de grupos.</param>
         /// <returns>A representação textual.</returns>
         /// <exception cref="ArgumentOutOfRangeException">Se o valor do grupo for negativo.</exception>
+        public static string GetBitsReversed(int value, int group, string groupSeparator = " ")
+        {
+            if (group < 0)
+            {
+                throw new ArgumentOutOfRangeException("group");
+            }
+            else
+            {
+                return GetBitsReversed((uint)value, group, groupSeparator);
+            }
+        }
+
+        /// <summary>
+        /// Obtém um valor textual com a representação de um determinado número inteiro
+        /// em termos dos respectivos bits onde os "bits" mais significantes surgem em primeiro lugar.
+        /// </summary>
+        /// <param name="value">O valor a ser analisado.</param>
+        /// <param name="group">Permite configurar o número de bits que serão agrupados.</param>
+        /// <param name="groupSeparator">O separador de grupos.</param>
+        /// <returns>A representação textual.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">Se o valor do grupo for negativo.</exception>
         public static string GetBitsReversed(uint value, int group, string groupSeparator = " ")
         {
             if (group < 0)
@@ -29,22 +50,45 @@
             else
             {
                 var result = string.Empty;
+                var separator = string.Empty;
                 var temp = value;
                 var mask = (uint.MaxValue >> 1) + 1;
-                for (int i = 0; i < 32; ++i)
+                for (int i = 0; i < 32; )
                 {
-                    var separator = string.Empty;
+                    result += separator;
+                    result += (temp & mask) == 0 ? "0" : "1";
+                    mask >>= 1;
+
+                    ++i;
+                    separator = string.Empty;
                     if (group != 0 && i % group == 0)
                     {
                         separator = groupSeparator;
                     }
-
-                    result += separator;
-                    result += (temp & mask) == 0 ? "0" : "1";
-                    mask >>= 1;
                 }
 
                 return result;
+            }
+        }
+
+        /// <summary>
+        /// Obtém um valor textual com a representação de um determinado número inteiro
+        /// em termos dos respectivos bits onde os "bits" mais significantes surgem em primeiro lugar.
+        /// </summary>
+        /// <param name="value">O valor a ser analisado.</param>
+        /// <param name="group">Permite configurar o número de bits que serão agrupados.</param>
+        /// <param name="groupSeparator">O separador de grupos.</param>
+        /// <returns>A representação textual.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">Se o valor do grupo for negativo.</exception>
+        public static string GetBitsReversed(long value, int group, string groupSeparator = " ")
+        {
+            if (group < 0)
+            {
+                throw new ArgumentOutOfRangeException("group");
+            }
+            else
+            {
+                return GetBitsReversed((ulong)value, group, groupSeparator);
             }
         }
 
@@ -66,19 +110,60 @@
             else
             {
                 var result = string.Empty;
+                var separator = string.Empty;
                 var temp = value;
                 var mask = (ulong.MaxValue >> 1) + 1;
-                for (int i = 0; i < 64; ++i)
+                for (int i = 0; i < 64;)
                 {
-                    var separator = string.Empty;
+                    result += separator;
+                    result += (temp & mask) == 0 ? "0" : "1";
+                    mask >>= 1;
+
+                    ++i;
+                    separator = string.Empty;
                     if (group != 0 && i % group == 0)
                     {
                         separator = groupSeparator;
                     }
+                }
 
+                return result;
+            }
+        }
+
+        /// <summary>
+        /// Obtém um valor textual com a representação de um determinado número inteiro
+        /// em termos dos respectivos bits onde os "bits" menos significantes surgem em primeiro lugar.
+        /// </summary>
+        /// <param name="value">O valor a ser analisado.</param>
+        /// <param name="group">Permite configurar o número de bits que serão agrupados.</param>
+        /// <param name="groupSeparator">O separador de grupos.</param>
+        /// <returns>A representação textual.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">Se o valor do grupo for negativo.</exception>
+        public static string GetBits(int value, int group, string groupSeparator = " ")
+        {
+            if (group < 0)
+            {
+                throw new ArgumentOutOfRangeException("group");
+            }
+            else
+            {
+                var result = string.Empty;
+                var temp = value;
+                var mask = 1;
+                var separator = string.Empty;
+                for (int i = 0; i < 32; )
+                {
                     result += separator;
                     result += (temp & mask) == 0 ? "0" : "1";
-                    mask >>= 1;
+                    mask <<= 1;
+
+                    ++i;
+                    separator = string.Empty;
+                    if (group != 0 && i % group == 0)
+                    {
+                        separator = groupSeparator;
+                    }
                 }
 
                 return result;
@@ -107,6 +192,45 @@
                 var mask = 1;
                 var separator = string.Empty;
                 for (int i = 0; i < 32; )
+                {
+                    result += separator;
+                    result += (temp & mask) == 0 ? "0" : "1";
+                    mask <<= 1;
+
+                    ++i;
+                    separator = string.Empty;
+                    if (group != 0 && i % group == 0)
+                    {
+                        separator = groupSeparator;
+                    }
+                }
+
+                return result;
+            }
+        }
+
+        /// <summary>
+        /// Obtém um valor textual com a representação de um determinado número inteiro
+        /// em termos dos respectivos bits onde os "bits" menos significantes surgem em primeiro lugar.
+        /// </summary>
+        /// <param name="value">O valor a ser analisado.</param>
+        /// <param name="group">Permite configurar o número de bits que serão agrupados.</param>
+        /// <param name="groupSeparator">O separador de grupos.</param>
+        /// <returns>A representação textual.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">Se o valor do grupo for negativo.</exception>
+        public static string GetBits(long value, int group, string groupSeparator = " ")
+        {
+            if (group < 0)
+            {
+                throw new ArgumentOutOfRangeException("group");
+            }
+            else
+            {
+                var result = string.Empty;
+                var temp = value;
+                var mask = 1L;
+                var separator = string.Empty;
+                for (int i = 0; i < 64; )
                 {
                     result += separator;
                     result += (temp & mask) == 0 ? "0" : "1";

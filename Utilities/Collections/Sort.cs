@@ -1,3 +1,9 @@
+﻿// -----------------------------------------------------------------------
+// <copyright file="Sort.cs" company="Sérgio O. Marques">
+// Ver licença do projecto.
+// </copyright>
+// -----------------------------------------------------------------------
+
 namespace Utilities
 {
     using System;
@@ -101,7 +107,7 @@ namespace Utilities
         /// <remarks>Aqui é usado o comparador por defeito.</remarks>
         /// <param name="collection">Os elementos a serem ordenados.</param>
         /// <returns>O número de trocas ocorridas.</returns>
-        public int SortCountSwaps(IList<T> collection)
+        public ulong SortCountSwaps(IList<T> collection)
         {
             if (collection == null)
             {
@@ -201,6 +207,7 @@ namespace Utilities
                     if (second < elementsCount)
                     {
                         third = Math.Min(third, elementsCount);
+
                         // Código para a fusão das listas
                         var currentWrite = 0;
                         var i = first;
@@ -253,7 +260,7 @@ namespace Utilities
         /// <param name="elements">Os elementos a serem ordenados.</param>
         /// <param name="comparer">O comparador.</param>
         /// <returns>O número de trocas ocorridas.</returns>
-        protected virtual int InnerSortCountSwaps(IList<T> elements, IComparer<T> comparer)
+        protected virtual ulong InnerSortCountSwaps(IList<T> elements, IComparer<T> comparer)
         {
             var elementsCount = elements.Count;
             if (elementsCount >= 2)
@@ -263,7 +270,7 @@ namespace Utilities
                 // Primeira iteração do algoritmo
                 var first = 0;
                 var second = 1;
-                var counts = new int[(int)Math.Ceiling((double)elementsCount / 2)];
+                var counts = new ulong[(int)Math.Ceiling((double)elementsCount / 2)];
                 var countsWrite = 0;
 
                 while (second < elementsCount)
@@ -285,7 +292,7 @@ namespace Utilities
 
                 var size = 2;
                 var swap = new T[elementsCount];
-                while (size < elementsCount)
+                while (size <= elementsCount)
                 {
                     first = 0;
                     second = size;
@@ -299,7 +306,7 @@ namespace Utilities
                         var currentWrite = 0;
                         var i = first;
                         var j = second;
-                        var swapsNumber = 0;
+                        var swapsNumber = 0UL;
                         while (i < second && j < third)
                         {
                             var firstCurrent = elements[i];
@@ -307,7 +314,7 @@ namespace Utilities
                             if (comparer.Compare(secondCurrent, firstCurrent) < 0)
                             {
                                 swap[currentWrite] = secondCurrent;
-                                swapsNumber += size - i + first + 1;
+                                swapsNumber += (ulong)(size - i + first);
                                 ++j;
                             }
                             else
@@ -352,7 +359,7 @@ namespace Utilities
                         var currentWrite = 0;
                         var i = first;
                         var j = second;
-                        var swapsNumber = 0;
+                        var swapsNumber = 0UL;
                         while (i < second && j < third)
                         {
                             var firstCurrent = elements[i];
@@ -360,7 +367,7 @@ namespace Utilities
                             if (comparer.Compare(secondCurrent, firstCurrent) < 0)
                             {
                                 swap[currentWrite] = secondCurrent;
-                                swapsNumber += size - i + 1;
+                                swapsNumber += (ulong)(size - i + first);
                                 ++j;
                             }
                             else
@@ -391,12 +398,16 @@ namespace Utilities
                         // Escreve o valor das contagens
                         counts[countsWrite++] = counts[countsRead++] + counts[countsRead++] + swapsNumber;
                     }
+                    else
+                    {
+                        counts[countsWrite++] = counts[countsRead++];
+                    }
 
                     // Actualização da variável tamanho
                     size <<= 1;
                 }
 
-                return counts[0];
+                return (ulong)counts[0];
             }
             else
             {
@@ -486,7 +497,7 @@ namespace Utilities
         /// </summary>
         /// <param name="collection">A colecçao a ser ordenada.</param>
         /// <returns>O número de trocas efectuadas durante a ordenação.</returns>
-        public int SortCountSwaps(IList<T> collection)
+        public ulong SortCountSwaps(IList<T> collection)
         {
             if (collection == null)
             {
@@ -534,9 +545,9 @@ namespace Utilities
         /// <param name="elements">Os elementos a serem ordenados.</param>
         /// <param name="comparer">O comparador.</param>
         /// <returns>O número de trocas ocorridas.</returns>
-        protected virtual int InnerSortCountSwaps(IList<T> elements, IComparer<T> comparer)
+        protected virtual ulong InnerSortCountSwaps(IList<T> elements, IComparer<T> comparer)
         {
-            var result = 0;
+            var result = 0UL;
             var elementsCount = elements.Count;
             if (elementsCount >= 2)
             {
@@ -1010,7 +1021,7 @@ namespace Utilities
 
             // Aplica a partição ao vector completo
             var index = count - 1;
-            var pivot = this.DefaultPartition(collection, 0, index, innerComparer);
+            var pivot = partitioner.Partition(collection, 0, index, innerComparer);
             var incPivot = pivot + 1;
             if (incPivot < index)
             {
@@ -1021,7 +1032,7 @@ namespace Utilities
             // Processa o primeiro ramo da árvore de execução
             while (0 < pivot)
             {
-                var prevPivot = this.DefaultPartition(
+                var prevPivot = partitioner.Partition(
                     collection,
                     0,
                     pivot,
@@ -2274,6 +2285,166 @@ namespace Utilities
                     return this.childNodes;
                 }
             }
+        }
+    }
+
+    /// <summary>
+    /// Implementa o algoritmo que permite obter o k-ésimo maior elemento
+    /// de uma colecção.
+    /// </summary>
+    /// <remarks>
+    /// O algoritmo é intrusivo, isto é, altera a ordenação da lista de entrada.
+    /// </remarks>
+    /// <typeparam name="T">O tipo de objectos que constituem as entradas da lista.</typeparam>
+    public class QuickSelect<T>
+    {
+        /// <summary>
+        /// Mantém o comparador.
+        /// </summary>
+        private IComparer<T> comparer;
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="QuickSelect{T}"/>.
+        /// </summary>
+        public QuickSelect()
+        {
+            this.comparer = Comparer<T>.Default;
+        }
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="QuickSelect{T}"/>.
+        /// </summary>
+        /// <param name="comparer"></param>
+        public QuickSelect(IComparer<T> comparer)
+        {
+            if (comparer == null)
+            {
+                throw new ArgumentNullException("comparer");
+            }
+            else
+            {
+                this.comparer = comparer;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o comparador.
+        /// </summary>
+        public IComparer<T> Comparer
+        {
+            get
+            {
+                return this.comparer;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o mínimo da ordem especificada.
+        /// </summary>
+        /// <param name="collection">A colecção.</param>
+        /// <param name="k">A ordem.</param>
+        /// <returns>O mínimo.</returns>
+        public T Min(IList<T> collection, int k)
+        {
+            if (collection == null)
+            {
+                throw new ArgumentNullException("collection");
+            }
+            else if (k <= 0)
+            {
+                throw new ArgumentOutOfRangeException(
+                    "k",
+                    "The parameter k must be greater than 1 and less than the size of collection.");
+            }
+            else
+            {
+                var count = collection.Count;
+                if (k < count)
+                {
+                    // TODO: implementar a partir daqui
+                    throw new NotImplementedException();
+                }
+                else
+                {
+                    throw new ArgumentOutOfRangeException(
+                    "k",
+                    "The parameter k must be greater than 1 and less than the size of collection.");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Obtém o mínimo da ordem especificada.
+        /// </summary>
+        /// <param name="collection">A colecção.</param>
+        /// <param name="k">A ordem.</param>
+        /// <param name="partitioner">
+        /// O objecto responsável pela criação de uma partição.
+        /// </param>
+        /// <returns>O mínimo.</returns>
+        public T Min(
+            IList<T> collection, 
+            int k,
+            QuickSelect<T>.IPartitioner partitioner)
+        {
+            if (collection == null)
+            {
+                throw new ArgumentNullException("collection");
+            }
+            else if (partitioner == null)
+            {
+                throw new ArgumentNullException("partitioner");
+            }
+            else if (k <= 0)
+            {
+                throw new ArgumentOutOfRangeException(
+                    "k",
+                    "The parameter k must be greater than 1 and less than the size of collection.");
+            }
+            else
+            {
+                var count = collection.Count;
+                if (k < count)
+                {
+                    // TODO: implementar a partir daqui
+                    throw new NotImplementedException();
+                }
+                else
+                {
+                    throw new ArgumentOutOfRangeException(
+                    "k",
+                    "The parameter k must be greater than 1 and less than the size of collection.");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Define o particionador para o algoritmo.
+        /// </summary>
+        public interface IPartitioner
+        {
+            /// <summary>
+            /// Função responsável por efecutar a partição das entradas.
+            /// </summary>
+            /// <remarks>
+            /// A partição começa por identificar um pivô, trocando os elementos
+            /// cujo valor é superior ao pivô e se encontram às esquerda com os elementos
+            /// inferiores ao pivô e se encontram à sua direita.
+            /// </remarks>
+            /// <param name="collection">A colecção.</param>
+            /// <param name="low">
+            /// O índice inicial da partição da colecção a ser considerada.
+            /// </param>
+            /// <param name="high">
+            /// O índicie final da partição da colecção a ser considerada.
+            /// </param>
+            /// <param name="comparer">O comparador.</param>
+            /// <returns>O índice do pivô determinado.</returns>
+            int Partition(
+                IList<T> collection,
+                int low,
+                int high,
+                IComparer<T> comparer);
         }
     }
 }

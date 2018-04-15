@@ -1,6 +1,6 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="Comparers.cs" company="">
-// TODO: Update copyright text.
+// <copyright file="Comparers.cs" company="Sérgio O. Marques">
+//  Ver licença do projecto.
 // </copyright>
 // -----------------------------------------------------------------------
 
@@ -10,6 +10,145 @@ namespace Utilities
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
+
+    /// <summary>
+    /// Comparador de igualdade compatível com códigos confusos
+    /// de 64 bit.
+    /// </summary>
+    /// <typeparam name="T">
+    /// O tipo de objectos a serem comparados.
+    /// </typeparam>
+    public interface IEqualityComparer64<T> :
+        IHash64<T>
+    {
+        /// <summary>
+        /// Verifica a igualdade de dois objectos.
+        /// </summary>
+        /// <param name="obj1">O primeiro objecto.</param>
+        /// <param name="obj2">O segundo objecto.</param>
+        /// <returns>
+        /// Verdadeiro se os objectos forem iguais e falso caso contrário.
+        /// </returns>
+        bool Equals(T obj1, T obj2);
+    }
+
+    /// <summary>
+    /// Ponto de partida para todos os comparadores de 64 bit.
+    /// </summary>
+    /// <typeparam name="T">O tipo dos objectos a serem comparados.</typeparam>
+    public abstract class EqualityComparer64<T>
+        : IEqualityComparer64<T>
+    {
+        /// <summary>
+        /// Mantém uma instância do comparador por defeito.
+        /// </summary>
+        private static volatile EqualityComparer64<T> defaultComparer;
+
+        /// <summary>
+        /// Obtém o comparador definido por defeito.
+        /// </summary>
+        public static EqualityComparer64<T> Default
+        {
+            get
+            {
+                if (defaultComparer == null)
+                {
+                    defaultComparer = new EqualityComparer32To64<T>();
+                }
+
+                return defaultComparer;
+            }
+        }
+
+        /// <summary>
+        /// Verifica a igualdade de dois objectos.
+        /// </summary>
+        /// <param name="obj1">O primeiro objecto.</param>
+        /// <param name="obj2">O segundo objecto.</param>
+        /// <returns>
+        /// Verdadeiro se os objectos forem iguais e falso caso contrário.
+        /// </returns>
+        public abstract bool Equals(T obj1, T obj2);
+
+        /// <summary>
+        /// Obtém o código confuso de 64 bits de um objecto.
+        /// </summary>
+        /// <param name="obj">O objeto.</param>
+        /// <returns>O código confuso.</returns>
+        public abstract ulong GetHash64(T obj);
+    }
+
+    /// <summary>
+    /// Implementação de um comparador cujo código confuso de 64 bit
+    /// é dado pelo código confuso de 32 bit proporcionado pela linguagem.
+    /// </summary>
+    /// <typeparam name="T">O tipo de objectos a serem comparados.</typeparam>
+    public class EqualityComparer32To64<T> 
+        : EqualityComparer64<T>
+    {
+        /// <summary>
+        /// Mantém o comparador de 32 bit.
+        /// </summary>
+        private IEqualityComparer<T> innerComparer;
+
+        /// <summary>
+        /// Insntancia uma nova instância de objectos do tipo <see cref="EqualityComparer32To64{T}"/>.
+        /// </summary>
+        public EqualityComparer32To64()
+        {
+            this.innerComparer = EqualityComparer<T>.Default;
+        }
+
+        /// <summary>
+        /// Insntancia uma nova instância de objectos do tipo <see cref="EqualityComparer32To64{T}"/>.
+        /// </summary>
+        /// <param name="comparer">O comparador de 32 bit.</param>
+        public EqualityComparer32To64(IEqualityComparer<T> comparer)
+        {
+            if (comparer == null)
+            {
+                throw new ArgumentNullException("comparer");
+            }
+            else
+            {
+                this.innerComparer = comparer;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o comparador de 32 bit.
+        /// </summary>
+        public IEqualityComparer<T> Comparer
+        {
+            get
+            {
+                return this.innerComparer;
+            }
+        }
+
+        /// <summary>
+        /// Verifica a igualdade de dois objectos.
+        /// </summary>
+        /// <param name="obj1">O primeiro objecto.</param>
+        /// <param name="obj2">O segundo objecto.</param>
+        /// <returns>
+        /// Verdadeiro se os objectos forem iguais e falso caso contrário.
+        /// </returns>
+        public override bool Equals(T obj1, T obj2)
+        {
+            return this.innerComparer.Equals(obj1, obj2);
+        }
+
+        /// <summary>
+        /// Obtém o código confuso de 64 bits de um objecto.
+        /// </summary>
+        /// <param name="obj">O objeto.</param>
+        /// <returns>O código confuso.</returns>
+        public override ulong GetHash64(T obj)
+        {
+            return (ulong)this.innerComparer.GetHashCode(obj);
+        }
+    }
 
     /// <summary>
     /// Implementa um comparador de igualdade sobre colecções de elementos tendo em conta a ordem.

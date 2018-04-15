@@ -1,4 +1,4 @@
-// -----------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------
 // <copyright file="FileTest.cs" company="Sérgio O. Marques">
 // Ver licença do projecto.
 // </copyright>
@@ -1077,6 +1077,17 @@ namespace Utilities.Test
                 0x05  // 5
             };
 
+            //var expectedBits = new int[]{
+            //    1, 0, 1, 1, 1, 1, 1, 1,
+            //    1, 0, 0, 0, 0, 1, 0, 1,
+            //    0, 1, 1, 0, 0, 0, 1, 1,
+            //    1, 1, 0, 1, 0, 1, 1, 1,
+            //    1, 1, 1, 0, 0, 1, 0, 1,
+            //    1, 0, 0, 1, 1, 1, 0, 1,
+            //    1, 0, 0, 0, 0, 0, 1, 1,
+            //    1, 0, 1, 0, 0, 0, 0, 0
+            //};
+
             var expected = new[]{
                 new byte[]{0x1}, new byte[]{0x2}, new byte[]{0x7},
                 new byte[]{0x7}, new byte[]{0x8},
@@ -1089,12 +1100,18 @@ namespace Utilities.Test
             var target = new BitReader(stream, 2);
             var length = expected.Length - 1;
             var acc = 0;
+            var twister = new MTRand();
             for (var i = 0; i < length; ++i)
             {
                 acc += i + 1;
                 var curr = expected[i];
                 var len = curr.Length;
                 var readBuffer = new byte[len];
+                for (var j = 0; j < len; ++j)
+                {
+                    readBuffer[j] = (byte)twister.RandInt(256);
+                }
+
                 var readed = target.ReadBits(readBuffer, 0, i + 1);
                 Assert.AreEqual(i + 1, readed);
                 for (var j = 0; j < len; ++j)
@@ -1105,6 +1122,11 @@ namespace Utilities.Test
 
             var last = expected[length];
             var lastBuffer = new byte[last.Length];
+            for (var j = 0; j < last.Length; ++j)
+            {
+                lastBuffer[j] = (byte)twister.RandInt(256);
+            }
+
             var lastReaded = target.ReadBits(lastBuffer, 0, length + 1);
             Assert.AreEqual(buffer.Length * 8 - acc, lastReaded);
             for (var j = 0; j < last.Length; ++j)
@@ -1270,8 +1292,8 @@ namespace Utilities.Test
             }
         }
     }
-    
-        /// <summary>
+
+    /// <summary>
     /// Testa a escrita de bits.
     /// </summary>
     [TestClass]

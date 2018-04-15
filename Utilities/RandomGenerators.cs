@@ -355,8 +355,8 @@ namespace Utilities
             this.state[p1++] = 0xFFFFFFFFU;
             for (; i < stateLen; ++i)
             {
-                this.state[p1++] = 
-                    (1812433253U * (this.state[p2] ^ (this.state[p2] >> 30)) + i) & 
+                this.state[p1++] =
+                    (1812433253U * (this.state[p2] ^ (this.state[p2] >> 30)) + i) &
                     0xFFFFFFFFU;
                 ++p2;
             }
@@ -368,24 +368,25 @@ namespace Utilities
         protected void Reload()
         {
             var p = 0;
-            for (var i = stateLen - period; i > 0; --i, ++p)
+            var start = stateLen - period;
+            for (var i = start; i > 0; --i, ++p)
             {
                 this.state[p] = this.Twist(
-                    this.state[period + p],
+                    this.state[start + p],
                     this.state[p],
                     this.state[p + 1]);
             }
 
-            for (var i = period; i > 0; --i, ++p)
+            for (var i = period; i > 1; --i, ++p)
             {
                 this.state[p] = this.Twist(
-                    this.state[this.state.Length - p - period + saveLen],
+                    this.state[p - start],
                     this.state[p],
                     this.state[p + 1]);
             }
 
             this.state[p] = this.Twist(
-                    this.state[this.state.Length - p - period + saveLen],
+                    this.state[p - start],
                     this.state[p],
                     this.state[0]);
             this.left = stateLen;
@@ -455,7 +456,7 @@ namespace Utilities
         {
             var bytes = BitConverter.GetBytes(date.Ticks);
             var length = bytes.Length;
-            var halfLength = length << 1;
+            var halfLength = length >> 1;
             var h1 = 0U;
             var i = 0;
             for (; i < halfLength; ++i)

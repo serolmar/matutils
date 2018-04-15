@@ -120,4 +120,43 @@ namespace Utilities
         /// <param name="index">O índice da posição a remover.</param>
         void RemoveAt(ulong index);
     }
+
+    /// <summary>
+    /// Respresenta um dicionário cujo contentor suporta um número
+    /// elevado de itens.
+    /// </summary>
+    /// <typeparam name="TKey">O tipo dos objectos que constituem as chaves.</typeparam>
+    /// <typeparam name="TValue">O tipo dos objectos que constituem os valores.</typeparam>
+    public interface ILongDicationary<TKey, TValue> 
+        : IDictionary<TKey, TValue>
+    {
+        /// <summary>
+        /// Obtém o número de elementos no dicionário.
+        /// </summary>
+        uint UintCount { get; }
+
+        /// <summary>
+        /// Obtém o número de elementos no dicionário.
+        /// </summary>
+        long LongCount { get; }
+
+        /// <summary>
+        /// Obtém o número de elementos no dicionário.
+        /// </summary>
+        ulong UlongCount { get; }
+    }
+
+    /// <summary>
+    /// Define a interface para um dicionário ordenado.
+    /// </summary>
+    /// <typeparam name="TKey">O tipo dos objectos que constituem as chaves.</typeparam>
+    /// <typeparam name="TValue">O tipo dos objectos que constituem os valores.</typeparam>
+    public interface ISortedDictionary<TKey, TValue>
+        : IDictionary<TKey, TValue>
+    {
+        /// <summary>
+        /// Obtém o comparador responsável pela ordenação das chaves.
+        /// </summary>
+        IComparer<TKey> Comparer { get; }
+    }
 }

@@ -7,6 +7,9 @@
     using System.Collections;
     using Utilities;
 
+    /// <summary>
+    /// Testa as funções matemáticas simples.
+    /// </summary>
     [TestClass()]
     public class MathFunctionsTest
     {
