@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
 // <copyright file="StatisticsTest.cs" company="Sérgio O. Marques">
 // Ver licença do projecto.
 // </copyright>
@@ -187,7 +187,7 @@ namespace Mathematics.Test
         {
             var target = new ListGeneralizedMeanAlgorithm<int, double>(
                 i => i,
-                d=>d,
+                d => d,
                 (d, i) => d / i,
                 new DoubleField());
 
@@ -214,7 +214,7 @@ namespace Mathematics.Test
             var fractionField = new FractionField<BigInteger>(bigIntegerDomain);
             var fractionTarget = new ListGeneralizedMeanAlgorithm<int, Fraction<BigInteger>>(
                 i => new Fraction<BigInteger>(i, 1, bigIntegerDomain),
-                d=>d,
+                d => d,
                 (d, i) => d.Divide(i, bigIntegerDomain),
                 fractionField);
             var fractionExpected = new Fraction<BigInteger>(n + 1, 2, bigIntegerDomain);
@@ -231,7 +231,7 @@ namespace Mathematics.Test
             // Teste com transformação
             var transformedTarget = new ListGeneralizedMeanAlgorithm<BigInteger, Fraction<BigInteger>>(
                 i => new Fraction<BigInteger>(i, 1, bigIntegerDomain),
-                d=>d,
+                d => d,
                 (d, i) => d.Divide(i, bigIntegerDomain),
                 fractionField);
             var transformedSeq = new TransformList<int, BigInteger>(
@@ -253,7 +253,7 @@ namespace Mathematics.Test
         {
             var target = new ListGeneralizedMeanAlgorithm<int, double>(
                 i => i,
-                d=>d,
+                d => d,
                 (d, i) => d / i,
                 new DoubleField());
             var blockNumber = 2500;
@@ -290,7 +290,7 @@ namespace Mathematics.Test
             var fractionField = new FractionField<BigInteger>(integerDomain);
             var fracTarget = new ListGeneralizedMeanAlgorithm<int, Fraction<BigInteger>>(
                 i => new Fraction<BigInteger>(i, 1, integerDomain),
-                d=>d,
+                d => d,
                 (d, i) => d.Divide(i, integerDomain),
                 fractionField);
 
@@ -298,7 +298,7 @@ namespace Mathematics.Test
             var fractionActual = fracTarget.Run<Fraction<BigInteger>>(
                 integerSequence,
                 blockNumber,
-                (j, k)=> new Fraction<BigInteger>(j,k, integerDomain),
+                (j, k) => new Fraction<BigInteger>(j, k, integerDomain),
                 (d1, d2) => d1.Multiply(d2, integerDomain));
 
             Assert.AreEqual(fractionExpected, fractionActual);
@@ -316,7 +316,7 @@ namespace Mathematics.Test
             // Teste com transformação
             var transformedTarget = new ListGeneralizedMeanAlgorithm<BigInteger, Fraction<BigInteger>>(
                 i => new Fraction<BigInteger>(i, 1, integerDomain),
-                d=>d,
+                d => d,
                 (d, i) => d.Divide(i, integerDomain),
                 fractionField);
             var transformedSeq = new TransformList<int, BigInteger>(
@@ -408,6 +408,60 @@ namespace Mathematics.Test
             {
                 source.Clear();
                 source.Add(1, i);
+                var actual = target.Run(source);
+                Assert.AreEqual(expected++, actual.Item1);
+                Assert.AreEqual(expected, actual.Item2);
+            }
+
+            var arraySource = new int[] { 1, 3, 2, 2, 1, 3, 3, 3, 3, 4, 2 };
+            expected = 3;
+            var outerActual = target.Run(arraySource);
+            Assert.AreEqual(expected, outerActual.Item1);
+            Assert.AreEqual(expected, outerActual.Item2);
+
+            arraySource = new int[] { 1, 3, 2, 2, 1, 3, 3, 3, 4, 2 };
+            expected = 2;
+            outerActual = target.Run(arraySource);
+            Assert.AreEqual(expected++, outerActual.Item1);
+            Assert.AreEqual(expected, outerActual.Item2);
+        }
+
+        /// <summary>
+        /// Testa o algoritmo que permite determinar a mediana com base
+        /// no algoritmo de selecção rápida.
+        /// </summary>
+        [Description("Tests the quick select median algorithm.")]
+        [TestMethod]
+        public void Statiscs_QuickSelectMedianTest()
+        {
+            var target = new QuickSelectMedianAlgorithm<int>();
+            var source = new List<int>();
+
+            var expected = 1;
+            for (var i = 1; i < 1000; i += 2)
+            {
+                source.Clear();
+                for (var j = 1; j <= i; ++j)
+                {
+                    source.Add(j);
+                }
+
+                var actual = target.Run(source);
+                Assert.AreEqual(expected, actual.Item1);
+                Assert.AreEqual(expected, actual.Item2);
+
+                ++expected;
+            }
+
+            expected = 1;
+            for (var i = 2; i < 1000; i += 2)
+            {
+                source.Clear();
+                for (var j = 1; j <= i; ++j)
+                {
+                    source.Add(j);
+                }
+
                 var actual = target.Run(source);
                 Assert.AreEqual(expected++, actual.Item1);
                 Assert.AreEqual(expected, actual.Item2);
