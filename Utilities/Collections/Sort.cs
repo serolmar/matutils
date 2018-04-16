@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
 // <copyright file="Sort.cs" company="Sérgio O. Marques">
 // Ver licença do projecto.
 // </copyright>
@@ -2350,7 +2350,7 @@ namespace Utilities
             {
                 throw new ArgumentNullException("collection");
             }
-            else if (k <= 0)
+            else if (k < 0)
             {
                 throw new ArgumentOutOfRangeException(
                     "k",
@@ -2361,8 +2361,41 @@ namespace Utilities
                 var count = collection.Count;
                 if (k < count)
                 {
-                    // TODO: implementar a partir daqui
-                    throw new NotImplementedException();
+                    var state = true;
+                    var result = default(T);
+                    var l = 0;
+                    var h = count - 1;
+                    while (state)
+                    {
+                        if (l == h)
+                        {
+                            result = collection[l];
+                            state = false;
+                        }
+                        else
+                        {
+                            var pivot = this.DefaultPartition(
+                                collection,
+                                l,
+                                h,
+                                this.comparer);
+                            if (k == pivot)
+                            {
+                                result = collection[k];
+                                state = false;
+                            }
+                            else if (k < pivot)
+                            {
+                                h = pivot - 1;
+                            }
+                            else
+                            {
+                                h = pivot + 1;
+                            }
+                        }
+                    }
+
+                    return result;
                 }
                 else
                 {
@@ -2395,7 +2428,7 @@ namespace Utilities
             {
                 throw new ArgumentNullException("partitioner");
             }
-            else if (k <= 0)
+            else if (k < 0)
             {
                 throw new ArgumentOutOfRangeException(
                     "k",
@@ -2406,8 +2439,41 @@ namespace Utilities
                 var count = collection.Count;
                 if (k < count)
                 {
-                    // TODO: implementar a partir daqui
-                    throw new NotImplementedException();
+                    var state = true;
+                    var result = default(T);
+                    var l = 0;
+                    var h = count - 1;
+                    while (state)
+                    {
+                        if (l == h)
+                        {
+                            result = collection[l];
+                            state = false;
+                        }
+                        else
+                        {
+                            var pivot = partitioner.Partition(
+                                collection,
+                                l,
+                                h,
+                                this.comparer);
+                            if (k == pivot)
+                            {
+                                result = collection[k];
+                                state = false;
+                            }
+                            else if (k < pivot)
+                            {
+                                h = pivot - 1;
+                            }
+                            else
+                            {
+                                h = pivot + 1;
+                            }
+                        }
+                    }
+
+                    return result;
                 }
                 else
                 {
@@ -2416,6 +2482,41 @@ namespace Utilities
                     "The parameter k must be greater than 1 and less than the size of collection.");
                 }
             }
+        }
+
+        /// <summary>
+        /// Estabelece a partição por defeito.
+        /// </summary>
+        /// <param name="collection">A colecção.</param>
+        /// <param name="low">O menor índice.</param>
+        /// <param name="high">O maior índice.</param>
+        /// <param name="comparer">O comparador.</param>
+        /// <returns>O índice no qual é feita a partição.</returns>
+        private int DefaultPartition(
+            IList<T> collection,
+            int low,
+            int high,
+            IComparer<T> comparer)
+        {
+            var pivotValue = collection[high];
+            var storeIndex = low;
+            for (var i = low; i < high; ++i)
+            {
+                if (comparer.Compare(
+                    collection[i],
+                    pivotValue) <= 0)
+                {
+                    var innerSwap = collection[storeIndex];
+                    collection[storeIndex++] = collection[i];
+                    collection[i] = innerSwap;
+                }
+            }
+
+            var swap = collection[storeIndex];
+            collection[storeIndex] = collection[high];
+            collection[high] = swap;
+
+            return storeIndex;
         }
 
         /// <summary>
