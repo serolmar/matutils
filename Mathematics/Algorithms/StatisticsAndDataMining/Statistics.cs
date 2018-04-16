@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
 // <copyright file="Statistics.cs" company="Sérgio O. Marques">
 // Ver licença do projecto.
 // </copyright>
@@ -1138,7 +1138,8 @@ namespace Mathematics
     /// chaves são ordenadas.
     /// </summary>
     /// <typeparam name="T">O tipo dos objectos que constituem as entradas da amostra.</typeparam>
-    public class DicMedianAlgorithm<T> : IAlgorithm<IEnumerable<T>, Tuple<T, T>>
+    public class DicMedianAlgorithm<T> 
+        : IAlgorithm<IEnumerable<T>, Tuple<T, T>>
     {
         /// <summary>
         /// O objecto responsável pela sincronização de linhas de processamento.
@@ -1286,6 +1287,373 @@ namespace Mathematics
                     throw new MathematicsException("Can't compute median on empty collections.");
                 }
             }
+        }
+    }
+
+    /// <summary>
+    /// Implementa o algoritmo de selecção para a determinação da mediana.
+    /// </summary>
+    /// <remarks>
+    /// O algoritmo tem carácter intrusivo, isto é, no final, os elementos da
+    /// colecção apresentar-se-ão numa ordem diferente.
+    /// </remarks>
+    /// <typeparam name="T">O tipo de objectos que constituem a amostra.</typeparam>
+    public class QuickSelectMedianAlgorithm<T> 
+        : IAlgorithm<IList<T>, Tuple<T, T>>,
+        IAlgorithm<IList<T>, QuickSelectMedianAlgorithm<T>.IPartitioner, Tuple<T,T>>
+    {
+        /// <summary>
+        /// Mantém o objecto responsável pela sincronização.
+        /// </summary>
+        private object lockObject;
+
+        /// <summary>
+        /// Mantém o comparador.
+        /// </summary>
+        private IComparer<T> comparer;
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="QuickSelectMedianAlgorithm{T}"/>.
+        /// </summary>
+        public QuickSelectMedianAlgorithm()
+        {
+            this.lockObject = new object();
+            this.comparer = Comparer<T>.Default;
+        }
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="QuickSelectMedianAlgorithm{T}"/>.
+        /// </summary>
+        /// <param name="comparer">O comparador de elementos.</param>
+        public QuickSelectMedianAlgorithm(IComparer<T> comparer)
+        {
+            if (comparer == null)
+            {
+                throw new ArgumentNullException("comparer");
+            }
+            else
+            {
+                this.lockObject = new object();
+                this.comparer = comparer;
+            }
+        }
+
+        /// <summary>
+        /// Obtém ou atribui o valor do comparador.
+        /// </summary>
+        public IComparer<T> Comparer
+        {
+            get
+            {
+                return this.comparer;
+            }
+            set
+            {
+                if (value == null)
+                {
+                    throw new MathematicsException("Comparer value must not be null.");
+                }
+                else
+                {
+                    this.comparer = value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Determina a mediana de uma colecção.
+        /// </summary>
+        /// <remarks>
+        /// Trata-se de um algoritmo intrusivo, isto é,
+        /// </remarks>
+        /// <param name="data">Os dados.</param>
+        /// <returns>
+        /// A mediana ou as medianas conforme o número de elementos seja ímpar ou par.
+        /// </returns>
+        public Tuple<T, T> Run(IList<T> data)
+        {
+            if (data == null)
+            {
+                throw new ArgumentNullException("data");
+            }
+            else
+            {
+                var count = data.Count;
+                if (count == 0)
+                {
+                    throw new MathematicsException("Can't compute median on empty sets.");
+                }
+                else
+                {
+                    var innerComparer = default(IComparer<T>);
+                    lock (this.lockObject)
+                    {
+                        innerComparer = this.comparer;
+                    }
+
+                    var k = count >> 1;
+                    if ((count & 1) == 0)
+                    {
+                        --k;
+                    }
+
+                    var state = true;
+                    var result = default(T);
+                    var l = 0;
+                    var h = count - 1;
+                    while (state)
+                    {
+                        if (l == h)
+                        {
+                            result = data[l];
+                            state = false;
+                        }
+                        else
+                        {
+                            var pivot = this.DefaultPartition(
+                                data,
+                                l,
+                                h,
+                                this.comparer);
+                            if (k == pivot)
+                            {
+                                result = data[k];
+                                l = pivot;
+                                state = false;
+                            }
+                            else if (k < pivot)
+                            {
+                                h = pivot - 1;
+                            }
+                            else
+                            {
+                                h = pivot + 1;
+                            }
+                        }
+                    }
+
+                    if ((count & 1) == 1)
+                    {
+                        return Tuple.Create(result, result);
+                    }
+                    else
+                    {
+                        state = true;
+                        var nextResult = default(T);
+                        ++l;
+                        h = count - 1;
+                        while (state)
+                        {
+                            if (l == h)
+                            {
+                                nextResult = data[l];
+                                state = false;
+                            }
+                            else
+                            {
+                                var pivot = this.DefaultPartition(
+                                    data,
+                                    l,
+                                    h,
+                                    this.comparer);
+                                if (k == pivot)
+                                {
+                                    nextResult = data[k];
+                                    state = false;
+                                }
+                                else if (k < pivot)
+                                {
+                                    h = pivot - 1;
+                                }
+                                else
+                                {
+                                    h = pivot + 1;
+                                }
+                            }
+                        }
+
+                        return Tuple.Create(result, nextResult);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Determina a mediana de uma colecção.
+        /// </summary>
+        /// <param name="first">Os dados.</param>
+        /// <param name="second">O particionador.</param>
+        /// <returns>A mediana ou medianas conforme o número de elementos seja ímpar ou par.</returns>
+        public Tuple<T, T> Run(
+            IList<T> first, 
+            QuickSelectMedianAlgorithm<T>.IPartitioner second)
+        {
+            if (first == null)
+            {
+                throw new ArgumentNullException("first");
+            }
+            else if (second == null)
+            {
+                throw new ArgumentNullException("second");
+            }
+            else
+            {
+                var count = first.Count;
+                if (count == 0)
+                {
+                    throw new MathematicsException("Can't compute median on empty sets.");
+                }
+                else
+                {
+                    var innerComparer = default(IComparer<T>);
+                    lock (this.lockObject)
+                    {
+                        innerComparer = this.comparer;
+                    }
+
+                    var k = count >> 1;
+                    var state = true;
+                    var result = default(T);
+                    var l = 0;
+                    var h = count - 1;
+                    while (state)
+                    {
+                        if (l == h)
+                        {
+                            result = first[l];
+                            state = false;
+                        }
+                        else
+                        {
+                            var pivot = second.Partition(
+                                first,
+                                l,
+                                h,
+                                this.comparer);
+                            if (k == pivot)
+                            {
+                                result = first[k];
+                                state = false;
+                            }
+                            else if (k < pivot)
+                            {
+                                h = pivot - 1;
+                            }
+                            else
+                            {
+                                h = pivot + 1;
+                            }
+                        }
+                    }
+
+                    if ((count & 1) == 1)
+                    {
+                        return Tuple.Create(result, result);
+                    }
+                    else
+                    {
+                        state = true;
+                        var nextResult = default(T);
+                        ++l;
+                        h = count - 1;
+                        while (state)
+                        {
+                            if (l == h)
+                            {
+                                nextResult = first[l];
+                                state = false;
+                            }
+                            else
+                            {
+                                var pivot = second.Partition(
+                                    first,
+                                    l,
+                                    h,
+                                    this.comparer);
+                                if (k == pivot)
+                                {
+                                    nextResult = first[k];
+                                    state = false;
+                                }
+                                else if (k < pivot)
+                                {
+                                    h = pivot - 1;
+                                }
+                                else
+                                {
+                                    h = pivot + 1;
+                                }
+                            }
+                        }
+
+                        return Tuple.Create(result, nextResult);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Define o particionador para o algoritmo.
+        /// </summary>
+        public interface IPartitioner
+        {
+            /// <summary>
+            /// Função responsável por efecutar a partição das entradas.
+            /// </summary>
+            /// <remarks>
+            /// A partição começa por identificar um pivô, trocando os elementos
+            /// cujo valor é superior ao pivô e se encontram às esquerda com os elementos
+            /// inferiores ao pivô e se encontram à sua direita.
+            /// </remarks>
+            /// <param name="collection">A colecção.</param>
+            /// <param name="low">
+            /// O índice inicial da partição da colecção a ser considerada.
+            /// </param>
+            /// <param name="high">
+            /// O índicie final da partição da colecção a ser considerada.
+            /// </param>
+            /// <param name="comparer">O comparador.</param>
+            /// <returns>O índice do pivô determinado.</returns>
+            int Partition(
+                IList<T> collection,
+                int low,
+                int high,
+                IComparer<T> comparer);
+        }
+
+        /// <summary>
+        /// Estabelece a partição por defeito.
+        /// </summary>
+        /// <param name="collection">A colecção.</param>
+        /// <param name="low">O menor índice.</param>
+        /// <param name="high">O maior índice.</param>
+        /// <param name="comparer">O comparador.</param>
+        /// <returns>O índice no qual é feita a partição.</returns>
+        private int DefaultPartition(
+            IList<T> collection,
+            int low,
+            int high,
+            IComparer<T> comparer)
+        {
+            var pivotValue = collection[high];
+            var storeIndex = low;
+            for (var i = low; i < high; ++i)
+            {
+                if (comparer.Compare(
+                    collection[i],
+                    pivotValue) <= 0)
+                {
+                    var innerSwap = collection[storeIndex];
+                    collection[storeIndex++] = collection[i];
+                    collection[i] = innerSwap;
+                }
+            }
+
+            var swap = collection[storeIndex];
+            collection[storeIndex] = collection[high];
+            collection[high] = swap;
+
+            return storeIndex;
         }
     }
 
