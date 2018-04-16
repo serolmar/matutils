@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
 // <copyright file="CollectionsTests.cs" company="Sérgio O. Marques">
 // Ver licença do projecto.
 // </copyright>
@@ -696,6 +696,31 @@ namespace Utilities.Test
                 TrieLexicographicCollectionSorter<uint, uint>.OrderingType.SHORTLEX);
 
             this.TestSort(target);
+        }
+
+        /// <summary>
+        /// Testa o algoritmo usado para determinar o mínimo de uma determinada ordem.
+        /// </summary>
+        [Description("Tests the quick select algorithm.")]
+        [TestMethod]
+        public void QuickSelect_MinTest()
+        {
+            var target = new QuickSelect<int>();
+            var collection = new int[] { 
+                6, 2, 4, 9, 4, 7, 5, 8, 3, 
+                1, 2, 4, 7, 5, 4, 3, 3, 2, 
+                5, 6 };
+            var length = collection.Length;
+            var ordered = new int[length];
+            Array.Copy(collection, ordered, length);
+            Array.Sort(ordered);
+            for (var i = 0; i < length; ++i)
+            {
+                var min = target.Min(collection, i);
+                Assert.AreEqual(ordered[i], min);
+            }
+
+            this.AssertOrdered(collection, Comparer<int>.Default);
         }
 
         /// <summary>
