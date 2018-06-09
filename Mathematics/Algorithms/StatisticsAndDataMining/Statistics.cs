@@ -1,4 +1,4 @@
-// -----------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------
 // <copyright file="Statistics.cs" company="Sérgio O. Marques">
 // Ver licença do projecto.
 // </copyright>
@@ -104,6 +104,17 @@ namespace Mathematics
         }
 
         /// <summary>
+        /// Obtém o objecto sobre o qual é realizada a sincronização.
+        /// </summary>
+        public object SyncRoot
+        {
+            get
+            {
+                return this.lockObject;
+            }
+        }
+
+        /// <summary>
         /// Obém ou atribui o objecto responsável pelo incremente do contador.
         /// </summary>
         public IIntegerNumber<Q> IntegerNumber
@@ -120,7 +131,10 @@ namespace Mathematics
                 }
                 else
                 {
-                    this.integerNumber = value;
+                    lock (this.lockObject)
+                    {
+                        this.integerNumber = value;
+                    }
                 }
             }
         }
@@ -142,7 +156,10 @@ namespace Mathematics
                 }
                 else
                 {
-                    this.additionOperation = value;
+                    lock (this.lockObject)
+                    {
+                        this.additionOperation = value;
+                    }
                 }
             }
         }
@@ -164,7 +181,10 @@ namespace Mathematics
                 }
                 else
                 {
-                    this.integerDivisionFunction = value;
+                    lock (this.lockObject)
+                    {
+                        this.integerDivisionFunction = value;
+                    }
                 }
             }
         }
@@ -186,7 +206,10 @@ namespace Mathematics
                 }
                 else
                 {
-                    this.directFunction = value;
+                    lock (this.lockObject)
+                    {
+                        this.directFunction = value;
+                    }
                 }
             }
         }
@@ -208,7 +231,10 @@ namespace Mathematics
                 }
                 else
                 {
-                    this.inverseFunction = value;
+                    lock (this.lockObject)
+                    {
+                        this.inverseFunction = value;
+                    }
                 }
             }
         }
@@ -479,6 +505,17 @@ namespace Mathematics
         }
 
         /// <summary>
+        /// Obtém o objecto sobre o qual é realizada a sincronização.
+        /// </summary>
+        public object SyncRoot
+        {
+            get
+            {
+                return this.lockObject;
+            }
+        }
+
+        /// <summary>
         /// O objecto responsável pela adição dos elementos da média.
         /// </summary>
         public IAdditionOperation<P, P, P> AdditionOperation
@@ -495,7 +532,10 @@ namespace Mathematics
                 }
                 else
                 {
-                    this.additionOperation = value;
+                    lock (this.lockObject)
+                    {
+                        this.additionOperation = value;
+                    }
                 }
             }
         }
@@ -517,7 +557,10 @@ namespace Mathematics
                 }
                 else
                 {
-                    this.integerDivisionFunction = value;
+                    lock (this.lockObject)
+                    {
+                        this.integerDivisionFunction = value;
+                    }
                 }
             }
         }
@@ -539,7 +582,10 @@ namespace Mathematics
                 }
                 else
                 {
-                    this.directFunction = value;
+                    lock (this.lockObject)
+                    {
+                        this.directFunction = value;
+                    }
                 }
             }
         }
@@ -561,7 +607,10 @@ namespace Mathematics
                 }
                 else
                 {
-                    this.inverseFunction = value;
+                    lock (this.lockObject)
+                    {
+                        this.inverseFunction = value;
+                    }
                 }
             }
         }
@@ -1180,6 +1229,17 @@ namespace Mathematics
         }
 
         /// <summary>
+        /// Obtém o objecto sobre o qual é realizada a sincronização.
+        /// </summary>
+        public object SyncRoot
+        {
+            get
+            {
+                return this.lockObject;
+            }
+        }
+
+        /// <summary>
         /// Obtém ou atribui a fábrica responsável pela criação de dicionários ordenados..
         /// </summary>
         public Func<ISortedDictionary<T, MutableTuple<ulong>>> DictionaryFactory
@@ -1196,7 +1256,10 @@ namespace Mathematics
                 }
                 else
                 {
-                    this.dictionaryFactory = value;
+                    lock (this.lockObject)
+                    {
+                        this.dictionaryFactory = value;
+                    }
                 }
             }
         }
@@ -1339,6 +1402,17 @@ namespace Mathematics
         }
 
         /// <summary>
+        /// Obtém o objecto sobre o qual é realizada a sincronização.
+        /// </summary>
+        public object SyncRoot
+        {
+            get
+            {
+                return this.lockObject;
+            }
+        }
+
+        /// <summary>
         /// Obtém ou atribui o valor do comparador.
         /// </summary>
         public IComparer<T> Comparer
@@ -1355,7 +1429,10 @@ namespace Mathematics
                 }
                 else
                 {
-                    this.comparer = value;
+                    lock (this.lockObject)
+                    {
+                        this.comparer = value;
+                    }
                 }
             }
         }
@@ -1700,6 +1777,17 @@ namespace Mathematics
         }
 
         /// <summary>
+        /// Obtém o objecto sobre o qual é realizada a sincronização.
+        /// </summary>
+        public object SyncRoot
+        {
+            get
+            {
+                return this.lockObject;
+            }
+        }
+
+        /// <summary>
         /// Obtém ou atribui a fábrica responsável pela criação
         /// dos dicionários.
         /// </summary>
@@ -1717,7 +1805,10 @@ namespace Mathematics
                 }
                 else
                 {
-                    this.dicFactory = value;
+                    lock (this.lockObject)
+                    {
+                        this.dicFactory = value;
+                    }
                 }
             }
         }

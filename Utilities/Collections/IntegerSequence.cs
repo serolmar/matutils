@@ -2,7 +2,9 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
+    using System.Numerics;
     using System.Text;
 
     /// <summary>
@@ -1776,5 +1778,108 @@
         }
 
         #endregion Funções privadas
+    }
+
+    /// <summary>
+    /// Implementa um compressor para uma sequência crescente de números inteiros.
+    /// </summary>
+    public class IncreasingIntegerSeqCompressor
+        : IEnumerable<BigInteger>
+    {
+        /// <summary>
+        /// Mantém o número actual.
+        /// </summary>
+        private BigInteger current;
+
+        /// <summary>
+        /// Mantém o tamanho actual das diferenças.
+        /// </summary>
+        private ulong deltaSize;
+
+        /// <summary>
+        /// Mantém a lista de itens.
+        /// </summary>
+        private ILongList<byte> list;
+
+        /// <summary>
+        /// Mantém o índice para a lista.
+        /// </summary>
+        private ulong lindex;
+
+        /// <summary>
+        /// Mantém o índice do bit.
+        /// </summary>
+        private byte bit;
+
+        /// <summary>
+        /// Instancia numa nova instância de objectos do tipo <see cref="IncreasingIntegerSeqCompressor"/>.
+        /// </summary>
+        /// <param name="start">O valor inicial.</param>
+        /// <param name="listFactory">A fábrica responsável pela criação de lista.</param>
+        public IncreasingIntegerSeqCompressor(
+            BigInteger start,
+            Func<ILongList<byte>> listFactory)
+        {
+            if (listFactory == null)
+            {
+                throw new ArgumentNullException("listFactory");
+            }
+            else
+            {
+                this.list = listFactory.Invoke();
+            }
+        }
+
+        /// <summary>
+        /// Instancia numa nova instância de objectos do tipo <see cref="IncreasingIntegerSeqCompressor"/>.
+        /// </summary>
+        /// <param name="stream">Fonte de dados para carregamento do compressor.</param>
+        /// <param name="listFactory">A fábrica responsável pela criação de lista.</param>
+        public IncreasingIntegerSeqCompressor(
+            Stream stream,
+            Func<ILongList<byte>> listFactory)
+        {
+            if (stream == null)
+            {
+                throw new ArgumentNullException("stream");
+            }
+            else if (listFactory == null)
+            {
+                throw new ArgumentNullException("listFactory");
+            }
+            else
+            {
+                this.list = listFactory.Invoke();
+                this.LoadFromStream(stream);
+            }
+        }
+
+        /// <summary>
+        /// Obtém um enumerador para o compressor.
+        /// </summary>
+        /// <returns>O enumerador.</returns>
+        public IEnumerator<BigInteger> GetEnumerator()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Obtém um enumerador não genérico para o compressor.
+        /// </summary>
+        /// <returns>O enumerador.</returns>
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Determina o estado do compressor a partir da linha.
+        /// </summary>
+        /// <param name="stream">A linha.</param>
+        private void LoadFromStream(
+            Stream stream)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

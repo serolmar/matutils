@@ -2120,7 +2120,7 @@ namespace Utilities
         /// Instancia uma nova instância de objectos do tipo <see cref="LongSystemArray{T}"/>.
         /// </summary>
         /// <param name="array">A ordenação.</param>
-        private LongSystemArray(T[] array)
+        public LongSystemArray(T[] array)
         {
             this.array = array;
         }

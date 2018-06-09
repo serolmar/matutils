@@ -212,6 +212,7 @@
     <Compile Include="AlgebraicStructures\Polynomial\SymmetricPolynomialDegreeEqualityComparer.cs" />
     <Compile Include="AlgebraicStructures\Polynomial\UnivariatePolynomialNormalForm.cs" />
     <Compile Include="AlgebraicStructures\Polynomial\UnivarPolynomNormalFormEqualityComparer.cs" />
+    <Compile Include="Algorithms\Bioinformatics\DynamicProgramming.cs" />
     <Compile Include="Algorithms\Decision\SubsetSumLLLReductionAlgorithm.cs" />
     <Compile Include="Algorithms\Graph\EdgeListGraphMathExtension.cs" />
     <Compile Include="Algorithms\Interpolation\BaseInterpolator.cs" />

@@ -1,6 +1,8 @@
 bin/
 obj/
 TestResults/
+OnlyCuda/
+.vs/
 *.user
 *.suo
 *.pdb
