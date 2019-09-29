@@ -112,7 +112,7 @@
     <Compile Include="AlgebraicStructures\Matrix\Factories\ArrayDiagonalMatrixFactory.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="AlgebraicStructures\Matrix\Factories\ArrayMatrixFactory.cs">
+    <Compile Include="AlgebraicStructures\Matrix\Factories\ArrayMathMatrixFactory.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="AlgebraicStructures\Matrix\Factories\ArraySquareMatrixFactory.cs">
@@ -124,22 +124,22 @@
     <Compile Include="AlgebraicStructures\Matrix\Factories\ArrayTriangUpperMatrixFactory.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="AlgebraicStructures\Matrix\Factories\IMatrixFactory.cs">
+    <Compile Include="AlgebraicStructures\Matrix\Factories\IMathMatrixFactory.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="AlgebraicStructures\Matrix\Factories\ISquareMatrixFactory.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="AlgebraicStructures\Matrix\Factories\IVectorFactory.cs">
+    <Compile Include="AlgebraicStructures\Matrix\Factories\IMathVectorFactory.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="AlgebraicStructures\Matrix\Factories\SparseDictionaryMatrixFactory.cs">
+    <Compile Include="AlgebraicStructures\Matrix\Factories\SparseDictionaryMathMatrixFactory.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="AlgebraicStructures\Matrix\Factories\SparseDictionarySquareMatrixFactory.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="AlgebraicStructures\Matrix\Factories\SparseDictionaryVectorFactory.cs">
+    <Compile Include="AlgebraicStructures\Matrix\Factories\SparseDictionaryMathVectorFactory.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="AlgebraicStructures\Matrix\IMatrixGroup.cs" />
@@ -215,6 +215,7 @@
     <Compile Include="Algorithms\Bioinformatics\DynamicProgramming.cs" />
     <Compile Include="Algorithms\Decision\SubsetSumLLLReductionAlgorithm.cs" />
     <Compile Include="Algorithms\Graph\EdgeListGraphMathExtension.cs" />
+    <Compile Include="Algorithms\Graph\IEdgeListGraphMathExtension.cs" />
     <Compile Include="Algorithms\Interpolation\BaseInterpolator.cs" />
     <Compile Include="Algorithms\Interpolation\PointContainer2D.cs" />
     <Compile Include="Algorithms\Interpolation\UnivarNormalFromInterpolator.cs" />
@@ -246,6 +247,7 @@
     <Compile Include="Algorithms\Matrix\Reductions\LLLBasisReductionAlgorithm.cs" />
     <Compile Include="Algorithms\Network\HungarianMatchingAlgorithm.cs" />
     <Compile Include="Algorithms\Network\HungarianMatchingOutput.cs" />
+    <Compile Include="Algorithms\Network\NeuralNetwork.cs" />
     <Compile Include="Algorithms\NumberTheory\AksPrimalityTest.cs" />
     <Compile Include="Algorithms\NumberTheory\Auxiliary\AuxAksModArithmRing.cs" />
     <Compile Include="Algorithms\NumberTheory\Auxiliary\BigIntegerPrimeNumbersIteratorFactory.cs" />
@@ -332,8 +334,6 @@
     <Compile Include="Algorithms\Transportation\TransportationMaxDoubleNumberField.cs" />
     <Compile Include="Algorithms\Transportation\TransportationMatrixTreeNode.cs" />
     <Compile Include="Algorithms\Transportation\TransportationProblemDouble.cs" />
-    <Compile Include="Algorithms\Graph\EdgeListGraphAlgorithms.cs" />
-    <Compile Include="Algorithms\Graph\IGraphAlgorithms.cs" />
     <Compile Include="MathematicsException.cs" />
     <Compile Include="Numbers\BigIntegers.cs" />
     <Compile Include="Numbers\BigIntegersOperationsProviders.cs" />

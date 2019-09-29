@@ -36,14 +36,14 @@
             var fractionFieldParser = new FieldDrivenExpressionParser<Fraction<BigInteger>>(
                 new SimpleElementFractionParser<BigInteger>(integerParser, integerDomain),
                 fractionField);
-            var matrixFactory = new ArrayMatrixFactory<Fraction<BigInteger>>();
+            var matrixFactory = new ArrayMathMatrixFactory<Fraction<BigInteger>>();
 
             // Leitura da matriz que representa o sistema de equações.
             var coeffsMatrix = TestsHelper.ReadMatrix<Fraction<BigInteger>>(
                 3,
                 3,
                 inputMatrix,
-                matrixFactory,
+                (i, j) => new ArrayMathMatrix<Fraction<BigInteger>>(i, j),
                 fractionFieldParser);
 
             // Leitura do vector de termos independente.
@@ -51,14 +51,14 @@
                 3,
                 1,
                 inputVector,
-                new ArrayMatrixFactory<Fraction<BigInteger>>(),
+                (i, j) => new ArrayMathMatrix<Fraction<BigInteger>>(i, j),
                 fractionFieldParser);
 
             var expectedMatrix = TestsHelper.ReadMatrix<Fraction<BigInteger>>(
                 3,
                 1,
                 expectedText,
-                new ArrayMatrixFactory<Fraction<BigInteger>>(),
+                (i, j) => new ArrayMathMatrix<Fraction<BigInteger>>(i, j),
                 fractionFieldParser);
 
             var systemSolver = new SequentialLanczosAlgorithm<Fraction<BigInteger>, FractionField<BigInteger>>(

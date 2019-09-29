@@ -488,6 +488,7 @@ namespace Mathematics
         /// <param name="symmSolvAlg">O algoritmo que permite resolver sistemas simétricos.</param>
         /// <param name="ring">O anel responsável pelas operações sobre os coeficientes.</param>
         /// <param name="squareMatrixFactory">O delegado responsável pela criação da matriz quadrada.</param>
+        /// <param name="independentVectorFactory">O objecto responsável pela criação dos vectores independentes.</param>
         public LdlDecompLinearSystemAlgorithm(IAlgorithm<
             ISquareMathMatrix<CoeffType>,
             IMathMatrix<CoeffType>,

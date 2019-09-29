@@ -11,7 +11,7 @@
     /// <typeparam name="ObjectType">
     /// O tipo de objectos que constituem os coeficientes das matrizes criadas.
     /// </typeparam>
-    public class SparseDictionarySquareMatrixFactory<ObjectType> : IMatrixFactory<ObjectType>
+    public class SparseDictionarySquareMatrixFactory<ObjectType> : IMathMatrixFactory<ObjectType>
     {
         /// <summary>
         /// Cria uma matriz quadrada esparsa baseada em dicionários.

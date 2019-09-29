@@ -9,8 +9,9 @@
     /// Implementa um nó de ligação auxiliar.
     /// </summary>
     /// <typeparam name="NodeType">O tipo de objectos que constituem os nós.</typeparam>
-    /// <typeparam name="EdgeValueType">O tipo de objectos associados às arestas.</typeparam>
-    public class LinkNode<NodeType, EdgeValueType>
+    /// <typeparam name="EdgeType">O tipo de objectos que constituem as arestas.</typeparam>
+    public class LinkNode<NodeType, EdgeType>
+        where EdgeType : IEdge<NodeType>
     {
         /// <summary>
         /// O nó inicial.
@@ -20,12 +21,13 @@
         /// <summary>
         /// Mantém a lista de areastas ligadas ao nó inicial.
         /// </summary>
-        private List<Edge<NodeType, EdgeValueType>> connectedEdges = new List<Edge<NodeType, EdgeValueType>>();
+        private List<EdgeType> connectedEdges = 
+            new List<EdgeType>();
 
         /// <summary>
         /// O próximo nó e a aresta que lhe deu origem.
         /// </summary>
-        private LinkNodeTie<NodeType, EdgeValueType> link;
+        private LinkNodeTie<NodeType, EdgeType> link;
 
         /// <summary>
         /// Obtém o nó.
@@ -47,7 +49,7 @@
         /// Obtém a lista de arestas conectadas ao vértice inicial.
         /// </summary>
         /// <value>A lista de arestas.</value>
-        public List<Edge<NodeType, EdgeValueType>> ConnectedEdges
+        public List<EdgeType> ConnectedEdges
         {
             get
             {
@@ -59,7 +61,7 @@
         /// Obtém o próximo elemento e a aresta que lhe deu origem.
         /// </summary>
         /// <value>O próximo elemento e a aresta.</value>
-        public LinkNodeTie<NodeType, EdgeValueType> Link
+        public LinkNodeTie<NodeType, EdgeType> Link
         {
             get
             {

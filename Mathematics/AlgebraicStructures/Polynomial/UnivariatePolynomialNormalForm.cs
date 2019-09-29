@@ -569,7 +569,7 @@ namespace Mathematics
         /// <exception cref="ArgumentNullException">Se algum dos argumentos for nulo.</exception>
         public IMathVector<CoeffType> GetRootPowerSums(
             IField<CoeffType> field, 
-            IVectorFactory<CoeffType> vectorFactory)
+            IMathVectorFactory<CoeffType> vectorFactory)
         {
             if (field == null)
             {
@@ -673,7 +673,7 @@ namespace Mathematics
         public IMathVector<CoeffType> GetRootPowerSums(
             int number,
             IField<CoeffType> field,
-            IVectorFactory<CoeffType> vectorFactory)
+            IMathVectorFactory<CoeffType> vectorFactory)
         {
             if (field == null)
             {

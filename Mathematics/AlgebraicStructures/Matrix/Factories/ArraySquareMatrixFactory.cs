@@ -9,7 +9,7 @@
     /// Permite criar uma matriz quadrada baseada num vector de vectores.
     /// </summary>
     /// <typeparam name="ObjectType">O tipo de elementos contidos na matriz.</typeparam>
-    public class ArraySquareMatrixFactory<ObjectType> : ISquareMatrixFactory<ObjectType>, IMatrixFactory<ObjectType>
+    public class ArraySquareMatrixFactory<ObjectType> : ISquareMatrixFactory<ObjectType>, IMathMatrixFactory<ObjectType>
     {
         /// <summary>
         /// Cria uma matriz <see cref="ArraySquareMatrixFactory{ObjectType}"/> com o número de linhas e colunas especificado.

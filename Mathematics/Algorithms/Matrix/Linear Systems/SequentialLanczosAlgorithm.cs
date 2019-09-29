@@ -23,7 +23,7 @@
         /// <summary>
         /// A fábrica responsável pela criação de matrizes.
         /// </summary>
-        private IMatrixFactory<ElementType> matrixFactory;
+        private IMathMatrixFactory<ElementType> matrixFactory;
 
         /// <summary>
         /// O objecto resopnsável pela soma de matrizes.
@@ -43,7 +43,7 @@
         /// <exception cref="ArgumentNullException">
         /// Se algum dos argumentos for nulo.
         /// </exception>
-        public SequentialLanczosAlgorithm(IMatrixFactory<ElementType> matrixFactory, FieldType field)
+        public SequentialLanczosAlgorithm(IMathMatrixFactory<ElementType> matrixFactory, FieldType field)
         {
             if (field == null)
             {
@@ -83,7 +83,7 @@
         /// Obtém o objecto responsável pela criação das matrizes.
         /// </summary>
         /// <value>O objecto responsável pela criação de matrizes.</value>
-        public IMatrixFactory<ElementType> MatrixFactory
+        public IMathMatrixFactory<ElementType> MatrixFactory
         {
             get
             {

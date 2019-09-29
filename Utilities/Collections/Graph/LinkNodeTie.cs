@@ -9,24 +9,25 @@
     /// Implementa uma ligação de nós.
     /// </summary>
     /// <typeparam name="NodeType">O tipo de objectos que constituem os nós.</typeparam>
-    /// <typeparam name="EdgeValueType">O tipo de objectos associados às arestas.</typeparam>
-    public class LinkNodeTie<NodeType, EdgeValueType>
+    /// <typeparam name="EdgeType">O tipo de objectos que constituem as arestas.</typeparam>
+    public class LinkNodeTie<NodeType, EdgeType>
+        where EdgeType : IEdge<NodeType>
     {
         /// <summary>
         /// A aresta que liga ao vértice final.
         /// </summary>
-        private Edge<NodeType, EdgeValueType> tieEdge;
+        private EdgeType tieEdge;
 
         /// <summary>
         /// O vértice final.
         /// </summary>
-        private LinkNode<NodeType, EdgeValueType> otherNode;
+        private LinkNode<NodeType, EdgeType> otherNode;
 
         /// <summary>
         /// Otbém a areasta que liga ao vértice final.
         /// </summary>
         /// <value>A aresta.</value>
-        public Edge<NodeType, EdgeValueType> TieEdge
+        public EdgeType TieEdge
         {
             get
             {
@@ -42,7 +43,7 @@
         /// Obtém o vértice final.
         /// </summary>
         /// <value>O vértice final.</value>
-        public LinkNode<NodeType, EdgeValueType> OtherNode
+        public LinkNode<NodeType, EdgeType> OtherNode
         {
             get
             {

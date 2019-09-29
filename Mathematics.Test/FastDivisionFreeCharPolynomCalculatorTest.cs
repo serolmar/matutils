@@ -32,11 +32,11 @@
             var variableName = "x";
             var integerParser = new IntegerParser<string>();
             var conversion = new ElementToElementConversion<int>();
-            var matrix = TestsHelper.ReadMatrix(
+            var matrix = TestsHelper.ReadMatrix<int>(
                 3,
                 3,
                 matrixText,
-                new ArraySquareMatrixFactory<int>(),
+                (i, j) => new ArraySquareMathMatrix<int>(i),
                 integerParser,
                 true);
             var fastDivFreeCharacPolAlg = new FastDivisionFreeCharPolynomCalculator<int>(variableName, integerDomain);
@@ -54,11 +54,11 @@
             var variableName = "x";
             var integerParser = new BigIntegerParser<string>();
             var conversion = new BigIntegerToIntegerConversion();
-            var matrix = TestsHelper.ReadMatrix(
+            var matrix = TestsHelper.ReadMatrix<BigInteger>(
                 3,
                 3,
                 matrixText,
-                new ArraySquareMatrixFactory<BigInteger>(),
+                (i, j) => new ArraySquareMathMatrix<BigInteger>(i),
                 integerParser);
             var fastDivFreeCharacPolAlg = new FastDivisionFreeCharPolynomCalculator<BigInteger>(variableName, integerDomain);
             var expected = TestsHelper.ReadUnivarPolynomial("1*x^3+-1140480954*x^2-58754054577367644*x+4689162494877443109176", integerDomain, integerParser, conversion, variableName);

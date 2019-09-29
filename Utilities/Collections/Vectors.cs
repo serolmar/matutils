@@ -132,6 +132,20 @@
         }
 
         /// <summary>
+        /// Obtém o tamanho do vector.
+        /// </summary>
+        /// <value>
+        /// O tamanho do vector.
+        /// </value>
+        public long LongLength
+        {
+            get
+            {
+                return this.vectorEntries.LongLength;
+            }
+        }
+
+        /// <summary>
         /// Obtém o sub-vector especificado pelos índices.
         /// </summary>
         /// <param name="indices">Os índices.</param>
@@ -178,6 +192,26 @@
                     this.vectorEntries[second] = swap;
                 }
             }
+        }
+
+        /// <summary>
+        /// Copia o conteúdo do vector para um alcance.
+        /// </summary>
+        /// <param name="array">O alcance.</param>
+        /// <param name="index">O índice a partir do qual se inicia a cópia.</param>
+        public void CopyTo(Array array, int index)
+        {
+            this.vectorEntries.CopyTo(array, index);
+        }
+
+        /// <summary>
+        /// Copia o conteúdo do vector para um alcance.
+        /// </summary>
+        /// <param name="array">O alcance.</param>
+        /// <param name="index">O índice a partir do qual se inicia a cópia.</param>
+        public void CopyTo(Array array, long index)
+        {
+            this.vectorEntries.CopyTo(array, index);
         }
 
         /// <summary>

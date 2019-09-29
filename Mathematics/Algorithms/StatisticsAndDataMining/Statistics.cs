@@ -834,7 +834,7 @@ namespace Mathematics
         private Func<ulong, Res> squareRootFunction;
 
         /// <summary>
-        /// Instancia uma nova instância de objectos do tipo <see cref="TauCorrelation{First, Second, Res, CollA, CollB}"/>.
+        /// Instancia uma nova instância de objectos do tipo <see cref="TauCorrelation{First, Second, Res}"/>.
         /// </summary>
         /// <param name="generalSoter">A função reponsável pela ordenação inicial.</param>
         /// <param name="countSorter">

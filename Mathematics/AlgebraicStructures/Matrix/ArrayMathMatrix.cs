@@ -18,7 +18,7 @@ namespace Mathematics
     /// </summary>
     /// <typeparam name="ObjectType">O tipo de objectos que constituem as entradas das matrizes.</typeparam>
     public class ArrayMathMatrix<ObjectType>
-        : ArrayMatrix<ObjectType>, IMathMatrix<ObjectType>
+        : ArrayMatrix<ObjectType>, ILongMathMatrix<ObjectType>
     {
         /// <summary>
         /// Cria instâncias de objectos do tipo <see cref="ArrayMathMatrix{ObjectType}"/>.
@@ -319,6 +319,55 @@ namespace Mathematics
         }
 
         /// <summary>
+        /// Multiplica os valores da linha pelo escalar definido.
+        /// </summary>
+        /// <param name="line">A linha a ser considerada.</param>
+        /// <param name="scalar">O escalar a ser multiplicado.</param>
+        /// <param name="ring">O objecto responsável pela operações de multiplicação e determinação da unidade aditiva.</param>
+        public void ScalarLineMultiplication(long line, ObjectType scalar, IRing<ObjectType> ring)
+        {
+            if (line < 0 || line >= this.elements.Length)
+            {
+                throw new ArgumentOutOfRangeException("line");
+            }
+            else if (ring == null)
+            {
+                throw new ArgumentNullException("ring");
+            }
+            else if (scalar == null)
+            {
+                throw new ArgumentNullException("scalar");
+            }
+            else
+            {
+                var currentLineValue = this.elements[line];
+
+                // Se o escalar proporcionado for uma unidade aditiva, a linha irá conter todos os valores.
+                if (ring.IsAdditiveUnity(scalar))
+                {
+                    var lineLength = currentLineValue.LongLength;
+                    for (var i = 0L; i < lineLength; ++i)
+                    {
+                        currentLineValue[i] = scalar;
+                    }
+                }
+                else if (!ring.IsMultiplicativeUnity(scalar))
+                {
+                    var lineLength = currentLineValue.LongLength;
+                    for (var i = 0L; i < lineLength; ++i)
+                    {
+                        var columnValue = currentLineValue[i];
+                        if (!ring.IsAdditiveUnity(columnValue))
+                        {
+                            columnValue = ring.Multiply(scalar, columnValue);
+                            currentLineValue[i] = columnValue;
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
         /// Substitui a linha especificada por uma combinação linear desta com uma outra. Por exemplo, li = a * li + b * lj, isto é,
         /// a linha i é substituída pela soma do produto de a pela linha i com o produto de b peloa linha j.
         /// </summary>
@@ -438,6 +487,131 @@ namespace Mathematics
                         var combinationLine = this.elements[j];
                         var replacementLineLenght = replacementLine.Length;
                         for (int k = 0; k < replacementLineLenght; ++k)
+                        {
+                            var replacementValue = ring.Multiply(replacementLine[k], a);
+                            var combinationValue = ring.Multiply(combinationLine[k], b);
+                            replacementLine[k] = ring.Add(replacementValue, combinationValue);
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Substitui a linha especificada por uma combinação linear desta com uma outra. Por exemplo, li = a * li + b * lj, isto é,
+        /// a linha i é substituída pela soma do produto de a pela linha i com o produto de b peloa linha j.
+        /// </summary>
+        /// <param name="i">A linha a ser substituída.</param>
+        /// <param name="j">A linha a ser combinada.</param>
+        /// <param name="a">O escalar a ser multiplicado pela primeira linha.</param>
+        /// <param name="b">O escalar a ser multiplicado pela segunda linha.</param>
+        /// <param name="ring">O objecto responsável pelas operações sobre os coeficientes.</param>
+        public void CombineLines(long i, long j, ObjectType a, ObjectType b, IRing<ObjectType> ring)
+        {
+            var lineslength = this.elements.LongLength;
+            if (i < 0 || i >= lineslength)
+            {
+                throw new ArgumentNullException("i");
+            }
+            else if (j < 0 || j >= lineslength)
+            {
+                throw new ArgumentNullException("j");
+            }
+            else if (a == null)
+            {
+                throw new ArgumentNullException("a");
+            }
+            else if (b == null)
+            {
+                throw new ArgumentNullException("b");
+            }
+            else if (ring == null)
+            {
+                throw new ArgumentNullException("ring");
+            }
+            else
+            {
+                var replacementLine = this.elements[i];
+                if (ring.IsAdditiveUnity(a))
+                {
+                    if (ring.IsAdditiveUnity(b))
+                    {
+                        var replacementLineLenght = replacementLine.LongLength;
+                        for (var k = 0L; k < replacementLineLenght; ++k)
+                        {
+                            replacementLine[k] = a;
+                        }
+                    }
+                    else if (ring.IsMultiplicativeUnity(b))
+                    {
+                        var combinationLine = this.elements[j];
+                        var replacementLineLenght = replacementLine.LongLength;
+                        for (int k = 0; k < replacementLineLenght; ++k)
+                        {
+                            replacementLine[k] = combinationLine[k];
+                        }
+                    }
+                    else
+                    {
+                        var combinationLine = this.elements[j];
+                        var replacementLineLenght = replacementLine.LongLength;
+                        for (var k = 0L; k < replacementLineLenght; ++k)
+                        {
+                            var value = combinationLine[k];
+                            if (ring.IsAdditiveUnity(value))
+                            {
+                                replacementLine[k] = value;
+                            }
+                            else if (ring.IsMultiplicativeUnity(value))
+                            {
+                                replacementLine[k] = b;
+                            }
+                            else
+                            {
+                                replacementLine[k] = ring.Multiply(b, value);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    if (ring.IsAdditiveUnity(b))
+                    {
+                        if (!ring.IsMultiplicativeUnity(a))
+                        {
+                            var replacementLineLenght = replacementLine.LongLength;
+                            for (var k = 0L; k < replacementLineLenght; ++k)
+                            {
+                                var value = replacementLine[k];
+                                replacementLine[k] = ring.Multiply(a, value);
+                            }
+                        }
+                    }
+                    else if (ring.IsMultiplicativeUnity(b))
+                    {
+                        var combinationLine = this.elements[j];
+                        var replacementLineLenght = replacementLine.LongLength;
+                        if (ring.IsMultiplicativeUnity(a))
+                        {
+                            for (var k = 0L; k < replacementLineLenght; ++k)
+                            {
+                                replacementLine[k] = ring.Add(replacementLine[k], combinationLine[k]);
+                            }
+                        }
+                        else
+                        {
+                            for (var k = 0L; k < replacementLineLenght; ++k)
+                            {
+                                var replacementValue = ring.Multiply(replacementLine[k], a);
+                                replacementLine[k] = ring.Add(replacementValue, combinationLine[k]);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        var combinationLine = this.elements[j];
+                        var replacementLineLenght = replacementLine.LongLength;
+                        for (var k = 0L; k < replacementLineLenght; ++k)
                         {
                             var replacementValue = ring.Multiply(replacementLine[k], a);
                             var combinationValue = ring.Multiply(combinationLine[k], b);

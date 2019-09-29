@@ -951,23 +951,20 @@ namespace Utilities
         /// <summary>
         /// Mantém os valores da roda de terceiro nível.
         /// </summary>
+        /// <remarks>
+        /// Tabela de multiplicação modular:
+        /// {4, 3, 7, 6, 2, 1, 5, 0},
+        ///  {3, 7, 5, 0, 6, 2, 4, 1},
+        ///  {7, 5, 4, 1, 0, 6, 3, 2},
+        ///  {6, 0, 1, 4, 5, 7, 2, 3},
+        ///  {2, 6, 0, 5, 7, 3, 1, 4},
+        ///  {1, 2, 6, 7, 3, 4, 0, 5},
+        ///  {5, 4, 3, 2, 1, 0, 7, 6},
+        ///  {0, 1, 2, 3, 4, 5, 6, 7}
+        /// </remarks>
         private static long[] wheel = new long[]{
             7, 11, 13, 17, 19, 23, 29, 31
         };
-
-        /// <summary>
-        /// Tabela de multiplicação modular.
-        /// </summary>
-        //private static long[,] multTable = new long[,]{
-        //    {4, 3, 7, 6, 2, 1, 5, 0},
-        //    {3, 7, 5, 0, 6, 2, 4, 1},
-        //    {7, 5, 4, 1, 0, 6, 3, 2},
-        //    {6, 0, 1, 4, 5, 7, 2, 3},
-        //    {2, 6, 0, 5, 7, 3, 1, 4},
-        //    {1, 2, 6, 7, 3, 4, 0, 5},
-        //    {5, 4, 3, 2, 1, 0, 7, 6},
-        //    {0, 1, 2, 3, 4, 5, 6, 7}
-        //};
 
         /// <summary>
         /// O número máximo a ser considerado.
@@ -2914,7 +2911,7 @@ namespace Utilities
         /// <summary>
         /// Obtém a próxima roda.
         /// </summary>
-        /// <param name="squreCoord">
+        /// <param name="coord">
         /// A coordenada do número em questão.
         /// </param>
         /// <returns>A roda.</returns>
@@ -4273,7 +4270,7 @@ namespace Utilities
         /// <summary>
         /// Obtém a próxima roda.
         /// </summary>
-        /// <param name="squreCoord">
+        /// <param name="coord">
         /// A coordenada do número em questão.
         /// </param>
         /// <returns>A roda.</returns>

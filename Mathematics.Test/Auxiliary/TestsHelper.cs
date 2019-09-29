@@ -234,25 +234,69 @@
         /// <param name="elementParser">O leitor de elementos.</param>
         /// <param name="readNegativeNumbers">Indica se são lidos os números negativos.</param>
         /// <returns>A matriz.</returns>
-        public static IMathMatrix<T> ReadMatrix<T>(
+        public static ILongMathMatrix<T> ReadMatrix<T>(
             int lines, 
             int columns, 
             string matrixText, 
-            IMatrixFactory<T> matrixFactory, 
+            Func<long, long, ILongMathMatrix<T>> matrixFactory, 
             IParse<T, string, string> elementParser,
             bool readNegativeNumbers = false)
         {
             var reader = new StringReader(matrixText);
             var stringSymbolReader = new StringSymbolReader(reader, readNegativeNumbers);
-            var arrayMatrixReader = new ConfigMatrixReader<T, IMathMatrix<T>, string, string>(
+            var arrayMatrixReader = new ConfigMatrixReader<T, ILongMathMatrix<T>, string, string>(
                 lines,
                 columns);
             arrayMatrixReader.MapInternalDelimiters("left_bracket", "right_bracket");
             arrayMatrixReader.AddBlanckSymbolType("blancks");
             arrayMatrixReader.SeparatorSymbType = "comma";
 
-            var matrix = default(IMathMatrix<T>);
-            if (arrayMatrixReader.TryParseMatrix(stringSymbolReader, elementParser, (i,j)=>matrixFactory.CreateMatrix(i,j), out matrix))
+            var matrix = default(ILongMathMatrix<T>);
+            if (arrayMatrixReader.TryParseMatrix(stringSymbolReader, elementParser, (i,j)=>matrixFactory.Invoke(i,j), out matrix))
+            {
+                return matrix;
+            }
+            else
+            {
+                throw new Exception("Can't read matrix.");
+            }
+        }
+
+        /// <summary>
+        /// Permite fazer a leitura de uma matriz.
+        /// </summary>
+        /// <typeparam name="T">O tipo de elementos na matriz.</typeparam>
+        /// <param name="lines">O número de linhas.</param>
+        /// <param name="columns">O número de colunas.</param>
+        /// <param name="matrixText">A representação textual da matriz.</param>
+        /// <param name="matrixFactory">A fábrica responsável pela criação de matrizes.</param>
+        /// <param name="elementParser">O leitor de elementos.</param>
+        /// <param name="readNegativeNumbers">Indica se são lidos os números negativos.</param>
+        /// <returns>A matriz.</returns>
+        public static M ReadMatrix<T, M>(
+            int lines,
+            int columns,
+            string matrixText,
+            Func<int, int, M> matrixFactory,
+            IParse<T, string, string> elementParser,
+            bool readNegativeNumbers = false)
+            where M : IMatrix<T>
+        {
+            var reader = new StringReader(matrixText);
+            var stringSymbolReader = new StringSymbolReader(reader, readNegativeNumbers);
+            var arrayMatrixReader = new ConfigMatrixReader<T, M, string, string>(
+                lines,
+                columns);
+            arrayMatrixReader.MapInternalDelimiters("left_bracket", "right_bracket");
+            arrayMatrixReader.AddBlanckSymbolType("blancks");
+            arrayMatrixReader.SeparatorSymbType = "comma";
+
+            var matrix = default(M);
+            if (arrayMatrixReader.TryParseMatrix(
+                stringSymbolReader, 
+                elementParser, 
+                matrixFactory, 
+                out matrix))
             {
                 return matrix;
             }
@@ -275,7 +319,7 @@
         public static IMathVector<T> ReadVector<T>(
             int dimension,
             string vectorText,
-            IVectorFactory<T> vectorFactory,
+            IMathVectorFactory<T> vectorFactory,
             IParse<T, string, string> elementParser,
             bool readNegativeNumbers = false)
         {

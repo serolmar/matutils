@@ -53,6 +53,7 @@
   <ItemGroup>
     <Compile Include="Auxiliary\TestsHelper.cs" />
     <Compile Include="BigIntegersTest.cs" />
+    <Compile Include="DynamicProgrammingTest.cs" />
     <Compile Include="BitListTest.cs" />
     <Compile Include="BooleanMinimalFormAlgorithmTest.cs" />
     <Compile Include="DecompositionFactorizationAlgorithmTest.cs" />
@@ -62,6 +63,7 @@
     <Compile Include="FastDivisionFreeCharPolynomCalculatorTest.cs" />
     <Compile Include="Matrix\TriangDiagSymmDecompInverseAlgTest.cs" />
     <Compile Include="Matrix\TriangDiagSymmMatrixDecompositionTest.cs" />
+    <Compile Include="NeuralNetworkTest.cs" />
     <Compile Include="Polynomial\FiniteFieldPolFactorizationAlgorithmTest.cs" />
     <Compile Include="IntegerMinWeightTdecompositionTest.cs" />
     <Compile Include="LagrangeAlgorithmTest.cs" />

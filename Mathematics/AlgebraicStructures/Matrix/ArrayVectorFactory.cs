@@ -9,7 +9,7 @@
     /// Cria vectores conceptuais baseados em vectores de memória.
     /// </summary>
     /// <typeparam name="CoeffType">O tipo dos valores das entradas do vector.</typeparam>
-    public class ArrayVectorFactory<CoeffType> : IVectorFactory<CoeffType>
+    public class ArrayVectorFactory<CoeffType> : IMathVectorFactory<CoeffType>
     {
         /// <summary>
         /// Cria um vector com o tamanho especificado.

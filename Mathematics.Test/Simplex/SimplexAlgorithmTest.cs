@@ -38,13 +38,12 @@
             var basicVariables = new[] { 2, 3, 4 };
 
             // Leitura da matriz das retrições.
-            var matrixFactory = new ArrayMatrixFactory<double>();
             var doubleElementsParser = new DoubleParser<string>();
             var inputConstraintsMatrix = TestsHelper.ReadMatrix<double>(
                 3,
                 2,
                 inputConstraintsMatrixText,
-                matrixFactory,
+                (i, j) => new ArrayMathMatrix<double>(i, j),
                 doubleElementsParser,
                 true);
 
@@ -101,13 +100,12 @@
             var basicVariables = new[] { 2, 3, 4 };
 
             // Leitura da matriz das retrições.
-            var matrixFactory = new ArrayMatrixFactory<double>();
             var doubleElementsParser = new DoubleParser<string>();
             var inputConstraintsMatrix = TestsHelper.ReadMatrix<double>(
                 3,
                 2,
                 inputConstraintsMatrixText,
-                matrixFactory,
+                (i, j) => new ArrayMathMatrix<double>(i, j),
                 doubleElementsParser,
                 true);
 
@@ -164,13 +162,12 @@
             var basicVariables = new[] { 3, 4, 5 };
 
             // Leitura da matriz das retrições.
-            var matrixFactory = new ArrayMatrixFactory<double>();
             var doubleElementsParser = new DoubleParser<string>();
             var inputConstraintsMatrix = TestsHelper.ReadMatrix<double>(
                 3,
                 3,
                 inputConstraintsMatrixText,
-                matrixFactory,
+                (i, j) => new ArrayMathMatrix<double>(i, j),
                 doubleElementsParser,
                 true);
 

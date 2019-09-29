@@ -11,27 +11,30 @@
     /// Mantém um par de componentes conexas e respectivos ciclos classificados por componente.
     /// </summary>
     /// <typeparam name="VertexType">O tipo de objectos que constituem os vértices.</typeparam>
-    /// <typeparam name="EdgeValueType">O tipo de objectos associados às arestas.</typeparam>
-    public class GraphCyclesComponentsPair<VertexType, EdgeValueType>
+    /// <typeparam name="EdgeType">O tipo de objectos que constituem as arestas.</typeparam>
+    /// <typeparam name="GraphType">O tipo dos objectos que constiuem os grafos.</typeparam>
+    public class GraphCyclesComponentsPair<VertexType, EdgeType, GraphType>
+        where EdgeType : IEdge<VertexType>
+        where GraphType : IEdgeGraph<VertexType, EdgeType>
     {
         /// <summary>
         /// Mantém a lista de componentes.
         /// </summary>
-        private List<IGraph<VertexType, EdgeValueType>> components;
+        private List<GraphType> components;
 
         /// <summary>
         /// A lista de ciclos simples obtidos por componente.
         /// </summary>
-        private List<List<IGraph<VertexType, EdgeValueType>>> cyclesPerComponent;
+        private List<List<GraphType>> cyclesPerComponent;
 
         /// <summary>
-        /// Instancia um novo obejcto do tipo <see cref="GraphCyclesComponentsPair{VertexType, EdgeValueType}"/>.
+        /// Instancia um novo obejcto do tipo <see cref="GraphCyclesComponentsPair{VertexType, EdgeType, GraphType}"/>.
         /// </summary>
         /// <param name="components">A lista de componentes.</param>
         /// <param name="cyclesPerComponent">O conjunto de ciclos por componente.</param>
         public GraphCyclesComponentsPair(
-            List<IGraph<VertexType, EdgeValueType>> components,
-            List<List<IGraph<VertexType, EdgeValueType>>> cyclesPerComponent)
+            List<GraphType> components,
+            List<List<GraphType>> cyclesPerComponent)
         {
             this.components = components;
             this.cyclesPerComponent = cyclesPerComponent;
@@ -41,7 +44,7 @@
         /// Obtém a lista de componentes.
         /// </summary>
         /// <value>A lista de componentes.</value>
-        public ReadOnlyCollection<IGraph<VertexType, EdgeValueType>> Components
+        public ReadOnlyCollection<GraphType> Components
         {
             get
             {
@@ -53,11 +56,11 @@
         /// Obtém a lista de ciclos simples distribuídos por componente.
         /// </summary>
         /// <value>A lista de ciclos.</value>
-        public ReadOnlyCollection<ReadOnlyCollection<IGraph<VertexType, EdgeValueType>>> CyclesPerComponent
+        public ReadOnlyCollection<ReadOnlyCollection<GraphType>> CyclesPerComponent
         {
             get
             {
-                var result = new List<ReadOnlyCollection<IGraph<VertexType, EdgeValueType>>>();
+                var result = new List<ReadOnlyCollection<GraphType>>();
                 foreach (var cyclePerComponent in this.cyclesPerComponent)
                 {
                     result.Add(cyclePerComponent.AsReadOnly());

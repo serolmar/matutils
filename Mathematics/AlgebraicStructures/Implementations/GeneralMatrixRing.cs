@@ -34,7 +34,7 @@
         /// <exception cref="ArgumentNullException">Caso algum dos argumentos seja nulo.</exception>
         public GeneralMatrixRing(
             int dimension,
-            IMatrixFactory<CoeffType> matrixFactory,
+            IMathMatrixFactory<CoeffType> matrixFactory,
             IRing<CoeffType> coeffsRing)
             : base(dimension, dimension, matrixFactory, coeffsRing)
         {

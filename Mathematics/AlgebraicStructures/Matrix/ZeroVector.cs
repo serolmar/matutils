@@ -89,6 +89,18 @@
         }
 
         /// <summary>
+        /// Obtém o tamanho do vector.
+        /// </summary>
+        /// <value>O tamanho do vector.</value>
+        public long LongLength
+        {
+            get
+            {
+                return this.length;
+            }
+        }
+
+        /// <summary>
         /// Obtém o sub-vector especificado pelo conjunto de índices.
         /// </summary>
         /// <param name="indices">Os índices que especificam o sub-vector.</param>
@@ -125,6 +137,96 @@
         public bool IsNull(IMonoid<CoeffType> monoid)
         {
             return true;
+        }
+
+        /// <summary>
+        /// Copia o conteúdo do vector para um alcance.
+        /// </summary>
+        /// <param name="array">O alcance.</param>
+        /// <param name="index">O índice a partir do qual se inicia a cópia.</param>
+        public void CopyTo(Array array, int index)
+        {
+            if (array == null)
+            {
+                throw new ArgumentNullException("array");
+            }
+            else if (index < 0 || index > this.length)
+            {
+                throw new ArgumentOutOfRangeException(
+                    "index",
+                    "Index was out of range. Must be non-negative and less than the size of collection.");
+            }
+            else
+            {
+                var arrayDimension = array.Rank;
+                if (arrayDimension == 1)
+                {
+                    var length = this.length;
+                    if (index + length <= array.LongLength)
+                    {
+                        var pointer = index;
+                        for (var i = 0; i < length; ++i)
+                        {
+                            array.SetValue(this.monoid.AdditiveUnity, pointer++);
+                        }
+                    }
+                    else
+                    {
+                        throw new ArgumentException(
+                            "The number of elements in the source array is greater than the available number of elements from index to the end of the destination array");
+                    }
+                }
+                else
+                {
+                    throw new ArgumentException(
+                        "The provided array is multidimensional");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Copia o conteúdo do vector para um alcance.
+        /// </summary>
+        /// <param name="array">O alcance.</param>
+        /// <param name="index">O índice a partir do qual se inicia a cópia.</param>
+        public void CopyTo(Array array, long index)
+        {
+            if (array == null)
+            {
+                throw new ArgumentNullException("array");
+            }
+            else if (index < 0 || index > this.length)
+            {
+                throw new ArgumentOutOfRangeException(
+                    "index",
+                    "Index was out of range. Must be non-negative and less than the size of collection.");
+            }
+            else
+            {
+                var arrayDimension = array.Rank;
+                if (arrayDimension == 1)
+                {
+                    var length = this.length;
+                    if (index + length <= array.LongLength)
+                    {
+                        var pointer = index;
+                        for (var i = 0; i < length; ++i)
+                        {
+                            array.SetValue(this.monoid.AdditiveUnity, pointer++);
+                        }
+                    }
+                    else
+                    {
+                        throw new ArgumentException(
+                            "The number of elements in the source array is greater than the available number of elements from index to the end of the destination array");
+                    }
+                }
+                else
+                {
+                    throw new ArgumentException(
+                        "The provided array is multidimensional");
+                }
+            }
         }
 
         /// <summary>

@@ -25,6 +25,6 @@
         /// <summary>
         /// Obtém a fábrica responsável pela instanciação de matrizes resultantes das operações.
         /// </summary>
-        IMatrixFactory<CoeffType> Factory { get; }
+        IMathMatrixFactory<CoeffType> Factory { get; }
     }
 }

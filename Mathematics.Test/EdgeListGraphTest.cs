@@ -26,9 +26,8 @@
         public void GetAlgorithmsProcessorTest_GetMinimumSpanningTree()
         {
             var graph = this.GetTestGraph();
-
-            var graphAlgs = graph.GetAlgorithmsProcessor();
-            var result = graphAlgs.GetMinimumSpanningTree<double>(
+            var processor = graph.GetLabeledAlgorithmsProcessor();
+            var result = processor.GetMinimumSpanningTree<double>(
                 0,
                 e => e.Value,
                 Comparer<double>.Default,
@@ -72,9 +71,8 @@
         public void GetAlgorithmsProcessorTest_GetCycles()
         {
             var graph = this.GetTestGraph();
-
-            var graphAlgs = graph.GetAlgorithmsProcessor();
-            var cycles = graphAlgs.GetCycles();
+            var processor = graph.GetAlgorithmsProcessor();
+            var cycles = processor.GetCycles();
 
             // O número de conjuntos de ciclos tem de igualar o número de componentes conexas.
             Assert.AreEqual(3, cycles.Count);
@@ -84,9 +82,8 @@
         public void GetAlgorithmsProcessorTest_GetConnectedComponents()
         {
             var graph = this.GetTestGraph();
-
-            var graphAlgs = graph.GetAlgorithmsProcessor();
-            var cycles = graphAlgs.GetConnectedComponents();
+            var processor = graph.GetAlgorithmsProcessor();
+            var cycles = processor.GetConnectedComponents();
 
             // Vaerifica o número de compoentes conexas.
             Assert.AreEqual(3, cycles.Count);
@@ -96,9 +93,9 @@
         /// Obtém o grafo que irá servir de teste.
         /// </summary>
         /// <returns>O grafo.</returns>
-        private EdgeListGraphMathExtensions<int, int> GetTestGraph()
+        private LabeledEdgeListGraphMathExtensions<int, int> GetTestGraph()
         {
-            var graph = new EdgeListGraphMathExtensions<int, int>();
+            var graph = new LabeledEdgeListGraphMathExtensions<int, int>();
             graph.AddEdge(0, 1, 1);
             graph.AddEdge(0, 2, 3);
             graph.AddEdge(0, 3, 5);

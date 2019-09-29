@@ -94,6 +94,18 @@
         }
 
         /// <summary>
+        /// Otbém o tamanho do vector.
+        /// </summary>
+        /// <value>O tamanho do vector.</value>
+        public long LongLength
+        {
+            get
+            {
+                return this.subVectorIndices.LongLength;
+            }
+        }
+
+        /// <summary>
         /// Obtém um sub-vector do vector corrente.
         /// </summary>
         /// <param name="indices">O conjunto de índices que identificam o sub-vector.</param>
@@ -139,6 +151,98 @@
                     var swapValue = this.subVectorIndices[first];
                     this.subVectorIndices[first] = this.subVectorIndices[second];
                     this.subVectorIndices[second] = swapValue;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Copia o conteúdo do vector para um alcance.
+        /// </summary>
+        /// <param name="array">O alcance.</param>
+        /// <param name="index">O índice a partir do qual se inicia a cópia.</param>
+        public void CopyTo(Array array, int index)
+        {
+            if (array == null)
+            {
+                throw new ArgumentNullException("array");
+            }
+            else if (index < 0 || index > this.subVectorIndices.LongLength)
+            {
+                throw new ArgumentOutOfRangeException(
+                    "index",
+                    "Index was out of range. Must be non-negative and less than the size of collection.");
+            }
+            else
+            {
+                var arrayDimension = array.Rank;
+                if (arrayDimension == 1)
+                {
+                    var indices = this.subVectorIndices;
+                    var indicesLength = indices.Length;
+                    if (index + indicesLength < array.LongLength)
+                    {
+                        var pointer = index;
+                        for (var i = 0; i < indicesLength; ++i)
+                        {
+                            array.SetValue(this.vector[this.subVectorIndices[i]], pointer++);
+                        }
+                    }
+                    else
+                    {
+                        throw new ArgumentException(
+                            "The number of elements in the source array is greater than the available number of elements from index to the end of the destination array");
+                    }
+                }
+                else
+                {
+                    throw new ArgumentException(
+                        "The provided array is multidimensional");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Copia o conteúdo do vector para um alcance.
+        /// </summary>
+        /// <param name="array">O alcance.</param>
+        /// <param name="index">O índice a partir do qual se inicia a cópia.</param>
+        public void CopyTo(Array array, long index)
+        {
+            if (array == null)
+            {
+                throw new ArgumentNullException("array");
+            }
+            else if (index < 0 || index > this.subVectorIndices.LongLength)
+            {
+                throw new ArgumentOutOfRangeException(
+                    "index",
+                    "Index was out of range. Must be non-negative and less than the size of collection.");
+            }
+            else
+            {
+                var arrayDimension = array.Rank;
+                if (arrayDimension == 1)
+                {
+                    var indices = this.subVectorIndices;
+                    var indicesLength = indices.LongLength;
+                    if (index + indicesLength < array.LongLength)
+                    {
+                        var pointer = index;
+                        for (var i = 0; i < indicesLength; ++i)
+                        {
+                            array.SetValue(this.vector[this.subVectorIndices[i]], pointer++);
+                        }
+                    }
+                    else
+                    {
+                        throw new ArgumentException(
+                            "The number of elements in the source array is greater than the available number of elements from index to the end of the destination array");
+                    }
+                }
+                else
+                {
+                    throw new ArgumentException(
+                        "The provided array is multidimensional");
                 }
             }
         }
@@ -262,6 +366,20 @@
         }
 
         /// <summary>
+        /// Obtém o tamanho do vector.
+        /// </summary>
+        /// <value>
+        /// O tamanho do vector.
+        /// </value>
+        public long LongLength
+        {
+            get
+            {
+                return this.indicesSequence.Count;
+            }
+        }
+
+        /// <summary>
         /// Obtém o sub-vector especificado pelos índices.
         /// </summary>
         /// <param name="indices">Os índices.</param>
@@ -292,6 +410,100 @@
         public void SwapElements(int first, int second)
         {
             throw new UtilitiesException("Can't swap integer sequence sub-vector entries.");
+        }
+
+        /// <summary>
+        /// Copia o conteúdo do vector para um alcance.
+        /// </summary>
+        /// <param name="array">O alcance.</param>
+        /// <param name="index">O índice a partir do qual se inicia a cópia.</param>
+        public void CopyTo(Array array, int index)
+        {
+            if (array == null)
+            {
+                throw new ArgumentNullException("array");
+            }
+            else if (index < 0 || index > this.indicesSequence.Count)
+            {
+                throw new ArgumentOutOfRangeException(
+                    "index",
+                    "Index was out of range. Must be non-negative and less than the size of collection.");
+            }
+            else
+            {
+                var arrayDimension = array.Rank;
+                if (arrayDimension == 1)
+                {
+                    var indices = this.indicesSequence;
+                    var indicesLength = indices.Count;
+                    if (index + indicesLength < array.LongLength)
+                    {
+                        var pointer = index;
+                        for (var i = 0; i < indicesLength; ++i)
+                        {
+                            // TODO: Melhorar o desempenho, considerando funções de CopyTo nos vectores e usando a função foreachblock
+                            array.SetValue(this.vector[this.indicesSequence[i]], pointer++);
+                        }
+                    }
+                    else
+                    {
+                        throw new ArgumentException(
+                            "The number of elements in the source array is greater than the available number of elements from index to the end of the destination array");
+                    }
+                }
+                else
+                {
+                    throw new ArgumentException(
+                        "The provided array is multidimensional");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Copia o conteúdo do vector para um alcance.
+        /// </summary>
+        /// <param name="array">O alcance.</param>
+        /// <param name="index">O índice a partir do qual se inicia a cópia.</param>
+        public void CopyTo(Array array, long index)
+        {
+            if (array == null)
+            {
+                throw new ArgumentNullException("array");
+            }
+            else if (index < 0 || index > this.indicesSequence.Count)
+            {
+                throw new ArgumentOutOfRangeException(
+                    "index",
+                    "Index was out of range. Must be non-negative and less than the size of collection.");
+            }
+            else
+            {
+                var arrayDimension = array.Rank;
+                if (arrayDimension == 1)
+                {
+                    var indices = this.indicesSequence;
+                    var indicesLength = indices.Count;
+                    if (index + indicesLength < array.LongLength)
+                    {
+                        var pointer = index;
+                        for (var i = 0; i < indicesLength; ++i)
+                        {
+                            // TODO: Melhorar o desempenho, considerando funções de CopyTo nos vectores e usando a função foreachblock
+                            array.SetValue(this.vector[this.indicesSequence[i]], pointer++);
+                        }
+                    }
+                    else
+                    {
+                        throw new ArgumentException(
+                            "The number of elements in the source array is greater than the available number of elements from index to the end of the destination array");
+                    }
+                }
+                else
+                {
+                    throw new ArgumentException(
+                        "The provided array is multidimensional");
+                }
+            }
         }
 
         /// <summary>

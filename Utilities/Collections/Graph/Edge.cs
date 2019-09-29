@@ -8,9 +8,8 @@
     /// <summary>
     /// Representa a aresta de um grafo.
     /// </summary>
-    /// <typeparam name="VertexType">O tipo de objectos associados aos vértices.</typeparam>
-    /// <typeparam name="EdgeValueType">O tipo de objectos associado às arestas.</typeparam>
-    public class Edge<VertexType, EdgeValueType> : IEdge<VertexType, EdgeValueType>
+    /// <typeparam name="VertexType">O tipo de objectos que constituem os vértices.</typeparam>
+    public class Edge<VertexType> : IEdge<VertexType>
     {
         /// <summary>
         /// O vértice inicial da aresta.
@@ -23,21 +22,14 @@
         private VertexType finalVertex;
 
         /// <summary>
-        /// O objecto associado à aresta.
-        /// </summary>
-        private EdgeValueType value;
-
-        /// <summary>
         /// Permite instanciar uma aresta entre dois vértices.
         /// </summary>
         /// <param name="initialVertex">O vértice inicial.</param>
         /// <param name="finalVertex">O vértice final.</param>
-        /// <param name="value">O valor associado.</param>
-        public Edge(VertexType initialVertex, VertexType finalVertex, EdgeValueType value)
+        public Edge(VertexType initialVertex, VertexType finalVertex)
         {
             this.initialVertex = initialVertex;
             this.finalVertex = finalVertex;
-            this.value = value;
         }
 
         /// <summary>
@@ -62,6 +54,32 @@
             {
                 return this.finalVertex;
             }
+        }
+    }
+
+    /// <summary>
+    /// Representa a aresta com etiqueta de um grafo.
+    /// </summary>
+    /// <typeparam name="VertexType">O tipo de objectos associados aos vértices.</typeparam>
+    /// <typeparam name="EdgeValueType">O tipo de objectos associado às arestas.</typeparam>
+    public class LabeledEdge<VertexType, EdgeValueType> 
+        : Edge<VertexType>, ILabeledEdge<VertexType, EdgeValueType>
+    {
+        /// <summary>
+        /// O objecto associado à aresta.
+        /// </summary>
+        private EdgeValueType value;
+
+        /// <summary>
+        /// Permite instanciar uma aresta entre dois vértices.
+        /// </summary>
+        /// <param name="initialVertex">O vértice inicial.</param>
+        /// <param name="finalVertex">O vértice final.</param>
+        /// <param name="value">O valor associado.</param>
+        public LabeledEdge(VertexType initialVertex, VertexType finalVertex, EdgeValueType value)
+            : base(initialVertex, finalVertex)
+        {
+            this.value = value;
         }
 
         /// <summary>

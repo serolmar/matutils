@@ -9,8 +9,9 @@
     /// Define um grafo.
     /// </summary>
     /// <typeparam name="VertexType">O tipo de objectos que constituem os vértices.</typeparam>
-    /// <typeparam name="EdgeValueType">O tipo de objectos associados às arestas.</typeparam>
-    public interface IGraph<VertexType, EdgeValueType>
+    /// <typeparam name="EdgeType">O tipo de objectos que constituem as arastas.</typeparam>
+    public interface IEdgeGraph<VertexType, EdgeType>
+        where EdgeType : IEdge<VertexType>
     {
         /// <summary>
         /// Obtém um enumerador para todos os vértices.
@@ -20,7 +21,7 @@
         /// <summary>
         /// Obtém um enumerador para todas as arestas.
         /// </summary>
-        IEnumerable<IEdge<VertexType, EdgeValueType>> Edges { get; }
+        IEnumerable<EdgeType> Edges { get; }
 
         /// <summary>
         /// Obtém os vizinhos de um determinado vértice.
@@ -40,8 +41,13 @@
         /// </summary>
         /// <param name="initialVertex">O vértice inicial da aresta.</param>
         /// <param name="finalVertex">O vértice final da aresta.</param>
-        /// <param name="edgeValue">O objecto associado à aresta.</param>
-        void AddEdge(VertexType initialVertex, VertexType finalVertex, EdgeValueType edgeValue);
+        void AddEdge(VertexType initialVertex, VertexType finalVertex);
+
+        /// <summary>
+        /// Adiciona uma aresta.
+        /// </summary>
+        /// <param name="edge">A aresta.</param>
+        void AddEdge(EdgeType edge);
 
         /// <summary>
         /// Remove um vértice.
@@ -55,5 +61,22 @@
         /// <param name="initialVertex">O vértice inicial das arestas.</param>
         /// <param name="finalVertex">O vértice final das arestas.</param>
         void RemoveEdges(VertexType initialVertex, VertexType finalVertex);
+    }
+
+    /// <summary>
+    /// Define um grafo cujas arestas possuem etiqueta.
+    /// </summary>
+    /// <typeparam name="VertexType">O tipo de objectos que constituem os vértices.</typeparam>
+    /// <typeparam name="EdgeValueType">O tipo de objectos associados às arestas.</typeparam>
+    public interface ILabeledEdgeGraph<VertexType, EdgeValueType>
+        : IEdgeGraph<VertexType, ILabeledEdge<VertexType,EdgeValueType>>
+    {
+        /// <summary>
+        /// Adiciona uma aresta.
+        /// </summary>
+        /// <param name="initialVertex">O vértice inicial da aresta.</param>
+        /// <param name="finalVertex">O vértice final da aresta.</param>
+        /// <param name="edgeValue">O objecto associado à aresta.</param>
+        void AddEdge(VertexType initialVertex, VertexType finalVertex, EdgeValueType edgeValue);
     }
 }

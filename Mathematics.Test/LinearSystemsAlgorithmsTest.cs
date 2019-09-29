@@ -34,14 +34,14 @@ namespace Mathematics.Test
             var fractionFieldParser = new FieldDrivenExpressionParser<Fraction<int>>(
                 new SimpleElementFractionParser<int>(integerParser, integerDomain),
                 fractionField);
-            var matrixFactory = new ArrayMatrixFactory<Fraction<int>>();
+            var matrixFactory = new ArrayMathMatrixFactory<Fraction<int>>();
 
             // Leitura da matriz que representa o sistema de equações.
             var coeffsMatrix = TestsHelper.ReadMatrix<Fraction<int>>(
                 3,
                 4,
                 coefficientsMatrixText,
-                matrixFactory,
+                (i, j) => new ArrayMathMatrix<Fraction<int>>(i, j),
                 fractionFieldParser);
 
             // Leitura do vector de termos independente.
@@ -49,14 +49,14 @@ namespace Mathematics.Test
                 3,
                 1,
                 independentVectorText,
-                new ArrayMatrixFactory<Fraction<int>>(),
+                (i, j) => new ArrayMathMatrix<Fraction<int>>(i, j),
                 fractionFieldParser);
 
             var expectedMatrixVector = TestsHelper.ReadMatrix<Fraction<int>>(
                 4,
                 1,
                 expectedText,
-                matrixFactory,
+                (i, j) => new ArrayMathMatrix<Fraction<int>>(i, j),
                 fractionFieldParser);
 
             var algorithm = new DenseCondensationLinSysAlgorithm<Fraction<int>>(fractionField);

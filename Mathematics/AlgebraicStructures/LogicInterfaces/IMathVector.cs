@@ -19,4 +19,15 @@
         /// <returns>Veradeiro caso o vector seja nulo e falso caso contrário.</returns>
         bool IsNull(IMonoid<CoeffType> monoid);
     }
+
+    /// <summary>
+    /// Define as propriedades e métodos essenciais a um vector esparso.
+    /// </summary>
+    /// <typeparam name="CoeffType">
+    /// O tipo de objectos que constituem as entradas dos vectores.
+    /// </typeparam>
+    public interface ISparseMathVector<CoeffType>
+        : ISparseVector<CoeffType>, IMathVector<CoeffType>
+    {
+    }
 }

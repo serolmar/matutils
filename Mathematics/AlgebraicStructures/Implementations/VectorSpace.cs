@@ -25,7 +25,7 @@
         /// <summary>
         /// A fábrica responsável pela criação de instâncias de vectores.
         /// </summary>
-        private IVectorFactory<CoeffType> vectorFactory;
+        private IMathVectorFactory<CoeffType> vectorFactory;
 
         /// <summary>
         /// O comparador de colecções independente da ordem.
@@ -44,7 +44,7 @@
         /// <exception cref="ArgumentOutOfRangeException">Se a dimensão for um número negativo.</exception>
         public VectorSpace(
             int dimension,
-            IVectorFactory<CoeffType> vectorFactory,
+            IMathVectorFactory<CoeffType> vectorFactory,
             IField<CoeffType> field)
         {
             if (field == null)
@@ -88,7 +88,7 @@
         /// <value>
         /// O objecto responsável pela ciração de vectores durante as operações.
         /// </value>
-        public IVectorFactory<CoeffType> VectorFactory
+        public IMathVectorFactory<CoeffType> VectorFactory
         {
             get
             {

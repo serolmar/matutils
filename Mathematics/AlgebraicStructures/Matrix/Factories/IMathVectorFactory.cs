@@ -9,7 +9,7 @@
     /// Define a interface para um construtor de vectores.
     /// </summary>
     /// <typeparam name="CoeffType">O tipo das entradas do vector.</typeparam>
-    public interface IVectorFactory<CoeffType>
+    public interface IMathVectorFactory<CoeffType>
     {
         /// <summary>
         /// Cria um vector com o tamanho especificado.

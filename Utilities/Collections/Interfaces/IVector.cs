@@ -24,6 +24,11 @@
         int Length { get; }
 
         /// <summary>
+        /// Obtém o tamanho do vector.
+        /// </summary>
+        long LongLength { get; }
+
+        /// <summary>
         /// Obtém o sub-vector especificado pelos índices.
         /// </summary>
         /// <param name="indices">Os índices.</param>
@@ -45,10 +50,55 @@
         void SwapElements(int first, int second);
 
         /// <summary>
+        /// Copia o conteúdo do vector para um alcance.
+        /// </summary>
+        /// <param name="array">O alcance.</param>
+        /// <param name="index">O índice a partir do qual se inicia a cópia.</param>
+        void CopyTo(Array array, int index);
+
+        /// <summary>
+        /// Copia o conteúdo do vector para um alcance.
+        /// </summary>
+        /// <param name="array">O alcance.</param>
+        /// <param name="index">O índice a partir do qual se inicia a cópia.</param>
+        void CopyTo(Array array, long index);
+
+        /// <summary>
         /// Obtém uma cópia do vector corrente.
         /// </summary>
         /// <returns>A cópia.</returns>
         IVector<CoeffType> Clone();
+    }
+
+    /// <summary>
+    /// Define um vector identificado por índices longos.
+    /// </summary>
+    /// <typeparam name="CoeffType">
+    /// O tipo dos objectos que constituem as entradas do vector.
+    /// </typeparam>
+    public interface ILongVector<CoeffType>
+        : IVector<CoeffType>
+    {
+        /// <summary>
+        /// Obtém o sub-vector especificado pelos índices.
+        /// </summary>
+        /// <param name="indices">Os índices.</param>
+        /// <returns>O sub-vector.</returns>
+        IVector<CoeffType> GetSubVector(long[] indices);
+
+        /// <summary>
+        /// Otbém o sub-vector especificado pela sequência de índices.
+        /// </summary>
+        /// <param name="indices">A sequência de índices.</param>
+        /// <returns>O sub-vector.</returns>
+        IVector<CoeffType> GetSubVector(LongIntegerSequence indices);
+
+        /// <summary>
+        /// Troca dois elementos do vector.
+        /// </summary>
+        /// <param name="first">O primeiro elemento a ser trocado.</param>
+        /// <param name="second">O segundo elemento a ser trocado.</param>
+        void SwapElements(long first, long second);
     }
 
     /// <summary>

@@ -18,6 +18,20 @@ namespace Utilities
     public class BitReader
     {
         /// <summary>
+        /// Máscara para filtro de bits.
+        /// </summary>
+        private static byte[] mask = new byte[]
+        {
+            0xFF,
+            0x7F,
+            0x3F,
+            0x1F,
+            0x0F,
+            0x07,
+            0x03,
+            0x01,
+        };
+        /// <summary>
         /// Mantém o fluxo de onde serão lidos os bits.
         /// </summary>
         private Stream stream;
@@ -258,6 +272,10 @@ namespace Utilities
         /// <summary>
         /// Efectua a leitura de um número especificado de bits.
         /// </summary>
+        /// <remarks>
+        /// A leitura dos bits é realizada de modo a que os bits menos significativos
+        /// são encontrados ao início.
+        /// </remarks>
         /// <param name="bitsBuffer">O vector que irá conter a leitura.</param>
         /// <param name="offset">A posição, em bits, onde será escrito o resultado da leitura.</param>
         /// <param name="count">O número de bits a ser lido.</param>
@@ -300,7 +318,7 @@ namespace Utilities
                             var currPos = offset & 7;
                             if (currPos == 0)
                             {
-                                readed = this.ReadAllAligned(bitsBuffer, offset, count);
+                                readed = this.ReadAllAligned(bitsBuffer, mainWrite, count);
                             }
                             else
                             {
@@ -562,6 +580,10 @@ namespace Utilities
                 this.bitPos = remRead;
                 bitsBuffer[mainWrite] = (byte)(temp & ((1 << remRead) - 1));
                 readed += remRead;
+            }
+            else
+            {
+                --this.currentVarIndex;
             }
 
             return readed;

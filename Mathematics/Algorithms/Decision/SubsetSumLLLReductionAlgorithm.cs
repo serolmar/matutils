@@ -26,7 +26,7 @@
         /// <summary>
         /// A fábrica responsável pela criação de vectores.
         /// </summary>
-        IVectorFactory<NearestCoeffFieldType> vectorFactory;
+        IMathVectorFactory<NearestCoeffFieldType> vectorFactory;
 
         /// <summary>
         /// O objecto responsável pelo produto escalar.
@@ -57,7 +57,7 @@
         /// Se algum dos argumentos for nulo.
         /// </exception>
         public SubsetSumLLLReductionAlgorithm(
-            IVectorFactory<NearestCoeffFieldType> vectorFactory,
+            IMathVectorFactory<NearestCoeffFieldType> vectorFactory,
             IScalarProductSpace<IMathVector<NearestCoeffFieldType>, NearestCoeffFieldType> scalarProd,
             INearest<NearestCoeffFieldType, NearestCoeffFieldType> nearest,
             IComparer<NearestCoeffFieldType> fieldComparer,

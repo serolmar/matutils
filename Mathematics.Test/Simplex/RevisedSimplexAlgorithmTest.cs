@@ -39,24 +39,22 @@
             var basicVariables = new[] { 2, 3, 4 };
 
             // Leitura da matriz das retrições.
-            var matrixFactory = new ArrayMatrixFactory<double>();
             var doubleElementsParser = new DoubleParser<string>();
             var inputConstraintsMatrix = TestsHelper.ReadMatrix<double>(
                 3,
                 2,
                 inputConstraintsMatrixText,
-                matrixFactory,
+                (i, j) => new ArrayMathMatrix<double>(i, j),
                 doubleElementsParser,
                 true);
 
             // Leitura da matriz inversa.
-            var squareMatrixFactory = new ArraySquareMatrixFactory<double>();
-            var inverseMatrix = TestsHelper.ReadMatrix(
-                3, 
-                3, 
-                inverseMatrixText, 
-                squareMatrixFactory, 
-                doubleElementsParser, 
+            var inverseMatrix = TestsHelper.ReadMatrix<double>(
+                3,
+                3,
+                inverseMatrixText,
+                (i, j) => new ArraySquareMathMatrix<double>(i),
+                doubleElementsParser,
                 true) as ISquareMathMatrix<double>;
 
             // Leitura do vector de restrições.
@@ -114,23 +112,21 @@
             var basicVariables = new[] { 2, 3, 4 };
 
             // Leitura da matriz das retrições.
-            var matrixFactory = new ArrayMatrixFactory<double>();
             var doubleElementsParser = new DoubleParser<string>();
             var inputConstraintsMatrix = TestsHelper.ReadMatrix<double>(
                 3,
                 2,
                 inputConstraintsMatrixText,
-                matrixFactory,
+                (i, j) => new ArrayMathMatrix<double>(i, j),
                 doubleElementsParser,
                 true);
 
             // Leitura da matriz inversa.
-            var squareMatrixFactory = new ArraySquareMatrixFactory<double>();
-            var inverseMatrix = TestsHelper.ReadMatrix(
+            var inverseMatrix = TestsHelper.ReadMatrix<double>(
                 3,
                 3,
                 inverseMatrixText,
-                squareMatrixFactory,
+                (i, j) => new ArraySquareMathMatrix<double>(i),
                 doubleElementsParser,
                 true) as ISquareMathMatrix<double>;
 
@@ -188,9 +184,9 @@
             var etaVector = new double[4];
 
             // Fábricas úteis para o teste dos quatro cenários.
-            var arrayMatrixFactory = new ArrayMatrixFactory<double>();
+            var arrayMatrixFactory = new ArrayMathMatrixFactory<double>();
             var squareArrayMatrixFactory = new ArraySquareMatrixFactory<double>();
-            var sparseMatrixFactory = new SparseDictionaryMatrixFactory<double>();
+            var sparseMatrixFactory = new SparseDictionaryMathMatrixFactory<double>();
             var squareSparseMatrixFactory = new SparseDictionarySquareMatrixFactory<double>();
 
             this.TestComputeCostsCoefficients(target, squareArrayMatrixFactory, 0, arrayMatrixFactory, 0, etaVector);
@@ -210,9 +206,9 @@
         /// <param name="etaVector">O vector que contém o resultado da função.</param>
         private void TestComputeCostsCoefficients(
             PrivateObject target,
-            IMatrixFactory<double> inverseMatrixFactory,
+            IMathMatrixFactory<double> inverseMatrixFactory,
             double inverseMatrixDefaultValue,
-            IMatrixFactory<double> constraintsMatrixFactory,
+            IMathMatrixFactory<double> constraintsMatrixFactory,
             double constraintsMatrixDefaultValue,
             double[] etaVector)
         {
@@ -235,7 +231,7 @@
                 constraintsMatrixFactory,
                 0,
                 etaVector);
-                target.Invoke("ComputeCostsCoefficients", arguments);
+                target.Invoke("ComputeVariableCoefficients", arguments);
                 for (int j = 0; j < expected.Length; ++j)
                 {
                     this.AssertDoubles(expected[j], etaVector[j]);
@@ -255,9 +251,9 @@
         /// <returns>Os argumentos a utilizar no teste.</returns>
         private object[] GenerateComputeCostsArguments(
             int enteringVariable,
-            IMatrixFactory<double> inverseMatrixFactory,
+            IMathMatrixFactory<double> inverseMatrixFactory,
             double inverseMatrixDefaultValue,
-            IMatrixFactory<double> constraintsMatrixFactory,
+            IMathMatrixFactory<double> constraintsMatrixFactory,
             double constraintsMatrixDefaultValue,
             double[] etaVector)
         {
@@ -283,7 +279,7 @@
         /// <param name="defaultvalue">O valor por defeito.</param>
         /// <returns>A matriz.</returns>
         private ISquareMathMatrix<double> GenerateTestInverseMatrix(
-            IMatrixFactory<double> matrixFactory,
+            IMathMatrixFactory<double> matrixFactory,
             double defaultvalue)
         {
             var result = matrixFactory.CreateMatrix(4, 4, 0.0);
@@ -329,7 +325,7 @@
         /// <param name="defaultValue">O valor por defeito.</param>
         /// <returns>O vector gerado.</returns>
         private IMathMatrix<double> GenerateTestConstraintsMatrix(
-            IMatrixFactory<double> matrixFactory,
+            IMathMatrixFactory<double> matrixFactory,
             double defaultValue)
         {
             var result = matrixFactory.CreateMatrix(4, 2, defaultValue);

@@ -11,8 +11,31 @@
     /// <typeparam name="ObjectType">
     /// O tipo de objectos que constituem os coeficientes das matrizes criadas.
     /// </typeparam>
-    public class SparseDictionaryMatrixFactory<ObjectType> : IMatrixFactory<ObjectType>
+    public class SparseDictionaryMathMatrixFactory<ObjectType> : IMathMatrixFactory<ObjectType>
     {
+        /// <summary>
+        /// O objecto considerado por defeito.
+        /// </summary>
+        private ObjectType defaultValue;
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="SparseDictionaryMathMatrixFactory{ObjectType}"/>.
+        /// </summary>
+        public SparseDictionaryMathMatrixFactory()
+        {
+            this.defaultValue = default(ObjectType);
+        }
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="SparseDictionaryMathMatrixFactory{ObjectType}"/>.
+        /// </summary>
+        /// <param name="defaultValue">O valor por defeito.</param>
+        public SparseDictionaryMathMatrixFactory(
+            ObjectType defaultValue)
+        {
+            this.defaultValue = defaultValue;
+        }
+
         /// <summary>
         /// Cria uma matriz esparsa baseada em dicionários.
         /// </summary>
@@ -21,7 +44,7 @@
         /// <returns>A matriz esparsa.</returns>
         public IMathMatrix<ObjectType> CreateMatrix(int lines, int columns)
         {
-            return new SparseDictionaryMathMatrix<ObjectType>(lines, columns);
+            return new SparseDictionaryMathMatrix<ObjectType>(lines, columns, this.defaultValue);
         }
 
         /// <summary>

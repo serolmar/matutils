@@ -781,11 +781,75 @@ namespace Utilities
         {
             get
             {
-                throw new NotImplementedException();
+                if (line < 0 || line >= this.afterLastLine)
+                {
+                    throw new ArgumentOutOfRangeException("line");
+                }
+                else if (column < 0 || column >= this.afterLastColumn)
+                {
+                    throw new ArgumentOutOfRangeException("column");
+                }
+                else
+                {
+                    var currentLine = default(L);
+                    if (this.matrixLines.TryGetValue(line, out currentLine))
+                    {
+                        var currentColumn = default(ObjectType);
+                        if (currentLine.TryGetColumnValue(column, out currentColumn))
+                        {
+                            return currentColumn;
+                        }
+                        else
+                        {
+                            return defaultValue;
+                        }
+                    }
+                    else
+                    {
+                        return this.defaultValue;
+                    }
+                }
             }
             set
             {
-                throw new NotImplementedException();
+                if (line < 0 || line >= this.afterLastLine)
+                {
+                    throw new ArgumentOutOfRangeException("line");
+                }
+                else if (column < 0 || column >= this.afterLastColumn)
+                {
+                    throw new ArgumentOutOfRangeException("column");
+                }
+                else
+                {
+                    if (this.objectComparer.Equals(value, this.defaultValue))
+                    {
+                        var currentLine = default(L);
+                        if (this.matrixLines.TryGetValue(line, out currentLine))
+                        {
+                            currentLine[column] = value;
+                            if (currentLine.NumberOfColumns == 0)
+                            {
+                                currentLine.Dispose();
+                                this.matrixLines.Remove(line);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        var currentLine = default(L);
+                        if (this.matrixLines.TryGetValue(line, out currentLine))
+                        {
+                            currentLine[column] = value;
+                        }
+                        else
+                        {
+                            var newLine = this.CreateLine();
+                            newLine[column] = value;
+                            this.matrixLines.Add(line, newLine);
+                        }
+                    }
+                }
             }
         }
 
@@ -2686,8 +2750,9 @@ namespace Utilities
                 var currentLine = current.Item1;
                 var lastLineColumn = this.FindGreatestPosition(
                     currentLine,
-                    1,
+                    0,
                     elementsCount);
+                ++lastLineColumn;
                 var newLine = this.CreateLine(
                     currentLine,
                     0,
@@ -2700,8 +2765,9 @@ namespace Utilities
                     var start = lastLineColumn;
                     lastLineColumn = this.FindGreatestPosition(
                         currentLine,
-                        lastLineColumn + 1,
+                        lastLineColumn,
                         elementsCount);
+                    ++lastLineColumn;
                     newLine = this.CreateLine(
                         currentLine,
                         start,
@@ -3636,7 +3702,7 @@ namespace Utilities
             }
             else if (this.CompareLine(line, this.elements[end - 1]) >= 0)
             {
-                return end;
+                return end - 1;
             }
             else
             {
@@ -4003,28 +4069,7 @@ namespace Utilities
                     }
                     else
                     {
-                        this.UpdateLimits();
-                        var count = this.owner.elements.Count;
-                        var columnIndex = this.owner.FindColumn(
-                            index,
-                            this.startIndex,
-                            this.endIndex);
-                        if (columnIndex < count)
-                        {
-                            var current = this.owner.elements[columnIndex];
-                            if (current.Item2 == index)
-                            {
-                                return current.Item3.Item1;
-                            }
-                            else
-                            {
-                                return this.owner.defaultValue;
-                            }
-                        }
-                        else
-                        {
-                            return this.owner.defaultValue;
-                        }
+                        return this.owner[this.lineNumber, index];
                     }
                 }
                 set
@@ -4033,7 +4078,13 @@ namespace Utilities
                     {
                         throw new CollectionsException("The current line was disposed.");
                     }
-                    this.UpdateLimits();
+                    else
+                    {
+                        if (!this.owner.comparer.Equals(value, this.owner.defaultValue))
+                        {
+                            this.owner[this.lineNumber, index] = value;
+                        }
+                    }
                 }
             }
 
@@ -4057,28 +4108,7 @@ namespace Utilities
                     }
                     else
                     {
-                        this.UpdateLimits();
-                        var count = this.owner.elements.Count;
-                        var columnIndex = this.owner.FindColumn(
-                            index,
-                            this.startIndex,
-                            this.endIndex);
-                        if (columnIndex < count)
-                        {
-                            var current = this.owner.elements[columnIndex];
-                            if (current.Item2 == index)
-                            {
-                                return current.Item3.Item1;
-                            }
-                            else
-                            {
-                                return this.owner.defaultValue;
-                            }
-                        }
-                        else
-                        {
-                            return this.owner.defaultValue;
-                        }
+                        return this.owner[this.lineNumber, index];
                     }
                 }
                 set
@@ -4087,7 +4117,13 @@ namespace Utilities
                     {
                         throw new CollectionsException("The current line was disposed.");
                     }
-                    this.UpdateLimits();
+                    else
+                    {
+                        if (!this.owner.comparer.Equals(value, this.owner.defaultValue))
+                        {
+                            this.owner[this.lineNumber, index] = value;
+                        }
+                    }
                 }
             }
 

@@ -16,7 +16,7 @@
         /// <summary>
         /// A fábrica que permite criar instâncias de vectores.
         /// </summary>
-        private IVectorFactory<CoeffVectorType> vectorFactory;
+        private IMathVectorFactory<CoeffVectorType> vectorFactory;
 
         /// <summary>
         /// O objecto responsável pela multiplicação dos coeficientes.
@@ -31,7 +31,7 @@
         /// <exception cref="ArgumentNullException">Caso ambos os argumentos sejam nulos.</exception>
         public CoeffVectorMultiplicationOperation(
             IMultiplicationOperation<CoeffType, CoeffVectorType, CoeffVectorType> coeffsMultOperation,
-            IVectorFactory<CoeffVectorType> vectorFactory)
+            IMathVectorFactory<CoeffVectorType> vectorFactory)
         {
             if (vectorFactory == null)
             {

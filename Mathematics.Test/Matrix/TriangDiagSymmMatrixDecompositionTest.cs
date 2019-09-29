@@ -76,7 +76,7 @@ namespace Mathematics.Test
                 matrix);
 
             // Calcula o valor esperado.
-            var matrixFactory = new ArrayMatrixFactory<Fraction<int>>();
+            var matrixFactory = new ArrayMathMatrixFactory<Fraction<int>>();
             var matrixMultiplicaton = new MatrixMultiplicationOperation<Fraction<int>>(
                 matrixFactory,
                 target.Field,

@@ -501,7 +501,7 @@ namespace Mathematics.Test
             integerFractionExpectedVector[5] = new Fraction<int>(860, 1, integerDomain);
             var integerFractionActualVector = integerPolynomial.GetRootPowerSums(
                 fractionField, 
-                new SparseDictionaryVectorFactory<Fraction<int>>());
+                new SparseDictionaryMathVectorFactory<Fraction<int>>());
             Assert.AreEqual(
                 integerFractionExpectedVector.Length, 
                 integerFractionActualVector.Length, 
@@ -619,20 +619,20 @@ namespace Mathematics.Test
             var matrix = TestsHelper.ReadMatrix<Fraction<int>>(
                 2, 
                 2, 
-                "[[1/2+1/3,1/2-1/3],[1/5+1/4,1/5-1/4]]", 
-                new ArrayMatrixFactory<Fraction<int>>(), 
+                "[[1/2+1/3,1/2-1/3],[1/5+1/4,1/5-1/4]]",
+                (i, j) => new ArrayMathMatrix<Fraction<int>>(i, j), 
                 fractionFieldParser);
 
             var matrixAlgebra = new GeneralMatrixAlgebra<Fraction<int>>(
                 2,
-                new ArrayMatrixFactory<Fraction<int>>(),
+                new ArrayMathMatrixFactory<Fraction<int>>(),
                 fractionField);
             var actual = polynomial.Replace(matrix, matrixAlgebra);
             var expected = TestsHelper.ReadMatrix<Fraction<int>>(
                 2,
                 2,
                 "[[1237/360,167/360],[501/400,391/400]]",
-                new ArrayMatrixFactory<Fraction<int>>(),
+                (i, j) => new ArrayMathMatrix<Fraction<int>>(i, j),
                 fractionFieldParser);
             for (int i = 0; i < 2; ++i)
             {
@@ -705,7 +705,7 @@ namespace Mathematics.Test
             var integerFractionActualVector = integerPolynomial.GetRootPowerSums(
                 number,
                 fractionField, 
-                new SparseDictionaryVectorFactory<Fraction<int>>());
+                new SparseDictionaryMathVectorFactory<Fraction<int>>());
             Assert.AreEqual(
                 integerFractionExpectedVector.Length,
                 integerFractionActualVector.Length,

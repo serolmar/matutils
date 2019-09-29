@@ -9,7 +9,7 @@ namespace Mathematics
     /// Interface para uma fábrica de matrizes.
     /// </summary>
     /// <typeparam name="ObjectType">O tipo de entrada na matriz.</typeparam>
-    public interface IMatrixFactory<ObjectType>
+    public interface IMathMatrixFactory<ObjectType>
     {
         /// <summary>
         /// Cria uma matriz com o número especificado de linhas e colunas.

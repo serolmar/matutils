@@ -164,7 +164,7 @@ namespace Mathematics
         /// Caso a matriz não seja simétrica, é considerada a matriz simétrica cujas entradas acima da diagonal
         /// conicidam com as entradas respectivas da matriz original.
         /// </remarks>
-        /// <param name="matrix">A matriz.</param>
+        /// <param name="data">A matriz.</param>
         /// <returns>As matrizes triangular e diagonal.</returns>
         public abstract TriangDiagSymmMatrixDecompResult<CoeffType> Run(
             ISquareMathMatrix<CoeffType> data);
@@ -323,11 +323,6 @@ namespace Mathematics
         /// Obtém a decomposição de uma matriz M=LDL^* onde L é uma matriz triangular e D é uma matriz diagonal.
         /// </summary>
         /// <param name="matrix">A matriz.</param>
-        /// <param name="field">O corpo responsável pelas operações sobre os coeficientes.</param>
-        /// <param name="upperTriangularMatrixFactory">A fábrica responsável pela criação do contentor para a
-        /// matriz triangular.
-        /// </param>
-        /// <param name="diagonalMatrixFactory">A fábrica para o contentor da matriz diagonal.</param>
         /// <returns>As matrizes triangular e diagonal.</returns>
         public override TriangDiagSymmMatrixDecompResult<CoeffType> Run(
             ISquareMathMatrix<CoeffType> matrix)

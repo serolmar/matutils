@@ -48,12 +48,14 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GraphTest.cs" />
     <Compile Include="HashAlgorithmsTest.cs" />
     <Compile Include="CollectionsTests.cs" />
     <Compile Include="FileTest.cs" />
     <Compile Include="PrimeGeneratorsTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RectangularRegionsTest.cs" />
+    <Compile Include="SamplesGeneratorsTest.cs" />
     <Compile Include="SimpleTextSymbolReaderTest.cs" />
     <Compile Include="SmartFilterLambdaBuilderTest.cs" />
     <Compile Include="TabularItemsTest.cs" />

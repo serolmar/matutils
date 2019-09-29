@@ -29,7 +29,7 @@
         public GeneralMatrixVectorSpace(
             int lines,
             int columns,
-            IMatrixFactory<CoeffType> matrixFactory,
+            IMathMatrixFactory<CoeffType> matrixFactory,
             IField<CoeffType> scalarField)
             : base(lines, columns, matrixFactory, scalarField)
         {

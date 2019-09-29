@@ -9,7 +9,7 @@
     /// Permite criar instâncias de matrizes <see cref="ArrayMathMatrix{ObjectType}"/>.
     /// </summary>
     /// <typeparam name="ObjectType">O tipo de objectos que constituem as entradas das matrizes.</typeparam>
-    public class ArrayMatrixFactory<ObjectType> : IMatrixFactory<ObjectType>
+    public class ArrayMathMatrixFactory<ObjectType> : IMathMatrixFactory<ObjectType>
     {
         /// <summary>
         /// Cria uma matriz <see cref="ArrayMathMatrix{ObjectType}"/> com o número de linhas e colunas especificado.

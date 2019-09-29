@@ -21,7 +21,7 @@
         /// <summary>
         /// A classe que será responsável pela instanciação do resultado.
         /// </summary>
-        protected IMatrixFactory<ObjectType> matrixFactory;
+        protected IMathMatrixFactory<ObjectType> matrixFactory;
 
         /// <summary>
         /// Cria instâncias de objectos do tipo <see cref="MatrixAdditionOperation{ObjectType}"/>.
@@ -32,7 +32,7 @@
         /// Se um dos argumentos for nulo.
         /// </exception>
         public MatrixAdditionOperation(
-            IMatrixFactory<ObjectType> matrixFactory,
+            IMathMatrixFactory<ObjectType> matrixFactory,
             IAdditionOperation<ObjectType, ObjectType, ObjectType> additionOperation)
         {
             if (additionOperation == null)
@@ -56,7 +56,7 @@
         /// <value>
         /// O objecto responsável pela instanciação da matriz soma.
         /// </value>
-        public IMatrixFactory<ObjectType> MatrixFactory
+        public IMathMatrixFactory<ObjectType> MatrixFactory
         {
             get
             {

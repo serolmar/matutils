@@ -8,7 +8,7 @@
     /// <summary>
     /// Permite criar instâncias de matrizes <see cref="ArrayBitMathMatrix"/>.
     /// </summary>
-    public class ArrayBitMatrixFactory : IMatrixFactory<int>
+    public class ArrayBitMatrixFactory : IMathMatrixFactory<int>
     {
         /// <summary>
         /// Cria uma matriz <see cref="ArrayBitMathMatrix"/> com o número de linhas e colunas especificado.

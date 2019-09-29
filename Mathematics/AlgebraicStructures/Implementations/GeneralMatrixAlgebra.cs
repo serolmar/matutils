@@ -26,7 +26,7 @@
         /// <param name="coeffsField">O corpo responsável pelas operações sobre os escalares.</param>
         public GeneralMatrixAlgebra(
             int dimension,
-            IMatrixFactory<CoeffType> matrixFactory,
+            IMathMatrixFactory<CoeffType> matrixFactory,
             IField<CoeffType> coeffsField)
             : base(dimension, matrixFactory, coeffsField)
         {

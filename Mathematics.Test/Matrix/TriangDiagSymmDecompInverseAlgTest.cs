@@ -32,7 +32,7 @@ namespace Mathematics.Test
             var triangDecomp = new ParallelTriangDiagSymmMatrixDecomp<Fraction<int>>(fractionField);
 
             var arraySquareMatrixFactory = new ArraySquareMatrixFactory<Fraction<int>>();
-            var arrayMatrixFactory = new ArrayMatrixFactory<Fraction<int>>();
+            var arrayMatrixFactory = new ArrayMathMatrixFactory<Fraction<int>>();
 
             // A matriz
             var matrix = this.GetDefaulMatrix(integerDomain);
@@ -79,7 +79,7 @@ namespace Mathematics.Test
             var triangDecomp = new ParallelTriangDiagSymmMatrixDecomp<Fraction<int>>(fractionField);
 
             var arraySquareMatrixFactory = new ArraySquareMatrixFactory<Fraction<int>>();
-            var arrayMatrixFactory = new ArrayMatrixFactory<Fraction<int>>();
+            var arrayMatrixFactory = new ArrayMathMatrixFactory<Fraction<int>>();
 
             // A matriz
             var matrix = this.GetSingularMatrix(integerDomain);

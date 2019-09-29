@@ -1,4 +1,10 @@
-﻿namespace Utilities
+﻿// -----------------------------------------------------------------------
+// <copyright file="InsertedSortedCollection.cs" company="Sérgio O. Marques">
+// TODO: Update copyright text.
+// </copyright>
+// -----------------------------------------------------------------------
+
+namespace Utilities
 {
     using System;
     using System.Collections;

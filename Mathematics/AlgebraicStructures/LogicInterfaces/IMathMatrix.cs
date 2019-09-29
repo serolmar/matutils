@@ -44,7 +44,7 @@
     /// Define as propriedades e métodos matemáticos essenciais numa matriz.
     /// </summary>
     /// <typeparam name="ObjectType">O tipo de objectos que constituem as entradas da matriz.</typeparam>
-    public interface ILongMathMatrix<ObjectType> : IMathMatrix<ObjectType>
+    public interface ILongMathMatrix<ObjectType> : IMathMatrix<ObjectType>, ILongMatrix<ObjectType>
     {
         /// <summary>
         /// Multiplica os valores da linha pelo escalar definido.

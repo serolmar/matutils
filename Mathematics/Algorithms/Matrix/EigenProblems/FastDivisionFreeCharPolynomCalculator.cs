@@ -98,7 +98,7 @@
                 }
                 else
                 {
-                    var matrixFactory = new ArrayMatrixFactory<ElementType>();
+                    var matrixFactory = new ArrayMathMatrixFactory<ElementType>();
                     var matrixMultiplicator = new MatrixMultiplicationOperation<ElementType>(
                         matrixFactory, this.ring, this.ring);
                     var subMatrixSequence = new IntegerSequence();

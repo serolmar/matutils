@@ -1059,11 +1059,11 @@ namespace Utilities.Test
         }
 
         /// <summary>
-        /// Testa o leitor de bits.
+        /// Testa o leitor de bits para um vector.
         /// </summary>
         [Description("Testa o leitor de vários bits")]
         [TestMethod]
-        public void BitReader_ReadBitsTest()
+        public void BitReader_BufferReadBitsTest()
         {
             // Teste geral
             var buffer = new byte[]{

@@ -9,7 +9,10 @@
     /// Representa uma matriz quadrada.
     /// </summary>
     /// <typeparam name="CoeffType">O tipo de objectos que constituem as entradas das matrizes.</typeparam>
-    public class ArraySquareMathMatrix<CoeffType> : ArrayMathMatrix<CoeffType>, ISquareMathMatrix<CoeffType>
+    public class ArraySquareMathMatrix<CoeffType>
+        : ArrayMathMatrix<CoeffType>,
+        ISquareMathMatrix<CoeffType>,
+        ILongMathMatrix<CoeffType>
     {
         /// <summary>
         /// Cria instâncias de obejctos do tipo <see cref="ArraySquareMathMatrix{CoeffType}"/>
@@ -21,8 +24,21 @@
         /// Cria instâncias de obejctos do tipo <see cref="ArraySquareMathMatrix{CoeffType}"/>
         /// </summary>
         /// <param name="dimension">A dimensão da matriz.</param>
+        public ArraySquareMathMatrix(long dimension) : base(dimension, dimension) { }
+
+        /// <summary>
+        /// Cria instâncias de obejctos do tipo <see cref="ArraySquareMathMatrix{CoeffType}"/>
+        /// </summary>
+        /// <param name="dimension">A dimensão da matriz.</param>
         /// <param name="defaultValue">O valor por defeito.</param>
         public ArraySquareMathMatrix(int dimension, CoeffType defaultValue) : base(dimension, dimension, defaultValue) { }
+
+        /// <summary>
+        /// Cria instâncias de obejctos do tipo <see cref="ArraySquareMathMatrix{CoeffType}"/>
+        /// </summary>
+        /// <param name="dimension">A dimensão da matriz.</param>
+        /// <param name="defaultValue">O valor por defeito.</param>
+        public ArraySquareMathMatrix(long dimension, CoeffType defaultValue) : base(dimension, dimension, defaultValue) { }
 
         /// <summary>
         /// Cria instâncias de obejctos do tipo <see cref="ArraySquareMathMatrix{CoeffType}"/>

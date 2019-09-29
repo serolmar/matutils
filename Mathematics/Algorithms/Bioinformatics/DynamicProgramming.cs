@@ -260,9 +260,6 @@ namespace Mathematics
     /// <typeparam name="P">
     /// O tipo dos objectos que constituem as entradas da segunda sequência.
     /// </typeparam>
-    /// <typeparam name="Q">
-    /// O objecto responsável pela contagem.
-    /// </typeparam>
     public class AllLongestCommonSequence<T, P>
         : IAlgorithm<ILongList<T>, ILongList<P>, IEnumerable<T[]>>
     {
@@ -278,13 +275,12 @@ namespace Mathematics
         private Func<T, P, bool> sequenceEqualityComparer;
 
         /// <summary>
-        /// Instancia uma nova instância de objectos do tipo <see cref="AllLongestCommonSequence{T, P, Q}"/>.
+        /// Instancia uma nova instância de objectos do tipo <see cref="AllLongestCommonSequence{T, P}"/>.
         /// </summary>
         /// <param name="sequenceEqualityComparer">
         /// A função responsável pela comparação dos elementos entre as duas
         /// sequências.
         /// </param>
-        /// <param name="integerNumber">O objecto responsável pela contagem.</param>
         public AllLongestCommonSequence(
             Func<T, P, bool> sequenceEqualityComparer)
         {
@@ -964,9 +960,6 @@ namespace Mathematics
     /// <typeparam name="P">
     /// O tipo dos objectos que constituem as entradas da segunda sequência.
     /// </typeparam>
-    /// <typeparam name="Q">
-    /// O objecto responsável pela contagem.
-    /// </typeparam>
     public class LongestCommonSequence<T, P>
         : IAlgorithm<IList<T>, IList<P>, T[]>
     {
@@ -982,13 +975,12 @@ namespace Mathematics
         private Func<T, P, bool> sequenceEqualityComparer;
 
         /// <summary>
-        /// Instancia uma nova instância de objectos do tipo <see cref="LongestCommonSequence{T, P, Q}"/>.
+        /// Instancia uma nova instância de objectos do tipo <see cref="LongestCommonSequence{T, P}"/>.
         /// </summary>
         /// <param name="sequenceEqualityComparer">
         /// A função responsável pela comparação dos elementos entre as duas
         /// sequências.
         /// </param>
-        /// <param name="integerNumber">O objecto responsável pela contagem.</param>
         public LongestCommonSequence(
             Func<T, P, bool> sequenceEqualityComparer)
         {

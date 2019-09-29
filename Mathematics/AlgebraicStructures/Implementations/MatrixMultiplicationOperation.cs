@@ -26,7 +26,7 @@
         /// <summary>
         /// A classe que será responsável pela instanciação do resultado.
         /// </summary>
-        IMatrixFactory<ObjectType> matrixFactory;
+        IMathMatrixFactory<ObjectType> matrixFactory;
 
         /// <summary>
         /// Instancia um novo objecto do tipo <see cref="MatrixMultiplicationOperation{ObjectType}"/>.
@@ -37,7 +37,7 @@
         /// <exception cref="ArgumentNullException">
         /// Se algum dos argumentos for nulo.
         /// </exception>
-        public MatrixMultiplicationOperation(IMatrixFactory<ObjectType> matrixFactory,
+        public MatrixMultiplicationOperation(IMathMatrixFactory<ObjectType> matrixFactory,
             IAdditionOperation<ObjectType, ObjectType, ObjectType> additionOperation,
             IMultiplicationOperation<ObjectType, ObjectType, ObjectType> multiplicationOperation)
         {
@@ -95,7 +95,7 @@
         /// <value>
         /// O objecto responsável pela instanciação da matriz produto.
         /// </value>
-        public IMatrixFactory<ObjectType> MatrixFactory
+        public IMathMatrixFactory<ObjectType> MatrixFactory
         {
             get
             {

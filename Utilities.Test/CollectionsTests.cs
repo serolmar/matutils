@@ -1,4 +1,4 @@
-// -----------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------
 // <copyright file="CollectionsTests.cs" company="Sérgio O. Marques">
 // Ver licença do projecto.
 // </copyright>

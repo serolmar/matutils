@@ -25,7 +25,7 @@
         /// <summary>
         /// A fábrica responsável pela criação de instâncias de matrizes.
         /// </summary>
-        protected IMatrixFactory<CoeffType> matrixFactory;
+        protected IMathMatrixFactory<CoeffType> matrixFactory;
 
         /// <summary>
         /// O número de linhas das matrizes que podem ser processadas.
@@ -51,7 +51,7 @@
         public GeneralMatrixGroup(
             int lines,
             int columns,
-            IMatrixFactory<CoeffType> matrixFactory,
+            IMathMatrixFactory<CoeffType> matrixFactory,
             IGroup<CoeffType> coeffsGroup)
         {
             if (lines < 0)
@@ -114,7 +114,7 @@
         /// <value>
         /// A fábrica responsável pela criação de instâncias de matrizes.
         /// </value>
-        public IMatrixFactory<CoeffType> Factory
+        public IMathMatrixFactory<CoeffType> Factory
         {
             get
             {

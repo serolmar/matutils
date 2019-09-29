@@ -7315,6 +7315,7 @@ namespace Utilities
         /// Instancia uma nova instância de objectos do tipo <see cref="GeneralDictionary{TKey, TValue}"/>.
         /// </summary>
         /// <param name="capacity">A capacidade do dicionário.</param>
+        /// <param name="comparer">O comparador a ser usado no dicionário.</param>
         /// <param name="assertMemory">Parâmetro que indica se a memória disponível será analisada.</param>
         public GeneralDictionary(
             uint capacity,
@@ -8050,6 +8051,10 @@ namespace Utilities
         /// Inicializa o dicionário.
         /// </summary>
         /// <param name="capacity">A capacidade do dicionário.</param>
+        /// <param name="comparer">O comparador utilizado no dicionário.</param>
+        /// <param name="assertMemory">
+        /// Indica se existe memória suficiente na máquina para realizar a operação.
+        /// </param>
         private void Initialize(
             ulong capacity,
             IEqualityComparer64<TKey> comparer,
