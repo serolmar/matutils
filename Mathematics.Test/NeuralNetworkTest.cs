@@ -270,7 +270,7 @@ namespace Mathematics.Test
         public void FeedFrowardNeuralNetwork_RunSimpleMatrixTest()
         {
             var target = new FeedForwardNeuralNetwork<double>(
-                new[] {2L, 3L, 2L},
+                new[] { 2L, 3L, 2L },
                 (u, v, l) =>
                 {
                     var result = 0.0;
@@ -326,6 +326,196 @@ namespace Mathematics.Test
             expected = new[] { 0.0, 0.0 };
 
             CollectionAssert.AreEqual(expected, actual);
+        }
+
+        /// <summary>
+        /// Testa a execução do modelo sobre dados.
+        /// </summary>
+        [TestMethod]
+        [Description("Tests the execution of the model over provided data.")]
+        public void FeedFrowardNeuralNetwork_InternalComputeOutputs()
+        {
+            var target = new FeedForwardNeuralNetwork<double>(
+                new[] { 2L, 3L, 2L },
+                (u, v, l) =>
+                {
+                    var result = 0.0;
+                    for (var i = 0L; i < l; ++i)
+                    {
+                        result += u[i] * v[i];
+                    }
+
+                    return result;
+                },
+                (d1, d2) =>
+                {
+                    if (d2 > d1)
+                    {
+                        return 1.0;
+                    }
+                    else
+                    {
+                        return 0.0;
+                    }
+                });
+
+            var parser = new DoubleParser<string>();
+            var matrix = TestsHelper.ReadMatrix(
+                5,
+                5,
+                "[[-1.0, 1.0, 0.5, 0, 0], [1.0, -1.0, 0.5, 0, 0], [0, 0, 0, -1.0, 2.0], [0, 0, 0, 0.5, -1.5], [0, 0, 0, 1.0, -0.5]]",
+                (i, j) => new SparseDictionaryMatrix<double>(i, j, 0),
+                parser,
+                true);
+            var vector = TestsHelper.ReadVector(
+                5,
+                "[0.5, 0.5, 0.5, 0.5, 0.5]",
+                new SparseDictionaryMathVectorFactory<double>(),
+                parser,
+                true);
+            var model = new NeuralNetworkModel<double, SparseDictionaryMatrix<double>, IMathVector<double>>(
+                matrix,
+                vector);
+            target.LoadModel(model);
+
+            var outputMatrix = target.InternalReserveOutput();
+            target.InternalComputeLayerOutputs(
+                new ArrayMathVector<double>(new[] { 1.0, -1.0 }),
+                outputMatrix,
+                (d1, d2) =>
+                {
+                    if (d2 > d1)
+                    {
+                        return 1.0;
+                    }
+                    else
+                    {
+                        return 0.0;
+                    }
+                },
+                (u, v, l) =>
+                {
+                    var result = 0.0;
+                    for (var i = 0L; i < l; ++i)
+                    {
+                        result += u[i] * v[i];
+                    }
+
+                    return result;
+                });
+
+            Assert.AreEqual(target.Schema.LongCount() - 1L, outputMatrix.LongLength);
+
+            var currOut = outputMatrix[0];
+            Assert.AreEqual(0.0, currOut[0]);
+            Assert.AreEqual(1.0, currOut[1]);
+            Assert.AreEqual(0.0, currOut[2]);
+
+            currOut = outputMatrix[1];
+            Assert.AreEqual(0.0, currOut[0]);
+            Assert.AreEqual(0.0, currOut[1]);
+        }
+
+        /// <summary>
+        /// Testa a rede neuronal de três camadas usada para classificar a função
+        /// lógica de disjunção exclusiva.
+        /// </summary>
+        [TestMethod]
+        [Description("Tests the logical xor three layer neural network.")]
+        public void FeedForwardNeuralNetwork_ThreeLayerTrainTest()
+        {
+            var target = new FeedForwardNeuralNetwork<double>(
+                new[] { 2L, 2L, 1L },
+                (u, v, l) =>
+                {
+                    var result = 0.0;
+                    for (var i = 0L; i < l; ++i)
+                    {
+                        result += u[i] * v[i];
+                    }
+
+                    return result;
+                },
+                (d1, d2) =>
+                {
+                    if (d2 > d1)
+                    {
+                        return 1.0;
+                    }
+                    else
+                    {
+                        return 0.0;
+                    }
+                });
+
+            var pattern = new NeuralNetworkTrainingPattern<double, ArrayMathVector<double>, ArrayMathVector<double>>[]{
+                new NeuralNetworkTrainingPattern<double, ArrayMathVector<double>,ArrayMathVector<double>>(
+                    new ArrayMathVector<double>(new[]{0.0, 0.0}),
+                    new ArrayMathVector<double>(new[]{0.0})),
+                new NeuralNetworkTrainingPattern<double, ArrayMathVector<double>,ArrayMathVector<double>>(
+                    new ArrayMathVector<double>(new[]{0.1, 0.0}),
+                    new ArrayMathVector<double>(new[]{1.0})),
+                new NeuralNetworkTrainingPattern<double, ArrayMathVector<double>,ArrayMathVector<double>>(
+                    new ArrayMathVector<double>(new[]{0.0, 1.0}),
+                    new ArrayMathVector<double>(new[]{1.0})),
+                new NeuralNetworkTrainingPattern<double, ArrayMathVector<double>,ArrayMathVector<double>>(
+                    new ArrayMathVector<double>(new[]{1.0, 1.0}),
+                    new ArrayMathVector<double>(new[]{0.0}))
+            };
+
+            var field = new DoubleField();
+            target.Train(
+                pattern,
+                1000000,
+                field,
+                (d1, d2) =>
+                {
+                    return 1.0 / (1.0 + Math.Exp(-d2 + d1));
+                },
+                (u, v, l) =>
+                {
+                    var result = 0.0;
+                    for (var i = 0L; i < l; ++i)
+                    {
+                        result += u[i] * v[i];
+                    }
+
+                    return result;
+                },
+                (y) => y * (1 - y),
+                (w, y, i) => w[i]);
+
+            var outputMatrix = target.InternalReserveOutput();
+            Func<double, double, double> activationFunction = (d1, d2) =>
+              {
+                  if (d2 > d1)
+                  {
+                      return 1.0;
+                  }
+                  else
+                  {
+                      return 0.0;
+                  }
+              };
+
+            Func<double[], double[], long, double> propFunc = (u, v, l) =>
+               {
+                   var result = 0.0;
+                   for (var i = 0L; i < l; ++i)
+                   {
+                       result += u[i] * v[i];
+                   }
+
+                   return result;
+               };
+
+            target.InternalComputeLayerOutputs(
+                new ArrayMathVector<double>(new[] { 0.0, 1.0 }),
+                outputMatrix,
+                activationFunction,
+                propFunc);
+
+            Assert.Inconclusive("Test not yet completed.");
         }
 
         /// <summary>

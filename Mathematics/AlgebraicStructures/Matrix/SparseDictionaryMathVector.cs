@@ -147,6 +147,70 @@
         }
 
         /// <summary>
+        /// Otbém e atribui o valor da entrada do vector especificada pelo respectivo índice.
+        /// </summary>
+        /// <value>
+        /// O valor da entrada do vector especificada pelo índice.
+        /// </value>
+        /// <param name="index">O índice.</param>
+        /// <returns>O valor da entrada.</returns>
+        /// <exception cref="IndexOutOfRangeException">
+        /// Se o índice for negativo ou não for inferior ao número de elementos no vector.</exception>
+        public CoeffType this[long index]
+        {
+            get
+            {
+                if (index < 0L || index >= this.LongLength)
+                {
+                    throw new IndexOutOfRangeException("Index must be non-negative and less than the size of the vector.");
+                }
+                else
+                {
+                    var value = default(CoeffType);
+                    lock (this.lockObject)
+                    {
+                        if (this.vectorEntries.TryGetValue((int)index, out value))
+                        {
+                            return value;
+                        }
+                        else
+                        {
+                            return this.defaultValue;
+                        }
+                    }
+                }
+            }
+            set
+            {
+                if (index < 0L || index >= this.LongLength)
+                {
+                    throw new IndexOutOfRangeException("Index must be non-negative and less than the size of the vector.");
+                }
+                else
+                {
+                    lock (this.lockObject)
+                    {
+                        if (this.vectorEntries.ContainsKey((int)index))
+                        {
+                            if (EqualityComparer<CoeffType>.Default.Equals(value, this.defaultValue))
+                            {
+                                this.vectorEntries.Remove((int)index);
+                            }
+                            else
+                            {
+                                this.vectorEntries[(int)index] = value;
+                            }
+                        }
+                        else
+                        {
+                            this.vectorEntries.Add((int)index, value);
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
         /// Obtém o tamanho do vector.
         /// </summary>
         /// <value>

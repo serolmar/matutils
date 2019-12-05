@@ -86,6 +86,42 @@
         }
 
         /// <summary>
+        /// Obtém e atribui o valor da entrada especificada pelo índice respectivo.
+        /// </summary>
+        /// <param name="index">O índice da entrada.</param>
+        /// <returns>O valor contido na posição especificada pelo índice.</returns>
+        /// <exception cref="IndexOutOfRangeException">
+        /// Se o índice for negativo ou não for inferior ao tamanho do vector.
+        /// </exception>
+        public CoeffType this[long index]
+        {
+            get
+            {
+                var length = matrix.GetLength(0);
+                if (index < 0 || index >= length)
+                {
+                    throw new IndexOutOfRangeException("Index must be non-negative and less than the size of the vector.");
+                }
+                else
+                {
+                    return this.matrix[(int)index, this.columnNumber];
+                }
+            }
+            set
+            {
+                var length = matrix.GetLength(0);
+                if (index < 0 || index >= length)
+                {
+                    throw new IndexOutOfRangeException("Index must be non-negative and less than the size of the vector.");
+                }
+                else
+                {
+                    this.matrix[(int)index, this.columnNumber] = value;
+                }
+            }
+        }
+
+        /// <summary>
         /// Obtém o tamanho do vector.
         /// </summary>
         /// <value>

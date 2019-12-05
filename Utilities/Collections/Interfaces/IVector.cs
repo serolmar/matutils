@@ -19,6 +19,13 @@
         CoeffType this[int index] { get; set; }
 
         /// <summary>
+        /// Obtém e atribui o valor da entrada especificada.
+        /// </summary>
+        /// <param name="index">O índice da entrada.</param>
+        /// <returns>O valor da entrada.</returns>
+        CoeffType this[long index] { get; set; }
+
+        /// <summary>
         /// Obtém o tamanho do vector.
         /// </summary>
         int Length { get; }

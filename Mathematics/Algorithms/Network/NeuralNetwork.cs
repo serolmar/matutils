@@ -14,6 +14,73 @@ namespace Mathematics
     using Utilities;
 
     /// <summary>
+    /// Define um padrão de treino.
+    /// </summary>
+    /// <typeparam name="CoeffType">O tipo dos objectos que constituem os coeficientes.</typeparam>
+    /// <typeparam name="InputVectorType">O tipo dos objectos que constituem o vector de entrada.</typeparam>
+    /// <typeparam name="OutputVectorType">O tipo dos objectos que constituem o vector de saída.</typeparam>
+    public class NeuralNetworkTrainingPattern<CoeffType, InputVectorType, OutputVectorType>
+        where InputVectorType : IVector<CoeffType>
+        where OutputVectorType : IVector<CoeffType>
+    {
+        /// <summary>
+        /// O vector de entrada.
+        /// </summary>
+        private InputVectorType input;
+
+        /// <summary>
+        /// O vector de saída.
+        /// </summary>
+        private OutputVectorType output;
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="NeuralNetworkTrainingPattern{CoeffType, InputVectorType, OutputVectorType}"/>.
+        /// </summary>
+        /// <param name="input">O vector com os dados de entrada.</param>
+        /// <param name="output">O vector com os dados de saída.</param>
+        public NeuralNetworkTrainingPattern(
+            InputVectorType input,
+            OutputVectorType output)
+        {
+            if (input == null)
+            {
+                throw new ArgumentNullException("input");
+            }
+            else if (output == null)
+            {
+                throw new ArgumentNullException("output");
+            }
+            else
+            {
+                this.input = input;
+                this.output = output;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o vector de entrada.
+        /// </summary>
+        public InputVectorType Input
+        {
+            get
+            {
+                return this.input;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o vector de saída.
+        /// </summary>
+        public OutputVectorType Output
+        {
+            get
+            {
+                return this.output;
+            }
+        }
+    }
+
+    /// <summary>
     /// Modelo que pode ser carregado nas redes neurais.
     /// </summary>
     public class NeuralNetworkModel<CoeffType, MatrixType, VectorType>
@@ -400,6 +467,149 @@ namespace Mathematics
         }
 
         /// <summary>
+        /// Permite treinar a rede neuronal com base no método do gradiente descendente.
+        /// </summary>
+        /// <typeparam name="InputVectorType">
+        /// Os tipos de objectos que constituem os vectores de entrada no padrão.
+        /// </typeparam>
+        /// <typeparam name="OutputVectorType">
+        /// Os tipos dos objectos que constituem os vectores de saída no padrão.
+        /// </typeparam>
+        /// <param name="pattern">O padrão.</param>
+        /// <param name="epocs">O número de épocas a aplicar no treino.</param>
+        /// <param name="ring">O anel responsável pelas operações de adição e multiplicação.</param>
+        /// <param name="trainingActivationFunction">
+        /// A função de activação a ser usada durante o treino.
+        /// (valor limiar, valor saída propagação) => valor
+        /// </param>
+        /// <param name="trainingPropagationFunction">
+        /// A função de propagação a ser usada durante o treino.
+        /// (vector peso nó actual, vector nós camada anterior, tamanho) => valor
+        /// </param>
+        /// <param name="trainingDiffActivFunc">
+        /// Derivada relativa à função de activação em função do valor do nó.
+        /// (valor nó actual) => valor.
+        /// </param>
+        /// <param name="trainingDiffPropFunc">
+        /// Derivada relativa à função de propagação.
+        /// (vector peso nó actual, vector nós camada anterior, índice) => valor
+        /// </param>
+        public void Train<InputVectorType, OutputVectorType>(
+            NeuralNetworkTrainingPattern<CoeffType, InputVectorType, OutputVectorType>[] pattern,
+            long epocs,
+            IRing<CoeffType> ring,
+            Func<CoeffType, CoeffType, CoeffType> trainingActivationFunction,
+            Func<CoeffType[], CoeffType[], long, CoeffType> trainingPropagationFunction,
+            Func<CoeffType, CoeffType> trainingDiffActivFunc,
+            Func<CoeffType[], CoeffType[], long, CoeffType> trainingDiffPropFunc)
+            where InputVectorType : IVector<CoeffType>
+            where OutputVectorType : IVector<CoeffType>
+        {
+            if (pattern == null)
+            {
+                throw new ArgumentNullException("pattern");
+            }
+            else if (epocs < 1)
+            {
+                throw new ArgumentException("At least one epoc must be considered.");
+            }
+            else if (ring == null)
+            {
+                throw new ArgumentNullException("ring");
+            }
+            else if (trainingActivationFunction == null)
+            {
+                throw new ArgumentNullException("trainingActivationFunction");
+            }
+            else if (trainingPropagationFunction == null)
+            {
+                throw new ArgumentNullException("trainingPropagationFunction");
+            }
+            else
+            {
+                var patternLength = pattern.LongLength;
+                if (patternLength == 0L)
+                {
+                    throw new ArgumentException("No item found in pattern.");
+                }
+                else
+                {
+                    // Verifica a integridade do padrão.
+                    var inputLength = this.schema[0];
+                    var outputLength = this.schema[this.schema.LongLength - 1];
+
+                    for (var i = 0L; i < patternLength; ++i)
+                    {
+                        var currentPattern = pattern[i];
+                        if (currentPattern.Input.LongLength != inputLength)
+                        {
+                            throw new ArgumentException(string.Format(
+                                "Error in pattern {0}: {1}",
+                                i,
+                                "Input vector length must match the input size of the neural network."));
+                        }
+                        else if (currentPattern.Output.LongLength != outputLength)
+                        {
+                            throw new ArgumentException(string.Format(
+                                "Error in pattern {0}: {1}",
+                                i,
+                                "Output vector length must match the output size of the neural network."));
+                        }
+                    }
+
+                    this.InnerTrain(
+                        pattern,
+                        epocs,
+                        ring,
+                        trainingActivationFunction,
+                        trainingPropagationFunction,
+                        trainingDiffActivFunc,
+                        trainingDiffPropFunc);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Função que permite testar a determinação dos valores de saída associados
+        /// a cada nó em particular.
+        /// </summary>
+        /// <typeparam name="InputVectorType">
+        /// O tipo de objectos que constituem os valores de entrada.
+        /// </typeparam>
+        /// <param name="input">O vector com os valores de entrada.</param>
+        /// <param name="outputMatrix">A matriz que irá conter os resultados.</param>
+        /// <param name="trainingActivationFunction">
+        /// A função de activação a ser usada durante o treino.
+        /// </param>
+        /// <param name="trainingPropagationFunction">
+        /// A função de propagação a ser usada durante o treino.
+        /// </param>
+        internal void InternalComputeLayerOutputs<InputVectorType>(
+            InputVectorType input,
+            CoeffType[][] outputMatrix,
+            Func<CoeffType, CoeffType, CoeffType> trainingActivationFunction,
+            Func<CoeffType[], CoeffType[], long, CoeffType> trainingPropagationFunction)
+            where InputVectorType : IVector<CoeffType>
+        {
+            this.ComputeLayerOutputs(
+                input,
+                outputMatrix,
+                trainingActivationFunction,
+                trainingPropagationFunction);
+        }
+
+        /// <summary>
+        /// Reserva o espaço necessário para os resultados intermédios.
+        /// </summary>
+        /// <remarks>Função cujo propósito é a aplicação de testes.</remarks>
+        /// <returns>O espaço reservado.</returns>
+        internal CoeffType[][] InternalReserveOutput()
+        {
+            return this.ReserveOutputs(
+                this.schema);
+        }
+
+        /// <summary>
         /// Reserva o espaço necessário para o armazenamento dos pesos.
         /// </summary>
         /// <param name="schema">O esquema.</param>
@@ -517,8 +727,6 @@ namespace Mathematics
                     return result;
                 }
             }
-
-            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -579,7 +787,7 @@ namespace Mathematics
                         else if (currentColumnNumber < colSchema)
                         {
                             var columnDisplacement = currentColumnNumber - prevColSchema;
-                            while (weightsPointer < columnDisplacement 
+                            while (weightsPointer < columnDisplacement
                                 && weightsPointer < thisWeightsLength)
                             {
                                 thisWeights[weightsPointer++] = weightsMatrix.DefaultValue;
@@ -634,6 +842,552 @@ namespace Mathematics
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Permite treinar a rede neuronal com base no método do gradiente descendente.
+        /// </summary>
+        /// <typeparam name="InputVectorType">
+        /// Os tipos de objectos que constituem os vectores de entrada no padrão.
+        /// </typeparam>
+        /// <typeparam name="OutputVectorType">
+        /// Os tipos dos objectos que constituem os vectores de saída no padrão.
+        /// </typeparam>
+        /// <param name="pattern">O padrão.</param>
+        /// <param name="epocs">O número de épocas a aplicar no treino.</param>
+        /// <param name="ring">O anel responsável pelas operações de adição e multiplicação.</param>
+        /// <param name="trainingActivationFunction">
+        /// A função de activação a ser usada durante o treino.
+        /// (valor limiar, valor saída propagação) => valor
+        /// </param>
+        /// <param name="trainingPropagationFunction">
+        /// A função de propagação a ser usada durante o treino.
+        /// (vector peso nó actual, vector nós camada anterior, tamanho) => valor
+        /// </param>
+        /// <param name="trainingDiffActivFunc">
+        /// Derivada relativa à função de activação em função do valor do nó.
+        /// (valor nó actual) => valor.
+        /// </param>
+        /// <param name="trainingDiffPropFunc">
+        /// Derivada relativa à função de propagação.
+        /// (vector peso nó actual, vector nós camada anterior, índice) => valor
+        /// </param>
+        private void InnerTrain<InputVectorType, OutputVectorType>(
+            NeuralNetworkTrainingPattern<CoeffType, InputVectorType, OutputVectorType>[] pattern,
+            long epocs,
+            IRing<CoeffType> ring,
+            Func<CoeffType, CoeffType, CoeffType> trainingActivationFunction,
+            Func<CoeffType[], CoeffType[], long, CoeffType> trainingPropagationFunction,
+            Func<CoeffType, CoeffType> trainingDiffActivFunc,
+            Func<CoeffType[], CoeffType[], long, CoeffType> trainingDiffPropFunc)
+            where InputVectorType : IVector<CoeffType>
+            where OutputVectorType : IVector<CoeffType>
+        {
+            var innerTresholds = this.tresholds;
+            var innerWeights = this.weights;
+            var nodesLength = innerTresholds.LongLength;
+            var deltaTreshold = new CoeffType[nodesLength];
+            var deltaWeights = this.ReserveSpace(
+                nodesLength,
+                this.schema);
+            var outputs = this.ReserveOutputs(
+                this.schema);
+
+            this.InitializeTreshold(innerTresholds, ring);
+            this.InitializeWeights(innerWeights, ring);
+
+            var patternLength = pattern.LongLength;
+            for (var i = 0L; i < epocs; ++i)
+            {
+                this.SetVectorToZero(deltaTreshold, ring);
+                this.SetMatrixToZero(deltaWeights, ring);
+                for (var j = 0L; j < patternLength; ++j)
+                {
+                    var currPattern = pattern[j];
+                    var currPatternInput = currPattern.Input;
+                    var currPatternOutput = currPattern.Output;
+
+                    this.ComputeLayerOutputs(
+                        currPatternInput,
+                        outputs,
+                        trainingActivationFunction,
+                        trainingPropagationFunction);
+
+                    this.ComputeDeltas(
+                        deltaTreshold,
+                        deltaWeights,
+                        currPatternInput,
+                        currPatternOutput,
+                        outputs,
+                        ring,
+                        trainingDiffActivFunc,
+                        trainingDiffPropFunc);
+
+                    // Adiciona os valores calculados
+                    this.AddComputedValues(
+                        deltaTreshold,
+                        deltaWeights,
+                        innerTresholds,
+                        innerWeights,
+                        ring);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Determina os deltas dos valores limiares e dos pesos.
+        /// </summary>
+        /// <param name="tresholdDeltas">
+        /// O vector que irá conter os deltas dos valores limiar.
+        /// </param>
+        /// <param name="weightsDeltas">
+        /// Matriz que irá conter os deltas dos pesos.
+        /// </param>
+        /// <param name="inputVector">O vector de entrada.</param>
+        /// <param name="outVector">O vector de saída do padrão.</param>
+        /// <param name="outputs">A matriz das saídas de cada nó.</param>
+        /// <param name="ring">
+        /// O anel responsável pelas operações sobre os coeficientes.
+        /// </param>
+        /// <param name="trainingDiffActivFunc">
+        /// Derivada relativa à função de activação em função do valor do nó.
+        /// (valor nó actual) => valor.
+        /// </param>
+        /// <param name="trainingDiffPropFunc">
+        /// Derivada relativa à função de propagação.
+        /// (vector peso nó actual, vector nós camada anterior, índice) => valor
+        /// </param>
+        private void ComputeDeltas<InputVectorType, OutputVectorType>(
+            CoeffType[] tresholdDeltas,
+            CoeffType[][] weightsDeltas,
+            InputVectorType inputVector,
+            OutputVectorType outVector,
+            CoeffType[][] outputs,
+            IRing<CoeffType> ring,
+            Func<CoeffType, CoeffType> trainingDiffActivFunc,
+            Func<CoeffType[], CoeffType[], long, CoeffType> trainingDiffPropFunc)
+            where InputVectorType : IVector<CoeffType>
+            where OutputVectorType : IVector<CoeffType>
+        {
+            var innerTresholds = this.tresholds;
+            var innerWeights = this.weights;
+            var innerSchema = this.schema;
+
+            var betas = new CoeffType[this.max];
+            var nodesPointer = innerTresholds.LongLength - 1L;
+            var schemaPointer = innerSchema.LongLength - 1;
+
+            // Cálculo dos primeiros betas
+            var currentSchema = innerSchema[schemaPointer--];
+            var prevOutVector = outputs[schemaPointer];
+            for (var i = 0L; i < currentSchema; ++i)
+            {
+                var currPat = outVector[i];
+                var currOut = prevOutVector[i];
+                currOut = ring.AdditiveInverse(currOut);
+                betas[i] = ring.Add(currOut, currPat);
+
+                prevOutVector[i] = trainingDiffActivFunc(
+                    prevOutVector[i]);
+            }
+
+            var computedBetas = new CoeffType[this.max];
+            while (schemaPointer > 0)
+            {
+                var prevSchema = currentSchema;
+                currentSchema = innerSchema[schemaPointer--];
+                var currOutVector = outputs[schemaPointer];
+
+                for (var i = prevSchema - 1; i >= 0L; --i)
+                {
+                    var currentBeta = betas[i];
+                    var currentPrevOut = prevOutVector[i];
+
+                    // TODO: Actualização do valor limiar - considerar parâmetro de aprendizagem
+                    var value = currentPrevOut;
+                    value = ring.Multiply(
+                        value,
+                        currentBeta);
+                    value = ring.AdditiveInverse(value);
+                    tresholdDeltas[nodesPointer] = ring.Add(
+                        value,
+                        tresholdDeltas[nodesPointer]);
+
+                    var currWeigthDeltas = weightsDeltas[nodesPointer];
+                    var currweights = innerWeights[nodesPointer];
+
+                    // Início do ciclo
+                    value = currentPrevOut;
+                    value = ring.Multiply(
+                        value,
+                        currOutVector[0]);
+                    value = ring.Multiply(
+                        value,
+                        currentBeta);
+
+                    // TODO: Actualização do peso - considerar parâmetro de aprendizagem
+                    currWeigthDeltas[0] = ring.Add(
+                        currWeigthDeltas[0],
+                        value);
+
+                    this.InitializeComputedBetas(
+                        currentBeta,
+                        currentPrevOut,
+                        currweights,
+                        currentSchema,
+                        computedBetas,
+                        ring);
+
+                    for (var j = 1L; j < currentSchema; ++j)
+                    {
+                        value = currentPrevOut;
+                        value = ring.Multiply(
+                            value,
+                            currOutVector[j]);
+                        value = ring.Multiply(
+                            value,
+                            currentBeta);
+
+                        // TODO: Actualização do peso - considerar parâmetros de aprendizagem
+                        currWeigthDeltas[j] = ring.Add(
+                            currWeigthDeltas[j],
+                            value);
+
+                        this.UpdateComputedBetas(
+                            currentBeta,
+                            currentPrevOut,
+                            currweights,
+                            currentSchema,
+                            computedBetas,
+                            ring);
+                    }
+
+                    --nodesPointer;
+                }
+
+                betas = computedBetas;
+                prevOutVector = currOutVector;
+                for (var i = 0L; i < currentSchema; ++i)
+                {
+                    prevOutVector[i] = trainingDiffActivFunc.Invoke(prevOutVector[i]);
+                }
+            }
+
+            // Resta a determinação final
+            var outPrevSchema = currentSchema;
+            currentSchema = innerSchema[schemaPointer];
+
+            for (var i = outPrevSchema - 1; i >= 0L; --i)
+            {
+                var currentPrevOut = prevOutVector[i];
+                var currentBeta = betas[i];
+                var value = currentPrevOut;
+                value = ring.Multiply(
+                        value,
+                        currentBeta);
+                value = ring.AdditiveInverse(value);
+                tresholdDeltas[nodesPointer] = ring.Add(
+                        tresholdDeltas[nodesPointer],
+                        value);
+
+                var currWeigthDeltas = weightsDeltas[nodesPointer];
+                for (var j = 0L; j < currentSchema; ++j)
+                {
+                    value = currentPrevOut;
+                    value = ring.Multiply(
+                        value,
+                        inputVector[j]);
+                    value = ring.Multiply(
+                        value,
+                        currentBeta);
+
+                    // TODO: Actualização do peso - considerar parâmetros de aprendizagem
+                    currWeigthDeltas[j] = ring.Add(
+                        currWeigthDeltas[j],
+                        value);
+                }
+
+                --nodesPointer;
+            }
+        }
+
+        /// <summary>
+        /// Adiciona os valores dos deltas aos vectores dos valores.
+        /// </summary>
+        /// <param name="tresholdDeltas">Os deltas dos valores limiar.</param>
+        /// <param name="weightDeltas">Os deltas dos pesos.</param>
+        /// <param name="tresholds">O vector dos valores limiar.</param>
+        /// <param name="weights">O vector dos pesos.</param>
+        /// <param name="ring">O anel responsável pelas operações sobre os coeficientes.</param>
+        private void AddComputedValues(
+            CoeffType[] tresholdDeltas,
+            CoeffType[][] weightDeltas,
+            CoeffType[] tresholds,
+            CoeffType[][] weights,
+            IRing<CoeffType> ring)
+        {
+            var length = tresholds.LongLength;
+            for (var i = 0L; i < length; ++i)
+            {
+                tresholds[i] = ring.Add(
+                    tresholds[i],
+                    tresholdDeltas[i]);
+                var currWeightDeltas = weightDeltas[i];
+                var currWeight = weights[i];
+                var weightLength = currWeight.LongLength;
+                for (var j = 0L; j < weightLength; ++j)
+                {
+                    currWeight[j] = ring.Add(
+                        currWeight[j],
+                        currWeightDeltas[j]);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Inicializa o cálculo dos novos betas.
+        /// </summary>
+        /// <param name="currentBeta">O valor beta actual.</param>
+        /// <param name="prevVectorValue">
+        /// O valor previamente calculado com a derivada da função de activação.
+        /// </param>
+        /// <param name="weights">O vector dos pesos do nó actual.</param>
+        /// <param name="schema">O número de nós na camada actual.</param>
+        /// <param name="computedBetas">
+        /// O vector que irá receber a computação dos novos betas.
+        /// </param>
+        /// <param name="ring">
+        /// O anel responsável pelas operações sober os coeficientes.
+        /// </param>
+        private void InitializeComputedBetas(
+            CoeffType currentBeta,
+            CoeffType prevVectorValue,
+            CoeffType[] weights,
+            long schema,
+            CoeffType[] computedBetas,
+            IRing<CoeffType> ring)
+        {
+            for (var i = 0L; i < schema; ++i)
+            {
+                var value = ring.Multiply(
+                    currentBeta,
+                    prevVectorValue);
+                value = ring.Multiply(
+                    value,
+                    weights[i]);
+                computedBetas[i] = value;
+            }
+        }
+
+        /// <summary>
+        /// Actualiza o cálculo dos novos betas.
+        /// </summary>
+        /// <param name="currentBeta">O valor beta actual.</param>
+        /// <param name="prevVectorValue">
+        /// O valor previamente calculado com a derivada da função de activação.
+        /// </param>
+        /// <param name="weights">O vector dos pesos do nó actual.</param>
+        /// <param name="schema">O número de nós na camada actual.</param>
+        /// <param name="computedBetas">
+        /// O vector que irá receber a computação dos novos betas.
+        /// </param>
+        /// <param name="ring">
+        /// O anel responsável pelas operações sober os coeficientes.
+        /// </param>
+        private void UpdateComputedBetas(
+            CoeffType currentBeta,
+            CoeffType prevVectorValue,
+            CoeffType[] weights,
+            long schema,
+            CoeffType[] computedBetas,
+            IRing<CoeffType> ring)
+        {
+            for (var i = 0L; i < schema; ++i)
+            {
+                var value = ring.Multiply(
+                    currentBeta,
+                    prevVectorValue);
+                value = ring.Multiply(
+                    value,
+                    weights[i]);
+                computedBetas[i] = ring.Add(
+                    computedBetas[i],
+                    value);
+            }
+        }
+
+        /// <summary>
+        /// Calcula os resultados intermédios.
+        /// </summary>
+        /// <typeparam name="InputVectorType">
+        /// O tipo dos objectos que constituem o conjunto de valores de entrada.
+        /// </typeparam>
+        /// <param name="input">O vector com os valores de entrada.</param>
+        /// <param name="outputMatrix">
+        /// A matriz que irá conter o resultados intermédios.
+        /// </param>
+        /// <param name="trainingActivationFunction">
+        /// A função de activação a ser usada durante o treino.
+        /// </param>
+        /// <param name="trainingPropagationFunction">
+        /// A função de propagação a ser usada durante o treino.
+        /// </param>
+        private void ComputeLayerOutputs<InputVectorType>(
+            InputVectorType input,
+            CoeffType[][] outputMatrix,
+            Func<CoeffType, CoeffType, CoeffType> trainingActivationFunction,
+            Func<CoeffType[], CoeffType[], long, CoeffType> trainingPropagationFunction)
+            where InputVectorType : IVector<CoeffType>
+        {
+            var innerSchema = this.schema;
+            var innerTreshold = this.tresholds;
+            var innerWeight = this.weights;
+            var schemaLength = innerSchema.LongLength;
+            var nodePointer = 0L;
+
+            var currSchema = innerSchema[0L];
+            var inVector = new CoeffType[input.LongLength];
+            input.CopyTo(inVector, 0L);
+            var prevSchema = input.LongLength;
+            for (var i = 1L; i < schemaLength; ++i)
+            {
+                currSchema = innerSchema[i];
+                var outVector = outputMatrix[i - 1];
+                for (var j = 0L; j < currSchema; ++j)
+                {
+                    var currWeight = innerWeight[nodePointer];
+                    var currValue = trainingPropagationFunction(
+                        currWeight,
+                        inVector,
+                        prevSchema);
+                    var currTreshold = innerTreshold[nodePointer];
+                    currValue = trainingActivationFunction(
+                        currTreshold,
+                        currValue);
+                    outVector[j] = currValue;
+                    ++nodePointer;
+                }
+
+                inVector = outVector;
+                prevSchema = currSchema;
+            }
+        }
+
+        /// <summary>
+        /// Inicializa o vector das variações do valor limiar.
+        /// </summary>
+        /// <param name="tresholds">
+        /// O vector dos valores limiar a ser inicializado.
+        /// </param>
+        /// <param name="ring">
+        /// O anel responsável pelas operações sobre os coeficientes.
+        /// </param>
+        private void InitializeTreshold(
+            CoeffType[] tresholds,
+            IRing<CoeffType> ring)
+        {
+            this.SetVectorToZero(tresholds, ring);
+        }
+
+        /// <summary>
+        /// Inicializa a matriz de pesos.
+        /// </summary>
+        /// <param name="weights">
+        /// A matriz de pesos a ser inicializada.
+        /// </param>
+        /// <param name="ring">
+        /// O anel responsável pelas operações sobre os coeficientes.
+        /// </param>
+        private void InitializeWeights(
+            CoeffType[][] weights,
+            IRing<CoeffType> ring)
+        {
+            this.SetMatrixToZero(weights, ring);
+        }
+
+        /// <summary>
+        /// Coloca o vector a zero.
+        /// </summary>
+        /// <param name="vector">O vector.</param>
+        /// <param name="ring">
+        /// O anel responsável pelas operações sobre os coeficientes.
+        /// </param>
+        private void SetVectorToZero(
+            CoeffType[] vector,
+            IRing<CoeffType> ring)
+        {
+            Utils.FillArray(
+                vector,
+                ring.AdditiveUnity);
+        }
+
+        /// <summary>
+        /// Coloca as colunas da matriz a zero.
+        /// </summary>
+        /// <param name="matrix">A matriz.</param>
+        /// <param name="ring">
+        /// O anel responsável pelas operações sobre os coeficientes.
+        /// </param>
+        private void SetMatrixToZero(
+            CoeffType[][] matrix,
+            IRing<CoeffType> ring)
+        {
+            var length = matrix.LongLength;
+            for (var i = 0L; i < length; ++i)
+            {
+                var curr = matrix[i];
+                Utils.FillArray(
+                    curr,
+                    ring.AdditiveUnity);
+            }
+        }
+
+        /// <summary>
+        /// Reserva espaço para os resultados intermédios.
+        /// </summary>
+        /// <param name="schema">O esquema.</param>
+        /// <returns>O espaço reservado.</returns>
+        private CoeffType[][] ReserveOutputs(
+            long[] schema)
+        {
+            var schemaLength = schema.LongLength - 1;
+            var result = new CoeffType[schemaLength][];
+            for (var i = 0L; i < schemaLength; ++i)
+            {
+                var currSchema = schema[i + 1];
+                result[i] = new CoeffType[currSchema];
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Reserva espaço necessário para o armazenamento de dados internos.
+        /// </summary>
+        /// <param name="sum">O número de nós na rede.</param>
+        /// <param name="schema">O esquema que define a topologia de camadas.</param>
+        /// <returns>O espaço reservado.</returns>
+        private CoeffType[][] ReserveSpace(
+            long sum,
+            long[] schema)
+        {
+            var length = schema.LongLength;
+            var innerWeights = new CoeffType[sum][];
+
+            var pointer = 0L;
+            var prevSchema = schema[0];
+            for (var i = 1L; i < length; ++i)
+            {
+                var currSchema = schema[i];
+                for (var j = 0L; j < currSchema; ++j)
+                {
+                    innerWeights[pointer++] = new CoeffType[prevSchema];
+                }
+
+                prevSchema = currSchema;
+            }
+
+            return innerWeights;
         }
     }
 }

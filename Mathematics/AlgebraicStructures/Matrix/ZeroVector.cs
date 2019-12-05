@@ -77,6 +77,35 @@
         }
 
         /// <summary>
+        /// Obtém e atribui um valor à posição especificada do vector.
+        /// </summary>
+        /// <value>O valor da posição especificada.</value>
+        /// <param name="index">O índice da posição.</param>
+        /// <returns>O valor na posição.</returns>
+        /// <exception cref="IndexOutOfRangeException">
+        /// Se a posição especificada for negativa ou não for inferior ao tamanho do vector.
+        /// </exception>
+        /// <exception cref="MathematicsException">Se for realizada alguma tentativa de atribuição.</exception>
+        public CoeffType this[long index]
+        {
+            get
+            {
+                if (index < 0L || index >= this.LongLength)
+                {
+                    throw new IndexOutOfRangeException("The index must be non-negative and less than the size of vector.");
+                }
+                else
+                {
+                    return this.monoid.AdditiveUnity;
+                }
+            }
+            set
+            {
+                throw new MathematicsException("Zero vector is constant.");
+            }
+        }
+
+        /// <summary>
         /// Obtém o tamanho do vector.
         /// </summary>
         /// <value>O tamanho do vector.</value>
