@@ -33,13 +33,601 @@ namespace ConsoleTests
 
         static void Main(string[] args)
         {
-            var dic = new Dictionary<int,int>();
+            var flacFileName = "Teste\\10sine.flac";
+            var testFlacFileName = "Teste\\teste.flac";
+            var wavFileName = "Teste\\exponential.wav";
+            var flacText = "Teste\\10sine.txt";
+            var txtFileName = "Teste\\temp.txt";
+            var wavTemp = "Teste\\temp.wav";
+
+            //var f = SamplesGeneratorFunctions.GetCopyFunc(
+            //    SamplesGeneratorFunctions.GetRestrictedParamSineFunc(0.75),
+            //    440);
+
+            //f = KarStrAlg(
+            //    88, 
+            //    44100, 
+            //    SamplesGeneratorFunctions.GetCopyFunc(SamplesGeneratorFunctions.GetRestrictedRandomSquareFunc(100), 349.288));
+            //SamplesProcessorFunctions.WriteWav(
+            //    f,
+            //    2.0,
+            //    44100,
+            //    1,
+            //    wavTemp);
+
+            //Func<double, double> infc = x =>
+            //{
+            //    var t = SamplesGeneratorFunctions.GetCopyFunc(
+            //        SamplesGeneratorFunctions.GetRestrictedParamSineFunc(0.5 + 0.4 * x),
+            //        440);
+            //    return t.Invoke(x);
+            //};
+
+
+            //var param = 0.1;
+            //for (var i = 0; i < 9; ++i)
+            //{
+            //    var innerFunc = SamplesGeneratorFunctions.GetRestrictedParamSineFunc(
+            //        param);
+            //    var innerFileName = string.Format("SineParam_0_{0}.wav", i + 1);
+            //    SamplesProcessorFunctions.WriteWav(
+            //    SamplesGeneratorFunctions.GetCopyFunc(
+            //        innerFunc,
+            //        1.0),
+            //    0.1,
+            //    96000,
+            //    1,
+            //    innerFileName);
+
+            //    param += 0.1;
+            //}
+
+            //SamplesProcessorFunctions.WriteWav(
+            //    SamplesGeneratorFunctions.GetCopyFunc(
+            //        SamplesGeneratorFunctions.GetRestrictedExpFuncV1(),
+            //        1.0),
+            //    0.1,
+            //    96000,
+            //    1,
+            //    wavFileName);
+            //using (var writer = new StreamWriter(txtFileName))
+            //{
+            //    for (var i = 0.001; i < 2; i += 0.001)
+            //    {
+            //        writer.WriteLine(f.Invoke(i));
+            //    }
+            //}
+
+            //var temp = SamplesGeneratorFunctions.GetCopyFunc(
+            //     SamplesGeneratorFunctions.GetRestrictedLmmsExpFunc(),
+            //     440);
+            // temp = f;
+            // SamplesProcessorFunctions.WriteWav(temp, 1.0, 44100, 2, wavFileName);
+
+            //var wavFileInfo = new FileInfo(wavFileName);
+            //if (wavFileInfo.Exists)
+            //{
+            //    using (var stream = wavFileInfo.OpenRead())
+            //    {
+            //        var data = SamplesProcessorFunctions.ReadWav(stream);
+            //    }
+            //}
+
+            Console.WriteLine();
+            Console.WriteLine("Press any key to continue...");
+            Console.ReadKey();
+        }
+
+        /// <summary>
+        /// Imprime todos os pares de números amigos limitados
+        /// por um determinado valor.
+        /// </summary>
+        /// <param name="n">O limite para a lista de pares de números amigos.</param>
+        private static void PrintAmicablePairs(ulong n)
+        {
+            if (n == 0)
+            {
+                throw new ArgumentOutOfRangeException("n");
+            }
+            else
+            {
+                // Determinação das factorizações com os menores primos
+                var nextN = n + 1;
+                var sums = new ulong[n + 1];
+                var divisors = new Tuple<ulong, ulong>[nextN];
+
+                var limit = (ulong)Math.Floor(Math.Sqrt(n)) + 1;
+                for (var i = 2UL; i < limit; ++i)
+                {
+                    var currDiv = divisors[i];
+                    if (currDiv == null)
+                    {
+                        var j = i + i;
+                        var fact = 2UL;
+                        for (; j < nextN; j += i, fact++)
+                        {
+                            var multDiv = divisors[j];
+                            if (multDiv == null)
+                            {
+                                multDiv = Tuple.Create(i, fact);
+
+                                divisors[j] = multDiv;
+                            }
+                        }
+                    }
+                }
+
+                // Determinação da soma dos divisores
+                var divSum = new ulong[nextN];
+                for (var i = 2UL; i < nextN; ++i)
+                {
+                    var curr = divisors[i];
+                    if (curr == null)
+                    {
+                        // Trata-se de um número primo
+                        divSum[i] = 1;
+                    }
+                    else
+                    {
+                        var prevPrime = curr.Item1;
+                        var prevFac = curr.Item2;
+                        var pow = 1;
+                        var prod = 1UL;
+                        curr = divisors[prevFac];
+                        while (curr != null)
+                        {
+                            var prime = curr.Item1;
+                            if (prime == prevPrime)
+                            {
+                                // A factorização continua com o mesmo primo
+                                ++pow;
+                            }
+                            else if (pow == 1)
+                            {
+                                prod *= (prevPrime + 1UL);
+                                prevPrime = prime;
+                            }
+                            else
+                            {
+                                // Primo diferente na factorização
+                                prod *= ((ulong)Math.Pow(prevPrime, pow + 1) - 1UL) / (prevPrime - 1UL);
+                                prevPrime = prime;
+                                pow = 1;
+                            }
+
+                            prevFac = curr.Item2;
+                            curr = divisors[prevFac];
+                        }
+
+                        if (prevFac == prevPrime)
+                        {
+                            ++pow;
+                            prod *= ((ulong)Math.Pow(prevPrime, pow + 1) - 1UL) / (prevPrime - 1UL);
+                        }
+                        else
+                        {
+                            if (pow == 1)
+                            {
+                                prod *= (prevPrime + 1UL);
+                                prod *= (prevFac + 1UL);
+                            }
+                            else
+                            {
+                                prod *= ((ulong)Math.Pow(prevPrime, pow + 1) - 1UL) / (prevPrime - 1UL);
+                                prod *= (prevFac + 1UL);
+                            }
+                        }
+
+                        divSum[i] = prod - i;
+                    }
+                }
+
+                var count = (ulong)divSum.LongLength;
+                for (var i = 0UL; i < count; ++i)
+                {
+                    var currSum = divSum[i];
+                    if (currSum < nextN)
+                    {
+                        var otherSum = divSum[currSum];
+                        if (i == otherSum && currSum >= i)
+                        {
+                            // Os números são amigos
+                            Console.WriteLine("({0},{1})", i, currSum);
+
+                            // Imprime os divisores de cada número
+                            var res1 = PrintDivisors(i, divisors);
+                            var res2 = PrintDivisors(currSum, divisors);
+
+                            Console.Write("{0}: [", i);
+                            Console.Write(res1[0]);
+                            for (var j = 1; j < res1.Count; ++j)
+                            {
+                                Console.Write(",{0}", res1[j]);
+                            }
+
+                            Console.WriteLine("]");
+
+                            if (i != currSum)
+                            {
+                                Console.Write("{0}: [", currSum);
+                                Console.Write(res1[0]);
+                                for (var j = 1; j < res2.Count; ++j)
+                                {
+                                    Console.Write(",{0}", res2[j]);
+                                }
+
+                                Console.WriteLine("]");
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Determina o conjunto de divisores próprios.
+        /// </summary>
+        /// <param name="i">O número do qual se pretende obter a lista dos divisores.</param>
+        /// <param name="factors">O vector pré-calculado com a primeira factorização.</param>
+        private static List<ulong> PrintDivisors(ulong i, Tuple<ulong, ulong>[] factors)
+        {
+            var result = new List<ulong>();
+            var temp = new List<ulong>();
+            var curr = factors[i];
+            if (curr == null)
+            {
+                result.Add(1);
+                return result;
+            }
+            else
+            {
+                var prevPrime = curr.Item1;
+                var prevFac = curr.Item2;
+                var val = prevPrime;
+                temp.Add(val);
+                curr = factors[prevFac];
+                var state = true;
+                while (state)
+                {
+                    if (curr == null)
+                    {
+                        state = false;
+                    }
+                    else
+                    {
+                        var prime = curr.Item1;
+                        if (prime == prevPrime)
+                        {
+                            val *= prime;
+                        }
+                        else
+                        {
+                            result.AddRange(temp);
+                            temp.Clear();
+
+                            prevPrime = prime;
+                            val = prevPrime;
+                            state = false;
+                        }
+
+                        temp.Add(val);
+                        prevFac = curr.Item2;
+                        curr = factors[prevFac];
+                    }
+                }
+
+                while (curr != null)
+                {
+                    var prime = curr.Item1;
+                    if (prime == prevPrime)
+                    {
+                        val *= prime;
+                    }
+                    else
+                    {
+                        var resCount = result.Count;
+                        var tempCount = temp.Count;
+                        for (var j = 0; j < resCount; ++j)
+                        {
+                            for (var k = 0; k < tempCount; ++k)
+                            {
+                                result.Add(result[j] * temp[k]);
+                            }
+                        }
+
+                        result.AddRange(temp);
+                        temp.Clear();
+                        prevPrime = prime;
+                        val = prime;
+
+                    }
+
+                    temp.Add(val);
+                    prevFac = curr.Item2;
+                    curr = factors[prevFac];
+                }
+
+                if (prevFac == prevPrime)
+                {
+                    val *= prevPrime;
+                    temp.Add(val);
+                    var resCount = result.Count;
+                    var tempCount = temp.Count;
+                    for (var j = 0; j < resCount; ++j)
+                    {
+                        for (var k = 0; k < tempCount; ++k)
+                        {
+                            result.Add(result[j] * temp[k]);
+                        }
+                    }
+
+                    result.AddRange(temp);
+                }
+                else
+                {
+                    var resCount = result.Count;
+                    var tempCount = temp.Count;
+                    for (var j = 0; j < resCount; ++j)
+                    {
+                        for (var k = 0; k < tempCount; ++k)
+                        {
+                            result.Add(result[j] * temp[k]);
+                        }
+                    }
+
+                    result.AddRange(temp);
+
+                    resCount = result.Count;
+                    tempCount = temp.Count;
+                    for (var j = 0; j < resCount; ++j)
+                    {
+                        result.Add(result[j] * prevFac);
+                    }
+
+                    result.Add(prevFac);
+                }
+
+                result.Add(1);
+            }
+
+            result.Sort();
+
+            // Código que verifica se se tratam dos divisores
+            //ValidateDivisorsList(i, result);
+
+            return result;
+        }
+
+        /// <summary>
+        /// Função que permite validar a determinação dos divisores.
+        /// </summary>
+        /// <param name="numb">O número a ser validado.</param>
+        /// <param name="divisors">A lista dos divisores.</param>
+        private static void ValidateDivisorsList(
+            ulong numb,
+            List<ulong> divisors)
+        {
+            var len = divisors.Count;
+            var count = len >> 1;
+            for (var i = 0; i < count; ++i)
+            {
+                var first = divisors[i];
+                var second = divisors[len - i - 1];
+                if (first * second != numb)
+                {
+                    throw new Exception("A validação falhou.");
+                }
+            }
+        }
+
+        static Func<double, double> TestInstrument2(double freq)
+        {
+            var resExp = SamplesGeneratorFunctions.GetRestrictedExpFunc();
+            var exp = SamplesGeneratorFunctions.GetCopyFunc(resExp, freq);
+            Func<double, double> osc3 = x => 0.33333 * exp.Invoke(x);
+
+            var exp1 = SamplesGeneratorFunctions.GetCopyFunc(resExp, freq);
+            Func<double, double> normExp = x => (0.33333 / freq) * osc3.Invoke(x);
+            var osc2 = SamplesProcessorFunctions.GetPhaseModulatedFunc(
+                exp1,
+                normExp);
+
+            var resSq = SamplesGeneratorFunctions.GetRestrictedSquareFunc();
+            var sq = SamplesGeneratorFunctions.GetCopyFunc(resSq, freq);
+            Func<double, double> normExp1 = x => (0.33333 / freq) * osc2.Invoke(x);
+            var osc1 = SamplesProcessorFunctions.GetPhaseModulatedFunc(
+                sq,
+                normExp1);
+
+            return osc1;
+        }
+
+        static Func<double, double> TestInstrument1(double freq)
+        {
+            // Terceiro oscilador
+            var resTri = SamplesGeneratorFunctions.GetRestrictedTriangFunc();
+            var tri = SamplesGeneratorFunctions.GetCopyFunc(resTri, freq * 0.75);
+            Func<double, double> osc3 = x => 0.33333 * tri.Invoke(x);
+
+            // Segundo oscilador
+            var fs = SamplesGeneratorFunctions.GetSineFunc(freq * 0.999, 0.0);
+            Func<double, double> normFs = x => 0.33333 / (freq * 0.999) * fs.Invoke(x);
+            var osc2 = SamplesProcessorFunctions.GetMultFunc(
+                tri,
+                normFs);
+
+            // Primeiro oscilador
+            var fs1 = SamplesGeneratorFunctions.GetSineFunc(freq, 0.0);
+            var osc1 = SamplesProcessorFunctions.GetPhaseModulatedFunc(
+                fs1,
+                osc2);
+
+            return osc1;
+        }
+
+        static void Code2()
+        {
+            var wavFileName = "Teste\\temp.wav";
+            var txtFileName = "Teste\\temp.txt";
+
+            var note1 = SamplesProcessorFunctions.CreateNote(
+                TestInstrument1(352.4 / 2),
+                0.5,
+                0.5,
+                1.0,
+                0.5,
+                0.5,
+                0.132);
+            var note2 = SamplesProcessorFunctions.CreateNote(
+                TestInstrument1(440),
+                0.5,
+                0.5,
+                1.0,
+                0.5,
+                0.5,
+                0.132);
+            Func<double, double> comb = x =>
+            {
+                if (x < 0.5)
+                {
+                    return note1.Invoke(x);
+                }
+                else
+                {
+                    return note2.Invoke(x);
+                }
+            };
+
+            SamplesProcessorFunctions.WriteWav(
+                TestInstrument2(352.4),
+                5,
+                44100,
+                2,
+                "Teste\\temp.wav");
+
+            var uf = SamplesGeneratorFunctions.GetRestrictedTriangFunc();
+            var cp = SamplesGeneratorFunctions.GetCopyFunc(uf, 44);
+            //var si = SamplesGeneratorFunctions.GetSineFunc(44, Math.PI / 2);
+            var t = SamplesGeneratorFunctions.GetTchePol(10);
+            Func<double, double> f = x => t.Invoke(cp.Invoke(x));
+
+            var osc = SamplesProcessorFunctions.GetMultFunc(
+                SamplesGeneratorFunctions.GetSineFunc(),
+                SamplesGeneratorFunctions.GetSineFunc(0.9, 0));
+            var mult = SamplesProcessorFunctions.GetMultFunc(osc, x => 1);
+            var sum = SamplesProcessorFunctions.GetAddFunc(x => x, mult);
+            Func<double, double, double> comp = (x, ix) => osc.Invoke(440 * x + 0.1 / (2 * Math.PI) * ix);
+            f = SamplesProcessorFunctions.GetFeedbackComposite(comp);
+            SamplesProcessorFunctions.WriteWav(
+                f,
+                1,
+                44100,
+                2,
+                "Teste\\temp.wav");
+
+            using (var writer = new StreamWriter(txtFileName))
+            {
+                for (var i = 0.001; i < 2; i += 0.001)
+                {
+                    writer.WriteLine(f.Invoke(i));
+                }
+            }
+        }
+
+        static void Code1()
+        {
+            var wavFileName = "Teste\\temp.wav";
+            var txtFileName = "Teste\\temp.txt";
+            var func = SamplesGeneratorFunctions.GetParamSineFunc(0.499, 0.5);
+
+            //Func<double, double> interp = x => (x * (x - 1) / 2) * (3 * (0.1 - x) / 0.24 + (x - 0.6) / 0.09);
+            //var comp = SamplesGenerators.GetComposite(SamplesGenerators.GetSineFunc(), interp);
+            //var cp = SamplesGenerators.GetUnitPeriodCopyFunc(comp);
+            //SamplesGenerators.WriteWav(x => func.Invoke(440 * x), 1, 44100, fileName);
+
+            //var func = SamplesGenerators.GetSineFunc(440, 0);
+
+            //Func<double, double> func1 = x => func.Invoke(50 * x);
+            //SamplesGenerators.WriteWav(SamplesGenerators.GetCopyFunc(SamplesGenerators.GetRestrictedRandomSquareFunc(44100 / 440), 55), 1, 44100, "Teste\\temp.wav");
+
+            //var percent = 0.7;
+            //var sineFunc = SamplesGenerators.GetAmpModulatedFunc(SamplesGenerators.GetSineFunc(440, 0), x => percent);
+            //var randFunc = SamplesGenerators.GetAmpModulatedFunc(SamplesGenerators.GetRandomFunc(), x => 1 - percent);
+            //Func<double, double> combFunc = x => sineFunc.Invoke(x) + randFunc.Invoke(x);
+            //SamplesGenerators.WriteWav(
+            //    combFunc,
+            //    1,
+            //    44100,
+            //    "Teste\\temp.wav");
+
+            var freq1 = 349.228 / 256;
+            var freq2 = 349.228D;
+            //freq1 = freq2;
+            //freq1 = 2;
+            freq2 = 880;
+            //var f = SamplesGenerators.GetPhaseModulatedFunc(
+            //    SamplesGenerators.GetSineFunc(8*freq2, 0),
+            //    SamplesGenerators.GetAmpModulatedFunc(SamplesGenerators.GetSineFunc(freq1, 0), x => 0.05));
+            //var f = SamplesGenerators.GetAmpModulatedFunc(
+            //    SamplesGenerators.GetSineFunc(freq2, 0),
+            //    SamplesGenerators.GetSineFunc(freq1, 0));
+            //var f = SamplesGeneratorFunctions.GetPhaseModulatedFunc(
+            //    SamplesGeneratorFunctions.GetSineFunc(freq2, 1),
+            //    x => x * x / 50);
+            //var osc = SamplesGeneratorFunctions.GetCopyFunc(
+            //    SamplesGeneratorFunctions.GetRestrictedSquareFunc(), 
+            //    440,
+            //    0);
+            var osc = SamplesProcessorFunctions.GetMultFunc(
+                SamplesGeneratorFunctions.GetSineFunc(50, 0),
+                SamplesGeneratorFunctions.GetSineFunc(1, 0));
+            var mult = SamplesProcessorFunctions.GetMultFunc(osc, x => 2);
+            var sum = SamplesProcessorFunctions.GetAddFunc(x => x, mult);
+            var f = SamplesProcessorFunctions.GetFeedbackComposite(osc, sum);
+
+            f = KarStrAlg(440, 44100, SamplesGeneratorFunctions.GetSineFunc(348.228, 0.0));
+
+            //f = SamplesGeneratorFunctions.GetCopyFunc(
+            //    SamplesGeneratorFunctions.GetRestrictedExpFunc(),
+            //    440,
+            //    0);
+            SamplesProcessorFunctions.WriteWav(
+                f,
+                1,
+                44100,
+                2,
+                "Teste\\temp.wav");
+
+            var p = SamplesGeneratorFunctions.GetRestrictedPulse(
+                new double[] { 0.25, 0.75 },
+                1 / 44100.0);
+            var cp = SamplesGeneratorFunctions.GetUnitPeriodCopyFunc(p);
+            f = SamplesProcessorFunctions.GetComposite(
+                SamplesGeneratorFunctions.GetSineFunc(),
+                SamplesProcessorFunctions.GetIntegrator(cp, 1 / 44100.0));
+            using (var writer = new StreamWriter(txtFileName))
+            {
+                for (var i = 0.001; i < 2; i += 0.001)
+                {
+                    writer.WriteLine(f.Invoke(i));
+                }
+            }
+
+            //var n = SamplesGenerators.GetAmpModulatedFunc(SamplesGenerators.GetRandomFunc(), x=>0.001);
+            //var f = SamplesGenerators.GetSineFunc(349.228, 0);
+            //SamplesGenerators.WriteWav(
+            //    x=> f(x),
+            //    1,
+            //    44100,
+            //    "Teste\\temp.wav");
+
+            var dic = new Dictionary<int, int>();
             dic[1] = 0;
             //var nnn = 1000000000L;
             //var array = new byte[nnn];
             //var ww = new Stopwatch();
             //ww.Start();
-            
+
 
 
             //ww.Stop();
@@ -47,7 +635,7 @@ namespace ConsoleTests
             //Console.WriteLine();
             //ww.Reset();
             //ww.Start();
-            
+
 
 
             //ww.Stop();
@@ -97,10 +685,145 @@ namespace ConsoleTests
 
                 Console.WriteLine();
             }
+        }
 
-            Console.WriteLine();
-            Console.WriteLine("Press any key to continue...");
-            Console.ReadKey();
+        /// <summary>
+        /// Síntese por guias de ondas simples.
+        /// </summary>
+        /// <param name="freq">A frequência do sinal resultante.</param>
+        /// <param name="sampleFreq">A frequência de amostragem.</param>
+        /// <returns>A função que implementa o algoritmo.</returns>
+        static Func<double, double> KarStrAlg(
+            double freq, 
+            double sampleFreq)
+        {
+            // (N + 1/2)F = fs approx NxF=fs
+            var n = (long)(sampleFreq / freq);
+            if (n < 2)
+            {
+                throw new ArgumentException("Sampling frequency must be as twice as frequency.");
+            }
+            else
+            {
+                var random = new Random();
+                var initialVals = new double[n];
+                for (var i = 0; i < n; ++i)
+                {
+                    initialVals[i] = random.NextDouble();
+                }
+
+                var readPointer = 1;
+                var writePointer = 0;
+
+                return x =>
+                {
+                    var res = initialVals[readPointer];
+                    ++readPointer;
+                    if (readPointer == n)
+                    {
+                        readPointer = 0;
+                    }
+
+                    res += initialVals[writePointer];
+                    res *= 0.5;
+
+                    // Função que permite algumas alterações
+                    //var temp = random.NextDouble();
+                    //if (temp > 0.9)
+                    //{
+                    //    res *= temp;
+                    //}
+
+                    //var temp = random.NextDouble();
+                    //if (temp > 0.9)
+                    //{
+                    //    res = -temp;
+                    //}
+
+                    initialVals[writePointer] = res;
+                    ++writePointer;
+                    if (writePointer == n)
+                    {
+                        writePointer = 0;
+                    }
+
+                    return res;
+                };
+            }
+        }
+
+        /// <summary>
+        /// Sínteise por guia de ondas simples.
+        /// </summary>
+        /// <param name="freq">A frequência do sinal resultante.</param>
+        /// <param name="sampleFreq">A frequência de amostragem.</param>
+        /// <param name="f">A função inicial.</param>
+        /// <returns>A função que implementa o algoritmo.</returns>
+        static Func<double, double> KarStrAlg(
+            double freq,
+            double sampleFreq,
+            Func<double,double> f)
+        {
+            if (f == null)
+            {
+                throw new ArgumentNullException("f");
+            }
+            else
+            {
+                // (N + 1/2)F = fs approx NxF=fs
+                var n = (long)(sampleFreq / freq);
+                if (n < 2)
+                {
+                    throw new ArgumentException("Sampling frequency must be as twice as frequency.");
+                }
+                else
+                {
+                    var random = new Random();
+                    var initialVals = new double[n];
+                    for (var i = 0; i < n; ++i)
+                    {
+                        initialVals[i] = f.Invoke(i / sampleFreq);
+                    }
+
+                    var readPointer = 1;
+                    var writePointer = 0;
+
+                    return x =>
+                    {
+                        var res = initialVals[readPointer];
+                        ++readPointer;
+                        if (readPointer == n)
+                        {
+                            readPointer = 0;
+                        }
+
+                        res += initialVals[writePointer];
+                        res *= 0.5;
+
+                        // Função que permite algumas alterações
+                        //var temp = random.NextDouble();
+                        //if (temp > 0.9)
+                        //{
+                        //    res *= temp;
+                        //}
+
+                        //var temp = random.NextDouble();
+                        //if (temp > 0.9)
+                        //{
+                        //    res = -temp;
+                        //}
+
+                        initialVals[writePointer] = res;
+                        ++writePointer;
+                        if (writePointer == n)
+                        {
+                            writePointer = 0;
+                        }
+
+                        return res;
+                    };
+                }
+            }
         }
 
         static void GeneratePrimesForHashCollection()
@@ -2390,7 +3113,7 @@ namespace ConsoleTests
                 integerParser,
                 integerDomain);
 
-            var arrayMatrixFactory = new ArrayMatrixFactory<UnivariatePolynomialNormalForm<int>>();
+            var arrayMatrixFactory = new ArrayMathMatrixFactory<UnivariatePolynomialNormalForm<int>>();
             var arrayReader = new ConfigMatrixReader<
                 UnivariatePolynomialNormalForm<int>, IMathMatrix<UnivariatePolynomialNormalForm<int>>,
                 string, string>(
@@ -2467,7 +3190,7 @@ namespace ConsoleTests
             var stringsymbolReader = new StringSymbolReader(reader, true);
             var integerParser = new IntegerParser<string>();
 
-            var arrayMatrixFactory = new ArrayMatrixFactory<int>();
+            var arrayMatrixFactory = new ArrayMathMatrixFactory<int>();
             var arrayMatrixReader = new ConfigMatrixReader<int, ArrayMathMatrix<int>, string, string>(
                 3,
                 3);

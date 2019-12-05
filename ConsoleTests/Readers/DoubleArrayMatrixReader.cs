@@ -22,7 +22,7 @@
             var expressionParser = new DoubleExpressionParser();
             var reader = new StringReader(arrayString);
             var stringSymbolReader = new StringSymbolReader(reader, false);
-            var arrayMatrixFactory = new ArrayMatrixFactory<double>();
+            var arrayMatrixFactory = new ArrayMathMatrixFactory<double>();
             var arrayMatrixReader = new ConfigMatrixReader<double, IMathMatrix<double>, string, string>(
                 lines, 
                 columns);
