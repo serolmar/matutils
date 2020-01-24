@@ -163,7 +163,12 @@ namespace Mathematics
     /// <typeparam name="CoeffType">
     /// O tipo dos objectos que constituem os coeficientes.
     /// </typeparam>
-    public class FeedForwardNeuralNetwork<CoeffType> : IAlgorithm<CoeffType[], CoeffType[]>
+    public class FeedForwardNeuralNetwork<CoeffType> :
+        IAlgorithm<
+            CoeffType[],
+            Func<CoeffType[], CoeffType[], long, CoeffType>,
+            Func<CoeffType, CoeffType, CoeffType>,
+            CoeffType[]>
     {
         /// <summary>
         /// A função de propagação.
@@ -172,7 +177,7 @@ namespace Mathematics
         /// A função recebe, como argumentos, o vector de valores de entrada,
         /// o vector dos pesos e respectivos tamanhos. Retorna o valor propagado.
         /// </remarks>
-        private Func<CoeffType[], CoeffType[], long, CoeffType> propagationFunc;
+        //private Func<CoeffType[], CoeffType[], long, CoeffType> propagationFunc;
 
         /// <summary>
         /// A função geral de activação.
@@ -181,7 +186,7 @@ namespace Mathematics
         /// A função de activação recebe o valor limiar, o valor propagado e retorna
         /// o valor de activação.
         /// </remarks>
-        private Func<CoeffType, CoeffType, CoeffType> activationFunc;
+        //private Func<CoeffType, CoeffType, CoeffType> activationFunc;
 
         /// <summary>
         /// O esquema de camadas.
@@ -207,8 +212,6 @@ namespace Mathematics
         /// Instancia uma nova instância de objectos do tipo <see cref="FeedForwardNeuralNetwork{CoeffType}"/>.
         /// </summary>
         /// <param name="schema">O esquema de camadas de rede neuronal.</param>
-        /// <param name="propagationFunc">A função de propagação.</param>
-        /// <param name="activationFunc">A função de activação.</param>
         /// <remarks>
         /// <list type="table">
         /// <listheader>
@@ -236,21 +239,11 @@ namespace Mathematics
         /// </list>
         /// </remarks>
         public FeedForwardNeuralNetwork(
-            long[] schema,
-            Func<CoeffType[], CoeffType[], long, CoeffType> propagationFunc,
-            Func<CoeffType, CoeffType, CoeffType> activationFunc)
+            long[] schema)
         {
             if (schema == null)
             {
                 throw new ArgumentNullException("schema");
-            }
-            else if (propagationFunc == null)
-            {
-                throw new ArgumentNullException("propagationFunc");
-            }
-            else if (activationFunc == null)
-            {
-                throw new ArgumentNullException("activationFunc");
             }
             else
             {
@@ -273,8 +266,6 @@ namespace Mathematics
                     this.ReserveWeights(
                         schema);
                     this.schema = schema;
-                    this.propagationFunc = propagationFunc;
-                    this.activationFunc = activationFunc;
                 }
             }
         }
@@ -323,12 +314,25 @@ namespace Mathematics
         /// dos dados de entrada pela rede neural.
         /// </summary>
         /// <param name="data">Os dados de entrada.</param>
+        /// <param name="propagationFunc">A função de propagação.</param>
+        /// <param name="activationFunc">A função de activação.</param>
         /// <returns>Os valores de saída.</returns>
-        public CoeffType[] Run(CoeffType[] data)
+        public CoeffType[] Run(
+            CoeffType[] data,
+            Func<CoeffType[], CoeffType[], long, CoeffType> propagationFunc,
+            Func<CoeffType, CoeffType, CoeffType> activationFunc)
         {
             if (data == null)
             {
                 throw new ArgumentNullException("data");
+            }
+            else if (propagationFunc == null)
+            {
+                throw new ArgumentNullException("propagationFunc");
+            }
+            else if (activationFunc == null)
+            {
+                throw new ArgumentNullException("activationFunc");
             }
             else
             {
@@ -349,7 +353,10 @@ namespace Mathematics
                     }
                     else
                     {
-                        return this.InnerRun(data);
+                        return this.InnerRun(
+                            data,
+                            propagationFunc,
+                            activationFunc);
                     }
                 }
             }
@@ -494,6 +501,9 @@ namespace Mathematics
         /// Derivada relativa à função de propagação.
         /// (vector peso nó actual, vector nós camada anterior, índice) => valor
         /// </param>
+        /// <param name="initializationAct">
+        /// A acção que permite estabelecer os valores iniciais dos parâmetros.
+        /// </param>
         public void Train<InputVectorType, OutputVectorType>(
             NeuralNetworkTrainingPattern<CoeffType, InputVectorType, OutputVectorType>[] pattern,
             long epocs,
@@ -501,7 +511,8 @@ namespace Mathematics
             Func<CoeffType, CoeffType, CoeffType> trainingActivationFunction,
             Func<CoeffType[], CoeffType[], long, CoeffType> trainingPropagationFunction,
             Func<CoeffType, CoeffType> trainingDiffActivFunc,
-            Func<CoeffType[], CoeffType[], long, CoeffType> trainingDiffPropFunc)
+            Func<CoeffType[], CoeffType[], long, CoeffType> trainingDiffPropFunc,
+            Action<CoeffType[], CoeffType[][]> initializationAct)
             where InputVectorType : IVector<CoeffType>
             where OutputVectorType : IVector<CoeffType>
         {
@@ -524,6 +535,10 @@ namespace Mathematics
             else if (trainingPropagationFunction == null)
             {
                 throw new ArgumentNullException("trainingPropagationFunction");
+            }
+            else if (initializationAct == null)
+            {
+                throw new ArgumentException("initializationAct");
             }
             else
             {
@@ -564,7 +579,8 @@ namespace Mathematics
                         trainingActivationFunction,
                         trainingPropagationFunction,
                         trainingDiffActivFunc,
-                        trainingDiffPropFunc);
+                        trainingDiffPropFunc,
+                        initializationAct);
                 }
             }
         }
@@ -653,8 +669,14 @@ namespace Mathematics
         /// Processa a função de execução.
         /// </summary>
         /// <param name="data">Os dados de entrada.</param>
+        /// <param name="propagationFunc">A função de propagação.</param>
+        /// <param name="activationFunc">A função de activação.</param>
         /// <returns>Os valores de saída.</returns>
-        private CoeffType[] InnerRun(CoeffType[] data)
+        private CoeffType[] InnerRun(
+            CoeffType[] data,
+            Func<CoeffType[], CoeffType[], long, CoeffType> propagationFunc,
+            Func<CoeffType, CoeffType, CoeffType> activationFunc
+            )
         {
             var schemaLength = this.schema.LongLength;
             var dataLength = data.LongLength;
@@ -669,11 +691,11 @@ namespace Mathematics
             {
                 var currWeights = innerWeights[pointer];
                 var currTreshold = innerTresholds[pointer++];
-                var value = this.propagationFunc.Invoke(
+                var value = propagationFunc.Invoke(
                     data,
                     currWeights,
                     prevSchema);
-                value = this.activationFunc.Invoke(
+                value = activationFunc.Invoke(
                     currTreshold, value);
                 firstInterOut[i] = value;
             }
@@ -702,11 +724,11 @@ namespace Mathematics
                     {
                         var currWeights = innerWeights[pointer];
                         var currTreshold = innerTresholds[pointer++];
-                        var value = this.propagationFunc.Invoke(
+                        var value = propagationFunc.Invoke(
                             firstInterOut,
                             currWeights,
                             prevSchema);
-                        value = this.activationFunc.Invoke(
+                        value = activationFunc.Invoke(
                             currTreshold, value);
                         secondInterOut[j] = value;
                     }
@@ -872,6 +894,9 @@ namespace Mathematics
         /// Derivada relativa à função de propagação.
         /// (vector peso nó actual, vector nós camada anterior, índice) => valor
         /// </param>
+        /// <param name="initializationAct">
+        /// A acção responsável pela inicialização dos parâmetros.
+        /// </param>
         private void InnerTrain<InputVectorType, OutputVectorType>(
             NeuralNetworkTrainingPattern<CoeffType, InputVectorType, OutputVectorType>[] pattern,
             long epocs,
@@ -879,7 +904,8 @@ namespace Mathematics
             Func<CoeffType, CoeffType, CoeffType> trainingActivationFunction,
             Func<CoeffType[], CoeffType[], long, CoeffType> trainingPropagationFunction,
             Func<CoeffType, CoeffType> trainingDiffActivFunc,
-            Func<CoeffType[], CoeffType[], long, CoeffType> trainingDiffPropFunc)
+            Func<CoeffType[], CoeffType[], long, CoeffType> trainingDiffPropFunc,
+            Action<CoeffType[], CoeffType[][]> initializationAct)
             where InputVectorType : IVector<CoeffType>
             where OutputVectorType : IVector<CoeffType>
         {
@@ -893,8 +919,9 @@ namespace Mathematics
             var outputs = this.ReserveOutputs(
                 this.schema);
 
-            this.InitializeTreshold(innerTresholds, ring);
-            this.InitializeWeights(innerWeights, ring);
+            initializationAct.Invoke(
+                innerTresholds,
+                innerWeights);
 
             var patternLength = pattern.LongLength;
             for (var i = 0L; i < epocs; ++i)

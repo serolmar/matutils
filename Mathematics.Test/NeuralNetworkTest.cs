@@ -29,28 +29,7 @@ namespace Mathematics.Test
         public void FeedForwardNeuralNetwork_LoadModelSparseMatrix()
         {
             var target = new FeedForwardNeuralNetwork<double>(
-                new[] { 2L, 3L, 2L },
-                (u, v, l) =>
-                {
-                    var result = 0.0;
-                    for (var i = 0L; i < l; ++i)
-                    {
-                        result += u[i] * v[i];
-                    }
-
-                    return result;
-                },
-                (d1, d2) =>
-                {
-                    if (d2 > d1)
-                    {
-                        return 1.0;
-                    }
-                    else
-                    {
-                        return 0.0;
-                    }
-                });
+                new[] { 2L, 3L, 2L });
 
             var parser = new DoubleParser<string>();
             var matrix = TestsHelper.ReadMatrix(
@@ -87,28 +66,7 @@ namespace Mathematics.Test
         {
             var schema = new[] { 5L, 3L, 4L, 2L, 5L };
             var target = new FeedForwardNeuralNetwork<double>(
-                schema,
-                (u, v, l) =>
-                {
-                    var result = 0.0;
-                    for (var i = 0L; i < l; ++i)
-                    {
-                        result += u[i] * v[i];
-                    }
-
-                    return result;
-                },
-                (d1, d2) =>
-                {
-                    if (d2 > d1)
-                    {
-                        return 1.0;
-                    }
-                    else
-                    {
-                        return 0.0;
-                    }
-                });
+                schema);
 
             var model = this.GetComplexTestModel();
             target.LoadModelSparse<CoordinateSparseMathMatrix<double>, ILongSparseMatrixLine<double>, ArrayMathVector<double>>(
@@ -130,28 +88,7 @@ namespace Mathematics.Test
         {
             var schema = new[] { 5L, 3L, 4L, 2L, 5L };
             var target = new FeedForwardNeuralNetwork<double>(
-                schema,
-                (u, v, l) =>
-                {
-                    var result = 0.0;
-                    for (var i = 0L; i < l; ++i)
-                    {
-                        result += u[i] * v[i];
-                    }
-
-                    return result;
-                },
-                (d1, d2) =>
-                {
-                    if (d2 > d1)
-                    {
-                        return 1.0;
-                    }
-                    else
-                    {
-                        return 0.0;
-                    }
-                });
+                schema);
 
             var model = this.GetComplexUnconnectedTestModel();
             target.LoadModelSparse<CoordinateSparseMathMatrix<double>, ILongSparseMatrixLine<double>, ArrayMathVector<double>>(
@@ -172,28 +109,7 @@ namespace Mathematics.Test
         public void FeedForwardNeuralNetwork_LoadModelDenseMatrix()
         {
             var target = new FeedForwardNeuralNetwork<double>(
-                new[] { 2L, 3L, 2L },
-                (u, v, l) =>
-                {
-                    var result = 0.0;
-                    for (var i = 0L; i < l; ++i)
-                    {
-                        result += u[i] * v[i];
-                    }
-
-                    return result;
-                },
-                (d1, d2) =>
-                {
-                    if (d2 > d1)
-                    {
-                        return 1.0;
-                    }
-                    else
-                    {
-                        return 0.0;
-                    }
-                });
+                new[] { 2L, 3L, 2L });
 
             var parser = new DoubleParser<string>();
             var matrix = TestsHelper.ReadMatrix<double>(
@@ -229,28 +145,7 @@ namespace Mathematics.Test
         {
             var schema = new[] { 5L, 3L, 4L, 2L, 5L };
             var target = new FeedForwardNeuralNetwork<double>(
-                schema,
-                (u, v, l) =>
-                {
-                    var result = 0.0;
-                    for (var i = 0L; i < l; ++i)
-                    {
-                        result += u[i] * v[i];
-                    }
-
-                    return result;
-                },
-                (d1, d2) =>
-                {
-                    if (d2 > d1)
-                    {
-                        return 1.0;
-                    }
-                    else
-                    {
-                        return 0.0;
-                    }
-                });
+                schema);
 
             var model = this.GetComplexTestModel();
             target.LoadModel<CoordinateSparseMathMatrix<double>, ArrayMathVector<double>>(
@@ -270,28 +165,7 @@ namespace Mathematics.Test
         public void FeedFrowardNeuralNetwork_RunSimpleMatrixTest()
         {
             var target = new FeedForwardNeuralNetwork<double>(
-                new[] { 2L, 3L, 2L },
-                (u, v, l) =>
-                {
-                    var result = 0.0;
-                    for (var i = 0L; i < l; ++i)
-                    {
-                        result += u[i] * v[i];
-                    }
-
-                    return result;
-                },
-                (d1, d2) =>
-                {
-                    if (d2 > d1)
-                    {
-                        return 1.0;
-                    }
-                    else
-                    {
-                        return 0.0;
-                    }
-                });
+                new[] { 2L, 3L, 2L });
 
             var parser = new DoubleParser<string>();
             var matrix = TestsHelper.ReadMatrix(
@@ -312,31 +186,8 @@ namespace Mathematics.Test
                 vector);
             target.LoadModel(model);
 
-            var actual = target.Run(new[] { 1.0, 0.0 });
-            var expected = new[] { 0.0, 0.0 };
-
-            CollectionAssert.AreEqual(expected, actual);
-
-            actual = target.Run(new[] { 0.0, 1.0 });
-            expected = new[] { 0.0, 1.0 };
-
-            CollectionAssert.AreEqual(expected, actual);
-
-            actual = target.Run(new[] { 1.0, -1.0 });
-            expected = new[] { 0.0, 0.0 };
-
-            CollectionAssert.AreEqual(expected, actual);
-        }
-
-        /// <summary>
-        /// Testa a execução do modelo sobre dados.
-        /// </summary>
-        [TestMethod]
-        [Description("Tests the execution of the model over provided data.")]
-        public void FeedFrowardNeuralNetwork_InternalComputeOutputs()
-        {
-            var target = new FeedForwardNeuralNetwork<double>(
-                new[] { 2L, 3L, 2L },
+            var actual = target.Run(
+                new[] { 1.0, 0.0 },
                 (u, v, l) =>
                 {
                     var result = 0.0;
@@ -358,6 +209,74 @@ namespace Mathematics.Test
                         return 0.0;
                     }
                 });
+            var expected = new[] { 0.0, 0.0 };
+
+            CollectionAssert.AreEqual(expected, actual);
+
+            actual = target.Run(
+                new[] { 0.0, 1.0 },
+                (u, v, l) =>
+                {
+                var result = 0.0;
+                for (var i = 0L; i < l; ++i)
+                {
+                    result += u[i] * v[i];
+                }
+
+                return result;
+            },
+                (d1, d2) =>
+                {
+                    if (d2 > d1)
+                    {
+                        return 1.0;
+                    }
+                    else
+                    {
+                        return 0.0;
+                    }
+                });
+            expected = new[] { 0.0, 1.0 };
+
+            CollectionAssert.AreEqual(expected, actual);
+
+            actual = target.Run(
+                new[] { 1.0, -1.0 },
+                (u, v, l) =>
+                {
+                    var result = 0.0;
+                    for (var i = 0L; i < l; ++i)
+                    {
+                        result += u[i] * v[i];
+                    }
+
+                    return result;
+                },
+                (d1, d2) =>
+                {
+                    if (d2 > d1)
+                    {
+                        return 1.0;
+                    }
+                    else
+                    {
+                        return 0.0;
+                    }
+                });
+            expected = new[] { 0.0, 0.0 };
+
+            CollectionAssert.AreEqual(expected, actual);
+        }
+
+        /// <summary>
+        /// Testa a execução do modelo sobre dados.
+        /// </summary>
+        [TestMethod]
+        [Description("Tests the execution of the model over provided data.")]
+        public void FeedFrowardNeuralNetwork_InternalComputeOutputs()
+        {
+            var target = new FeedForwardNeuralNetwork<double>(
+                new[] { 2L, 3L, 2L });
 
             var parser = new DoubleParser<string>();
             var matrix = TestsHelper.ReadMatrix(
@@ -425,28 +344,7 @@ namespace Mathematics.Test
         public void FeedForwardNeuralNetwork_ThreeLayerTrainTest()
         {
             var target = new FeedForwardNeuralNetwork<double>(
-                new[] { 2L, 2L, 1L },
-                (u, v, l) =>
-                {
-                    var result = 0.0;
-                    for (var i = 0L; i < l; ++i)
-                    {
-                        result += u[i] * v[i];
-                    }
-
-                    return result;
-                },
-                (d1, d2) =>
-                {
-                    if (d2 > d1)
-                    {
-                        return 1.0;
-                    }
-                    else
-                    {
-                        return 0.0;
-                    }
-                });
+                new[] { 2L, 2L, 1L });
 
             var pattern = new NeuralNetworkTrainingPattern<double, ArrayMathVector<double>, ArrayMathVector<double>>[]{
                 new NeuralNetworkTrainingPattern<double, ArrayMathVector<double>,ArrayMathVector<double>>(
@@ -463,10 +361,11 @@ namespace Mathematics.Test
                     new ArrayMathVector<double>(new[]{0.0}))
             };
 
+            var rand = new Random();
             var field = new DoubleField();
             target.Train(
                 pattern,
-                1000000,
+                100,
                 field,
                 (d1, d2) =>
                 {
@@ -483,7 +382,36 @@ namespace Mathematics.Test
                     return result;
                 },
                 (y) => y * (1 - y),
-                (w, y, i) => w[i]);
+                (w, y, i) => w[i],
+                (c,w)=>
+                {
+                    //var len = c.LongLength;
+                    //for(var i = 0L;i< len; ++i)
+                    //{
+                    //    c[i] = rand.NextDouble();
+                    //}
+
+                    //len = w.LongLength;
+                    //for(var i = 0L; i < len; ++i)
+                    //{
+                    //    var curr = w[i];
+                    //    var innerLen = curr.LongLength;
+                    //    for (var j = 0L; j < innerLen; ++j)
+                    //    {
+                    //        w[i][j] = rand.NextDouble();
+                    //    }
+                    //}
+                    c[0] = 0.6;
+                    c[1] = 0.6;
+                    c[2] = 0.6;
+
+                    w[0][0] = 1.0;
+                    w[0][1] = -1.0;
+                    w[1][0] = -1.0;
+                    w[1][1] = 1.0;
+                    w[2][0] = 1.0;
+                    w[2][1] = 1.0;
+                });
 
             var outputMatrix = target.InternalReserveOutput();
             Func<double, double, double> activationFunction = (d1, d2) =>
