@@ -98,6 +98,7 @@
     <Compile Include="Readers\DoubleArrayVectorReader.cs" />
     <Compile Include="Readers\DoubleSparseMatrixReader.cs" />
     <Compile Include="Auxiliary\IntegerNullableDoubleConverter.cs" />
+    <Compile Include="Readers\GeneralReaders.cs" />
     <Compile Include="Readers\IntegerBigIntFractionConversion.cs" />
     <Compile Include="Readers\IntegerFractionPolReader.cs" />
     <Compile Include="Readers\IntegerPolynomialReader.cs" />

@@ -69,7 +69,6 @@
             var integerDomain = new IntegerDomain();
             var fractionField = new FractionField<int>(integerDomain);
             var integerParser = new IntegerParser<string>();
-            var conversion = new ElementToElementConversion<int>();
             var fractionConversion = new ElementFractionConversion<int>(integerDomain);
             string variableName = "x";
             var univarPolDomain = new UnivarPolynomEuclideanDomain<Fraction<int>>(

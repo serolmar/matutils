@@ -45,12 +45,12 @@
     <Compile Include="AlgebraicStructures\ComplexNumber.cs" />
     <Compile Include="AlgebraicStructures\Fraction.cs" />
     <Compile Include="AlgebraicStructures\FractionDecompositionResult.cs" />
+    <Compile Include="AlgebraicStructures\Implementations\Conversion.cs" />
     <Compile Include="AlgebraicStructures\Implementations\GeneralMatrixAlgebra.cs" />
     <Compile Include="AlgebraicStructures\Implementations\BigDecimalNumberField.cs" />
     <Compile Include="AlgebraicStructures\Implementations\BigIntegerDomain.cs" />
     <Compile Include="AlgebraicStructures\Implementations\BigIntegerNormSpace.cs" />
     <Compile Include="AlgebraicStructures\Implementations\BigIntegerToIntegerConversion.cs" />
-    <Compile Include="AlgebraicStructures\Implementations\CantConvertConversion.cs" />
     <Compile Include="AlgebraicStructures\Implementations\CoeffFractionMultiplicationOperation.cs" />
     <Compile Include="AlgebraicStructures\Implementations\CoeffVectorMultiplicationOperation.cs" />
     <Compile Include="AlgebraicStructures\Implementations\ComplexNumberField.cs" />
@@ -68,12 +68,9 @@
     <Compile Include="AlgebraicStructures\Implementations\GeneralMatrixGroup.cs" />
     <Compile Include="AlgebraicStructures\Implementations\GeneralMatrixRing.cs" />
     <Compile Include="AlgebraicStructures\Implementations\IntegerDecimalConverter.cs" />
-    <Compile Include="AlgebraicStructures\Implementations\DoubleToIntegerConversion.cs" />
     <Compile Include="AlgebraicStructures\Implementations\IntegerDoubleMultiplicationOperation.cs" />
     <Compile Include="AlgebraicStructures\Implementations\DoubleNearestInteger.cs" />
     <Compile Include="AlgebraicStructures\Implementations\DoubleNormSpace.cs" />
-    <Compile Include="AlgebraicStructures\Implementations\ElementFractionConversion.cs" />
-    <Compile Include="AlgebraicStructures\Implementations\ElementToElementConversion.cs" />
     <Compile Include="AlgebraicStructures\Implementations\FractionComparer.cs" />
     <Compile Include="AlgebraicStructures\Implementations\FractionField.cs" />
     <Compile Include="AlgebraicStructures\Implementations\FractionNearestBigInt.cs" />
@@ -81,12 +78,9 @@
     <Compile Include="AlgebraicStructures\Implementations\FractionNormSpace.cs" />
     <Compile Include="AlgebraicStructures\Implementations\IntegerNormSpace.cs" />
     <Compile Include="AlgebraicStructures\Implementations\LongDomain.cs" />
-    <Compile Include="AlgebraicStructures\Implementations\LongToIntegerConversion.cs" />
     <Compile Include="AlgebraicStructures\Implementations\GeneralMatrixVectorSpace.cs" />
     <Compile Include="AlgebraicStructures\Implementations\ModularSymmetricBigIntField.cs" />
     <Compile Include="AlgebraicStructures\Implementations\ModularSymmetricIntField.cs" />
-    <Compile Include="AlgebraicStructures\Implementations\OuterElementFractionConversion.cs" />
-    <Compile Include="AlgebraicStructures\Implementations\UnivarPolynomNormalFormToIntegerConversion.cs" />
     <Compile Include="AlgebraicStructures\Implementations\UnivarPolynomPseudoDomain.cs" />
     <Compile Include="AlgebraicStructures\Implementations\VectorSpace.cs" />
     <Compile Include="AlgebraicStructures\Implementations\MetricMatrixVectorScalarProduct.cs" />
@@ -251,6 +245,8 @@
     <Compile Include="Algorithms\NumberTheory\AksPrimalityTest.cs" />
     <Compile Include="Algorithms\NumberTheory\Auxiliary\AuxAksModArithmRing.cs" />
     <Compile Include="Algorithms\NumberTheory\Auxiliary\BigIntegerPrimeNumbersIteratorFactory.cs" />
+    <Compile Include="Algorithms\NumberTheory\PAdicAlgorithm.cs" />
+    <Compile Include="Algorithms\NumberTheory\PrimitveRoot.cs" />
     <Compile Include="Algorithms\Numerics\General\BigIntLogDoubleApproximationAlg.cs" />
     <Compile Include="Algorithms\NumberTheory\BigInteger\BigIntPerfectPowerTestAlg.cs" />
     <Compile Include="Algorithms\Numerics\General\FastBigIntBinaryLogIntPartAlg.cs" />
@@ -262,7 +258,6 @@
     <Compile Include="Algorithms\Numerics\General\IntCordicSquareRootAlgorithm.cs" />
     <Compile Include="Algorithms\NumberTheory\BigInteger\FasterBigIntBinaryLogIntPartAlg.cs" />
     <Compile Include="Algorithms\NumberTheory\ChineseRemainderAlgorithm.cs" />
-    <Compile Include="Algorithms\NumberTheory\Congruence.cs" />
     <Compile Include="Algorithms\NumberTheory\DecompositionFactorizationAlgorithm.cs" />
     <Compile Include="Algorithms\NumberTheory\EulerTotFuncAlg.cs" />
     <Compile Include="Algorithms\Numerics\General\FastBinaryLogIntegerPartAlg.cs" />

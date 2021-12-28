@@ -47,53 +47,71 @@ namespace Mathematics.Test
         {
             var target = new AllLongestCommonSequence<char, char>(
                 (c1, c2) => c1 == c2);
+            var repChar = '_';
 
-            var first = new LongSystemArray<char>(new char[] { 'A', 'G', 'G', 'T', 'A', 'B' });
-            var second = new LongSystemArray<char>(new char[] { 'G', 'X', 'T', 'X', 'A', 'Y', 'B' });
-
-            var result = target.Run(first, second);
+            var first = new LongSystemArray<char>(new char[] { 'A', 'T', 'A', 'T', 'G', 'T' });
+            var second = new LongSystemArray<char>(new char[] { 'T', 'G', 'T', 'A', 'T', 'A' });
+            var result = target.Run(first, second, repChar, repChar);
             var resEnum = result.GetEnumerator();
-            var subSeqs = new List<char[]>();
-            while (resEnum.MoveNext())
-            {
-                subSeqs.Add(resEnum.Current);
-            }
+            var test = resEnum.MoveNext();
 
-            var expected = new GeneralLongList<char[]>();
-            expected.Add(new char[] { 'G', 'T', 'A', 'B' });
-            expected.Add(new char[] { 'G', 'T', 'A', 'B' });
+            //var first = new LongSystemArray<char>(new char[] { 'A', 'G', 'G', 'T', 'A', 'B' });
+            //var second = new LongSystemArray<char>(new char[] { 'G', 'X', 'T', 'X', 'A', 'Y', 'B' });
 
-            for (var i = 0; i < 2; ++i)
-            {
-                for (var j = 0; j < 4; ++j)
-                {
-                    Assert.AreEqual(expected[i][j], subSeqs[i][j]);
-                }
-            }
+            //var result = target.Run(first, second, '_', '_');
+            //var resEnum = result.GetEnumerator();
+            //var subSeqs = new List<Tuple<ILongList<char>,ILongList<char>>>();
+            //while (resEnum.MoveNext())
+            //{
+            //    subSeqs.Add(resEnum.Current);
+            //}
 
-            first = new LongSystemArray<char>(new char[] { 'A', 'B', 'C', 'D', 'E', 'F' });
-            second = new LongSystemArray<char>(new char[] { 'F', 'E', 'D', 'C', 'B', 'A' });
+            //var expected = new GeneralLongList<char[]>();
+            //expected.Add(new char[] { 'G', 'T', 'A', 'B' });
+            //expected.Add(new char[] { 'G', 'T', 'A', 'B' });
 
-            result = target.Run(first, second);
-            resEnum = result.GetEnumerator();
-            subSeqs = new List<char[]>();
-            while (resEnum.MoveNext())
-            {
-                subSeqs.Add(resEnum.Current);
-            }
+            //for (var i = 0; i < 2; ++i)
+            //{
+            //    for (var j = 0; j < 4; ++j)
+            //    {
+            //        Assert.AreEqual(expected[i][j], subSeqs[i][j]);
+            //    }
+            //}
 
-            Assert.AreEqual(6, subSeqs.Count);
-            var actual = new char[6];
-            for (var i = 0; i < 6; ++i)
-            {
-                actual[i] = subSeqs[i][0];
-            }
+            //first = new LongSystemArray<char>(new char[] { 'A', 'B', 'C', 'D', 'E', 'F' });
+            //second = new LongSystemArray<char>(new char[] { 'F', 'E', 'D', 'C', 'B', 'A' });
 
-            Assert.AreEqual(second.LongCount, actual.LongLength);
-            for (var i = 0L; i < actual.LongLength; ++i)
-            {
-                Assert.AreEqual(second[i], actual[i]);
-            }
+            //result = target.Run(first, second);
+            //resEnum = result.GetEnumerator();
+            //subSeqs = new List<Tuple<ILongList<char>, ILongList<char>>>();
+            //while (resEnum.MoveNext())
+            //{
+            //    subSeqs.Add(resEnum.Current);
+            //}
+
+            //Assert.AreEqual(6, subSeqs.Count);
+            //var actual = new char[6];
+            //for (var i = 0; i < 6; ++i)
+            //{
+            //    actual[i] = subSeqs[i][0];
+            //}
+
+            //Assert.AreEqual(second.LongCount, actual.LongLength);
+            //for (var i = 0L; i < actual.LongLength; ++i)
+            //{
+            //    Assert.AreEqual(second[i], actual[i]);
+            //}
+
+            //first = new LongSystemArray<char>(new[] { 'T', 'G', 'C', 'A', 'T', 'A'});
+            //second = new LongSystemArray<char>(new[] { 'A', 'T', 'A', 'T', 'G', 'C' });
+
+            //result = target.Run(first, second);
+            //resEnum = result.GetEnumerator();
+            //subSeqs = new List<char[]>();
+            //while (resEnum.MoveNext())
+            //{
+            //    subSeqs.Add(resEnum.Current);
+            //}
         }
     }
 }

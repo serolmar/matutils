@@ -1473,6 +1473,48 @@ namespace Utilities.Test
     }
 
     /// <summary>
+    /// Testa a escrita de uma sequência crescente de números longos positivos.
+    /// </summary>
+    [TestClass]
+    public class UlongIncSeqWriterReaderTest
+    {
+        /// <summary>
+        /// Testa a escrita e leitura de uma sequência de números primos.
+        /// </summary>
+        [Description("Testa a escrita e leitura de uma sequência de números primos.")]
+        [TestMethod]
+        public void TestUlongIncSeqWriterReader()
+        {
+            var values = new[] {
+                2UL, 3UL, 5UL, 7UL, 11UL, 13UL, 17UL, 19UL, 23UL, 29UL, 31UL,
+                37UL, 41UL, 43UL, 47UL, 53UL, 59UL, 61UL, 67UL, 71UL, 73UL };
+
+            var buffer = new byte[1000];
+            var memoryStream = new MemoryStream(buffer);
+            var bitwriter = new BitWriter(memoryStream);
+
+            var seqWriter = new UlongIncSeqWriter(bitwriter);
+            for (var i = 0; i < values.Length; ++i)
+            {
+                seqWriter.WriteNext(values[i]);
+            }
+
+            seqWriter.CloseSequence();
+
+            memoryStream.Seek(0, SeekOrigin.Begin);
+            var bitreader = new BitReader(memoryStream);
+            var seqReader = new UlongIncSeqReader(bitreader);
+            for (var i = 0; i < values.Length; ++i)
+            {
+                seqReader.MoveNext();
+                Assert.AreEqual(values[i], seqReader.CurrentValue);
+            }
+
+            Assert.IsFalse(seqReader.MoveNext());
+        }
+    }
+
+    /// <summary>
     /// Representa um valor qualquer.
     /// </summary>
     /// <typeparam name="T">O tipo do valor.</typeparam>

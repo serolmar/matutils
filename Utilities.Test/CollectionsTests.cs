@@ -66,7 +66,7 @@ namespace Utilities.Test
         [Description("Tests the addition function when repeated aren't being ignored.")]
         public void InsertionSortedCollection_AddStableSortTest()
         {
-            var insertionValues = new[] 
+            var insertionValues = new[]
             {
                 Tuple.Create(4,0),
                 Tuple.Create(2,0),
@@ -149,7 +149,7 @@ namespace Utilities.Test
         [Description("Tests the remove function.")]
         public void InsertionSortedCollection_RemoveTest()
         {
-            var insertionValues = new[] 
+            var insertionValues = new[]
             {
                 Tuple.Create(4,0),
                 Tuple.Create(2,0),
@@ -485,7 +485,7 @@ namespace Utilities.Test
         [TestMethod]
         public void BitList_NumberReadWriteTextTest()
         {
-            var textExps = new[] { 
+            var textExps = new[] {
                 "100000001",
                 "0",
                 "198174651938745138169854193845083450139846050298710285720345709345134",
@@ -706,9 +706,9 @@ namespace Utilities.Test
         public void QuickSelect_MinTest()
         {
             var target = new QuickSelect<int>();
-            var collection = new int[] { 
-                6, 2, 4, 9, 4, 7, 5, 8, 3, 
-                1, 2, 4, 7, 5, 4, 3, 3, 2, 
+            var collection = new int[] {
+                6, 2, 4, 9, 4, 7, 5, 8, 3,
+                1, 2, 4, 7, 5, 4, 3, 3, 2,
                 5, 6 };
             var length = collection.Length;
             var ordered = new int[length];
@@ -1018,9 +1018,9 @@ namespace Utilities.Test
         [TestMethod]
         public void GeneralizedCollections_HeapTest()
         {
-            var array = new[] { 
-                1, 5, 2, 6, 3, 4, 
-                3, 2, 6, 4, 7, 6, 
+            var array = new[] {
+                1, 5, 2, 6, 3, 4,
+                3, 2, 6, 4, 7, 6,
                 3, 4, 7, 3 };
             var target = new Heap<int>(array);
             Assert.AreEqual(array.Length, target.Count);
@@ -1208,6 +1208,40 @@ namespace Utilities.Test
                             ++firstStartIndex;
                         }
                     }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Testa a função que permite copiar o conteúdo da ordenação geral para outra ordenação geral.
+        /// </summary>
+        [Description("Tests the function that copies the contents of array to another array.")]
+        [TestMethod]
+        public void GeneralizedCollections_GeneralLongArrayCopyToGeneralizedLongArray()
+        {
+            GeneralLongArray<int>.MaxBinaryPower = 3;
+            GeneralLongArray<int>.ObjMaxBinaryPower = 2;
+
+            // A iniciar em 0.
+            for (var i = 0; i < 100; ++i)
+            {
+                var target = new GeneralLongArray<int>(i, true);
+                this.FillArray(target);
+                var copied = new GeneralLongArray<int>(i, true);
+                target.CopyTo(copied, 0);
+                this.AssertArray(copied);
+            }
+
+            // A iniciar em índices arbitrários
+            for (var i = 2UL; i < 50; ++i)
+            {
+                for (var j = 1UL; j < i; ++j)
+                {
+                    var target = new GeneralLongArray<int>(i, true);
+                    this.FillArray(target);
+                    var copied = new GeneralLongArray<int>(i + j, true);
+                    target.CopyTo(copied, j);
+                    this.AsserArray(copied, (int)j);
                 }
             }
         }
@@ -1402,10 +1436,10 @@ namespace Utilities.Test
             GeneralDictionary<int, int>.MaxBinaryPower = 2;
             GeneralDictionary<int, int>.ObjMaxBinaryPower = 1;
 
-            var keyList = new List<int>() { 
+            var keyList = new List<int>() {
                 1, 10, 2, 9, 3, 8, 4, 7, 5, 6,
                 21, 34, 15, 13, 11, 20, 33, 12, 16, 14 };
-            var valueList = new List<int>() { 
+            var valueList = new List<int>() {
                 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
                 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 };
             var length = keyList.Count;
@@ -1574,6 +1608,20 @@ namespace Utilities.Test
         }
 
         /// <summary>
+        /// Preenche cada entrada da ordenação com o valor correspondente ao índice transladado,
+        /// iniciando no valor da translação.
+        /// </summary>
+        /// <param name="generalArray">A ordenação.</param>
+        /// <param name="index">O valor da translação.</param>
+        private void FillArray(GeneralLongArray<int> generalArray, int index)
+        {
+            for (var i = index; i < generalArray.Count; ++i)
+            {
+                generalArray[i] = i - index;
+            }
+        }
+
+        /// <summary>
         /// Verifica se o valor atribuído a cada entrada de uma ordenação coincide com
         /// o respectivo índice.
         /// </summary>
@@ -1583,6 +1631,20 @@ namespace Utilities.Test
             for (var i = 0; i < generalArray.Count; ++i)
             {
                 Assert.AreEqual(i, generalArray[i]);
+            }
+        }
+
+        /// <summary>
+        /// Verifica se o valor atribuída a cada entrada de uma ordenação coincide com
+        /// o respectivo índice transladado.
+        /// </summary>
+        /// <param name="generalArray">A ordenação.</param>
+        /// <param name="index">O valor da translação.</param>
+        private void AsserArray(GeneralLongArray<int> generalArray, int index)
+        {
+            for (var i = index; i < generalArray.Count; ++i)
+            {
+                Assert.AreEqual(i - index, generalArray[i]);
             }
         }
 

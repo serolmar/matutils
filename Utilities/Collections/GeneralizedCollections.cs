@@ -3333,7 +3333,7 @@ namespace Utilities
         /// <param name="item">O item.</param>
         /// <param name="index">O índice da primeira ocorrência do item.</param>
         /// <returns>Verdadeiro se o item se encontrar na colecção e falso caso contrário.</returns>
-        private bool TryGetIndexOf(T item, out ulong index)
+        public bool TryGetIndexOf(T item, out ulong index)
         {
             return this.TryGetIndexOfAux(item, out index);
         }
@@ -3513,6 +3513,188 @@ namespace Utilities
                     var thirdLength = elem.Length;
                     Array.Copy(elem, 0, array, currentIndex, thirdLength);
                     currentIndex += thirdLength;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Efectua a cópia da ordenação longa corrente para outra ordenação longa.
+        /// </summary>
+        /// <param name="array">A ordenação longa a reter a cópia.</param>
+        /// <param name="index">O índice a partir do qual a cópia será efectuada.</param>
+        public void CopyTo(
+            GeneralLongArray<T> array,
+            ulong index)
+        {
+            if(index < 0 || index > array.UlongCount)
+            {
+                throw new IndexOutOfRangeException("Index must be greater than zero or less than the size of the collection.");
+            }
+            else
+            {
+                var sum = index + this.length;
+                if(sum > array.UlongCount)
+                {
+                    throw new ArgumentException("Destination array was not long enough. Check destIndex and length, and the array's lower bounds.");
+                }
+                else if(sum != 0)
+                {
+                    // Determinação das coordenadas do índice no vector longo
+                    var thirdDim = index & mask;
+                    var secondDim = 0UL;
+                    var firstDim = index >> maxBinaryPower;
+                    if (firstDim != 0)
+                    {
+                        secondDim = firstDim & generalMask;
+                        firstDim >>= objMaxBinaryPower;
+                    }
+
+                    var firstIndex = (long)thirdDim;
+                    var secondIndex = (long)secondDim;
+                    var thirdIndex = (long)firstDim;
+
+                    // Os vectores estão alinhados
+                    if(firstIndex == 0)
+                    {
+                        // Cópia completamente alinhada
+                        var firstLength = this.elements.Length;
+                        var prevFirstLength = firstLength - 1;
+                        var size = mask + 1;
+                        var genSize = generalMask + 1;
+                        for (var i = 0L; i < prevFirstLength; ++i)
+                        {
+                            var curr = this.elements[i];
+                            for (var j = 0L; j < genSize; ++j)
+                            {
+                                var outerElem = array.elements[thirdIndex][secondIndex];
+                                var elem = curr[j];
+                                Array.Copy(elem, 0, outerElem, 0, size);
+                                ++secondIndex;
+                                if(secondIndex == genSize)
+                                {
+                                    ++thirdIndex;
+                                    secondIndex = 0;
+                                }
+                            }
+                        }
+
+                        // Cópia da segunda dimensão
+                        var lastCurr = this.elements[prevFirstLength];
+                        var secondLength = lastCurr.LongLength;
+                        var prevSecondLength = secondLength - 1;
+                        for(var j =0L;j<prevSecondLength; ++j)
+                        {
+                            var outerElem = array.elements[thirdIndex][secondIndex];
+                            var elem = lastCurr[j];
+                            Array.Copy(elem, 0, outerElem, 0, size);
+                            ++secondIndex;
+                            if(secondIndex == genSize)
+                            {
+                                ++thirdIndex;
+                                secondIndex = 0;
+                            }
+                        }
+
+                        // Cópia final
+                        var lastOuterElem = array.elements[thirdIndex][secondIndex];
+                        var lastCopyElem = lastCurr[prevSecondLength];
+                        Array.Copy(lastCopyElem, 0, lastOuterElem, 0, lastCopyElem.LongLength);
+                    }
+                    else
+                    {
+                        // Não há alinhamento nos vectores
+                        var firstLength = this.elements.Length;
+                        var prevFirstLength = firstLength - 1;
+                        var size = mask + 1;
+                        var copyLength = size - firstIndex;
+                        var genSize = generalMask + 1;
+                        var prevMaxBinPower = generalMask;
+                        for (var i = 0L; i < prevFirstLength; ++i)
+                        {
+                            var curr = this.elements[i];
+                            for (var j = 0L; j < prevMaxBinPower; ++j)
+                            {
+                                var outerElem = array.elements[thirdIndex][secondIndex];
+                                var elem = curr[j];
+                                Array.Copy(elem, 0, outerElem, firstIndex, copyLength);
+                                ++secondIndex;
+                                if(secondIndex == genSize)
+                                {
+                                    ++thirdIndex;
+                                    secondIndex = 0;
+                                }
+
+                                outerElem = array.elements[thirdIndex][secondIndex];
+                                Array.Copy(elem, copyLength, outerElem, 0, firstIndex);
+                            }
+
+                            var currElem = curr[prevMaxBinPower];
+                            var currOuterElem = array.elements[thirdIndex][secondIndex];
+                            Array.Copy(
+                                currElem,
+                                0,
+                                currOuterElem,
+                                firstIndex,
+                                copyLength);
+                            ++secondIndex;
+                            if(secondIndex == genSize)
+                            {
+                                ++thirdIndex;
+                                secondIndex = 0;
+                            }
+
+                            currOuterElem = array.elements[thirdIndex][secondIndex];
+                            Array.Copy(
+                                currElem,
+                                copyLength,
+                                currOuterElem,
+                                0,
+                                firstIndex);
+                        }
+
+                        // Cópia da segunda dimensão
+                        var lastCurr = this.elements[prevFirstLength];
+                        var secondLength = lastCurr.LongLength;
+                        var prevSecondLength = secondLength - 1;
+                        for (var j = 0L; j < prevSecondLength; ++j)
+                        {
+                            var outerElem = array.elements[thirdIndex][secondIndex];
+                            var elem = lastCurr[j];
+                            Array.Copy(elem, 0, outerElem, firstIndex, copyLength);
+                            ++secondIndex;
+                            if(secondIndex == genSize)
+                            {
+                                ++thirdIndex;
+                                secondIndex = 0;
+                            }
+
+                            outerElem = array.elements[thirdIndex][secondIndex];
+                            Array.Copy(elem, copyLength, outerElem, 0, firstIndex);
+                        }
+
+                        // Cópia final
+                        var lastOuterElem = array.elements[thirdIndex][secondIndex];
+                        var lastCopyElem = lastCurr[prevSecondLength];
+                        var lastLength = lastCopyElem.LongLength;
+                        if (firstIndex + lastLength - 1 < size)
+                        {
+                            Array.Copy(lastCopyElem, 0, lastOuterElem, firstIndex, lastLength);
+                        }
+                        else
+                        {
+                            Array.Copy(lastCopyElem, 0, lastOuterElem, firstIndex, copyLength);
+
+                            ++secondIndex;
+                            if (secondIndex == genSize)
+                            {
+                                ++thirdIndex;
+                                secondIndex = 0;
+                            }
+
+                            lastOuterElem = array.elements[thirdIndex][secondIndex];
+                            Array.Copy(lastCopyElem, copyLength, lastOuterElem, 0, lastLength - copyLength);
+                        }
+                    }
                 }
             }
         }

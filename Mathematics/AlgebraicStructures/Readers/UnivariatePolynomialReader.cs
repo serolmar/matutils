@@ -124,7 +124,8 @@
             IConversion<int, T> conversion,
             out UnivariatePolynomialNormalForm<T> resultPolynomial)
         {
-            return this.TryParsePolynomial(polynomialReader, conversion, null, out resultPolynomial);
+            var erros = new LogStatus<string, EParseErrorLevel>();
+            return this.TryParsePolynomial(polynomialReader, conversion, erros, out resultPolynomial);
         }
 
         /// <summary>
@@ -149,6 +150,9 @@
             else if (conversion == null)
             {
                 throw new ArgumentNullException("conversion");
+            }else if(errors == null)
+            {
+                throw new ArgumentNullException("errors");
             }
             else
             {

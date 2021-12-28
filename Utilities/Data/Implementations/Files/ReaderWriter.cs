@@ -1109,7 +1109,8 @@ namespace Utilities
         /// </summary>
         public void Dispose()
         {
-            this.InnerFlush();
+            this.ForceFlush();
+            this.stream.Flush();
             this.stream = null;
             this.disposed = true;
         }
@@ -1210,5 +1211,276 @@ namespace Utilities
 
             this.stream.Flush();
         }
+    }
+
+    /// <summary>
+    /// Classe responsável pela escrita de uma sequência crescente de inteiros positivos.
+    /// </summary>
+    public class UlongIncSeqWriter
+    {
+        /// <summary>
+        /// A linha onde será escrita a sequência.
+        /// </summary>
+        private BitWriter bitWriter;
+
+        /// <summary>
+        /// O número de bits.
+        /// </summary>
+        private byte[] zeroBits;
+
+        /// <summary>
+        /// O valor nulo.
+        /// </summary>
+        private ulong currValue = 0U;
+
+        /// <summary>
+        /// O valor do logaritmo da diferença inicial.
+        /// </summary>
+        int currDiffLog = 1;
+
+        /// <summary>
+        /// Valor pré-calculado.
+        /// </summary>
+        double log2 = Math.Log(2);
+
+        /// <summary>
+        /// Valor que indica se a sucessão foi fechada.
+        /// </summary>
+        private bool closed = false;
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="UlongIncSeqWriter"/>.
+        /// </summary>
+        /// <param name="bitWriter">A linha de fluxo onde escrever.</param>
+        public UlongIncSeqWriter(
+            BitWriter bitWriter)
+        {
+            if (bitWriter == null)
+            {
+                throw new ArgumentNullException("bitWriter");
+            }
+            else
+            {
+                this.bitWriter = bitWriter;
+                this.zeroBits = new byte[64];
+            }
+        }
+
+        /// <summary>
+        /// Escreve o próximo valor.
+        /// </summary>
+        /// <param name="value">O valor a ser escrito na sequência</param>
+        public void WriteNext(ulong value)
+        {
+            if (closed)
+            {
+                throw new UtilitiesException("Sequence already closed.");
+            }
+            else
+            {
+                if (value > this.currValue)
+                {
+                    var wrtDiff = value - this.currValue;
+                    var logDiff = (int)(Math.Log(wrtDiff) / this.log2);
+
+                    var absDiff = logDiff - currDiffLog;
+                    if (absDiff < 0)
+                    {
+                        if (-absDiff > this.zeroBits.LongLength)
+                        {
+                            this.zeroBits = new byte[-absDiff];
+                        }
+
+                        this.bitWriter.WriteBit(1);
+                        this.bitWriter.WriteBits(this.zeroBits, 0, -absDiff);
+                    }
+                    else
+                    {
+                        if (absDiff > this.zeroBits.LongLength)
+                        {
+                            this.zeroBits = new byte[absDiff];
+                        }
+
+                        this.bitWriter.WriteBit(0);
+                        this.bitWriter.WriteBits(this.zeroBits, 0, absDiff);
+                    }
+
+                    this.bitWriter.WriteBit(1);
+                    this.bitWriter.WriteBits(BitConverter.GetBytes(wrtDiff), 0, logDiff + 1);
+
+                    this.currValue = value;
+                    this.currDiffLog = logDiff;
+                }
+                else
+                {
+                    throw new ArgumentException("This writer supports only increasing sequences.");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Fecha a sequência.
+        /// </summary>
+        public void CloseSequence()
+        {
+            this.closed = true;
+            this.bitWriter.WriteBits(new byte[] { 3 }, 0, 2);
+            this.bitWriter.ForceFlush();
+        }
+    }
+
+    /// <summary>
+    /// Efectua a leitura dos valores de uma sequência crescente de inteiros positivos.
+    /// </summary>
+    public class UlongIncSeqReader
+    {
+        /// <summary>
+        /// A linha de onde será lida a sequência.
+        /// </summary>
+        private BitReader bitReader;
+
+        /// <summary>
+        /// O amortecedor para leitura.
+        /// </summary>
+        private byte[] readingBuffer = new byte[8];
+
+        /// <summary>
+        /// Valor que indica se a sequência já foi iniciada.
+        /// </summary>
+        private bool started = false;
+
+        /// <summary>
+        /// Valor que indica se a sequência já terminou.
+        /// </summary>
+        private bool ended = false;
+
+        /// <summary>
+        /// Mantém o valor actual.
+        /// </summary>
+        private ulong currValue;
+
+        /// <summary>
+        /// Mantém o logaritmo na base 2 da diferença entre os valores.
+        /// </summary>
+        private int currDiffLog = 1;
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="UlongIncSeqReader"/>.
+        /// </summary>
+        /// <param name="bitReader">O leitor de bits.</param>
+        public UlongIncSeqReader(BitReader bitReader)
+        {
+            if(bitReader == null)
+            {
+                throw new ArgumentNullException("bitReader");
+            }
+            else
+            {
+                this.bitReader = bitReader;
+            }
+        }
+
+        /// <summary>
+        /// Obtém o valor actual.
+        /// </summary>
+        /// <exception cref="UtilitiesException">Se a sequência ainda não foi inicializada.</exception>
+        public ulong CurrentValue
+        {
+            get
+            {
+                if (this.started)
+                {
+                    return this.currValue;
+                }
+                else
+                {
+                    throw new UtilitiesException("Sequence reader was not yet started.");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Efectua a leitura do próximo valor.
+        /// </summary>
+        /// <returns>
+        /// Verdadeiro caso um valor tenha sido lido e falso caso a sequência tenha chegado ao final.
+        /// </returns>
+        public bool MoveNext()
+        {
+            if (ended)
+            {
+                return false;
+            }
+            else
+            {
+                this.started = true;
+                var readedBit = this.bitReader.ReadBit();
+                if (readedBit == -1)
+                {
+                    // Termina a  leitura
+                    this.ended = true;
+                    return false;
+                }
+                else
+                {
+                    var keep = true;
+                    if (readedBit == 0) // Adiciona
+                    {
+                        while (keep)
+                        {
+                            readedBit = this.bitReader.ReadBit();
+                            if (readedBit == -1)
+                            {
+                                throw new UtilitiesException("Unexpected end of file.");
+                            }
+                            else if (readedBit == 0)
+                            {
+                                ++this.currDiffLog;
+                            }
+                            else
+                            {
+                                keep = false;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        readedBit = bitReader.ReadBit();
+                        if (readedBit == 1)
+                        {
+                            this.ended = true;
+                            return false;
+                        }
+                        else
+                        {
+                            --this.currDiffLog;
+                            while (keep)
+                            {
+                                readedBit = this.bitReader.ReadBit();
+                                if (readedBit == -1)
+                                {
+                                    throw new UtilitiesException("Unexpected end of file.");
+                                }
+                                else if (readedBit == 0)
+                                {
+                                    --this.currDiffLog;
+                                }
+                                else
+                                {
+                                    keep = false;
+                                }
+                            }
+                        }
+                    }
+
+                    var readedBits = this.bitReader.ReadBits(this.readingBuffer, 0, this.currDiffLog + 1);
+                    var readed = BitConverter.ToUInt64(readingBuffer, 0);
+                    this.currValue += readed;
+                }
+            }
+
+            return true;
+        }
+
     }
 }

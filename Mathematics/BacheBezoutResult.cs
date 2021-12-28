@@ -56,7 +56,7 @@
         /// <param name="greatestCommonDivisor">O máximo divisor comum.</param>
         /// <param name="firstCofactor">O cofactor do primeiro valor relativamente ao máximo divisor comum.</param>
         /// <param name="secondCofactor">O cofactor do segundo valor relativamente ao máximo divisor comum.</param>
-        internal BacheBezoutResult(
+        public BacheBezoutResult(
             T firstItem,
             T secondItem,
             T firstFactor,

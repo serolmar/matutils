@@ -60,6 +60,7 @@
     <Compile Include="SmartFilterLambdaBuilderTest.cs" />
     <Compile Include="TabularItemsTest.cs" />
     <Compile Include="TrieTest.cs" />
+    <Compile Include="UtilsTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Utilities\Utilities.csproj">

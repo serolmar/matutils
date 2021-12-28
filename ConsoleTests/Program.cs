@@ -33,6 +33,451 @@ namespace ConsoleTests
 
         static void Main(string[] args)
         {
+            var integerDomain = new IntegerDomain();
+            var conversion = new ElementFractionConversion<int>(integerDomain);
+            var integerParser = new IntegerParser<string>();
+            var fractionParser = new ElementFractionParser<int>(integerParser, integerDomain);
+            var fractionField = new FractionField<int>(integerDomain);
+
+            // Leitura de um polinómio cujos coeficientes são outros polinómios
+            var pol = GeneralReaders.ReadUnivarPolWithPolCoeffs<Fraction<int>>(
+                "x^2*3*(y+5)+x^3*y+x^3*2*y^2+y^3-1",
+                "x",
+                "y",
+                conversion,
+                fractionParser,
+                fractionField);
+
+            // Estabelecimento do módulo
+            var module = GeneralReaders.ReadUnivarPolynomial<Fraction<int>>(
+                "y^2+y+1",
+                fractionField,
+                fractionParser,
+                conversion,
+                "y");
+
+            // Domínio dos polinómios
+            var polDomain = new UnivarPolynomEuclideanDomain<Fraction<int>>(
+                "y",
+                fractionField);
+
+            var lgAlg = new LagrangeAlgorithm<UnivariatePolynomialNormalForm<Fraction<int>>>(polDomain);
+            var modularField = new GeneralModuleIntegralField<UnivariatePolynomialNormalForm<Fraction<int>>>(
+                module,
+                polDomain,
+                (m, n, d) =>
+                {
+                    var res = lgAlg.Run(m, n);
+                    var gcd = res.GreatestCommonDivisor;
+                    var greatestDegreeCoeff = gcd.GetLeadingCoefficient(fractionField);
+                    if (!fractionField.IsMultiplicativeUnity(greatestDegreeCoeff))
+                    {
+                        var inverse = fractionField.MultiplicativeInverse(greatestDegreeCoeff);
+                        res = new BacheBezoutResult<UnivariatePolynomialNormalForm<Fraction<int>>>(
+                            res.FirstItem,
+                            res.SecondItem,
+                            res.FirstFactor,
+
+                            // Those are the only one that matters
+                            res.SecondFactor.Multiply(inverse, fractionField),
+                            res.GreatestCommonDivisor.Multiply(inverse, fractionField),
+
+                            res.FirstCofactor,
+                            res.SecondCofactor
+                            );
+                    }
+
+                    return Tuple.Create(res.GreatestCommonDivisor, res.SecondFactor);
+                });
+
+            // Leitura de um polinómio normal
+            var testPol = GeneralReaders.ReadUnivarPolWithPolCoeffs<Fraction<int>>(
+                "x^2-1",
+                "x",
+                "y",
+                conversion,
+                fractionParser,
+                fractionField);
+
+            var mon1 = new UnivariatePolynomialNormalForm<UnivariatePolynomialNormalForm<Fraction<int>>>(
+                new UnivariatePolynomialNormalForm<Fraction<int>>(
+                    new Fraction<int>(1, 1, integerDomain),
+                    1,
+                    "y",
+                    fractionField),
+                1,
+                "x",
+                polDomain);
+
+            var mon2 = new UnivariatePolynomialNormalForm<UnivariatePolynomialNormalForm<Fraction<int>>>(
+                new UnivariatePolynomialNormalForm<Fraction<int>>(
+                    new Fraction<int>(1, 1, integerDomain),
+                    2,
+                    "y",
+                    fractionField),
+                1,
+                "x",
+                polDomain);
+            var gPol1 = testPol.Replace(mon1, modularField);
+            var gpol2 = testPol.Replace(mon2, modularField);
+            var g = testPol.Multiply(gPol1, modularField);
+            g = g.Multiply(gpol2, modularField);
+
+            Console.WriteLine("{0}", g);
+
+            //var integerNumber = new IntegerDomain();
+            //var squareRootAlg = new IntCordicSquareRootAlgorithm();
+            //var primeIterator = new IntPrimeNumbersIterator(int.MaxValue, squareRootAlg);
+
+            //// Raiz primitiva
+            //var primRootCalc = new NaivePrimitveRoot<int>(
+            //    v => new ModularIntegerField(v),
+            //    integerNumber,
+            //    squareRootAlg,
+            //    primeIterator);
+
+            //var val = primRootCalc.Run(23);
+
+            //var fileInfo = new FileInfo(@"Teste\primes.txt");
+            //var writeFileInfo = new FileInfo(@"Teste\primes_compressed.out");
+
+            //using (var readStream = writeFileInfo.OpenRead())
+            //{
+            //    var bitreader = new BitReader(readStream);
+            //    var seqReader = new UlongIncSeqReader(bitreader);
+            //    while (seqReader.MoveNext())
+            //    {
+            //        Console.WriteLine(seqReader.CurrentValue);
+            //    }
+            //}
+
+            #region Create File
+            //if (fileInfo.Exists)
+            //{
+            //    using (var stream = fileInfo.OpenRead())
+            //    {
+            //        if (writeFileInfo.Exists)
+            //        {
+            //            using (var writeStream = writeFileInfo.OpenWrite())
+            //            {
+            //                var bitwriter = new BitWriter(writeStream);
+            //                var seqWriter = new UlongIncSeqWriter(bitwriter);
+            //                var encoding = Encoding.ASCII;
+            //                using (var streamReader = new StreamReader(stream, encoding))
+            //                {
+            //                    var state = 0;
+            //                    var current = string.Empty;
+            //                    while (state != 2)
+            //                    {
+            //                        var readed = streamReader.Read();
+            //                        if (state == 0)
+            //                        {
+            //                            if (readed == -1)
+            //                            {
+            //                                state = 2;
+            //                            }
+            //                            else
+            //                            {
+            //                                var readedChar = (char)readed;
+            //                                if (char.IsDigit(readedChar))
+            //                                {
+            //                                    current += readedChar;
+            //                                    state = 1;
+            //                                }
+            //                            }
+            //                        }
+            //                        else if (state == 1)
+            //                        {
+            //                            if(readed == -1)
+            //                            {
+            //                                var result = default(ulong);
+            //                                if(ulong.TryParse(current, out result))
+            //                                {
+            //                                    seqWriter.WriteNext(result);
+            //                                    state = 2;
+            //                                }
+            //                                else
+            //                                {
+            //                                    throw new Exception("Something went wrong");
+            //                                }
+            //                            }
+            //                            else
+            //                            {
+            //                                var readedChar = (char)readed;
+            //                                if (char.IsDigit(readedChar))
+            //                                {
+            //                                    current += readedChar;
+            //                                }
+            //                                else
+            //                                {
+            //                                    var result = default(ulong);
+            //                                    if (ulong.TryParse(current, out result))
+            //                                    {
+            //                                        seqWriter.WriteNext(result);
+            //                                        current = string.Empty;
+            //                                        state = 0;
+            //                                    }
+            //                                    else
+            //                                    {
+            //                                        throw new Exception("Something went wrong");
+            //                                    }
+            //                                }
+            //                            }
+            //                        }
+            //                    }
+            //                }
+
+            //                seqWriter.CloseSequence();
+            //                bitwriter.ForceFlush();
+            //            }
+            //        }
+            //        else
+            //        {
+            //            using (var writeStream = writeFileInfo.Create())
+            //            {
+            //                var bitwriter = new BitWriter(writeStream);
+            //                var seqWriter = new UlongIncSeqWriter(bitwriter);
+            //                var encoding = Encoding.ASCII;
+            //                using (var streamReader = new StreamReader(stream, encoding))
+            //                {
+            //                    var state = 0;
+            //                    var current = string.Empty;
+            //                    while (state != 2)
+            //                    {
+            //                        var readed = streamReader.Read();
+            //                        if (state == 0)
+            //                        {
+            //                            if (readed == -1)
+            //                            {
+            //                                state = 2;
+            //                            }
+            //                            else
+            //                            {
+            //                                var readedChar = (char)readed;
+            //                                if (char.IsDigit(readedChar))
+            //                                {
+            //                                    current += readedChar;
+            //                                    state = 1;
+            //                                }
+            //                            }
+            //                        }
+            //                        else if (state == 1)
+            //                        {
+            //                            if (readed == -1)
+            //                            {
+            //                                var result = default(ulong);
+            //                                if (ulong.TryParse(current, out result))
+            //                                {
+            //                                    seqWriter.WriteNext(result);
+            //                                    state = 2;
+            //                                }
+            //                                else
+            //                                {
+            //                                    throw new Exception("Something went wrong");
+            //                                }
+            //                            }
+            //                            else
+            //                            {
+            //                                var readedChar = (char)readed;
+            //                                if (char.IsDigit(readedChar))
+            //                                {
+            //                                    current += readedChar;
+            //                                }
+            //                                else
+            //                                {
+            //                                    var result = default(ulong);
+            //                                    if (ulong.TryParse(current, out result))
+            //                                    {
+            //                                        seqWriter.WriteNext(result);
+            //                                        current = string.Empty;
+            //                                        state = 0;
+            //                                    }
+            //                                    else
+            //                                    {
+            //                                        throw new Exception("Something went wrong");
+            //                                    }
+            //                                }
+            //                            }
+            //                        }
+            //                    }
+            //                }
+
+            //                seqWriter.CloseSequence();
+            //                bitwriter.ForceFlush();
+            //            }
+            //        }
+            //    }
+            //}
+            //else
+            //{
+            //    Console.WriteLine("File doesn't exist");
+            //}
+            #endregion Create File
+
+            Console.WriteLine();
+            Console.WriteLine("Press any key to continue...");
+            Console.ReadKey();
+        }
+
+        private static void WriteReadIncSequence()
+        {
+            var zeroBits = new byte[] { 0, 0, 0, 0 };
+            var values = new[] {
+                2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31,
+                37, 41, 43, 47, 53, 59, 61, 67, 71, 73 };
+            var currvalue = 0;
+            var currDiffLog = 1;
+            var log2 = Math.Log(2);
+
+            var buffer = new byte[1000];
+            var memoryStream = new MemoryStream(buffer);
+            var bitwriter = new BitWriter(memoryStream);
+
+            var length = values.Length;
+            for (var i = 0; i < length; ++i)
+            {
+                var wrtValue = values[i];
+                if (wrtValue < currvalue)
+                {
+                    throw new Exception("Sequence must be positive and increasing.");
+                }
+                else
+                {
+                    var wrtDiff = wrtValue - currvalue;
+                    var logDiff = (int)(Math.Log(wrtDiff) / log2);
+                    var absDiff = logDiff - currDiffLog;
+                    if (absDiff < 0)
+                    {
+                        bitwriter.WriteBit(1);
+                        bitwriter.WriteBits(zeroBits, 0, -absDiff);
+                    }
+                    else
+                    {
+                        bitwriter.WriteBit(0);
+                        bitwriter.WriteBits(zeroBits, 0, absDiff);
+                    }
+
+                    bitwriter.WriteBit(1);
+                    bitwriter.WriteBits(BitConverter.GetBytes(wrtDiff), 0, logDiff + 1);
+
+                    currvalue = wrtValue;
+                    currDiffLog = logDiff;
+                }
+            }
+
+            // Termina
+            bitwriter.WriteBits(new byte[] { 3 }, 0, 2);
+
+            // Necessário forçar a escrita dos últimos bits
+            bitwriter.ForceFlush();
+            memoryStream.Flush();
+
+            var streamReader = new MemoryStream(buffer);
+            var bitReader = new BitReader(streamReader);
+            var readingBuffer = new byte[8];
+            var currReadVal = 0L;
+            var currReadDiffLog = 1;
+            var testPos = 0; // Posiçao no vector para teste dos valores
+            var read = true;
+            while (read)
+            {
+                var readedBit = bitReader.ReadBit();
+                if (readedBit == -1)
+                {
+                    // Termina a  leitura
+                    read = false;
+                }
+                else
+                {
+                    var keep = true;
+                    if (readedBit == 0) // Adiciona
+                    {
+                        while (keep)
+                        {
+                            readedBit = bitReader.ReadBit();
+                            if (readedBit == -1)
+                            {
+                                throw new Exception("Unexpected end of file.");
+                            }
+                            else if (readedBit == 0)
+                            {
+                                ++currReadDiffLog;
+                            }
+                            else
+                            {
+                                keep = false;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        readedBit = bitReader.ReadBit();
+                        if (readedBit == 1)
+                        {
+                            read = false;
+                        }
+                        else
+                        {
+                            --currReadDiffLog;
+                            while (keep)
+                            {
+                                readedBit = bitReader.ReadBit();
+                                if (readedBit == -1)
+                                {
+                                    throw new Exception("Unexpected end of file.");
+                                }
+                                else if (readedBit == 0)
+                                {
+                                    --currReadDiffLog;
+                                }
+                                else
+                                {
+                                    keep = false;
+                                }
+                            }
+                        }
+                    }
+
+                    // O bit 1 já foi lido, faltam os restantes
+                    if (read)
+                    {
+                        var readedBits = bitReader.ReadBits(readingBuffer, 0, currReadDiffLog + 1);
+                        var readed = BitConverter.ToInt64(readingBuffer, 0);
+                        currReadVal += readed;
+                        if (currReadVal != values[testPos])
+                        {
+                            throw new Exception("Value does not match.");
+                        }
+
+                        ++testPos;
+                    }
+                }
+            }
+        }
+
+        private static void LastUsed()
+        {
+            var integerDomain = new BigIntegerDomain();
+            var fractionField = new FractionField<BigInteger>(integerDomain);
+            var polynomDomain = new UnivarPolynomEuclideanDomain<Fraction<BigInteger>>(
+                "x",
+                fractionField
+                );
+            var alg = new LagrangeAlgorithm<UnivariatePolynomialNormalForm<Fraction<BigInteger>>>(
+                polynomDomain);
+
+            var polParser = new BigIntFractionPolReader();
+            var firstValue = polParser.Read("16*x^5-20*x^3+5*x");
+            var secondValue = polParser.Read("80*x^4-60*x^2+5");
+            var result = alg.Run(firstValue, secondValue);
+            Console.WriteLine("First: {0}", result.FirstItem);
+            Console.WriteLine("Second: {0}", result.SecondItem);
+            Console.WriteLine("First Bezout factor: {0}", result.FirstFactor);
+            Console.WriteLine("Second Bezout factor: {0}", result.SecondFactor);
+            Console.WriteLine("GCD: {0}", result.GreatestCommonDivisor);
+            Console.WriteLine("First cofactor: {0}", result.FirstCofactor);
+            Console.WriteLine("Second cofactor: {0}", result.SecondCofactor);
+
             var flacFileName = "Teste\\10sine.flac";
             var testFlacFileName = "Teste\\teste.flac";
             var wavFileName = "Teste\\exponential.wav";
@@ -112,10 +557,6 @@ namespace ConsoleTests
             //        var data = SamplesProcessorFunctions.ReadWav(stream);
             //    }
             //}
-
-            Console.WriteLine();
-            Console.WriteLine("Press any key to continue...");
-            Console.ReadKey();
         }
 
         /// <summary>
@@ -694,7 +1135,7 @@ namespace ConsoleTests
         /// <param name="sampleFreq">A frequência de amostragem.</param>
         /// <returns>A função que implementa o algoritmo.</returns>
         static Func<double, double> KarStrAlg(
-            double freq, 
+            double freq,
             double sampleFreq)
         {
             // (N + 1/2)F = fs approx NxF=fs
@@ -762,7 +1203,7 @@ namespace ConsoleTests
         static Func<double, double> KarStrAlg(
             double freq,
             double sampleFreq,
-            Func<double,double> f)
+            Func<double, double> f)
         {
             if (f == null)
             {
@@ -3307,9 +3748,9 @@ namespace ConsoleTests
             }
 
             var count = 0;
-            var structureAffectations = new int[][] { 
-                new int[] { 1, 2, 3 }, 
-                new int[] { 1, 2, 3 }, 
+            var structureAffectations = new int[][] {
+                new int[] { 1, 2, 3 },
+                new int[] { 1, 2, 3 },
                 new int[] { 1, 2, 3 } };
             var affector = new StructureAffector(structureAffectations);
             foreach (var aff in affector)

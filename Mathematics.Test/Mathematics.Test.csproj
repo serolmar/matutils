@@ -63,6 +63,7 @@
     <Compile Include="FastDivisionFreeCharPolynomCalculatorTest.cs" />
     <Compile Include="Matrix\TriangDiagSymmDecompInverseAlgTest.cs" />
     <Compile Include="Matrix\TriangDiagSymmMatrixDecompositionTest.cs" />
+    <Compile Include="NumberTheoryTest.cs" />
     <Compile Include="NeuralNetworkTest.cs" />
     <Compile Include="Polynomial\FiniteFieldPolFactorizationAlgorithmTest.cs" />
     <Compile Include="IntegerMinWeightTdecompositionTest.cs" />

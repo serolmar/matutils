@@ -418,4 +418,237 @@
             }
         }
     }
+
+    /// <summary>
+    /// Implementa um sistema modular geral.
+    /// </summary>
+    /// <typeparam name="ModuleType">O tipo de objectos que constituem o módulo.</typeparam>
+    public class GeneralModuleIntegralField<ModuleType> : IModularField<ModuleType>
+    {
+        /// <summary>
+        /// Mantém o valor do módulo.
+        /// </summary>
+        private ModuleType module;
+
+        /// <summary>
+        /// O domínio responsável pelas operações sobre
+        /// </summary>
+        private IEuclidenDomain<ModuleType> domain;
+
+        /// <summary>
+        /// Mantém o algoritmo responsável pela determinação do máximo divisor comum e cofactor.
+        /// </summary>
+        private Func<ModuleType, ModuleType, IEuclidenDomain<ModuleType>, Tuple<ModuleType, ModuleType>> gcdFunc;
+
+        /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="GeneralModuleIntegralField{ModuleType}"/>.
+        /// </summary>
+        /// <param name="module">O módulo.</param>
+        /// <param name="domain">
+        /// O domínio responsável pelas operações sobre os valores.
+        /// </param>
+        /// <param name="gcdFunc">
+        /// A função responsável pela determinação do máximo divisor comum e cofactor do segundo valor.
+        /// </param>
+        /// <remarks>
+        /// Os argumentos da função serão do tipo (módulo, número, domínio).
+        /// </remarks>
+        public GeneralModuleIntegralField(
+            ModuleType module,
+            IEuclidenDomain<ModuleType> domain,
+            Func<ModuleType, ModuleType, IEuclidenDomain<ModuleType>, Tuple<ModuleType, ModuleType>> gcdFunc)
+        {
+            if (module == null)
+            {
+                throw new ArgumentNullException("module");
+            }
+            else if (domain == null)
+            {
+                throw new ArgumentNullException("modularInverse");
+            }
+            else if (gcdFunc == null)
+            {
+                throw new ArgumentNullException("gcdFunc");
+            }
+            else
+            {
+                this.module = module;
+                this.domain = domain;
+                this.gcdFunc = gcdFunc;
+            }
+        }
+
+        /// <summary>
+        /// Obtém e atribui o valor do módulo no corpo aritmético.
+        /// </summary>
+        /// <remarks>
+        /// Esta operação não é segura quando a classe se encontra a ser utilizada
+        /// em várias fluxos paralelos de execução (threads).
+        /// </remarks>
+        /// <value>
+        /// O valor do módulo.
+        /// </value>
+        public ModuleType Module
+        {
+            get
+            {
+                return this.module;
+            }
+            set
+            {
+                if (value == null)
+                {
+                    throw new MathematicsException("Module cannot be a null value");
+                }
+                else
+                {
+                    this.module = value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Obtém a identidade aditiva.
+        /// </summary>
+        public ModuleType AdditiveUnity
+        {
+            get
+            {
+                return this.domain.AdditiveUnity;
+            }
+        }
+
+        /// <summary>
+        /// Obtém a identidade multiplicativa.
+        /// </summary>
+        public ModuleType MultiplicativeUnity
+        {
+            get
+            {
+                return this.domain.MultiplicativeUnity;
+            }
+        }
+
+        /// <summary>
+        /// Determina a soma de dois valores.
+        /// </summary>
+        /// <param name="left">O primeiro valor.</param>
+        /// <param name="right">O segundo valor.</param>
+        /// <returns>O resultado da soma.</returns>
+        public ModuleType Add(ModuleType left, ModuleType right)
+        {
+            var value = this.domain.Add(left, right);
+            value = this.domain.Rem(value, this.module);
+            return value;
+        }
+
+        /// <summary>
+        /// Determina a inversa aditiva.
+        /// </summary>
+        /// <param name="number"></param>
+        /// <returns></returns>
+        public ModuleType AdditiveInverse(ModuleType number)
+        {
+            return this.domain.AdditiveInverse(number);
+        }
+
+        /// <summary>
+        /// Adiciona um valor, um determinado número de vezes.
+        /// </summary>
+        /// <param name="element">O elemento a ser adicionado.</param>
+        /// <param name="times">O número de vezes.</param>
+        /// <returns>O resultado da soma repetida.</returns>
+        public ModuleType AddRepeated(ModuleType element, int times)
+        {
+            var value = this.domain.AddRepeated(element, times);
+            value = this.domain.Rem(value, this.module);
+            return value;
+        }
+
+        /// <summary>
+        /// Determina a igualdade entre dois valores.
+        /// </summary>
+        /// <param name="x">O primeiro valor.</param>
+        /// <param name="y">O segundo valor.</param>
+        /// <returns>Verdadeiro se os valores forem iguais e falso caso contrário.</returns>
+        public bool Equals(ModuleType x, ModuleType y)
+        {
+            return this.domain.Equals(x, y);
+        }
+
+        /// <summary>
+        /// Obtém o código confuso do valor.
+        /// </summary>
+        /// <param name="obj">O valor.</param>
+        /// <returns>O código confuso.</returns>
+        public int GetHashCode(ModuleType obj)
+        {
+            return this.domain.GetHashCode(obj);
+        }
+
+        /// <summary>
+        /// Obtém o valor na forma reduzida.
+        /// </summary>
+        /// <param name="element">O valor.</param>
+        /// <returns>A forma reduzida do valor.</returns>
+        public ModuleType GetReduced(ModuleType element)
+        {
+            return this.domain.Rem(element, this.module);
+        }
+
+        /// <summary>
+        /// Determina se se trata da unidade aditiva.
+        /// </summary>
+        /// <param name="value">O valor a ser verificado.</param>
+        /// <returns>Verdadeiro se se trata da identidade aditiva e falso caso contrário.</returns>
+        public bool IsAdditiveUnity(ModuleType value)
+        {
+            return this.domain.IsAdditiveUnity(
+                this.domain.Rem(value, this.module));
+        }
+
+        /// <summary>
+        /// Determina se se trata da unidade multiplicativa.
+        /// </summary>
+        /// <param name="value">O valor a ser verificado.</param>
+        /// <returns>Verdadeiro se se trata da unidade multiplicativa e falso caso contrário.</returns>
+        public bool IsMultiplicativeUnity(ModuleType value)
+        {
+            return this.domain.IsMultiplicativeUnity(
+                this.domain.Rem(value, this.module));
+        }
+
+        /// <summary>
+        /// Determina a multiplicativa inversa do valor.
+        /// </summary>
+        /// <param name="number">O valor.</param>
+        /// <returns>A inversa multiplicativa.</returns>
+        public ModuleType MultiplicativeInverse(ModuleType number)
+        {
+            var bres = this.gcdFunc.Invoke(this.module, number, this.domain);
+            var gcd = bres.Item1;
+            if (this.domain.IsMultiplicativeUnity(gcd))
+            {
+                return this.domain.Rem(bres.Item2, this.module);
+            }
+            else
+            {
+                throw new MathematicsException(
+                        string.Format("Number {0} mod {1} has no inverse.", number, this.module));
+            }
+        }
+
+        /// <summary>
+        /// Obtém o produto de dois valores.
+        /// </summary>
+        /// <param name="left">O primeiro valor.</param>
+        /// <param name="right">O segundo valor.</param>
+        /// <returns></returns>
+        public ModuleType Multiply(ModuleType left, ModuleType right)
+        {
+            var value = this.domain.Multiply(left, right);
+            value = this.domain.Rem(value, this.module);
+            return value;
+        }
+    }
 }
