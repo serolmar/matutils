@@ -2928,6 +2928,30 @@ namespace Utilities
         }
 
         /// <summary>
+        /// Instancia uma nova instância de objectos do tipo <see cref="GeneralLongArray{T}"/>.
+        /// </summary>
+        /// <remarks>
+        /// A instanciação de uma ordenação geral suficientemente grande pode causar problemas de memória.
+        /// É conveniente avaliar a quantidade de memória disponível visível para o utilizador antes
+        /// de proceder à instanciação de listas muito grandes. Se o parâmetro <see cref="assertMemory"/> estiver
+        /// activo, esta validação será efectuada internamente.
+        /// </remarks>
+        /// <param name="array">A ordenação de inicialização.</param>
+        /// <param name="assertMemory">
+        /// Valor que indica se é necessário verficiar se existe memória
+        /// suficiente para continuar a instanciação.
+        /// </param>
+        public GeneralLongArray(T[] array, bool assertMemory = true)
+        {
+            this.assertMemory = assertMemory;
+            var arrayLength = array.LongLength;
+            this.AssertVisibleMemory((ulong)arrayLength);
+            this.Instantiate((ulong)arrayLength);
+            var innerArray = this.elements[0][0];
+            Array.Copy(array, innerArray, arrayLength);
+        }
+
+        /// <summary>
         /// Obtém ou atribui o valor especificado pelo índice.
         /// </summary>
         /// <param name="index">O índice.</param>

@@ -49,11 +49,14 @@ namespace Mathematics.Test
                 (c1, c2) => c1 == c2);
             var repChar = '_';
 
-            var first = new LongSystemArray<char>(new char[] { 'A', 'T', 'A', 'T', 'G', 'T' });
-            var second = new LongSystemArray<char>(new char[] { 'T', 'G', 'T', 'A', 'T', 'A' });
+            var first = new GeneralLongArray<char>(new char[] { 'T', 'G', 'T', 'A', 'T', 'A' });
+            var second = new GeneralLongArray<char>(new char[] { 'A', 'T', 'A', 'T', 'G', 'T' });
             var result = target.Run(first, second, repChar, repChar);
             var resEnum = result.GetEnumerator();
-            var test = resEnum.MoveNext();
+            while (resEnum.MoveNext())
+            {
+                var current = resEnum.Current;
+            }
 
             //var first = new LongSystemArray<char>(new char[] { 'A', 'G', 'G', 'T', 'A', 'B' });
             //var second = new LongSystemArray<char>(new char[] { 'G', 'X', 'T', 'X', 'A', 'Y', 'B' });

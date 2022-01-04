@@ -261,7 +261,13 @@ namespace Mathematics
     /// O tipo dos objectos que constituem as entradas da segunda sequência.
     /// </typeparam>
     public class AllLongestCommonSequence<T, P>
-        : IAlgorithm<ILongList<T>, ILongList<P>, T, P, IEnumerable<Tuple<ILongList<T>, ILongList<P>>>>
+        : IAlgorithm<
+            GeneralLongArray<T>, 
+            GeneralLongArray<P>, 
+            T, 
+            P, 
+            IEnumerable<Tuple<GeneralLongArray<T>, GeneralLongArray<P>>>
+            >
     {
         /// <summary>
         /// Mantém o objecto responsável pela sincronização.
@@ -329,9 +335,9 @@ namespace Mathematics
         /// <param name="firstRepl">O carácter que será usado como substituição na primeira sequência.</param>
         /// <param name="secondRepl">O carácter que será usado como substituição na segunda sequência</param>
         /// <returns>O tamanho da maior subsequência comum.</returns>
-        public IEnumerable<Tuple<ILongList<T>, ILongList<P>>> Run(
-            ILongList<T> first,
-            ILongList<P> second,
+        public IEnumerable<Tuple<GeneralLongArray<T>, GeneralLongArray<P>>> Run(
+            GeneralLongArray<T> first,
+            GeneralLongArray<P> second,
             T firstRepl,
             P secondRepl)
         {
@@ -362,14 +368,14 @@ namespace Mathematics
                 var firstCount = first.LongCount();
                 if (firstCount == 0)
                 {
-                    return Enumerable.Empty<Tuple<ILongList<T>, ILongList<P>>>();
+                    return Enumerable.Empty<Tuple<GeneralLongArray<T>, GeneralLongArray<P>>>();
                 }
                 else
                 {
                     var secondCount = second.LongCount();
                     if (secondCount == 0)
                     {
-                        return Enumerable.Empty<Tuple<ILongList<T>, ILongList<P>>>();
+                        return Enumerable.Empty<Tuple<GeneralLongArray<T>, GeneralLongArray<P>>>();
                     }
                     else
                     {
@@ -381,18 +387,45 @@ namespace Mathematics
                             var tab = new ulong[firstCount];
                             var secondChar = second[0];
 
+                            if(0 < firstCount)
+                            {
+                                var firstChar = first[0];
+                                if (this.sequenceEqualityComparer(firstChar, secondChar))
+                                {
+                                    directionMatrix[0, 0] = Direction.DIAG;
+                                    tab[0] = 1;
+                                }
+                                else
+                                {
+                                    directionMatrix[0, 0] = Direction.LEFT | Direction.UP;
+                                }
+                            }
+
                             // Primeira coluna
-                            for (var i = 0L; i < firstCount; ++i)
+                            for (var i = 1L; i < firstCount; ++i)
                             {
                                 var firstChar = first[i];
                                 if (this.sequenceEqualityComparer(firstChar, secondChar))
                                 {
-                                    directionMatrix[i, 0] = Direction.DIAG;
+                                    if (tab[i - 1] == 1)
+                                    {
+                                        directionMatrix[i, 0] = Direction.DIAG | Direction.UP;
+                                    }
+                                    else
+                                    {
+                                        directionMatrix[i, 0] = Direction.DIAG;
+                                    }
+
                                     tab[i] = 1;
+                                }
+                                else if(tab[i-1] == 0)
+                                {
+                                    directionMatrix[i, 0] = Direction.LEFT | Direction.UP;
                                 }
                                 else
                                 {
-                                    directionMatrix[i, 0] = Direction.LEFT | Direction.UP;
+                                    directionMatrix[i, 0] = Direction.UP;
+                                    tab[i] = 1;
                                 }
                             }
 
@@ -402,6 +435,7 @@ namespace Mathematics
                                 secondChar = second[j];
 
                                 // Primeira linha
+                                var prevTab = 0UL;
                                 var firstChar = first[0];
                                 if (this.sequenceEqualityComparer(firstChar, secondChar))
                                 {
@@ -416,6 +450,7 @@ namespace Mathematics
                                     }
 
                                     tab[0] = 1L;
+                                    prevTab = tabVal;
                                 }
                                 else
                                 {
@@ -428,12 +463,14 @@ namespace Mathematics
                                     {
                                         directionMatrix[0, j] = Direction.LEFT | Direction.UP;
                                     }
+
+                                    prevTab = tabVal;
                                 }
 
                                 // Linhas restantes
-                                var prevTab = tab[0];
                                 for (var i = 1L; i < firstCount; ++i)
                                 {
+                                    firstChar = first[i];
                                     var anteriorTab = tab[i - 1];
                                     var currTab = tab[i];
 
@@ -510,37 +547,73 @@ namespace Mathematics
                                         }
                                     }
 
-                                    prevTab = anteriorTab;
+                                    prevTab = currTab;
                                 }
                             }
+
+                            return new SolutionEnumerable(
+                                tab[tab.LongCount() - 1],
+                                first,
+                                second,
+                                firstRepl,
+                                secondRepl,
+                                directionMatrix);
                         }
                         else // O processo é executado por linhas
                         {
                             var tab = new ulong[secondCount];
                             var firstChar = first[0];
 
+                            if(0 < secondCount)
+                            {
+                                var secondChar = second[0];
+                                if (this.sequenceEqualityComparer(firstChar, secondChar))
+                                {
+                                    directionMatrix[0, 0] = Direction.DIAG;
+                                    tab[0] = 1;
+                                }
+                                else
+                                {
+                                    directionMatrix[0, 0] = Direction.LEFT | Direction.UP;
+                                }
+                            }
+
                             // Primeira linha
-                            for (var j = 0L; j < secondCount; ++j)
+                            for (var j = 1L; j < secondCount; ++j)
                             {
                                 var secondChar = second[j];
                                 if (this.sequenceEqualityComparer(firstChar, secondChar))
                                 {
-                                    directionMatrix[0, j] = Direction.DIAG;
+                                    if(tab[j-1] == 1)
+                                    {
+                                        directionMatrix[0, j] = Direction.DIAG | Direction.LEFT;
+                                    }
+                                    else
+                                    {
+                                        directionMatrix[0, j] = Direction.DIAG;
+                                    }
+
                                     tab[j] = 1;
+                                }
+                                else if(tab[j - 1] == 0)
+                                {
+                                    directionMatrix[0, j] = Direction.LEFT | Direction.UP;
                                 }
                                 else
                                 {
-                                    directionMatrix[0, j] = Direction.LEFT | Direction.UP;
+                                    directionMatrix[0, j] = Direction.LEFT;
+                                    tab[j] = 1;
                                 }
                             }
 
                             // Restantes linhas
-                            for (var i = 0L; i < firstCount; ++i)
+                            for (var i = 1L; i < firstCount; ++i)
                             {
                                 firstChar = first[i];
 
                                 // Primeira coluna
                                 var secondChar = second[0];
+                                var prevTab = 0UL;
                                 if (this.sequenceEqualityComparer(firstChar, secondChar))
                                 {
                                     var tabVal = tab[0];
@@ -553,6 +626,7 @@ namespace Mathematics
                                         directionMatrix[i, 0] = Direction.DIAG;
                                     }
 
+                                    prevTab = tabVal;
                                     tab[0] = 1L;
                                 }
                                 else
@@ -566,12 +640,14 @@ namespace Mathematics
                                     {
                                         directionMatrix[i, 0] = Direction.LEFT | Direction.UP;
                                     }
+
+                                    prevTab = tabVal;
                                 }
 
                                 // Restantes colunas
-                                var prevTab = tab[0];
                                 for (var j = 1L; j < secondCount; ++j)
                                 {
+                                    secondChar = second[j];
                                     var anteriorTab = tab[j - 1];
                                     var currTab = tab[j];
 
@@ -648,17 +724,19 @@ namespace Mathematics
                                         }
                                     }
 
-                                    prevTab = anteriorTab;
+                                    prevTab = currTab;
                                 }
                             }
-                        }
 
-                        return new SolutionEnumerable(
-                            first,
-                            second,
-                            firstRepl,
-                            secondRepl,
-                            directionMatrix);
+                            return new SolutionEnumerable(
+                                tab[tab.LongCount() - 1],
+                                first,
+                                second,
+                                firstRepl,
+                                secondRepl,
+                                directionMatrix);
+
+                        }
                     }
                 }
             }
@@ -696,8 +774,13 @@ namespace Mathematics
         /// Implementa um enumerável para a solução.
         /// </summary>
         private class SolutionEnumerable
-            : IEnumerable<Tuple<ILongList<T>, ILongList<P>>>
+            : IEnumerable<Tuple<GeneralLongArray<T>, GeneralLongArray<P>>>
         {
+            /// <summary>
+            /// Mantém o comprimento da máxima subsequência alinhada.
+            /// </summary>
+            private ulong maxSeqLength;
+
             /// <summary>
             /// Mantém a primeira sequência.
             /// </summary>
@@ -726,18 +809,21 @@ namespace Mathematics
             /// <summary>
             /// Instancia uma nova instância de objectos do tipo <see cref="SolutionEnumerable"/>.
             /// </summary>
+            /// <param name="maxSeqLength">O tamanho da subsequência alinhada.</param>
             /// <param name="firstItem">A primeira sequência.</param>
             /// <param name="secondItem">A segunda sequência.</param>
             /// <param name="firstReplacement">O carácter de substituição na primeira sequência.</param>
             /// <param name="secondReplacement">O carácter de substituição na segunda sequência.</param>
             /// <param name="directions">A matriz das direcções.</param>
             public SolutionEnumerable(
+                ulong maxSeqLength,
                 ILongList<T> firstItem,
                 ILongList<P> secondItem,
                 T firstReplacement,
                 P secondReplacement,
                 Direction[,] directions)
             {
+                this.maxSeqLength = maxSeqLength;
                 this.firstItem = firstItem;
                 this.secondItem = secondItem;
                 this.firstReplacement = firstReplacement;
@@ -749,9 +835,10 @@ namespace Mathematics
             /// Obtém o enumerador.
             /// </summary>
             /// <returns>O enumerador.</returns>
-            public IEnumerator<Tuple<ILongList<T>, ILongList<P>>> GetEnumerator()
+            public IEnumerator<Tuple<GeneralLongArray<T>, GeneralLongArray<P>>> GetEnumerator()
             {
                 return new SolutionEnumerator(
+                    this.maxSeqLength,
                     this.firstItem,
                     this.secondItem,
                     this.firstReplacement,
@@ -766,6 +853,7 @@ namespace Mathematics
             System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
             {
                 return new SolutionEnumerator(
+                    this.maxSeqLength,
                     this.firstItem,
                     this.secondItem,
                     this.firstReplacement,
@@ -777,7 +865,7 @@ namespace Mathematics
         /// <summary>
         /// Implementa o enumerador para a solução.
         /// </summary>
-        private class SolutionEnumerator : IEnumerator<Tuple<ILongList<T>, ILongList<P>>>
+        private class SolutionEnumerator : IEnumerator<Tuple<GeneralLongArray<T>, GeneralLongArray<P>>>
         {
             /// <summary>
             /// Mantém a primeira sequência.
@@ -820,30 +908,32 @@ namespace Mathematics
             private bool disposed;
 
             /// <summary>
-            /// Pilha que contém as bifurcações.
+            /// Pilha que contém as bifurcações, as duas coordenadas da matriz de direcção,
+            /// o índice actual nos vectores e a direcção.
             /// </summary>
-            Stack<Tuple<long, long, Direction>> bifStack;
+            Stack<Tuple<long, long, long, Direction>> bifStack;
 
             /// <summary>
             /// Mantém o resultado actual da enumeração na primeira sequência.
             /// </summary>
-            private ILongList<T> firstSeqResult;
+            private GeneralLongArray<T> firstSeqResult;
 
             /// <summary>
             /// Mantém o resultado actual da enumeração na segunda sequência.
             /// </summary>
-            private ILongList<P> secondSeqResult;
+            private GeneralLongArray<P> secondSeqResult;
 
             /// <summary>
             /// Instancia uma nova instância de objectos do tipo <see cref="SolutionEnumerator"/>.
             /// </summary>
+            /// <param name="maxSeqLength">O tamanho da subsequência alinhada máxima.</param>
             /// <param name="firstItem">A primeira sequência.</param>
             /// <param name="secondItem">A segunda sequência.</param>
             /// <param name="firstReplacement">O carácter de substituição na primeira sequência.</param>
             /// <param name="secondReplacement">O carácter de substituição na segunda sequência.</param>
             /// <param name="directions">A matriz das direcções.</param>
-            /// <param name="subseqLength">O tamanho da subsequência.</param>
             public SolutionEnumerator(
+                ulong maxSeqLength,
                 ILongList<T> firstItem,
                 ILongList<P> secondItem,
                 T firstReplacement,
@@ -858,15 +948,17 @@ namespace Mathematics
                 this.isBeforeStart = true;
                 this.isAfterEnd = false;
 
-                this.bifStack = new Stack<Tuple<long, long, Direction>>();
-                this.firstSeqResult = new GeneralLongList<T>();
-                this.secondSeqResult = new GeneralLongList<P>();
+                this.bifStack = new Stack<Tuple<long, long, long, Direction>>();
+                this.firstSeqResult = new GeneralLongArray<T>(
+                    this.firstItem.LongCount + this.secondItem.LongCount - (long)maxSeqLength);
+                this.secondSeqResult = new GeneralLongArray<P>(
+                    this.firstItem.LongCount + this.secondItem.LongCount - (long)maxSeqLength);
             }
 
             /// <summary>
             /// Obtém o valor actual do enumerador.
             /// </summary>
-            public Tuple<ILongList<T>, ILongList<P>> Current
+            public Tuple<GeneralLongArray<T>, GeneralLongArray<P>> Current
             {
                 get
                 {
@@ -884,7 +976,11 @@ namespace Mathematics
                     }
                     else
                     {
-                        return Tuple.Create(this.firstSeqResult, this.secondSeqResult);
+                        var firstResult = new GeneralLongArray<T>(firstSeqResult.LongCount);
+                        var secondResult = new GeneralLongArray<P>(secondSeqResult.LongCount);
+                        firstSeqResult.CopyTo(firstResult, 0);
+                        secondSeqResult.CopyTo(secondResult, 0);
+                        return Tuple.Create(firstResult, secondResult);
                     }
                 }
             }
@@ -922,9 +1018,11 @@ namespace Mathematics
                     }
                     else
                     {
-                        var firstResult = new GeneralLongArray<T>(this.firstItem.LongCount());
-                        var secondResult = new GeneralLongArray<P>(this.secondItem.LongCount());
-                        return Tuple.Create(firstSeqResult, secondSeqResult);
+                        var firstResult = new GeneralLongArray<T>(firstSeqResult.LongCount);
+                        var secondResult = new GeneralLongArray<P>(secondSeqResult.LongCount);
+                        firstSeqResult.CopyTo(firstResult, 0);
+                        secondSeqResult.CopyTo(secondResult, 0);
+                        return Tuple.Create(firstResult, secondResult);
                     }
                 }
             }
@@ -982,6 +1080,7 @@ namespace Mathematics
             {
                 var firstCoord = this.directions.GetLongLength(0) - 1;
                 var secondCoord = this.directions.GetLongLength(1) - 1;
+                var currentIndex = this.firstSeqResult.LongCount - 1;
 
                 short state = 0;
                 while (state == 0)
@@ -989,52 +1088,63 @@ namespace Mathematics
                     var direction = this.directions[firstCoord, secondCoord];
                     if ((direction & Direction.DIAG) != 0)
                     {
-                        this.firstSeqResult.Insert(0, this.firstItem[firstCoord]);
-                        this.secondSeqResult.Insert(0, this.secondItem[secondCoord]);
+                        this.firstSeqResult[currentIndex] = this.firstItem[firstCoord];
+                        this.secondSeqResult[currentIndex] = this.secondItem[secondCoord];
 
                         direction ^= Direction.DIAG;
                         if (direction != Direction.STOP)
                         {
                             this.bifStack.Push(
-                                Tuple.Create(firstCoord, secondCoord, direction));
+                                Tuple.Create(firstCoord, secondCoord, currentIndex, direction));
                         }
 
                         --firstCoord;
                         --secondCoord;
+                        --currentIndex;
                     }
                     else if ((direction & Direction.UP) != 0)
                     {
-                        this.firstSeqResult.Insert(0, this.firstItem[firstCoord]);
-                        this.secondSeqResult.Insert(0, this.secondReplacement);
+                        this.firstSeqResult[currentIndex] = this.firstReplacement;
+                        this.secondSeqResult[currentIndex] = this.secondItem[secondCoord];
 
                         direction ^= Direction.UP;
                         if (direction != Direction.STOP)
                         {
                             this.bifStack.Push(
-                                Tuple.Create(firstCoord, secondCoord, direction));
+                                Tuple.Create(firstCoord, secondCoord, currentIndex, direction));
                         }
 
-                        --secondCoord;
+                        --firstCoord;
+                        --currentIndex;
                     }
                     else if (direction == Direction.LEFT)
                     {
-                        this.firstSeqResult.Insert(0, this.firstReplacement);
-                        this.secondSeqResult.Insert(0, this.secondItem[secondCoord]);
+                        this.firstSeqResult[currentIndex] = this.firstItem[firstCoord];
+                        this.secondSeqResult[currentIndex] = this.secondReplacement;
 
-                        --firstCoord;
+                        --secondCoord;
+                        --currentIndex;
                     }
 
-                    if (firstCoord == 0)
+                    if (firstCoord == -1)
                     {
                         state = 1;
-                        for(var i = 0L; i < secondCoord; ++i)
+                        for(var i = secondCoord; i > -1; --i)
                         {
-                            throw new NotImplementedException();
+                            this.firstSeqResult[currentIndex] = this.firstReplacement;
+                            this.secondSeqResult[currentIndex] = this.secondItem[i];
+                            --currentIndex;
                         }
                     }
-                    else if (secondCoord == 0)
+                    else if (secondCoord == -1)
                     {
                         state = 1;
+                        for(var i = firstCoord; i > -1; --i)
+                        {
+                            this.firstSeqResult[currentIndex] = this.firstItem[i];
+                            this.secondSeqResult[currentIndex] = this.secondReplacement;
+                            --currentIndex;
+                        }
                     }
 
                 }
@@ -1055,55 +1165,76 @@ namespace Mathematics
                 }
                 else
                 {
-                    //var top = this.bifStack.Pop();
-                    //var index = top.Item3;
-                    //var firstCoord = top.Item1 - 1;
-                    //var secondCoord = top.Item2;
+                    var top = this.bifStack.Pop();
+                    var firstCoord = top.Item1;
+                    var secondCoord = top.Item2;
+                    var currentIndex = top.Item3;
+                    var direction = top.Item4;
 
-                    //var state = true;
-                    //while (state)
-                    //{
-                    //    var direction = directions[firstCoord, secondCoord];
-                    //    if (direction == Direction.DIAG)
-                    //    {
-                    //        this.currentItems[index--] = this.items[firstCoord];
-                    //        --firstCoord;
-                    //        --secondCoord;
-                    //        if (index <= 0)
-                    //        {
-                    //            state = false;
-                    //        }
-                    //    }
-                    //    else if (direction == Direction.LEFT)
-                    //    {
-                    //        --secondCoord;
-                    //    }
-                    //    else if (direction == Direction.UP)
-                    //    {
-                    //        --firstCoord;
-                    //    }
-                    //    else if (direction == Direction.BOTH)
-                    //    {
-                    //        this.bifStack.Push(
-                    //            Tuple.Create(firstCoord, secondCoord, index));
-                    //        --secondCoord;
-                    //    }
-                    //    else if (direction == Direction.STOP)
-                    //    {
-                    //        if (this.bifStack.Count == 0)
-                    //        {
-                    //            this.isAfterEnd = true;
-                    //            return false;
-                    //        }
-                    //        else
-                    //        {
-                    //            top = this.bifStack.Pop();
-                    //            index = top.Item3;
-                    //            firstCoord = top.Item1 - 1;
-                    //            secondCoord = top.Item2;
-                    //        }
-                    //    }
-                    //}
+                    short state = 0;
+                    while (state == 0)
+                    {
+                        if ((direction & Direction.DIAG) != 0)
+                        {
+                            this.firstSeqResult[currentIndex] = this.firstItem[firstCoord];
+                            this.secondSeqResult[currentIndex] = this.secondItem[secondCoord];
+
+                            direction ^= Direction.DIAG;
+                            if (direction != Direction.STOP)
+                            {
+                                this.bifStack.Push(
+                                    Tuple.Create(firstCoord, secondCoord, currentIndex, direction));
+                            }
+
+                            --firstCoord;
+                            --secondCoord;
+                            --currentIndex;
+                        }
+                        else if ((direction & Direction.UP) != 0)
+                        {
+                            this.firstSeqResult[currentIndex] = this.firstItem[firstCoord];
+                            this.secondSeqResult[currentIndex] = this.secondReplacement;
+
+                            direction ^= Direction.UP;
+                            if (direction != Direction.STOP)
+                            {
+                                this.bifStack.Push(
+                                    Tuple.Create(firstCoord, secondCoord, currentIndex, direction));
+                            }
+
+                            --firstCoord;
+                            --currentIndex;
+                        }
+                        else if (direction == Direction.LEFT)
+                        {
+                            this.firstSeqResult[currentIndex] = this.firstReplacement;
+                            this.secondSeqResult[currentIndex] = this.secondItem[secondCoord];
+
+                            --secondCoord;
+                            --currentIndex;
+                        }
+
+                        if (firstCoord == -1)
+                        {
+                            state = 1;
+                            for (var i = secondCoord; i > -1; --i)
+                            {
+                                this.firstSeqResult[currentIndex] = this.firstReplacement;
+                                this.secondSeqResult[currentIndex] = this.secondItem[i];
+                                --currentIndex;
+                            }
+                        }
+                        else if (secondCoord == -1)
+                        {
+                            state = 1;
+                            for (var i = firstCoord; i > -1; --i)
+                            {
+                                this.firstSeqResult[currentIndex] = this.firstItem[firstCoord];
+                                this.secondSeqResult[currentIndex] = this.secondReplacement;
+                                --currentIndex;
+                            }
+                        }
+                    }
 
                     return true;
                 }
