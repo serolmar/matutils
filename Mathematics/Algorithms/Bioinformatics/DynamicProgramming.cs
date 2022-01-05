@@ -1104,8 +1104,8 @@ namespace Mathematics
                     }
                     else if ((direction & Direction.UP) != 0)
                     {
-                        this.firstSeqResult[currentIndex] = this.firstReplacement;
-                        this.secondSeqResult[currentIndex] = this.secondItem[secondCoord];
+                        this.firstSeqResult[currentIndex] = this.firstItem[firstCoord];
+                        this.secondSeqResult[currentIndex] = this.secondReplacement;
 
                         direction ^= Direction.UP;
                         if (direction != Direction.STOP)
@@ -1119,8 +1119,8 @@ namespace Mathematics
                     }
                     else if (direction == Direction.LEFT)
                     {
-                        this.firstSeqResult[currentIndex] = this.firstItem[firstCoord];
-                        this.secondSeqResult[currentIndex] = this.secondReplacement;
+                        this.firstSeqResult[currentIndex] = this.firstReplacement;
+                        this.secondSeqResult[currentIndex] = this.secondItem[secondCoord];
 
                         --secondCoord;
                         --currentIndex;
@@ -1233,6 +1233,10 @@ namespace Mathematics
                                 this.secondSeqResult[currentIndex] = this.secondReplacement;
                                 --currentIndex;
                             }
+                        }
+                        else
+                        {
+                            direction = this.directions[firstCoord, secondCoord];
                         }
                     }
 

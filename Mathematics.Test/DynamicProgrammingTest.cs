@@ -56,65 +56,78 @@ namespace Mathematics.Test
             while (resEnum.MoveNext())
             {
                 var current = resEnum.Current;
+                this.AssertCommonSequence(
+                    current.Item1, 
+                    current.Item2, 
+                    (c1, c2) => c1 == c2, 
+                    3L);
             }
 
-            //var first = new LongSystemArray<char>(new char[] { 'A', 'G', 'G', 'T', 'A', 'B' });
-            //var second = new LongSystemArray<char>(new char[] { 'G', 'X', 'T', 'X', 'A', 'Y', 'B' });
+            first = new GeneralLongArray<char>(new char[] { 'A', 'G', 'G', 'T', 'A', 'B' });
+            second = new GeneralLongArray<char>(new char[] { 'G', 'X', 'T', 'X', 'A', 'Y', 'B' });
 
-            //var result = target.Run(first, second, '_', '_');
-            //var resEnum = result.GetEnumerator();
-            //var subSeqs = new List<Tuple<ILongList<char>,ILongList<char>>>();
-            //while (resEnum.MoveNext())
-            //{
-            //    subSeqs.Add(resEnum.Current);
-            //}
+            result = target.Run(first, second, '_', '_');
+            resEnum = result.GetEnumerator();
+            while (resEnum.MoveNext())
+            {
+                var current = resEnum.Current;
+                this.AssertCommonSequence(
+                    current.Item1,
+                    current.Item2,
+                    (c1, c2) => c1 == c2,
+                    4L);
+            }
 
-            //var expected = new GeneralLongList<char[]>();
-            //expected.Add(new char[] { 'G', 'T', 'A', 'B' });
-            //expected.Add(new char[] { 'G', 'T', 'A', 'B' });
+            first = new GeneralLongArray<char>(new char[] { 'A', 'B', 'C', 'D', 'E', 'F' });
+            second = new GeneralLongArray<char>(new char[] { 'F', 'E', 'D', 'C', 'B', 'A' });
 
-            //for (var i = 0; i < 2; ++i)
-            //{
-            //    for (var j = 0; j < 4; ++j)
-            //    {
-            //        Assert.AreEqual(expected[i][j], subSeqs[i][j]);
-            //    }
-            //}
+            result = target.Run(first, second, '_', '_');
+            resEnum = result.GetEnumerator();
+            while (resEnum.MoveNext())
+            {
+                var current = resEnum.Current;
+                this.AssertCommonSequence(
+                    current.Item1,
+                    current.Item2,
+                    (c1, c2) => c1 == c2,
+                    1L);
+            }
+        }
 
-            //first = new LongSystemArray<char>(new char[] { 'A', 'B', 'C', 'D', 'E', 'F' });
-            //second = new LongSystemArray<char>(new char[] { 'F', 'E', 'D', 'C', 'B', 'A' });
+        /// <summary>
+        /// Determina se a subsequência comum possui determinado comprimento.
+        /// </summary>
+        /// <remarks>
+        /// As sequências deverão ser iguais desde que o procedimentos esteja correcto.
+        /// </remarks>
+        /// <typeparam name="T">O tipo de objectos que constitui a primeira sequência.</typeparam>
+        /// <typeparam name="P">O tipo de objectos que constitui a segunda sequência.</typeparam>
+        /// <param name="first">A primeira sequência.</param>
+        /// <param name="second">A segunda sequência.</param>
+        /// <param name="comparision">O comparador de elementos da sequência.</param>
+        /// <param name="count">O número esperado.</param>
+        private void AssertCommonSequence<T, P>(
+            GeneralLongArray<T> first,
+            GeneralLongArray<P> second,
+            Func<T, P, bool> comparision,
+            long count)
+        {
+            var firstCount = first.LongCount;
+            var secondCount = second.LongCount;
+            Assert.AreEqual(firstCount, secondCount);
 
-            //result = target.Run(first, second);
-            //resEnum = result.GetEnumerator();
-            //subSeqs = new List<Tuple<ILongList<char>, ILongList<char>>>();
-            //while (resEnum.MoveNext())
-            //{
-            //    subSeqs.Add(resEnum.Current);
-            //}
+            var real = 0L; ;
+            for (var i = 0L; i < firstCount; ++i)
+            {
+                var firstItem = first[i];
+                var secondItem = second[i];
+                if (comparision(firstItem, secondItem))
+                {
+                    ++real;
+                }
+            }
 
-            //Assert.AreEqual(6, subSeqs.Count);
-            //var actual = new char[6];
-            //for (var i = 0; i < 6; ++i)
-            //{
-            //    actual[i] = subSeqs[i][0];
-            //}
-
-            //Assert.AreEqual(second.LongCount, actual.LongLength);
-            //for (var i = 0L; i < actual.LongLength; ++i)
-            //{
-            //    Assert.AreEqual(second[i], actual[i]);
-            //}
-
-            //first = new LongSystemArray<char>(new[] { 'T', 'G', 'C', 'A', 'T', 'A'});
-            //second = new LongSystemArray<char>(new[] { 'A', 'T', 'A', 'T', 'G', 'C' });
-
-            //result = target.Run(first, second);
-            //resEnum = result.GetEnumerator();
-            //subSeqs = new List<char[]>();
-            //while (resEnum.MoveNext())
-            //{
-            //    subSeqs.Add(resEnum.Current);
-            //}
+            Assert.AreEqual(count, real);
         }
     }
 }
